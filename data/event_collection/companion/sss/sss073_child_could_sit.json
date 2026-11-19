@@ -1,0 +1,87 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Could Not Sit Still",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss073_child_could_sit",
+  "source": "companion",
+  "lines": [
+   6825,
+   6833
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6825",
+  "ledger": [
+   {
+    "src": "L6833",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "During a long lesson, a child who wants to learn fidgets, wanders and misses instructions.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "During a long lesson, a child fidgets, wanders, and misses instructions despite wanting to learn.",
+   "src": "L6826",
+   "choices": [
+    {
+     "label": "Teach while walking",
+     "next": "a",
+     "src": "L6827"
+    },
+    {
+     "label": "Give short tasks with breaks",
+     "next": "b",
+     "src": "L6829"
+    },
+    {
+     "label": "Ask what is difficult",
+     "next": "c",
+     "src": "L6831"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The child remembers more while moving.",
+   "src": "L6828"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The child finishes the lesson in pieces.",
+   "src": "L6830"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The child explains the long waiting is harder than the work.",
+   "src": "L6832"
+  }
+ }
+}

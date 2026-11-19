@@ -1,0 +1,126 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Affection Cap",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn020_affection_cap",
+  "source": "companion",
+  "lines": [
+   2844,
+   2850
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2844",
+  "ledger": [
+   {
+    "src": "L2846",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L2850",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   },
+   {
+    "src": "L2847",
+    "kind": "note",
+    "text": "PERSISTENT:",
+    "why": "a designer tag on the outcome, never shown"
+   },
+   {
+    "src": "L2847",
+    "kind": "instruction",
+    "why": "the outcome is a mechanical instruction, never shown: the node carries its text_only reason"
+   },
+   {
+    "src": "L2848",
+    "kind": "note",
+    "text": "PERSISTENT:",
+    "why": "a designer tag on the outcome, never shown"
+   },
+   {
+    "src": "L2848",
+    "kind": "instruction",
+    "why": "the outcome is a mechanical instruction, never shown: the node carries its text_only reason"
+   },
+   {
+    "src": "L2849",
+    "kind": "note",
+    "text": "FLAVOR:",
+    "why": "a designer tag on the outcome, never shown"
+   }
+  ],
+  "description": "An edible-looking fungus triggers inexplicable strong preferences.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "An edible-looking fungus triggers inexplicable strong preferences.",
+   "src": "L2845",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "text_only": [
+    {
+     "what": "a random valid like",
+     "reason": "gap C1: the format has no random preference, so the like / dislike is text only",
+     "src": "L2847"
+    }
+   ]
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Outcome 2",
+   "text_only": [
+    {
+     "what": "a random valid dislike",
+     "reason": "gap C1: the format has no random preference, so the like / dislike is text only",
+     "src": "L2848"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Villager declares passionate affection for a particular pebble.",
+   "src": "L2849"
+  }
+ }
+}

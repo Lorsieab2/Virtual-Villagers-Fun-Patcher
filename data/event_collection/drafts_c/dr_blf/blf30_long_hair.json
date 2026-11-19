@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Long Hair",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf30_long_hair",
+  "source": "draft_blf",
+  "lines": [
+   356,
+   365
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L356",
+  "ledger": [
+   {
+    "src": "L357",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult man)"
+   }
+  ],
+  "description": "A man growing his hair long is at the awkward middle stage, and a friend offers to cut it: keep growing it, or let it be shaped.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has decided to grow his hair long. All the way down his back, like his grandfather's in the old stories. It's at the awkward middle stage right now: too long to be short, too short to be long, and it sticks out in every direction. (friend) offers to cut it for him.",
+   "src": "L359",
+   "choices": [
+    {
+     "label": "Keep Growing It",
+     "next": "o1",
+     "src": "L361"
+    },
+    {
+     "label": "Let (friend) Shape It",
+     "next": "o2",
+     "src": "L364"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"No, thank you,\" says (subject). \"It'll get there.\" It takes a whole year. The middle part is very awkward. But by the next harvest it's down past his shoulders, thick and shining, and he ties it back with a strip of red cloth. (friend) admits it was worth the wait. (subject) is unbearably smug about it for weeks.",
+   "src": "L362"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Not cut,\" says (subject). \"But could you shape it? So it looks like I'm doing this on purpose?\" (friend) laughs and trims the ends so it sits neatly. It still looks like a work in progress. But a tidier one. (subject) keeps growing it. (friend) trims it every month, very carefully, never more than a finger's width.",
+   "src": "L365"
+  }
+ }
+}

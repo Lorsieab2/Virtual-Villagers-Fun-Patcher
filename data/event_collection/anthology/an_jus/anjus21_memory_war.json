@@ -1,0 +1,210 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Memory of War",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus21_memory_war",
+  "source": "anthology",
+  "lines": [
+   31039,
+   31053
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L31039",
+  "ledger": [
+   {
+    "src": "L31040",
+    "kind": "note",
+    "why": "the volume's casting tag (ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L31041",
+    "kind": "sensitivity",
+    "before": "Two elders remember",
+    "after": "(elder1) and (elder2), two elders, remember",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31046",
+    "kind": "sensitivity",
+    "before": "A veteran",
+    "after": "(elder1), a veteran,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31049",
+    "kind": "sensitivity",
+    "before": "A teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31050",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two elders remember an old conflict differently; younger villagers want a simple story with heroes and villains.",
+  "label_case": "title",
+  "cast_only": [
+   "elder1",
+   "elder2",
+   "teen",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "elder1": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "elder2": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder1) and (elder2), two elders, remember an old conflict differently; younger villagers want a simple story with heroes and villains.",
+   "src": "L31041",
+   "choices": [
+    {
+     "label": "Hear Both Accounts",
+     "next": "a",
+     "src": "L31042"
+    },
+    {
+     "label": "Discuss Defense and Restraint",
+     "next": "b",
+     "src": "L31045"
+    },
+    {
+     "label": "Make Room for Difficult Questions",
+     "next": "c",
+     "src": "L31048"
+    },
+    {
+     "label": "Preserve Uncertainty Honestly",
+     "next": "d",
+     "src": "L31051"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The elders agree on some facts but not their meaning.",
+   "src": "L31043"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One admits that fear distorted what they remember.",
+   "src": "L31044"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(elder1), a veteran, explains why protecting people mattered.",
+   "src": "L31046"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Another explains the lasting cost of fighting.",
+   "src": "L31047"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(teen) asks whether refusing an unjust order is brave.",
+   "src": "L31049"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) receives a brief, reassuring explanation without graphic detail.",
+   "src": "L31050"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The village records both accounts.",
+   "src": "L31052"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The elders agree that future generations deserve more than a tidy legend.",
+   "src": "L31053"
+  }
+ }
+}

@@ -1,0 +1,139 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Distant Person at the Same Fire",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz080_distant_person",
+  "source": "horizon",
+  "lines": [
+   1055,
+   1065
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L1055",
+  "ledger": [],
+  "description": "After every theory of towers and machines, a child asks whether an unknown family might simply be cooking supper.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After hearing every theory of towers, machines, and distant customs, a child asks whether an unknown family might simply be cooking supper.",
+   "src": "L1056",
+   "choices": [
+    {
+     "label": "Imagine Likeness.",
+     "next": "a",
+     "src": "L1057"
+    },
+    {
+     "label": "Imagine Difference.",
+     "next": "b",
+     "src": "L1060"
+    },
+    {
+     "label": "Leave the Horizon Unanswered.",
+     "next": "c",
+     "src": "L1063"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villagers picture a parent coaxing a tired child to eat.",
+   "src": "L1058"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A solitary elder imagines someone far away enjoying supper alone.",
+   "src": "L1059"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A researcher says distant people might eat unfamiliar food in unfamiliar homes.",
+   "src": "L1061",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L1061"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A storyteller adds that difference in custom need not mean difference in feeling.",
+   "src": "L1062"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The council records its questions as guesses, not discoveries.",
+   "src": "L1064"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child asks whether distant people might also be wondering whether Isolans laugh, grieve, and dream.",
+   "src": "L1065"
+  }
+ }
+}

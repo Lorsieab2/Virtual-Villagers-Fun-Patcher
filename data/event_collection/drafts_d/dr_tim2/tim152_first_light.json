@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "First Light",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim152_first_light",
+  "source": "draft_tim2",
+  "lines": [
+   191,
+   196
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L191",
+  "ledger": [
+   {
+    "src": "L192",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L193",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L194",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L195",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L196",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A villager wakes early enough to watch the first light reach the beach.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(name1) wakes early enough to watch the first light reach the beach. The sand turns from gray to gold in a few quiet breaths.",
+   "src": "L192,L193"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(name1) wakes early enough to watch the first light reach the beach. A seabird calls, and the whole morning seems to begin at once.",
+   "src": "L192,L194"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(name1) wakes early enough to watch the first light reach the beach. Nobody else is on the beach yet, and (name1) enjoys the quiet.",
+   "src": "L192,L195"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(name1) wakes early enough to watch the first light reach the beach. (name1) decides to wake this early again, and then probably will not.",
+   "src": "L192,L196"
+  }
+ }
+}

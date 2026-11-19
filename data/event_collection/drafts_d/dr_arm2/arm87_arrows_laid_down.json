@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Arrows Laid Down",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm87_arrows_laid_down",
+  "source": "draft_arm2",
+  "lines": [
+   51,
+   51
+  ],
+  "section": "dr_arm2",
+  "credit": "NEW EVENTS — ARMOR, WEAPONS AND HEIRLOOMS, ARM-46 to ARM-95 (draft for the owner, 2026-11-15)\nFifty more events continuing \"Isola — Armor, Weapons, and Inherited Traditions\" (events 01-45, shipped as ARMOR-01..45). Same style as yours: \"NN. Title — one or two sentences\", numbered 46-95.",
+  "draw_weight": 1,
+  "series": "dr_arm2",
+  "title_src": "L51",
+  "ledger": [
+   {
+    "src": "L51",
+    "kind": "structural",
+    "text": "87. The Arrows Laid Down  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "At a remembrance gathering, archers lay down arrows with their points removed.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "At a remembrance gathering, archers lay down arrows with their points removed. Some say the custom marked the end of a troubled time long ago; others say it was always simply a sign of respect; both explanations are kept.",
+   "src": "L51"
+  }
+ }
+}

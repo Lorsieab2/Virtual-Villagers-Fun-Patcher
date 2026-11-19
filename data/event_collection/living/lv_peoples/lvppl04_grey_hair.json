@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grey Hair Question",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl04_grey_hair",
+  "source": "living",
+  "lines": [
+   21704,
+   21715
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21704",
+  "ledger": [
+   {
+    "src": "L21715",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An elder considers coloring their greying hair before a festival."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An elder considers coloring their greying hair before a festival.",
+   "src": "L21705",
+   "choices": [
+    {
+     "label": "Help them dye it.",
+     "next": "a",
+     "src": "L21706"
+    },
+    {
+     "label": "Celebrate the grey.",
+     "next": "b",
+     "src": "L21709"
+    },
+    {
+     "label": "Let them experiment with a temporary color.",
+     "next": "c",
+     "src": "L21712"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The elder enjoys the transformation and keeps it.",
+   "src": "L21707",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "elder",
+     "head": "random",
+     "src": "L21707"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The elder misses their familiar appearance and changes it back later.",
+   "src": "L21708"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The elder proudly wears their natural hair.",
+   "src": "L21710"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The elder says the choice should never have been anyone else's to make.",
+   "src": "L21711"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The temporary color delights the elder for a day.",
+   "src": "L21713"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The elder laughs when the color turns out much brighter than expected.",
+   "src": "L21714"
+  }
+ }
+}

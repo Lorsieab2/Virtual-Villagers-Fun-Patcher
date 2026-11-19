@@ -1,0 +1,123 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tireless Necklace",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo40_tireless_necklace",
+  "source": "da_lo",
+  "lines": [
+   482,
+   491
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L482",
+  "ledger": [
+   {
+    "src": "L483",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L488",
+    "kind": "instruction",
+    "text": "[effect: small skill gain in (name1)'s work, where the game has one; small health loss]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   },
+   {
+    "src": "L491",
+    "kind": "instruction",
+    "text": "[effect: small skill gain in (name1)'s work, where the game has one]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A villager with a lavastone necklace can work all day without tiring, but a friend thinks they look thin.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has had a lavastone set into a necklace. Since (subject.he/she) started wearing it, (subject.he/she) has been able to work all day without tiring: building, carrying, digging, as fresh at sunset as at dawn. (subject.He/She) has done more in a week than (subject.he/she) usually does in a month. (friend) has noticed (subject.he/she) looks a little thin.",
+   "src": "L485",
+   "choices": [
+    {
+     "label": "Keep Wearing It",
+     "next": "a",
+     "src": "L487"
+    },
+    {
+     "label": "Take It Off",
+     "next": "b",
+     "src": "L490"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) keeps wearing it. (subject.He/She) keeps working. Then one morning (subject.he/she) simply can't get up. Every bit of tiredness from the whole week seems to land on (subject.him/her) at once. (subject.He/She) sleeps for two days. When (subject.he/she) wakes, (subject.he/she) takes the necklace off and puts it in a box. The work (subject.he/she) did is still there, and good.",
+   "src": "L488",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building",
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L488"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -10,
+     "src": "L488"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) takes it off, a little reluctantly. That night (subject.he/she) sleeps deeply, and wakes up stiff and ordinary and tired, like everyone else. It's a strange relief. (subject.He/She) keeps the necklace for days when (subject.he/she) really needs it, and finds there are fewer of those than (subject.he/she) expected.",
+   "src": "L491",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building",
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L491"
+    }
+   ]
+  }
+ }
+}

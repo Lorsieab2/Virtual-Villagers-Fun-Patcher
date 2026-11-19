@@ -26,7 +26,7 @@ SRC = ROOT / "src"
 HELPER = "scrollable_frame"
 HELPER_MODULE = "vv_tree_editor_tools.py"
 WINDOW_MODULES = ["vv_fun_patcher_gui.py", "vv_genealogy_window.py", "vv_game_mechanics_window.py",
-                  "vv_stew_recipes_window.py", HELPER_MODULE]
+                  "vv_stew_recipes_window.py", "vv_cie_library_window.py", HELPER_MODULE]
 NO_TK = 3
 
 # file::enclosing function (Class.method, nested as outer.inner), or file::ClassName for a
@@ -67,6 +67,9 @@ EXEMPT = {
     "vv_stew_recipes_window.py::open_stew_recipes":
         "resizable: the intro and Close keep their height, each tab's page is a Text box with its own scroll bar that "
         "takes the rest, and a minimum size keeps them on screen (tests/test_stew_recipes.py builds it)",
+    "vv_cie_library_window.py::open_cie_library":
+        "resizable, never a tall page: the event's tree scrolls in its own Treeview, and each tab on the right is a "
+        "ScrollingTab that scrolls both ways (tests/test_cie_library_window.py builds it)",
     "vv_tree_editor_tools.py::choose_font":
         "a font list (Text) with its own scroll bar; the search box and buttons sit around it",
 }
@@ -99,6 +102,9 @@ EXEMPT_NOT_SIDEWAYS = {
         "(scrolled_listbox in _game_tab)",
     "vv_stew_recipes_window.py::open_stew_recipes":
         "each page is a Text box that wraps its words; the minimum size keeps the tabs and Close on screen",
+    "vv_cie_library_window.py::open_cie_library":
+        "the window only builds the Library class: its tree, tables and chances box each have a horizontal_bar, "
+        "and every right-hand tab is a ScrollingTab, which scrolls sideways",
 }
 
 TK_CHILD = r"""

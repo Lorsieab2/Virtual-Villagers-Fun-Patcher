@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coin Face Up",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo20_coin_face_up",
+  "source": "da_lo",
+  "lines": [
+   237,
+   246
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L237",
+  "ledger": [
+   {
+    "src": "L238",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L246",
+    "kind": "casting",
+    "before": "sees a child pick it up",
+    "after": "sees (child), a child, pick it up",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A villager finds an old gold coin lying face up on the path: keep it for luck, or leave it for the next person.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "On the path, (subject) finds an old gold coin, lying face up in the dust. Everyone knows a coin found face up brings good luck. Unless, (friend) says, you leave it for the next person, in which case it brings them good luck and you even better luck, for being generous.",
+   "src": "L240",
+   "choices": [
+    {
+     "label": "Keep It",
+     "next": "a",
+     "src": "L242"
+    },
+    {
+     "label": "Leave It for the Next Person",
+     "next": "b",
+     "src": "L245"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) keeps it. (subject.He/She) carries it in (subject.his/her) pocket all week. The week is fine. Not especially lucky, not especially unlucky. (subject.He/She) keeps taking the coin out and looking at it. It's pretty. Maybe that's the luck, (subject.he/she) decides: having something pretty in your pocket.",
+   "src": "L243"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) leaves it where it is, face up. Later that day, (subject.he/she) sees (child), a child, pick it up and gasp with delight. (subject) feels warm all over. Whether (subject.he/she) gets even better luck, (subject.he/she) can't tell. (subject.He/She) has a very pleasant evening, though. That might count.",
+   "src": "L246"
+  }
+ }
+}

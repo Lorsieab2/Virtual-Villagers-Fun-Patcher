@@ -1,0 +1,241 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice Who Loved a Different Future",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anrel28_apprentice",
+  "source": "anthology",
+  "lines": [
+   27422,
+   27435
+  ],
+  "section": "an_rel",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_rel",
+  "title_src": "L27422",
+  "ledger": [
+   {
+    "src": "L27423",
+    "kind": "sensitivity",
+    "before": "An apprentice",
+    "after": "(apprentice), an apprentice,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27425",
+    "kind": "sensitivity",
+    "before": "uses the new name and",
+    "after": "uses the new name, (chosen), and",
+    "why": "the lead (2026-11-15): a chosen name is the engine's new-name role (cie-v6-binary.md 28), shown in the story; nobody is renamed"
+   },
+   {
+    "src": "L27425",
+    "kind": "sensitivity",
+    "before": "The mentor",
+    "after": "(mentor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27426",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27428",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27429",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27432",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27434",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27435",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An apprentice wants to change both their profession and the name they use at work.",
+  "label_case": "title",
+  "cast_only": [
+   "apprentice",
+   "mentor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "mentor": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "chosen": {
+   "kind": "stranger",
+   "new_name_for": "apprentice",
+   "sex": "same",
+   "last_name": "same"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(apprentice), an apprentice, wants to change both their profession and the name they use at work.",
+   "src": "L27423",
+   "choices": [
+    {
+     "label": "Ask the Apprentice's Wishes",
+     "next": "a",
+     "src": "L27424"
+    },
+    {
+     "label": "Offer a Trial Apprenticeship",
+     "next": "b",
+     "src": "L27427"
+    },
+    {
+     "label": "Tell Coworkers with Permission",
+     "next": "c",
+     "src": "L27430"
+    },
+    {
+     "label": "Celebrate a Fresh Start",
+     "next": "d",
+     "src": "L27433"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L27423"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(mentor) uses the new name, (chosen), and discusses a new path.",
+   "src": "L27425"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(apprentice) decides to keep the profession but change the name.",
+   "src": "L27426"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(apprentice) discovers satisfying new work.",
+   "src": "L27428"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(apprentice) finds the old craft still suits them best.",
+   "src": "L27429"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Coworkers respond warmly and adjust.",
+   "src": "L27431"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(apprentice) prefers to tell people one at a time.",
+   "src": "L27432"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(apprentice) enjoys a small gathering.",
+   "src": "L27434"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(apprentice) requests an ordinary first day instead.",
+   "src": "L27435"
+  }
+ }
+}

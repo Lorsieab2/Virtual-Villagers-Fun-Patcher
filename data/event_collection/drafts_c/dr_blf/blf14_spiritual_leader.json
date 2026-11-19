@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spiritual Leader's Doubts",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf14_spiritual_leader",
+  "source": "draft_blf",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a spiritual leader or elder who leads the village's old songs, and an adult)"
+   }
+  ],
+  "description": "The villager who leads the old songs admits they sometimes feel nothing at all: listen, or share a doubt of your own.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has led the village's songs and blessings for years. Tonight, sitting alone by the fire, (subject.he/she) admits something to (friend): \"Sometimes I don't know if any of it is true. Sometimes I stand up there and feel nothing at all.\"",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "(friend) Listens",
+     "next": "o1",
+     "src": "L169"
+    },
+    {
+     "label": "(friend) Shares (friend.his/her) Own",
+     "next": "o2",
+     "src": "L172"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) doesn't say anything clever. (friend.He/she) just listens. (subject) talks for a long time about doubt, and about how some days the songs feel full of meaning and some days they feel like just songs. \"Will you keep leading them?\" asks (friend). \"I think so,\" says (subject). \"Even on the empty days. Maybe especially then.\" (friend) nods. That seems brave.",
+   "src": "L170"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I don't believe at all,\" says (friend). \"But I come to the songs anyway, because I like them. Maybe you can lead them for the same reason, on the days you're not sure.\" (subject) looks at (friend.him/her) in surprise, then laughs softly. \"Maybe I can.\" It doesn't fix the doubt. It makes it lighter to carry.",
+   "src": "L173"
+  }
+ }
+}

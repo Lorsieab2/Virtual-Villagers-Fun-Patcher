@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Armor of Remembrance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm08_armor",
+  "source": "armor45",
+  "lines": [
+   16,
+   16
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L16",
+  "ledger": [
+   {
+    "src": "L16",
+    "kind": "structural",
+    "text": "08. The Armor of Remembrance  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "A family preserves a ceremonial breastplate worn by an ancestor during a troubled era.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "A family preserves a ceremonial breastplate worn by an ancestor during a troubled era. They disagree about whether it belongs at home or in a communal memorial.",
+   "src": "L16"
+  }
+ }
+}

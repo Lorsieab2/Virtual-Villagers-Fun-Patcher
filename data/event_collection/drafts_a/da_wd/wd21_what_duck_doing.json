@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Duck Doing Under the Bed?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd21_what_duck_doing",
+  "source": "da_wd",
+  "lines": [
+   248,
+   257
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L248",
+  "ledger": [
+   {
+    "src": "L249",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Wet webbed footprints lead into a villager's hut and under the sleeping mat, where a duck looks up.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "There's a trail of wet footprints leading into (name1)'s hut: small, webbed, slightly muddy. They go across the floor, past the fire, and under the sleeping mat. (name1) lifts the edge of the mat. A duck looks up at (him/her). It quacks once, very quietly, as if to say \"occupied.\"",
+   "src": "L251",
+   "choices": [
+    {
+     "label": "Lure It Out with Food",
+     "next": "a",
+     "src": "L253"
+    },
+    {
+     "label": "Leave It Be",
+     "next": "b",
+     "src": "L256"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) puts a handful of seeds by the door. The duck comes out, eats them all, quacks politely, and waddles back under the mat. (name1) tries again with more seeds, further outside. This goes on, step by step, until the duck is out of the hut and halfway to the stream, and (name1) has run out of seeds.",
+   "src": "L254"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) decides the duck must be having a bad day and needs somewhere quiet. (He/She) leaves the door open. By evening, the duck has gone, leaving a single feather and a small, neat pile of something (name1) would rather not discuss. (name1) sighs, and cleans it up.",
+   "src": "L257"
+  }
+ }
+}

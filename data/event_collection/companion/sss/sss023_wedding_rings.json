@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wedding Rings of Shell",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss023_wedding_rings",
+  "source": "companion",
+  "lines": [
+   6297,
+   6305
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6297",
+  "ledger": [
+   {
+    "src": "L6305",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A couple wants matching rings, but they disagree about precious metal and family tradition.",
+  "cast_only": [
+   "partner1",
+   "partner2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "partner1": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "partner2": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A couple wants matching rings, but one partner hates the idea of precious metal while the other wants a family tradition.",
+   "src": "L6298",
+   "choices": [
+    {
+     "label": "Carve shell rings",
+     "next": "a",
+     "src": "L6299"
+    },
+    {
+     "label": "Reuse family metal",
+     "next": "b",
+     "src": "L6301"
+    },
+    {
+     "label": "Design different rings",
+     "next": "c",
+     "src": "L6303"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They treasure the lightweight design, though one ring breaks and must be repaired.",
+   "src": "L6300"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The old material carries memories and requires delicate negotiations with relatives.",
+   "src": "L6302"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The pair discover that matching intentions matter more to them than matching materials.",
+   "src": "L6304"
+  }
+ }
+}

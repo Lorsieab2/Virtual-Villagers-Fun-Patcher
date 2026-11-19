@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Only Ten",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div45_only_ten",
+  "source": "draft_div",
+  "lines": [
+   536,
+   545
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L536",
+  "ledger": [
+   {
+    "src": "L537",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 9-12 and an adult; in the story (name1) is very tall for (his/her) age)"
+   }
+  ],
+  "description": "A ten-year-old as tall as an adult was snapped at to act their age: tell the adult how old they are, or tell someone else.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 9,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is ten, and already as tall as most adults. People keep forgetting how young (subject.he/she) is. Today (friend) asked (subject.him/her) to carry a heavy load to the gardens, then snapped at (subject.him/her) for dawdling and for playing with a frog on the way. \"Act your age,\" (friend) said. (subject) is sitting on a rock, stung.",
+   "src": "L539",
+   "choices": [
+    {
+     "label": "Tell (friend) How Old You Are",
+     "next": "o1",
+     "src": "L541"
+    },
+    {
+     "label": "Tell Someone Else",
+     "next": "o2",
+     "src": "L544"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) marches back and says, \"I'm TEN.\" (friend) stops. \"...Ten?\" (friend.He/she) had genuinely thought (subject) was much older. (friend.He/she) sits down beside (subject.him/her). \"I'm sorry. I was acting like your size, not your age.\" (subject) sniffs. \"Can I play with the frog?\" \"You can play with the frog,\" says (friend).",
+   "src": "L542"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) goes and tells (subject.his/her) family, who are not pleased with (friend). They have a word. Later (friend) comes to find (subject) by the stream, where (subject.he/she) is building a frog house. (friend) helps (subject.him/her) build it. (friend.He/she) doesn't say much. At the end (friend.he/she) says, \"Ten. I won't forget.\" (friend.He/she) doesn't.",
+   "src": "L545"
+  }
+ }
+}

@@ -1,0 +1,121 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Raising Two",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam206_raising_two",
+  "source": "draft_fam2",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and two grandchildren aged 5-12 who live with (him/her) (where the game records it)"
+   },
+   {
+    "src": "L74",
+    "kind": "sensitivity",
+    "before": "asks the neighbor to watch",
+    "after": "asks (neighbor), a neighbor, to watch",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L74",
+    "kind": "sensitivity",
+    "before": "The neighbor is happy to.",
+    "after": "(neighbor) is happy to.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L74",
+    "kind": "sensitivity",
+    "before": "says the neighbor.",
+    "after": "says (neighbor).",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "An elder raising two lively grandchildren has one in the stream and one eating something blue: ask a neighbor, or manage it all.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third",
+   "neighbor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 12,
+   "relation": {
+    "grandchild_of": "subject"
+   }
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 12,
+   "relation": {
+    "grandchild_of": "subject"
+   }
+  },
+  "neighbor": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is raising (subject.his/her) two grandchildren, (friend) and (third). (subject.He/she) loves them more than anything. (subject.He/she) is also very tired, because they never stop moving, never stop asking questions and never stop being hungry. Today (friend) has fallen in the stream, and (third) has eaten something blue.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Ask a Neighbor for Help",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Manage It All",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) sends (third) to the healer \\(the blue thing was harmless berries\\) and asks (neighbor), a neighbor, to watch (friend) while (subject.he/she) catches (subject.his/her) breath. (neighbor) is happy to. (subject) sits down for the first time all day. \"You're doing a wonderful job,\" says (neighbor). \"I'm doing a job,\" says (subject). \"It's a good job.\" The children come back, and it starts all over again.",
+   "src": "L74"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) dries (friend), checks (third)'s blue tongue \\(berries, thank goodness\\), feeds them both, tells a story and gets them into bed. Then (subject.he/she) sits on the step with a cup of tea and doesn't move for a long time. (subject.He/she) is too tired to think. (subject.He/she) is also, under the tiredness, very happy. Both of those are true at the same time.",
+   "src": "L77"
+  }
+ }
+}

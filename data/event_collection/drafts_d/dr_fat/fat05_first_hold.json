@@ -1,0 +1,245 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Hold",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat05_first_hold",
+  "source": "fathers30",
+  "lines": [
+   96,
+   114
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L96",
+  "ledger": [
+   {
+    "src": "L97",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L98",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L102",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L104",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L105",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L107",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L108",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L110",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L111",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L113",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L114",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L100",
+    "kind": "sensitivity",
+    "before": "a father",
+    "after": "(name1), a father,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L96",
+    "kind": "note",
+    "why": "TODO: birth-sex check pending engine (feat/97-presentation): the father is a trans man who carried the child, a villager born female who is now male; this base has no birth-sex condition, so the role is a man who is a recorded parent of the child, and should also require the sex-change log's birth sex female once the engine has it"
+   }
+  ],
+  "description": "After a demanding delivery, a father is offered his newborn.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male",
+   "relation": {
+    "parent_of": "friend"
+   }
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 0,
+   "max_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a demanding delivery, (subject), a father, is offered his newborn. He has imagined this moment many times, yet the small, warm weight in his arms feels entirely new.",
+   "src": "L100",
+   "choices": [
+    {
+     "label": "Hold the Baby Close",
+     "next": "a",
+     "src": "L103"
+    },
+    {
+     "label": "Ask His Partner to Hold the Baby First",
+     "next": "b",
+     "src": "L106"
+    },
+    {
+     "label": "Rest Before Holding the Baby",
+     "next": "c",
+     "src": "L109"
+    },
+    {
+     "label": "Speak to the Newborn",
+     "next": "d",
+     "src": "L112"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child settles against his chest, and he cries with relief.",
+   "src": "L104"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "His hands tremble, so the healer helps him find a secure hold.",
+   "src": "L105"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "He watches them meet, then reaches for his child.",
+   "src": "L107"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "His partner hesitates, surprised; they share a nervous laugh.",
+   "src": "L108"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "After a little sleep, he greets his child with fresh attention.",
+   "src": "L110"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "He feels disappointed to wait, and the healer reassures him that rest is reasonable.",
+   "src": "L111"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The baby quiets briefly at his voice.",
+   "src": "L113"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The baby keeps wailing, and he speaks gently anyway.",
+   "src": "L114"
+  }
+ }
+}

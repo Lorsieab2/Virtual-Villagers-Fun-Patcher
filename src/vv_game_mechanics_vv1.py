@@ -41,6 +41,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_children_play as children_play
 import vv_game_mechanics_death as death
 import vv_game_mechanics_events as events
 import vv_game_mechanics_life as life
@@ -59,6 +60,8 @@ FIELD_CAP = 800
 GOLDEN = "vv1_super_secret_golden_mushroom"
 # Picked Up Collectibles Stay Collected When Dropped (off by default; Owner's Defaults ticks it).
 COLLECTED = "vv1_collectibles_stay_collected"
+# Adults Dropped on Mushrooms or Collectibles Are Confused (on by default).
+CONFUSED = "vv1_adult_confused"
 HUNGRIER = "vv1_hungrier_villagers"
 LEARNING = "vv1_learning_never_fails"
 MAGIC_FRUIT = "vv1_magic_fruit_alters_mortality"
@@ -402,6 +405,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Mushrooms", gm.patch_words(village, COLLECTED, (
             "a mushroom counts the moment the villager picks it up -- its food and Mushrooms Found, once -- "
             "even if the villager is moved or stops before the food store")), gm.CODE)
+    # The drop's adult call 0x425168: area 0x21 -> the Confused action 0x440040 and the message bar
+    # (data/builds.json vv1_adult_confused: "VVFP Adult Confused.dll").
+    if village.has(CONFUSED) is not False:
+        add("Mushrooms", gm.patch_words(village, CONFUSED, (
+            "a villager of 14 or more dropped on a mushroom does the game's own Confused action and the "
+            "message bar says \"Only children can see and pick up mushrooms.\" (in the normal game the "
+            "grown-up just stands there)")), gm.CODE)
     add("Collectibles", "A New Home has no collectibles: mushrooms are its only random pickup.", gm.RUNNING)
 
     # -- Tech points (how many there are is under Vital statistics) -----------------------------
@@ -471,6 +481,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                "65, 73 or 81 years",
                                "The Golden Child does not age. " + gm.patch_words(
                                    village, MAGIC_FRUIT, "with its puzzle done, the rolls start 7 years later")))
+    for line, ok in children_play.lines(village):   # tag and sandcastles (vv_game_mechanics_children_play)
+        add("Other", line, ok)
     add("Other", (f"An age unit is {gm.duration(60 * speed)} and a villager year (20 age units) "
                   f"{gm.duration(20 * 60 * speed)} of real-life play on {on} speed: ages, pregnancies and regrowth "
                   "follow the speed; work, mushrooms and island events do not."), gm.RUNNING)

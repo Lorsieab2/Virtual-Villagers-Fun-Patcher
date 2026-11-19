@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mystery of the Missing Thought",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il020_mystery_missing",
+  "source": "da_il02",
+  "lines": [
+   161,
+   175
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L161",
+  "ledger": [
+   {
+    "src": "L163",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L175",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager crosses the village to fetch something important and forgets what it was.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) walks across the village to fetch something important. Upon arriving, (subject.he/she) realizes that (subject.he/she) has completely forgotten what it was. (subject) stands motionless, staring at a basket, hoping the basket will provide an answer.",
+   "src": "L165",
+   "choices": [
+    {
+     "label": "Retrace (subject.his/her) Steps",
+     "next": "a",
+     "src": "L167"
+    },
+    {
+     "label": "Ask (friend) for Help",
+     "next": "b",
+     "src": "L171"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) walks all the way back to the hut. The moment (subject.he/she) reaches the doorway, (subject.he/she) remembers: a needle! Triumphant, (subject) returns to the workshop. Then (subject.he/she) realizes the needle is still in the hut.",
+   "src": "L169"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"What did I come here for?\" (subject) asks. \"How would I know?\" replies (friend). They consider the question together. After several minutes (friend) suggests lunch. (subject) agrees that lunch sounds like an excellent idea, whether or not it was the original purpose.",
+   "src": "L173"
+  }
+ }
+}

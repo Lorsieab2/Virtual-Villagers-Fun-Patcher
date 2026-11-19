@@ -1,0 +1,417 @@
+FEA-01
+DESC: A skilled fisher who fears the open sea is handed a paddle: tell the truth, or make an excuse.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 1
+O2: 1
+REVIEW: ok
+
+FEA-02
+DESC: A villager who fears the dark keeps a small fire lit, and a hut guest asks to put it out: explain, or try without it.
+ROLES: name1=18+ name2=18+
+S: 11112
+O1: 2
+O2: 11122
+REVIEW: ok
+
+FEA-03
+DESC: An elder hides under a blanket from the thunder: let a fearless child sit close, or ask the child to count the thunder.
+ROLES: name1=55+ name2=4-9
+S: 111
+L1: 1
+O1: 21
+O2: 11
+REVIEW: ok
+
+FEA-04
+DESC: A villager praised as the best at their work secretly feels like a fraud: tell a friend, or keep smiling.
+ROLES: name1=18+ name2=18+
+S: 11111
+O1: 1211
+O2: 1111
+REVIEW: ok
+
+FEA-05
+DESC: An elder has started forgetting names and feels afraid: tell a friend, or keep a list.
+ROLES: name1=55+ name2=18+
+FIG: y=young_villager:14-25
+EDIT S: "Today a young villager waves" => "Today [y], a young villager, waves"
+S: 11
+O1: 21
+O2: 1
+REVIEW: ok
+
+FEA-06
+DESC: A villager afraid of chickens is handed the egg basket: ask to swap jobs, or try with a friend nearby.
+ROLES: name1=18+ name2=18+
+S: 11111
+O1: 1
+O2: 11
+REVIEW: ok
+
+FEA-07
+DESC: A child wants to join a beach game but is afraid to ask: offer to walk over together, or ask what the child would like.
+ROLES: name1=5-10 name2=18+
+S: 1111
+O1: 1
+L2: 1
+O2: 1111
+REVIEW: ok
+
+FEA-08
+DESC: A villager feels a knot of dread with no reason at all: have a friend sit with them, or go for a walk.
+ROLES: name1=18+ name2=18+
+S: 111
+L1: 1
+O1: 21
+O2: 1
+REVIEW: ok
+
+FEA-09
+DESC: A builder afraid of heights is called up onto a roof: ask to work on the ground, or climb a little way.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 1
+O2: 111
+REVIEW: ok
+
+FEA-10
+DESC: A villager is sure there are eels in the bathing stream: ask a friend about eels, or bathe somewhere else.
+ROLES: name1=18+ name2=18+
+S: 1111
+O1: 1
+O2: 111
+REVIEW: ok
+
+FEA-11
+DESC: A child worries a new baby in the hut will change everything: answer right away, or ask what the worry is.
+ROLES: name1=4-9 name2=18+
+S: 1
+O1: 211
+L2: 1
+O2: 22
+REVIEW: ok
+
+FEA-12
+DESC: A child nearly fourteen does not want to grow up yet: say there is no hurry, or say you felt the same.
+ROLES: name1=12-13 name2=18+
+S: 11
+O1: 21
+REVIEW: ok
+
+FEA-13
+DESC: A fast teen fears that winning the swimming race means always having to win: swim flat out, or hold back a little.
+ROLES: name1=14-17 name2=14-17
+S: 111111
+O1: 1111
+O2: 11111
+REVIEW: ok
+
+FEA-14
+DESC: A villager cannot decide which seeds to plant in a small corner: let a friend choose, or plant half of each.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 11111
+REVIEW: ok
+
+FEA-15
+DESC: A villager has never liked a rock that looks like a face: mention it to a friend, or take the other path.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 2
+O2: 11
+REVIEW: ok
+
+FEA-16
+DESC: A big harmless spider in the hut keeps a villager awake: move it outside gently, or leave it and make peace.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 11
+O2: 111
+REVIEW: ok
+
+FEA-17
+DESC: A villager keeps getting up to check the fire is out, and a guest notices: offer to check together, or say nothing.
+ROLES: name1=18+ name2=18+
+S: 111
+L1: 1
+O2: 21
+REVIEW: ok
+
+FEA-18
+DESC: A child with a cough refuses a bitter healing tea: drink some yourself first, or ask what would help.
+ROLES: name1=4-9 name2=18+
+FIG: h=healer:18+
+EDIT S: "the healer has made a tea" => "[h], the healer, has made a tea"
+EDIT O2: "asks the healer, who says" => "asks [h], who says"
+S: 11
+O1: 221
+L2: 1
+REVIEW: ok
+
+FEA-19
+DESC: A villager new to a job keeps dropping things while an expert watches: ask for help, or keep going quietly.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 1211
+O2: 111
+REVIEW: ok
+
+FEA-20
+DESC: After a small tremor in the night, a villager is jumpy all day: talk about what might happen, or agree nobody knows.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 1
+REVIEW: ok
+
+FEA-21
+DESC: A villager will not walk under coconut palms and a friend asks why: explain, or take the straight path just once.
+ROLES: name1=18+ name2=18+
+S: 1111
+O1: 2
+O2: 2
+REVIEW: ok
+
+FEA-22
+DESC: A villager is invited to explore the dark sea caves and does not want to go: say no thank you, or decide at the entrance.
+ROLES: name1=18+ name2=18+
+S: 11
+O2: 1111
+REVIEW: ok
+
+FEA-23
+DESC: A goat is stuck on a ledge and the nearest villager is afraid of heights: climb up anyway, or go and get someone.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 1111
+O2: 2
+REVIEW: ok
+
+FEA-24
+DESC: A small child is terrified of the festival dancers' masks: meet a dancer up close, or watch from further back.
+ROLES: name1=4-8 name2=18+
+FIG: d=dancer:18+
+EDIT O1: "underneath is a perfectly ordinary" => "underneath is [d], a perfectly ordinary"
+EDIT O1: "the dancer says" => "[d] says"
+EDIT O1: "Less of the dancer." => "Less of [d]."
+L1: 1
+O1: 11
+O2: 11
+REVIEW: ok
+
+FEA-25
+DESC: An elder wonders who will remember them once they are gone: say it out loud, or keep it to yourself.
+ROLES: name1=55+ name2=18+
+FIG: c=child:3-13
+EDIT O2: "A child runs past" => "[c], a child, runs past"
+S: 1111111
+O1: 12
+REVIEW: ok
+
+FEA-26
+DESC: A new storehouse is going where a villager's favorite sitting log has always been: say it feels strange, or help build.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 2
+O2: 11111
+REVIEW: FLAG title says "Where the Old Bench Was" but the text is about a sitting log throughout; owner may want the title to say Log (title not edited here).
+
+FEA-27
+DESC: A villager has had the same falling dream three nights running: tell a friend about it, or ask the healer for help.
+ROLES: name1=18+ name2=18+
+FIG: v=villager:18+ h=healer:18+
+EDIT O1: "Another villager joins in" => "[v], another villager, joins in"
+EDIT O2: "visits the healer, who gives" => "visits [h], the healer, who gives"
+EDIT O2: "says the healer" => "says [h]"
+S: 11111
+O1: 22
+O2: 1111
+REVIEW: ok
+
+FEA-28
+DESC: A cautious villager is offered a slice of a strange new fruit: try a tiny bit, or say no thank you.
+ROLES: name1=18+ name2=18+
+S: 111
+O1: 1
+O2: 21
+REVIEW: ok
+
+FEA-29
+DESC: A villager who does the finest work fears their eyesight is fading: ask the healer, or work only in the morning light.
+ROLES: name1=18+ name2=18+
+FIG: h=healer:18+
+EDIT O1: "goes to the healer, who looks" => "goes to [h], the healer, who looks"
+EDIT O1: "The healer fetches" => "[h] fetches"
+S: 111111
+O1: 11
+O2: 11
+REVIEW: ok
+
+FEA-30
+DESC: A young villager must do a job alone while their teacher watches: ask the teacher to look away, or do it while watched.
+ROLES: name1=18-25 name2=18+
+S: 12112
+O1: 22
+O2: 111
+REVIEW: ok
+
+FEA-31
+DESC: A villager gathering herbs is caught at the forest edge as night falls: walk home fast, or stand still and listen.
+ROLES: name1=18+
+O1: 1111
+O2: 11111
+REVIEW: ok
+
+FEA-32
+DESC: A villager who has not swum in the sea since a frightening current is called in by a friend: paddle, or stay on the sand.
+ROLES: name1=18+ name2=18+
+S: 111
+O1: 1111
+O2: 1111
+REVIEW: ok
+
+FEA-33
+DESC: A friend comes upon a villager crying alone behind the storehouse: ask them to stay, or ask for some privacy.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 11221
+REVIEW: ok
+
+FEA-34
+DESC: A villager has never crossed the rope bridge and a friend calls from halfway: take the first step, or take the long way.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 1111
+REVIEW: ok
+
+FEA-35
+DESC: A visitor asks a villager with no single job what they do: say a bit of everything, or say you are still working it out.
+ROLES: name1=18+
+S: 11
+O1: 11
+O2: 1
+REVIEW: ok
+
+FEA-36
+DESC: Two villagers disagree about whether rain is coming for the thirsty gardens: hope for the best, or prepare for the worst.
+ROLES: name1=18+ name2=18+
+S: 2
+REVIEW: ok
+
+FEA-37
+DESC: A child will not let anyone near a wobbly tooth: leave it alone, or tell the story of your own first wobbly tooth.
+ROLES: name1=5-8 name2=18+
+S: 1111
+O1: 111
+L2: 1
+O2: 122211
+REVIEW: ok
+
+FEA-38
+DESC: A villager freezes on the canoe landing, staring through the gaps at deep water: ask a friend to walk ahead, or look up.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 11
+O2: 111
+REVIEW: ok
+
+FEA-39
+DESC: A young villager has woven shells into their hair and fears what people will say: ask a friend, or hide it under a wrap.
+ROLES: name1=18-25 name2=18+
+S: 111
+L1: 2
+O1: 21
+O2: 1
+REVIEW: ok
+
+FEA-40
+DESC: A villager has carved a gift for a friend and is suddenly sure it is terrible: give it anyway, or keep it for now.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 22
+O2: 111111
+REVIEW: ok
+
+FEA-41
+DESC: A villager asked to say the welcome words over a new baby goes completely blank: say what comes, or ask for help.
+ROLES: name1=18+
+FIG: e=elder:55+
+EDIT O2: "quietly to the elder beside" => "quietly to [e], the elder beside"
+EDIT O2: "The elder whispers" => "[e] whispers"
+EDIT O2: "thanks the elder" => "thanks [e]"
+EDIT O2: "says the elder" => "says [e]"
+S: 11
+O2: 111
+REVIEW: ok
+
+FEA-42
+DESC: In a fierce storm, a villager calms the children while secretly terrified: admit it to a friend quietly, or keep it in.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 111
+O2: 11111
+REVIEW: ok
+
+FEA-43
+DESC: Life is going well but a villager keeps waiting for something to go wrong: talk about it, or try to enjoy it anyway.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 21
+O2: 1111
+REVIEW: ok
+
+FEA-44
+DESC: At a lively dinner a villager cannot think of anything to say: say the first thing that comes, or just listen.
+ROLES: name1=18+ name2=18+
+S: 11
+O2: 1
+REVIEW: ok
+
+FEA-45
+DESC: A villager gathering seaweed freezes, sure they will step on a sea urchin: borrow thick sandals, or gather from the sand.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 11
+O2: 11
+REVIEW: ok
+
+FEA-46
+DESC: A villager with a pain in their side must wait and see how it goes: talk about something else, or talk about the worry.
+ROLES: name1=18+ name2=18+
+FIG: h=healer:18+
+EDIT S: "The healer has looked" => "[h], the healer, has looked"
+EDIT O2: "The healer doesn't know why" => "[h] doesn't know why"
+S: 111
+O1: 12
+O2: 121
+REVIEW: ok
+
+FEA-47
+DESC: A villager comes home to find the village completely empty and silent: go and look for everyone, or sit and wait.
+ROLES: name1=18+
+S: 1
+O1: 1
+O2: 1111
+REVIEW: ok
+
+FEA-48
+DESC: A young villager did not understand part of a lesson but fears the question is stupid: ask it, or ask afterwards.
+ROLES: name1=18-25 name2=18+
+S: 1
+O1: 1
+O2: 122
+REVIEW: ok
+
+FEA-49
+DESC: A teen stands on the high rock above the lagoon for the first time: jump, or climb back down.
+ROLES: name1=14-17 name2=14-17
+S: 111
+O1: 111111
+O2: 11
+REVIEW: ok
+
+FEA-50
+DESC: An elder listens to the wind in the palms, still unsure after a lifetime whether there are spirits in the trees.
+ROLES: name1=55+
+S: 111111111111
+REVIEW: ok

@@ -1,0 +1,176 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Young Scientist and the Sacred Pool",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway36_young",
+  "source": "living",
+  "lines": [
+   23264,
+   23278
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23264",
+  "ledger": [
+   {
+    "src": "L23278",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A young scientist wants to test the water of a pool believed to heal illness.",
+  "cast_only": [
+   "scientist",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "scientist": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A young scientist wants to test the water of a pool believed to heal illness.",
+   "src": "L23265",
+   "choices": [
+    {
+     "label": "Take a small sample with community permission.",
+     "next": "a",
+     "src": "L23266"
+    },
+    {
+     "label": "Respect the custom and do not sample.",
+     "next": "b",
+     "src": "L23269"
+    },
+    {
+     "label": "Ask an elder to supervise observations.",
+     "next": "c",
+     "src": "L23272"
+    },
+    {
+     "label": "Invite volunteers to describe their experiences.",
+     "next": "d",
+     "src": "L23275"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The sample reveals unusual minerals but no proof of healing.",
+   "src": "L23267"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The test is inconclusive, and the scientist reports it honestly.",
+   "src": "L23268"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The pool remains undisturbed.",
+   "src": "L23270"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The scientist regrets a missed opportunity.",
+   "src": "L23271"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The two record stories and physical conditions together.",
+   "src": "L23273"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They disagree about what the observations mean.",
+   "src": "L23274"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The accounts reveal both relief and disappointment.",
+   "src": "L23276"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The reports are too inconsistent to establish a cause.",
+   "src": "L23277"
+  }
+ }
+}

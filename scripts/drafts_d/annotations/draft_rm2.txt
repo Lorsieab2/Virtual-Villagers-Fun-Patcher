@@ -1,0 +1,155 @@
+# Role Models and Good Examples RM-41..RM-90.  The 15-point review: good examples without guaranteed good results
+# (successes, compromises, delays, refusals); nothing harmful; RM-74 graves and remembrance (its content note is a
+# ledger note); RM-76 the newcomer is never confirmed as the culprit and the builder apologizes; RM-55 / RM-51 the
+# villager decides what help they want; RM-72's partners stay ungendered (no names, as the draft asks).
+RM-41
+DESC: During a dry spell, the spring above the village slows to a trickle and a long line forms before dawn.
+REVIEW: ok (no single person)
+RM-42
+DESC: A thin stray dog keeps appearing near the cooking fires, and a few children have started shooing it away.
+REVIEW: ok (no single person; the children are guided, the dog is helped)
+RM-43
+NAME: "The winner of a friendly canoe race reaches" => "(Name1), the winner of a friendly canoe race, reaches"
+ROLES: name1=14+
+REVIEW: ok
+RM-44
+NAME: "the first villager to reach it notices" => "(name1), the first villager to reach it, notices"
+ROLES: name1=14+
+DESC: On a scorching afternoon, the first villager to reach the only shady tree sees an older worker still in the sun.
+REVIEW: ok
+RM-45
+NAME: "A weaving teacher notices" => "(Name1), a weaving teacher, notices"
+ROLES: name1=18+
+DESC: A weaving teacher notices that one child keeps reaching for the fibers with the left hand.
+REVIEW: ok (left-handedness respected)
+RM-46
+NAME: none
+REVIEW: ok (a gardener's neighbor: the role word is kept unnamed)
+RM-47
+REVIEW: ok
+RM-48
+NAME: "The village leader has" => "(Name1), the village leader, has"
+ROLES: name1=18+
+REVIEW: ok ("village leader" is the text's own word in every game)
+RM-49
+REVIEW: ok
+RM-50
+REVIEW: ok (no single person)
+RM-51
+NAME: "An elder known for fine needlework can" => "(Name1), an elder known for fine needlework, can"
+ROLES: name1=55+
+REVIEW: ok (the elder chooses the help; a lens of polished clear stone)
+RM-52
+NAME: "a young builder" => "(name1), a young builder,"
+ROLES: name1=18-25
+REVIEW: ok (the builder who admits not knowing is the role model)
+RM-53
+REVIEW: ok
+RM-54
+REVIEW: ok
+RM-55
+NAME: "one villager who walks with crutches falls" => "(name1), who walks with crutches, falls"
+ROLES: name1=14+
+REVIEW: ok (the villager decides what help they want; declining help is respected)
+RM-56
+NAME: "A villager walking past an empty hut sees" => "(Name1), walking past an empty hut, sees"
+ROLES: name1=14+
+REVIEW: ok
+RM-57
+NAME: "A carver's apprentice produces" => "(Name1), a carver's apprentice, produces"
+ROLES: name1=14+
+REVIEW: ok
+RM-58
+NAME: "a builder is about" => "(name1), a builder, is about"
+ROLES: name1=18+
+REVIEW: ok
+RM-59
+REVIEW: ok (the parent's snap is owned and repaired; tiredness is not neglect)
+RM-60
+REVIEW: ok
+RM-61
+REVIEW: ok
+RM-62
+NAME: "out of the listener" => "out of (name1), the listener"
+ROLES: name1=14+
+DESC: A friend confides a planned surprise gift for their partner, and curious villagers try to get the secret out.
+REVIEW: ok
+RM-63
+NAME: "the crew leader notices" => "(name1), the crew leader, notices"
+ROLES: name1=18+
+DESC: A work crew has been rushing to finish a roof before the rains, and the crew leader sees everyone is exhausted.
+REVIEW: ok
+RM-64
+DESC: A parent assumes their teenage twins will both learn fishing, but one wants to study plants instead.
+REVIEW: ok (each twin's own path respected)
+RM-65
+REVIEW: ok (the child is found in every outcome)
+RM-66
+NAME: "The strongest villager could" => "(Name1), the strongest villager, could"
+ROLES: name1=18+
+REVIEW: ok
+RM-67
+REVIEW: ok (saying no is not unkind)
+RM-68
+REVIEW: ok
+RM-69
+DESC: Friends planned a canoe trip to a nearby islet, but an experienced fisher sees signs of a coming storm.
+REVIEW: ok (nobody gets into trouble)
+RM-70
+REVIEW: ok (no single person; nobody gets into trouble)
+RM-71
+REVIEW: ok
+RM-72
+REVIEW: ok (the partners are left ungendered and unnamed, as the draft asks)
+RM-73
+REVIEW: ok
+RM-74
+REVIEW: ok (graves and remembrance; plain mentions of the dead)
+RM-75
+DESC: Every dawn one quiet villager carries water to the communal jars, and a young villager notices nobody thanks them.
+REVIEW: ok
+RM-76
+NAME: "A builder's favorite adze" => "(Name1)'s favorite adze"
+ROLES: name1=18+
+REVIEW: ok (the suspicion is never confirmed; "the builder" keeps the role word)
+RM-77
+REVIEW: ok
+RM-78
+REVIEW: ok
+RM-79
+NAME: "and the teenager is torn" => "and (name1), the teenager, is torn"
+ROLES: name1=14-17
+REVIEW: ok
+RM-80
+NAME: "their neighbor has a small" => "their neighbor, (name1), has a small"
+ROLES: name1=18+
+REVIEW: ok (a leaking roof in a storm; nobody is hurt)
+RM-81
+REVIEW: ok (no single person; the old dog is kept comfortable)
+RM-82
+NAME: "their middle sibling steps in" => "their middle sibling, (name1), steps in"
+ROLES: name1=3+
+REVIEW: ok
+RM-83
+REVIEW: ok
+RM-84
+REVIEW: ok
+RM-85
+NAME: "A traveler from a village on the far side of the island arrives" => "(Name1), a traveler from a village on the far side of the island, arrives"
+ROLES: name1=18+
+DESC: A traveler from the far side of the island arrives for the first time, unsure about local customs at mealtime.
+REVIEW: ok (the traveler is an Isolan from the far side of the island, cast as a villager)
+RM-86
+REVIEW: ok
+RM-87
+REVIEW: ok
+RM-88
+REVIEW: ok
+RM-89
+NAME: none
+REVIEW: ok (a newcomer's name: kept unnamed, the event is about saying the name right)
+RM-90
+NAME: "A villager who always covers the communal water jar to keep insects out notices" => "(Name1), who always covers the communal water jar to keep insects out, notices"
+ROLES: name1=18+
+DESC: A villager who always covers the communal water jar notices a small child doing the same without being asked.
+REVIEW: ok

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lost Paddle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5ev030_lost_paddle",
+  "source": "companion",
+  "lines": [
+   3535,
+   3539
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3535",
+  "ledger": [
+   {
+    "src": "L3539",
+    "kind": "note",
+    "why": "CHOICE: Optional; a designer note: the event is observational, one outcome is drawn"
+   }
+  ],
+  "description": "A canoe crew realizes one paddle has gone missing during a short voyage.",
+  "cast_only": [
+   "paddler"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "paddler": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A canoe crew realizes one paddle has vanished during a short voyage.",
+   "src": "L3536",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "vanished",
+     "reason": "a paddle goes missing; no villager vanishes",
+     "src": "L3536"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They return safely using a spare.",
+   "src": "L3537"
+  },
+  "e2": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The missing paddle washes ashore with a curious carving.",
+   "src": "L3538"
+  }
+ }
+}

@@ -1,0 +1,84 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Straightest Row",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il141_straightest_row",
+  "source": "da_il08",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager has planted the straightest row of seeds ever seen on Isola, and nobody is around to see it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has just planted the straightest row of seeds anyone has ever planted on Isola. (subject.He/She) is almost sure of it. (subject.He/She) sighted down it from one end, then the other. It's perfect. And nobody is around to see it. (subject) stands at the end of the row, waiting, casually, for someone to walk past.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Wait for Someone to Notice",
+     "next": "a",
+     "src": "L13"
+    },
+    {
+     "label": "Admire It Alone",
+     "next": "b",
+     "src": "L16"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "At last (friend) wanders by. (subject) stands next to the row, very casually. (friend) doesn't look. (subject) clears (subject.his/her) throat. (friend) looks at (subject). \"Are you alright?\" (subject) points at the row. (friend) looks at it for a long moment. \"That is a very straight row,\" (friend.he/she) says. (subject) glows all afternoon.",
+   "src": "L14"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Nobody comes. (subject) sits at the end of the row and admires it for a while by (subject.him/her)self. It's still perfect. In a few weeks there will be seedlings, and nobody will notice how straight they are, and (subject) will know anyway. That's enough. Mostly.",
+   "src": "L17"
+  }
+ }
+}

@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Bees in the Wall",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat48_bees_wall",
+  "source": "draft_nat",
+  "lines": [
+   560,
+   569
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L560",
+  "ledger": [
+   {
+    "src": "L561",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L566",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A swarm of bees has moved into the wall of a villager's hut: coax them into a log hive, or leave them in the wall.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A swarm of bees has moved into the wall of (subject)'s hut. (subject.He/she) can hear them humming through the thatch at night, and there's already a dribble of honey running down one corner. The bees seem perfectly peaceful. (subject) is less sure about sleeping next to them. (friend), who keeps bees, has come to look.",
+   "src": "L563",
+   "choices": [
+    {
+     "label": "Coax Them Into a Log Hive",
+     "next": "o1",
+     "src": "L565"
+    },
+    {
+     "label": "Leave Them in the Wall",
+     "next": "o2",
+     "src": "L568"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) brings a hollow log, smoke and a lot of patience. Over two long days, (friend.he/she) moves the comb piece by piece into the log, and the bees follow. (subject) watches from a very safe distance. The log is set up at the edge of the garden. The bees seem to like it. (subject)'s wall is sticky for a month.",
+   "src": "L566",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L566"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides that as long as the bees leave (subject.him/her) alone, (subject.he/she) will leave them alone. The hut hums all summer. Visitors find it unsettling. (subject) finds it oddly soothing, like a song (subject.he/she) can't quite hear the words of. At the end of the season (friend) takes out some of the honey through a gap in the thatch, leaving plenty for the bees. It's the best honey anyone has tasted.",
+   "src": "L569"
+  }
+ }
+}

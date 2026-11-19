@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Cradle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl040_wrong_cradle",
+  "source": "companion",
+  "lines": [
+   4316,
+   4326
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4316",
+  "ledger": [
+   {
+    "src": "L4317",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L4325",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L4326",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "Two caregivers accidentally exchange similar blankets at a gathering.",
+  "cast_only": [
+   "caregiver1",
+   "caregiver2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "caregiver1": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female",
+   "special": "nursing_parent"
+  },
+  "caregiver2": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Two caregivers accidentally exchange similar blankets at a gathering.",
+   "src": "L4318",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L4319"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L4320"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L4321"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "The mix-up is noticed immediately and everyone laughs.",
+   "src": "L4322"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "A caregiver worries briefly before the belongings are sorted.",
+   "src": "L4323"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "The families mark their blankets with distinctive patterns.",
+   "src": "L4324"
+  }
+ }
+}

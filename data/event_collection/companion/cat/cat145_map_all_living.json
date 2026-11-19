@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Map of All Living Things",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat145_map_all_living",
+  "source": "companion",
+  "lines": [
+   8837,
+   8847
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8837",
+  "ledger": [
+   {
+    "src": "L8847",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A scholar proposes cataloguing every living thing on Isola, a task that seems impossible."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "scholar": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A scholar proposes cataloguing every fish, plant, bird, insect and reef creature on Isola. The task seems impossible.",
+   "src": "L8838",
+   "choices": [
+    {
+     "label": "Begin with local habitats",
+     "next": "a",
+     "src": "L8839"
+    },
+    {
+     "label": "Recruit children as observers",
+     "next": "b",
+     "src": "L8841"
+    },
+    {
+     "label": "Preserve representative specimens",
+     "next": "c",
+     "src": "L8843"
+    },
+    {
+     "label": "Create a living archive",
+     "next": "d",
+     "src": "L8845"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "A reliable small catalogue emerges.",
+   "src": "L8840",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scholar",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8840"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The record grows quickly, with charming errors requiring verification.",
+   "src": "L8842"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Anatomical detail improves, but collecting rules become essential.",
+   "src": "L8844"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "Gardens, aquaria and sketches complement each other, though care is costly.",
+   "src": "L8846"
+  }
+ }
+}

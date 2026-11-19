@@ -1,0 +1,147 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Meal Eaten Standing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz103_meal_eaten",
+  "source": "draft_hz2",
+  "lines": [
+   282,
+   292
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L282",
+  "ledger": [
+   {
+    "src": "L283",
+    "kind": "sensitivity",
+    "before": "A cook",
+    "after": "(Name1), a cook,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A cook wonders whether people in busy distant places might eat while walking, without ever sitting down together.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a cook, wonders whether people in busy distant places might eat while walking, without ever sitting down together.",
+   "src": "L283",
+   "choices": [
+    {
+     "label": "Imagine Hurried Meals.",
+     "next": "a",
+     "src": "L284"
+    },
+    {
+     "label": "Imagine Long Feasts.",
+     "next": "b",
+     "src": "L287"
+    },
+    {
+     "label": "Ask What a Meal Is For.",
+     "next": "c",
+     "src": "L290"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A villager imagines eating fruit on the way to work and admits they do that sometimes too.",
+   "src": "L285"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An elder finds the idea sad and invites everyone to sit for a long meal.",
+   "src": "L286"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A storyteller imagines distant feasts lasting all night, just like Isolan celebrations.",
+   "src": "L288",
+   "text_only": [
+    {
+     "what": "\"celebrations\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
+     "src": "L288"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A skeptic says both kinds might exist, depending on the day.",
+   "src": "L289"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village agrees that sharing matters more than speed.",
+   "src": "L291"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager who prefers to eat alone says sitting with others is not the only good way to eat, and the group considers that.",
+   "src": "L292"
+  }
+ }
+}

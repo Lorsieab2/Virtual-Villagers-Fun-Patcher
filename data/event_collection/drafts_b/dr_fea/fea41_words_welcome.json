@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Words of Welcome",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea41_words_welcome",
+  "source": "draft_fea",
+  "lines": [
+   488,
+   497
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L488",
+  "ledger": [
+   {
+    "src": "L489",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L497",
+    "kind": "sensitivity",
+    "before": "quietly to the elder beside",
+    "after": "quietly to (elder), the elder beside",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L497",
+    "kind": "sensitivity",
+    "before": "The elder whispers",
+    "after": "(elder) whispers",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L497",
+    "kind": "sensitivity",
+    "before": "thanks the elder",
+    "after": "thanks (elder)",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L497",
+    "kind": "sensitivity",
+    "before": "says the elder",
+    "after": "says (elder)",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager asked to say the welcome words over a new baby goes completely blank: say what comes, or ask for help.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Tonight (subject) has been asked to say the words of welcome over a new baby at the naming fire. They're old words, and short, and everyone knows them. (subject) has been saying them over and over all day. Now, in front of everyone, with the baby looking up at (subject.him/her), (subject.his/her) mind has gone completely blank.",
+   "src": "L491",
+   "choices": [
+    {
+     "label": "Say What Comes",
+     "next": "o1",
+     "src": "L493"
+    },
+    {
+     "label": "Ask Someone to Help",
+     "next": "o2",
+     "src": "L496"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) takes a breath, looks at the baby, and says what comes: not the old words, just \"Welcome. We're very glad you're here. Everything is new, and we'll show you all of it.\" There's a silence. Then the baby's family smile, and the elders nod, and someone quietly says the old words as well. Both seem to count.",
+   "src": "L494"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Help me,\" says (subject) quietly to (elder), the elder beside (subject.him/her). (elder) whispers the first line. (subject) says it. Then the next comes back on its own, and the next. (subject.He/she) finishes the blessing perfectly. Afterwards, (subject.he/she) thanks (elder). \"We all forget,\" says (elder). \"That's why we stand together.\"",
+   "src": "L497"
+  }
+ }
+}

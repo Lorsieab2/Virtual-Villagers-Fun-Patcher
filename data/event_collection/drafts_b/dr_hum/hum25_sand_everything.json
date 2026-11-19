@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Sand in Everything",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum25_sand_everything",
+  "source": "draft_hum",
+  "lines": [
+   296,
+   305
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L296",
+  "ledger": [
+   {
+    "src": "L297",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager who rolled about asleep on the beach finds sand everywhere: go for a swim, or accept the sand.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Yesterday afternoon, (subject) fell asleep on the beach and rolled over several times. Today there is sand everywhere. In (subject.his/her) hair. In (subject.his/her) ears. In (subject.his/her) breakfast, somehow. Every time (subject.he/she) thinks it's gone, more appears from places (subject.he/she) didn't know could hold sand.",
+   "src": "L299",
+   "choices": [
+    {
+     "label": "Go for a Swim",
+     "next": "o1",
+     "src": "L301"
+    },
+    {
+     "label": "Accept the Sand",
+     "next": "o2",
+     "src": "L304"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) marches into the sea and washes every last grain away. It feels wonderful. (subject.He/she) comes out, lies down on the warm beach to dry, and falls fast asleep. When (friend) finds (subject.him/her) an hour later, (subject.he/she) is covered in sand again, from head to foot, and smiling in (subject.his/her) sleep.",
+   "src": "L302"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) gives up and lets the sand be. It trickles out of (subject.his/her) clothes every time (subject.he/she) sits down, leaving little piles all over the village, and (friend) finds (subject.him/her) for lunch simply by following the trail. Days later, (subject) discovers one last grain in (subject.his/her) eyebrow. (subject.He/she) considers keeping it, as a souvenir.",
+   "src": "L305"
+  }
+ }
+}

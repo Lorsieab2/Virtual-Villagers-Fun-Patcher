@@ -1,0 +1,79 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Where Did the Puddle Go?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il104_where_did_puddle",
+  "source": "da_il06",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A child is deeply suspicious about a puddle that has vanished in the afternoon sun.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 9
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "After the rain, there was a big puddle outside (subject)'s hut, perfect for stamping in. Now, in the afternoon sun, it has gone. Nobody drank it. Nobody moved it. (subject) is standing where it used to be, looking at the damp patch, deeply suspicious. (subject.He/She) brings the mystery to (friend).",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Watch the Next Puddle with (friend)",
+     "next": "a",
+     "src": "L49"
+    },
+    {
+     "label": "Ask (subject) Where (subject.he/she) Thinks It Went",
+     "next": "b",
+     "src": "L52"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The next time it rains, they put a ring of pebbles round a fresh puddle and check on it all day. Every time they look, it's a tiny bit smaller, and the pebbles are a tiny bit further from the water. \"It's shrinking,\" (subject) whispers. \"Where's it going?\" (friend) looks up at the sky. (subject) looks up too. Neither of them can quite believe it.",
+   "src": "L50"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"I think it went home,\" says (subject). \"Where's home for a puddle?\" asks (friend). (subject) thinks hard. \"The sea. Or the sky. Or a bigger puddle.\" (friend) admits (friend.he/she) can't argue with any of those. (subject) decides to stamp in puddles straight away from now on, before they can leave.",
+   "src": "L53"
+  }
+ }
+}

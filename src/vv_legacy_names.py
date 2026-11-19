@@ -73,6 +73,8 @@ def survey(folder: Path, game: int, slot: int) -> Survey:
         if masked != v.name and not vv_long_names.only_question_marks(masked) and masked not in actual:
             by_mask.setdefault(masked, []).append(v)
     result = Survey()
+    import vv_sex_changes
+    sex_changed = vv_sex_changes.logged_names(folder, game, slot)   # logged under either sex
     if not by_mask:
         return result
     import vv_log_tools as tools
@@ -135,7 +137,8 @@ def survey(folder: Path, game: int, slot: int) -> Survey:
                     sex = value
             for v in holders:
                 if (head is not None and body is not None and head.isdigit() and body.isdigit()
-                        and int(head) == v.head and int(body) == v.body and (sex is None or sex == v.sex)):
+                        and int(head) == v.head and int(body) == v.body
+                        and (sex is None or sex == v.sex or v.name in sex_changed)):
                     result.found.append(Found(path, heading, masked, v.name, v.head, v.body))
                     break
     return result

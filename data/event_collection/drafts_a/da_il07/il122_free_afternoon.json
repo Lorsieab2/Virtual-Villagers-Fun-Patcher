@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The One Free Afternoon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il122_free_afternoon",
+  "source": "da_il07",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager's one free afternoon meets a friend who needs help moving baskets: say no kindly, or offer one hour.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been looking forward to this afternoon all week: no work, nothing planned, just a shady tree and a long nap in the warm air. Then (friend), a good friend, comes over, bright-eyed. \"Will you help me move all my baskets to the new storage spot? It'll only take the whole afternoon.\"",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Say No, Kindly",
+     "next": "a",
+     "src": "L25"
+    },
+    {
+     "label": "Offer One Hour",
+     "next": "b",
+     "src": "L28"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I'm sorry,\" says (subject). \"I really need this afternoon to myself. Can I help tomorrow morning instead?\" (friend) looks a bit disappointed, then nods. \"Tomorrow's fine.\" (subject) still feels a tiny bit guilty under the tree. Then (subject.he/she) falls asleep, and wakes up feeling much better. The baskets get moved the next morning, and it only takes an hour with two people.",
+   "src": "L26"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"I can give you one hour,\" says (subject). \"Then I'm going to lie under a tree and nobody can stop me.\" (friend) laughs. \"Deal.\" They work hard for exactly one hour. Then (subject) puts down the last basket, walks to (subject.his/her) tree and lies down, and (friend), after a moment's thought, lies down under the next tree over.",
+   "src": "L29"
+  }
+ }
+}

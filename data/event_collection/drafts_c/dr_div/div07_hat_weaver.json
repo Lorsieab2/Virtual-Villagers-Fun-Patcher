@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hat Weaver",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div07_hat_weaver",
+  "source": "draft_div",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a teen aged 14-17; in the story (name1) has albinism, with very pale skin and white hair)"
+   }
+  ],
+  "description": "A villager with albinism weaves fine sun hats, and a teen eyes the newest one: make the teen one, or teach them to weave.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has albinism: very pale skin, white hair, and eyes that don't like bright sun. On Isola, under that sun, that means hats. (subject.He/she) has been weaving them for years, and (subject.he/she) has become very, very good at it: wide brims, tight weave, little shells around the edge. (friend) has been eyeing (subject.his/her) newest one with naked envy.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Make (friend) One",
+     "next": "o1",
+     "src": "L85"
+    },
+    {
+     "label": "Teach (friend.him/her) to Weave One",
+     "next": "o2",
+     "src": "L88"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) weaves (friend) a hat of (friend.his/her) own: not quite as wide, but just as fine. (friend) wears it everywhere. Within a month, half the teens in the village want one. (subject) now has a queue of customers outside (subject.his/her) hut. (subject.He/she) is pretending to be annoyed about it. (subject.He/she) is not annoyed about it at all.",
+   "src": "L86"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) teaches (friend) to weave a hat. It takes days. (friend)'s first attempt is lopsided and lets in sun through several holes. (subject) wears it for a whole afternoon anyway, out of solidarity, and gets a sunburned spot on the top of (subject.his/her) head. (subject.He/she) shows it to (friend) without a word. (friend)'s second hat is much better.",
+   "src": "L89"
+  }
+ }
+}

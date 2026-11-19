@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Ripe Melon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day29_first_ripe_melon",
+  "source": "draft_day",
+  "lines": [
+   344,
+   353
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager's long-awaited melon is finally ripe and a friend is on the path: share it, or eat it alone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been watching one particular melon in the garden for weeks. Waiting. Checking every morning. Today, finally, it's ripe: it smells sweet, it sounds right when (subject.he/she) taps it, and it comes away from the vine with a little click. (subject) is carrying it home like a baby. (friend) is on the path.",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "Share It",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "Eat It Alone",
+     "next": "o2",
+     "src": "L352"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) cuts it right there on a flat stone and gives (friend) half. It's perfect: cold, sweet, juicy. They eat it standing on the path, juice running down their chins, saying nothing at all. Then they look at each other and both start laughing for no reason. It is a very good melon.",
+   "src": "L350"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) takes it home and eats the whole thing, by (subject.him/her)self, slowly, sitting in the doorway. It's not selfish. (subject.He/she) grew it. (subject.He/she) waited weeks. Some things are for sharing, and some things are for sitting in a doorway and enjoying entirely alone. This one is the second kind.",
+   "src": "L353"
+  }
+ }
+}

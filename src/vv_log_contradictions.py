@@ -428,9 +428,11 @@ def _child_sex(b) -> str | None:
     return None
 
 
-def _record_fits(r, names: set, sex: str | None, head, body) -> bool:
+def _record_fits(r, names: set, sex: str | None, head, body, sex_changed=frozenset()) -> bool:
     """A Birth record's child, or an Arrived record's villager, is one of `names` with these looks, and
-    of this sex when both say."""
+    of this sex when both say -- either sex for a villager whose sex changed (`sex_changed`,
+    vv_sex_changes)."""
+    import vv_sex_changes
     import vv_log_additions as additions
     if additions.is_birth(r.heading):
         key, their_sex = _child(r), _child_sex(r)
@@ -438,7 +440,7 @@ def _record_fits(r, names: set, sex: str | None, head, body) -> bool:
         key, their_sex = r.identity, r.value("Sex")
     if not key or key[0] not in names or tuple(key[1:]) != (head, body):
         return False
-    return not (sex and their_sex) or sex.strip().lower() == their_sex.strip().lower()
+    return vv_sex_changes.same_villager_sex(names, sex, their_sex, sex_changed)
 
 
 def _arrival_age(r) -> int | None:
@@ -470,10 +472,14 @@ def false_unaccounted(folder: Path, game: int, slot: int) -> list[UnaccountedVer
     villages = additions.current_villages(folder, game, slot)
     renamed: dict[tuple, str] = {}
     births_records: list = []
+    import vv_sex_changes
+    sexed: set[str] = set()
     for path in _births_paths(folder, game):
         for b in additions.blocks(path):
             if not b.of(slot, game, villages):
                 continue
+            if b.heading == "Appearance changed":
+                sexed |= vv_sex_changes.history_names([b])
             if b.heading == "Name changed":
                 head, body = b.int_value("Head"), b.int_value("Body")
                 if b.value("Old name") and b.value("Name"):
@@ -489,10 +495,13 @@ def false_unaccounted(folder: Path, game: int, slot: int) -> list[UnaccountedVer
             out.add(name)
         return out
 
+    sex_changed = vv_sex_changes.changed_names(folder, slot, sexed)
+
     def same(b, name, sex, head, body) -> bool:
         if b.int_value("Head") != head or b.int_value("Body") != body:
             return False
-        if b.value("Sex") and sex and b.value("Sex").strip().lower() != sex.strip().lower():
+        if b.value("Sex") and sex and b.value("Sex").strip().lower() != sex.strip().lower() \
+                and not ({b.value("Name"), name} & sex_changed):
             return False
         return b.value("Name") in names_of(name, head, body) or name in names_of(b.value("Name"), head, body)
 
@@ -628,7 +637,7 @@ def false_unaccounted(folder: Path, game: int, slot: int) -> list[UnaccountedVer
             # old; and no other villager of that name and look -- one who died or disappeared, or one a
             # snapshot before the check shows older than she is now -- could be the one it is about.
             fitting = [r for r in births_records if id(r) not in used and _record_fits(r, names_of(name, head, body),
-                                                                                       sex, head, body)]
+                                                                                       sex, head, body, sex_changed)]
             if len(fitting) == 1:
                 came = _arrival_age(fitting[0])
                 namesake = (any(same(d, name, sex, head, body) for d in deaths)

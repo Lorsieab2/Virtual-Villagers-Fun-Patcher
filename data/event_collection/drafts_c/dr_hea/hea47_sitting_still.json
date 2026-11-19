@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Sitting Still",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea47_sitting_still",
+  "source": "draft_hea",
+  "lines": [
+   563,
+   572
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L563",
+  "ledger": [
+   {
+    "src": "L564",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a spiritual leader, healer or elder)"
+   }
+  ],
+  "description": "A villager tries sitting quietly and noticing their breath, but keeps thinking of lunch: keep trying, or admit it is not for them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has been teaching some villagers to sit quietly for a little while each morning and just notice their breathing. Today (subject) is trying it for the first time. The idea is to let thoughts drift past like clouds. (subject)'s first thought is about lunch. (subject.His/her) second is about lunch. (subject.His/her) third is about the person beside (subject.him/her) breathing too loudly.",
+   "src": "L566",
+   "choices": [
+    {
+     "label": "Keep Trying",
+     "next": "o1",
+     "src": "L568"
+    },
+    {
+     "label": "Admit It's Not for (subject.him/her)",
+     "next": "o2",
+     "src": "L571"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"My mind won't stop,\" whispers (subject). \"It isn't supposed to stop,\" (friend) whispers back. \"Just notice it and come back to the breath. That's the whole thing. Coming back.\" (subject) comes back eleven times in a short while. On the twelfth, for a moment, there's nothing but breath and the sea. Then (subject.he/she) thinks about lunch. But there was a moment.",
+   "src": "L569"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "After a week, (subject) tells (friend) it isn't working. \"I just sit there thinking about everything I need to do,\" (subject.he/she) says. \"That's fine,\" says (friend). \"It helps some people a lot and some not at all. Neither one is doing it wrong.\" (subject) goes back to weeding the garden in the mornings instead, which is quiet and slow and full of breathing. (subject.He/she) doesn't call it anything.",
+   "src": "L572"
+  }
+ }
+}

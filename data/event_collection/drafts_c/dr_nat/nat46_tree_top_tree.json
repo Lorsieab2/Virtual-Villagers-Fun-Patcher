@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tree on Top of the Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat46_tree_top_tree",
+  "source": "draft_nat",
+  "lines": [
+   536,
+   545
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L536",
+  "ledger": [
+   {
+    "src": "L537",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A fig growing atop an old breadfruit tree is wrapping it in roots: cut the fig away, or let it grow.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "High in the crown of an old breadfruit tree, a bird dropped a seed long ago, and now a fig tree is growing up there. Its long roots have started to snake down the trunk to the ground, wrapping the breadfruit tree like a net. The old fishers say that in a lifetime, the fig will swallow the breadfruit entirely. (subject) wants to cut the fig off. (friend) thinks it's amazing.",
+   "src": "L539",
+   "choices": [
+    {
+     "label": "Cut the Fig Away",
+     "next": "o1",
+     "src": "L541"
+    },
+    {
+     "label": "Let It Grow",
+     "next": "o2",
+     "src": "L544"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) climbs up and cuts the fig's roots where they're young enough to cut. The breadfruit tree is saved, for now, and keeps giving fruit. Up in the branches the fig is still alive, though, sending out new roots. (subject) realizes this will be a job for every few years, maybe forever. (subject.He/she) teaches a young villager how to do it, just in case.",
+   "src": "L542"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They leave it. Over the years, the roots thicken and twist around the old trunk. The breadfruit keeps fruiting for a long time, then slowly less. But the fig is full of birds and bats and fruit of its own, and the children use its roots as a ladder. (subject) still misses the breadfruit. (friend) still thinks it's amazing. They're probably both right.",
+   "src": "L545"
+  }
+ }
+}

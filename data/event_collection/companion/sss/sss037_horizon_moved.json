@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Horizon That Moved",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss037_horizon_moved",
+  "source": "companion",
+  "lines": [
+   6441,
+   6449
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6441",
+  "ledger": [
+   {
+    "src": "L6449",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A fisher swears a distant island appeared at dawn and vanished by noon.",
+  "cast_only": [
+   "fisher",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A fisher swears a distant island appeared at dawn and vanished by noon.",
+   "src": "L6442",
+   "choices": [
+    {
+     "label": "Study the weather",
+     "next": "a",
+     "src": "L6443"
+    },
+    {
+     "label": "Ask the elders",
+     "next": "b",
+     "src": "L6445"
+    },
+    {
+     "label": "Sketch the horizon over weeks",
+     "next": "c",
+     "src": "L6447"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "an island vanished by noon",
+     "reason": "a distant island seen at sea; no villager vanishes",
+     "src": "L6442"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "A mirage seems plausible, though the fisher insists the shape was too distinct.",
+   "src": "L6444"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "One remembers a similar sighting decades earlier, adding mystery without proof.",
+   "src": "L6446"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The records show shifting light and cloudbanks; the question remains open.",
+   "src": "L6448"
+  }
+ }
+}

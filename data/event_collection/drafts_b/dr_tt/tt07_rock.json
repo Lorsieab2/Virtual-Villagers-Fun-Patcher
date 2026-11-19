@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "(name1)'s Rock",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt07_rock",
+  "source": "draft_tt",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager wants Turtle Rock renamed after themselves: keep at it, or settle for half.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There's a big rock on the beach shaped a little like a sleeping turtle, and everyone calls it Turtle Rock. (name1) has decided that, since (he/she) sits on it more than anybody else, it ought to be called (name1)'s Rock. (He/she) has started calling it that in conversation, often, in the hope that it will catch on.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Keep at It",
+     "next": "o1",
+     "src": "L85"
+    },
+    {
+     "label": "Settle for Half",
+     "next": "o2",
+     "src": "L88"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Meet you at (name1)'s Rock.\" \"Lovely sunset from (name1)'s Rock tonight.\" (name1) never misses a chance. Slowly, one or two children start to use it. Then the rest of the village. A season later it's (name1)'s Rock to everyone, except the turtles, who carry on sleeping on it regardless.",
+   "src": "L86"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "After a week of everyone saying \"You mean Turtle Rock?\", (name1) offers a compromise: \"(name1)'s Turtle Rock.\" Nobody uses it except (name1). (He/she) goes on using it, with great dignity, for years.",
+   "src": "L89"
+  }
+ }
+}

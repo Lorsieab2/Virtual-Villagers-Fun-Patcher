@@ -1,0 +1,254 @@
+# The 500 Tiny Island Moments as 125 moments (the owner's Questions 1 and 2, answer A).  The 15-point review: light,
+# ordinary moments; nothing harmful; T061-T065 snakes keep their distance; T026/T030 the butterfly is released.
+T001
+REVIEW: ok
+T002
+REVIEW: ok
+T003
+REVIEW: ok
+T004
+REVIEW: ok
+T005
+REVIEW: ok
+T006
+REVIEW: ok
+T007
+REVIEW: ok
+T008
+REVIEW: ok
+T009
+REVIEW: ok
+T010
+REVIEW: ok
+T011
+REVIEW: ok
+T012
+REVIEW: ok
+T013
+REVIEW: ok
+T014
+REVIEW: ok
+T015
+REVIEW: ok
+T016
+REVIEW: ok
+T017
+REVIEW: ok
+T018
+REVIEW: ok
+T019
+REVIEW: ok
+T020
+REVIEW: ok
+T021
+REVIEW: ok
+T022
+REVIEW: ok
+T023
+REVIEW: ok
+T024
+REVIEW: ok
+T025
+REVIEW: ok
+T026
+REVIEW: ok
+T027
+REVIEW: ok
+T028
+REVIEW: ok
+T029
+REVIEW: ok
+T030
+REVIEW: ok
+T031
+REVIEW: ok
+T032
+REVIEW: ok
+T033
+REVIEW: ok
+T034
+REVIEW: ok
+T035
+REVIEW: ok
+T036
+REVIEW: ok
+T037
+REVIEW: ok
+T038
+REVIEW: ok
+T039
+REVIEW: ok
+T040
+REVIEW: ok
+T041
+REVIEW: ok
+T042
+REVIEW: ok
+T043
+REVIEW: ok
+T044
+REVIEW: ok
+T045
+REVIEW: ok
+T046
+REVIEW: ok
+T047
+REVIEW: ok
+T048
+REVIEW: ok
+T049
+REVIEW: ok
+T050
+REVIEW: ok
+T051
+REVIEW: ok
+T052
+REVIEW: ok
+T053
+REVIEW: ok
+T054
+NAME: "a child how" => "(name1), a child, how"
+ROLES: name1=3-13
+REVIEW: ok (the child is named: the endings are the learner's)
+T055
+REVIEW: ok
+T056
+REVIEW: ok
+T057
+REVIEW: ok
+T058
+REVIEW: ok
+T059
+REVIEW: ok
+T060
+REVIEW: ok
+T061
+REVIEW: ok
+T062
+REVIEW: ok
+T063
+REVIEW: ok
+T064
+REVIEW: ok
+T065
+REVIEW: ok
+T066
+REVIEW: ok
+T067
+REVIEW: ok
+T068
+REVIEW: ok
+T069
+REVIEW: ok
+T070
+REVIEW: ok
+T071
+REVIEW: ok
+T072
+REVIEW: ok
+T073
+REVIEW: ok
+T074
+REVIEW: ok
+T075
+REVIEW: ok
+T076
+REVIEW: ok
+T077
+REVIEW: ok
+T078
+REVIEW: ok
+T079
+REVIEW: ok
+T080
+REVIEW: ok
+T081
+REVIEW: ok
+T082
+REVIEW: ok
+T083
+REVIEW: ok
+T084
+REVIEW: ok
+T085
+REVIEW: ok
+T086
+REVIEW: ok
+T087
+REVIEW: ok
+T088
+REVIEW: ok
+T089
+REVIEW: ok
+T090
+REVIEW: ok
+T091
+REVIEW: ok
+T092
+REVIEW: ok
+T093
+REVIEW: ok
+T094
+REVIEW: ok
+T095
+REVIEW: ok
+T096
+REVIEW: ok
+T097
+REVIEW: ok
+T098
+REVIEW: ok
+T099
+REVIEW: ok
+T100
+REVIEW: ok
+T101
+REVIEW: ok
+T102
+REVIEW: ok
+T103
+REVIEW: ok
+T104
+REVIEW: ok
+T105
+REVIEW: ok
+T106
+REVIEW: ok
+T107
+REVIEW: ok
+T108
+REVIEW: ok
+T109
+REVIEW: ok
+T110
+REVIEW: ok
+T111
+REVIEW: ok
+T112
+REVIEW: ok
+T113
+REVIEW: ok
+T114
+REVIEW: ok
+T115
+REVIEW: ok
+T116
+REVIEW: ok
+T117
+REVIEW: ok
+T118
+REVIEW: ok
+T119
+REVIEW: ok
+T120
+REVIEW: ok
+T121
+REVIEW: ok
+T122
+REVIEW: ok
+T123
+REVIEW: ok
+T124
+REVIEW: ok
+T125
+REVIEW: ok

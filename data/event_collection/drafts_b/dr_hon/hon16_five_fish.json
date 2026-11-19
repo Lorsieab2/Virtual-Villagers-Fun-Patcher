@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Five Fish, Promised",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon16_five_fish",
+  "source": "draft_hon",
+  "lines": [
+   188,
+   197
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L188",
+  "ledger": [
+   {
+    "src": "L189",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager promised five big fish for the shared meal but caught two small ones: tell the cook now, or fish a little longer.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) promised to bring five big fish to tonight's shared meal. (subject.He/she) has caught two, both small. The light is going. (friend) is in charge of the meal, and has planned it around five big fish.",
+   "src": "L191",
+   "choices": [
+    {
+     "label": "Tell (friend) Now",
+     "next": "o1",
+     "src": "L193"
+    },
+    {
+     "label": "Fish a Little Longer",
+     "next": "o2",
+     "src": "L196"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) goes straight to (friend) with the two little fish. \"This is all I've got. I said five; I shouldn't have promised.\" (friend) looks at them, thinks, and makes a fish soup instead, with more vegetables than fish. Everyone says it's delicious. Next time (subject) promises \"some fish,\" rather than a number.",
+   "src": "L194"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) fishes until dark and catches one more, a tiny one. (subject.He/she) arrives late with three small fish and an apology. The meal is already under way; (friend) has made do with fruit and roots. \"You could have told me sooner,\" says (friend), and (friend.he/she) is right. The three little fish get cooked for breakfast instead.",
+   "src": "L197"
+  }
+ }
+}

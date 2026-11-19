@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Old Wobbly and Friends",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il061_wobbly_friends",
+  "source": "da_il04",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager has named every one of their tools, and is confused when someone asks to borrow just a basket.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has given every one of (subject.his/her) tools a name. The digging stick is Grumble. The big basket is Old Wobbly. The little knife is Sir Sharp, and the water jar, for reasons nobody remembers, is Auntie. Today (friend) asks to borrow \"a basket,\" and (subject) looks genuinely confused. \"Which one? Old Wobbly or the Twins?\"",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Introduce (friend) to Everyone",
+     "next": "a",
+     "src": "L13"
+    },
+    {
+     "label": "Just Hand Over a Basket",
+     "next": "b",
+     "src": "L16"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) brings out each tool and explains its name, its history and its mood. Grumble is reliable but sulky. The Twins must never be separated. (friend) listens to all of it with a perfectly serious face, then carefully carries Old Wobbly away with both hands. It comes back that evening full of fruit and, (subject) is fairly sure, in a better mood than before.",
+   "src": "L14"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) hands over Old Wobbly without a word. (friend) returns it at dinner. \"Thanks for the basket,\" (friend.he/she) says. \"Old Wobbly,\" (subject) corrects, before (subject.he/she) can stop (subject.him/her)self. There is a short pause. \"Thanks for Old Wobbly,\" says (friend), and that is the end of it.",
+   "src": "L17"
+  }
+ }
+}

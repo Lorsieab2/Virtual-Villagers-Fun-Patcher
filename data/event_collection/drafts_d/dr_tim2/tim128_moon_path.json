@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moon's Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim128_moon_path",
+  "source": "draft_tim2",
+  "lines": [
+   23,
+   28
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L23",
+  "ledger": [
+   {
+    "src": "L24",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L25",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L26",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L27",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L28",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A villager walks along the shore while the moon lays a bright path across the lagoon.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(name1) walks along the shore while the moon lays a bright path across the lagoon. The water is so calm that the moon seems to float just beneath the surface.",
+   "src": "L24,L25"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(name1) walks along the shore while the moon lays a bright path across the lagoon. (name1) stops to listen to the small waves and loses track of time.",
+   "src": "L24,L26"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(name1) walks along the shore while the moon lays a bright path across the lagoon. A fish jumps through the bright path, and (name1) gasps aloud.",
+   "src": "L24,L27"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(name1) walks along the shore while the moon lays a bright path across the lagoon. (name1) walks home slowly, wishing the night would last a little longer.",
+   "src": "L24,L28"
+  }
+ }
+}

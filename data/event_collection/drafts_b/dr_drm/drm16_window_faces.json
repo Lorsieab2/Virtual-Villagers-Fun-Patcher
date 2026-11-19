@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Window That Faces the Sunrise",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm16_window_faces",
+  "source": "draft_drm",
+  "lines": [
+   188,
+   197
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L188",
+  "ledger": [
+   {
+    "src": "L189",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager finally has the sunrise window they wanted for years but feels strangely flat: think of the next thing, or enjoy it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For years (name1) has wanted a window in (his/her) hut facing east, so the morning sun would come in and wake (him/her) gently. Last week (he/she) finally cut one. This morning the sun came in exactly as planned and woke (him/her) gently, and it was lovely, and now (name1) is sitting on (his/her) mat feeling strangely flat. What does (he/she) want now?",
+   "src": "L191",
+   "choices": [
+    {
+     "label": "Think of the Next Thing",
+     "next": "o1",
+     "src": "L193"
+    },
+    {
+     "label": "Just Enjoy the Window",
+     "next": "o2",
+     "src": "L196"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) spends the morning thinking. A shelf. A better door. A garden outside the window. By lunchtime (he/she) has a whole new list. (He/she) enjoys the list very much. (He/she) suspects the list is the part (he/she) actually likes.",
+   "src": "L194"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) decides not to want anything else for a while. (He/she) just enjoys the window. Every morning the sun comes in. Some mornings (he/she) is irritated by it and pulls the blanket over (his/her) head. Most mornings (he/she) isn't. It's a window. It's a good one. That's enough.",
+   "src": "L197"
+  }
+ }
+}

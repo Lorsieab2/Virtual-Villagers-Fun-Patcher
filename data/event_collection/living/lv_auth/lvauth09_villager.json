@@ -1,0 +1,184 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Villager's Warning",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth09_villager",
+  "source": "living",
+  "lines": [
+   23459,
+   23473
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23459",
+  "ledger": [
+   {
+    "src": "L23473",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A withdrawn villager predicts that a riverbank will collapse, but few know them well.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A withdrawn villager predicts that a riverbank will collapse, but few know them well.",
+   "src": "L23460",
+   "choices": [
+    {
+     "label": "Ignore the warning.",
+     "next": "a",
+     "src": "L23461"
+    },
+    {
+     "label": "Ask the villager to explain.",
+     "next": "b",
+     "src": "L23464"
+    },
+    {
+     "label": "Send a team to inspect.",
+     "next": "c",
+     "src": "L23467"
+    },
+    {
+     "label": "Let the villager mark the danger on a map.",
+     "next": "d",
+     "src": "L23470"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "collapse",
+     "reason": "a riverbank, not a structure",
+     "src": "L23460"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The bank holds, and the village feels reassured.",
+   "src": "L23462"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The bank collapses and damages nearby gardens.",
+   "src": "L23463",
+   "text_only": [
+    {
+     "what": "collapses",
+     "reason": "the riverbank and the gardens: no structure of the games",
+     "src": "L23463"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Their careful observations reveal an urgent danger.",
+   "src": "L23465"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They struggle to explain under pressure, and the {@chief} misunderstands.",
+   "src": "L23466"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The team confirms the risk and moves supplies.",
+   "src": "L23468"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The inspection finds little, leaving the question open.",
+   "src": "L23469"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The marked cracks persuade the builders.",
+   "src": "L23471"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The drawing is unclear, and further checking is needed.",
+   "src": "L23472"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

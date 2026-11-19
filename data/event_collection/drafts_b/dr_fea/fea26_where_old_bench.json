@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Where the Old Bench Was",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea26_where_old_bench",
+  "source": "draft_fea",
+  "lines": [
+   308,
+   317
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L308",
+  "ledger": [
+   {
+    "src": "L309",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult or elder)"
+   }
+  ],
+  "description": "A new storehouse is going where a villager's favorite sitting log has always been: say it feels strange, or help build.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village is building a new storehouse, and they're putting it right where (subject)'s favorite sitting log has always been. It's the best spot. Nobody disagrees. (subject) agreed at the meeting. But today they've moved the log, and (subject) is standing there, feeling unsteady, as if the ground has shifted. (friend) asks if (subject.he/she) is alright.",
+   "src": "L311",
+   "choices": [
+    {
+     "label": "Say It Feels Strange",
+     "next": "o1",
+     "src": "L313"
+    },
+    {
+     "label": "Help with the Building",
+     "next": "o2",
+     "src": "L316"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I know it's silly,\" says (subject). \"It's just a log. But I've sat there for years.\" (friend) shakes (friend.his/her) head. \"It's not silly.\" They find the log, where the builders rolled it, and drag it to a new spot facing the sea. It's a good spot. It's not the same. (subject) sits on it anyway.",
+   "src": "L314"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides that if things must change, (subject.he/she) would rather be part of it. (subject.He/she) helps with the storehouse all week. When it's finished, (subject.he/she) puts a small flat stone by the door, just where (subject.his/her) log used to be, and sits on it in the evenings. It's not the same. It's still (subject.his/her) spot.",
+   "src": "L317"
+  }
+ }
+}

@@ -1,0 +1,180 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Changed Hair",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anmom06_changed_hair",
+  "source": "anthology",
+  "lines": [
+   104,
+   111
+  ],
+  "section": "an_mom",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_mom",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L107",
+    "kind": "instruction",
+    "text": "[hair color change]",
+    "why": "the volume's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L108",
+    "kind": "instruction",
+    "text": "[hair color change]",
+    "why": "the volume's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L105",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L107",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L108",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L110",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L111",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L111",
+    "kind": "sensitivity",
+    "before": "the villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager experiments with a different hair color before a gathering.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager) experiments with a different hair color before a gathering.",
+   "src": "L105",
+   "choices": [
+    {
+     "label": "Keep the New Color.",
+     "next": "a",
+     "src": "L106"
+    },
+    {
+     "label": "Return to the Familiar Color.",
+     "next": "b",
+     "src": "L109"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(villager) likes the result and wears it proudly.",
+   "src": "L107",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
+     "src": "L107"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(villager) enjoys the attention but misses the old color.",
+   "src": "L108",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
+     "src": "L108"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(villager) feels more comfortable with their usual appearance.",
+   "src": "L110"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(friend) says both colors suited (villager) equally well.",
+   "src": "L111"
+  }
+ }
+}

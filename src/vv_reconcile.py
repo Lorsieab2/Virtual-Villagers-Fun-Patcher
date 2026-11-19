@@ -370,6 +370,7 @@ class Logs:
     new_by_event: list[Record] = field(default_factory=list)
     event_changes: list[tuple[str, str, str, str]] = field(default_factory=list)   # (name, field, old, new)
     files: list[Path] = field(default_factory=list)
+    sex_changed: set[str] = field(default_factory=set)  # names whose sex changed (vv_sex_changes)
 
 
 def read_logs(folder: Path, game: int, slot: int, villages: set[str] | None) -> Logs:
@@ -378,6 +379,8 @@ def read_logs(folder: Path, game: int, slot: int, villages: set[str] | None) -> 
     out = Logs()
     snapshots: dict[str, Census] = {}
     population: Census | None = None
+    import vv_sex_changes as sexes
+    out.sex_changed = sexes.changed_names(folder, slot)
     for path in checker.log_files(Path(folder)):
         try:
             found = additions.blocks(path)
@@ -387,6 +390,7 @@ def read_logs(folder: Path, game: int, slot: int, villages: set[str] | None) -> 
         if not mine:
             continue
         out.files.append(path)
+        out.sex_changed |= sexes.history_names(mine)
         for b in mine:
             head = b.heading
             if head.startswith("Villager ") and additions.is_population(path):
@@ -487,18 +491,26 @@ def _same_parent(a: str | None, b: str | None) -> bool:
     return a is None or b is None or a == "" or b == "" or a == b
 
 
-def _could_be(a: Seen, b: Seen, game: int, same_parent=None) -> bool:
+def _sex_fits(a: Seen, b: Seen, changed=frozenset()) -> bool:
+    """The same sex, or a side that does not say, or a villager whose sex changed (vv_sex_changes)."""
+    import vv_sex_changes as sexes
+    return sexes.same_villager_sex((a.name, b.name), a.sex, b.sex, changed)
+
+
+def _could_be(a: Seen, b: Seen, game: int, same_parent=None, changed=frozenset()) -> bool:
     """Whether b may be the same villager as a, a later look at them (age only moves on).  `same_parent`:
-    how two parent names are compared (the patcher's renames followed, _Builder.same_parent)."""
+    how two parent names are compared (the patcher's renames followed, _Builder.same_parent); `changed`:
+    the names whose sex changed (vv_sex_changes)."""
     same_parent = same_parent or _same_parent
-    return ((a.sex is None or b.sex is None or a.sex == b.sex)
+    return (_sex_fits(a, b, changed)
             and _compatible(a.likes, b.likes) and _compatible(a.dislikes, b.dislikes)
             and same_parent(a.father, b.father) and same_parent(a.mother, b.mother)
             and (a.age is None or b.age is None or b.age >= a.age))
 
 
-def _pair(a: list[Seen], b: list[Seen]) -> tuple[list[tuple[Seen, Seen]], list[Seen], list[Seen]]:
-    """Exact matches on name, head and body (sex too where both say it), namesakes in age order."""
+def _pair(a: list[Seen], b: list[Seen], changed=frozenset()) -> tuple[list[tuple[Seen, Seen]], list[Seen], list[Seen]]:
+    """Exact matches on name, head and body (sex too where both say it, unless the name's sex changed:
+    `changed`, vv_sex_changes), namesakes in age order."""
     groups_a: dict[tuple, list[Seen]] = {}
     groups_b: dict[tuple, list[Seen]] = {}
     for s in a:
@@ -515,6 +527,9 @@ def _pair(a: list[Seen], b: list[Seen]) -> tuple[list[tuple[Seen, Seen]], list[S
                           and (old.age is None or n.age is None or n.age >= old.age)), None)
             if match is None:
                 match = next((n for n in news if old.sex is None or n.sex is None or old.sex == n.sex), None)
+            if match is None:
+                match = next((n for n in news if _sex_fits(old, n, changed)
+                              and (old.age is None or n.age is None or n.age >= old.age)), None)
             if match is None:
                 gone.append(old)
             else:
@@ -750,7 +765,8 @@ class _Builder:
         for r in self.logs.departures:
             if not (r.who.key in known or (r.who.head is None and r.who.name in names)):
                 continue
-            if s.sex and r.who.sex and s.sex.strip().lower() != r.who.sex.strip().lower():
+            if s.sex and r.who.sex and s.sex.strip().lower() != r.who.sex.strip().lower() \
+                    and not (names & self.logs.sex_changed or r.who.name in self.logs.sex_changed):
                 continue
             return r.heading
         return None
@@ -810,7 +826,7 @@ class _Builder:
         the save: a villager under the name they had before such a rename is followed to the name it
         gave them, so it is neither "possibly lost" nor a question."""
         a, b = self.renamed_census(a), self.renamed_census(b)
-        pairs, gone, new = _pair(a.people, b.people)
+        pairs, gone, new = _pair(a.people, b.people, self.logs.sex_changed)
         game = self.game
         # A save older than the roster it is compared with: whoever is missing from it is most likely in no
         # save only because of a quit without saving (Alt-F4, which loses what happened since the last
@@ -843,7 +859,7 @@ class _Builder:
                      [f"{KEEP} (the same villager; the age was changed)", "Another villager (the first is lost)"],
                      legacy=f"age|{now.key}|{a.when}|{b.when}")
         for old, now in pairs:
-            if old.sex and now.sex and old.sex != now.sex:
+            if old.sex and now.sex and old.sex != now.sex and not _sex_fits(old, now, self.logs.sex_changed):
                 self.ask("sex", f"sex|{now.key}", f"{now.name} ({now.looks()}) is {old.sex} in {a.label} but "
                          f"{now.sex} in {b.label}. Which is right?", [f"{KEEP} ({now.sex})", f"{old.sex}"])
             # Likes and dislikes: any word lost or gained between two looks at one villager is a change
@@ -899,7 +915,7 @@ class _Builder:
                 continue
             if bodies is not None and any(x.key == old.key for x in bodies):
                 continue                                    # a body awaiting burial: its Death record comes then
-            fits = [n for n in unexplained_new if _could_be(old, n, game, self.same_parent)
+            fits = [n for n in unexplained_new if _could_be(old, n, game, self.same_parent, self.logs.sex_changed)
                     and ((n.head, n.body) == (old.head, old.body) or n.name == old.name)]
             # The player's "Different villagers" in the Family Tree Maker keeps two apart here too.
             fits = [n for n in fits if self.identity(old.key, n.key) != "different"]
@@ -1004,7 +1020,7 @@ class _Builder:
                 if (c.head, c.body) != (v.head, v.body) or c.name == v.name or c.key in alive \
                         or c.key in self.departed or names_related(self.game, c.name, v.name):
                     continue
-                if c.sex and v.sex and c.sex != v.sex:
+                if c.sex and v.sex and c.sex != v.sex and not _sex_fits(c, v, self.logs.sex_changed):
                     continue
                 if not (_compatible(c.likes, v.likes) and _compatible(c.dislikes, v.dislikes)):
                     continue
@@ -1224,7 +1240,8 @@ class _Builder:
         same = [x for x in file_entries if x.pending and x.identity == e.identity and x.title == e.title]
         raw = titles_file.entry_bytes(e)
         carriers = [v for v in present if v.title_id == e.identity]
-        could = [v for v in carriers if v.title_looks is not None and titles_file.could_be(self.game, e, v.title_looks)]
+        could = [v for v in carriers if v.title_looks is not None
+                 and titles_file.could_be(self.game, e, v.title_looks, v.name in self.logs.sex_changed)]
         could = titles_file.narrow(e, could, lambda v: v.title_looks)   # the looks only break a tie
         named = [s.name for s in snapshot if s.title == e.title]
         name = carriers[0].name if carriers else (named[0] if len(set(named)) == 1 else None)
@@ -1737,7 +1754,8 @@ def settle_titles(folder: Path, game: int, slot: int, actions: list[TitleAction]
         if not here or looks != a.looks:
             raise tools.LogToolError(f"{a.name} is no longer in the save as the question saw them (the save "
                                      f"changed since); \"{a.title}\" was not given and nothing was changed.")
-        if not titles_file.could_be(game, e, looks):
+        import vv_sex_changes
+        if not titles_file.could_be(game, e, looks, a.name in vv_sex_changes.changed_names(folder, slot)):
             raise tools.LogToolError(f"{a.name} is not someone the title \"{a.title}\" could belong to (another "
                                      "head, body or sex, or younger or less skilled); nothing was changed.")
         if any(not x.pending and x.index == a.record for x in entries):

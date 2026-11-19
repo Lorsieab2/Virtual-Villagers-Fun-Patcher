@@ -1,0 +1,148 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Circle and the Stranger",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir27_stranger",
+  "source": "living",
+  "lines": [
+   21582,
+   21593
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21582",
+  "ledger": [
+   {
+    "src": "L21593",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A visitor says their people believe the dead travel to another world, while an Isolan elder speaks of returning to the land.",
+  "cast_only": [
+   "elder",
+   "scientist"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "scientist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A visitor says their people believe the dead travel to another world, while an Isolan elder speaks of returning to the land.",
+   "src": "L21583",
+   "choices": [
+    {
+     "label": "Invite both to share their beliefs.",
+     "next": "a",
+     "src": "L21584"
+    },
+    {
+     "label": "Focus on what can be observed.",
+     "next": "b",
+     "src": "L21587"
+    },
+    {
+     "label": "Hold a shared remembrance.",
+     "next": "c",
+     "src": "L21590"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The village listens and finds common comfort without agreement.",
+   "src": "L21585"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A child asks questions neither speaker can answer.",
+   "src": "L21586"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The scientist describes decay and new growth, while acknowledging other questions remain.",
+   "src": "L21588"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The visitor feels unheard until the scientist asks about their customs.",
+   "src": "L21589"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Different families honor their dead in their own ways.",
+   "src": "L21591"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some choose not to participate and are respected.",
+   "src": "L21592"
+  }
+ }
+}

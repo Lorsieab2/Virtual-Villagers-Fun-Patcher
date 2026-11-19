@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Father Who Waited",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat09_father_waited",
+  "source": "fathers30",
+  "lines": [
+   180,
+   198
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L180",
+  "ledger": [
+   {
+    "src": "L181",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L182",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L186",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L188",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L189",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L191",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L192",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L194",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L195",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L197",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L198",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L184",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "For years, a villager has imagined teaching a child to fish and recognize birds.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For years, (name1) has imagined teaching a child to fish and recognize birds. He wonders whether the family he hopes for will ever happen.",
+   "src": "L184",
+   "choices": [
+    {
+     "label": "Tell His Partner What He Hopes For",
+     "next": "a",
+     "src": "L187"
+    },
+    {
+     "label": "Talk with an Older Father",
+     "next": "b",
+     "src": "L190"
+    },
+    {
+     "label": "Help Care for a Relative's Child",
+     "next": "c",
+     "src": "L193"
+    },
+    {
+     "label": "Write Down His Hopes",
+     "next": "d",
+     "src": "L196"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They discover they share a dream and begin planning.",
+   "src": "L188"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "His partner does not want children; they face a serious disagreement.",
+   "src": "L189"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "He hears both joys and hardships, not just happy memories.",
+   "src": "L191"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The advice is contradictory, leaving him thoughtful.",
+   "src": "L192"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "He enjoys the afternoon and learns how much work caregiving takes.",
+   "src": "L194"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child refuses every game he suggests, then falls asleep on him.",
+   "src": "L195"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "He finds comfort in naming what matters to him.",
+   "src": "L197"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "He realizes some hopes have changed since he was younger.",
+   "src": "L198"
+  }
+ }
+}

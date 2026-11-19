@@ -1,0 +1,180 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Painted Pebble Trail",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage05_painted_pebble",
+  "source": "anthology",
+  "lines": [
+   30189,
+   30203
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30189",
+  "ledger": [
+   {
+    "src": "L30190",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN), carried out as the roles' ages"
+   },
+   {
+    "src": "L30196",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30197",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Children find a trail of tiny painted pebbles that adults walking the main path have never noticed.",
+  "label_case": "title",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Children find a trail of tiny painted pebbles that adults walking the main path have never noticed.",
+   "src": "L30191",
+   "choices": [
+    {
+     "label": "Follow It with Adult Supervision",
+     "next": "a",
+     "src": "L30192"
+    },
+    {
+     "label": "Ask the Youngest Observer",
+     "next": "b",
+     "src": "L30195"
+    },
+    {
+     "label": "Map the Trail Together",
+     "next": "c",
+     "src": "L30198"
+    },
+    {
+     "label": "Leave the Stones Undisturbed",
+     "next": "d",
+     "src": "L30201"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The trail leads to an old, harmless play circle hidden by grass.",
+   "src": "L30193"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The trail ends at a shallow puddle; the children deduce the remaining stones washed away.",
+   "src": "L30194"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) recognizes the symbols as marks from a recent game.",
+   "src": "L30196"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) notices that some paint is much older than the rest, raising a historical question.",
+   "src": "L30197"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The children produce a surprisingly accurate miniature map of the clearing.",
+   "src": "L30199"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Their first map is confusing, so they invent a clearer symbol key.",
+   "src": "L30200"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The children document the pattern with drawings for later comparison.",
+   "src": "L30202"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They agree to protect the site and instead build a new trail for their own games.",
+   "src": "L30203"
+  }
+ }
+}

@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Net That Stayed Too Long",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon17_net_stayed_long",
+  "source": "draft_hon",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager realizes a net borrowed seasons ago was never returned: bring it straight back, or offer to make a new one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two seasons ago, (subject) borrowed (friend)'s spare fishing net, just for a few days. It has hung in (subject)'s hut ever since, and (subject) uses it all the time. Somewhere along the way, (subject.he/she) stopped thinking of it as borrowed. Today (friend) mentions, in passing, that (friend.he/she) has been looking everywhere for (friend.his/her) spare net.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Bring It Straight Back",
+     "next": "o1",
+     "src": "L205"
+    },
+    {
+     "label": "Offer to Make a New One",
+     "next": "o2",
+     "src": "L208"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) goes very red, fetches the net and brings it over. \"I'd completely forgotten it was yours.\" (friend) turns it over in (friend.his/her) hands. \"You've mended it.\" \"A few times.\" \"It's better than when I lent it to you.\" (friend) keeps it for a moment. Then (friend.he/she) lends it to (subject) again, \"properly, this time.\"",
+   "src": "L206"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) admits it, and offers to weave (friend) a brand-new net, since the old one is now patched all over with (subject)'s own knots. (friend) agrees. It takes (subject) most of a month. (friend) gets a fine new net, and (subject) gets to keep the old one, which by now feels like (subject.his/her) own anyway.",
+   "src": "L209"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L209",
+   "before": "(his/hers)",
+   "after": "(his/her) own"
+  }
+ ]
+}

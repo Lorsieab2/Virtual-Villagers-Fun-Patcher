@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's Ice Doing Falling from the Sky?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd32_what_ice_doing",
+  "source": "da_wd",
+  "lines": [
+   380,
+   383
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L380",
+  "ledger": [
+   {
+    "src": "L381",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L383",
+    "kind": "casting",
+    "before": "An elder says",
+    "after": "(elder), an elder, says",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "On a hot afternoon, small cold white stones fall from the sky and melt in a villager's hand.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "It's a hot afternoon when the sky goes dark and something begins to rattle on the roofs: small white stones, falling from the clouds and bouncing on the ground. (subject) picks one up. It's cold. It's very cold. It's hard, like a pebble, and it's melting in (subject.his/her) hand. All over the village, people are coming out of their huts and holding out their palms. Children are catching the stones and squealing at the cold. (elder), an elder, says (elder.he/she) saw this once before, when (elder.he/she) was a child, and nobody believed (elder.him/her) then. It lasts only a few minutes. Then the sun comes back out, and the little cold stones melt into the hot ground, and there's nothing left but wet sand and a village full of people looking up at the sky, wondering what that was.",
+   "src": "L383"
+  }
+ }
+}

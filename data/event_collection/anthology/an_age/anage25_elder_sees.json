@@ -1,0 +1,219 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Who Sees a Pattern",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage25_elder_sees",
+  "source": "anthology",
+  "lines": [
+   30509,
+   30523
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30509",
+  "ledger": [
+   {
+    "src": "L30510",
+    "kind": "note",
+    "why": "the volume's casting tag (ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L30511",
+    "kind": "sensitivity",
+    "before": "An eccentric elder",
+    "after": "(elder), an eccentric elder,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30513",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30514",
+    "kind": "sensitivity",
+    "before": "the elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30520",
+    "kind": "sensitivity",
+    "before": "The craftsperson",
+    "after": "(crafts)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30520",
+    "kind": "sensitivity",
+    "before": "the elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30522",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30523",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An eccentric elder claims the village's woven baskets are failing because of a pattern nobody else notices.",
+  "label_case": "title",
+  "cast_only": [
+   "elder",
+   "crafts"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "crafts": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder), an eccentric elder, claims the village's woven baskets are failing because of a pattern nobody else notices.",
+   "src": "L30511",
+   "choices": [
+    {
+     "label": "Test the Claim Carefully",
+     "next": "a",
+     "src": "L30512"
+    },
+    {
+     "label": "Ask for a Demonstration",
+     "next": "b",
+     "src": "L30515"
+    },
+    {
+     "label": "Invite a Skeptical Craftsperson",
+     "next": "c",
+     "src": "L30518"
+    },
+    {
+     "label": "Listen Without Assuming Genius or Foolishness",
+     "next": "d",
+     "src": "L30521"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(elder) correctly identifies a weak crossing technique.",
+   "src": "L30513"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The baskets hold up well, and (elder) cheerfully admits the theory was wrong.",
+   "src": "L30514"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Their unusual knot survives repeated use and surprises the apprentices.",
+   "src": "L30516"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Their knot is impractical, but it inspires a better variation.",
+   "src": "L30517"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The two argue animatedly and then design a fair test.",
+   "src": "L30519"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(crafts) finds a simpler explanation, which (elder) accepts reluctantly.",
+   "src": "L30520"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) enjoys being taken seriously without automatic agreement.",
+   "src": "L30522"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(elder) reveals the whole theory began as a joke, embarrassing their devoted audience.",
+   "src": "L30523"
+  }
+ }
+}

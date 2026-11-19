@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Remedy (name1) Didn't Want",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea45_remedy_didnt",
+  "source": "draft_hea",
+  "lines": [
+   539,
+   548
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L539",
+  "ledger": [
+   {
+    "src": "L540",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend brings a villager a new remedy for a sore back every day: say no kindly, or take the bowl and say nothing.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) mentioned a sore back once, a week ago. Since then, (friend) has brought (subject.him/her) a different remedy every single day. Pepper leaf. A heated stone. A special way of lying on the floor. Today (friend) is standing at the door with a bowl of something grey and lumpy, beaming.",
+   "src": "L542",
+   "choices": [
+    {
+     "label": "Say No Kindly",
+     "next": "o1",
+     "src": "L544"
+    },
+    {
+     "label": "Take the Bowl and Say Nothing",
+     "next": "o2",
+     "src": "L547"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"(friend),\" says (subject), \"you're very kind. But I'm not going to try any more remedies. My back is my business, and I'm taking care of it my own way.\" (friend)'s face falls. \"Oh. I was only trying to help.\" \"I know,\" says (subject). \"That's why I'm saying it kindly.\" (friend) takes the grey stuff home. The next day, (friend.he/she) brings fruit instead, with no instructions at all.",
+   "src": "L545"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) takes the bowl, thanks (friend.him/her) and closes the door. (subject.He/she) does not eat the grey lumpy stuff. (subject.He/she) feeds a little to the pig, who also does not eat it. The next day there is another remedy. (subject) realizes (subject.he/she) will have to say something eventually. (subject.He/she) decides eventually can wait one more day.",
+   "src": "L548"
+  }
+ }
+}

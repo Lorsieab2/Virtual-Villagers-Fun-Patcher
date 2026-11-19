@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Difficult Shift",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn037_difficult",
+  "source": "companion",
+  "lines": [
+   3002,
+   3011
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3005",
+  "ledger": [
+   {
+    "src": "L3002",
+    "kind": "structural",
+    "why": "the group heading 'HEALERS, EMOTIONAL STRAIN AND CARE'"
+   },
+   {
+    "src": "L3007",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L3011",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   }
+  ],
+  "description": "A healer finishes a day caring for severely injured villagers and feels overwhelmed.",
+  "cast_only": [
+   "healer",
+   "colleague"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "colleague": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A healer finishes a day caring for severely injured villagers and feels overwhelmed.",
+   "src": "L3006",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "severely injured villagers",
+     "reason": "the day's past patients; nobody is hurt now",
+     "src": "L3006"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A colleague recommends a genuine break.",
+   "src": "L3008"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A mentor suggests gradual supervised exposure.",
+   "src": "L3009"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The healer cries with a trusted friend and feels heard.",
+   "src": "L3010"
+  }
+ }
+}

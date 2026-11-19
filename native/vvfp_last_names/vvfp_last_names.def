@@ -5,3 +5,4 @@ EXPORTS
     VvfpRuleLastName2=_VvfpRuleLastName2@36
     VvfpRuleLastName3=_VvfpRuleLastName3@60
     VvfpRelookLastName=_VvfpRelookLastName@28
+    VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16

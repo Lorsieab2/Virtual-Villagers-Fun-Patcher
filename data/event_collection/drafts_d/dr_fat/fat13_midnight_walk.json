@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Midnight Walk",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat13_midnight_walk",
+  "source": "fathers30",
+  "lines": [
+   264,
+   282
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L264",
+  "ledger": [
+   {
+    "src": "L265",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L266",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L270",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L272",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L273",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L275",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L276",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L278",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L279",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L281",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L282",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L268",
+    "kind": "sensitivity",
+    "before": "Their father has tried",
+    "after": "Their father, (name1), has tried",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A baby cries through the night.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A baby cries through the night. Their father, (name1), has tried feeding, changing, and rocking them, and now paces beneath the stars while the rest of the village sleeps.",
+   "src": "L268",
+   "choices": [
+    {
+     "label": "Walk Slowly by the Shore",
+     "next": "a",
+     "src": "L271"
+    },
+    {
+     "label": "Sing a Familiar Song",
+     "next": "b",
+     "src": "L274"
+    },
+    {
+     "label": "Ask Another Caregiver for Relief",
+     "next": "c",
+     "src": "L277"
+    },
+    {
+     "label": "Check with the Healer If Something Seems Wrong",
+     "next": "d",
+     "src": "L280"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The waves calm the baby at last.",
+   "src": "L272"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The baby stays awake, but the father enjoys the cool air.",
+   "src": "L273"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The baby grows quiet halfway through the second verse.",
+   "src": "L275"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "He forgets the words and invents increasingly ridiculous ones.",
+   "src": "L276"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "He gets enough rest to try again with patience.",
+   "src": "L278"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The other caregiver is exhausted too, so they split the night.",
+   "src": "L279"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The healer identifies a manageable cause for the distress.",
+   "src": "L281"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "No clear cause appears, and they continue monitoring the child.",
+   "src": "L282"
+  }
+ }
+}

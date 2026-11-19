@@ -1,0 +1,50 @@
+{
+  "the_aspiring_adventurer.json": {
+    "version": 5,
+    "cieg_sha256": "5801bf94439645f9035a1e6453f98ce2404f5f59b8e17b80d357e22acc579109",
+    "normalized_sha256": "419e83038651355eb234c8a200a556edfa59df6bafeac3b3fc560325c9114c72",
+    "chances_sha256": "7005ec5610db90e0ca70110370821aa3a2249dc47123b154bfdafe2227a59917"
+  },
+  "the_cave_explorers.json": {
+    "version": 3,
+    "cieg_sha256": "b922a6878a819698084c7c0f3671012e8a7d0e0f0b22ca11f6af23ae340269be",
+    "normalized_sha256": "95169ee38923490a0d747ec33649934e3087c4bbd738ca38c56d6b37722e28cc",
+    "chances_sha256": "43e9fc6001aa51bbb7e546245fbf3eba773aa6d0ff1843742056d5419b34ba08"
+  },
+  "tiny_v1": {
+    "version": 1,
+    "cieg_sha256": "0013ab82bd9bab6f9d91a008ca18fc6d752e7a34a186104e8b72836c8aa1a753",
+    "normalized_sha256": "37a7538ec74f9aa7de8a1988efd751dd8460e36bff3210a276f0ae4498b878fb",
+    "chances_sha256": "24876faca6238595c1a5e694f445f2b49b73ccd02edb86a22ce56301382e4a00"
+  },
+  "multi_v2": {
+    "version": 2,
+    "cieg_sha256": "4e1e5a80440c4beee94aaedd93ed9e035e420c4fb349d74126431f30b01b87eb",
+    "normalized_sha256": "7a75d078e32ff63b99e4e50b432683f6699572b42f3679a20fbf877d90edd8dc",
+    "chances_sha256": "8a7ec15608cbc7b5c9b65ed4f29a95a572d1216049c9db8435d63a3111b89bd1"
+  },
+  "v3": {
+    "version": 3,
+    "cieg_sha256": "72a48eec7a3822ac453b93288669f5df755241ccd30d9d74c474c0f4d23a21be",
+    "normalized_sha256": "4a90cae5dd112520b6a3a2d842b666b6628f8c1054b2111adbd52b7449209768",
+    "chances_sha256": "a19eec95da8fc42369f52d8e0ea3e16e2b185f6a4c01d1e62311c2f875da1e01"
+  },
+  "four_doors_v4": {
+    "version": 4,
+    "cieg_sha256": "5186bb00eeb8e0d5da2453c540b2527585c85e55caaf3198cb9a4f0abd147fd5",
+    "normalized_sha256": "8a49ce85b3e28edea21eb7c82ae8267350891d8fc3c56d1093e8ca95e16d7796",
+    "chances_sha256": "77bf8ac0ff9bee32ec9369488b2b64608821c00d3ebe278ac64355305a2dbc9d"
+  },
+  "four_doors_v5": {
+    "version": 5,
+    "cieg_sha256": "e4c1126b76331702410676457421c8e606932684e17bc27591953880eb670341",
+    "normalized_sha256": "1c7cf2240879d47de17b1379840ac39331b3500d2ffa63604cc387a3a224d507",
+    "chances_sha256": "77bf8ac0ff9bee32ec9369488b2b64608821c00d3ebe278ac64355305a2dbc9d"
+  },
+  "per_game_v5": {
+    "version": 5,
+    "cieg_sha256": "14b0768194d559b861aa459bc03a20861548e21bbf9d90516ef47dd3c0dd45e7",
+    "normalized_sha256": "148e7abcccdb7baf2777a9e7a11cc8a77fdd450eb0c7a9034d513eeb36acc699",
+    "chances_sha256": "24876faca6238595c1a5e694f445f2b49b73ccd02edb86a22ce56301382e4a00"
+  }
+}

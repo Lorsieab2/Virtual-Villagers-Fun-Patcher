@@ -1,0 +1,75 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unpopular Decision",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5ev039_unpopular",
+  "source": "companion",
+  "lines": [
+   3602,
+   3606
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3602",
+  "ledger": [
+   {
+    "src": "L3606",
+    "kind": "note",
+    "why": "CHOICE: Optional; a designer note: the event is observational, one outcome is drawn"
+   }
+  ],
+  "description": "A new leader must choose between an impressive monument and repairing essential shelters.",
+  "cast_only": [
+   "leader"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "leader": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A new leader must choose between an impressive monument and repairing essential shelters.",
+   "src": "L3603",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Prioritize urgent repairs.",
+   "src": "L3604"
+  },
+  "e2": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Ask the community to deliberate openly.",
+   "src": "L3605"
+  }
+ }
+}

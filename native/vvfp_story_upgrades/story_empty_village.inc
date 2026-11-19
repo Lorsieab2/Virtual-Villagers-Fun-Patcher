@@ -197,7 +197,8 @@ static int __cdecl ce_trigger_bypass(int game, int count, void *scene, void *cou
     /* A New Home, The Lost Children: a village's first island event is the game's own visitor
        (0x42382C, 0x42EF3C).  A player's own event comes first: the trigger goes on past that check
        for it, uncounted, so the visitor is still the village's first island event after it. */
-    if ((game == 1 || game == 2) && ce_first_before == game && ce_pending(game) && !ce_armed_is_notice) {
+    if ((game == 1 || game == 2) && ce_first_before == game && ce_pending(game)
+        && (!ce_armed_is_notice || cg_owns_armed(game))) {   /* (a branching event's later pages too) */
         ce_dead_first = game;
         return CE_DEAD_FIRST;
     }

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forgotten Seeds",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his32_forgotten_seeds",
+  "source": "draft_his",
+  "lines": [
+   380,
+   389
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L380",
+  "ledger": [
+   {
+    "src": "L381",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a farmer or an adult and an elder)"
+   }
+  ],
+  "description": "A villager finds old wax-sealed seeds unlike any grown on Isola: plant them, or keep them as they are.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Clearing out an ancient storage pot buried in the floor of the oldest hut, (subject) has found a handful of seeds, small and black and wrinkled, sealed in with wax. They're not like any seeds grown on Isola today. (friend), an elder, has no idea what they are either. (subject) wonders whether, after all this time, they would even grow.",
+   "src": "L383",
+   "choices": [
+    {
+     "label": "Plant Them",
+     "next": "o1",
+     "src": "L385"
+    },
+    {
+     "label": "Keep Them as They Are",
+     "next": "o2",
+     "src": "L388"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) plants them in a corner of the garden and waters them every day. For weeks, nothing. Then three of them come up. They grow into a tall, leafy plant with purple flowers and long pods. Nobody knows what it is or whether it's safe to eat. The healers are very interested. (subject) is just amazed that something somebody put away so long ago is growing in front of (subject.him/her).",
+   "src": "L386"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) suggests keeping them sealed, as they were found. If they don't grow, they're gone. (subject) agrees, reluctantly. The pot is put back, and (subject) makes a carving on the lid: seeds from long ago, kept safe. It's a mystery that will last longer than both of them. Maybe someday someone will be braver.",
+   "src": "L389"
+  }
+ }
+}

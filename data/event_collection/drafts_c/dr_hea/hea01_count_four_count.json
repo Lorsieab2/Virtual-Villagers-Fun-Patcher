@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Count to Four, Count to Six",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea01_count_four_count",
+  "source": "draft_hea",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager freezes on the path, chest tight, the day before the feast: try the breathing, or get away for a while.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The harvest feast is tomorrow and everyone wants something from (subject) at once. Carry this. Taste that. Where are the big bowls? Halfway through the afternoon (subject) stops in the middle of the path with (subject.his/her) hands full and simply can't move. (subject.His/her) chest is tight and (subject.his/her) thoughts are going round like a swarm of bees. (friend), who helps the healer, sees (subject.him/her) standing there.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Try the Breathing",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Just Get Away for a While",
+     "next": "o2",
+     "src": "L16"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) takes the bowls and says, \"Breathe in while I count four. Out while I count six.\" It feels silly. (subject) does it anyway. Four in, six out. Four in, six out. The bees slow down a little. Not all the way. \"Better?\" asks (friend). \"Some,\" says (subject). \"Ask me again in an hour.\" An hour later it is a bit better, and (subject.he/she) is still counting under (subject.his/her) breath.",
+   "src": "L14"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I need to not be here,\" says (subject). (friend) nods and takes the bowls. (subject) walks to the far end of the beach where nobody wants anything, and sits on a log until the tightness eases. It takes most of the afternoon. The feast gets ready without (subject.him/her). Somehow, it always does.",
+   "src": "L17"
+  }
+ }
+}

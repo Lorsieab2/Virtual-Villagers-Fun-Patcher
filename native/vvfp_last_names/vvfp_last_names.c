@@ -150,6 +150,7 @@
 #include "../shared/vv5_villager_table.h"  /* New Believers' table, stock or 256 */
 #include "../shared/patcher_files.h"     /* the Parentage Export companion, by its full path */
 #include "../shared/villager_rekey.h"    /* the owners' VvfpVillagersRenamed (HEATHENS) */
+#include "../shared/sex_change.h"       /* a sex change keeps the villager's own rule (VvfpVillagerSexChanged) */
 
 #define GAMES 5
 #define FAMILIES 50
@@ -574,9 +575,10 @@ static int own_line_of(const char *line, struct own_line *o) {
    the record's "villager" lines: 'f', 'm', 'r', 'l' or 'v'; 0 for none -- no line, the
    looks unknown (negative; a head or body 0 is a real look), or two lines for
    the same villager that disagree. */
-static char own_rule(const char *name, int head, int body, char sex) {
+static char own_rule_lines(const char *name, int head, int body, char sex, int *lines) {
     const char *line;
     char found = 0;
+    *lines = 0;
     if (name == NULL || name[0] == '\0' || head < 0 || body < 0) {
         return 0;
     }
@@ -586,10 +588,61 @@ static char own_rule(const char *name, int head, int body, char sex) {
             || o.sex != sex) {
             continue;
         }
+        ++*lines;
         if (found != 0 && found != o.rule) {
-            return 0;
+            found = -1;
+        } else if (found != -1) {
+            found = o.rule;
         }
-        found = o.rule;
+    }
+    return found == -1 ? 0 : found;
+}
+
+static char own_rule(const char *name, int head, int body, char sex) {
+    int lines;
+    return own_rule_lines(name, head, body, sex, &lines);
+}
+
+/* The slot's "Sex Changes" log (native/shared/sex_change.h), NUL-terminated in log[cap]: found as this
+   companion finds its own record (record_path: the save's own folder, or the older layout's), so a harness's
+   folder is the log's too.  0 when there is none. */
+static int read_sex_log(int slot, char *log, DWORD cap) {
+    char folder[MAX_PATH], path[MAX_PATH * 2];
+    HANDLE h;
+    DWORD got = 0;
+    log[0] = '\0';
+    if (slot < 1 || slot > 9 || cap < 2 || !save_folder(folder, sizeof folder)
+        || _snprintf(path, sizeof path, "%s\\Virtual Villagers Fun Patcher Data\\Sex Changes\\"
+                     "Sex Changes - Save %d.txt", folder, slot) <= 0) {
+        return 0;
+    }
+    path[sizeof path - 1] = '\0';
+    (void)vv_ps_route_a(path, MAX_PATH - 16, 0);
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!ReadFile(h, log, cap - 1u, &got, NULL)) {
+        got = 0;
+    }
+    CloseHandle(h);
+    log[got] = '\0';
+    return got > 0;
+}
+
+/* A PARENT's own rule (the father's or the mother's slot, recorded at conception): the line of the slot's sex
+   -- or, when there is none and the slot's "Sex Changes" log (native/shared/sex_change.h) names the parent,
+   their line of the other sex: a father whose sex changed since is still the father, and his own rule still
+   applies.  A parent the log does not name is never taken for a villager of the other sex. */
+static char parent_rule(const char *name, int head, int body, char sex, int slot) {
+    static char log[VV_SEX_LOG_MAX];
+    int lines, others;
+    char found = own_rule_lines(name, head, body, sex, &lines);
+    char other = lines == 0 ? own_rule_lines(name, head, body, sex == 'M' ? 'F' : 'M', &others) : 0;
+    /* The log is read only when there is a line of the other sex to take. */
+    if (other != 0 && slot > 0 && read_sex_log(slot, log, sizeof log) && vv_sex_log_names(log, name)) {
+        found = other;
     }
     return found;
 }
@@ -1022,8 +1075,8 @@ static int rule_last_name(char *name, unsigned int room,
     if (rule[0] == '\0' && !names_a_rule()) {
         rule[0] = DEFAULT_RULE;             /* no rule chosen: the one Repair shows (the owner, 2026-10-14) */
     }
-    use = decide(own_rule(father, father_head, father_body, 'M'),
-                 own_rule(mother, mother_head, mother_body, 'F'), rule[0]);
+    use = decide(parent_rule(father, father_head, father_body, 'M', slot),
+                 parent_rule(mother, mother_head, mother_body, 'F', slot), rule[0]);
     if (use == 0) {
         return 0;                           /* no rule decides: the family's stays */
     }
@@ -1104,6 +1157,32 @@ __declspec(dllexport) int __stdcall VvfpRuleLastName3(char *name, unsigned int r
                           table, stride, slots, active, name_at, capacity);
 }
 
+/* The slot's record at `path` replaced by out[used], through a temporary file swapped in whole.  1 when it was. */
+static int swap_in_record(const char *path, const char *out, size_t used) {
+    char temporary[MAX_PATH * 2 + 16];
+    HANDLE h;
+    DWORD wrote = 0;
+    if (_snprintf(temporary, sizeof temporary, "%s.relook-tmp", path) <= 0) {
+        return 0;
+    }
+    temporary[sizeof temporary - 1] = '\0';
+    h = CreateFileA(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!WriteFile(h, out, (DWORD)used, &wrote, NULL) || wrote != used || !FlushFileBuffers(h)) {
+        CloseHandle(h);
+        DeleteFileA(temporary);
+        return 0;
+    }
+    CloseHandle(h);
+    if (!MoveFileExA(temporary, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(temporary);
+        return 0;
+    }
+    return 1;
+}
+
 /* A villager's looks changed (the coordinator, 2026-10-09: the rule must
    follow the villager at the moment the look changes -- an island event
    changed Papu's head in the owner's A New Home).  From the Parentage Export
@@ -1119,12 +1198,10 @@ __declspec(dllexport) int __stdcall VvfpRuleLastName3(char *name, unsigned int r
 __declspec(dllexport) int __stdcall VvfpRelookLastName(const char *name, int male, int old_head, int old_body,
                                                        int new_head, int new_body, int slot) {
     static char out[RULE_FILE_MAX + 64 * 64];
-    char rule[8], path[MAX_PATH * 2], temporary[MAX_PATH * 2 + 16];
+    char rule[8], path[MAX_PATH * 2];
     const char *line;
     size_t used = 0;
     int moved = 0, has_new;
-    HANDLE h;
-    DWORD wrote = 0;
     if (install_state != 1 || name == NULL || name[0] == '\0' || old_head < 0 || old_body < 0 || new_head < 0
         || new_body < 0 || (old_head == new_head && old_body == new_body)) {
         return 0;
@@ -1164,25 +1241,54 @@ __declspec(dllexport) int __stdcall VvfpRelookLastName(const char *name, int mal
             ++moved;
         }
     }
-    if (moved == 0 || _snprintf(temporary, sizeof temporary, "%s.relook-tmp", path) <= 0) {
+    return moved > 0 && swap_in_record(path, out, used) ? moved : 0;
+}
+
+/* A VILLAGER'S SEX CHANGED (native/shared/sex_change.h): `record` live (the new sex), `before` as it was.  Their
+   own rule stays theirs: each "villager" line of their name and looks with the old sex is rewritten with the new
+   one, right away (swap_in_record), every other byte of the record kept.  `slot` 0: the slot whose save holds the
+   name (slot_of_parents).  Returns 1 when a line was rewritten. */
+int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    static char out[RULE_FILE_MAX + 64];
+    char rule[8], path[MAX_PATH * 2], name[64];
+    const unsigned char *r = (const unsigned char *)record;
+    const char *line;
+    size_t used = 0;
+    int head, body, moved = 0;
+    char was, now;
+    if (install_state != 1 || game != g_game || !vv_sex_game_ok(game) || record == NULL || before == NULL) {
         return 0;
     }
-    temporary[sizeof temporary - 1] = '\0';
-    h = CreateFileA(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (h == INVALID_HANDLE_VALUE) {
+    vv_sex_name(game, r, name);
+    head = *(const int *)(r + VV_SEX_LAYOUT[game].head);
+    body = *(const int *)(r + VV_SEX_LAYOUT[game].body);
+    was = vv_sex_female(game, (const unsigned char *)before) ? 'F' : 'M';
+    now = vv_sex_female(game, r) ? 'F' : 'M';
+    if (name[0] == '\0' || was == now) {
         return 0;
     }
-    if (!WriteFile(h, out, (DWORD)used, &wrote, NULL) || wrote != used || !FlushFileBuffers(h)) {
-        CloseHandle(h);
-        DeleteFileA(temporary);
+    if (slot <= 0) {
+        slot = was == 'M' ? slot_of_parents(name, NULL) : slot_of_parents(NULL, name);
+    }
+    if (!read_record(slot, rule, sizeof rule) || g_rule_size >= RULE_FILE_MAX || !record_path(slot, path, sizeof path)) {
         return 0;
     }
-    CloseHandle(h);
-    if (!MoveFileExA(temporary, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
-        DeleteFileA(temporary);
-        return 0;
+    for (line = g_rule_file; line != NULL && *line != '\0';
+         line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+        size_t n = strchr(line, '\n') ? (size_t)(strchr(line, '\n') + 1 - line) : strlen(line);
+        struct own_line o;
+        if (n >= sizeof out - used) {
+            return 0;
+        }
+        memcpy(out + used, line, n);
+        if (own_line_of(line, &o) && strcmp(o.name, name) == 0 && o.sex == was && o.head == head
+            && o.body == body) {
+            out[used + (size_t)(o.looks_end + 1 - line)] = now;   /* the sex field, after the body's tab */
+            ++moved;
+        }
+        used += n;
     }
-    return moved;
+    return moved > 0 && swap_in_record(path, out, used);
 }
 
 /* HEATHENS (New Believers; the owner, 2026-11-08: "in vv5, please give
@@ -1777,6 +1883,7 @@ static const char *const RENAME_OWNERS[] = {
     "VVFP Origins Icons.dll",           /* New Believers' masks */
     "VVFP Head Look.dll",
     "VVFP Original Look.dll",
+    "VVFP Gender Presentation.dll",
     "VVFP Cause of Death.dll",          /* Former Heathens */
 };
 

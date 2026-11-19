@@ -169,14 +169,15 @@ def narrow(e: Entry, could: list, looks_of) -> list:
     return same if len(same) == 1 else could
 
 
-def could_be(game: int, e: Entry, looks: dict) -> bool:
+def could_be(game: int, e: Entry, looks: dict, sex_changed: bool = False) -> bool:
     """custom_titles.h vv_title_looks_could_be: the same sex, no younger, no skill lower -- both sides'
     skills as the corrupted-skill reset leaves them (an entry whose looks are not known: anyone of its
     fingerprint).  The head and body only break ties (`narrow`; the owner, v1.35.80 update: "A change in
-    body, head and mask does not mean they disappeared")."""
+    body, head and mask does not mean they disappeared").  `sex_changed`: the villager is one whose sex
+    changed (vv_sex_changes), so the entry's sex may be the other one."""
     if not e.known:
         return True
-    if looks["sex"] != e.sex or looks["age"] < e.age:
+    if (looks["sex"] != e.sex and not sex_changed) or looks["age"] < e.age:
         return False
     floats = SAVE_LOOKS[game][6]
     stored = Entry(0, 1, "x", True, skills=tuple(skill_normalised(v, floats) for v in e.skills)).skill_values(game)

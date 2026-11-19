@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Isolan Who Stayed",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvppl25_isolan_stayed",
+  "source": "living",
+  "lines": [
+   21988,
+   22000
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21988",
+  "ledger": [
+   {
+    "src": "L21989",
+    "kind": "structural",
+    "text": "VV5 ONLY:",
+    "why": "the source's game tag: the event's games are [5] (VV5 only)"
+   },
+   {
+    "src": "L21999",
+    "kind": "note",
+    "why": "GUARDIANS OF ISOLA VARIANT: the designer's rule, carried out as the Guardians of Isola Rewrite forms (guardians-wording.md)"
+   },
+   {
+    "src": "L22000",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A member of the other community wishes to remain there rather than join the player's tribe.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A member of the other community wishes to remain there rather than join the player's tribe.",
+   "src": "L21989",
+   "choices": [
+    {
+     "label": "Respect their decision.",
+     "next": "a",
+     "src": "L21990"
+    },
+    {
+     "label": "Invite occasional visits.",
+     "next": "b",
+     "src": "L21993"
+    },
+    {
+     "label": "Pressure them to join.",
+     "next": "c",
+     "src": "L21996"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The neighbor remains where they belong and maintains friendly ties.",
+   "src": "L21991"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The villagers learn that friendship does not require membership.",
+   "src": "L21992"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Shared festivals become a new custom.",
+   "src": "L21994"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The visitor accepts some invitations but declines others.",
+   "src": "L21995"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The neighbor withdraws from contact.",
+   "src": "L21997"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager later apologizes for the pressure.",
+   "src": "L21998"
+  }
+ }
+}

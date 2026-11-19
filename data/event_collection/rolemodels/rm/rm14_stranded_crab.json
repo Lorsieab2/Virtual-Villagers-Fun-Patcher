@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranded Crab",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm14_stranded_crab",
+  "source": "rolemodels",
+  "lines": [
+   31,
+   31
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L31",
+  "ledger": [
+   {
+    "src": "L31",
+    "kind": "structural",
+    "text": "EVENT RM-14  -  THE STRANDED CRAB SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "Two children find a small crab trapped beneath a fallen basket near the shore.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two children find a small crab trapped beneath a fallen basket near the shore.",
+   "src": "L31",
+   "choices": [
+    {
+     "label": "Lift the Basket Carefully.",
+     "next": "a",
+     "src": "L31"
+    },
+    {
+     "label": "Ask an Older Villager for Help.",
+     "next": "b",
+     "src": "L31"
+    },
+    {
+     "label": "Clear Nearby Debris Without Touching the Crab.",
+     "next": "c",
+     "src": "L31"
+    },
+    {
+     "label": "Observe Quietly Before Acting.",
+     "next": "d",
+     "src": "L31"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The crab scuttles toward the water while the children watch from a distance.",
+   "src": "L31"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The crab remains motionless briefly before moving into the shade.",
+   "src": "L31"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The older villager frees the crab and shows how to avoid its claws.",
+   "src": "L31"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "By the time help arrives, the crab has escaped through a narrow opening.",
+   "src": "L31"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The crab finds a route out, and the children leave it undisturbed.",
+   "src": "L31"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The basket remains wedged, so the children seek assistance.",
+   "src": "L31"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The children discover that the crab is already working its way free.",
+   "src": "L31"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The crab appears unable to escape, prompting the children to fetch help.",
+   "src": "L31"
+  }
+ }
+}

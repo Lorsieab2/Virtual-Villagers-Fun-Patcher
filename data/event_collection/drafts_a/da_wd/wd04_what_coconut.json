@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Coconut Doing on the Roof?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd04_what_coconut",
+  "source": "da_wd",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L53",
+    "kind": "casting",
+    "before": "A child suggests",
+    "after": "(child), a child, suggests",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L53",
+    "kind": "casting",
+    "before": "An elder suggests",
+    "after": "(elder), an elder, suggests",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A coconut is balanced on top of a villager's roof, and nobody knows how it got there.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "There is a coconut on (subject)'s roof. Right on the top, balanced in the thatch. The nearest palm tree is a good twenty paces away. It didn't fall there. Nobody seems to have put it there. It's just sitting there, perfectly round, like it's always meant to be there.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Get It Down",
+     "next": "a",
+     "src": "L49"
+    },
+    {
+     "label": "Ask Around",
+     "next": "b",
+     "src": "L52"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) climbs up and fetches it down. It's a perfectly ordinary coconut. (subject.He/She) cracks it open for lunch, and it's delicious. The next morning, there is another coconut on (subject.his/her) roof. (subject) stands looking up at it for a long time. Then (subject.he/she) leaves this one where it is, out of respect.",
+   "src": "L50"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) asks everyone. Nobody put it there. (child), a child, suggests a very strong bird. (elder), an elder, suggests a very bored spirit. (friend) suggests a very good throw from someone who doesn't want to own up. (subject) can't decide which is most likely. The coconut stays on the roof for a week, and becomes, somehow, a sort of mascot.",
+   "src": "L53"
+  }
+ }
+}

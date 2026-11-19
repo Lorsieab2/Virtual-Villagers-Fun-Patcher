@@ -1,0 +1,181 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Newborn Welcome",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy01_newborn",
+  "source": "anthology",
+  "lines": [
+   28683,
+   28696
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28683",
+  "ledger": [
+   {
+    "src": "L28683",
+    "kind": "note",
+    "why": "TODO: a carrying or nursing parent must be born female; the engine reads only the sex field now (the role is the game's nursing parent, female), not a birth sex"
+   },
+   {
+    "src": "L28684",
+    "kind": "sensitivity",
+    "before": "welcomes a newborn",
+    "after": "welcomes (parent)'s newborn",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A family welcomes a newborn at a woodland gathering.",
+  "label_case": "title",
+  "cast_only": [
+   "parent"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female",
+   "special": "nursing_parent"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A family welcomes (parent)'s newborn at a woodland gathering.",
+   "src": "L28684",
+   "choices": [
+    {
+     "label": "Invite the Whole Community",
+     "next": "a",
+     "src": "L28685"
+    },
+    {
+     "label": "Keep It Small",
+     "next": "b",
+     "src": "L28688"
+    },
+    {
+     "label": "Let Children Prepare Songs",
+     "next": "c",
+     "src": "L28691"
+    },
+    {
+     "label": "Honor Several Family Customs",
+     "next": "d",
+     "src": "L28694"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Neighbors bring fruit and the family feels cherished.",
+   "src": "L28686"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The noise tires the parents, who choose a quieter celebration.",
+   "src": "L28687",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28687"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Close relatives share a peaceful afternoon.",
+   "src": "L28689"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Friends feel left out until the family explains its need for rest.",
+   "src": "L28690"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The children perform a wonderfully uneven lullaby.",
+   "src": "L28692"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The baby sleeps through the entire performance.",
+   "src": "L28693"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The gathering combines traditions without ranking them.",
+   "src": "L28695"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The family postpones one custom until the baby is older.",
+   "src": "L28696"
+  }
+ }
+}

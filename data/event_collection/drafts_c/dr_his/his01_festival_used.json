@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival That Used to Be in the Rain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his01_festival_used",
+  "source": "draft_his",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a teen aged 14-17)"
+   }
+  ],
+  "description": "A teen asks why every song of the dry-season festival is about rain, and the elder has no idea: ask around, or hold a rain dance.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The harvest festival is held in the dry season, in the sunshine, as it always has been. But (friend) has noticed that every single song sung at the festival is about rain: dancing in the rain, drinking the rain, thanking the rain. (friend.He/she) asks (subject) why. (subject) opens (subject.his/her) mouth, closes it, and realizes (subject.he/she) has absolutely no idea.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Ask Around",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Hold a Little Rain Dance",
+     "next": "o2",
+     "src": "L16"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They ask every elder in the village. One says the festival used to be in the wet season, long ago, and was moved because everyone kept slipping over. One says the songs are hoping for rain, not celebrating it. One says, \"Does it matter?\" and goes back to sleep. Nobody agrees. (friend) decides that next year (friend.he/she) is going to dance in a puddle anyway, just in case.",
+   "src": "L14",
+   "text_only": [
+    {
+     "what": "\"celebrating\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- the draft's notes: everything but the marked effects is story only",
+     "src": "L14"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) suggests a compromise: keep the festival in the sun, but at the end, everyone pours a cup of water over their own head while singing. (subject) is doubtful. The village tries it. It's very silly and very refreshing. Some of the older elders refuse. Some of them do it twice. Whether it's tradition or something new, nobody can quite say, and it sticks.",
+   "src": "L17"
+  }
+ }
+}

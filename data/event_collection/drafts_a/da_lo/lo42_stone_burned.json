@@ -1,0 +1,224 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone That Burned Too Bright",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo42_stone_burned",
+  "source": "da_lo",
+  "lines": [
+   506,
+   519
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L506",
+  "ledger": [
+   {
+    "src": "L507",
+    "kind": "note",
+    "why": "the casting line (the roles carry it); the 1 in 20 death on Try It is higher than the usual very rare: the text's own odds kept, for the owner's review"
+   },
+   {
+    "src": "L513",
+    "kind": "instruction",
+    "text": "[effect: small tech gain, only where the game has tech points]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   },
+   {
+    "src": "L513",
+    "kind": "structural",
+    "text": "(About 7 in 10)",
+    "why": "the outcome's odds: the branch's weight"
+   },
+   {
+    "src": "L514",
+    "kind": "instruction",
+    "text": "[effect: (name1) dislikes research or learning (lasting), where the game has a fitting dislike]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   },
+   {
+    "src": "L514",
+    "kind": "structural",
+    "text": "(About 2 in 10)",
+    "why": "the outcome's odds: the branch's weight"
+   },
+   {
+    "src": "L515",
+    "kind": "instruction",
+    "text": "[effect: (name1) dies (Unknown causes), with a grave]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   },
+   {
+    "src": "L515",
+    "kind": "structural",
+    "text": "(About 1 in 20)",
+    "why": "the outcome's odds: the branch's weight"
+   },
+   {
+    "src": "L516",
+    "kind": "instruction",
+    "text": "[no effect]",
+    "why": "the draft's effect note, never shown: no effect"
+   },
+   {
+    "src": "L516",
+    "kind": "structural",
+    "text": "(Otherwise)",
+    "why": "the outcome's odds: the branch's weight"
+   }
+  ],
+  "description": "A villager who has studied a lavastone for weeks wants to try to draw out its power on purpose.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been studying a large lavastone for weeks, trying to understand what it is and how its power works. Today (subject.he/she) is going to try something new: holding it in both hands and concentrating on it, the way the old stories say, to see if the power can be drawn out on purpose. (friend) is not sure this is a good idea, and says so.",
+   "src": "L509",
+   "choices": [
+    {
+     "label": "Try It",
+     "next": "a",
+     "src": "L511"
+    },
+    {
+     "label": "Don't Try It",
+     "next": "b",
+     "src": "L518"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Then, gently, the glow settles, and (subject) feels a rush of clarity, as if (subject.he/she) can suddenly see how several things fit together that never did before. (subject.He/She) writes for the rest of the night. Nobody knows if it was the stone.",
+   "src": "L513",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L513"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The glow spikes, and (subject) drops the stone with a cry. (subject.He/She) isn't hurt, but (subject.he/she) is badly shaken, and for a long time afterward (subject.he/she) can't bring (subject.him/her)self to go back to (subject.his/her) studies.",
+   "src": "L514",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "dislikes",
+     "preference": "learning",
+     "src": "L514"
+    }
+   ]
+  },
+  "a3": {
+   "name": "Outcome A3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The light flares so brightly that (friend) has to turn away. When (friend.he/she) looks back, the stone is dark and cold, and (subject) is lying still beside it. The healers come at once, but there is nothing they can do. Nobody can say what happened. Nobody could have known. The village mourns (subject), and the stone is buried with care, far from the huts.",
+   "src": "L515",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "subject",
+     "cause": "unknown",
+     "src": "L515"
+    }
+   ]
+  },
+  "a4": {
+   "name": "Outcome A4",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Nothing happens at all. The stone stays warm and ordinary. (subject) sighs and puts it down.",
+   "src": "L516"
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) holds the stone and concentrates. It warms. It glows. It grows brighter, and brighter.",
+   "src": "L512",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 14,
+     "odds": "About 7 in 10"
+    },
+    {
+     "next": "a2",
+     "weight": 4,
+     "odds": "About 2 in 10",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "a2_anh"
+    },
+    {
+     "next": "a3",
+     "weight": 1,
+     "odds": "About 1 in 20"
+    },
+    {
+     "next": "a4",
+     "weight": 1,
+     "odds": "Otherwise"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) listens to (friend) and puts the stone back in its box. \"We don't understand it,\" (subject.he/she) says. \"Maybe one day.\" (subject.He/She) goes on studying it from a careful distance: how warm it is each morning, how its glow changes with the weather. It's slow work. It's (subject.his/her) choice, and (subject.he/she) is at peace with it.",
+   "src": "L519"
+  },
+  "a2_anh": {
+   "name": "Outcome A2 (A New Home)",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The glow spikes, and (subject) drops the stone with a cry. (subject.He/She) isn't hurt, but (subject.he/she) is badly shaken, and for a long time afterward (subject.he/she) can't bring (subject.him/her)self to go back to (subject.his/her) studies.",
+   "src": "L514",
+   "text_only": [
+    {
+     "what": "dislikes research or learning (lasting)",
+     "src": "L514",
+     "reason": "rule 8: A New Home has no fitting preference word (no \"learning\"); the draft: only where the game has a fitting dislike"
+    }
+   ]
+  }
+ }
+}

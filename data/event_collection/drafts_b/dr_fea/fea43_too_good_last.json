@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Good to Last",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea43_too_good_last",
+  "source": "draft_fea",
+  "lines": [
+   512,
+   521
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "Life is going well but a villager keeps waiting for something to go wrong: talk about it, or try to enjoy it anyway.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Everything has been going well lately. Good harvest, everyone healthy, the roof finally stopped leaking. And (subject) can't enjoy any of it, because (subject.he/she) is waiting for something to go wrong. Things don't stay this good. Surely. (friend) finds (subject.him/her) sitting outside, frowning at a perfectly nice sunset.",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Talk About It",
+     "next": "o1",
+     "src": "L517"
+    },
+    {
+     "label": "Try to Enjoy It Anyway",
+     "next": "o2",
+     "src": "L520"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"What if it all goes wrong?\" says (subject). \"It might,\" says (friend). \"Something will, eventually. That's how it works.\" (subject) stares at (friend.him/her). \"That's not comforting.\" \"No. But this is still a nice sunset.\" They watch it together. (subject) still worries. (subject.He/she) also, for a while, watches the sunset.",
+   "src": "L518"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) makes (subject.him/her)self look at the sunset. Really look. It's orange and pink and gold. (subject.He/she) is still waiting for something to go wrong. Nothing does, tonight. (subject.He/she) goes to bed with the worry and the sunset both still in (subject.his/her) head. Some nights it's like that.",
+   "src": "L521"
+  }
+ }
+}

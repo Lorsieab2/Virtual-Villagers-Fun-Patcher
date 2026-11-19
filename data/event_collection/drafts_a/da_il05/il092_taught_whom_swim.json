@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Who Taught Whom to Swim",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il092_taught_whom_swim",
+  "source": "da_il05",
+  "lines": [
+   134,
+   143
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L134",
+  "ledger": [
+   {
+    "src": "L135",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Two villagers discover that each of them remembers teaching the other one to swim.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) and (friend) have just discovered that they both remember teaching the other one to swim. Both memories are detailed. Both involve a lot of splashing. Both cannot possibly be true.",
+   "src": "L137",
+   "choices": [
+    {
+     "label": "Settle It in the Water",
+     "next": "a",
+     "src": "L139"
+    },
+    {
+     "label": "Call It a Draw",
+     "next": "b",
+     "src": "L142"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They wade into the shallows to \"demonstrate.\" (subject) shows the kick (subject.he/she) taught (friend). (friend) shows the arm stroke (friend.he/she) taught (subject). It turns out they swim exactly alike. They float on their backs, arguing comfortably, until the tide comes in and they have to swim back in. Neither of them won, and both of them swam.",
+   "src": "L140"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Maybe we taught each other,\" says (friend). (subject) considers this. \"Maybe nobody taught anybody and we just flailed until it worked.\" That, they both agree, sounds the most likely. They shake hands on it.",
+   "src": "L143"
+  }
+ }
+}

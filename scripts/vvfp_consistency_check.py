@@ -2394,11 +2394,50 @@ def log_files(game_dir: Path) -> list[Path]:
     return shared + sorted(slots, key=lambda p: (layout.is_slot_folder(p), str(p)))
 
 
+SEX_CHANGED = "Changed"     # a known_sexes "sex": the logs say this villager's sex changed (src/vv_sex_changes.py)
+
+
+def sex_changed_names(game_dir: Path, slot: int) -> set[str]:
+    """The names the save's "Sex Changes - Save S.txt" (native/shared/sex_change.h; read as
+    src/vv_sex_changes.py reads it, here so the checker needs no more modules) holds: lines
+    "<M|F>\\t<M|F>\\t<name>", both places of the file."""
+    out: set[str] = set()
+    for path in layout.both_places(Path(game_dir), f"{DATA}\\Sex Changes\\Sex Changes - Save {slot}.txt"):
+        try:
+            text = Path(path).read_bytes().decode(GAME_TEXT, errors="replace")
+        except OSError:
+            continue
+        for line in text.splitlines():
+            parts = line.split("\t", 2)
+            if len(parts) == 3 and {parts[0], parts[1]} == {"M", "F"} and parts[2]:
+                out.add(parts[2])
+    return out
+
+
+def sex_change_record_name(block: list[str]) -> str | None:
+    """The villager an "Appearance changed" record's lines say changed sex ("  Old sex:" / "  New sex:"
+    that differ), else None."""
+    block = list(block)
+    while block and block[0].startswith(("===", "Village:")):
+        block = block[1:]
+    if not block or block[0].strip() != "Appearance changed":
+        return None
+    name = next((l.split(":", 1)[1].strip() for l in block if l.startswith("  Name:")), None)
+    old = next((l.split(":", 1)[1].strip() for l in block if l.startswith("  Old sex:")), None)
+    new = next((l.split(":", 1)[1].strip() for l in block if l.startswith("  New sex:")), None)
+    return name if name and old and new and old != new else None
+
+
 def known_sexes(game_dir: Path, game: int) -> tuple[dict, dict]:
     """What the save and the logs say each villager is: by (name, head, body), and by name alone --
-    each a set of the sexes seen, so two sources that disagree decide nothing (Codex, #553)."""
+    each a set of the sexes seen, so two sources that disagree decide nothing (Codex, #553).  A villager
+    whose sex changed (the save's "Sex Changes" log, an Appearance changed record's Old sex / New sex)
+    carries SEX_CHANGED too: which sex an older record without a Sex line meant is never guessed."""
     exact: dict[tuple, set] = {}
     by_name: dict[str, set] = {}
+    changed: set[str] = set()
+    for slot in range(1, 6):
+        changed |= sex_changed_names(game_dir, slot)
     for slot in range(1, 6):
         save = game_dir / f"{SAVE_STEMS[game]}{slot}.ldw"
         if not save.is_file():
@@ -2420,6 +2459,8 @@ def known_sexes(game_dir: Path, game: int) -> tuple[dict, dict]:
             continue
         for s, e in _blocks("\n".join(lines)):
             block = lines[s:e]
+            if sex_change_record_name(block):
+                changed.add(sex_change_record_name(block))
             sex_lines = [l for l in block if re.match(r"^\s+Sex: (Male|Female)\s*$", l)]
             if not sex_lines:
                 continue
@@ -2442,6 +2483,11 @@ def known_sexes(game_dir: Path, game: int) -> tuple[dict, dict]:
                 if head and body:
                     exact.setdefault((name, int(head.group(1)), int(body.group(1))), set()).add(sex)
                 by_name.setdefault(name, set()).add(sex)
+    for name in changed:
+        by_name.setdefault(name, set()).add(SEX_CHANGED)
+        for key in exact:
+            if key[0] == name:
+                exact[key].add(SEX_CHANGED)
     return exact, by_name
 
 
@@ -2449,6 +2495,8 @@ def sex_for(game: int, person: dict, exact: dict, by_name: dict) -> tuple[str | 
     """The villager's sex and where it came from: the save or the logs (the same name, head and
     body), the game's name lists, or every record of the name agreeing."""
     seen = exact.get((person["name"], person["head"], person["body"]), set())
+    if SEX_CHANGED in seen or SEX_CHANGED in by_name.get(person["name"], set()):
+        return None, ""                 # their sex changed: an older record's is the player's to say
     if person["head"] is not None and len(seen) == 1:
         return next(iter(seen)), "the save or the logs"
     # A New Home's Golden Child is named from either list and then made male, head 19, body 19

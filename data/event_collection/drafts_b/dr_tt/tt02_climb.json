@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Climb",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt02_climb",
+  "source": "draft_tt",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 6-12)"
+   }
+  ],
+  "description": "A child asks an adult to show the famous climb to the top of the tallest palm: give it a go, or explain that the tree has grown.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has often told (friend) that when (subject.he/she) was young, (subject.he/she) climbed the tallest palm on the island all the way to the top in one go, without stopping once. Today, standing under exactly that palm, (friend) looks up, and then at (subject). \"Can you show me?\"",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Give It a Go",
+     "next": "o1",
+     "src": "L25"
+    },
+    {
+     "label": "Explain That the Tree Has Grown",
+     "next": "o2",
+     "src": "L28"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) gets about a third of the way up and stops, holding on tight. \"This is about where I had a little rest last time,\" (subject.he/she) says, and climbs carefully back down. \"The rest of it,\" (subject.he/she) says, \"you'll have to imagine.\" (friend) imagines it very hard, and is impressed all over again.",
+   "src": "L26"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"It was a lot smaller then,\" says (subject), squinting up. \"Trees grow, you know.\" (friend) thinks this through and finds it entirely convincing. It is, after all, true. Just perhaps not quite in the way (subject) means it.",
+   "src": "L29"
+  }
+ }
+}

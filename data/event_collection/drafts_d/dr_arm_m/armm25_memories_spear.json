@@ -1,0 +1,61 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Memories of a Spear",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm25_memories_spear",
+  "source": "openq97",
+  "lines": [
+   603,
+   605
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L604",
+  "ledger": [
+   {
+    "src": "L603",
+    "kind": "structural",
+    "text": "[M25]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L605",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "Two relatives compare memories of the same ceremonial spear.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "Two relatives compare memories of the same ceremonial spear. One remembers the painted tip. The other recalls how it was carried during festivals.",
+   "src": "L603,L605"
+  }
+ }
+}

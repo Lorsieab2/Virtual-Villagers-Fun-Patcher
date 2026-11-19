@@ -1,0 +1,155 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cloth That Changed Its Mind",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl03_cloth_changed",
+  "source": "living",
+  "lines": [
+   21691,
+   21702
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21691",
+  "ledger": [
+   {
+    "src": "L21702",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A tailor accidentally dyes ceremonial clothing a color nobody expected.",
+  "cast_only": [
+   "tailor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "tailor": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "wearer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A tailor accidentally dyes ceremonial clothing a color nobody expected.",
+   "src": "L21692",
+   "choices": [
+    {
+     "label": "Keep the surprising color.",
+     "next": "a",
+     "src": "L21693"
+    },
+    {
+     "label": "Redye it in the traditional shade.",
+     "next": "b",
+     "src": "L21696"
+    },
+    {
+     "label": "Ask the wearer.",
+     "next": "c",
+     "src": "L21699"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The wearer starts a new fashion that spreads through the village.",
+   "src": "L21694"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An elder dislikes the change but admits the work is beautiful.",
+   "src": "L21695",
+   "text_only": [
+    {
+     "what": "an elder dislikes the change",
+     "reason": "an elder's opinion, not a game preference",
+     "src": "L21695"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The familiar color returns, reassuring the family.",
+   "src": "L21697"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Repeated dyeing weakens the cloth, and the tailor must repair it.",
+   "src": "L21698"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The wearer chooses a daring new color and celebrates.",
+   "src": "L21700",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "wearer",
+     "src": "L21700"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The wearer asks to leave the garment as it is, to everyone's surprise.",
+   "src": "L21701"
+  }
+ }
+}

@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Crooked Outfit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl099_crooked_outfit",
+  "source": "companion",
+  "lines": [
+   5103,
+   5113
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5103",
+  "ledger": [
+   {
+    "src": "L5104",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L5112",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L5113",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A tailor accidentally sews a garment asymmetrically.",
+  "cast_only": [
+   "tailor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "tailor": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "wearer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A tailor accidentally sews a garment asymmetrically.",
+   "src": "L5105",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L5106"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L5107"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L5108"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "It starts a fashion trend.",
+   "src": "L5109",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "wearer",
+     "body": "random",
+     "src": "L5109"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "The wearer requests a repair.",
+   "src": "L5110"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "The tailor develops a distinctive new design.",
+   "src": "L5111"
+  }
+ }
+}

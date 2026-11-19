@@ -27,7 +27,7 @@
     {
       "source": "assets/faith_notice/VVFP Faith Notice.dll",
       "destination": "VVFP Faith Notice.dll",
-      "sha256": "D716F141020C1745493542C8DD54B984F56DDFF01AF566D47B0BC2470B39D983"
+      "sha256": "9F3A71B0ACAED103E4CAB0DFD1837428F991D23F96330BD99A0C00CC851712DC"
     }
   ],
   "patches": [],

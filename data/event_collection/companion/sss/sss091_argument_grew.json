@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Argument That Grew Too Large",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss091_argument_grew",
+  "source": "companion",
+  "lines": [
+   7005,
+   7013
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7005",
+  "ledger": [
+   {
+    "src": "L7013",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "Two coworkers hear the same remark differently, and one is overwhelmed by the quick exchange.",
+  "cast_only": [
+   "coworker1",
+   "coworker2",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "coworker1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "coworker2": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "Two coworkers interpret the same remark differently, and one becomes overwhelmed by the rapid exchange.",
+   "src": "L7006",
+   "choices": [
+    {
+     "label": "Pause the discussion",
+     "next": "a",
+     "src": "L7007"
+    },
+    {
+     "label": "Put the problem in writing",
+     "next": "b",
+     "src": "L7009"
+    },
+    {
+     "label": "Ask a mediator",
+     "next": "c",
+     "src": "L7011"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Both return when calmer.",
+   "src": "L7008"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They discover they were arguing about different tasks.",
+   "src": "L7010"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "An elder helps them agree on practical boundaries.",
+   "src": "L7012"
+  }
+ }
+}

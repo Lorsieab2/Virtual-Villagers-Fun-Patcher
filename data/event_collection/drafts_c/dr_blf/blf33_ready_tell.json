@@ -1,0 +1,84 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Not Ready to Tell the Family",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf33_ready_tell",
+  "source": "draft_blf",
+  "lines": [
+   392,
+   401
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L392",
+  "ledger": [
+   {
+    "src": "L393",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two teens aged 14-17)"
+   }
+  ],
+  "description": "A teen has told only their best friend about doubts on belief, and the friend's parent asks: keep the secret, or suggest talking.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been doing a lot of thinking lately about what (subject.he/she) believes, or doesn't, and (subject.he/she) has told only one person: (friend), (subject.his/her) best friend. Today (friend)'s parent asks, casually, \"Is (subject) alright? (subject.He/she) seems quiet lately.\"",
+   "src": "L395",
+   "choices": [
+    {
+     "label": "(friend) Keeps the Secret",
+     "next": "o1",
+     "src": "L397"
+    },
+    {
+     "label": "(friend) Suggests Talking",
+     "next": "o2",
+     "src": "L400"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"(subject.He/she) is fine,\" says (friend). \"Just thinking about things.\" The parent nods and leaves it. Later (friend) tells (subject) about it. \"You didn't say anything?\" \"It's yours to say,\" says (friend). \"If you ever want to.\" (subject) is so grateful (subject.he/she) can't speak for a moment. (subject.He/she) isn't ready yet. It helps to know (subject.he/she) doesn't have to be.",
+   "src": "L398"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"(subject.He/she) is alright,\" says (friend), and keeps the secret. But later (friend.he/she) says to (subject), \"Your family loves you. I think they'd listen, if you wanted to tell them. Only if you want to.\" (subject) thinks about it for a long time. \"Maybe,\" (subject.he/she) says. \"Not yet.\" \"Not yet is fine,\" says (friend). It stays not yet for a while.",
+   "src": "L401"
+  }
+ }
+}

@@ -1,0 +1,123 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Reckless Pact",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_17_pact",
+  "source": "v28",
+  "lines": [
+   10617,
+   10623
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10617",
+  "ledger": [
+   {
+    "src": "L10618",
+    "kind": "note",
+    "why": "the cast: TEENS 14-17; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10623",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "Two teenagers promise each other never to back down from a dare."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen1": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "teen2": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "Two teenagers promise never to back down from a dare.",
+   "src": "L10619",
+   "children": [
+    {
+     "next": "a",
+     "weight": 20
+    },
+    {
+     "next": "b",
+     "weight": 10,
+     "rarity": "occasional"
+    },
+    {
+     "next": "c",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "One refuses a dangerous challenge and redefines courage.",
+   "src": "L10620"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They attempt a stunt and suffer a minor injury.",
+   "src": "L10621",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "teen1",
+     "min": -30,
+     "max": -10,
+     "src": "L10621"
+    },
+    {
+     "do": "health_change",
+     "role": "teen2",
+     "min": -30,
+     "max": -10,
+     "src": "L10621"
+    }
+   ]
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Their pact breaks after a serious accident, leaving lingering guilt.",
+   "src": "L10622",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "teen2",
+     "min": -60,
+     "max": -40,
+     "src": "L10622"
+    }
+   ]
+  }
+ }
+}

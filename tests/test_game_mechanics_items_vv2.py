@@ -68,14 +68,14 @@ PINNED = {
     "The briar thorns": "C",
     "The scarecrow": "C",
     "The fire pit": "EC",
-    "Mushrooms": "EECC",
-    "Collectibles": "EEC",
+    "Mushrooms": "EECCC",
+    "Collectibles": "EECC",
     "Butterfly Collection": "EC",
     "Shell Collection": "EC",
     "Beetle Collection": "EC",
     "Pebble Collection": "EC",
     "All four collections": "CC",
-    "Stews": "ECC" + "C" * 18 + "U",          # the stews one line each
+    "Stews": "ECC" + "C" * 18 + "UC",         # the stews one line each; Empty the Stew Pot from the Science Hut Door
     "A snack (the food store)": "E",
     "Teaching children": "CC",
     "The Gong of Wonder": "EC",

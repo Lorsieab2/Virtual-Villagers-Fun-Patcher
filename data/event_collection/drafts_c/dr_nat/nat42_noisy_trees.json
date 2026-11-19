@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Noisy Trees",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat42_noisy_trees",
+  "source": "draft_nat",
+  "lines": [
+   494,
+   503
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L494",
+  "ledger": [
+   {
+    "src": "L495",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two builders or two adults)"
+   }
+  ],
+  "description": "The perfect spot for a new hut is under the herons' noisy nesting trees: build somewhere else, or build there and see.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The perfect spot for a new hut, flat and dry and near the stream, is right under a stand of trees where dozens of herons nest. It is very loud, it smells powerfully of fish, and every surface under the trees is white with droppings. (subject) wants to build there anyway. (friend) thinks the herons were there first.",
+   "src": "L497",
+   "choices": [
+    {
+     "label": "Build Somewhere Else",
+     "next": "o1",
+     "src": "L499"
+    },
+    {
+     "label": "Build There and See",
+     "next": "o2",
+     "src": "L502"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They choose a less convenient spot further along the stream, with worse soil and a longer walk to water. (subject) grumbles for weeks. But in the evenings, sitting outside the new hut, (subject.he/she) can watch the herons flying home to their trees at sunset, long necks tucked in, one after another. It's a good view. (subject.He/she) admits this, eventually.",
+   "src": "L500"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They build the hut. The herons do not leave. They shriek, they squabble, they drop fish bits on the roof. The new hut becomes known as the noisiest, smelliest hut on Isola. (subject) moves in anyway and swears (subject.he/she) will get used to it. After a season (subject.he/she) says (subject.he/she) has. Nobody believes (subject.him/her), but (subject.he/she) does seem to sleep fine.",
+   "src": "L503"
+  }
+ }
+}

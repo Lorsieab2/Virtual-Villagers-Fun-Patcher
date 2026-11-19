@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Bored and Cross",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day46_bored_cross",
+  "source": "draft_day",
+  "lines": [
+   548,
+   557
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L548",
+  "ledger": [
+   {
+    "src": "L549",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen aged 14-17 and an adult)"
+   }
+  ],
+  "description": "A bored, cross teen is lying across the hut doorway so everyone must step over: leave them be, or offer a job.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is bored. (subject.He/she) is also cross about being bored, and cross that everyone else seems busy and happy, and cross about something someone said yesterday which (subject.he/she) won't repeat. (subject.He/she) is lying across the doorway of the hut so that everyone has to step over (subject.him/her). (friend) steps over (subject.him/her) for the third time.",
+   "src": "L551",
+   "choices": [
+    {
+     "label": "Leave (subject.him/her) Be",
+     "next": "o1",
+     "src": "L553"
+    },
+    {
+     "label": "Offer a Job",
+     "next": "o2",
+     "src": "L556"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) steps over (subject.him/her) again and says nothing. (subject) lies there for most of the afternoon. Then, without warning, (subject.he/she) gets up, goes out, and comes back two hours later with a basket full of fish, in a much better mood, and refuses to discuss any of it.",
+   "src": "L554"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Want something to do?\" asks (friend). \"No,\" says (subject). \"There's a canoe that needs bailing out.\" (subject) groans. Then (subject.he/she) gets up and goes. Bailing is boring and wet. (subject.He/she) complains the whole time. (subject.He/she) is also, by the end, noticeably less cross. Neither of them points that out.",
+   "src": "L557"
+  }
+ }
+}

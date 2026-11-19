@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Field That Grew Tired",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife14_field_grew",
+  "source": "living",
+  "lines": [
+   20811,
+   20822
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20811",
+  "ledger": [
+   {
+    "src": "L20822",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A fertile field produces smaller harvests each season, and farmers disagree about why.",
+  "cast_only": [
+   "farmer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "farmer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A fertile field produces smaller harvests each season, and farmers disagree about why.",
+   "src": "L20812",
+   "choices": [
+    {
+     "label": "Leave the field fallow.",
+     "next": "a",
+     "src": "L20813"
+    },
+    {
+     "label": "Grow different crops in succession.",
+     "next": "b",
+     "src": "L20816"
+    },
+    {
+     "label": "Add compost and observe.",
+     "next": "c",
+     "src": "L20819"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "a2",
+     "weight": 20
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The soil gradually improves, though the village harvests less this year.",
+   "src": "L20814",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L20814"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Hungry families resent losing productive ground.",
+   "src": "L20815"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The next harvest improves, but the reason remains uncertain.",
+   "src": "L20817"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A poorly chosen crop fails, and the farmers revise their plan.",
+   "src": "L20818",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L20818"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The soil becomes richer over time.",
+   "src": "L20820"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Unfinished compost damages seedlings, teaching the farmers patience.",
+   "src": "L20821"
+  }
+ }
+}

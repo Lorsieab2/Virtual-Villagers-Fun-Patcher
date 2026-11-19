@@ -65,7 +65,10 @@ def _compile(source: Path, exe: Path, work: Path, defines=(), fixed=False, inclu
         cmd += ["/I", str(inc)]
     cmd += [str(source), f"/Fe{exe}", f"/Fo{work}\\", "/link"]
     if fixed:
-        cmd += ["/FIXED", "/DYNAMICBASE:NO", "/BASE:0x400000"]
+        # A New Home's companion (with the sex-change follow) is large enough that its statics at 0x400000 would
+        # cover the game's own addresses the harness backs, so game 1 links lower (as test_orphan_mask_cleanup).
+        base = "0x200000" if fixed == "low" else "0x400000"
+        cmd += ["/FIXED", "/DYNAMICBASE:NO", f"/BASE:{base}"]
     cmd += [f"/LIBPATH:{vs / 'lib' / 'x86'}", f"/LIBPATH:{sdk / 'Lib' / ver / 'um' / 'x86'}",
             f"/LIBPATH:{sdk / 'Lib' / ver / 'ucrt' / 'x86'}",
             "kernel32.lib", "user32.lib", "gdi32.lib", "shell32.lib", "advapi32.lib", "gdiplus.lib",
@@ -101,7 +104,8 @@ class OriginsCompanionFrameCostTests(_Work):
                 out = self.work / f"fc{game}"
                 out.mkdir()
                 exe = out / f"frame_cost_vv{game}.exe"
-                _compile(NATIVE / "shared" / "frame_cost_harness.c", exe, out, (f"FC_GAME={game}",), fixed=True)
+                _compile(NATIVE / "shared" / "frame_cost_harness.c", exe, out, (f"FC_GAME={game}",),
+                         fixed="low" if game == 1 else True)
                 run = subprocess.run([str(exe), str(self.docs(f"docs_fc{game}"))], capture_output=True,
                                      text=True, timeout=600)
                 self.assertIn("== 0 failure(s) ==", run.stdout, run.stdout)

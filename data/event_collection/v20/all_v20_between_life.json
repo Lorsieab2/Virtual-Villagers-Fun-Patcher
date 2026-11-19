@@ -1,0 +1,915 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Between Life and Death",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_between_life",
+  "source": "v28",
+  "lines": [
+   9089,
+   9184
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L9090",
+  "ledger": [
+   {
+    "src": "L9167",
+    "kind": "structural",
+    "why": "heading of the optional follow-ups"
+   },
+   {
+    "src": "L9168-9178",
+    "kind": "note",
+    "why": "optional long-term follow-ups L1-L5 need state kept across events (rule 9); not shipped"
+   },
+   {
+    "src": "L9180",
+    "kind": "instruction",
+    "why": "F2 (the zombie-like outcome) is exceptionally rare: weight 1 against 20"
+   },
+   {
+    "src": "L9181-9184",
+    "kind": "note",
+    "why": "designer note, never displayed"
+   },
+   {
+    "src": "L9099",
+    "kind": "instruction",
+    "text": "Healing experience gained.",
+    "why": "an effect or a text_only reason on this outcome"
+   },
+   {
+    "src": "L9130",
+    "kind": "instruction",
+    "text": "; determine full or partial recovery",
+    "why": "an effect or a text_only reason on this outcome"
+   },
+   {
+    "src": "L9139",
+    "kind": "instruction",
+    "text": "; determine full or partial recovery",
+    "why": "an effect or a text_only reason on this outcome"
+   },
+   {
+    "src": "L9145",
+    "kind": "instruction",
+    "text": "Permanent half-alive trait.",
+    "why": "an effect or a text_only reason on this outcome"
+   },
+   {
+    "src": "L9157",
+    "kind": "instruction",
+    "text": "; large Tech reward",
+    "why": "an effect or a text_only reason on this outcome"
+   },
+   {
+    "src": "L9161",
+    "kind": "instruction",
+    "text": " with randomized recovery",
+    "why": "an effect or a text_only reason on this outcome"
+   },
+   {
+    "src": "L9100",
+    "kind": "structural",
+    "text": "A Life Forever Changed:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9102",
+    "kind": "structural",
+    "text": "One Last Conversation:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9104",
+    "kind": "structural",
+    "text": "The Unanswered Question:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9107",
+    "kind": "structural",
+    "text": "The Forest's Mercy:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9109",
+    "kind": "structural",
+    "text": "Rooted Between Worlds:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9111",
+    "kind": "structural",
+    "text": "The Price of Renewal:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9113",
+    "kind": "structural",
+    "text": "Nature Reclaims Its Own:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9116",
+    "kind": "structural",
+    "text": "The Impossible Revival:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9118",
+    "kind": "structural",
+    "text": "The Sleeping Miracle:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9120",
+    "kind": "structural",
+    "text": "The Broken Spell:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9122",
+    "kind": "structural",
+    "text": "The Price of Power:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9125",
+    "kind": "structural",
+    "text": "The Ancestors Answer:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9127",
+    "kind": "structural",
+    "text": "A Final Blessing:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9129",
+    "kind": "structural",
+    "text": "The Long Vigil:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9131",
+    "kind": "structural",
+    "text": "Silence from Beyond:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9134",
+    "kind": "structural",
+    "text": "The Apprentice's Miracle:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9136",
+    "kind": "structural",
+    "text": "Saved, But Not Unscathed:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9138",
+    "kind": "structural",
+    "text": "A Narrow Escape:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9140",
+    "kind": "structural",
+    "text": "The Cost of Desperation:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9143",
+    "kind": "structural",
+    "text": "The Unnatural Survivor:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9146",
+    "kind": "structural",
+    "text": "The Walking Dead:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9149",
+    "kind": "structural",
+    "text": "The Miracle They Condemned:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9151",
+    "kind": "structural",
+    "text": "The Forbidden Failure:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9153",
+    "kind": "structural",
+    "text": "The Patient Who Remembered Death:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9157",
+    "kind": "structural",
+    "text": "Against All Odds:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9158",
+    "kind": "structural",
+    "text": "The Long Road Back:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9160",
+    "kind": "structural",
+    "text": "The Living Sleeper:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9162",
+    "kind": "structural",
+    "text": "The Last Words:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9164",
+    "kind": "structural",
+    "text": "The Uncertain Victory:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9098",
+    "kind": "structural",
+    "text": "The Physician's Triumph:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   }
+  ],
+  "description": "A villager collapses and is dying, and the village decides which kind of healing to try."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   },
+   "optional": true
+  }
+ },
+ "start": "collapse",
+ "nodes": {
+  "collapse": {
+   "type": "question",
+   "name": "The collapse",
+   "src": "L9093-9095",
+   "text": "(Patient) collapses in the village center. (patient.His/Her) breath is faint, (patient.his/her) skin cold, and the healers say that (patient.he/she) is dying NOW. The gathered villagers must decide what to do before time runs out.",
+   "text_only": [
+    {
+     "src": "L9093",
+     "what": "collapses",
+     "reason": "the villager collapses; no structure is involved"
+    }
+   ],
+   "choices": [
+    {
+     "label": "ESTABLISHED SCIENTIFIC HEALING",
+     "next": "set_a",
+     "src": "L9097"
+    },
+    {
+     "label": "THE POWERS OF NATURE",
+     "next": "set_b",
+     "src": "L9106",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    },
+    {
+     "label": "MAGICAL RESTORATION",
+     "next": "set_c",
+     "src": "L9115",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    },
+    {
+     "label": "SPIRITUAL INTERVENTION",
+     "next": "set_d",
+     "src": "L9124"
+    },
+    {
+     "label": "MAKESHIFT RESCUE",
+     "next": "set_e",
+     "src": "L9133"
+    },
+    {
+     "label": "FORBIDDEN TECHNIQUES",
+     "next": "set_f",
+     "src": "L9142"
+    },
+    {
+     "label": "LAST-RESORT EXPERIMENTAL INTERVENTION",
+     "next": "set_g",
+     "src": "L9156"
+    }
+   ]
+  },
+  "a2": {
+   "text": "(Patient) survives with lasting weakness and breathlessness; (patient.he/she) develops a dislike of running.",
+   "src": "L9100-9101",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "patient",
+     "list": "dislikes",
+     "preference": "running",
+     "src": "L9101"
+    },
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9100"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9100",
+     "what": "lasting weakness and breathlessness",
+     "reason": "rule 9: no lasting weakness state; the dislike of running is the game's own preference"
+    }
+   ]
+  },
+  "a3": {
+   "text": "Consciousness returns just long enough for (Patient) to speak final words to a loved one, then (patient.he/she) dies.",
+   "src": "L9102-9103",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9103"
+    }
+   ]
+  },
+  "a4": {
+   "text": "(Patient) dies despite the healers' efforts.",
+   "src": "L9104",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9104"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "set": "A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "weight": 20
+    },
+    {
+     "next": "a3",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "a4",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "b1": {
+   "text": "Flowers open around (Patient), whose breathing returns; (patient.he/she) recovers completely.",
+   "src": "L9107-9108"
+  },
+  "b2": {
+   "text": "Living roots enclose the motionless patient in suspended animation. Days later (patient.he/she) awakens, weak but alive.",
+   "src": "L9109-9110",
+   "text_only": [
+    {
+     "src": "L9110",
+     "what": "suspended animation",
+     "reason": "rule 9: told, the villager simply stays as they are"
+    }
+   ]
+  },
+  "b3": {
+   "text": "(Patient) survives but suffers enduring sensitivity to heat, sunlight, and exertion.",
+   "src": "L9111-9112",
+   "text_only": [
+    {
+     "src": "L9111-9112",
+     "what": "enduring sensitivity",
+     "reason": "rule 9: no lasting sensitivity state"
+    }
+   ],
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9111"
+    }
+   ]
+  },
+  "b4": {
+   "text": "Flowers bloom, but (Patient) dies.",
+   "src": "L9113",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9113"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "set": "B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "weight": 20
+    },
+    {
+     "next": "b3",
+     "weight": 20
+    },
+    {
+     "next": "b4",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "c1": {
+   "text": "Light surrounds the patient; (Patient) rises briefly from the ground and awakens fully healed.",
+   "src": "L9116-9117"
+  },
+  "c2": {
+   "text": "Magic suspends the decline, leaving (Patient) motionless until a later awakening.",
+   "src": "L9118-9119",
+   "text_only": [
+    {
+     "src": "L9118-9119",
+     "what": "suspended until a later awakening",
+     "reason": "rule 9: no suspended state; told only"
+    }
+   ]
+  },
+  "c3": {
+   "text": "Breathing returns, but intermittent weakness and strange sensations persist.",
+   "src": "L9120-9121",
+   "text_only": [
+    {
+     "src": "L9120-9121",
+     "what": "lingering weakness",
+     "reason": "rule 9: no lasting weakness state"
+    }
+   ],
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9120"
+    }
+   ]
+  },
+  "c4": {
+   "text": "The ritual fails and (Patient) dies.",
+   "src": "L9122",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9122"
+    }
+   ]
+  },
+  "set_c": {
+   "type": "branch",
+   "set": "C",
+   "children": [
+    {
+     "next": "c1",
+     "weight": 20
+    },
+    {
+     "next": "c2",
+     "weight": 20
+    },
+    {
+     "next": "c3",
+     "weight": 20
+    },
+    {
+     "next": "c4",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "d1": {
+   "text": "(Patient) awakens and describes familiar voices calling (patient.him/her) back; the village celebrates.",
+   "src": "L9125-9126",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L9126"
+    }
+   ]
+  },
+  "d2": {
+   "text": "(Patient) briefly awakens to give a blessing and then dies. The words enter the village's oral history.",
+   "src": "L9127-9128",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9128"
+    }
+   ]
+  },
+  "d3": {
+   "text": "The patient lies in a deathlike stillness until sunrise, then awakens.",
+   "src": "L9129-9130",
+   "text_only": [
+    {
+     "src": "L9129-9130",
+     "what": "determine full or partial recovery",
+     "reason": "a partial recovery is a lasting state no game has (rule 9); the villager awakens as the text says"
+    }
+   ]
+  },
+  "d4": {
+   "text": "The prayers continue, but (Patient) dies.",
+   "src": "L9131",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9131"
+    }
+   ]
+  },
+  "set_d": {
+   "type": "branch",
+   "set": "D",
+   "children": [
+    {
+     "next": "d1",
+     "weight": 20
+    },
+    {
+     "next": "d2",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "d3",
+     "weight": 20
+    },
+    {
+     "next": "d4",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "e1": {
+   "text": "An apprentice improvises a rescue with available supplies and skilled guidance; (Patient) fully recovers.",
+   "src": "L9134-9135"
+  },
+  "e2": {
+   "text": "(Patient) survives with limited stamina and a permanent dislike of running.",
+   "src": "L9136-9137",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "patient",
+     "list": "dislikes",
+     "preference": "running",
+     "src": "L9137"
+    },
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9136"
+    }
+   ]
+  },
+  "e3": {
+   "text": "The improvised effort buys time for a master healer to stabilize (Patient).",
+   "src": "L9138-9139",
+   "text_only": [
+    {
+     "src": "L9139",
+     "what": "determine full or partial recovery",
+     "reason": "a partial recovery is a lasting state no game has (rule 9)"
+    }
+   ]
+  },
+  "e4": {
+   "text": "The attempt fails; (Patient) dies.",
+   "src": "L9140",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9140"
+    }
+   ]
+  },
+  "set_e": {
+   "type": "branch",
+   "set": "E",
+   "children": [
+    {
+     "next": "e1",
+     "weight": 20
+    },
+    {
+     "next": "e2",
+     "weight": 20
+    },
+    {
+     "next": "e3",
+     "weight": 20
+    },
+    {
+     "next": "e4",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "f1": {
+   "text": "(Patient) awakens with cold skin and a barely detectable heartbeat. Some call (patient.him/her) a miracle; others call (patient.him/her) an abomination.",
+   "src": "L9143-9145",
+   "text_only": [
+    {
+     "src": "L9145",
+     "what": "Permanent half-alive trait",
+     "reason": "rule 9: no traits; told only"
+    }
+   ]
+  },
+  "f2": {
+   "text": "Movement returns but awareness seems absent. (Patient) wanders and responds faintly to familiar voices. The village debates whether this is life at all.",
+   "src": "L9146-9148",
+   "text_only": [
+    {
+     "src": "L9146-9148",
+     "what": "a half-alive state",
+     "reason": "rule 9: no such state; told only"
+    }
+   ]
+  },
+  "f3": {
+   "text": "(Patient) recovers fully, but the healer who saved (patient.him/her) is accused of violating sacred laws.",
+   "src": "L9149-9150"
+  },
+  "f4": {
+   "text": "(Patient) dies; the healer faces a public hearing over the forbidden intervention.",
+   "src": "L9151-9152",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9151"
+    }
+   ]
+  },
+  "f5": {
+   "text": "(Patient) survives and claims to recall dying, causing scholarly and spiritual controversy.",
+   "src": "L9153-9154",
+   "text_only": [
+    {
+     "src": "L9153",
+     "what": "Remembered Death",
+     "reason": "the villager survives; the death is remembered, not happening"
+    }
+   ]
+  },
+  "set_f": {
+   "type": "branch",
+   "set": "F",
+   "children": [
+    {
+     "next": "f1",
+     "weight": 20
+    },
+    {
+     "next": "f2",
+     "weight": 1,
+     "rarity": "exceptionally_rare"
+    },
+    {
+     "next": "f3",
+     "weight": 20
+    },
+    {
+     "next": "f4",
+     "weight": 2,
+     "rarity": "very_rare"
+    },
+    {
+     "next": "f5",
+     "weight": 20
+    }
+   ]
+  },
+  "g1": {
+   "text": "(Patient) recovers fully.",
+   "src": "L9157",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L9157"
+    }
+   ]
+  },
+  "g2": {
+   "text": "Survival comes with permanent limitations and dislike of running.",
+   "src": "L9158-9159",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "patient",
+     "list": "dislikes",
+     "preference": "running",
+     "src": "L9159"
+    },
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9158"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9158",
+     "what": "permanent limitations",
+     "reason": "rule 9: no lasting limitation state"
+    }
+   ]
+  },
+  "g3": {
+   "text": "The patient enters suspended animation; days later (patient.he/she) awakens.",
+   "src": "L9160-9161",
+   "text_only": [
+    {
+     "src": "L9160-9161",
+     "what": "suspended animation, randomized recovery",
+     "reason": "rule 9: no suspended state or partial recovery"
+    }
+   ]
+  },
+  "g4": {
+   "text": "(Patient) regains consciousness briefly, says goodbye, and dies.",
+   "src": "L9162-9163",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9163"
+    }
+   ]
+  },
+  "g5": {
+   "text": "(Patient) survives, but the healers cannot tell whether their intervention was responsible.",
+   "src": "L9164-9165"
+  },
+  "set_g": {
+   "type": "branch",
+   "set": "G",
+   "children": [
+    {
+     "next": "g1",
+     "weight": 20
+    },
+    {
+     "next": "g2",
+     "weight": 20
+    },
+    {
+     "next": "g3",
+     "weight": 20
+    },
+    {
+     "next": "g4",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "g5",
+     "weight": 20
+    }
+   ]
+  },
+  "a1_h": {
+   "text": "Careful treatment stabilizes (Patient); (patient.he/she) eventually recovers fully.",
+   "src": "L9098-9099",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L9099"
+    }
+   ]
+  },
+  "a1_n": {
+   "text": "Careful treatment stabilizes (Patient); (patient.he/she) eventually recovers fully.",
+   "src": "L9098-9099",
+   "text_only": [
+    {
+     "src": "L9099",
+     "what": "Healing experience gained",
+     "reason": "no healer is cast in this village (the role is optional), so nobody gains it"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1_h",
+     "if": {
+      "role": "healer"
+     },
+     "else": "a1_n"
+    }
+   ]
+  }
+ }
+}

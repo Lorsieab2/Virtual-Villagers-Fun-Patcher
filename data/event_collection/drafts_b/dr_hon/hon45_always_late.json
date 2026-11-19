@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Always a Little Late",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon45_always_late",
+  "source": "draft_hon",
+  "lines": [
+   536,
+   545
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L536",
+  "ledger": [
+   {
+    "src": "L537",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend gently asks a villager why they are always a little late: think about it honestly, or promise to be early.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is always a little late. To work, to meals, to fishing. Never very late; just late enough that the others have usually started without (subject.him/her). This morning (friend), who has waited at the beach every morning for weeks, asks gently, \"Is something making you late? Or are mornings just hard for you?\"",
+   "src": "L539",
+   "choices": [
+    {
+     "label": "Think About It Honestly",
+     "next": "o1",
+     "src": "L541"
+    },
+    {
+     "label": "Promise to Be Early",
+     "next": "o2",
+     "src": "L544"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) thinks. \"My head wakes up slowly,\" (subject.he/she) says. \"It always has.\" (friend) nods. \"Then we'll stop waiting at the beach, and you catch us up when you're ready.\" It works. (subject) stops feeling rushed, and the others stop waiting. Nobody is exactly late any more.",
+   "src": "L542"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I'll be on time tomorrow,\" says (subject). The next morning (subject.he/she) is there first, before anyone, sitting on the beach in the dark looking very pleased with (subject.him/her)self. The morning after that, (subject.he/she) is a little late again. (friend) just smiles. Some things change slowly. Some don't change at all, and that's all right too.",
+   "src": "L545"
+  }
+ }
+}

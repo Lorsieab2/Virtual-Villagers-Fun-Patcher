@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tidy Stack",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il079_tidy_stack",
+  "source": "da_il04",
+  "lines": [
+   218,
+   227
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L218",
+  "ledger": [
+   {
+    "src": "L219",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager who stacks the baskets by size every evening finds them already stacked by color.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Every evening (subject) stacks the village baskets by size, biggest on the bottom, smallest on top, all facing the same way. Tonight (subject.he/she) arrives to find (friend) has already done it, \"to help.\" The baskets are sorted by color.",
+   "src": "L221",
+   "choices": [
+    {
+     "label": "Restack Them",
+     "next": "a",
+     "src": "L223"
+    },
+    {
+     "label": "Leave Them Sorted by Color",
+     "next": "b",
+     "src": "L226"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) thanks (friend) warmly, waits for (friend.him/her) to leave, and then restacks every basket by size. The next evening (subject.he/she) finds them sorted by color again. This goes on for several days. Neither of them ever mentions it. It becomes, without anyone deciding so, a quiet sort of game.",
+   "src": "L224"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) looks at the stack for a long time. It's wrong. It's also, now (subject.he/she) looks at it properly, rather pretty, like a little sunset made of baskets. (subject.He/She) leaves it. It bothers (subject.him/her) for exactly two days, and then (subject.he/she) stops noticing.",
+   "src": "L227"
+  }
+ }
+}

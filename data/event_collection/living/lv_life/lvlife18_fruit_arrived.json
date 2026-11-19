@@ -1,0 +1,173 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fruit That Arrived by Sea",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife18_fruit_arrived",
+  "source": "living",
+  "lines": [
+   20863,
+   20874
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20863",
+  "ledger": [
+   {
+    "src": "L20874",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A strange floating fruit sprouts on the beach, and gardeners argue whether to cultivate it.",
+  "cast_only": [
+   "gardener"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "gardener": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  },
+  "scientist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A strange floating fruit sprouts on the beach, and gardeners argue whether to cultivate it.",
+   "src": "L20864",
+   "choices": [
+    {
+     "label": "Plant it in a controlled garden.",
+     "next": "a",
+     "src": "L20865"
+    },
+    {
+     "label": "Leave it in the wild.",
+     "next": "b",
+     "src": "L20868"
+    },
+    {
+     "label": "Study it before planting widely.",
+     "next": "c",
+     "src": "L20871"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The plant bears useful fruit without spreading beyond its bed.",
+   "src": "L20866",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L20866"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Its vines spread quickly, and the gardeners struggle to contain them.",
+   "src": "L20867"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Birds feed on the fruit, and the village watches with interest.",
+   "src": "L20869"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The plant crowds nearby seedlings, prompting concern.",
+   "src": "L20870"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The scientists identify when it flowers and which animals visit.",
+   "src": "L20872",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scientist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20872"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The villagers debate whether the evidence is enough to begin cultivation.",
+   "src": "L20873"
+  }
+ }
+}

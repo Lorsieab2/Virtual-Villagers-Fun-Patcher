@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Crab Doing in the Drum?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd29_what_crab_doing",
+  "source": "da_wd",
+  "lines": [
+   344,
+   353
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L347",
+    "kind": "casting",
+    "before": "the drummer starts",
+    "after": "(drummer), the drummer, starts",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "At the evening gathering the drum makes strange scrabbling noises: look inside, or play around it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "drummer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "At the evening gathering, (drummer), the drummer, starts to play, and the drum makes a very strange noise: a thump, and then a scrabble, and then a sort of hollow clattering, like something running round inside. The drummer stops. Everyone stares at the drum. The drum, on its own, goes \"clack.\"",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "Look Inside",
+     "next": "a",
+     "src": "L349"
+    },
+    {
+     "label": "Play Around It",
+     "next": "b",
+     "src": "L352"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) tips the drum on its side and peers in. A crab peers back. It has crawled in through the gap under the skin and has evidently been enjoying the vibrations. (subject) shakes it out. It scuttles off, a little dizzy. The drumming starts again. Several people agree that it sounded better with the crab.",
+   "src": "L350"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Keep going,\" says (subject). The drummer, after a moment, keeps going. Every few beats, the crab adds a \"clack\" of its own. It's not quite in time. It's not quite out of time either. By the end of the night, everyone is dancing to the strangest rhythm the village has ever heard. The crab wanders off at the end, apparently satisfied.",
+   "src": "L353"
+  }
+ }
+}

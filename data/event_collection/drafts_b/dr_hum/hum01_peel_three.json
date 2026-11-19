@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "One Peel, Three Villagers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum01_peel_three",
+  "source": "draft_hum",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager leaves a banana peel on the path as a friend rounds the corner: shout a warning, or dive for the peel.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) finishes a banana, looks around for somewhere to put the peel and, for one second only, sets it down on the path so (subject.he/she) can retie (subject.his/her) sandal. In that one second, (friend) comes round the corner carrying a big basket of clean washing, looking at the sky.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Shout a Warning",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Dive for the Peel",
+     "next": "o2",
+     "src": "L16"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"PEEL!\" shouts (subject). (friend) looks down, sees it, and steps neatly over it with a small, smug smile. Then (friend.he/she) walks straight into the curtain of wet vines hanging from the tree beside the path, which (friend.he/she) wasn't looking at. The washing stays perfectly dry. (friend) does not. \"Thank you,\" (friend.he/she) says, dripping, \"for the warning.\"",
+   "src": "L14"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) lunges for the peel. (friend) swerves to avoid (subject). (subject) grabs the peel, slips on the wet grass anyway, and slides gently along on (subject.his/her) back with the peel held high in triumph. The washing lands on (subject.him/her) one piece at a time. \"Did you get it?\" asks (friend). \"I got it,\" says (subject), from somewhere under a blanket.",
+   "src": "L17"
+  }
+ }
+}

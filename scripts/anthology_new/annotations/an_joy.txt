@@ -1,0 +1,132 @@
+# JOY-01..38: Celebrations, Leisure, Remembrance, Ancestral Mysteries, Family Transitions and Body Art.
+# Many are whole-village or group scenes with nobody named by a role word: no cast villager.
+JOY-01
+R parent 18+/f/nursing :
+E S: "welcomes a newborn" => "welcomes [parent]'s newborn"
+
+JOY-02
+R toddler 3-5 : toddler
+
+JOY-03
+R child 3-13 : child
+
+JOY-04
+
+JOY-05
+R musician 14+ @C1 : apprentice musician
+
+JOY-06
+R elder 55+ : elder
+
+JOY-07
+R artist 14+ @C1,C2 : apprentice | artist
+
+JOY-08
+R child 3-13 @A2 : child
+R scholar 18+ @B1 : researcher
+
+JOY-09
+R adult 18+ @B1,B2 : adult
+R child 3-13 @C2 : child
+R storyteller 14+ @C2 : storyteller
+
+JOY-10
+R storyteller 14+ @A2 : storyteller
+R relative 14+ @A2 : relative
+R child 3-13 @C1 : child
+
+JOY-11
+
+JOY-12
+
+JOY-13
+
+JOY-14
+R friend1 14+ :
+R friend2 14+ :
+E S: "Two friends remember" => "[friend1] and [friend2], two friends, remember"
+
+JOY-15
+R apprentice 14+ : apprentice
+R mentor 18+ : mentor
+
+JOY-16
+
+JOY-17
+
+JOY-18
+R partner1 18+ :
+R partner2 18+ :
+GAP partner2 partner1 15
+E S: "Two adults choose" => "[partner1] and [partner2], two adults, choose"
+FX A1: celebrate partner1
+FX A1: celebrate partner2
+
+JOY-19
+
+JOY-20
+R spouse1 18+ :
+R spouse2 18+ :
+E S: "Former spouses discuss" => "[spouse1] and [spouse2], former spouses, discuss"
+
+JOY-21
+R child 3-13 : child
+R parent 18+ : parent
+REL parent parent_of child
+
+JOY-22
+R partner1 18+ : villager
+R partner2 18+ :
+E S: "Two former partners encounter" => "[partner1] and [partner2], two former partners, encounter"
+
+JOY-23
+R child 3-13 @C2 : child
+
+JOY-24
+R elder 55+ @A1 : elder
+R villager 18+ @A2,B2 : researcher | relative
+
+JOY-25
+R relative 14+ @A2,B2,C2 : relative | storyteller
+
+JOY-26
+R elder 55+ @B2 : elder
+R artist 14+ @C2 : artist
+
+JOY-27
+R scholar 18+ @A2 : researcher
+R elder 55+ @D1 : elder
+
+JOY-28
+
+JOY-29
+R gardener 18+ @B1 : gardener
+R elder 55+ @C2 : elder
+R cook 14+ @D2 : young cook
+
+JOY-30
+R adult 18+ : adult | villager
+R artist 18+ : artist
+R elder 55+ @C1 : elder
+
+JOY-31
+R adult 18+ : adult | villager
+
+JOY-32
+R artist stranger :
+E S: "An artist from another Isolan community discusses" => "[artist], an artist from another Isolan community, discusses"
+
+JOY-33
+R elder 55+ : respected elder | elder
+R young 18-25 @D2 : young adult
+
+JOY-34
+
+JOY-35
+R elder 55+ @B2 : elder
+
+JOY-36
+
+JOY-37
+
+JOY-38

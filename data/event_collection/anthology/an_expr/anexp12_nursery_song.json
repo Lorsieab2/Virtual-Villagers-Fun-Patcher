@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Nursery Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp12_nursery_song",
+  "source": "anthology",
+  "lines": [
+   31424,
+   31438
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31424",
+  "ledger": [
+   {
+    "src": "L31425",
+    "kind": "note",
+    "why": "the volume's casting tag (NURSING MOTHERS / ADULT CAREGIVERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L31426",
+    "kind": "sensitivity",
+    "before": "A caregiver",
+    "after": "(singer), a caregiver,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31429",
+    "kind": "sensitivity",
+    "before": "The singer",
+    "after": "(singer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31437",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31438",
+    "kind": "sensitivity",
+    "before": "The singer",
+    "after": "(singer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A caregiver sings an unfamiliar lullaby in the nursery, and opinions differ about its rhythm.",
+  "label_case": "title",
+  "cast_only": [
+   "singer",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "singer": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(singer), a caregiver, sings an unfamiliar lullaby in the nursery, and opinions differ about its rhythm.",
+   "src": "L31426",
+   "choices": [
+    {
+     "label": "Ask About Its Origin",
+     "next": "a",
+     "src": "L31427"
+    },
+    {
+     "label": "Invite Other Songs",
+     "next": "b",
+     "src": "L31430"
+    },
+    {
+     "label": "Respect the Babies",
+     "next": "c",
+     "src": "L31433"
+    },
+    {
+     "label": "Write Down the Words",
+     "next": "d",
+     "src": "L31436"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The song recalls a beloved relative.",
+   "src": "L31428"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(singer) explains it was invented yesterday.",
+   "src": "L31429"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Families contribute different melodies.",
+   "src": "L31431"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A caregiver prefers quiet over group singing.",
+   "src": "L31432"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The room settles when the voices soften.",
+   "src": "L31434"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "One infant needs a calmer space away from the gathering.",
+   "src": "L31435"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) helps preserve the melody.",
+   "src": "L31437"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(singer) asks that a private verse remain private.",
+   "src": "L31438"
+  }
+ }
+}

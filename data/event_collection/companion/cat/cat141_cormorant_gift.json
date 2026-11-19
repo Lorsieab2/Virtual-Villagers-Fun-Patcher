@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cormorant's Gift",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat141_cormorant_gift",
+  "source": "companion",
+  "lines": [
+   8789,
+   8799
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8789",
+  "ledger": [
+   {
+    "src": "L8799",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A cormorant keeps dropping small fish near a jetty, and a hungry child thinks it is sharing.",
+  "cast_only": [
+   "child",
+   "naturalist"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "naturalist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A cormorant repeatedly drops small fish near a jetty. A hungry child believes it is sharing food.",
+   "src": "L8790",
+   "choices": [
+    {
+     "label": "Observe the bird",
+     "next": "a",
+     "src": "L8791"
+    },
+    {
+     "label": "Thank it without taking fish",
+     "next": "b",
+     "src": "L8793"
+    },
+    {
+     "label": "Collect fallen fish safely",
+     "next": "c",
+     "src": "L8795"
+    },
+    {
+     "label": "Sketch its swimming",
+     "next": "d",
+     "src": "L8797"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "sharing food",
+     "reason": "the child's belief about the bird; no food is gained",
+     "src": "L8790"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "A naturalist notices it may be mishandling its catch.",
+   "src": "L8792"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The child invents a gentle ritual and leaves the bird alone.",
+   "src": "L8794"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The child learns to check whether food is safe, and the bird's behavior remains mysterious.",
+   "src": "L8796",
+   "text_only": [
+    {
+     "what": "whether food is safe",
+     "reason": "a lesson; no food is gained or stored",
+     "src": "L8796"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The child becomes fascinated by birds that swim better than they fly.",
+   "src": "L8798"
+  }
+ }
+}

@@ -939,6 +939,18 @@ static const ce_probe_field C2_PROBE[] = {
     { 0x30, 1, 1, 1 }, { 0x52C, 4, 90, 90 }, { 0x558, 1, 0, 0 }, { 0x540, 4, 0, 0 },
 };
 
+/* The Lost Children's villager tick 0x43B690 (from 0x4369FF, 0x42EBBC and the loading screen 0x431DC3), on a tick
+   object made by the game's own constructor 0x43B280 (as A New Home's: the world, the villager array). */
+static void c2_catch_up(void) {
+    unsigned char tick[16];
+    memset(tick, 0, sizeof tick);
+    TC0(0x43B280u, tick);
+    TC0(0x43B690u, tick);
+}
+
+static const ce_birth_layout C2_BIRTH = { 0x530u, 0x534u, 0x540u, 0x52Cu, c2_catch_up };
+static int c2_deliver(int index, int *early);
+
 static const ce_adapter C2_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK | CAP_STATUS
@@ -994,10 +1006,12 @@ static const ce_adapter C2_ADAPTER = {
        popup's; stock family A lines reach 48 at its 450 pixels), 18 lines
        (the tallest stock family A text) less the two the villager's
        picture adds under the title; the result replaces the whole
-       text, title included; labels of 30 characters (the longest stock). */
-    46, 16, 46, 16, 1, 30, c2_rand_below, NULL, c2_role,
+       text, title included; labels of up to 39 characters, as wide as the screen
+   shows whole (story_label_widths.h). */
+    46, 16, 46, 16, 1, 39, c2_rand_below, NULL, c2_role,
     C2_PROBE, (int)(sizeof C2_PROBE / sizeof C2_PROBE[0]),
-    NULL, NULL, 0, c2_set_health
+    NULL, NULL, 0, c2_set_health,
+    c2_deliver
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -1043,6 +1057,13 @@ static char __fastcall c2_choice_setup(void *dialog, void *unused_edx) {
         c2_choice_dialog = NULL;
         return (char)TC0(0x41F780u, dialog);
     }
+    if (cg_op_begun_take(2)) {
+        /* One popup: the whole event in this dialog (cs12_op_setup). */
+        d[C2_DLG_RESULT] = '\0';
+        c2_choice_dialog = NULL;
+        cs12_op_setup(2, d, C2_DLG_QUESTION, C2_DLG_SUBJECT, C2_DLG_VARIANT, villagers, 0x44B2D0u);
+        return 1;
+    }
     featured = ce_choice_featured(2);
     choice_fill_dialog(2, d, C2_DLG_QUESTION, C2_DLG_LABEL_FIRST, C2_DLG_LABEL_SECOND, c2_choice_title,
                        featured);
@@ -1053,6 +1074,11 @@ static char __fastcall c2_choice_setup(void *dialog, void *unused_edx) {
         TC1(0x44B2D0u, villagers, featured);       /* selected, as the stock setup does */
     }
     d[C2_DLG_RESULT] = '\0';
+    if (ce_choice_answers(2) > 2) {
+        mb_attach(2, &CS12_CLIENT, dialog);   /* its third and fourth buttons at its first draw */
+    } else {
+        mb_forget(dialog);
+    }
     c2_choice_dialog = dialog;
     return 1;
 }
@@ -1068,6 +1094,119 @@ static void __fastcall c2_choice_resolve(void *dialog, void *unused_edx) {
     } else if (*(int *)(d + C2_DLG_SUBJECT) >= 0) {
         choice_open_gap((char *)d + C2_DLG_RESULT, C1_DLG_TEXT_BYTES);
     }
+}
+
+/* The shared popup's client in A New Home and The Lost Children (vvfp_multi_answer_12.h): the question asked, its
+   answers and words, and the game's own resolve for the question (c1 / c2_choice_resolve, as the outcomes scope hands
+   the game's resolve call to them). */
+static int cs12_game(void) {
+    return g_mb.g != NULL ? g_mb.g->game : 0;
+}
+
+static int cs12_state(void *dialog) {
+    if (dialog == NULL || dialog != g_mb.dialog || cs12_game() == 0) {
+        return MB_NOT_OURS;
+    }
+    return ce_choice_asked(cs12_game()) ? MB_ASKING : MB_ANSWERED;
+}
+
+static int cs12_answers(void *dialog) {
+    (void)dialog;
+    return ce_choice_answers(cs12_game());
+}
+
+static void cs12_label(void *dialog, int k, char *out, int cap) {
+    const char *words = ce_choice_label(cs12_game(), k);
+    (void)dialog;
+    lstrcpynA(out, words != NULL ? words : "", cap);
+}
+
+static void cs12_resolve(void *dialog) {
+    if (cs12_game() == 1) {
+        c1_choice_resolve(dialog, NULL);
+    } else {
+        c2_choice_resolve(dialog, NULL);
+    }
+}
+
+static int cs12_closes(void *dialog) {
+    (void)dialog;
+    return cg_answer_closes(cs12_game());   /* G1: five or more answers: the answer's page is a popup of its own */
+}
+
+static const mb_client CS12_CLIENT = { cs12_state, cs12_answers, cs12_label, cs12_resolve, cs12_closes };
+
+/* ONE popup per island event (native/shared/one_popup.h, vvfp_multi_answer_12.h mb_attach_op): a branching event
+   run whole in the encounter dialog -- every text in its question field (the villager's picture gap kept under
+   the title), its choices drawn by Scrolling Popups after it. */
+static unsigned int cs12_question_field(void) {
+    return cs12_game() == 1 ? C1_DLG_QUESTION : C2_DLG_QUESTION;
+}
+
+static unsigned int cs12_subject_field(void) {
+    return cs12_game() == 1 ? C1_DLG_SUBJECT : C2_DLG_SUBJECT;
+}
+
+static int cs12_op_rows(void *dialog, op_rows *out) {
+    int k, n = cg_op_rows(cs12_game());
+    (void)dialog;
+    out->rows = n;
+    for (k = 0; k < n && k < OP_MAX_ROWS; ++k) {
+        lstrcpynA(out->labels[k], cg_label(k), OP_LABEL_BYTES);
+    }
+    return 1;
+}
+
+/* The text just written to the question field: the picture's gap under its title. */
+static void cs12_op_shown(void *dialog) {
+    unsigned char *d = (unsigned char *)dialog;
+    if (*(int *)(d + cs12_subject_field()) >= 0) {
+        choice_open_gap((char *)d + cs12_question_field(), C1_DLG_TEXT_BYTES);
+    }
+}
+
+static int cs12_op_pick(void *dialog, int k) {
+    unsigned char *d = (unsigned char *)dialog;
+    if (!ce_choice_resolve(cs12_game(), k, (char *)d + cs12_question_field(), C1_DLG_TEXT_BYTES)) {
+        return 0;
+    }
+    cs12_op_shown(dialog);
+    return 1;
+}
+
+static int cs12_op_ok(void *dialog) {
+    unsigned char *d = (unsigned char *)dialog;
+    if (!cg_op_ok(cs12_game(), (char *)d + cs12_question_field(), C1_DLG_TEXT_BYTES)) {
+        return 0;
+    }
+    cs12_op_shown(dialog);
+    return 1;
+}
+
+static const mb_op_client CS12_OP_CLIENT = { cs12_op_rows, cs12_op_pick, cs12_op_ok };
+
+/* The setup of a one-popup event's dialog (the question field already holds its first text): the picture's gap,
+   the villager shown, the stock width, a variant out of range, and our virtual table. */
+static void cs12_op_setup(int game, unsigned char *d, unsigned int question, unsigned int subject,
+                          unsigned int variant, void *villagers, unsigned int select) {
+    int featured = ce_choice_featured(game);
+    if (featured >= 0) {
+        choice_open_gap((char *)d + question, C1_DLG_TEXT_BYTES);
+    }
+    *(int *)(d + variant) = CHOICE_VARIANT_NONE;
+    *(int *)(d + subject) = featured;
+    *(int *)(d + C1_DLG_WIDTH) = C1_ENCOUNTER_WIDTH;
+    if (featured >= 0 && villagers != NULL) {
+        TC1(select, villagers, featured);          /* selected, as the stock setup does */
+    }
+    mb_attach_op(game, &CS12_OP_CLIENT, d);
+}
+
+/* For Scrolling Popups: the game's own virtual table of A New Home's / The Lost Children's encounter dialog when it
+   carries our copy (three or four answers, vvfp_multi_answer_12.h), and in *room the room its question was padded
+   with for the extra buttons; 0 for any other popup. */
+__declspec(dllexport) int __stdcall VvfpMultiAnswerGameVtable(const void *popup, int *room) {
+    return (int)mb_game_vtable(popup, room);
 }
 
 /* The outcomes scope stub's target for the resolve call at `va` of `game`
@@ -1099,4 +1238,9 @@ static int __fastcall c2_title(void *label, void *unused_edx, const char *text) 
         custom = titles_lookup(2, c2_record(*(int *)(world + VV2_SELECTED)));
     }
     return TC1(0x40C510u, label, custom != NULL ? custom : text);
+}
+
+/* cie-v6-binary.md 23: the babies born now by the game's own delivery (ce_birth_now). */
+static int c2_deliver(int index, int *early) {
+    return ce_birth_now(&C2_ADAPTER, &C2_BIRTH, index, early);
 }

@@ -1,0 +1,68 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Symbols on a Shield",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm05_symbols_shield",
+  "source": "openq97",
+  "lines": [
+   523,
+   525
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L524",
+  "ledger": [
+   {
+    "src": "L523",
+    "kind": "structural",
+    "text": "[M05]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L525",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L523",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(Name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A villager decorates a shield with family symbols.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(Name1) decorates a shield with family symbols. The newest mark sits beside an older, weathered one. (Name1) pauses to compare their shapes.",
+   "src": "L523,L525"
+  }
+ }
+}

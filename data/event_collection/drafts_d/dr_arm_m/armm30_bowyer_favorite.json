@@ -1,0 +1,68 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bowyer's Favorite Tool",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm30_bowyer_favorite",
+  "source": "openq97",
+  "lines": [
+   623,
+   625
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L624",
+  "ledger": [
+   {
+    "src": "L623",
+    "kind": "structural",
+    "text": "[M30]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L625",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L623",
+    "kind": "sensitivity",
+    "before": "A bowyer",
+    "after": "(Name1), a bowyer,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A bowyer passes a favorite tool to a trusted apprentice.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(Name1), a bowyer, passes a favorite tool to a trusted apprentice. The apprentice recognizes the tool by its polished handle. The bowyer sets it gently into waiting hands.",
+   "src": "L623,L625"
+  }
+ }
+}

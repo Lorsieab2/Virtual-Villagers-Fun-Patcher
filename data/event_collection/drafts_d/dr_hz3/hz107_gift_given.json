@@ -1,0 +1,154 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gift Given to Strangers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz107_gift_given",
+  "source": "draft_hz2",
+  "lines": [
+   330,
+   340
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L330",
+  "ledger": [
+   {
+    "src": "L331",
+    "kind": "sensitivity",
+    "before": "a villager wonders",
+    "after": "(name1) wonders",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "After sharing food with a traveler from across the island, a villager wonders how distant people welcome strangers.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After sharing food with a traveler from the other side of the island, (name1) wonders whether distant people welcome strangers with gifts.",
+   "src": "L331",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- story only: the file marks no effect (no new mechanics)",
+     "src": "L331"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Imagine Generous Welcomes.",
+     "next": "a",
+     "src": "L332"
+    },
+    {
+     "label": "Imagine Caution.",
+     "next": "b",
+     "src": "L335"
+    },
+    {
+     "label": "Ask How Isolans Welcome Strangers.",
+     "next": "c",
+     "src": "L338"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villager imagines distant hosts offering food and shelter to travelers.",
+   "src": "L333",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- story only: the file marks no effect (no new mechanics)",
+     "src": "L333"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A skeptic notes that generosity might depend on how much people have to share.",
+   "src": "L334"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An elder suggests that strangers might be treated carefully, even fearfully, in some places.",
+   "src": "L336"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A scholar adds that caution and kindness can exist side by side.",
+   "src": "L337"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village discusses its own customs and finds them good.",
+   "src": "L339"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager admits they once ignored a stranger and decides to do better.",
+   "src": "L340"
+  }
+ }
+}

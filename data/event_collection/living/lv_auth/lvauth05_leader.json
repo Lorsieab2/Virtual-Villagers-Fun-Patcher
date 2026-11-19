@@ -1,0 +1,177 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Leader's Favorite",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth05_leader",
+  "source": "living",
+  "lines": [
+   23395,
+   23409
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23395",
+  "ledger": [
+   {
+    "src": "L23409",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "The leader repeatedly chooses a trusted friend to lead important tasks.",
+  "cast_only": [
+   "worker"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "worker": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The {@chief} repeatedly chooses a trusted friend to lead important tasks.",
+   "src": "L23396",
+   "choices": [
+    {
+     "label": "Keep the familiar leader.",
+     "next": "a",
+     "src": "L23397"
+    },
+    {
+     "label": "Choose an overlooked worker.",
+     "next": "b",
+     "src": "L23400"
+    },
+    {
+     "label": "Hold an open skills trial.",
+     "next": "c",
+     "src": "L23403"
+    },
+    {
+     "label": "Ask the {@chief} to explain the choice.",
+     "next": "d",
+     "src": "L23406"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The experienced friend completes the work well.",
+   "src": "L23398"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Other villagers feel excluded despite their skills.",
+   "src": "L23399",
+   "text_only": [
+    {
+     "what": "their skills",
+     "reason": "the villagers' skills are already theirs: none changes",
+     "src": "L23399"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The worker succeeds and gains confidence.",
+   "src": "L23401"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The worker struggles and asks the former leader for help.",
+   "src": "L23402"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Unexpected talent emerges from the crowd.",
+   "src": "L23404"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The contest rewards showmanship over judgment.",
+   "src": "L23405"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The {@chief} reveals a sound reason and earns trust.",
+   "src": "L23407"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The {@chief} grows defensive, and tensions worsen.",
+   "src": "L23408"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

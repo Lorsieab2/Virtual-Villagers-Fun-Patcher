@@ -1,0 +1,229 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Without Tattoos",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy33_elder_without",
+  "source": "anthology",
+  "lines": [
+   29163,
+   29176
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L29163",
+  "ledger": [
+   {
+    "src": "L29164",
+    "kind": "sensitivity",
+    "before": "A respected elder",
+    "after": "(elder), a respected elder,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29166",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29167",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29169",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29170",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29175",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29176",
+    "kind": "sensitivity",
+    "before": "A young adult",
+    "after": "(young)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A respected elder has never chosen permanent body art.",
+  "label_case": "title",
+  "cast_only": [
+   "elder",
+   "young"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder), a respected elder, has never chosen permanent body art.",
+   "src": "L29164",
+   "choices": [
+    {
+     "label": "Ask About the Choice Respectfully",
+     "next": "a",
+     "src": "L29165"
+    },
+    {
+     "label": "Invite the Elder to Teach",
+     "next": "b",
+     "src": "L29168"
+    },
+    {
+     "label": "Celebrate Different Expressions",
+     "next": "c",
+     "src": "L29171"
+    },
+    {
+     "label": "Leave the Subject Alone",
+     "next": "d",
+     "src": "L29174"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29164"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(elder) explains that belonging needs no visible mark.",
+   "src": "L29166"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(elder) says the reason is private and the question ends there.",
+   "src": "L29167"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(elder) shares stories of changing traditions.",
+   "src": "L29169"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(elder) prefers to teach a different craft.",
+   "src": "L29170"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The gathering honors painted, tattooed, and unmarked skin.",
+   "src": "L29172"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some villagers decide they dislike public attention to appearance.",
+   "src": "L29173",
+   "text_only": [
+    {
+     "what": "\"dislike\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29173"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) enjoys an ordinary afternoon.",
+   "src": "L29175"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(young) later asks a thoughtful private question.",
+   "src": "L29176"
+  }
+ }
+}

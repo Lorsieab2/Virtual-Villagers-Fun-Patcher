@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Distant Apology",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz120_distant_apology",
+  "source": "draft_hz2",
+  "lines": [
+   486,
+   496
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L486",
+  "ledger": [
+   {
+    "src": "L487",
+    "kind": "sensitivity",
+    "before": "an elder",
+    "after": "(name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "After two friends make up after a quarrel, an elder wonders how distant people say sorry.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After two friends make up after a quarrel, (name1), an elder, wonders how distant people say sorry.",
+   "src": "L487",
+   "choices": [
+    {
+     "label": "Imagine Similar Apologies.",
+     "next": "a",
+     "src": "L488"
+    },
+    {
+     "label": "Imagine Different Customs.",
+     "next": "b",
+     "src": "L491"
+    },
+    {
+     "label": "Ask What Makes an Apology Real.",
+     "next": "c",
+     "src": "L494"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The friends imagine distant people saying sorry with gifts, words or shared meals.",
+   "src": "L489"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A child imagines people who simply hug and say nothing.",
+   "src": "L490"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A scholar wonders whether apologies might be formal ceremonies in some places.",
+   "src": "L492"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder says the words matter less than the changed behavior that follows.",
+   "src": "L493"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village agrees that meaning it matters most.",
+   "src": "L495"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager says some apologies are not accepted right away, and that is all right too.",
+   "src": "L496"
+  }
+ }
+}

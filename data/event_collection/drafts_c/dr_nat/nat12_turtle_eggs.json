@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Turtle Eggs",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat12_turtle_eggs",
+  "source": "draft_nat",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager has counted far fewer turtle nests than they remember: take none this year, or take a few as always.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every year the sea turtles come up the beach at night to lay their eggs, and every year the village takes a few nests to eat. It's an old custom and a welcome treat. But this year (subject) has counted, and there are fewer nests than (subject.he/she) remembers. Much fewer. (subject.He/she) mentions it to (friend), who has been looking forward to turtle eggs all year.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "Take None This Year",
+     "next": "o1",
+     "src": "L145"
+    },
+    {
+     "label": "Take a Few, as Always",
+     "next": "o2",
+     "src": "L148"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) asks the village to leave every nest alone this season. Some people agree right away. Some are upset: the eggs were a tradition, and the turtles took care of themselves before. In the end, the nests are left. One night, weeks later, (subject) and (friend) watch tiny turtles scramble down the sand to the sea. Whether it will make a difference, nobody can know for years.",
+   "src": "L146"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They take a few nests, fewer than usual, and leave the rest. The eggs are shared out at a small feast. (friend) enjoys them. (subject) does too, mostly. But (subject.he/she) keeps going back to the beach to count the nests that are left. The turtles will have to answer this one. It will take a long time to know if the village chose well.",
+   "src": "L149"
+  }
+ }
+}

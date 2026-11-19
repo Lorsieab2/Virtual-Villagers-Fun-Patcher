@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lucky Side of the Bed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il080_lucky_side_bed",
+  "source": "da_il04",
+  "lines": [
+   230,
+   239
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L230",
+  "ledger": [
+   {
+    "src": "L231",
+    "kind": "note",
+    "why": "the casting line (the roles carry it); near-duplicate in spirit of il041 Thirty-Seven Steps (the draft's own note: both are the routine went wrong; 80 is the easier one to drop); built for the owner to keep or drop"
+   }
+  ],
+  "description": "A villager who always gets up on the left side of the sleeping mat rolls off on the right today.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) always gets up on the left side of the sleeping mat. Always. Today, still half asleep, (subject.he/she) rolls off on the right side. (subject.He/She) stands in the middle of the hut, staring at the mat, feeling that something important has gone wrong with the universe.",
+   "src": "L233",
+   "choices": [
+    {
+     "label": "Lie Back Down and Get Up Properly",
+     "next": "a",
+     "src": "L235"
+    },
+    {
+     "label": "Carry on with the Day",
+     "next": "b",
+     "src": "L238"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) lies back down, waits a moment, and rolls out on the left side. Much better. (friend), passing the doorway, sees the whole thing and decides it's none of (friend.his/her) business. The day goes perfectly well, and (subject) is quite certain that's no coincidence.",
+   "src": "L236"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) goes about (subject.his/her) work braced for disaster. Nothing happens. The fishing is ordinary. Lunch is ordinary. By evening (subject) is almost disappointed. \"Wrong side of the mat,\" (subject.he/she) tells (friend), \"and nothing happened at all.\" \"Maybe it's lucky too,\" says (friend). (subject) doesn't think so. (subject.He/She) uses the left side tomorrow, just to be safe.",
+   "src": "L239"
+  }
+ }
+}

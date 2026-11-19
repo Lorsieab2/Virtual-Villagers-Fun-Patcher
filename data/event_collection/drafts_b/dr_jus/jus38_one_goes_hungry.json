@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "No One Goes Hungry",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus38_one_goes_hungry",
+  "source": "draft_jus",
+  "lines": [
+   452,
+   461
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L452",
+  "ledger": [
+   {
+    "src": "L453",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L457",
+    "kind": "sensitivity",
+    "before": "An Elder Objects",
+    "after": "(elder) Objects",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L458",
+    "kind": "sensitivity",
+    "before": "An elder stands up.",
+    "after": "(elder), an elder, stands up.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L458",
+    "kind": "sensitivity",
+    "before": "The elder says it might be",
+    "after": "(elder) says it might be",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager keeps arriving late for the net hauling, and someone proposes no share of the catch: an elder objects, or they explain.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been late for the net hauling three mornings running, and the others have had to haul without (subject.him/her). At the council, (friend) proposes that (subject) get no share of the catch for a week. Several people nod.",
+   "src": "L455",
+   "choices": [
+    {
+     "label": "(elder) Objects",
+     "next": "o1",
+     "src": "L457"
+    },
+    {
+     "label": "(subject) Explains",
+     "next": "o2",
+     "src": "L460"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(elder), an elder, stands up. \"We don't take food from anyone. Not for lateness. Not for anything.\" The meeting goes quiet. Instead, the council asks (subject) to take the next three dawn hauls, early, and set the nets ready for everyone else. (subject) agrees. (friend) still thinks it's soft. (elder) says it might be, but nobody goes hungry.",
+   "src": "L458",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L458"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Before anyone can vote, (subject) explains that (subject.he/she) has been sitting up every night with a sick friend. The council drops the question of shares at once, and says plainly that nobody here takes food away. It asks whether (subject) needs help at night instead. (subject.He/she) does. Two people offer. (friend) offers to haul (subject)'s share of the nets until the friend is better.",
+   "src": "L461",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L461"
+    }
+   ]
+  }
+ }
+}

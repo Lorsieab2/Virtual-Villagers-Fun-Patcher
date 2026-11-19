@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Creature of the Red Eyes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns09_creature_red",
+  "source": "living",
+  "lines": [
+   22284,
+   22295
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22284",
+  "ledger": [
+   {
+    "src": "L22295",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A hunter claims a red-eyed creature watches from the forest canopy at dusk.",
+  "cast_only": [
+   "hunter"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "hunter": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A hunter claims a red-eyed creature watches from the forest canopy at dusk.",
+   "src": "L22285",
+   "choices": [
+    {
+     "label": "Follow the tracks cautiously.",
+     "next": "a",
+     "src": "L22286"
+    },
+    {
+     "label": "Set up a distant watch.",
+     "next": "b",
+     "src": "L22289"
+    },
+    {
+     "label": "Leave the creature undisturbed.",
+     "next": "c",
+     "src": "L22292"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The hunter finds marks made by an ordinary animal.",
+   "src": "L22287"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The hunter vanishes overnight and returns shaken, unable to explain what happened.",
+   "src": "L22288",
+   "text_only": [
+    {
+     "what": "vanishes overnight",
+     "reason": "the hunter returns: nobody is lost",
+     "src": "L22288"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Observers see reflected eyes but cannot identify the creature.",
+   "src": "L22290"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "No creature appears, and some doubt the original story.",
+   "src": "L22291"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The legend becomes a warning against careless nighttime travel.",
+   "src": "L22293"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The hunter feels dismissed and refuses to discuss the sighting.",
+   "src": "L22294"
+  }
+ }
+}

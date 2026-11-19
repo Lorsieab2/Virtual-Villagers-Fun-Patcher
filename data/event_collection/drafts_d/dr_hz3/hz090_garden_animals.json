@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Garden of Animals",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz090_garden_animals",
+  "source": "draft_hz2",
+  "lines": [
+   125,
+   135
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L125",
+  "ledger": [
+   {
+    "src": "L126",
+    "kind": "sensitivity",
+    "before": "A gardener",
+    "after": "(Name1), a gardener,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A gardener wonders whether distant people might keep animals from many lands together in one place.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a gardener, wonders whether distant people might keep animals from many lands together in one place so that visitors could see them.",
+   "src": "L126",
+   "choices": [
+    {
+     "label": "Imagine It as Care.",
+     "next": "a",
+     "src": "L127"
+    },
+    {
+     "label": "Imagine It as Captivity.",
+     "next": "b",
+     "src": "L130"
+    },
+    {
+     "label": "Ask What Isolans Would Do.",
+     "next": "c",
+     "src": "L133"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A naturalist imagines keepers protecting rare animals that are disappearing elsewhere.",
+   "src": "L128"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A healer wonders whether animals far from home could ever feel at ease.",
+   "src": "L129"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A child worries that the animals might miss the sea, the forest or each other.",
+   "src": "L131"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A scholar says the truth would depend on how they were kept, which no one here can know.",
+   "src": "L132"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village agrees that watching animals in the wild is good enough for Isola.",
+   "src": "L134"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A farmer points out that goats and pigs live in pens on Isola, and the conversation becomes more thoughtful.",
+   "src": "L135"
+  }
+ }
+}

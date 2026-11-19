@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Place in the Game",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim090_place_game",
+  "source": "moments500",
+  "lines": [
+   1505,
+   1519
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L1506",
+  "ledger": [
+   {
+    "src": "L1505",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1509",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1510",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1513",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1514",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1517",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1518",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1507",
+    "kind": "sensitivity",
+    "before": "a newcomer",
+    "after": "(name1), a newcomer,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1511",
+    "kind": "sensitivity",
+    "before": "a newcomer",
+    "after": "(name1), a newcomer,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1515",
+    "kind": "sensitivity",
+    "before": "a newcomer",
+    "after": "(name1), a newcomer,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1519",
+    "kind": "sensitivity",
+    "before": "a newcomer",
+    "after": "(name1), a newcomer,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Several villagers make room for a newcomer in their game.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "Several villagers make room for (name1), a newcomer, in their game. Someone remembers an old joke, and the group starts laughing again.",
+   "src": "L1507"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "Several villagers make room for (name1), a newcomer, in their game. (Name1) feels welcome but still a little shy.",
+   "src": "L1511"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "Several villagers make room for (name1), a newcomer, in their game. The conversation is ordinary, which is exactly what feels comforting.",
+   "src": "L1515"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "Several villagers make room for (name1), a newcomer, in their game. A small invitation changes the mood of the whole afternoon.",
+   "src": "L1519"
+  }
+ }
+}

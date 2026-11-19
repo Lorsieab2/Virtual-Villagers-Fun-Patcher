@@ -959,6 +959,15 @@ static const ce_probe_field C3_PROBE[] = {
     { 0xF10, 1, 1, 1 }, { 0xE78, 4, 90, 90 }, { 0xE94, 1, 0, 0 }, { 0xE8C, 4, 0, 0 },
 };
 
+/* The Secret City's villager catch-up 0x45FFE0 on the villager array 0x59E110 (its one caller, the update 0x428CA0,
+   right after the aging 0x45F3E0). */
+static void c3_catch_up(void) {
+    TC0(0x45FFE0u, 0x59E110u);
+}
+
+static const ce_birth_layout C3_BIRTH = { 0xDC4u, 0xE74u, 0xE8Cu, 0xE78u, c3_catch_up };
+static int c3_deliver(int index, int *early);
+
 static const ce_adapter C3_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
@@ -1009,10 +1018,12 @@ static const ce_adapter C3_ADAPTER = {
     /* The two-choice popup (0x4192F0): the 432-pixel text box of the plain
        one, 11 lines for the tallest of the question and the results (the
        tallest stock two-choice text; the popup also shows the villager);
-       the title stays above the result; labels of 32 characters. */
-    48, 11, 48, 11, 0, 32, c3_rand_below, NULL, c3_role,
+       the title stays above the result; labels of up to 39 characters, as wide as the screen shows
+   whole (story_label_widths.h). */
+    48, 11, 48, 11, 0, 39, c3_rand_below, NULL, c3_role,
     C3_PROBE, (int)(sizeof C3_PROBE / sizeof C3_PROBE[0]),
-    NULL, NULL, 0, c3_set_health
+    NULL, NULL, 0, c3_set_health,
+    c3_deliver
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -1090,4 +1101,9 @@ static const ce_adapter *c3_adapter(void) {
         ready = 1;
     }
     return &adapter;
+}
+
+/* cie-v6-binary.md 23: the babies born now by the game's own delivery (ce_birth_now). */
+static int c3_deliver(int index, int *early) {
+    return ce_birth_now(&C3_ADAPTER, &C3_BIRTH, index, early);
 }

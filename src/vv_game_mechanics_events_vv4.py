@@ -252,3 +252,14 @@ EVENTS = with_scaling(4, EVENTS, frozenset({
     "The Mysterious Footprints (tech gained)", "The Mysterious Footprints (tech lost)", "The Arc of Brilliant Colors",
     "The Calabash Instrument", "The Climber", "The Mosquito Larvae", "Faces in the Night", "The Sealed Box",
     "The Aspiring Scientist"}))
+
+# The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
+from vv_game_mechanics_adventurer import (adventurer_event, mysterious_mask_event,  # noqa: E402
+                                          playful_dolphins_event)
+
+EVENTS = EVENTS + (adventurer_event(4), playful_dolphins_event(), mysterious_mask_event())
+
+# The Remembrance Ceremony and The Rumblings (the owner, 2026-11-13, all five games): the same companion.
+from vv_game_mechanics_ceremony import remembrance_event, rumblings_event  # noqa: E402
+
+EVENTS = EVENTS + (remembrance_event(4), rumblings_event(4))

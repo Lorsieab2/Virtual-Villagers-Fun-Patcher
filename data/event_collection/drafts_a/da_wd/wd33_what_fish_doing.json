@@ -1,0 +1,88 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Fish Doing on the Roof?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd33_what_fish_doing",
+  "source": "da_wd",
+  "lines": [
+   386,
+   395
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L386",
+  "ledger": [
+   {
+    "src": "L387",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L395",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A fresh fish lies on a villager's roof while a seabird circles above: give it back to the bird, or keep it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "There's a fish on (name1)'s roof. A whole fish, quite a big one, fresh, lying on the thatch as though it has been neatly delivered. A seabird is circling overhead, crying in what sounds very much like frustration.",
+   "src": "L389",
+   "choices": [
+    {
+     "label": "Give It Back to the Bird",
+     "next": "a",
+     "src": "L391"
+    },
+    {
+     "label": "Keep It for Dinner",
+     "next": "b",
+     "src": "L394"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) gets the fish down and lays it on a rock in the open. The seabird swoops down, grabs it, and flies off without a word of thanks. (name1) goes back inside. A moment later, there's a thump on the roof. (He/She) goes out. The bird has dropped it again. (name1) looks up at the bird. The bird looks down at (name1).",
+   "src": "L392"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) gets the fish down and, after a moment of guilt, cooks it for dinner. It's very good. The seabird sits on the roof all evening, glaring down through the smoke hole. The next morning, (name1) leaves a few scraps out on the rock for it, as an apology. The bird eats them, still glaring.",
+   "src": "L395",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L395"
+    }
+   ]
+  }
+ }
+}

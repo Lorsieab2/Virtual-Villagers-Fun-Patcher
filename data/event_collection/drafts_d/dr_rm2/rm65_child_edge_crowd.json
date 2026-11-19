@@ -1,0 +1,175 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child at the Edge of the Crowd",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm65_child_edge_crowd",
+  "source": "draft_rm2",
+  "lines": [
+   369,
+   382
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L369",
+  "ledger": [
+   {
+    "src": "L370",
+    "kind": "sensitivity",
+    "before": "a teenager",
+    "after": "(name1), a teenager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "During a busy festival, a teenager notices a small child standing alone near the drums, looking around anxiously.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "During a busy festival, (name1), a teenager, notices a small child standing alone near the drums, looking around anxiously.",
+   "src": "L370",
+   "choices": [
+    {
+     "label": "Kneel Down and Speak Gently.",
+     "next": "a",
+     "src": "L371"
+    },
+    {
+     "label": "Take the Child Somewhere Easy to See.",
+     "next": "b",
+     "src": "L374"
+    },
+    {
+     "label": "Ask a Drummer to Pause and Call Out.",
+     "next": "c",
+     "src": "L377"
+    },
+    {
+     "label": "Offer the Child a Fruit While Waiting.",
+     "next": "d",
+     "src": "L380"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child says their family went to get food, and the teenager waits with them until they return.",
+   "src": "L372",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- story only: the file marks no effect (no new mechanics)",
+     "src": "L372"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child is too shy to answer, so the teenager simply stays close until a parent appears.",
+   "src": "L373"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A parent spots them from across the clearing and hurries over.",
+   "src": "L375"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The child refuses to move, so the teenager asks a friend to search instead.",
+   "src": "L376"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The family hears and comes running, relieved.",
+   "src": "L378"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The sudden silence startles the child, but the family arrives soon after.",
+   "src": "L379"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The child eats happily, and the family returns shortly.",
+   "src": "L381"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The child is not hungry, but holding the fruit seems to help.",
+   "src": "L382"
+  }
+ }
+}

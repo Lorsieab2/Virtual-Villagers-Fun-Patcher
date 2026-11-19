@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Watching the Wedding",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif37_watching_wedding",
+  "source": "draft_lif",
+  "lines": [
+   428,
+   437
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 40 or older)"
+   }
+  ],
+  "description": "Watching a wedding, a villager thinks about their own choices: raise a cup to the couple, or slip away for a while.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There's a wedding today, and (name1) is watching from the back with a cup of something sweet. The couple are tying the cord around their wrists, laughing at how long it's taking. (name1) finds (him/her)self thinking about (his/her) own choices: who (he/she) loved, who (he/she) didn't, what (he/she) did about it, and what (he/she) didn't.",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "Raise a Cup to the Couple",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "Slip Away for a While",
+     "next": "o2",
+     "src": "L436"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) raises (his/her) cup to the couple, and means it. Whatever (his/her) own life has held, (he/she) hopes theirs is good. The couple see it and raise their tied hands. (name1) feels a twinge of something, maybe longing, maybe relief, maybe both, and lets it be. Then (he/she) goes and dances very badly with an elder. It's a lovely wedding.",
+   "src": "L434"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) slips away and walks along the beach in the evening light. The music fades behind (him/her). (He/she) thinks about the roads (he/she) took and the ones (he/she) didn't. (He/she) doesn't feel sad, exactly. Wistful. Full. When (he/she) comes back, the dancing has started, and (he/she) joins in. Some feelings don't need deciding about.",
+   "src": "L437"
+  }
+ }
+}

@@ -1,0 +1,268 @@
+NAT-01
+DESC: A child finds a hermit crab living in a strange blue cup washed up from the sea: offer it real shells, or leave it be.
+ROLES: name1=5-13 name2=18+
+REVIEW: FLAG casting line picks one child; name2 watches and speaks in O1, cast as 18+.
+
+NAT-02
+DESC: A seabird is caught in a shiny line unlike any the village makes: untangle it together, or fetch someone who knows birds.
+ROLES: name1=18+ name2=18+
+FIG: f=fisher:55+
+EDIT O2: "fetches an old fisher who has freed" => "fetches [f], an old fisher who has freed"
+EDIT O2: "The fisher looks, sighs" => "[f] looks, sighs"
+EDIT O2: "bites the fisher on the thumb" => "bites [f] on the thumb"
+EDIT O2: "says the fisher, sucking" => "says [f], sucking"
+REVIEW: ok
+
+NAT-03
+DESC: After a storm the tide line is thick with things that do not belong to the sea: gather it all up, or let the child keep treasures.
+ROLES: name1=18+ name2=5-13
+REVIEW: ok
+
+NAT-04
+DESC: The north rocks' seaweed forest has given way to hundreds of urchins: gather the urchins to eat, or watch and wait.
+ROLES: name1=18+ name2=55+
+REVIEW: ok
+
+NAT-05
+DESC: A huge seal has gone to sleep on the canoe landing between the canoes: wait it out, or launch from the other beach.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-06
+DESC: The clams are smaller and fewer every year: rest the clam bed for a season, or keep digging only the big ones.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-07
+DESC: An elder sees a red-throated bird thought gone for years: tell the whole village, or keep the place secret.
+ROLES: name1=55+ name2=18+
+REVIEW: ok
+
+NAT-08
+DESC: An elder remembers a little frog's song not heard in thirty years: teach the child how it sounded, or go and listen properly.
+ROLES: name1=55+ name2=5-13
+REVIEW: ok
+
+NAT-09
+DESC: Dolphins are driving a shoal of silver fish into the shallows: fish alongside them, or just watch.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-10
+DESC: Young trees never grow on the goats' hillside, and the hill keeps sliding: build a pen for the goats, or fence one patch.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-11
+DESC: A pretty purple-flowered vine is climbing over everything at the forest edge: pull it out, or find a use for it.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-12
+DESC: A villager has counted far fewer turtle nests than they remember: take none this year, or take a few as always.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-13
+DESC: A villager has heard bat droppings are the best garden food and stands at the bat cave with a scoop: go in at night, or wait.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-14
+DESC: A scruffy penguin has stood on the far beach for three days, and a child is worried: explain what is happening, or bring a fish.
+ROLES: name1=18+ name2=5-13
+FIX O2: 1=1
+REVIEW: ok
+
+NAT-15
+DESC: Ants are carrying their eggs uphill under a clear blue sky: bring the drying mats in, or leave everything out.
+ROLES: name1=18+
+REVIEW: ok
+
+NAT-16
+DESC: After hot, still days, dead fish are floating in the lagoon: look into it, or keep everyone away and wait.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-17
+DESC: A child has found a rock where big fish wait in line to be cleaned by little ones: go and see, or ask the child to explain it.
+ROLES: name1=5-13 name2=18+
+REVIEW: ok
+
+NAT-18
+DESC: The sea has uncovered the huge bones of a whale on the far beach: use the bones for a shelter, or leave them where they lie.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-19
+DESC: The red land crabs are marching to the sea through every hut and pot: help the crabs across, or shoo them out of the huts.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-20
+DESC: A villager walks face-first into the same spider's web every morning: use the back door, or move the spider.
+ROLES: name1=18+
+REVIEW: ok
+
+NAT-21
+DESC: The village needs garden space, and the firefly clearing is flat and well watered: clear half of it, or plant somewhere else.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-22
+DESC: A coconut crab the size of a small dog sits atop a palm behind the huts: catch it for supper, or let it go about its business.
+ROLES: name1=18+ name2=5-13
+REVIEW: ok
+
+NAT-23
+DESC: A villager's pig has found a whole patch of prized sweet wild roots: follow the pig, or bring it home and dig gently.
+ROLES: name1=18+
+REVIEW: ok
+
+NAT-24
+DESC: The lowest tide of the year has left the reef full of tide pools: explore together, or look from the rocks.
+ROLES: name1=55+ name2=5-13
+FIX O1: 1=2
+REVIEW: ok
+
+NAT-25
+DESC: A child finds a starfish with one short arm and worries something bit it: explain about starfish, or ask what the child thinks.
+ROLES: name1=4-12 name2=18+
+REVIEW: ok
+
+NAT-26
+DESC: A teen has stopped shuffling their feet in the stingray shallows: show them why, or let them find out.
+ROLES: name1=18+ name2=14-17
+FIX L1: 1=2
+FIX L2: 1=2
+FIG: h=healer:18+
+EDIT O2: "A healer soaks the foot" => "[h], a healer, soaks the foot"
+REVIEW: ok
+
+NAT-27
+DESC: The green pond behind the huts is full of frogs and mosquitoes: drain the pond, or leave it and clear other puddles.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-28
+DESC: Green shoots are coming up through the ash of the burned hillside: help it along, or let the hill heal itself.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-29
+DESC: A child is poking a strange white puffy thing on the tide line: explain and bury it, or let the child guess what it is.
+ROLES: name1=5-13 name2=18+
+REVIEW: ok
+
+NAT-30
+DESC: The well by the shore has started to taste of salt: draw less from it, or dig a new well further inland.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-31
+DESC: A child finds a furry grey lump full of tiny bones under the owl's tree: take it apart together, or let it be.
+ROLES: name1=6-13 name2=18+
+REVIEW: ok
+
+NAT-32
+DESC: A small child's drawing twig walked off their hand: find it again, or tell everyone about the walking twig.
+ROLES: name1=3-10 name2=18+
+REVIEW: ok
+
+NAT-33
+DESC: Baby sharks have been seen in the lagoon, and parents want everyone out: share the lagoon, or close it for the season.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-34
+DESC: Thousands of yellow butterflies fly over the village and out to sea, and a villager stands with arms out as they pass.
+ROLES: name1=18+
+REVIEW: ok
+
+NAT-35
+DESC: Big snails nobody remembers arriving are eating the gardens: collect them every night, or find what eats them.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-36
+DESC: A hornets' nest beside the path to the stream has stung two villagers: move it at night, or use the long path until autumn.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-37
+DESC: A child has decided to fish exactly like the kingfisher, from a rock over the stream: let them try, or teach them to watch.
+ROLES: name1=6-13 name2=18+
+REVIEW: ok
+
+NAT-38
+DESC: The mangroves make the best firewood, but the shore washes away where they are gone: cut only dead wood, or plant as you cut.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-39
+DESC: A child asks why a tiny bird's chick is twice its size: tell the child the truth, or let them watch and wonder.
+ROLES: name1=5-13 name2=18+
+FIX L1: 1=1
+FIX L2: 1=1
+REVIEW: ok
+
+NAT-40
+DESC: Wild pigs keep rooting up the taro gardens at night: build a fence, or go hunting.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-41
+DESC: A small child grabbed a gecko by the tail and the tail came off: explain about geckos, or help the child make it right.
+ROLES: name1=3-10 name2=18+
+FIX L2: 1=1
+FIX O2: 1=1
+REVIEW: ok
+
+NAT-42
+DESC: The perfect spot for a new hut is under the herons' noisy nesting trees: build somewhere else, or build there and see.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-43
+DESC: A villager's net brings up a pufferfish, and a child wants to poke it: put it back, or show the child and then let it go.
+ROLES: name1=18+ name2=5-13
+FIX L2: 1=2
+REVIEW: ok
+
+NAT-44
+DESC: Out alone past the reef, a villager feels whales singing through the wood of the canoe and lies down to listen.
+ROLES: name1=18+
+REVIEW: ok
+
+NAT-45
+DESC: The rains are weeks late and there is water for only some plants: save the food plants first, or the young trees.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-46
+DESC: A fig growing atop an old breadfruit tree is wrapping it in roots: cut the fig away, or let it grow.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+NAT-47
+DESC: A villager and a child count the seabird nests, and each year's stick is shorter: ask why, or keep counting.
+ROLES: name1=18+ name2=6-13
+REVIEW: ok
+
+NAT-48
+DESC: A swarm of bees has moved into the wall of a villager's hut: coax them into a log hive, or leave them in the wall.
+ROLES: name1=18+ name2=18+
+FIX O2: 1=1
+REVIEW: ok
+
+NAT-49
+DESC: Jellyfish have closed the swimming in the hottest week of the year: go and look at them, or find another place to swim.
+ROLES: name1=18+ name2=5-13
+REVIEW: ok
+
+NAT-50
+DESC: An elder says the fish off the point were twice that size when they were young: ask them to show you, or tease them.
+ROLES: name1=55+ name2=18-25
+FIX L1: 1=1
+FIX L2: 1=1
+REVIEW: ok

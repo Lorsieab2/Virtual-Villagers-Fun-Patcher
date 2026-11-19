@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hunter and the Gardener",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl18_hunter",
+  "source": "living",
+  "lines": [
+   21895,
+   21906
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21895",
+  "ledger": [
+   {
+    "src": "L21906",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Two communities disagree about whether a forest clearing should be hunted or planted.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two communities disagree about whether a forest clearing should be hunted or planted.",
+   "src": "L21896",
+   "choices": [
+    {
+     "label": "Negotiate seasonal use.",
+     "next": "a",
+     "src": "L21897"
+    },
+    {
+     "label": "Protect the clearing.",
+     "next": "b",
+     "src": "L21900"
+    },
+    {
+     "label": "Claim it for the village.",
+     "next": "c",
+     "src": "L21903"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A seasonal agreement provides food while preserving habitat.",
+   "src": "L21898",
+   "text_only": [
+    {
+     "what": "provides food",
+     "reason": "the agreement's purpose over the seasons; nothing is gained now",
+     "src": "L21898"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A difficult season tests the agreement.",
+   "src": "L21899"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Wildlife returns, but hungry families seek other resources.",
+   "src": "L21901"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The protected ground becomes a shared place of study.",
+   "src": "L21902"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The claim creates resentment and patrols along the path.",
+   "src": "L21904"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The conflict forces leaders to discuss boundaries.",
+   "src": "L21905"
+  }
+ }
+}

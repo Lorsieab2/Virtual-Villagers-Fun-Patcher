@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Farm Above the Reef",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife16_farm_above",
+  "source": "living",
+  "lines": [
+   20837,
+   20848
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20837",
+  "ledger": [
+   {
+    "src": "L20848",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Rain carries soil from hillside fields into a coral lagoon.",
+  "cast_only": [
+   "farmer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "farmer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Rain carries soil from hillside fields into a coral lagoon.",
+   "src": "L20838",
+   "choices": [
+    {
+     "label": "Build barriers and plant groundcover.",
+     "next": "a",
+     "src": "L20839"
+    },
+    {
+     "label": "Move farming farther inland.",
+     "next": "b",
+     "src": "L20842"
+    },
+    {
+     "label": "Continue farming and monitor the reef.",
+     "next": "c",
+     "src": "L20845"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The water clears gradually, though construction delays planting.",
+   "src": "L20840"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A storm overwhelms the barriers, prompting a stronger design.",
+   "src": "L20841"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The reef receives less runoff, but the new fields need work.",
+   "src": "L20843"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The inland soil proves poor, and farmers ask for another plan.",
+   "src": "L20844"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village sees the lagoon cloud after heavy rain.",
+   "src": "L20846"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The harvest succeeds, but fishers worry about damage below.",
+   "src": "L20847"
+  }
+ }
+}

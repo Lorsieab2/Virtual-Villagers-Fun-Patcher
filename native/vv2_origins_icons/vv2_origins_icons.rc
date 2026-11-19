@@ -183,7 +183,7 @@ BEGIN
 END
 
 /* VV2 Change Appearance chooser: sprite previews cropped from the stock art. */
-213 DIALOGEX 0, 0, 364, 248
+213 DIALOGEX 0, 0, 364, 262
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
 CAPTION "Change Appearance"
 FONT 9, "Segoe UI"
@@ -214,16 +214,18 @@ BEGIN
     PUSHBUTTON  "Blonde", 3513, 242, 178, 40, 13
     PUSHBUTTON  "Other", 3514, 286, 178, 40, 13
 
-    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 16, 202, 332, 9
-    PUSHBUTTON  "Undo changes", 3500, 16, 220, 64, 16
-    PUSHBUTTON  "Reset to original", 3501, 84, 220, 78, 16
-    DEFPUSHBUTTON "OK", 1, 236, 220, 54, 16
-    PUSHBUTTON  "Cancel", 2, 294, 220, 54, 16
+    AUTOCHECKBOX "Gender presentation: use the other sex's look", 3507, 24, 200, 240, 10
+    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 16, 216, 332, 9
+    PUSHBUTTON  "Undo changes", 3500, 16, 234, 64, 16
+    PUSHBUTTON  "Reset to original", 3501, 84, 234, 78, 16
+    PUSHBUTTON  "Change sex...", 3506, 166, 234, 64, 16
+    DEFPUSHBUTTON "OK", 1, 236, 234, 54, 16
+    PUSHBUTTON  "Cancel", 2, 294, 234, 54, 16
 END
 
 /* Change Appearance with the head look (native/shared/head_look.h): 213 and, below the three pickers, a
    "Head look" row -- Auto, Young or Old.  Used when "VVFP Head Look.dll" is in the game; otherwise 213. */
-218 DIALOGEX 0, 0, 364, 274
+218 DIALOGEX 0, 0, 364, 288
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
 CAPTION "Change Appearance"
 FONT 9, "Segoe UI"
@@ -260,11 +262,13 @@ BEGIN
     PUSHBUTTON  "Blonde", 3513, 242, 204, 40, 13
     PUSHBUTTON  "Other", 3514, 286, 204, 40, 13
 
-    CTEXT       "OK deducts 5,000 tech points, for the head look too. Cancel changes nothing.", -1, 16, 228, 332, 9
-    PUSHBUTTON  "Undo changes", 3500, 16, 246, 64, 16
-    PUSHBUTTON  "Reset to original", 3501, 84, 246, 78, 16
-    DEFPUSHBUTTON "OK", 1, 236, 246, 54, 16
-    PUSHBUTTON  "Cancel", 2, 294, 246, 54, 16
+    AUTOCHECKBOX "Gender presentation: use the other sex's look", 3507, 24, 226, 240, 10
+    CTEXT       "OK deducts 5,000 tech points, for the head look too. Cancel changes nothing.", -1, 16, 242, 332, 9
+    PUSHBUTTON  "Undo changes", 3500, 16, 260, 64, 16
+    PUSHBUTTON  "Reset to original", 3501, 84, 260, 78, 16
+    PUSHBUTTON  "Change sex...", 3506, 166, 260, 64, 16
+    DEFPUSHBUTTON "OK", 1, 236, 260, 54, 16
+    PUSHBUTTON  "Cancel", 2, 294, 260, 54, 16
 END
 
 /* VV2 "Change Appearance for All" (214): per-sex Head/Body/Mask selectors (each

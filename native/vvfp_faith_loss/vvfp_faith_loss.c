@@ -469,6 +469,33 @@ int __stdcall VvfpFaithLossMarked(void) {
     return g_count;
 }
 
+/* A VILLAGER'S SEX CHANGED (native/shared/sex_change.h): `record` live, `before` as it was.  A mark's identity
+   holds no sex, so the mark is still theirs; its keep and stable parts (which do hold it) are taken from the record
+   now and written, so a rename after the change is still told as one.  1 when a mark was carried. */
+int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    int carried = 0;
+    if (game != FL_GAME || record == NULL || before == NULL || slot <= 0 || slot != g_slot) {
+        return 0;
+    }
+    __try {
+        const unsigned char *rec = (const unsigned char *)record;
+        int index = record_index(rec), i;
+        fl_mark was = mark_of((const unsigned char *)before, index);
+        for (i = 0; i < g_count && !carried; ++i) {
+            if (g_marks[i].identity == was.identity || mark_is(&g_marks[i], &was)) {
+                g_marks[i] = mark_of(rec, index);
+                carried = 1;
+            }
+        }
+        if (carried) {
+            write_marks();
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        carried = 0;
+    }
+    return carried;
+}
+
 static unsigned char g_call_stock[5];
 
 /* Called once by VVFP Startup.dll before WinMain. */

@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Feast Nobody Wanted",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss063_feast_nobody",
+  "source": "companion",
+  "lines": [
+   6709,
+   6717
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6709",
+  "ledger": [
+   {
+    "src": "L6717",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "An enthusiastic cook makes an enormous stew with an unfamiliar bitter vegetable.",
+  "cast_only": [
+   "cook",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "cook": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An enthusiastic cook prepares an enormous stew using an unfamiliar bitter vegetable.",
+   "src": "L6710",
+   "choices": [
+    {
+     "label": "Taste and adapt",
+     "next": "a",
+     "src": "L6711"
+    },
+    {
+     "label": "Serve it as planned",
+     "next": "b",
+     "src": "L6713"
+    },
+    {
+     "label": "Offer a different meal",
+     "next": "c",
+     "src": "L6715"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The cook salvages it with other ingredients; a new recipe emerges.",
+   "src": "L6712"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Most villagers politely avoid seconds, but one elder loves it.",
+   "src": "L6714"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The cook feels embarrassed, then learns to test small batches first.",
+   "src": "L6716"
+  }
+ }
+}

@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Who Will Remember?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea25_will_remember",
+  "source": "draft_fea",
+  "lines": [
+   296,
+   305
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L296",
+  "ledger": [
+   {
+    "src": "L297",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder)"
+   },
+   {
+    "src": "L305",
+    "kind": "sensitivity",
+    "before": "A child runs past",
+    "after": "(child), a child, runs past",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "An elder wonders who will remember them once they are gone: say it out loud, or keep it to yourself.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been thinking. After (subject.he/she) is gone, people will remember (subject.him/her) for a while. Then the people who remember (subject.him/her) will be gone too. And then there will be nobody at all who knows that (subject.he/she) liked the sound of rain, or once caught a fish with (subject.his/her) bare hands. Today the thought won't leave (subject.him/her) alone. (friend) sits down beside (subject.him/her).",
+   "src": "L299",
+   "choices": [
+    {
+     "label": "Say It Out Loud",
+     "next": "o1",
+     "src": "L301"
+    },
+    {
+     "label": "Keep It to Yourself",
+     "next": "o2",
+     "src": "L304"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) what (subject.he/she) has been thinking. (friend) doesn't argue. \"I don't know what happens,\" (friend.he/she) says honestly. \"But I know you like the rain. And I'll tell people.\" (subject) asks for the fish story, then, to be told properly. They spend the afternoon getting it right.",
+   "src": "L302"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't say anything. They just sit together. (child), a child, runs past and shouts, \"(subject)! Look! A crab!\" and (subject) leans forward to see the crab, which is very small and very angry. For a moment the thought goes away. It will come back. For now there is a crab.",
+   "src": "L305"
+  }
+ }
+}

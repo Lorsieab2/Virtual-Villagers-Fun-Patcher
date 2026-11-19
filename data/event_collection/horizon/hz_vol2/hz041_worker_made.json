@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Worker Made of Stone and Metal",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz041_worker_made",
+  "source": "horizon",
+  "lines": [
+   587,
+   597
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L587",
+  "ledger": [],
+  "description": "A carver wonders whether distant craftspeople could assemble a figure that walks and obeys without a living body.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A carver wonders whether distant craftspeople could assemble a figure that walks, carries baskets, and obeys instructions without a living body.",
+   "src": "L588",
+   "choices": [
+    {
+     "label": "Treat It as a Tool.",
+     "next": "a",
+     "src": "L589"
+    },
+    {
+     "label": "Treat It as a Worker.",
+     "next": "b",
+     "src": "L592"
+    },
+    {
+     "label": "Ask Whether It Has a Will.",
+     "next": "c",
+     "src": "L595"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A builder imagines a tireless device hauling stone, but asks who repairs it when it fails.",
+   "src": "L590"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A farmer worries that a broken command might send the figure trampling seedlings.",
+   "src": "L591"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An apprentice asks whether work deserves rest even when the worker is manufactured.",
+   "src": "L593"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The council disputes whether a machine can be exploited, or whether only its human operators can.",
+   "src": "L594"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A child imagines the figure refusing a cruel order; the elders cannot agree whether refusal proves thought.",
+   "src": "L596"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A researcher distinguishes movement, instruction, and desire; the question remains open.",
+   "src": "L597"
+  }
+ }
+}

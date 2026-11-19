@@ -1,0 +1,87 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Words That Stuck",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss078_words_stuck",
+  "source": "companion",
+  "lines": [
+   6875,
+   6883
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6875",
+  "ledger": [
+   {
+    "src": "L6883",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A teen knows an answer but freezes when asked to speak before the whole village.",
+  "cast_only": [
+   "teen"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A teen knows an answer but freezes when asked to speak before the entire village.",
+   "src": "L6876",
+   "choices": [
+    {
+     "label": "Let them answer privately",
+     "next": "a",
+     "src": "L6877"
+    },
+    {
+     "label": "Offer time to prepare",
+     "next": "b",
+     "src": "L6879"
+    },
+    {
+     "label": "Invite a written or drawn answer",
+     "next": "c",
+     "src": "L6881"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Their careful idea is heard.",
+   "src": "L6878"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They speak a few sentences and stop when ready.",
+   "src": "L6880"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Their drawing changes the village plan.",
+   "src": "L6882"
+  }
+ }
+}

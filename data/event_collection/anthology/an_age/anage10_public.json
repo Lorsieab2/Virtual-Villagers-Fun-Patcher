@@ -1,0 +1,173 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Public Decision",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage10_public",
+  "source": "anthology",
+  "lines": [
+   30269,
+   30283
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30269",
+  "ledger": [
+   {
+    "src": "L30270",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17), carried out as the roles' ages"
+   },
+   {
+    "src": "L30283",
+    "kind": "sensitivity",
+    "before": "An outspoken teen",
+    "after": "(teen), an outspoken teen,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Teenagers are asked to propose fair rules for a shared playground used by younger children.",
+  "label_case": "title",
+  "cast_only": [
+   "teen"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Teenagers are asked to propose fair rules for a shared playground used by younger children.",
+   "src": "L30271",
+   "choices": [
+    {
+     "label": "Consult the Younger Children",
+     "next": "a",
+     "src": "L30272"
+    },
+    {
+     "label": "Consult Caregivers",
+     "next": "b",
+     "src": "L30275"
+    },
+    {
+     "label": "Try the Rules for One Afternoon",
+     "next": "c",
+     "src": "L30278"
+    },
+    {
+     "label": "Explain the Reasoning to Everyone",
+     "next": "d",
+     "src": "L30281"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children suggest a turn-taking signal adults had overlooked.",
+   "src": "L30273"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The teens learn that the youngest children need a simpler rule than they first drafted.",
+   "src": "L30274"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Caregivers identify a safety issue near the climbing frame.",
+   "src": "L30276"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The teens feel their proposal is being challenged, then distinguish criticism from rejection.",
+   "src": "L30277"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The rules reduce quarrels and earn cautious support.",
+   "src": "L30279"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A confusing rule causes arguments, so the teens revise it publicly.",
+   "src": "L30280"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The teenagers give a thoughtful account of fairness and safety.",
+   "src": "L30282"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(teen), an outspoken teen, dominates; the group asks a quieter member to present the next point.",
+   "src": "L30283"
+  }
+ }
+}

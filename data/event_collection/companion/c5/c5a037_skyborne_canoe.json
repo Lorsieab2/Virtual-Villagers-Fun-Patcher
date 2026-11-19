@@ -1,0 +1,133 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Skyborne Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5a037_skyborne_canoe",
+  "source": "companion",
+  "lines": [
+   867,
+   889
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and requested disciplines: Lorsieab2\nNew event text and branching expansions: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L872",
+  "ledger": [
+   {
+    "src": "L868",
+    "kind": "structural",
+    "why": "the group heading 'EXPLORATION AND UNFAMILIAR MACHINES'"
+   },
+   {
+    "src": "L874",
+    "kind": "note",
+    "why": "the specialty heading: who the event is about (the roles)"
+   },
+   {
+    "src": "L878",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L883",
+    "kind": "note",
+    "text": "SUCCESS:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L885",
+    "kind": "note",
+    "text": "SETBACK:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L887",
+    "kind": "note",
+    "text": "SURPRISE:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L889",
+    "kind": "note",
+    "why": "FOLLOW-UP HOOK: a designer note, never shown"
+   }
+  ],
+  "description": "Explorers find plans for a woven vessel meant to fly above the sea under a heated envelope.",
+  "cast_only": [
+   "explorer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "explorer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Explorers find plans for a great woven vessel that appears intended to travel above the sea, held aloft by a vast heated envelope.",
+   "src": "L876",
+   "choices": [
+    {
+     "label": "Encourage a careful demonstration.",
+     "next": "outcome",
+     "src": "L879"
+    },
+    {
+     "label": "Request further study or improvement.",
+     "next": "outcome",
+     "src": "L880"
+    },
+    {
+     "label": "Involve the village council and apprentices.",
+     "next": "outcome",
+     "src": "L881"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome 1",
+   "text": "A small unmanned model rises, astonishing the village.",
+   "src": "L883"
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "The first trial stays stubbornly on the ground.",
+   "src": "L885"
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "An elder calls the contraption a canoe that has forgotten the ocean.",
+   "src": "L887"
+  }
+ }
+}

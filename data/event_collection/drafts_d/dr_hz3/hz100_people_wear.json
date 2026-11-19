@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The People Who Wear Their Stories",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz100_people_wear",
+  "source": "draft_hz2",
+  "lines": [
+   246,
+   256
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L246",
+  "ledger": [
+   {
+    "src": "L247",
+    "kind": "sensitivity",
+    "before": "a child asks",
+    "after": "(name1), a child, asks",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Admiring a villager's tattoos, a child asks whether distant people might mark their skin with stories too.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Admiring a villager's tattoos, (name1), a child, asks whether distant people might mark their skin with stories too.",
+   "src": "L247",
+   "choices": [
+    {
+     "label": "Imagine Similar Markings.",
+     "next": "a",
+     "src": "L248"
+    },
+    {
+     "label": "Imagine No Markings at All.",
+     "next": "b",
+     "src": "L251"
+    },
+    {
+     "label": "Ask What Markings Mean Here.",
+     "next": "c",
+     "src": "L254"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The tattoo artist imagines distant artists drawing family histories on skin.",
+   "src": "L249"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A scholar warns that markings in one land might mean something entirely different elsewhere.",
+   "src": "L250"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A child imagines people with completely bare skin and finds it hard to picture.",
+   "src": "L252"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A villager without tattoos points out that plenty of Isolans have none, and that is fine.",
+   "src": "L253"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Several villagers share the stories behind their markings, and the evening becomes a storytelling circle.",
+   "src": "L255"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "One villager prefers to keep the story of their markings private, and the others respect it.",
+   "src": "L256"
+  }
+ }
+}

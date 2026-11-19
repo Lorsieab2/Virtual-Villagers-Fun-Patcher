@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Big Marks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div37_big_marks",
+  "source": "draft_div",
+  "lines": [
+   440,
+   449
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L440",
+  "ledger": [
+   {
+    "src": "L441",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a craftsperson or another adult; in the story (name1)'s sight has dimmed)"
+   }
+  ],
+  "description": "An elder whose sight has dimmed cannot read the small marks on the storehouse baskets: carve them big, or use other baskets.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The storehouse baskets are marked with small carved symbols on their lids: one for taro, one for dried fish, one for seeds. (subject)'s eyes have dimmed with age, and (subject.he/she) can't make out the little marks anymore. (subject.He/she) has just opened three baskets looking for seeds and found fish three times. (friend) is carving new lids.",
+   "src": "L443",
+   "choices": [
+    {
+     "label": "Carve the Marks Big",
+     "next": "o1",
+     "src": "L445"
+    },
+    {
+     "label": "Use Different Baskets",
+     "next": "o2",
+     "src": "L448"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) asks for the marks to be bigger and deeper, so (subject.he/she) can feel them as well as see them. (friend) carves them as big as a hand, cut deep. (subject) runs (subject.his/her) fingers over the seed mark and smiles. A week later, everyone is using the big marks, because nobody, it turns out, enjoyed squinting at the small ones. Even the children can find things now.",
+   "src": "L446"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) suggests a simpler idea: different shapes. Round baskets for seeds, square for fish, tall for roots. (subject) likes it. It takes a while to reorganize the whole storehouse, and several people put things in the wrong baskets for weeks. But (subject) can find anything by touch now, in the dark if (subject.he/she) has to. (subject.He/she) demonstrates this, at night, to prove it.",
+   "src": "L449"
+  }
+ }
+}

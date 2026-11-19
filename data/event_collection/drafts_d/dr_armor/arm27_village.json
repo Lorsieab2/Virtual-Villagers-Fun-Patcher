@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Village Defenders",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm27_village",
+  "source": "armor45",
+  "lines": [
+   35,
+   35
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L35",
+  "ledger": [
+   {
+    "src": "L35",
+    "kind": "structural",
+    "text": "27. The Village Defenders  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "Some propose organized defensive training; others worry that constant preparation could make the village fearful.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Some propose organized defensive training; others worry that constant preparation could make the village fearful.",
+   "src": "L35"
+  }
+ }
+}

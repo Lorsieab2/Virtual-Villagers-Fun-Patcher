@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Coconut Doing in the Drinking Pool?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd41_what_coconut",
+  "source": "da_wd",
+  "lines": [
+   476,
+   485
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L476",
+  "ledger": [
+   {
+    "src": "L477",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A single coconut is floating and spinning in the middle of the drinking pool: fish it out, or wait for the wind.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "A single coconut is floating in the middle of the drinking pool, bobbing gently and turning slowly round and round. It's not near any tree. It's not near the edge. It's just out there in the middle, spinning, as though it's enjoying itself. The pool is too deep to wade to it.",
+   "src": "L479",
+   "choices": [
+    {
+     "label": "Fish It Out",
+     "next": "a",
+     "src": "L481"
+    },
+    {
+     "label": "Wait for the Wind",
+     "next": "b",
+     "src": "L484"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) tries a long stick. Too short. A longer stick. Still too short. A rope with a loop. The loop misses. By the time the coconut finally drifts close enough to the edge to grab, a small crowd has gathered to cheer every attempt. (name1) holds it up to applause. Then, unsure what else to do with it, (he/she) drinks it.",
+   "src": "L482"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) sits down and waits for the breeze to bring it in. The coconut drifts toward the edge. Then away. Then toward the edge again. Then it spins round and drifts away again. (name1) waits all afternoon. In the end (he/she) goes home, and when (he/she) comes back in the morning, the coconut is sitting neatly on the bank, as if it got out by itself.",
+   "src": "L485"
+  }
+ }
+}

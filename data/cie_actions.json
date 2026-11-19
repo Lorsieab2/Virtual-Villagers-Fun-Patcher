@@ -1,0 +1,4650 @@
+{
+ "_about": "Each game's Custom Island Event villager actions (label, group, unsafe), from tests/cie_behaviour_catalog.json; read by src/vv_cie_graph.py for the v6 action and mood effects. tests/test_cie_graph_v6.py keeps it equal to the catalog.",
+ "games": {
+  "1": [
+   {
+    "label": "Stops what they are doing",
+    "group": "GENERAL",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Going swimming",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Relaxing",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Recovers fully (cured, full health)",
+    "group": "GENERAL",
+    "unsafe": false
+   },
+   {
+    "label": "Dancing",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Rain dancing",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Making a party",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Exercising",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Laundry",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Observing",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Unsure what to do (or Worried about food) (wanders)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Going indoors",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Running away",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Shaking head",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Not feeling well (only looks it)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring the Dead",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring the Idol (once it is carved)",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring the temple (once it is restored)",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Sees something unusual...",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the rock",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the ruins",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the creek",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the field",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the cactus",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Trying to push the boulder (no progress)",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the lagoon",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the garden (once it is grown)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Admiring the treasure (once it is found)",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Chasing butterflies",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Drinking well water (or Frustrated by the dirty well)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Foraging (Farming practice, food)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Planting crops / Harvesting crops (Farming practice)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Watering crops (Farming practice)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Fishing (Farming practice, food; stock needs fishing)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Eating (uses food, restores health)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Fixing hut (Building practice)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Healing someone (Healing practice, cures nobody)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Going to school (children; stock needs the school)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Nothing (then does something of their own choosing)",
+    "group": "GENERAL",
+    "unsafe": false
+   },
+   {
+    "label": "Sitting",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Thinking (or Worried about food or housing; Caring for baby if pregnant)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Bored (or Worried about food or housing; Caring for baby if pregnant)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Leaving the water",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Dancing (another dance)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Studying fruitless plant",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying magic fruit",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Trying to water strange patch (or Frustrated by the dirty well)",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Waiting for someone",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Researching (Research practice, tech points)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Calling Butterflies! (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Watering the field (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Clearing blockage (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Confused (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Digging (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Founding a school (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Studying medical cactus (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Studying strange lily (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Studying rare rose (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Studying strange plant (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Restoring the ruins (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Picking a mushroom (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Cleaning up the beach (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Hunting a strange fish! (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Uncovering the well (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Unblocking the Cave (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Chiseling (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Embracing (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Chatting / Telling a joke / Arguing / Complaining / Praising / Teaching / Telling a story (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Examining hut (hut place 1) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Examining hut (hut place 2) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Examining hut (hut place 3) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Fixing hut (hut place 1) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Fixing hut (hut place 2) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Fixing hut (hut place 3) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (at the cave)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (at the lagoon)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (Isola Day, at the beach) [Isola Day Celebration, The Black Pearl]",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (at the garden)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (at the treasure)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (at the Idol)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (at the temple)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (hut place 2)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (hut place 3)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (at the cemetery)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (at the school)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (at the well)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (Herb Mastery)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (Magic Fish)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (Magic Plant)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring (Unsafe)",
+    "group": "DEVOTION",
+    "unsafe": true
+   },
+   {
+    "label": "Building small hut (hut place 1) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Building small hut (hut place 2) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Building small hut (hut place 3) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Burying the dead (the first body awaiting burial) (Unsafe)",
+    "group": "DEVOTION",
+    "unsafe": true
+   },
+   {
+    "label": "Strolling (or their job) [job dispatcher] (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Going to village center / Meditating / Nature is calling! [idle chooser] (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "One tick of the action runner (no Details text: advances every villager's step) (Unsafe)",
+    "group": "GENERAL",
+    "unsafe": true
+   },
+   {
+    "label": "0x4394C0 (no Details text: may change the villager's idle pose) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Going swimming (drop variant, argument 0) (Unsafe)",
+    "group": "LEISURE",
+    "unsafe": true
+   },
+   {
+    "label": "Chiseling (job variant, argument 1) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Researching (job variant, argument 1) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 6, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 14, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 15, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 16, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 17, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 18, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 19, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 20, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 21, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 24, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 25, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 26, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 27, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 29, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   }
+  ],
+  "2": [
+   {
+    "label": "Stops what they are doing",
+    "group": "GENERAL",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the pond (Heat Wave swim)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Relaxing at the beach (Blessings Day)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring the Dead (Day of Honor)",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Sneezes",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Recovers fully (cured, full health)",
+    "group": "GENERAL",
+    "unsafe": false
+   },
+   {
+    "label": "Nothing (then does something of their own choosing)",
+    "group": "GENERAL",
+    "unsafe": false
+   },
+   {
+    "label": "Dancing",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Dancing (a long dance in a circle)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Rain dancing",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Jumpy!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the pond",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Going swimming",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Relaxing at the beach",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Relaxing",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Reflecting",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Exercising (Building practice)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Getting a drink",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Cooling feet in stream",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Doing laundry",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Listening to a story",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Telling a story (Parenting practice)",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Thinking (or Worried about food or housing)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Unsure what to do (or Caring for baby / Worried about food)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Nature is calling!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "A little bit lonely",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Going indoors",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Running away",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Shaking head",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Not feeling well (only looks it)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Recovering at the hospital",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Admiring the ancient mosaic",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Admiring the ancient gong encasement",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Observing the Gong of Wonder",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Reading the writings on the wall",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the thorny bushes",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the ancient place",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the vines",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the patch of soil",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the strange flower",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Trying to reach coconuts (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Playing in the very narrow stream (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Looking at the dry shrubs (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Looking at the fire (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Fishing / Disgusted by the algae (Farming practice, food)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Harvesting coconuts (Farming practice, food)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Planting crops / Harvesting crops (Farming practice)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Watering crops (Farming practice)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Eating (uses food)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (The Lovely Hut)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (Fire)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (The Scarecrow)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (The Elder Totem)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (The Hospital)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (Herb Mastery)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (The Sewing Hut)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (The Dam)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (The Cutting Tool)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (The Stew)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (The Vine Wall)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (The Ancient Mosaic)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (The Boxed Gong Piece)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (The Sunken Gong Piece)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (The Inlaid Gong Piece)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (The Overgrown Gong Piece)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (Sustainable Fishing)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (The Gong of Wonder)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (a new hut, first hut place) [Old Friends]",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (a new hut, second hut place; also Blessings Day) [Day of Elders, Blessings Day Celebration]",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (a new hut, third hut place)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Sitting",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Bored (or Caring for baby / Worried about food or housing)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Watching the construction / Watching the scientists work (or another job; children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Waiting for someone",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Healing someone (Healing practice, cures nobody)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Researching (Research practice, tech points)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Showing baby the ocean (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Washing baby (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Changing baby (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Playing tag (Unsafe)",
+    "group": "CHILDREN",
+    "unsafe": true
+   },
+   {
+    "label": "Chatting / Telling a joke / Arguing / Complaining / Praising / Teaching / Telling a story (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Embracing (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Confused (says: It is too hard to do alone) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Going to village center (then picks something to do there) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Teaching children (or Attending lessons, for a child) (Unsafe)",
+    "group": "CHILDREN",
+    "unsafe": true
+   },
+   {
+    "label": "Rebuilding broken hut (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Trying to open the crate (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Retrieving something from the pond (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Retrieving a piece of the gong (the boxed piece) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Retrieving a piece of the gong (the inlaid piece) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Eating (the stew) (Unsafe)",
+    "group": "HEALTH",
+    "unsafe": true
+   },
+   {
+    "label": "Removing the vines (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Gathering dry grass (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Gathering firewood (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Starting a fire (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Creating cutting tools (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Creating cutting tools (another way) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Retrieving a cauldron (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Studying strange plant (herb 1) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Studying strange plant (herb 2) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Studying strange plant (herb 3) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Studying strange plant (herb 4) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Studying strange plant (herb 5) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Studying strange plant (herb 6) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Ringing the Gong of Wonder (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Uncovering ancient ruins (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Building a scarecrow (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Starting to prepare a stew (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Adding an herb to the stew (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Adding food to the stew (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Adding water to the stew (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Cutting away briar thorns (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Building a dam (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Picking a mushroom (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Collecting a new item! (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Getting new clothes! (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Catching algae-eating fish! (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Building small hut (first hut place) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Building small hut (second hut place) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Building small hut (third hut place) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Building a hospital (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Building a sewing hut (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Examining hut (first hut place) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Examining hut (second hut place) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Examining hut (third hut place) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Examining hut (the hospital) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Examining hut (the sewing hut) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Fixing hut (first hut place) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Fixing hut (second hut place) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Fixing hut (third hut place) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Fixing hut (the hospital) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Fixing hut (the sewing hut) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Enjoying the pond (another way) [The Heat Wave, Isola Day Celebration]",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Burying the dead (the first body awaiting burial) (Unsafe)",
+    "group": "DEVOTION",
+    "unsafe": true
+   },
+   {
+    "label": "Greeting the guiding hand [Blessings Day Celebration] (Unsafe)",
+    "group": "DEVOTION",
+    "unsafe": true
+   },
+   {
+    "label": "Strolling (or their job) [job dispatcher] (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Nothing (the game's reset) (Unsafe)",
+    "group": "GENERAL",
+    "unsafe": true
+   },
+   {
+    "label": "One tick of the action runner (no Details text: advances every villager's step) (Unsafe)",
+    "group": "GENERAL",
+    "unsafe": true
+   },
+   {
+    "label": "0x45F1B0 (no own Details text: picks an idle action - honoring, a dance) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "0x45F310 (no own Details text: picks A little bit lonely or Rain dancing) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "0x45F370 (no own Details text: picks Eating or Not feeling well) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "0x45FBF0 (no own Details text: picks a farming job - fishing, crops) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "0x460B20 (no own Details text: picks a daily action - eating, stew, a drink) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "0x460C80 (no own Details text: picks a leisure action - swimming, a talk) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "0x460E70 (no own Details text: picks a curiosity - bushes, gong, ruins, vines) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "0x461580 (no own Details text: picks a building job - huts, puzzle jobs) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Going swimming (job variant, argument 1) (Unsafe)",
+    "group": "LEISURE",
+    "unsafe": true
+   },
+   {
+    "label": "Enjoying the pond (drop variant, argument 0) (Unsafe)",
+    "group": "LEISURE",
+    "unsafe": true
+   },
+   {
+    "label": "Researching (job variant, argument 1) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Removing the vines (argument 0) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Cutting away briar thorns (argument 0) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Adding an herb to the stew (herb 2) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Adding an herb to the stew (herb 3) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Adding an herb to the stew (herb 4) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Adding an herb to the stew (herb 5) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Adding an herb to the stew (herb 6) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 15, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 20, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 21, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 22, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (place 23, no place of its own) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   }
+  ],
+  "3": [
+   {
+    "label": "Stops what they are doing",
+    "group": "GENERAL",
+    "unsafe": false
+   },
+   {
+    "label": "Recovers fully (cured, full health)",
+    "group": "GENERAL",
+    "unsafe": false
+   },
+   {
+    "label": "Dancing",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Dancing (another dance)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Secretly practicing a dance",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Performing ceremonial dance",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Rain dancing",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating Isola Day",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Relaxing",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Relaxing at the beach",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Reflecting",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Watching the clouds",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Going swimming",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the bath",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Bathing",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Cooling feet in stream",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Washing face",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Washing hands",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Getting a drink",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Drinking rain",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Getting out of the rain",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Cleaning up after the rain",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Washing the laundry",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Looking at fishies",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Looking at the fire",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring the Dead",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Stomping ants",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Hiding in hut",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Acting sinister",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Jumpy!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Nature is calling!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "A little bit lonely",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Unsure what to do (wanders)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Sitting",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Shaking head",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Not feeling well (only looks it)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Recovering at the hospital",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Feeling faint (only looks it)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Trying to get warm",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Trying to cool off",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Itchy",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Needs to lie down",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Needs to sit down",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Having an epiphany",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "In a trance",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Stinky breath!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Hic!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Blannesamagawa loomajoobamooga!!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Who turned out the lights?!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Something smells YUMMY!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Listening to a story (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Watching people work (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Running around (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Playing (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Playing in puddles (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Playing in the dirt (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Making sandcastles (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Fishing (Farming practice, food)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Researching (Research practice, tech points)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Doing exercise (Building practice)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Eating (uses food, heals a little)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Caring for baby (while expecting) / Unsure what to do",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Going indoors",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Gathering dry grass",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Gathering firewood",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Relaxing at the beach (another spot)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the robe",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Amazed at the statue / Curious about the statue",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Admiring the hidden room / Curious about the door",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the giant clam",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the bee hive",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the machine",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Interested in the ruins / Curious about the rubble",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the bath",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Snooping around the alchemy room / Curious about this room",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the thing up there",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the orchard / Curious about the dark soil",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the Tiger Lily",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the Cactus",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the Lotus",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the Black Orchid",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the Rose",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Looking at the dry grass",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Looking at the bush / Looking at the Roster of the Dead",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the bath (another spot)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Caring for baby / Worried about food / Worried about housing (or Bored)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Healing someone (cures nobody)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Worried about food / Worried about housing (or Thinking)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Attending lecture (no lesson) [The Chief's Address]",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Lecturing",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Working 'til he drops! / Working 'til she drops!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Playing in the lab",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring the dead (another way)",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring the guiding hand",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring the dead (another place)",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Bringing back a prize [The Mango and the Papaya, The Mysterious Crate]",
+    "group": "STORY",
+    "unsafe": false
+   },
+   {
+    "label": "Bringing back a prize (another way) [The Mysterious Crate]",
+    "group": "STORY",
+    "unsafe": false
+   },
+   {
+    "label": "Running to the rescue",
+    "group": "STORY",
+    "unsafe": false
+   },
+   {
+    "label": "Studying strange plant (Healing practice, place 1)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Studying strange plant (Healing practice, place 2)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Studying strange plant (Healing practice, place 3)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Studying strange plant (Healing practice, place 4)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Studying strange plant (Healing practice, place 5)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Studying strange plant (Healing practice, place 6)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Leaving the water",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the bath (a third spot)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Playing seesaw (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Telling a story (Parenting practice)",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Washing baby",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Changing baby",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Showing baby the reef",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Harvesting honey (Farming practice)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Worried about food (another way)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Worried about food (briefly)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Trying on the robe (another way)",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the bath (a fourth spot)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Trying an idea...",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Directing work",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Inspecting the food",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Inspecting the food (briefly)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Proud of the tribe / Contemplating the tribe",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Inspecting the labs",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Curing the tribe! (only the look; nobody is cured)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Concerned about the sick",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Thinking",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Looking for mushrooms / Looking for collectibles (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Paralyzed (only looks it)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Stung by jellyfish (only looks it)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Looking for mommy / Looking for daddy",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Looking for mommy (another way)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Trying to get warm (briefly) [The Cold Snap]",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Showing baby the bees",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Showing baby the herbs",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Inspecting hut",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Hiding something",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Showing baby the orchard",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Depositing food (only the look; adds no food)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Showing baby the amphitheater",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the beach with baby",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "That tasted soapy",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Hic! (briefly)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Stinky breath! (briefly)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "That tasted soapy (briefly)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Leading a dance poorly / Dancing poorly",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Studying medicine (Healing practice)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Teaching baby words",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Putting water on the firepit",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Embracing (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Waiting for someone (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Starting a fire (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Confused (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Chatting / Arguing / Complaining / Teaching / Telling a story / Praising / Jumpy! (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Attending lecture (Unsafe)",
+    "group": "CHILDREN",
+    "unsafe": true
+   },
+   {
+    "label": "Getting new clothes! (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Repairing the lift (or Confused, when it can not be repaired yet) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Standing on the lift (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Repairing the bath (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Doing alchemy (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Emptying the pot (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Using potion (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Building scaffolding (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Pushing statue (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Trying on the robe (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Clearing rubble (Building practice) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Clearing leaves (Building practice) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Doing a weather dance (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Creating magic food! (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Pointing out a rare collectible (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Trying to reach the key (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Carrying vial to ocean (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Drawing plans (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Doing aromatherapy (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Lighting burners (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Swapping the pearl (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Shaping an irregular pearl (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Polishing a rough pearl (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Building small hut (Building practice) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Examining hut (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Fixing hut (Building practice) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Refusing (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Planting tree (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Harvesting fruit (Farming practice) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Hay fever (animation only, no Details text) [The Allergy Season]",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Action 14 (no Details text: the game's empty default) (Unsafe)",
+    "group": "GENERAL",
+    "unsafe": true
+   },
+   {
+    "label": "Action 83 (no Details text: the game's empty default) (Unsafe)",
+    "group": "GENERAL",
+    "unsafe": true
+   },
+   {
+    "label": "Action 88 (no Details text: the game's empty default) (Unsafe)",
+    "group": "GENERAL",
+    "unsafe": true
+   },
+   {
+    "label": "Action 91 (no Details text: the game's empty default) (Unsafe)",
+    "group": "GENERAL",
+    "unsafe": true
+   },
+   {
+    "label": "Action 100 (no Details text: the game's empty default) (Unsafe)",
+    "group": "GENERAL",
+    "unsafe": true
+   },
+   {
+    "label": "Running away (startled) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Sharks! Eek! (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Walking (no Details text; steps of another action) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Wandering nearby (no Details text; steps of another action) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Walking to a spot (no Details text; steps of another action) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Walking to a spot and waiting (no Details text) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Walking a long route (no Details text) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Spring cleaning (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Burying the dead (Unsafe)",
+    "group": "DEVOTION",
+    "unsafe": true
+   },
+   {
+    "label": "Gathering herbs (herb object 31) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Gathering herbs (herb object 32) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Gathering herbs (herb object 33) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Gathering herbs (herb object 34) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Gathering herbs (herb object 35) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Gathering herbs (herb object 36) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Gathering herbs (herb object 37) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Picking a mushroom / Collecting a new item! (what lies where they stand) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   }
+  ],
+  "4": [
+   {
+    "label": "Stops what they are doing",
+    "group": "GENERAL",
+    "unsafe": false
+   },
+   {
+    "label": "Recovers fully (cured, full health)",
+    "group": "GENERAL",
+    "unsafe": false
+   },
+   {
+    "label": "Dancing [The Phosphorescent Fungi]",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Dancing (another dance)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Rain dancing",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating Isola Day",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating Banyan Festival",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Relaxing",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Relaxing at the beach",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Reflecting",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Watching the clouds",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the pond",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Swimming in the ocean",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Taking a shower",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Cooling feet in the stream",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Drinking from stream",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Getting a drink",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Drinking rain",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Getting out of the rain",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Cleaning up after the rain",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Washing the laundry",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring the Dead",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Admiring a lei in the tree",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Wandering around",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Unsure what to do",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Jumpy!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Nature is calling!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "A little bit lonely",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Sitting",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Shaking head",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Not feeling well (only looks it)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Feeling faint (only looks it)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Trying to get warm",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Trying to cool off",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Itchy",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Needs to lie down",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Needs to sit down",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Having an epiphany",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "In a trance",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Hic!",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "That tasted soapy!",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Running away from wasps!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the carvings",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the majestic fish statue",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the hole in the tree",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Telling a story",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Listening to a story (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Watching people work (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Running around (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Playing in puddles (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Playing in the dirt (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Making sandcastles (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Racing! (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Researching (Research practice, tech points)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Harvesting blackberries (Farming practice, food) [The Lie]",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Doing exercise (Building practice)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Eating (uses food)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring the guiding hand",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring the dead (Day of Honor)",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Going swimming",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Relaxing at the beach (another spot)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the pond (another way)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the pond (a third way)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Watching the clouds (another way)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Washing face / Washing hands / Washing feet (or Cooling feet in stream)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Getting clean in soapy pond",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Going indoors",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Waiting for someone (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Worried about food / Caring for baby / Unsure what to do",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Confused (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Refusing (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Hiding something",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Getting new clothes! (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Something smells YUMMY!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Something smells YUMMY! (2)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Something smells YUMMY! (3)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Something smells YUMMY! (4)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Something smells YUMMY! (5)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Chatting / Arguing / Complaining / Teaching / Telling a story / Praising (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Trying to get warm (another way)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Trying to get warm (a short one)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Recovering at the hospital",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Paralyzed (Unsafe)",
+    "group": "HEALTH",
+    "unsafe": true
+   },
+   {
+    "label": "Hic! (a short one)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Throwing up!",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "That tasted soapy! (a short one)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Healing someone (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Embracing (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Washing baby (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Changing baby (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Teaching baby some words (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Showing baby the herbs (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Showing baby the tree (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Showing baby the fish statue (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Showing baby the tide pool (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Showing baby the blackberries (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Showing baby the cooking area (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Showing baby the beach (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Showing baby the wind flutes (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Jumping contest (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Looking for mommy / Looking for daddy (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Looking for mommy / Looking for daddy (children, another way)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Going to play in the nursery (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Playing a joke on the adults (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Getting some schooling (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Picking a mushroom (children only: an adult just stops) (Unsafe)",
+    "group": "CHILDREN",
+    "unsafe": true
+   },
+   {
+    "label": "Looking for mushrooms / Looking for collectibles (Unsafe)",
+    "group": "CHILDREN",
+    "unsafe": true
+   },
+   {
+    "label": "Curious about the stalks",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the pit",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the sick branch",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the puddle",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the ruined piers",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the mossy rocks",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the hole in the ground",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the dried grass",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the dry wood",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the herbs",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the herbs (another patch)",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the herbs (a third patch)",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the blackened rocks",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the pipes",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Admiring the banyan tree / Playing by the banyan tree",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Watching debris build up",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Gathering dry grass",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Gathering firewood",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Starting a fire (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Harvesting blackberries (another bush)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Depositing food",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Spring cleaning",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Cleaning up the nasty mold",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Teaching at the nursery school",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Gathering herbs (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Studying medicine / Studying medicinal plant (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Cooking (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Building a hut (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Examining the hut (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Fixing the hut (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Adding to the stew (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Adding to the stew (an ingredient) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Emptying the pot (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Eating some stew (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Something smells YUMMY! (the stew timer) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Stomping on fruit (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Stomping on fruit (step 2) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Stomping on fruit (step 3) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Stomping on fruit (step 4) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Attempting to retrieve fruit (or Confused, when it can not yet) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Attempting to retrieve fruit (another way; or Confused, when it can not yet) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Shaking down some fruit! (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Attempting to heat rocks (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Covering the hot rocks (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Clearing rubble (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Rescuing frogs (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Attempting to install the keystone (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Filling a pot with fresh water (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Heating a rock in the fire (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Taking a hot rock to the pot (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Filling a pot with salt water (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Stacking soap (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Making cloth (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Spreading cloth pulp (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Storing finished cloth (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Attempting to fix fishing nets (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Attempting to fix the piers (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Retrieving a fish (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Attempting to cut the branch (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Attempting to bind the branch (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Attempting to clean the stump (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Carrying a hot rock (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Carrying a hot rock (2) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Carrying a hot rock (3) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Carrying a hot rock (4) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Honoring the tree (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Catching a crab (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Distracting the crab (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Adding soap to the pond (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Purifying the tree (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Meditating to purify the mind (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Taking braid to start a lei (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Repairing braid for a lei (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Picking a flower for the lei (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Hanging a lei on the tree (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Taking flower to lab (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Wiping sticky gunk off on tree (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Shaking down some fruit! / Cooking fruit in an earthen oven (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Shaking down some fruit! / Cooking fruit in an earthen oven (2) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Shaking down some fruit! / Preparing fruit in cooking pit (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Shaking down some fruit! / Cooking fruit in an earthen oven (3) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Clearing debris / Keeping the stream clear (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Retrieving a fish bone / Sharpening into a cutting tool (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Looking for a tool to cut some stalks / Attempting to cut some stalks (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Cutting some pulpy vines / Taking some vines to the lab (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Wiping sticky gunk off on tree (another way)",
+    "group": "STORY",
+    "unsafe": false
+   },
+   {
+    "label": "Burying the dead (Unsafe)",
+    "group": "DEVOTION",
+    "unsafe": true
+   },
+   {
+    "label": "Hay fever (animation only, no Details text) [The Allergy Season]",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Running away (action 6, with the text the game passes) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Action 43 (no Details text: an empty handler) (Unsafe)",
+    "group": "GENERAL",
+    "unsafe": true
+   },
+   {
+    "label": "Action 56 (no Details text: an empty handler) (Unsafe)",
+    "group": "GENERAL",
+    "unsafe": true
+   },
+   {
+    "label": "Clearing rubble / Confused (action 107: the rubble puzzle's chooser) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Picking up what lies where they stand (a collectible or a mushroom) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   }
+  ],
+  "5": [
+   {
+    "label": "Stops what they are doing",
+    "group": "GENERAL",
+    "unsafe": false
+   },
+   {
+    "label": "Recovers fully (cured, full health)",
+    "group": "GENERAL",
+    "unsafe": false
+   },
+   {
+    "label": "Dancing",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Dancing (another dance)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Rain dancing",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating Isola Day",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating mushrooms",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Relaxing",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Praising",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Watching the clouds",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Going swimming",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the waterfall",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the lake",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Strolling around the lake",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Bathing",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Cooling feet in the stream",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Washing up in the stream",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Drinking rain",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Getting out of the rain",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Cleaning up after the rain",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Washing the laundry",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring the dead [Day of Honor]",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Wandering around",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Unsure what to do",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "A little bit lonely",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Nature is calling!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Shaking head",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Running away",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Annoyed by the bees",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Hiding from lightning",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Hiding in the water",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Escaping from foulness",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Playing with butterflies!",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Chasing fish (or Looking for bits of fish)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Excited about the puddles",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the pools",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the hidden grove",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the aqueduct",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the cave",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Doing exercise",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Health chanting (Healing practice)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Listening to a story (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Watching people work (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Jumpy! (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Running around (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Playing in puddles (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Playing in the dirt (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Racing! (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Researching (Research practice, tech points)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Harvesting noni (Farming practice, food)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Eating (uses food)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (at the build-off place)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Celebrating (at a spot the game picks) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Celebrating (around a spot the game picks) (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Stomping mushrooms! (Unsafe)",
+    "group": "CELEBRATION",
+    "unsafe": true
+   },
+   {
+    "label": "Dancing (a third dance)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Dancing (a fourth dance)",
+    "group": "CELEBRATION",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring the guiding hand",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring the dead (another way)",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Honoring",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Meditating",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Having an epiphany",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "In a trance",
+    "group": "DEVOTION",
+    "unsafe": false
+   },
+   {
+    "label": "Soaking in the pools",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying a pool party",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Enjoying the lake (another spot)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Getting a drink",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Drinking from stream",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Reflecting",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Sitting",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Listening",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Resting",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Bathing (another way)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Taking a shower",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Strolling along the river",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Bumbling around",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Washing face / Washing hands / Washing feet (or Cooling feet in stream)",
+    "group": "LEISURE",
+    "unsafe": false
+   },
+   {
+    "label": "Telling a story",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Listening to a story (another) [Innovation in Farming]",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Caring for baby (or Unsure what to do)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Waiting for someone",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Going indoors",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Thinking",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Weeping",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Staring into space",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Running to safety",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Running to safety (another way)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Running from the scary heathen!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Worried about food",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Getting out of the rain (another way)",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Nature is calling! (another spot) [The Bottle of Spicy Juice]",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Running out of the lab!",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Spring cleaning",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Fumigating bedbugs",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Not feeling well (only looks it)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Trying to get warm",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Trying to get warm (another way)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Trying to get warm (a third way)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Feeling faint (only looks it)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Trying to cool off",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Itchy",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Needs to lie down",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Needs to sit down",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "That tasted soapy!",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "That tasted soapy! (another)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Hic!",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Hic! (another)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Throwing up!",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Feeling very sick (only looks it)",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Recovering at the hospital",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Studying medicine",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Studying medicine (another way)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Washing baby",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Changing baby",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Showing baby the herbs",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Showing baby the statue",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Showing baby the aqueduct (or the ruined aqueduct)",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Showing baby the noni",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Showing baby the stream",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Showing baby the hidden grove",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Teaching baby some words",
+    "group": "FAMILY",
+    "unsafe": false
+   },
+   {
+    "label": "Looking for mommy / Looking for daddy (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Looking for mommy / Looking for daddy (children, another way)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Hiding something (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Playing in puddles (children, another way) [The Missing Kids]",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Making sandcastles (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Playing a joke on the adults (children)",
+    "group": "CHILDREN",
+    "unsafe": false
+   },
+   {
+    "label": "Heckling the storyteller",
+    "group": "MOOD",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the dried grass",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the dry wood",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the herbs",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the Pain Totem",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the Knowing Totem",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the Blocking Totem",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the Hollow Totem",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the Hungry Totem",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the drawing board",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the wooden pieces",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the filthy encampment",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Curious about the ruined lab area",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Watching debris pile up (or Snooping around the mausoleum)",
+    "group": "CURIOSITY",
+    "unsafe": false
+   },
+   {
+    "label": "Researching (in the lab)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Harvesting noni (another way)",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Harvesting crops",
+    "group": "WORK",
+    "unsafe": false
+   },
+   {
+    "label": "Confused (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Embracing (Unsafe)",
+    "group": "FAMILY",
+    "unsafe": true
+   },
+   {
+    "label": "Healing someone (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Explaining the truth (Unsafe)",
+    "group": "DEVOTION",
+    "unsafe": true
+   },
+   {
+    "label": "Spreading the word (Unsafe)",
+    "group": "DEVOTION",
+    "unsafe": true
+   },
+   {
+    "label": "Seeing the light! (Unsafe)",
+    "group": "DEVOTION",
+    "unsafe": true
+   },
+   {
+    "label": "Getting new clothes! (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Paralyzed (Unsafe)",
+    "group": "HEALTH",
+    "unsafe": true
+   },
+   {
+    "label": "Gathering dry grass (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Gathering firewood (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Starting a fire (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Depositing food (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Devouring noni (or Looking for any fallen noni) (Unsafe)",
+    "group": "HEALTH",
+    "unsafe": true
+   },
+   {
+    "label": "Looking for mushrooms / Looking for collectibles (Unsafe)",
+    "group": "CURIOSITY",
+    "unsafe": true
+   },
+   {
+    "label": "Making a granary out of the fence (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Building a statue (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Polishing the statue (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Fixing up the mud hut (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Getting some schooling (children) (Unsafe)",
+    "group": "CHILDREN",
+    "unsafe": true
+   },
+   {
+    "label": "Teaching at the nursery school (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Going to play in the nursery (children) (Unsafe)",
+    "group": "CHILDREN",
+    "unsafe": true
+   },
+   {
+    "label": "Jumping contest! (children) (Unsafe)",
+    "group": "CHILDREN",
+    "unsafe": true
+   },
+   {
+    "label": "Playing tag (or Playing tag - \"It\") (Unsafe)",
+    "group": "CHILDREN",
+    "unsafe": true
+   },
+   {
+    "label": "Dismantling the Hungry Totem (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Dismantling the Knowing Totem (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Dismantling the Pain Totem (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Dismantling the Blocking Totem (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Dismantling the Rainbow Totem (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Repairing a totem (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Squeezing into the Hollow Totem (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Guarding a totem (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Guarding a totem (another) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Guarding firewood (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Guarding the noni (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Guarding the lab (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Putting dye in the pools (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Putting dye in the pools (second dye) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Putting dye in the pools (third dye) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Burying the mausoleum (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Restoring the mausoleum (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Attempting the proof (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Observing the proof (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Observing the proof (another) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Examining the proposed solution (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Examining the proposed solution (another) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Challenging heathen to a build-off (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Competing in a build-off (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "The heathen is impressed (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "The heathen is not impressed (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Panning for gold (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Smelting the gold dust (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Installing the golden eye (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Retrieving a pan (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Picking up scientist's necklace piece (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Picking up doctor's necklace piece (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Picking up farmer's necklace piece (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Picking up builder's necklace piece (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Assembling the necklace (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Bringing necklace to chief (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Dropping something (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Directing aqueduct repair (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Repairing aqueduct (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Retrieving a fish (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Consulting with the chief (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Searching for stranger (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Taking care of her baby (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Talking \"mommy to mommy\" with heathen (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Listening to the other mothers (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Hiding her child from invaders (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Munching on dirt (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Scratching for roots (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Refusing (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Picking a mushroom (children only: an adult just stops) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Gathering herbs (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Fixing the hut (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Fixing the hut (the first hut) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Examining the hut (the first hut) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Hay fever (animation only, no Details text) [The Allergy Season]",
+    "group": "HEALTH",
+    "unsafe": false
+   },
+   {
+    "label": "Running away (action 8, with the text the game passes) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Tired of listening! (action 8) (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Action 8 with no text [The Stinging Wasps] (Unsafe)",
+    "group": "MOOD",
+    "unsafe": true
+   },
+   {
+    "label": "Action 50 (no Details text: an empty handler) (Unsafe)",
+    "group": "GENERAL",
+    "unsafe": true
+   },
+   {
+    "label": "Action 63 (no Details text: an empty handler) (Unsafe)",
+    "group": "GENERAL",
+    "unsafe": true
+   },
+   {
+    "label": "Curious about the herbs (id 123) (Unsafe)",
+    "group": "CURIOSITY",
+    "unsafe": true
+   },
+   {
+    "label": "Curious about the herbs (id 124) (Unsafe)",
+    "group": "CURIOSITY",
+    "unsafe": true
+   },
+   {
+    "label": "Burying the dead (Unsafe)",
+    "group": "DEVOTION",
+    "unsafe": true
+   },
+   {
+    "label": "Building a small hut (the first hut site) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Building a small hut (the second hut site) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Building a small hut (the third hut site) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Building a small hut (the clothing hut site; the game's own text) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Building a love shack (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Building a small hut (the nursery site; the game's own text) (Unsafe)",
+    "group": "WORK",
+    "unsafe": true
+   },
+   {
+    "label": "Comforting (the Heathen numbered 12) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Comforting (the Heathen numbered 14) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Comforting (the Heathen numbered 15) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Comforting (the Heathen numbered 16) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Comforting (the Heathen numbered 17) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   },
+   {
+    "label": "Picking up what lies where they stand (a collectible or a mushroom) (Unsafe)",
+    "group": "STORY",
+    "unsafe": true
+   }
+  ]
+ }
+}

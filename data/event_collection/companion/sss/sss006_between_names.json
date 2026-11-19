@@ -1,0 +1,87 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Villager Between Names",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss006_between_names",
+  "source": "companion",
+  "lines": [
+   6123,
+   6131
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6123",
+  "ledger": [
+   {
+    "src": "L6131",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A young villager explains that neither man nor woman describes them, and wants a place in village life.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A young villager explains that neither 'man' nor 'woman' feels like the right description of them. They want a place in village life without becoming a spectacle.",
+   "src": "L6124",
+   "choices": [
+    {
+     "label": "Ask what words and role they prefer",
+     "next": "a",
+     "src": "L6125"
+    },
+    {
+     "label": "Invite them to shape a new custom",
+     "next": "b",
+     "src": "L6127"
+    },
+    {
+     "label": "Let them live without a public declaration",
+     "next": "c",
+     "src": "L6129"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The villager shares a name and form of address; some neighbors need practice, but they make an effort.",
+   "src": "L6126"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "A welcoming ceremony recognizes people as they describe themselves; others choose not to participate, respectfully.",
+   "src": "L6128"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Their wishes are quietly honored. They continue working, laughing, and arguing like anyone else.",
+   "src": "L6130"
+  }
+ }
+}

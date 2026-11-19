@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hen by the Fire",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim141_hen_fire",
+  "source": "draft_tim2",
+  "lines": [
+   114,
+   119
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L114",
+  "ledger": [
+   {
+    "src": "L115",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L116",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L117",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L118",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L119",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A hen settles into a sunny spot beside the cooking fire.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "A hen settles into a sunny spot beside the cooking fire. The cook carefully works around her for the rest of the morning.",
+   "src": "L115,L116"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "A hen settles into a sunny spot beside the cooking fire. She clucks contentedly at every new smell from the pot.",
+   "src": "L115,L117"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "A hen settles into a sunny spot beside the cooking fire. A child tries to move her, and she flaps away in indignation.",
+   "src": "L115,L118"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "A hen settles into a sunny spot beside the cooking fire. She falls asleep so soundly that nobody has the heart to disturb her.",
+   "src": "L115,L119"
+  }
+ }
+}

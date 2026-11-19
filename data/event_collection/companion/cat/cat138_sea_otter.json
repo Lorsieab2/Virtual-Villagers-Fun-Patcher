@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sea Otter and the Abalone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat138_sea_otter",
+  "source": "companion",
+  "lines": [
+   8753,
+   8763
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8753",
+  "ledger": [
+   {
+    "src": "L8763",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A fisher blames an otter for the dwindling abalone, and a jeweler wants the shells.",
+  "cast_only": [
+   "jeweler"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "jeweler": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A fisher blames an otter for the decline of abalone near a rocky shore. A jeweler wants the shells too.",
+   "src": "L8754",
+   "choices": [
+    {
+     "label": "Count the abalone first",
+     "next": "a",
+     "src": "L8755"
+    },
+    {
+     "label": "Protect the otter",
+     "next": "b",
+     "src": "L8757"
+    },
+    {
+     "label": "Move shell collecting elsewhere",
+     "next": "c",
+     "src": "L8759"
+    },
+    {
+     "label": "Limit all collecting",
+     "next": "d",
+     "src": "L8761"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Surveys show the population is low, but not why.",
+   "src": "L8756",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "fisher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8756"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The animal remains and shell harvest is reduced; some fishers grumble.",
+   "src": "L8758"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The new shore has fewer shells and different wildlife.",
+   "src": "L8760"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The community tries seasonal rules, then must check whether they help.",
+   "src": "L8762"
+  }
+ }
+}

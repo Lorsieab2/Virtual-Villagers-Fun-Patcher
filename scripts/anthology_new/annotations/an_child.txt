@@ -1,0 +1,235 @@
+# CHILD-01..47: Childhood Curiosity, Puppy Love and Questions.  Every child is under 14; crushes are between
+# children at most two years apart.  The adults who answer are cast villagers (any adult; an elder 55+).
+CHILD-01
+R child 3-13 : child | giver
+R other 3-13 : other child
+R friend 3-13 @B1,B2 : friend
+R adult 18+ @D1,D2 : adult
+GAP other child 2
+E S: "to another child they admire" => "to [other], another child they admire"
+
+CHILD-02
+R child1 3-13 :
+R child2 3-13 :
+R adult 18+ @D1,D2 : adult
+GAP child2 child1 2
+E S: "Two children want" => "[child1] and [child2], two children, want"
+
+CHILD-03
+R child1 3-13 :
+R child2 3-13 :
+R elder 55+ @B1 : elder
+R adult 18+ @D1 : parent
+GAP child2 child1 2
+E S: "Two children declare" => "[child1] and [child2], two children, declare"
+
+CHILD-04
+R child 3-13 : child | giver
+R other 3-13 : other child
+R adult 18+ @C1,C2 : caregiver
+GAP other child 2
+E S: "gives another child a flower" => "gives [other], another child, a flower"
+
+CHILD-05
+R child 3-9 : young child- | child
+R adult 18+ : trusted adult | adult
+R elder 55+ @C1 : elder
+
+CHILD-06
+R child 3-13 : child
+R adult 18+ : caregiver | adult
+R elder 55+ @C1,C2 : elder
+
+CHILD-07
+R child 3-13 : child
+R adult 18+ : adult | naturalist
+R scholar 18+ : researcher
+E D1: "The adult and child" => "[adult] and [child]"
+
+CHILD-08
+R child 3-13 : child
+R adult 18+ @A1 : builder
+
+CHILD-09
+R child 3-13 : child
+R adult 18+ : weaver | adult | naturalist
+
+CHILD-10
+R child 3-13 : child
+R adult 18+ : adult | teacher | caregiver
+
+CHILD-11
+R child 3-13 : child
+R elder 55+ @A1 : elder
+R adult 18+ : teacher | adult | researcher
+
+CHILD-12
+R child 3-13 : child
+R craftsperson 18+ : busy craftsperson | craftsperson
+R apprentice 14+ @D1 : nearby apprentice
+
+CHILD-13
+R child 3-13 : child
+R elder 55+ @C1 : elder
+R adult 18+ @D1 : adult
+
+CHILD-14
+R child 3-13 : child
+R adult 18+ @A1 : teacher
+R elder 55+ @C1 : elder
+
+CHILD-15
+R child 3-13 : child
+R elder 55+ @C1 : elder
+
+CHILD-16
+R child 3-13 : child
+R adult 18+ : researcher | adult
+R elder 55+ @B1 : elder
+
+CHILD-17
+R child 3-13 : child
+R cook 18+ : cook
+
+CHILD-18
+R child 3-13 : child
+R adult 18+ : naturalist
+R elder 55+ @D1 : elder
+
+CHILD-19
+R child 3-13 : child
+R adult 18+ : naturalist
+R elder 55+ : elder
+
+CHILD-20
+R child 3-13 : child
+R adult 18+ : healer | adult
+
+CHILD-21
+R child 3-13 : child
+R neighbor 14+ : neighbor-
+R adult 18+ : adult
+NEW chosen neighbor same
+E S: "now uses a new name" => "now uses a new name, [chosen]"
+
+CHILD-22
+R child 3-13 : child
+R villager 14+ : familiar villager- | villager
+R adult 18+ : adult | teacher
+
+CHILD-23
+R child 3-13 : child
+R adult 18+ : adult | caregiver
+
+CHILD-24
+R child 3-13 : child
+R adult 18+ : researcher
+R elder 55+ @C1 : elder
+
+CHILD-25
+R child 3-13 : child
+R adult 18+ : teacher | fisher
+R elder 55+ @C1 : elder
+
+CHILD-26
+R child 3-13 : child
+R adult 18+ : healer
+R elder 55+ @B1 : elder
+
+CHILD-27
+R child 3-13 : child
+R adult 18+ @A1 : caregiver
+
+CHILD-28
+R child 3-13 : child
+R friend 3-13 @S : friend
+R adult 18+ : healer | adult
+
+CHILD-29
+R child 3-13 : child
+R elder 55+ : elder
+R adult 18+ : caregiver | adult
+
+CHILD-30
+R child 3-13 : child
+R adult 18+ : naturalist
+R elder 55+ @C1 : elder
+
+CHILD-31
+R child 3-13 : child
+R adult 18+ : researcher | fisher
+R elder 55+ @D1 : elder
+
+CHILD-32
+R child 3-13 : child
+R adult 18+ : adult | teacher
+R elder 55+ : elder
+
+CHILD-33
+R child 3-13 : child
+R adult 18+ : builder | researcher
+
+CHILD-34
+R child 3-13 : child
+R adult 18+ : builder | teacher
+
+CHILD-35
+R child 3-13 : child
+R elder 55+ : grandparent | elder
+R adult 18+ @A1 : healer
+E C1: "The child and elder" => "[child] and [elder]"
+
+CHILD-36
+R child 3-13 : child
+R cook 18+ : cook
+R elder 55+ @C1 : elder
+
+CHILD-37
+R child 3-13 : child
+R teacher 18+ : teacher
+R elder 55+ : elder
+
+CHILD-38
+R child 3-13 : child
+R adult 18+ @C1 : caregiver
+
+CHILD-39
+R child 3-13 : child
+R adult 18+ : naturalist
+R elder 55+ @D1 : elder
+
+CHILD-40
+R child 3-13 : child
+R adult 18+ : teacher | researcher
+R elder 55+ @B1 : elder
+
+CHILD-41
+R child 3-13 : child
+R adult 18+ : trusted adult | adult
+
+CHILD-42
+R child 3-13 : child
+R adult 18+ @A1 : adult
+
+CHILD-43
+R child 3-13 : child
+R loner 18+ : adult
+R carer 18+ @A1 : caregiver
+
+CHILD-44
+R child 3-13 : child
+R artist 18+ : artist
+R elder 55+ @C1 : elder
+
+CHILD-45
+R child 3-13 : child
+R adult 18+ : teacher | caregiver
+
+CHILD-46
+R child 3-13 : child
+R adult 18+ : researcher | adult
+R elder 55+ @C1 : elder
+
+CHILD-47
+R child 3-13 : child
+R elder 55+ : elder

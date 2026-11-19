@@ -162,7 +162,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_log_decisions", "vv_log_contradictions", "vv_answered_questions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
-               "vv_original_look", "vv_misfiled_records",
+               "vv_original_look", "vv_misfiled_records", "vv_sex_changes",
                # The games' text bytes as Windows-1252 (every reader), and the games' fonts and the letters
                # the patcher makes for them (v1.35.87).
                "vv_game_text", "vv_font_glyphs",
@@ -197,8 +197,30 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_hidden_vv3", "vv_game_mechanics_hidden_vv4", "vv_game_mechanics_hidden_vv5",
                "vv_game_mechanics_nursery",
                "vv_game_mechanics_tech_time",
+               # More Island Events (the owner, 2026-11-12): the Aspiring Adventurer's text and its page entry.
+               "vv_aspiring_adventurer", "vv_game_mechanics_adventurer",
+               # ...and The Cave Explorers' (A New Home).
+               "vv_cave_explorers",
+               # ...and The Climb's (The Lost Children).
+               "vv_the_climb",
+               # ...and The Troubling Signs' (The Secret City).
+               "vv_troubling_signs",
+               # ...and Diving for Treasure's (The Secret City).
+               "vv_diving_for_treasure",
+               # ...and The Playful Dolphins' (The Tree of Life).
+               "vv_playful_dolphins",
+               # ...and The Mysterious Mask's (The Tree of Life).
+               "vv_mysterious_mask",
+               # ...and The Remembrance Ceremony's and The Rumblings' (all five games), with their page entries.
+               "vv_remembrance_ceremony", "vv_the_rumblings", "vv_game_mechanics_ceremony",
+               # Children Play Tag and Build Sandcastles (v1.35.97): its page lines.
+               "vv_game_mechanics_children_play",
+               # Isola Grand Event Collection (v1.35.97): its page entry.
+               "vv_game_mechanics_collection",
                # Stew Recipes (the owner, 2026-11-10): its window and its pages.
                "vv_stew_recipes_window", "vv_stew_recipes",
+               # Custom Island Event Library (the owner, 2026-11-12): its window and the event format.
+               "vv_cie_library_window", "vv_cie_graph",
                # Picture Studio (the owner, 2026-10-31): its window, the shared image code and each game's
                # renderer, found by name (importlib) and so listed here for the release zip.
                "vv_picture_studio", "vv_unicode_font", "vv_picture_image", "vv_pictures_common", "vv_pictures_carried", "vv_pictures_vv1", "vv_pictures_vv2",
@@ -418,13 +440,19 @@ class ReleasesLinkTests(unittest.TestCase):
                                             "vv_game_mechanics_farmers",
                                             # The Tree of Life: the living villagers, as Last Names reads them,
                                             # to bind the yellow fruit tree's file (function-level).
-                                            "vv_last_names"})
+                                            "vv_last_names",
+                                            # Children Play Tag and Build Sandcastles' lines.
+                                            "vv_game_mechanics_children_play"})
               for n in range(1, 5)),
             # New Believers also has its God powers group in its own module.
             ("vv_game_mechanics_vv5", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
                                        "vv_game_mechanics_death", "vv_game_mechanics_powers_vv5",
                                        "vv_game_mechanics_events", "vv_game_mechanics_faith_vv5",
-                                       "vv_game_mechanics_nursery"}),
+                                       "vv_game_mechanics_nursery",
+                                       # Children Play Tag and Build Sandcastles' lines.
+                                       "vv_game_mechanics_children_play"}),
+            # Children Play Tag and Build Sandcastles: the page's words only.
+            ("vv_game_mechanics_children_play", {"vv_game_mechanics"}),
             # God powers: the Spirituality roll's exact odds from the shared Chances helpers.
             ("vv_game_mechanics_powers_vv5", {"vv_game_mechanics", "vv_game_mechanics_chances"}),
             # Death and graves: the graves and Deaths log as Fix grave information reads them, the villagers as
@@ -433,9 +461,32 @@ class ReleasesLinkTests(unittest.TestCase):
                                          "vv_game_mechanics_life"}),
             # The Island events catalogs: the shared renderer (the Room line's population mode, function-level),
             # and each game's events.
-            ("vv_game_mechanics_events", {"vv_game_mechanics", "vv_game_mechanics_life"}),
-            *((f"vv_game_mechanics_events_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_events"})
+            ("vv_game_mechanics_events", {"vv_game_mechanics", "vv_game_mechanics_life",
+                                          "vv_game_mechanics_collection"}),
+            ("vv_game_mechanics_collection", {"vv_game_mechanics", "vv_game_mechanics_adventurer"}),
+            *((f"vv_game_mechanics_events_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_events",
+                                                  # More Island Events' The Aspiring Adventurer
+                                                  "vv_game_mechanics_adventurer",
+                                                  # ...and The Remembrance Ceremony and The Rumblings
+                                                  "vv_game_mechanics_ceremony"})
               for n in (1, 2, 3, 4, 5)),
+            ("vv_game_mechanics_ceremony", {"vv_remembrance_ceremony", "vv_the_rumblings",
+                                            "vv_game_mechanics_events",
+                                            # the rare roll's words (fix/97-release-1)
+                                            "vv_game_mechanics_adventurer"}),
+            ("vv_remembrance_ceremony", set()),
+            ("vv_the_rumblings", set()),
+            ("vv_game_mechanics_adventurer", {"vv_aspiring_adventurer", "vv_cave_explorers", "vv_the_climb",
+                                              "vv_troubling_signs", "vv_diving_for_treasure",
+                                              "vv_playful_dolphins", "vv_mysterious_mask",
+                                              "vv_game_mechanics_events"}),
+            ("vv_aspiring_adventurer", set()),
+            ("vv_cave_explorers", set()),
+            ("vv_the_climb", set()),
+            ("vv_troubling_signs", set()),
+            ("vv_diving_for_treasure", set()),
+            ("vv_playful_dolphins", set()),
+            ("vv_mysterious_mask", set()),
             # The people and clocks: the villagers as Last Names reads them, the per-save files' places.
             ("vv_game_mechanics_life", {"vv_game_mechanics", "vv_last_names", "vv_save_layout",
                                         "vv_game_mechanics_farmers",
@@ -473,9 +524,10 @@ class ReleasesLinkTests(unittest.TestCase):
             with self.subTest(module=module):
                 # Every reader of the games' own text bytes reads them the one way (v1.35.87): Windows-1252,
                 # every byte kept.  vv_game_text imports only the standard library.  Any window may use the
-                # shared horizontal scroll bars (vv_scrollbars, tkinter only; the owner, 2026-11-11).
+                # shared horizontal scroll bars (vv_scrollbars, tkinter only; the owner, 2026-11-11).  Any tool that
+                # matches villagers may read the save's Sex Changes log (vv_sex_changes, the save layout only).
                 self.assertEqual(imported - set(sys.stdlib_module_names) - may_import
-                                 - {"vv_game_text", "vv_unicode18", "vv_scrollbars"},
+                                 - {"vv_game_text", "vv_unicode18", "vv_scrollbars", "vv_sex_changes"},
                                  set())
         tree = ast.parse((ROOT / "src" / "vv_game_text.py").read_text(encoding="utf-8"))
         own_imports = {alias.name.split(".")[0] for node in ast.walk(tree) if isinstance(node, ast.Import)

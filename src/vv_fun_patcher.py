@@ -334,6 +334,16 @@ YELLOW_FRUIT_FEATURE_PATHS = (ROOT / "data" / "vv4_yellow_fruit_trees_limited_fe
 # them; companion only, "VVFP VV4 Louder Flutes.dll", started by VVFP Startup.dll from its second word;
 # scripts/build_vv4_louder_wind_flutes_feature.py.
 LOUDER_FLUTES_FEATURE_PATHS = (ROOT / "data" / "vv4_louder_wind_flutes_feature.json",)
+# Children Play Tag and Build Sandcastles (all five games; on by default): one roll of the game's own rand(15) in
+# each child's pastime pick for tag and for sandcastles; companion only, "VVFP Children Play.dll", started by
+# VVFP Startup.dll from its second word; scripts/build_children_play_feature.py.
+CHILDREN_PLAY_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_children_play_feature.json" for n in range(1, 6))
+# Change Sex and Gender Presentation (all five games; on in Owner's Defaults only): Change Appearance's "Change sex..."
+# and "Gender presentation" (a villager drawn with the other sex's heads and bodies, keeping the recorded sex);
+# companion only, "VVFP Gender Presentation.dll", started by VVFP Startup.dll from its second word;
+# scripts/build_gender_presentation_feature.py.
+GENDER_PRESENTATION_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_gender_presentation_feature.json"
+                                          for n in range(1, 6))
 # Cloth Sacks for Yellow Fruit (The Tree of Life; the owner, 2026-11-17; on by default since 2026-11-18): a
 # villager dropped under the Clothing Hut's awning makes a sack from a cloth bolt and brings 30 yellow fruit to the
 # food bin, like the cutting tool on the blackberries; companion only, "VVFP VV4 Cloth Sacks.dll", started by VVFP
@@ -351,6 +361,19 @@ CLOTH_SACKS_FEATURE_PATHS = (ROOT / "data" / "vv4_cloth_sacks_for_yellow_fruit_f
 ISLAND_EVENTS_SCALE_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_island_events_scale_with_{kind}_feature.json"
     for n in (1, 4, 5) for kind in ("population", "stored_amounts"))
+# Scrolling Popups (all five games; the owner, 2026-11-12): companion only, "VVFP Scrolling Popups.dll" (and, in A
+# New Home and The Lost Children, four borrowed scrollbar pictures to Images\), started by VVFP Startup.dll from its
+# second word; scripts/build_scrolling_popups_features.py.
+SCROLLING_POPUPS_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_scrolling_popups_feature.json" for n in (1, 2, 3, 4, 5))
+# The Aspiring Adventurer (all five games; the owner, 2026-11-12): a new island event, companion only, "VVFP Aspiring
+# Adventurer.dll", started by VVFP Startup.dll from its second word; scripts/build_more_island_events.py.
+MORE_ISLAND_EVENTS_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{n}_more_island_events_feature.json" for n in range(1, 6))
+# Isola Grand Event Collection (all five games; v1.35.97): the owner's collection of island events as data, run by
+# Story / Cheat Upgrades (its prerequisite); listed right after More Island Events; off by default, on in Owner's
+# Defaults; scripts/build_event_collection_features.py.
+EVENT_COLLECTION_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{n}_isola_grand_event_collection_feature.json" for n in range(1, 6))
 CLASSIC_DIFFICULTY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_classic_vv_difficulty_feature.json" for n in (4, 5))
 # Respecting the Legacy of Isola (New Believers; off by default, on in Owner's Defaults and Select All): no bytes of
@@ -1063,16 +1086,16 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "34BBECF88165FB8DF1918C3AED1853A622E7B97A0B9938B2E93DCD495FAC26B8",
-    "map": "F6EF0C4F2BB3416ECC308C15F72D4F4C3774B602EF53BBECAFB0B4906007B9F9",
+    "manifest": "F461D0C8D23474A5CA1D5BFD7E717A166478A091F29C9D9A8B127526A1D6D25F",
+    "map": "9EB296B116598F6A34AE81818136B09F168662B15FBA79F2CF9B57A18766D5BC",
 }
-VV5_TASK9_DLL_SHA256 = "04319C5F6752D31D69C47464F9AC1F6AEDA795BF894E3B8B097220C0695DFEB2"
+VV5_TASK9_DLL_SHA256 = "3F6222D8A56CDDBD2532924E2FDD3D1B2229D98B4F7767482EECDECB34E411FA"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 # The tribe-delete stub's companion, shipped from this record because it owns
 # the VV5 Origins companion list.
-VV5_TASK9_SAVE_RESET_SHA256 = "57CA2B2F75FE5A7F79EB2ED7BACD15CEB8A215BC4420607CC2C1322D95D5B2F0"
+VV5_TASK9_SAVE_RESET_SHA256 = "C07E2A06BDD8F67E5A6F17AC8B6888E217E8B42EA71AE68BBD599941240E70E6"
 VV5_TASK9_SAVE_RESET_SIZE = 161792
 # Change Appearance's head look (native/vvfp_head_look), shipped from this record for the same reason.
 VV5_TASK9_HEAD_LOOK_SOURCE = "assets/head_look/VVFP Head Look.dll"
@@ -1082,7 +1105,7 @@ VV5_TASK9_PAGE_SHA256 = {
     "experimental_expanded_256": "D6881CFDBC4F96AB063A7A17D3D1B9AFE5B26590931738058373D2E5523C9282",
     "experimental_expanded_256_progression": "D6881CFDBC4F96AB063A7A17D3D1B9AFE5B26590931738058373D2E5523C9282",
 }
-VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "19B6F10F12DECECE71CC81BFD972480AD378E30E3699F68792D7BA09EF6F0513"
+VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "5F56DA473985F71EE6978D04B570E2C900D2F9A2B20AAB0041514A206E7AD3BF"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
 VV5_TASK9_ATOMIC_CORE_COMMIT = "c4e5fe76d1de258d5d4baeac77cbea842b206cd7"
 VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
@@ -2125,8 +2148,8 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "6D1BA8A46C3F5F6F843A3C96B18DB4ED13EF56F765301F5C88646AE70ECF9948",
-    "task9_builder": "39938F7F70F64ED19F610A55094C21BB71025A9BCE4D5FF2A1747EF95172B33A",
+    "builder": "2D2FEE8884739A3702F9BDD3BE8CDC34031D269DC34B9E271C873DEFEB5E72F4",
+    "task9_builder": "A2553702246D80D6469B865EC02DBF04520E92DD3125272D4EF621EBD38F01EC",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -2138,8 +2161,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "DC72EDFBA671A5D18FF8BB73DF6EA937D7B2B4ABE0C3717AE5FCEA4C31591AA4",
-        "map": "E1B10C573B54C6AF0D185A6A6977B5B2139A4B77BA43DEB14802535E57829851",
+        "manifest": "96731C5F0587057D450BF6D0C83A6B791145FFFF6C9E21A5D7C962E8C25A5BC2",
+        "map": "4A27D1E867440F44E46CD5CE128347717230203446D717B2EC19619612E67649",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -3561,7 +3584,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1891840,
+        "size": 1902080,
     }
     expected_bighead_atlas = {
         "source": "assets/vv5_bighead_masks/bigheads_masks.png",
@@ -3927,7 +3950,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1891840,
+        "size": 1902080,
     }
     shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",
@@ -4218,7 +4241,11 @@ def _load_fun_patch_records(
                          + SCIENCE_COLLECTIBLES_FEATURE_PATHS
                          + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS
                          + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS
-                         + LOUDER_FLUTES_FEATURE_PATHS + ISLAND_EVENTS_SCALE_FEATURE_PATHS
+                         + LOUDER_FLUTES_FEATURE_PATHS + CHILDREN_PLAY_FEATURE_PATHS
+                         + GENDER_PRESENTATION_FEATURE_PATHS
+                         + ISLAND_EVENTS_SCALE_FEATURE_PATHS
+                         + SCROLLING_POPUPS_FEATURE_PATHS + MORE_ISLAND_EVENTS_FEATURE_PATHS
+                         + EVENT_COLLECTION_FEATURE_PATHS
                          + CLOTH_SACKS_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
@@ -11160,7 +11187,8 @@ def _remove_unselected_companions(
     # overwrite: the transparency log by name, a patch log (under its name or
     # an older patcher's "<exe>.patch-log.json") only when the patcher signed
     # it, so a player's file of a similar name is kept.
-    reports = [Path(patcher_files.TRANSPARENCY_FILENAME)]
+    reports = [Path(patcher_files.TRANSPARENCY_FILENAME), Path(patcher_files.INSTALLED_PATCHES_FILENAME),
+               Path(*patcher_files.INSTALLED_PATCHES_RELATIVE_PATH.parts)]
     for folder in (Path(), Path(patcher_files.PATCHER_FILES_FOLDER)):
         for log_path in _signed_patch_logs(long_staging / folder):
             reports.append(folder / log_path.name)
@@ -11239,6 +11267,9 @@ def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]
     # describe the previous build, and the new build writes its own.
     owned.add(patcher_files.TRANSPARENCY_RELATIVE_PATH.as_posix().casefold())
     owned.add(patcher_files.TRANSPARENCY_FILENAME.casefold())
+    # ...and the installed patches' list, which describes the previous build too.
+    owned.add(patcher_files.INSTALLED_PATCHES_RELATIVE_PATH.as_posix().casefold())
+    owned.add(patcher_files.INSTALLED_PATCHES_FILENAME.casefold())
     # Read through long_path; only a file that is the patcher's own log
     # (_log_data signs every one) is owned, under its name or an older
     # patcher's "<exe>.patch-log.json": a re-patch replaces the older name.
@@ -12743,7 +12774,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "733AA56644A0F742C6D27D7C4CA55622FA1F02F7983A57C2146C1F9B7D5E91CC",
+    "sha256": "7AC9B95CBBD4A8234BE3C43DC7675FA6CCE7A16B7990E9E65799ADEFAD993D1E",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12843,6 +12874,25 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the award at the pick /
     # right after the carry step, never again at delivery.
     "VVFP Collectibles Stay Collected.dll",
+    # Scrolling Popups (all five games): scrollbars on popups whose text does not fit.
+    "VVFP Scrolling Popups.dll",
+    # Fix Vanilla Bugs (The Lost Children, The Secret City, The Tree of Life, New Believers): a word wider than its
+    # box gets a line of its own instead of hanging the game's line layout.
+    "VVFP Long Words.dll",
+    # The Aspiring Adventurer (all five games): the owner's new island event.
+    "VVFP More Island Events.dll",
+    # Empty the Stew Pot from the Science Hut Door (The Lost Children): a drop on the science hut's doorway empties a
+    # ready stew.
+    "VVFP VV2 Empty Stew.dll",
+    # Adults Dropped on Mushrooms or Collectibles Are Confused (all five games): the game's Confused action and
+    # "Only children can see and pick up ..." for an adult dropped on a mushroom or collectible.
+    "VVFP Adult Confused.dll",
+    # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices in each
+    # child's pastime pick.
+    "VVFP Children Play.dll",
+    # Change Sex and Gender Presentation (all five games): a villager drawn with the other sex's heads and bodies,
+    # keeping the recorded sex; its row also offers Change Appearance's "Change sex...".
+    "VVFP Gender Presentation.dll",
     # Cloth Sacks for Yellow Fruit (The Tree of Life): a cloth bolt made into a sack for 30 yellow fruit.
     "VVFP VV4 Cloth Sacks.dll",
     # Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life): the cap of 6 raised to 99; the stacks drawn as 6.
@@ -13705,6 +13755,27 @@ def _finalize_published_bytes(
     )
 
 
+def installed_patches_text(
+    build: Build, fun_patches: list[FunPatch], disabled_ids: tuple[str, ...] | list[str] = ()
+) -> str:
+    """The installed patches' list (patcher_files.INSTALLED_PATCHES_FILENAME): the game build's id and every fun patch
+    installed -- one id per line, sorted, "#" lines notes -- for Custom Island Events' patch conditions
+    (native/vvfp_story_upgrades/story_graph.inc cg_installed_has: an event names a patch by its id without the
+    "vv<N>_" prefix)."""
+    ids = sorted({build.id} | {patch.id for patch in fun_patches} - set(disabled_ids))
+    return ("# The patches the Virtual Villagers Fun Patcher installed in this game, one id per line.\n"
+            "# Written at every patch; Custom Island Events' patch conditions read it.\n"
+            + "".join(f"{patch_id}\n" for patch_id in ids))
+
+
+def _write_installed_patches(
+    staging_folder: Path, build: Build, fun_patches: list[FunPatch], disabled_ids: tuple[str, ...] | list[str]
+) -> None:
+    path = patcher_files.long_path(staging_folder / Path(*patcher_files.INSTALLED_PATCHES_RELATIVE_PATH.parts))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(installed_patches_text(build, fun_patches, disabled_ids).encode("ascii"))
+
+
 def apply_patch(
     source: Path,
     patch_mode: str = DEFAULT_PATCH_MODE,
@@ -13821,6 +13892,7 @@ def apply_patch(
             staging_folder, build, fun_patches
         )
         companions = _copy_companion_files(staging_folder, fun_patches)
+        _write_installed_patches(staging_folder, build, fun_patches, playtest_disabled_feature_ids)
         converted: list[dict[str, str]] = []
         for item in companions:
             relative, _ = _companion_relative_destination(Path(item["path"]), staging_folder)
@@ -13840,6 +13912,7 @@ def apply_patch(
             build, source, staged_output, patch_mode, output_hash, applied, fun_patches
         )
         log_data["companion_files"] = companions
+        log_data["installed_patches_path"] = patcher_files.INSTALLED_PATCHES_RELATIVE_PATH.as_posix()
         log_data["removed_unselected_companions"] = removed_companions
         save_copy: dict[str, Any] | None = None
         if copy_saves:

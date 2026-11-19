@@ -1,0 +1,115 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Healer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss088_quiet_healer",
+  "source": "companion",
+  "lines": [
+   6975,
+   6983
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6975",
+  "ledger": [
+   {
+    "src": "L6983",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A quiet healer dislikes crowded meetings but is attentive with patients.",
+  "cast_only": [
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A healer speaks little and dislikes crowded meetings but is attentive with patients.",
+   "src": "L6976",
+   "choices": [
+    {
+     "label": "Ask how they prefer to share findings",
+     "next": "a",
+     "src": "L6977"
+    },
+    {
+     "label": "Let them teach one apprentice",
+     "next": "b",
+     "src": "L6979"
+    },
+    {
+     "label": "Make them lead a public speech",
+     "next": "c",
+     "src": "L6981"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "dislikes crowded meetings",
+     "reason": "the healer's temperament; meetings are no game preference",
+     "src": "L6976"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They submit concise notes.",
+   "src": "L6978"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They become a thoughtful mentor.",
+   "src": "L6980",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6980"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They struggle and request a different way to contribute.",
+   "src": "L6982"
+  }
+ }
+}

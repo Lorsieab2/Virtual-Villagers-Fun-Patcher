@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sea in the Shell",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il105_sea_shell",
+  "source": "da_il06",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager holds a big curly shell to one ear, far from the beach, and hears the sea.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has found a big curly shell up near the gardens, far from the beach. (subject.He/She) holds it to (subject.his/her) ear, the way children do, and hears the sea: a soft, rushing, faraway roar. But the sea is a long way off from here. (subject) takes the shell away from (subject.his/her) ear and listens. Nothing. Shell back. The sea.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Ask (friend) to Listen",
+     "next": "a",
+     "src": "L61"
+    },
+    {
+     "label": "Keep the Shell",
+     "next": "b",
+     "src": "L64"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) listens and hears it too. They try it with a small shell: a smaller, higher sea. They try it with a cupped hand: a sort of sea. They try it with a coconut shell: a very confused sea. \"Maybe it's not the sea at all,\" says (friend). \"Maybe it's just what quiet sounds like, up close.\" (subject) holds the big shell to (subject.his/her) ear again. It still sounds like the sea.",
+   "src": "L62"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) decides not to work it out. (subject.He/She) takes the shell home and keeps it by (subject.his/her) sleeping mat. On nights when (subject.he/she) can't sleep, (subject.he/she) holds it to (subject.his/her) ear and listens to the sea that isn't there, and falls asleep before (subject.he/she) can wonder about it too much.",
+   "src": "L65"
+  }
+ }
+}

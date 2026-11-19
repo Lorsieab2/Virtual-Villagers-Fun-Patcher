@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Third Friend",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn052_third_friend",
+  "source": "companion",
+  "lines": [
+   3144,
+   3150
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3144",
+  "ledger": [
+   {
+    "src": "L3146",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L3150",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   }
+  ],
+  "description": "Two close friends struggle when a third child wants to join their games.",
+  "cast_only": [
+   "friend1",
+   "friend2",
+   "newcomer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "friend1": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "friend2": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "newcomer": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "Two close friends struggle when a third child wants to join their games.",
+   "src": "L3145",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Invent a game that includes everyone.",
+   "src": "L3147"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Explain that friendships need not be exclusive.",
+   "src": "L3148"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Learn that not every activity suits every friend.",
+   "src": "L3149"
+  }
+ }
+}

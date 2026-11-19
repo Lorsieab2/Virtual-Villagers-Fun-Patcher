@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Village Storehouse",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm23_village",
+  "source": "armor45",
+  "lines": [
+   31,
+   31
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L31",
+  "ledger": [
+   {
+    "src": "L31",
+    "kind": "structural",
+    "text": "23. The Village Storehouse  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "Villagers reorganize the farming tools, hunting gear, protective equipment and ceremonial objects.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Villagers reorganize farming tools, hunting gear, protective equipment, and ceremonial objects so each is accessible and cared for.",
+   "src": "L31"
+  }
+ }
+}

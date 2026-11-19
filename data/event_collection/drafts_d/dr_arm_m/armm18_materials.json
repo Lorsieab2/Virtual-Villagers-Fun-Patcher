@@ -1,0 +1,61 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Materials for Protection",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm18_materials",
+  "source": "openq97",
+  "lines": [
+   575,
+   577
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L576",
+  "ledger": [
+   {
+    "src": "L575",
+    "kind": "structural",
+    "text": "[M18]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L577",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "Two artisans discuss protective materials.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "Two artisans discuss protective materials. One sample bends without cracking. The other feels lighter when held against the arm.",
+   "src": "L575,L577"
+  }
+ }
+}

@@ -1,0 +1,179 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Masked Adviser",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvauth17_masked",
+  "source": "living",
+  "lines": [
+   23587,
+   23601
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23587",
+  "ledger": [
+   {
+    "src": "L23601",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A masked adviser from the other community offers help with a dangerous crossing, and the leader doubts their loyalty.",
+  "cast_only": [
+   "builder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1,
+  "if": {
+   "not": {
+    "patch": "guardians_of_isola"
+   }
+  }
+ },
+ "roles": {
+  "builder": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A masked adviser from the other community offers help with a dangerous crossing, and the {@chief} doubts their loyalty.",
+   "src": "L23588",
+   "choices": [
+    {
+     "label": "Accept the adviser's help.",
+     "next": "a",
+     "src": "L23589"
+    },
+    {
+     "label": "Refuse and rely on familiar builders.",
+     "next": "b",
+     "src": "L23592"
+    },
+    {
+     "label": "Invite both communities to plan.",
+     "next": "c",
+     "src": "L23595"
+    },
+    {
+     "label": "Ask the adviser to demonstrate the method.",
+     "next": "d",
+     "src": "L23598"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Their knowledge prevents an accident.",
+   "src": "L23590"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The adviser misunderstands local customs, causing an argument.",
+   "src": "L23591"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The crossing is completed safely.",
+   "src": "L23593"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The builders overlook a hazard the adviser had noticed.",
+   "src": "L23594"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The shared project builds cautious trust.",
+   "src": "L23596"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Old grievances slow the work.",
+   "src": "L23597"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The technique proves useful without settling political differences.",
+   "src": "L23599"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The demonstration fails, but the adviser accepts the criticism.",
+   "src": "L23600"
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ],
+ "words": {
+  "chief": {
+   "*": "leader"
+  }
+ }
+}

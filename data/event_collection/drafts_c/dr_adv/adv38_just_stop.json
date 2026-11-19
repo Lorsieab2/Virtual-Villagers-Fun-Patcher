@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Just Stop Worrying",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv38_just_stop",
+  "source": "draft_adv",
+  "lines": [
+   440,
+   449
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L440",
+  "ledger": [
+   {
+    "src": "L441",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend tells a villager worried about the crops to just stop worrying: say it did not help, or let it pass.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been worried about (subject.his/her) crops for weeks. (friend), trying to help, says cheerfully, \"You should just stop worrying about it!\" (subject) goes very still. If (subject.he/she) could just stop worrying, (subject.he/she) would have done it weeks ago.",
+   "src": "L443",
+   "choices": [
+    {
+     "label": "Tell (friend) That Didn't Help",
+     "next": "o1",
+     "src": "L445"
+    },
+    {
+     "label": "Let It Pass",
+     "next": "o2",
+     "src": "L448"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"That doesn't help,\" says (subject) quietly. \"If I could stop, I would.\" (friend)'s face falls. \"Oh. I'm sorry. I didn't think.\" There's a long pause. \"What would help?\" (friend.he/she) asks. (subject) thinks. \"Maybe just... coming to look at the beans with me sometimes.\" So (friend) does. It doesn't stop the worrying. It makes it less lonely.",
+   "src": "L446"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) just nods and changes the subject. (friend) never realizes what (friend.he/she) said. (subject) keeps worrying, quietly. Later that week, a different villager says, \"Worrying about the beans? I'd be worried too.\" It's such a relief to hear that (subject) nearly cries. Some advice helps more when it isn't advice at all.",
+   "src": "L449"
+  }
+ }
+}

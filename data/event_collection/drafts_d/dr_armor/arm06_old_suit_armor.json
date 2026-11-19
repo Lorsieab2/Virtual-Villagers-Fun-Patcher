@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Suit of Armor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm06_old_suit_armor",
+  "source": "armor45",
+  "lines": [
+   14,
+   14
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L14",
+  "ledger": [
+   {
+    "src": "L14",
+    "kind": "structural",
+    "text": "06. The Old Suit of Armor  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "Weathered protective equipment is found in an abandoned shelter. Its origins and former owner remain unknown.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Weathered protective equipment is found in an abandoned shelter. Its origins and former owner remain unknown.",
+   "src": "L14"
+  }
+ }
+}

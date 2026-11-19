@@ -807,6 +807,15 @@ static int c4_rand_below(int n) {
     return ((c4_rand_fn)(uintptr_t)0x4036D0u)(n);
 }
 
+/* The Tree of Life's villager catch-up 0x468430 on the villager array 0x50E568 (its one caller, the update 0x420560,
+   right after the aging 0x466450). */
+static void c4_catch_up(void) {
+    TC0(0x468430u, 0x50E568u);
+}
+
+static const ce_birth_layout C4_BIRTH = { 0x1B8Cu, 0x1C3Cu, 0x1C4Cu, 0x1C40u, c4_catch_up };
+static int c4_deliver(int index, int *early);
+
 static const ce_adapter C4_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
@@ -855,10 +864,12 @@ static const ce_adapter C4_ADAPTER = {
     0, 0x1C4C,
     /* The two-choice popup (0x417790): as The Secret City's -- 48 characters,
        11 lines (the tallest stock two-choice text), the title above the
-       result, labels of 34 characters (the longest stock). */
-    48, 11, 48, 11, 0, 34, c4_rand_below, NULL, NULL,
+       result, labels of up to 39 characters, as wide as the screen shows
+   whole (story_label_widths.h). */
+    48, 11, 48, 11, 0, 39, c4_rand_below, NULL, NULL,
     C4_PROBE, (int)(sizeof C4_PROBE / sizeof C4_PROBE[0]),
-    NULL, NULL, 0, c4_set_health
+    NULL, NULL, 0, c4_set_health,
+    c4_deliver
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -937,4 +948,9 @@ static const ce_adapter *c4_adapter(void) {
         ready = 1;
     }
     return &adapter;
+}
+
+/* cie-v6-binary.md 23: the babies born now by the game's own delivery (ce_birth_now). */
+static int c4_deliver(int index, int *early) {
+    return ce_birth_now(&C4_ADAPTER, &C4_BIRTH, index, early);
 }

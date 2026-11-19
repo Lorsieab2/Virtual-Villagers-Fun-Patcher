@@ -198,6 +198,14 @@ int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *co
                       LAYOUT[game].name_bytes);
 }
 
+/* A VILLAGER'S SEX CHANGED (native/shared/sex_change.h): the look stays theirs.  1 when carried. */
+int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    if (game < 1 || game > 5 || game != g_game || record == NULL || before == NULL) {
+        return 0;
+    }
+    return hl_sex_changed(slot, (const unsigned char *)record, (const unsigned char *)before);
+}
+
 /* ---- the draws ------------------------------------------------------------------------------------- */
 
 /* Register numbers as x86 encodes them; HL_NONE for no second register. */

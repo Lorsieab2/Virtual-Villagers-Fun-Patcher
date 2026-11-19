@@ -1,0 +1,154 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forest's Many Mouths",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir11_forest_many",
+  "source": "living",
+  "lines": [
+   21374,
+   21385
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21374",
+  "ledger": [
+   {
+    "src": "L21385",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A child is distressed to see a snake swallow a small animal.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "parent": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child is distressed to see a snake swallow a small animal.",
+   "src": "L21375",
+   "choices": [
+    {
+     "label": "Explain how predators survive.",
+     "next": "a",
+     "src": "L21376"
+    },
+    {
+     "label": "Move the snake away from homes.",
+     "next": "b",
+     "src": "L21379"
+    },
+    {
+     "label": "Observe without intervening.",
+     "next": "c",
+     "src": "L21382"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child understands the snake is hungry but still feels sad.",
+   "src": "L21377"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child asks whether humans are different from predators.",
+   "src": "L21378"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The snake is relocated safely, though the forest still contains hunters.",
+   "src": "L21380"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The villagers discover more rodents near the houses.",
+   "src": "L21381"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child learns that compassion does not always require interference.",
+   "src": "L21383"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child turns away, and a parent comforts them.",
+   "src": "L21384",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L21384"
+    }
+   ]
+  }
+ }
+}

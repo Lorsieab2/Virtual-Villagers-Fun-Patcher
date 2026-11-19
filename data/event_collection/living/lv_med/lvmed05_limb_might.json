@@ -1,0 +1,218 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Limb That Might Be Saved",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed05_limb_might",
+  "source": "living",
+  "lines": [
+   20271,
+   20282
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20271",
+  "ledger": [
+   {
+    "src": "L20282",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A severe wound has begun to spread illness through a patient's body; removing the injured limb might save their life.",
+  "cast_only": [
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A severe wound has begun to spread illness through a patient's body; removing the injured limb might save their life.",
+   "src": "L20272",
+   "choices": [
+    {
+     "label": "Offer surgery and explain the consequences.",
+     "next": "a",
+     "src": "L20273"
+    },
+    {
+     "label": "Treat the wound without removing the limb.",
+     "next": "b",
+     "src": "L20276"
+    },
+    {
+     "label": "Let the patient decide after hearing both possibilities.",
+     "next": "c",
+     "src": "L20279"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "the injured limb",
+     "reason": "the premise: it happened before the event; nobody is harmed now",
+     "src": "L20272"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient consents and survives, beginning a difficult adjustment to daily life.",
+   "src": "L20274",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -60,
+     "max": -40,
+     "src": "L20274"
+    },
+    {
+     "do": "preference",
+     "role": "patient",
+     "list": "dislikes",
+     "preference": "running",
+     "src": "L20274"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The patient survives the operation but later dies from infection.",
+   "src": "L20275",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L20275"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "b2",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The illness recedes, though the limb remains weak.",
+   "src": "L20277",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L20277"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The illness spreads, and the patient dies with family nearby.",
+   "src": "L20278",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L20278"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1",
+     "weight": 20
+    },
+    {
+     "next": "c2",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The patient declines surgery and requests comfort care.",
+   "src": "L20280"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The patient chooses surgery and later trains apprentices in a new craft.",
+   "src": "L20281",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -60,
+     "max": -40,
+     "src": "L20281"
+    },
+    {
+     "do": "preference",
+     "role": "patient",
+     "list": "dislikes",
+     "preference": "running",
+     "src": "L20281"
+    }
+   ]
+  }
+ }
+}

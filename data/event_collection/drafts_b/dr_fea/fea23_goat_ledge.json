@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Goat on the Ledge",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea23_goat_ledge",
+  "source": "draft_fea",
+  "lines": [
+   272,
+   281
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L272",
+  "ledger": [
+   {
+    "src": "L273",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A goat is stuck on a ledge and the nearest villager is afraid of heights: climb up anyway, or go and get someone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "One of the village goats has climbed onto a ledge on the rocks above the beach and now won't come down. It's bleating. The ledge isn't very high, but it's high enough, and (subject), who is closest, is not good with heights. (subject.He/she) is standing at the bottom, looking up at the goat. The goat is looking down at (subject.him/her).",
+   "src": "L275",
+   "choices": [
+    {
+     "label": "Climb Up Anyway",
+     "next": "o1",
+     "src": "L277"
+    },
+    {
+     "label": "Go and Get Someone",
+     "next": "o2",
+     "src": "L280"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) climbs, very slowly, shaking, with (subject.his/her) heart in (subject.his/her) mouth. (subject.He/she) reaches the goat, wraps an arm round it, and the goat promptly hops down the rocks on its own, perfectly easily. (subject) is left clinging to the ledge. Somebody brings a ladder. (subject) has never been so frightened, or felt so silly, or been so proud of (subject.him/her)self.",
+   "src": "L278"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) runs for help. (friend), who likes climbing, scrambles up in no time and coaxes the goat down. \"Thanks for fetching me,\" (friend.he/she) says. (subject) feels a bit useless. But the goat is safe, and nobody fell, and fetching the right person is a perfectly good kind of help.",
+   "src": "L281"
+  }
+ }
+}

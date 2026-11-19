@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Heathen Who Helped",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvppl11_heathen_helped",
+  "source": "living",
+  "lines": [
+   21800,
+   21812
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21800",
+  "ledger": [
+   {
+    "src": "L21801",
+    "kind": "structural",
+    "text": "VV5 ONLY:",
+    "why": "the source's game tag: the event's games are [5] (VV5 only)"
+   },
+   {
+    "src": "L21811",
+    "kind": "note",
+    "why": "GUARDIANS OF ISOLA VARIANT: the designer's rule, carried out as the Guardians of Isola Rewrite forms (guardians-wording.md)"
+   },
+   {
+    "src": "L21812",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A Heathen helps an injured villager, surprising those who distrust the neighboring group.",
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "An Isolan helps an injured villager, surprising those who distrust the neighboring group."
+   }
+  ],
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A Heathen helps an injured villager, surprising those who distrust the neighboring group.",
+   "src": "L21801",
+   "choices": [
+    {
+     "label": "Thank the helper publicly.",
+     "next": "a",
+     "src": "L21802"
+    },
+    {
+     "label": "Offer quiet thanks.",
+     "next": "b",
+     "src": "L21805"
+    },
+    {
+     "label": "Question their motives.",
+     "next": "c",
+     "src": "L21808"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "An Isolan helps an injured villager, surprising those who distrust the neighboring group.",
+     "src": "L21801"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "an injured villager",
+     "reason": "the premise: it happened before the event; nobody is harmed now",
+     "src": "L21801"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The public gratitude eases some tension between neighbors.",
+   "src": "L21803"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The helper dislikes being treated as an unusual exception.",
+   "src": "L21804",
+   "text_only": [
+    {
+     "what": "the helper dislikes",
+     "reason": "the helper is not a cast villager: no preference changes",
+     "src": "L21804"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The helper appreciates the private kindness.",
+   "src": "L21806"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Rumors spread because nobody understands what happened.",
+   "src": "L21807"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The helper feels hurt but explains why they stopped to help.",
+   "src": "L21809"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The villagers discover that suspicion can outlast good evidence.",
+   "src": "L21810"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "patch": "guardians_of_isola"
+   },
+   "title": "The Isolan Who Helped"
+  }
+ ],
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

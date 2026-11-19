@@ -1,0 +1,139 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Argument Across the Ocean",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz004_argument_across",
+  "source": "horizon",
+  "lines": [
+   59,
+   69
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part1",
+  "title_src": "L59",
+  "ledger": [],
+  "description": "After two neighbors dispute a borrowed basket, a mediator asks whether faraway people quarrel over ordinary things.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After two neighbors dispute a borrowed basket, a mediator asks whether people in faraway lands quarrel over equally ordinary things.",
+   "src": "L60",
+   "choices": [
+    {
+     "label": "Imagine the Same Disagreement.",
+     "next": "a",
+     "src": "L61"
+    },
+    {
+     "label": "Imagine Enormous Disputes.",
+     "next": "b",
+     "src": "L64"
+    },
+    {
+     "label": "Imagine Reconciliation.",
+     "next": "c",
+     "src": "L67"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villagers act out a distant argument over a missing tool; everyone recognizes the irritation.",
+   "src": "L62"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The mediator notes that different customs may change what counts as borrowing or stealing.",
+   "src": "L63"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A scholar wonders whether disagreements between whole cities could begin with ordinary misunderstandings.",
+   "src": "L65"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A fisher warns that conflicts over land and food may have causes too serious to reduce to hurt feelings.",
+   "src": "L66",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L66"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Two estranged neighbors exchange a tentative greeting after hearing their own behavior described.",
+   "src": "L68"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The original dispute remains unresolved; the mediator says understanding does not compel forgiveness.",
+   "src": "L69"
+  }
+ }
+}

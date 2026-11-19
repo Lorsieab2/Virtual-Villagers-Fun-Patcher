@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Clothes No One Has Seen",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife29_new_clothes",
+  "source": "living",
+  "lines": [
+   21006,
+   21017
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21006",
+  "ledger": [
+   {
+    "src": "L21017",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A tailor unveils clothing with an unfamiliar silhouette and boldly mixed colors.",
+  "cast_only": [
+   "tailor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "tailor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A tailor unveils clothing with an unfamiliar silhouette and boldly mixed colors.",
+   "src": "L21007",
+   "choices": [
+    {
+     "label": "Let the tailor lead a fashion festival.",
+     "next": "a",
+     "src": "L21008"
+    },
+    {
+     "label": "Adapt the designs for practical tasks.",
+     "next": "b",
+     "src": "L21011"
+    },
+    {
+     "label": "Preserve traditional dress alongside new styles.",
+     "next": "c",
+     "src": "L21014"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Several villagers adopt the designs with delight.",
+   "src": "L21009"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Others find the garments awkward for daily work.",
+   "src": "L21010"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A new outfit proves comfortable for climbing and gathering.",
+   "src": "L21012"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The tailor feels the alterations have lost the original vision.",
+   "src": "L21013"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Families choose what suits them and their occasions.",
+   "src": "L21015"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A heated debate over ceremonial clothing ends with a compromise.",
+   "src": "L21016"
+  }
+ }
+}

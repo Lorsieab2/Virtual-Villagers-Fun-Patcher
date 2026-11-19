@@ -1,0 +1,4 @@
+LIBRARY "VVFP Scrolling Popups"
+EXPORTS
+    VvfpStartup
+    VvfpScrollingPopupsInstalled

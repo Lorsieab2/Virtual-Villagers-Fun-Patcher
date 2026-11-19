@@ -57,6 +57,26 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the award at the pick /
        right after the carry step, never again at delivery. */
     "VVFP Collectibles Stay Collected.dll",
+    /* Scrolling Popups (The Secret City, The Tree of Life, New Believers): scrollbars on the island-event popups
+       whose text does not fit. */
+    "VVFP Scrolling Popups.dll",
+    /* Fix Vanilla Bugs (The Lost Children, The Secret City, The Tree of Life, New Believers): a word wider than its box
+       gets a line of its own instead of hanging the game's line layout. */
+    "VVFP Long Words.dll",
+    /* The Aspiring Adventurer (all five games): the owner's new island event. */
+    "VVFP More Island Events.dll",
+    /* Empty the Stew Pot from the Science Hut Door (The Lost Children): a drop on the science hut's doorway empties
+       a ready stew. */
+    "VVFP VV2 Empty Stew.dll",
+    /* Adults Dropped on Mushrooms or Collectibles Are Confused (all five games): the game's Confused action and
+       its own message for an adult dropped on a mushroom or collectible. */
+    "VVFP Adult Confused.dll",
+    /* Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices in each
+       child's pastime pick. */
+    "VVFP Children Play.dll",
+    /* Change Sex and Gender Presentation (all five games): a villager drawn with the other sex's heads and bodies,
+       keeping the recorded sex; its row also offers Change Appearance's Change sex button. */
+    "VVFP Gender Presentation.dll",
     /* Cloth Sacks for Yellow Fruit (The Tree of Life): a cloth bolt made into a sack for 30 yellow fruit, like the
        cutting tool on the blackberries. */
     "VVFP VV4 Cloth Sacks.dll",

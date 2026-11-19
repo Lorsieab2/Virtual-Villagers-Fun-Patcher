@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Story with Two Beginnings",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl19_story_two",
+  "source": "living",
+  "lines": [
+   21908,
+   21919
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21908",
+  "ledger": [
+   {
+    "src": "L21919",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Two groups tell different stories about how Isola was first settled.",
+  "cast_only": [
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two groups tell different stories about how Isola was first settled.",
+   "src": "L21909",
+   "choices": [
+    {
+     "label": "Record both accounts.",
+     "next": "a",
+     "src": "L21910"
+    },
+    {
+     "label": "Choose the older account.",
+     "next": "b",
+     "src": "L21913"
+    },
+    {
+     "label": "Invite a shared storytelling night.",
+     "next": "c",
+     "src": "L21916"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The archive preserves the disagreement without resolving it.",
+   "src": "L21911"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An apprentice discovers both stories mention the same storm.",
+   "src": "L21912"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Some elders approve while others feel erased.",
+   "src": "L21914"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A newly found object challenges the chosen story.",
+   "src": "L21915"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The storytellers find unexpected similarities.",
+   "src": "L21917"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The evening ends with more questions than answers.",
+   "src": "L21918"
+  }
+ }
+}

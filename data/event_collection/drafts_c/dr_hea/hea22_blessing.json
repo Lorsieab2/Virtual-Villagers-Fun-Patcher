@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Blessing for the Headache",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea22_blessing",
+  "source": "draft_hea",
+  "lines": [
+   263,
+   272
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L263",
+  "ledger": [
+   {
+    "src": "L264",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a spiritual leader or elder)"
+   }
+  ],
+  "description": "A villager with headaches asks a spiritual leader for a blessing: accept the blessing, or just sit together.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has headaches that come and go. The healer's teas help sometimes. Today (subject) has asked (friend), who leads the village in its old songs and blessings, if (friend.he/she) would say a blessing over (subject.him/her). (friend) agrees gladly. \"I'll tell you plainly,\" (friend.he/she) says. \"I believe in it. I can't promise what it will do.\"",
+   "src": "L266",
+   "choices": [
+    {
+     "label": "Accept the Blessing",
+     "next": "o1",
+     "src": "L268"
+    },
+    {
+     "label": "Just Sit Together",
+     "next": "o2",
+     "src": "L271"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) hums low and lays cool hands on (subject)'s temples. It's quiet, and gentle, and for a little while (subject) feels very looked after. The headache eases that afternoon. It comes back three days later. (subject) asks for the blessing again anyway. (subject.He/she) isn't sure what it does. (subject.He/she) is sure (subject.he/she) likes how it feels to be asked about so kindly.",
+   "src": "L269"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "In the end (subject) decides (subject.he/she) doesn't want the blessing, just company. (friend) doesn't mind in the least. They sit in the shade with a cool wet cloth over (subject)'s eyes, and (friend) talks quietly about nothing much. The headache stays a while, then goes. \"Thank you,\" says (subject). \"I didn't do anything,\" says (friend). \"You did,\" says (subject).",
+   "src": "L272"
+  }
+ }
+}

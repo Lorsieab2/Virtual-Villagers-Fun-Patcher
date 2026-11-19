@@ -382,11 +382,42 @@ CASES = [
     Case("Island Events Scale", "assets/island_events_scale/VVFP Island Events Scale.dll", (1, 4, 5),
          lambda g: [f"vv{g}_island_events_scale_with_population"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpIslandEventsScaleInstalled"))[1]),
+    # Empty the Stew Pot from the Science Hut Door (The Lost Children): the drop's expecting test and the completion
+    # dispatcher's first bytes.
+    Case("VV2 Empty Stew", "assets/vv2_empty_stew/VVFP VV2 Empty Stew.dll", (2,),
+         lambda g: ["vv2_empty_stew_pot"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpVv2EmptyStewInstalled"))[1]),
     # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the pick's epilogue and the
     # end-of-trip award call (VV1), the two jobs' award-step calls (VV2).
     Case("Collectibles Stay Collected", "assets/collectibles_stay_collected/VVFP Collectibles Stay Collected.dll",
          (1, 2), lambda g: [f"vv{g}_collectibles_stay_collected"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpCollectiblesStayCollectedInstalled"))[1]),
+    # Adults Dropped on Mushrooms or Collectibles Are Confused (all five games): the drop's adult area call (VV1), the
+    # adult dispatcher's Confused call (VV2), the drop's mushroom / collectible do-action calls (VV3-VV5).
+    Case("Adult Confused", "assets/adult_confused/VVFP Adult Confused.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_adult_confused"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpAdultConfusedInstalled"))[1]),
+    # Scrolling Popups (all five games): the mouse dispatcher's call, the popups' size calls, their text calls.
+    Case("Scrolling Popups", "assets/scrolling_popups/VVFP Scrolling Popups.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_scrolling_popups"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpScrollingPopupsInstalled"))[1]),
+    # Fix Vanilla Bugs (The Lost Children .. New Believers): the justified paragraph's and the line fit's long-word steps.
+    Case("Long Words", "assets/long_words/VVFP Long Words.dll", (2, 3, 4, 5),
+         lambda g: [f"vv{g}_fix_vanilla_bugs"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpLongWordsInstalled"))[1]),
+    # Children Play Tag and Build Sandcastles (all five games): every call of the child pastime pick (three in The
+    # Secret City).
+    Case("Children Play", "assets/children_play/VVFP Children Play.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_children_play"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpChildrenPlayInstalled"))[1]),
+    # Change Sex and Gender Presentation (all five games): every read of the sex field in the villager draw routines.
+    Case("Gender Presentation", "assets/gender_presentation/VVFP Gender Presentation.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_gender_presentation"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpGenderPresentationInstalled", g))[1]),
+    # The Aspiring Adventurer (all five games): its draw, popup and answer sites.
+    Case("More Island Events", "assets/more_island_events/VVFP More Island Events.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_more_island_events"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), int(m.export("VvfpMoreIslandEventsInstalled") == g))[1]),
     # Cloth Sacks for Yellow Fruit (The Tree of Life): the drop dispatcher's and the job events' entries, the
     # Farming dispatcher's option test and the carried item's draw call.
     Case("Cloth Sacks", "assets/cloth_sacks/VVFP VV4 Cloth Sacks.dll", (4,),

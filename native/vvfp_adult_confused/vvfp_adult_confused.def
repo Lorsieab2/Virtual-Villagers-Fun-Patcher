@@ -1,0 +1,4 @@
+LIBRARY "VVFP Adult Confused"
+EXPORTS
+    VvfpStartup
+    VvfpAdultConfusedInstalled

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Coming Back to It",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf35_coming_back",
+  "source": "draft_blf",
+  "lines": [
+   416,
+   425
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L416",
+  "ledger": [
+   {
+    "src": "L417",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a spiritual leader or elder)"
+   }
+  ],
+  "description": "A villager who stopped believing years ago turns up at the evening songs: the song leader welcomes them, or leaves them be.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "When (subject) was young, (subject.he/she) was devoted to the old ways. Then for years (subject.he/she) stopped believing, or thought (subject.he/she) had. Lately (subject.he/she) has found (subject.him/her)self drifting back: humming the old songs, stopping at the carved stone. Today (subject.he/she) turns up at the evening songs for the first time in many years. (friend) sees (subject.him/her) at the back.",
+   "src": "L419",
+   "choices": [
+    {
+     "label": "(friend) Welcomes (subject.him/her)",
+     "next": "o1",
+     "src": "L421"
+    },
+    {
+     "label": "(friend) Leaves (subject.him/her) Be",
+     "next": "o2",
+     "src": "L424"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) catches (subject.his/her) eye and smiles, nothing more. No fuss. (subject) stands at the back and sings, quietly. Afterwards, (friend) says, \"It's good to see you.\" \"I don't know if I believe it,\" says (subject). \"I just wanted to be here.\" \"That's enough,\" says (friend). \"It always has been.\" (subject) comes back the next week.",
+   "src": "L422"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) notices and says nothing at all, letting (subject) be there without being watched. (subject) stands at the back, doesn't sing, and leaves before the end. The next week, (subject.he/she) stays a little longer. The week after, (subject.he/she) sings one line. Nobody ever comments on it. That's exactly why (subject.he/she) keeps coming back.",
+   "src": "L425"
+  }
+ }
+}

@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Legend of the Deep Pool",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_55_deep_pool",
+  "source": "v28",
+  "lines": [
+   10921,
+   10927
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10921",
+  "ledger": [
+   {
+    "src": "L10922",
+    "kind": "note",
+    "why": "the cast: MYSTERY; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10926",
+    "kind": "note",
+    "text": ", selected by weighted sub-branch",
+    "why": "designer words: the three are weighted sub-branches"
+   },
+   {
+    "src": "L10926",
+    "kind": "note",
+    "text": "or rare ",
+    "why": "designer words: the rarity is the sub-branch's weight; each page shows one alternative"
+   },
+   {
+    "src": "L10927",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "A villager insists the deep pool hides a sacred chamber and wants to dive alone.",
+  "cast_only": [
+   "companion"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "diver": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "companion": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "A villager insists the pool conceals a sacred chamber and wants to dive alone.",
+   "src": "L10923",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A companion convinces them to investigate from safety.",
+   "src": "L10924"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They discover a mundane source of the strange echoes.",
+   "src": "L10925",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "diver",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10925"
+    }
+   ]
+  },
+  "c_rescue": {
+   "name": "Outcome C: rescue",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A risky dive ends in a rescue.",
+   "src": "L10926",
+   "src_cut": [
+    {
+     "src": "L10926",
+     "text": ", disappearance, fatal accident"
+    }
+   ],
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "diver",
+     "min": -30,
+     "max": -10,
+     "src": "L10926"
+    }
+   ]
+  },
+  "c_missing": {
+   "name": "Outcome C: missing",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A risky dive ends in disappearance.",
+   "src": "L10926",
+   "src_cut": [
+    {
+     "src": "L10926",
+     "text": "a rescue, "
+    },
+    {
+     "src": "L10926",
+     "text": ", fatal accident"
+    }
+   ],
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "diver",
+     "src": "L10926"
+    }
+   ]
+  },
+  "c_fatal": {
+   "name": "Outcome C: fatal",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A risky dive ends in a fatal accident.",
+   "src": "L10926",
+   "src_cut": [
+    {
+     "src": "L10926",
+     "text": "rescue, disappearance, "
+    }
+   ],
+   "effects": [
+    {
+     "do": "kill",
+     "role": "diver",
+     "cause": "unknown",
+     "src": "L10926"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c_rescue",
+     "weight": 10,
+     "rarity": "occasional"
+    },
+    {
+     "next": "c_missing",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "c_fatal",
+     "weight": 2,
+     "rarity": "very_rare"
+    }
+   ]
+  }
+ }
+}

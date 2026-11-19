@@ -1,0 +1,147 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Garden on the Roof",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz124_garden_roof",
+  "source": "draft_hz2",
+  "lines": [
+   534,
+   544
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L534",
+  "ledger": [
+   {
+    "src": "L535",
+    "kind": "sensitivity",
+    "before": "a gardener",
+    "after": "(name1), a gardener,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Watching moss grow on a hut roof, a gardener wonders whether distant people might grow gardens on top of their houses.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Watching moss grow on a hut roof, (name1), a gardener, wonders whether distant people might grow gardens on top of their houses.",
+   "src": "L535",
+   "choices": [
+    {
+     "label": "Imagine Roof Gardens.",
+     "next": "a",
+     "src": "L536"
+    },
+    {
+     "label": "Imagine Why They Would Need It.",
+     "next": "b",
+     "src": "L539"
+    },
+    {
+     "label": "Try Planting on a Hut Roof.",
+     "next": "c",
+     "src": "L542"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The gardener imagines rows of vegetables high above the ground and loves the idea.",
+   "src": "L537"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A builder wonders whether the roof would hold the weight.",
+   "src": "L538"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A scholar suggests that crowded places might have no room for gardens on the ground.",
+   "src": "L540"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A farmer says Isola has plenty of ground, and the roof is fine as it is.",
+   "src": "L541"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A few herbs grow happily on a low roof.",
+   "src": "L543"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The plants die in the hot sun, and the gardener decides some ideas stay far away.",
+   "src": "L544",
+   "text_only": [
+    {
+     "what": "\"die\"",
+     "reason": "a death only talked about (or the word's everyday sense); nobody dies -- story only: the file marks no effect (no new mechanics)",
+     "src": "L544"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fisherman's Spear",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm22_fisherman_spear",
+  "source": "armor45",
+  "lines": [
+   30,
+   30
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L30",
+  "ledger": [
+   {
+    "src": "L30",
+    "kind": "structural",
+    "text": "22. The Fisherman's Spear  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L30",
+    "kind": "sensitivity",
+    "before": "A fisher",
+    "after": "(Name1), a fisher,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A fisher demonstrates a traditional fishing spear and the roles such implements have held in Isola's history.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(Name1), a fisher, demonstrates a traditional fishing spear and discusses the different roles similar implements have held in Isola's history.",
+   "src": "L30"
+  }
+ }
+}

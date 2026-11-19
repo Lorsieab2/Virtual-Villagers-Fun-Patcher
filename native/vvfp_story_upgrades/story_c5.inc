@@ -1019,6 +1019,15 @@ static const ce_probe_field C5_PROBE[] = {
     { 0x1CEC, 1, 0, 1 },
 };
 
+/* New Believers' villager catch-up 0x472C90 on the villager array 0x554148 (its one caller, the update 0x4260EB,
+   right after the aging 0x46FE90). */
+static void c5_catch_up(void) {
+    TC0(0x472C90u, 0x554148u);
+}
+
+static const ce_birth_layout C5_BIRTH = { 0x1B8Cu, 0x1C3Cu, 0x1C4Cu, 0x1C40u, c5_catch_up };
+static int c5_deliver(int index, int *early);
+
 static const ce_adapter C5_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT | CAP_PREFS
         | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK | CAP_STATUS
@@ -1067,16 +1076,18 @@ static const ce_adapter C5_ADAPTER = {
     2, 0x1C4C,
     /* The two-choice popup (0x418020): 48 characters, 11 lines for the
        question and 17 for a result (the tallest stock question and result:
-       Innovation in Farming's), the title above the result, labels of 38
-       characters (the longest stock). */
-    48, 11, 48, 17, 0, 38, c5_rand_below, c5_believer, c5_role,
+       Innovation in Farming's), the title above the result, labels of up
+       to 39 characters, as wide as the screen shows whole
+       (story_label_widths.h). */
+    48, 11, 48, 17, 0, 39, c5_rand_below, c5_believer, c5_role,
     C5_PROBE, (int)(sizeof C5_PROBE / sizeof C5_PROBE[0]),
     c5_set_faith,
     "Do at your own risk: purple, Chief and Heathen Mommy are the roles the game's "
     "puzzles use; giving them to anyone, or changing a puzzle's own Heathen, can change "
     "or break those puzzles.",
     5,
-    c5_set_health                                /* the note is for purple, the Chief and the Mommy */
+    c5_set_health                                /* the note is for purple, the Chief and the Mommy */,
+    c5_deliver
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -1151,4 +1162,9 @@ static const ce_adapter *c5_adapter(void) {
         ready = 1;
     }
     return &adapter;
+}
+
+/* cie-v6-binary.md 23: the babies born now by the game's own delivery (ce_birth_now). */
+static int c5_deliver(int index, int *early) {
+    return ce_birth_now(&C5_ADAPTER, &C5_BIRTH, index, early);
 }

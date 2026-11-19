@@ -1,0 +1,645 @@
+ISOLA — FATHERS, PREGNANCY & PARENTHOOD
+30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS
+Version: 2026-11-15
+
+FORMAT: Each event has a setup, 4 player choices, and 2 alternative narrative outcomes per choice.
+SCOPE: Narrative drafts only. No changes to natural conception, sex flags, pregnancy eligibility, or UI status are implied.
+CASTING: A pregnant male character must be explicitly established as a trans man who can carry a pregnancy; do not infer that all male villagers can conceive.
+A Custom Island Event may be used where the existing engine requires player-selected parenthood. These drafts do not assert that ready-made events currently support male pregnancy.
+Respect character agency. Outcomes are alternatives, not sequential consequences.
+
+========================================================================
+EVENT 01: The Father Who Carries
+THEME: Trans man / pregnancy
+CAST / CONDITIONS: Adult trans man capable of carrying; pregnancy already established; optional partner
+
+After several mornings of nausea, a father learns from the healer that he is expecting a child. He sits beside the hospital, considering what he wants and whom he trusts with the news.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Tell a trusted partner
+     Outcome 1: They listen, ask what he wants, and make plans together.
+     Outcome 2: The news unsettles them; they agree to talk again after thinking.
+  B. Ask the healer about his options
+     Outcome 1: He receives practical information without pressure to decide immediately.
+     Outcome 2: He leaves with more questions and arranges another visit.
+  C. Take time alone
+     Outcome 1: A quiet walk helps him understand his own feelings.
+     Outcome 2: The uncertainty weighs on him, and he later seeks company.
+  D. Confide in a friend
+     Outcome 1: His friend offers support without assuming how he feels.
+     Outcome 2: His friend blurts out an assumption, then apologizes and listens.
+
+========================================================================
+EVENT 02: Clothes for a Changing Body
+THEME: Trans man / pregnancy
+CAST / CONDITIONS: Pregnant adult trans man
+
+A pregnant father finds that his work clothes pinch and pull. He likes some changes and dislikes others, and he wants to remain comfortable without surrendering his own style.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Sew a new outfit
+     Outcome 1: He makes a sturdy tunic that fits well and feels like him.
+     Outcome 2: The first seams split when he bends, and he starts again.
+  B. Ask a tailor for help
+     Outcome 1: Together they make clothing suited to his work and body.
+     Outcome 2: The tailor assumes he wants a different style; he corrects them.
+  C. Adjust his daily tasks
+     Outcome 1: A change of routine reduces his discomfort.
+     Outcome 2: He misses a favorite task and negotiates a different role.
+  D. Talk with a close friend
+     Outcome 1: The friend listens without deciding how he should feel.
+     Outcome 2: The friend tries to reassure him too quickly and learns to listen.
+
+========================================================================
+EVENT 03: What Will the Child Call Him?
+THEME: Trans man / family
+CAST / CONDITIONS: Expectant trans father
+
+Children in the village call out for their parents. An expectant father wonders which name his own child might use for him, and whether it matters as much as he thinks.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Choose “Father”
+     Outcome 1: He smiles at how natural the word feels.
+     Outcome 2: He likes the word but wonders how it will sound in a tiny voice.
+  B. Discuss names with his partner
+     Outcome 1: They find a name that feels right to both of them.
+     Outcome 2: They disagree affectionately and decide there is no hurry.
+  C. Ask older parents
+     Outcome 1: He hears several family traditions and invents his own.
+     Outcome 2: Everyone has an opinion; he decides the choice is his.
+  D. Leave the question open
+     Outcome 1: He feels relieved not to decide everything before birth.
+     Outcome 2: The uncertainty bothers him until he tries a name aloud.
+
+========================================================================
+EVENT 04: The Long Night Before Birth
+THEME: Trans man / childbirth
+CAST / CONDITIONS: Pregnant adult trans man near delivery
+
+Contractions begin during a rainy night. The father grips the bedframe while the healer prepares supplies; he wants to be addressed as himself, even when everyone is hurried.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Ask for a familiar support person
+     Outcome 1: Their steady presence helps him through the difficult hours.
+     Outcome 2: They arrive late, but he manages with the healer until then.
+  B. Tell the healer what he needs
+     Outcome 1: The healer respects his requests while monitoring the birth.
+     Outcome 2: The healer misunderstands at first and corrects course promptly.
+  C. Focus on each contraction
+     Outcome 1: He finds a rhythm and eventually welcomes his newborn.
+     Outcome 2: Labor lasts longer than expected, and the healer stays close.
+  D. Ask for quiet
+     Outcome 1: The room settles, and he can concentrate.
+     Outcome 2: A sudden complication requires more helpers; they explain what is happening.
+
+========================================================================
+EVENT 05: The First Hold
+THEME: Trans man / newborn
+CAST / CONDITIONS: Trans father who has just delivered; living newborn
+
+After a demanding delivery, a father is offered his newborn. He has imagined this moment many times, yet the small, warm weight in his arms feels entirely new.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Hold the baby close
+     Outcome 1: The child settles against his chest, and he cries with relief.
+     Outcome 2: His hands tremble, so the healer helps him find a secure hold.
+  B. Ask his partner to hold the baby first
+     Outcome 1: He watches them meet, then reaches for his child.
+     Outcome 2: His partner hesitates, surprised; they share a nervous laugh.
+  C. Rest before holding the baby
+     Outcome 1: After a little sleep, he greets his child with fresh attention.
+     Outcome 2: He feels disappointed to wait, and the healer reassures him that rest is reasonable.
+  D. Speak to the newborn
+     Outcome 1: The baby quiets briefly at his voice.
+     Outcome 2: The baby keeps wailing, and he speaks gently anyway.
+
+========================================================================
+EVENT 06: Feeding Is Not a Test
+THEME: Trans man / infant care
+CAST / CONDITIONS: Trans father with newborn
+
+A father considers how to feed his newborn. Villagers offer competing advice, but his body, comfort, available milk, and the baby’s needs all matter.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Discuss feeding with the healer
+     Outcome 1: They work out a practical feeding plan without judgment.
+     Outcome 2: The first approach proves difficult, and they revise the plan.
+  B. Ask another caregiver to share feeds
+     Outcome 1: The family finds a routine that gives him time to recover.
+     Outcome 2: Their schedules clash, and they negotiate a better arrangement.
+  C. Try chestfeeding if he wishes and can
+     Outcome 1: He finds a position that works for him and the baby.
+     Outcome 2: It is uncomfortable or ineffective, so he seeks another method.
+  D. Set a firm boundary with advisers
+     Outcome 1: The unsolicited comments stop, at least for the afternoon.
+     Outcome 2: One villager takes offense; he keeps the boundary anyway.
+
+========================================================================
+EVENT 07: The Unexpected Question
+THEME: Trans man / community
+CAST / CONDITIONS: Adult trans father with child
+
+At the well, a curious villager asks how a man could have carried a baby. The father must decide whether he wants to answer; the child is busy trying to grab the water bucket.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Answer briefly
+     Outcome 1: The questioner thanks him and moves on.
+     Outcome 2: The explanation prompts more questions, and he ends the conversation.
+  B. Decline to explain
+     Outcome 1: The villager accepts that his private life is private.
+     Outcome 2: The villager looks confused, but does not press further.
+  C. Change the subject to the child
+     Outcome 1: They end up discussing the baby’s astonishing grip.
+     Outcome 2: The baby splashes water over both of them.
+  D. Ask why the question matters
+     Outcome 1: They have a thoughtful conversation about assumptions.
+     Outcome 2: The villager struggles to explain, and they part politely.
+
+========================================================================
+EVENT 08: A Quiet Choice
+THEME: Trans man / pregnancy decisions
+CAST / CONDITIONS: Adult trans man capable of carrying; unexpected pregnancy
+
+A man discovers an unexpected pregnancy. He feels no immediate certainty about whether he wants to continue it, and he resents villagers who assume they know his answer.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Seek confidential care
+     Outcome 1: He learns what options and support are available to him.
+     Outcome 2: The healer cannot answer everything and helps him find more guidance.
+  B. Speak with someone he trusts
+     Outcome 1: They listen and leave the decision to him.
+     Outcome 2: Their initial reaction is unhelpful, and he asks for space.
+  C. Consider his circumstances privately
+     Outcome 1: He identifies what he wants and what he fears.
+     Outcome 2: He remains uncertain and gives himself more time where possible.
+  D. Ask for practical information
+     Outcome 1: He learns what each path would involve for his health and daily life.
+     Outcome 2: Some answers are difficult, but the information helps him decide.
+
+========================================================================
+EVENT 09: The Father Who Waited
+THEME: Man wants a baby
+CAST / CONDITIONS: Adult man; partner optional
+
+For years, a villager has imagined teaching a child to fish and recognize birds. He wonders whether the family he hopes for will ever happen.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Tell his partner what he hopes for
+     Outcome 1: They discover they share a dream and begin planning.
+     Outcome 2: His partner does not want children; they face a serious disagreement.
+  B. Talk with an older father
+     Outcome 1: He hears both joys and hardships, not just happy memories.
+     Outcome 2: The advice is contradictory, leaving him thoughtful.
+  C. Help care for a relative’s child
+     Outcome 1: He enjoys the afternoon and learns how much work caregiving takes.
+     Outcome 2: The child refuses every game he suggests, then falls asleep on him.
+  D. Write down his hopes
+     Outcome 1: He finds comfort in naming what matters to him.
+     Outcome 2: He realizes some hopes have changed since he was younger.
+
+========================================================================
+EVENT 10: Not Yet, Maybe Never
+THEME: Man / reproductive choice
+CAST / CONDITIONS: Adult man; optional partner
+
+A man is asked when he will become a father. He likes children, but he is unsure he wants to raise one, and the question follows him through the village.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Say he is undecided
+     Outcome 1: His friends accept that he has not made up his mind.
+     Outcome 2: One friend keeps pushing; he changes the subject.
+  B. Speak honestly with his partner
+     Outcome 1: They discuss their different hopes without making promises.
+     Outcome 2: They discover a difficult incompatibility and need time.
+  C. Spend a day helping at the nursery
+     Outcome 1: He enjoys the children and remains unsure about parenthood.
+     Outcome 2: The exhausting day strengthens his preference for a childfree life.
+  D. Set aside others’ expectations
+     Outcome 1: He feels freer to imagine a future of his own choosing.
+     Outcome 2: He still worries about disappointing someone he loves.
+
+========================================================================
+EVENT 11: A Place at the Hearth
+THEME: Single father / adoption
+CAST / CONDITIONS: Adult man; adoption or guardianship arrangement consistent with story
+
+A villager agrees to become the primary caregiver of a child who needs a home. As he prepares a sleeping mat, he realizes that love alone will not organize tomorrow’s meals.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Ask neighbors for practical help
+     Outcome 1: They help arrange meals and childcare for his first week.
+     Outcome 2: Everyone offers advice at once, and he has to organize it.
+  B. Prepare the home himself
+     Outcome 1: He creates a welcoming space with small handmade toys.
+     Outcome 2: He forgets a basic supply and rushes to borrow it.
+  C. Let the child choose a comfort item
+     Outcome 1: The child picks a familiar blanket and relaxes a little.
+     Outcome 2: The child chooses nothing yet; he leaves the offer open.
+  D. Take a quiet day together
+     Outcome 1: They begin learning each other’s habits without pressure.
+     Outcome 2: The child misses their old routine, and he listens patiently.
+
+========================================================================
+EVENT 12: Two Different Futures
+THEME: Men / partners / children
+CAST / CONDITIONS: Adult couple; at least one man
+
+Two partners love each other but disagree about having a baby. Neither wants to lose the relationship, and neither wants a decision made out of guilt.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Speak plainly about their wishes
+     Outcome 1: They understand each other better, even without agreement.
+     Outcome 2: They recognize their futures may not fit together.
+  B. Give the question time
+     Outcome 1: They agree on a date to revisit it without pressure.
+     Outcome 2: The delay becomes frustrating, and they acknowledge it.
+  C. Ask a trusted elder to listen
+     Outcome 1: The elder helps them talk without deciding for them.
+     Outcome 2: The elder takes a side, and they end the conversation.
+  D. Discuss other ways to care for children
+     Outcome 1: They find meaningful roles with younger villagers.
+     Outcome 2: They discover those roles do not resolve their disagreement.
+
+========================================================================
+EVENT 13: The Midnight Walk
+THEME: Father / newborn care
+CAST / CONDITIONS: Adult father with newborn
+
+A baby cries through the night. Their father has tried feeding, changing, and rocking them, and now paces beneath the stars while the rest of the village sleeps.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Walk slowly by the shore
+     Outcome 1: The waves calm the baby at last.
+     Outcome 2: The baby stays awake, but the father enjoys the cool air.
+  B. Sing a familiar song
+     Outcome 1: The baby grows quiet halfway through the second verse.
+     Outcome 2: He forgets the words and invents increasingly ridiculous ones.
+  C. Ask another caregiver for relief
+     Outcome 1: He gets enough rest to try again with patience.
+     Outcome 2: The other caregiver is exhausted too, so they split the night.
+  D. Check with the healer if something seems wrong
+     Outcome 1: The healer identifies a manageable cause for the distress.
+     Outcome 2: No clear cause appears, and they continue monitoring the child.
+
+========================================================================
+EVENT 14: The Wrong End of the Cloth
+THEME: Father / humor
+CAST / CONDITIONS: Adult father with infant
+
+A father volunteers to change a baby’s cloth for the first time. The child kicks with astonishing determination, and the clean cloth ends up somewhere entirely unexpected.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Try again carefully
+     Outcome 1: He finishes the change and proudly announces his victory.
+     Outcome 2: The baby immediately soils the fresh cloth.
+  B. Ask an experienced parent to demonstrate
+     Outcome 1: He learns a useful trick and tries it successfully.
+     Outcome 2: The parent laughs at the situation, then helps without belittling him.
+  C. Distract the baby with a toy
+     Outcome 1: The baby holds still just long enough for him to finish.
+     Outcome 2: The toy lands in the wash basin, followed by a delighted squeal.
+  D. Accept the mess and keep going
+     Outcome 1: He cleans everything up and becomes more confident.
+     Outcome 2: He needs three cloths and a bath before the task is done.
+
+========================================================================
+EVENT 15: A Father’s Turn
+THEME: Father / equal caregiving
+CAST / CONDITIONS: Adult father; co-parent recovering or resting
+
+After a baby’s arrival, one parent is worn out and needs uninterrupted sleep. The father takes charge of the household and discovers that a newborn’s schedule is no schedule at all.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Handle the next round of care
+     Outcome 1: His partner wakes rested and grateful.
+     Outcome 2: The baby wakes repeatedly, and he asks for help with one task.
+  B. Prepare food ahead of time
+     Outcome 1: He keeps the household fed through a hectic day.
+     Outcome 2: He burns the first pot while soothing the baby.
+  C. Ask friends to share chores
+     Outcome 1: The family receives help without losing privacy.
+     Outcome 2: A visitor overstays, and he gently sends them home.
+  D. Make a simple care plan
+     Outcome 1: The plan reduces confusion and gives everyone a break.
+     Outcome 2: The baby ignores the plan entirely, so they improvise.
+
+========================================================================
+EVENT 16: The Small Fever
+THEME: Father / infant illness
+CAST / CONDITIONS: Adult father with infant; illness outcomes nonfatal
+
+A father notices that his baby is unusually warm and refuses a usual feed. He feels frightened but knows that acting promptly matters more than pretending to be calm.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Bring the baby to the healer
+     Outcome 1: The healer examines the child and begins appropriate care.
+     Outcome 2: The baby needs close observation, and the father stays nearby.
+  B. Ask another caregiver to help
+     Outcome 1: They divide tasks and keep track of the baby’s condition.
+     Outcome 2: They disagree about what to do, then seek the healer’s advice.
+  C. Prepare a quiet resting place
+     Outcome 1: The baby rests more comfortably while care continues.
+     Outcome 2: The child remains unsettled, and he seeks further help.
+  D. Stay awake to monitor the child
+     Outcome 1: He notices a change and alerts the healer promptly.
+     Outcome 2: Exhaustion catches up with him, and another adult takes a shift.
+
+========================================================================
+EVENT 17: The Child Who Would Not Be Held
+THEME: Father / bonding
+CAST / CONDITIONS: Adult father with infant
+
+Whenever a father picks up his baby, the child fusses and reaches for another caregiver. He knows infants have preferences, but the rejection still stings.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Spend time nearby without forcing contact
+     Outcome 1: The baby gradually becomes comfortable with his voice.
+     Outcome 2: Progress is slow, and he practices patience.
+  B. Take over a familiar routine
+     Outcome 1: The child starts associating him with a soothing ritual.
+     Outcome 2: The routine goes badly at first, and he tries again tomorrow.
+  C. Ask the other caregiver for ideas
+     Outcome 1: They discover a way to share care more smoothly.
+     Outcome 2: Their suggestions conflict, and he experiments gently.
+  D. Talk about his feelings
+     Outcome 1: He learns that bonding can take time and need not look identical.
+     Outcome 2: He admits how hurt he feels and finds relief in being heard.
+
+========================================================================
+EVENT 18: The Father’s Mistake
+THEME: Father / consequences
+CAST / CONDITIONS: Adult father with young child
+
+Distracted by an argument, a father forgets a promised outing. His child waits by the path until sunset, clutching a small basket.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Apologize without excuses
+     Outcome 1: The child is upset but appreciates his honesty.
+     Outcome 2: The child refuses to talk yet, and he respects that.
+  B. Plan another outing together
+     Outcome 1: They choose a new day and prepare carefully.
+     Outcome 2: The child doubts he will remember, so he works to rebuild trust.
+  C. Ask what the child needs
+     Outcome 1: The child asks for time together rather than gifts.
+     Outcome 2: The child says they want to be left alone for now.
+  D. Reflect on his habits
+     Outcome 1: He changes how he manages promises and responsibilities.
+     Outcome 2: He recognizes a recurring problem that will take effort to fix.
+
+========================================================================
+EVENT 19: The Empty Cradle
+THEME: Father / pregnancy loss
+CAST / CONDITIONS: Adult man expecting a child with partner or carrying pregnancy himself; pregnancy loss already established
+
+A family has lost a pregnancy they had hoped would bring a child into their home. A father stands beside the cradle he carved, unsure whether to put it away.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Keep the cradle for now
+     Outcome 1: He finds comfort in leaving it where it is.
+     Outcome 2: Seeing it hurts, and he later asks someone to move it.
+  B. Speak with someone who has grieved
+     Outcome 1: He feels less alone without being told to move on.
+     Outcome 2: Their experiences differ, but the conversation still matters.
+  C. Make a small remembrance
+     Outcome 1: He carves a symbol and places it in a quiet spot.
+     Outcome 2: He begins the carving but cannot finish it yet.
+  D. Spend time with his partner or loved ones
+     Outcome 1: They share memories and sit together without forcing words.
+     Outcome 2: They grieve differently and agree to give each other space.
+
+========================================================================
+EVENT 20: The Baby at the Festival
+THEME: Father / everyday joy
+CAST / CONDITIONS: Adult father with infant
+
+At a village festival, a father carries his baby through the crowd. The child seems fascinated by the music, the woven banners, and a particularly shiny spoon.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Dance with the baby
+     Outcome 1: The child squeals and the father laughs aloud.
+     Outcome 2: The baby falls asleep before the music grows lively.
+  B. Introduce the child to friends
+     Outcome 1: Several villagers offer delighted greetings.
+     Outcome 2: The baby hides against his shoulder and refuses to perform.
+  C. Find a quieter place
+     Outcome 1: They watch the lanterns together from the edge of the crowd.
+     Outcome 2: He misses part of the celebration but enjoys the calm.
+  D. Let the baby examine a safe toy
+     Outcome 1: The child becomes absorbed in its bright ribbons.
+     Outcome 2: The toy is immediately discarded in favor of the spoon.
+
+========================================================================
+END OF ORIGINAL 20 EVENTS — ADDITIONAL EVENTS FOLLOW
+========================================================================
+EVENT 21: Lessons Beneath the Breadfruit Tree
+THEME: Man / teaching / patience
+CAST / CONDITIONS: Adult male teacher; one or more school-age children
+
+A village teacher has spent the morning explaining how to count the seasons by the stars. One child understands immediately, another keeps asking questions, and a third has quietly stopped trying. He remembers how hard learning once felt to him.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Explain the lesson another way
+     Outcome 1: He uses pebbles and drawings, and the struggling child finally sees the pattern.
+     Outcome 2: His new explanation confuses everyone, and he admits that he needs to try again tomorrow.
+  B. Invite the children to teach one another
+     Outcome 1: A shy student discovers that they can explain the idea beautifully.
+     Outcome 2: The confident students talk too much, and he must make room for quieter voices.
+  C. Take the class outside to observe the sky
+     Outcome 1: The children notice details no one had mentioned in the lesson.
+     Outcome 2: Clouds cover the stars; they learn how to work with imperfect observations.
+  D. Ask what makes the lesson difficult
+     Outcome 1: A child admits they fear looking foolish, and he reassures them that questions belong in learning.
+     Outcome 2: The children offer several different complaints, forcing him to reconsider his teaching.
+
+========================================================================
+EVENT 22: An Extra Pair of Hands
+THEME: Man / orphanage or communal daycare / caregiving
+CAST / CONDITIONS: Adult male volunteer; village childcare space; children
+
+The communal children's house is short of helpers. A man volunteers for the afternoon, expecting to carry water and tidy mats. Instead, he finds himself surrounded by children who all seem to need something at once.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Help with the youngest children
+     Outcome 1: He patiently settles a fussy toddler and earns a sleepy smile.
+     Outcome 2: The toddler refuses to be comforted by him; an experienced caregiver shows him another approach.
+  B. Organize a game
+     Outcome 1: The children invent their own rules, and the afternoon passes joyfully.
+     Outcome 2: An argument breaks out, and he helps the children negotiate without deciding everything for them.
+  C. Repair the worn toys
+     Outcome 1: He mends several wooden figures, delighting their owners.
+     Outcome 2: One child prefers the old, crooked toy and asks him not to change it.
+  D. Return regularly
+     Outcome 1: The children begin greeting him by name, and he becomes a dependable presence.
+     Outcome 2: He discovers the work is tiring and arranges a sustainable schedule rather than making promises he cannot keep.
+
+========================================================================
+EVENT 23: The Father's Quiet Devotion
+THEME: Loving father / ordinary affection
+CAST / CONDITIONS: Adult father; child of any age
+
+A father notices that his child has been unusually quiet since making a mistake during a village task. He knows the child expects a scolding. Instead, he sits nearby and waits until they are ready to talk.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Ask what happened
+     Outcome 1: The child explains their mistake, and they work out how to repair it together.
+     Outcome 2: The child is not ready to speak, so he offers company without pressing.
+  B. Share a story about his own mistakes
+     Outcome 1: His child laughs at the memory and feels less alone.
+     Outcome 2: The child insists that his mistake was worse, and he listens rather than arguing.
+  C. Offer a reassuring embrace
+     Outcome 1: The child leans into him and begins to cry with relief.
+     Outcome 2: The child declines the hug; he respects that and stays close.
+  D. Help the child try again
+     Outcome 1: They practice patiently, and the child gains confidence.
+     Outcome 2: The second attempt also fails, but the father praises their persistence without pretending it succeeded.
+
+========================================================================
+EVENT 24: The Boundary That Holds
+THEME: Tough-love parenting / father or mother / fair discipline
+CAST / CONDITIONS: Adult parent of any gender; school-age child
+
+A child has repeatedly taken another child's belongings without asking. Their parent loves them dearly but knows the behavior must stop. The child protests that everyone is being unfair.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Explain the boundary firmly
+     Outcome 1: The child reluctantly returns the belongings and begins to understand why permission matters.
+     Outcome 2: The child remains angry; the parent keeps the boundary without shouting or humiliation.
+  B. Ask the child to help make amends
+     Outcome 1: The child apologizes sincerely and offers to repair a damaged toy.
+     Outcome 2: The apology is rushed and insincere; the parent explains that rebuilding trust takes action.
+  C. Listen to the child's explanation
+     Outcome 1: The parent learns that the child felt excluded and helps address that feeling without excusing the theft.
+     Outcome 2: The child offers several excuses; the parent acknowledges their feelings but maintains the consequence.
+  D. Set a reasonable, related consequence
+     Outcome 1: The child helps sort and return shared toys before borrowing them again.
+     Outcome 2: The child resents the consequence at first, and the parent patiently follows through.
+
+========================================================================
+EVENT 25: One More Difficult Day
+THEME: Parenthood is hard / any-gender parent / resilience
+CAST / CONDITIONS: Adult parent of any gender; young child
+
+The morning begins with spilled porridge, a missing sandal, and a child who refuses to leave the house. By midday, the parent is tired and irritable. They love their child, but love has not made the day easy.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Take a brief pause while the child is safely supervised
+     Outcome 1: A few quiet breaths help the parent return with patience.
+     Outcome 2: The interruption is too short to restore their energy, so they ask another caregiver for help.
+  B. Turn the chores into a game
+     Outcome 1: The child eagerly joins in, and the work finally gets done.
+     Outcome 2: The game creates an even bigger mess, and they both burst into laughter.
+  C. Ask a friend to share the work
+     Outcome 1: The friend watches the child while the parent finishes urgent tasks.
+     Outcome 2: The friend is busy, but helps arrange support later in the week.
+  D. Admit that today has been difficult
+     Outcome 1: The child says they had a hard day too, and they sit together for a while.
+     Outcome 2: The parent apologizes for snapping earlier, then calmly explains what still needs to happen.
+
+========================================================================
+EVENT 26: The First Word
+THEME: Baby milestones / any-gender parent
+CAST / CONDITIONS: Parent or primary caregiver of any gender; baby beginning to speak
+
+For weeks, a baby has been babbling at everyone who approaches. During an ordinary afternoon, the child suddenly says something that sounds unmistakably like a word. The nearby adults freeze and look at one another.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Encourage the baby to say it again
+     Outcome 1: The baby repeats the word, and the caregiver laughs with delight.
+     Outcome 2: The baby produces an entirely different noise and reaches for a spoon.
+  B. Tell the other parent or caregiver
+     Outcome 1: They celebrate together and spend the evening listening for another word.
+     Outcome 2: The other caregiver misses the next attempt and jokingly accuses the baby of keeping secrets.
+  C. Write the moment in the family record
+     Outcome 1: The caregiver preserves a small memory they hope to share with the child someday.
+     Outcome 2: They cannot agree on exactly what the baby said, and record both possibilities.
+  D. Simply enjoy the moment
+     Outcome 1: The child babbles happily in their arms while the village carries on around them.
+     Outcome 2: The caregiver wonders whether it was truly a word, but decides the uncertainty changes nothing about their joy.
+
+========================================================================
+EVENT 27: After the Birth
+THEME: Caring for a recovering partner / any-gender couple
+CAST / CONDITIONS: Adult parent recovering after childbirth; supportive adult partner of any gender
+
+A new parent is recovering from childbirth and finds even familiar tasks exhausting. Their partner wants to help, but discovers that good intentions do not automatically reveal what the recovering parent needs.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Ask what would help most
+     Outcome 1: The recovering parent asks for food, clean bedding, and uninterrupted rest, and their partner provides it.
+     Outcome 2: The recovering parent cannot decide, so they agree to start with a simple meal and check again later.
+  B. Take over routine baby care for a while
+     Outcome 1: The recovering parent sleeps while their partner changes, carries, and soothes the newborn.
+     Outcome 2: The baby remains unsettled, and the partner asks an experienced caregiver for assistance.
+  C. Arrange practical help from the village
+     Outcome 1: Friends bring meals and water, allowing the household to recover in peace.
+     Outcome 2: Too many visitors arrive at once, and the partner kindly asks them to return another day.
+  D. Sit beside the recovering parent and listen
+     Outcome 1: They speak openly about the birth, their fears, and the strange joy of meeting their child.
+     Outcome 2: The recovering parent admits feeling overwhelmed; their partner listens and helps them seek further support.
+
+========================================================================
+EVENT 28: What Makes a Man?
+THEME: Masculinity / respect / emotions / family without obligation
+CAST / CONDITIONS: Adult male villager; younger villager or peer
+
+A younger villager asks a man what makes someone a good man. He has heard that men must never cry, must always be strong, and must someday become fathers. The man considers the people he admires and the mistakes he has made.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Speak about treating people with respect
+     Outcome 1: He explains that strength means little if it is used to belittle others.
+     Outcome 2: The younger villager asks whether respect includes people one disagrees with, and they discuss how to disagree without cruelty.
+  B. Speak about feelings
+     Outcome 1: He admits that he has cried, feared failure, and asked for help; the younger villager seems relieved.
+     Outcome 2: He struggles to find the words, realizing that he is still learning to express his emotions himself.
+  C. Speak about responsibility to loved ones
+     Outcome 1: He says that if someone chooses to build a family, showing up and sharing the work matter more than appearing powerful.
+     Outcome 2: The younger villager asks about men without families, and he replies that no one must marry or have children to be a good man.
+  D. Ask the younger villager what they think
+     Outcome 1: Their answer surprises him, and he learns something from the conversation too.
+     Outcome 2: They disagree on several ideas, but both leave with more to consider.
+
+========================================================================
+EVENT 29: What Makes Us Human?
+THEME: Humanity / compassion / imperfection / discovery
+CAST / CONDITIONS: Two villagers of any gender and adult age
+
+After a long day of work, two villagers sit beside the shore watching the fireflies. One asks what makes people human: their ability to reason, their love for one another, their mistakes, or something else entirely.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Speak about curiosity
+     Outcome 1: They recall discoveries made because someone dared to ask an ordinary question.
+     Outcome 2: They admit that learning often reveals how much remains unknown.
+  B. Speak about kindness
+     Outcome 1: One remembers a small act of care that changed a difficult day.
+     Outcome 2: They discuss how kindness can require courage, boundaries, and difficult choices.
+  C. Speak about imperfection
+     Outcome 1: They laugh at their own mistakes and agree that learning matters more than never failing.
+     Outcome 2: One remembers a regret that still hurts; the other listens without insisting it be resolved.
+  D. Speak about the lives they share
+     Outcome 1: They watch the lights of the village and feel grateful for the people who make it home.
+     Outcome 2: They disagree about what matters most and decide that the question deserves more than one answer.
+
+========================================================================
+EVENT 30: The Children Remember
+THEME: Male teacher / communal caregiver / lasting influence
+CAST / CONDITIONS: Adult male teacher or childcare volunteer; former student or child now older
+
+A villager who once helped teach and care for the village children is approached by a young adult. They remember a small kindness from years ago that he has nearly forgotten. He had never realized how much an ordinary afternoon could matter.
+
+CHOICES AND POSSIBLE OUTCOMES:
+  A. Ask what they remember
+     Outcome 1: The former child recalls how he stayed after a lesson to help them understand something difficult.
+     Outcome 2: They remember him fixing a broken toy rather than scolding them for damaging it.
+  B. Tell them he remembers their effort
+     Outcome 1: They are moved that he noticed how hard they tried.
+     Outcome 2: He confuses two childhood stories, and they correct him with affectionate laughter.
+  C. Ask about their life now
+     Outcome 1: They tell him about the work they love, and he listens with pride.
+     Outcome 2: They admit that life has been difficult, and he offers friendship without trying to solve everything.
+  D. Reflect on the years he spent helping children
+     Outcome 1: He realizes that caring for a community can leave a legacy without becoming a parent himself.
+     Outcome 2: He remembers moments when he was impatient or unsure, and hopes he has grown wiser since then.
+
+========================================================================
+END OF COLLECTION
+30 events; 120 choices; 240 alternative outcomes.

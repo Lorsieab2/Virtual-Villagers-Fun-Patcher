@@ -1,0 +1,164 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The River of Offerings",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway23_river",
+  "source": "living",
+  "lines": [
+   23056,
+   23070
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23056",
+  "ledger": [
+   {
+    "src": "L23070",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An old custom sends flowers and carved objects into the river, where debris is accumulating.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An old custom sends flowers and carved objects into the river, where debris is accumulating.",
+   "src": "L23057",
+   "choices": [
+    {
+     "label": "Continue the custom unchanged.",
+     "next": "a",
+     "src": "L23058"
+    },
+    {
+     "label": "Use fallen leaves that decay naturally.",
+     "next": "b",
+     "src": "L23061"
+    },
+    {
+     "label": "Keep offerings on a dry altar.",
+     "next": "c",
+     "src": "L23064"
+    },
+    {
+     "label": "Stop the practice and explain why.",
+     "next": "d",
+     "src": "L23067"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The ceremony unites villagers, but debris gathers downstream.",
+   "src": "L23059"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A flood carries the offerings away, raising new concerns.",
+   "src": "L23060"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The river stays clearer, and the ritual continues.",
+   "src": "L23062"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder worries that the change loses meaning.",
+   "src": "L23063"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The river is protected, and the shrine gains a new tradition.",
+   "src": "L23065"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some worshippers miss the river ceremony.",
+   "src": "L23066"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The water clears, though arguments persist.",
+   "src": "L23068"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Families invent private ways to remember loved ones.",
+   "src": "L23069"
+  }
+ }
+}

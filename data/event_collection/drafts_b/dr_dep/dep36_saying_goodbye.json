@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Saying Goodbye to the Garden",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep36_saying_goodbye",
+  "source": "draft_dep",
+  "lines": [
+   428,
+   437
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder)"
+   }
+  ],
+  "description": "An elder moving nearer the water must hand the old garden plot to another villager: introduce every plant, or just hand it over.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is moving to a hut nearer the water, where the path is flatter and the walk to the fire is shorter. It's a good decision. (subject.He/she) made it (subject.him/her)self. But it means giving (subject.his/her) old garden plot to (friend), and this morning (subject) is walking slowly along the rows, touching each plant as (subject.he/she) goes.",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "Introduce (friend) to Every Plant",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "Just Hand It Over",
+     "next": "o2",
+     "src": "L436"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) walks (friend) up and down the rows, explaining. This one likes to be talked to. This one is a liar and will look dead in the dry season, but isn't. This one was planted the year (subject) had (subject.his/her) first grey hair. (friend) listens to all of it. It takes the whole morning, and neither of them minds.",
+   "src": "L434"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"It's yours,\" says (subject), and hands over the digging stick. \"Look after it.\" (friend) promises (friend.he/she) will. (subject) walks away without looking back, which takes some effort. A few days later (friend) brings (subject.him/her) the first ripe melon from the plot. (subject) eats it slowly, and says it's very nearly as good as the ones (subject.he/she) used to grow.",
+   "src": "L437"
+  }
+ }
+}

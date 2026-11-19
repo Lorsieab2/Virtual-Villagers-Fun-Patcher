@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Seahorse Doing in the Net?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd47_what_seahorse",
+  "source": "da_wd",
+  "lines": [
+   548,
+   557
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L548",
+  "ledger": [
+   {
+    "src": "L549",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager pulls in the fishing net and finds a tiny seahorse curled around a strand.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) pulls in the fishing net and, among the usual fish, finds a tiny seahorse, curled up in the corner of the net with its tail wrapped around a strand. It looks like a carving come to life. It looks up at (subject) with its funny little face and does not let go of the net.",
+   "src": "L551",
+   "choices": [
+    {
+     "label": "Unwrap It Gently",
+     "next": "a",
+     "src": "L553"
+    },
+    {
+     "label": "Show (friend) First",
+     "next": "b",
+     "src": "L556"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "It takes (subject) a long time to persuade the seahorse to let go: its tail is surprisingly strong. At last it uncurls, and (subject) lowers it into the water, where it drifts away upright, as if standing, bobbing gently. (subject) looks at the rest of the catch and feels rather ordinary by comparison.",
+   "src": "L554"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) holds the net still in the shallows and calls (friend) over. They both crouch, staring. \"It swims standing up,\" whispers (friend). \"Like it's going somewhere important.\" \"Where?\" \"I don't know. Somewhere very small.\" They argue happily about where a seahorse might be going in such a hurry, while the seahorse uncurls itself and drifts off, upright and unbothered, to wherever it was.",
+   "src": "L557"
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Mend It, Not Say It",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus11_mend_say",
+  "source": "draft_jus",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager knocked down a neighbor's fence and will mend it but not apologize in public: rule mending is enough, or talk first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) knocked down a stretch of (friend)'s fence while dragging a log past it. (friend) has brought it to the council and wants (subject) to apologize in front of everyone. (subject) says (subject.he/she) will gladly mend the fence, but won't make a speech about it.",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Rule That Mending Is Enough",
+     "next": "o1",
+     "src": "L133"
+    },
+    {
+     "label": "Ask Them to Talk First",
+     "next": "o2",
+     "src": "L136"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The council says the fence should be mended, and that it won't order anyone to apologize; an apology is (subject)'s to give or not. (subject) mends the fence that afternoon, better than before. (friend) is still a bit put out. A few days later, passing by, (subject) says quietly, \"Sorry about the fence.\" (friend) nods. It turns out that was all (friend.he/she) wanted.",
+   "src": "L134"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The council suggests the two of them talk before anything else. They do, sitting side by side on the broken fence. It turns out (friend) isn't really upset about the fence. (friend.He/she) is upset that (subject) walked off without saying anything. (subject) hadn't realized. They mend the fence together. Nobody makes a speech.",
+   "src": "L137"
+  }
+ }
+}

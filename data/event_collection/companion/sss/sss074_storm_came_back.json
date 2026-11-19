@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Storm That Came Back",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss074_storm_came_back",
+  "source": "companion",
+  "lines": [
+   6835,
+   6843
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6835",
+  "ledger": [
+   {
+    "src": "L6843",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "After surviving a frightening storm, a fisher startles at harmless thunder and avoids the shore.",
+  "cast_only": [
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "After surviving a frightening storm, a fisher startles at harmless thunder and avoids the shore.",
+   "src": "L6836",
+   "choices": [
+    {
+     "label": "Let them choose smaller steps",
+     "next": "a",
+     "src": "L6837"
+    },
+    {
+     "label": "Offer different work temporarily",
+     "next": "b",
+     "src": "L6839"
+    },
+    {
+     "label": "Insist on immediate return",
+     "next": "c",
+     "src": "L6841"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They begin with a calm morning beside a trusted companion.",
+   "src": "L6838"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They mend nets inland and remain useful while recovering.",
+   "src": "L6840"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They become overwhelmed and leave; the village reconsiders its approach.",
+   "src": "L6842"
+  }
+ }
+}

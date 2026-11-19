@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Starfish Doing on the Doorpost?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd06_what_starfish",
+  "source": "da_wd",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L77",
+    "kind": "casting",
+    "before": "A child admits",
+    "after": "(child), a child, admits",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A villager finds a bright orange starfish clinging to the doorpost, a long way from the sea.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) steps out of (subject.his/her) hut in the morning and finds a starfish stuck to the doorpost, about head high. It's alive. It's bright orange. It's a long way from the sea. It is clinging to the wood with all five arms, as if it fully intends to stay.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Return It to the Sea",
+     "next": "a",
+     "src": "L73"
+    },
+    {
+     "label": "Ask the Neighbors",
+     "next": "b",
+     "src": "L76"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) peels it off very gently, which takes a long time, because it really doesn't want to come off, and carries it to the tide pools. (subject.He/She) lowers it in. It settles onto a rock, apparently happy. When (subject) gets home, (subject.he/she) looks at the doorpost for a while, half expecting it to be back.",
+   "src": "L74"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) knocks on doors. Has anybody seen a starfish climbing up a doorpost? Nobody has. (friend) suggests a seabird dropped it. (child), a child, admits to having carried \"a starfish\" up from the beach yesterday, but swears (child.he/she) put it down \"somewhere safe.\" (subject) looks at the doorpost. It is, in fairness, quite a safe spot. (subject.He/She) takes the starfish home to the sea anyway.",
+   "src": "L77"
+  }
+ }
+}

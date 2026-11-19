@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Garden of the Departed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir19_departed",
+  "source": "living",
+  "lines": [
+   21478,
+   21489
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21478",
+  "ledger": [
+   {
+    "src": "L21489",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Families propose using a burial grove to grow fruit trees.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Families propose using a burial grove to grow fruit trees.",
+   "src": "L21479",
+   "choices": [
+    {
+     "label": "Plant fruit trees in remembrance.",
+     "next": "a",
+     "src": "L21480"
+    },
+    {
+     "label": "Keep the grove undisturbed.",
+     "next": "b",
+     "src": "L21483"
+    },
+    {
+     "label": "Let each family choose its memorial.",
+     "next": "c",
+     "src": "L21486"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The grove feeds future generations, though some families dislike harvesting there.",
+   "src": "L21481",
+   "text_only": [
+    {
+     "what": "dislike harvesting there",
+     "reason": "some families, not a cast one: no preference changes",
+     "src": "L21481"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The first harvest becomes a quiet occasion for remembrance.",
+   "src": "L21482"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The place remains peaceful and shaded.",
+   "src": "L21484"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Young villagers ask why useful fruit cannot be grown there.",
+   "src": "L21485"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The grove becomes a patchwork of trees, stones, and flowers.",
+   "src": "L21487"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The different customs prompt respectful debate.",
+   "src": "L21488"
+  }
+ }
+}

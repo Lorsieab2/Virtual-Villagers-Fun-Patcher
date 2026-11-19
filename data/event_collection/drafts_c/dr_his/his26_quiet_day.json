@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his26_quiet_day",
+  "source": "draft_his",
+  "lines": [
+   308,
+   317
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L308",
+  "ledger": [
+   {
+    "src": "L309",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 5-12)"
+   }
+  ],
+  "description": "On the yearly quiet day, a small child whispers how much longer: explain it simply, or go for a quiet walk.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Once a year, there's a quiet day. No drums, no games, no shouting. Long ago, so the story goes, a sickness swept through the island, and many people died, and those who lived made a promise to remember them with a day of quiet. (friend) has been asked to play silently, and has been sitting very still for about as long as a small child possibly can. (friend.He/she) whispers to (subject): \"How much longer?\"",
+   "src": "L311",
+   "choices": [
+    {
+     "label": "Explain It Simply",
+     "next": "o1",
+     "src": "L313"
+    },
+    {
+     "label": "Go for a Quiet Walk",
+     "next": "o2",
+     "src": "L316"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) whispers back: \"Today we're remembering people who got sick a long time ago. Being quiet is how we do it.\" (friend) thinks. \"Can I remember them while I play with the crab?\" (subject) thinks too. \"Quietly?\" (friend) nods. \"Then yes.\" (friend) plays with the crab very, very quietly, which is probably what the old people would have wanted.",
+   "src": "L314"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) takes (friend) for a quiet walk along the beach, where (friend.he/she) can move without disturbing anyone. They don't talk. They pick up shells. They watch the waves. When they come back, (friend) asks, in a whisper, why the sick people died. (subject) says nobody knew how to help them, back then. (friend) holds (subject.his/her) hand the rest of the way.",
+   "src": "L317"
+  }
+ }
+}

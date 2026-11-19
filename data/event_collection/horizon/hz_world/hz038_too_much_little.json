@@ -1,0 +1,152 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The World of Too Much and Too Little",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz038_too_much_little",
+  "source": "horizon",
+  "lines": [
+   489,
+   500
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part5",
+  "title_src": "L489",
+  "ledger": [
+   {
+    "src": "L500",
+    "kind": "note",
+    "why": "Content note: the owner's per-event content note (the coming per-event content-notes feature shows it; listed in the build report's content-note table), never part of a page"
+   }
+  ],
+  "description": "A child asks whether distant people have enough food, shelter, medicine, and clothing for everyone.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child asks whether distant people have enough food, shelter, medicine, and clothing for everyone.",
+   "src": "L490",
+   "choices": [
+    {
+     "label": "Imagine Abundance.",
+     "next": "a",
+     "src": "L491"
+    },
+    {
+     "label": "Imagine Scarcity.",
+     "next": "b",
+     "src": "L494"
+    },
+    {
+     "label": "Imagine Cooperation.",
+     "next": "c",
+     "src": "L497"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L490"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The group dreams of full storehouses and treatments for many illnesses.",
+   "src": "L492"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A trader asks why abundance would necessarily be shared fairly.",
+   "src": "L493"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The village reflects on drought, illness, and the vulnerability of supply routes.",
+   "src": "L495"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A child asks why anyone would go hungry if nearby people had more than they needed; the adults offer no easy answer.",
+   "src": "L496"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The council discusses food reserves and mutual aid in its own village.",
+   "src": "L498",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L498"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A farmer warns that generosity without planning can exhaust a community's stores; the group works on a sustainable plan.",
+   "src": "L499"
+  }
+ }
+}

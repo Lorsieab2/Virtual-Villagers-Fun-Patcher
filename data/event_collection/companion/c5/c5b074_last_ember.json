@@ -1,0 +1,92 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Ember",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b074_last_ember",
+  "source": "companion",
+  "lines": [
+   1782,
+   1787
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1782",
+  "ledger": [
+   {
+    "src": "L1784",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L1787",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "The last two villagers at a gathering watch the fire burn low.",
+  "cast_only": [
+   "villager1",
+   "villager2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "villager2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "The final two villagers at a gathering watch the fire die down.",
+   "src": "L1783",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "die",
+     "reason": "the fire dies down; nobody dies",
+     "src": "L1783"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They exchange one last story.",
+   "src": "L1785"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They sit together in comfortable silence.",
+   "src": "L1786"
+  }
+ }
+}

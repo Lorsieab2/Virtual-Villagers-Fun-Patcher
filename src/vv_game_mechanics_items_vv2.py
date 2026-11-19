@@ -411,6 +411,10 @@ ITEMS = (
         ("With the patcher (Picked Up Collectibles Stay Collected When Dropped, off by default): a mushroom counts "
          "the moment the child picks it up -- its food and Mushrooms Found, once -- even if the child is moved or "
          "stops before the food bin (in the normal game it counts only at the end of the trip).", C),
+        # The adult dispatcher's case 0x42FCAB (call 0x42FCAE, data/builds.json vv2_adult_confused).
+        ("With the patcher (Adults Dropped on Mushrooms or Collectibles Are Confused, on by default): a villager of "
+         "14 or more dropped on a mushroom is Confused and the message bar says \"Only children can see and pick up "
+         "mushrooms.\" (in the normal game: \"Only children can see collectibles.\").", C),
     )),
     Entry(ITEM, "Collectibles", (
         ("Four collections of 12 pieces (4 common, 4 uncommon, 4 rare): butterflies and shells always, pebbles once "
@@ -422,6 +426,10 @@ ITEMS = (
         ("With the patcher (Picked Up Collectibles Stay Collected When Dropped, off by default): a piece counts the "
          "moment the child picks it up, with its messages, once, even if the child is moved or stops on the way.",
          C),
+        # The adult dispatcher's case 0x42FCAB (call 0x42FCAE, data/builds.json vv2_adult_confused).
+        ("With the patcher (Adults Dropped on Mushrooms or Collectibles Are Confused, on by default): a villager of "
+         "14 or more dropped on a collectible is Confused and the message bar says \"Only children can see and pick "
+         "up collectibles.\" (the normal game's own message is \"Only children can see collectibles.\").", C),
     )),
     # Each collection, its own entry as on The Tree of Life's and New Believers' tabs (the owner, 2026-10-27).  The pieces:
     # one found byte each at state 0x2E720 + piece, 12 a collection in the order 0, 12, 24, 36 (0x426120); the
@@ -456,6 +464,12 @@ ITEMS = (
         ("What each stew does, by the game's stew number (one line each below):", C),
         *((f"Stew {effect}", C) for effect in STEW_EFFECTS),
         ("Which ingredients make which stew number was not traced.", U),
+        # data/builds.json vv2_empty_stew_pot ("VVFP VV2 Empty Stew.dll"): the drop 0x430AF9, the pot's own empty
+        # 0x425B20 at the end of the walk; the stew's 10 food left at callback 46 (0x46236C).
+        ("With the patcher (Empty the Stew Pot from the Science Hut Door, on by default): a villager of 14 or more "
+         "dropped on the science hut's doorway while a ready stew is in the pot walks to the pot and empties it "
+         "(\"Emptying the pot\"); a villager who dislikes cooking runs away instead, and a stew still being made "
+         "is left alone. No food is lost or given back: the stew's 10 food was used when the food went in.", C),
     )),
     Entry(ITEM, "A snack (the food store)", (
         ("A villager below 100 health with food in store snacks: 1 food, +1 health 50% of the time (Chances: A "

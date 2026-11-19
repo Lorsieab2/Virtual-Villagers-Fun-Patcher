@@ -86,6 +86,9 @@ BY_LOG_EXPORTERS = {"VvfpMaskOf"}
 # Resolved by "VVFP Save Reset.dll" at Start Over or a deleted tribe (native/save_reset_export), so a
 # purchase not yet delivered goes with the erased village.
 BY_SAVE_RESET = {"VvfpOriginsVillageReset"}
+# Resolved by every companion that changes a villager's sex (native/shared/sex_change.h vv_sex_change_apply), so
+# the masks follow the villager.
+BY_SEX_CHANGE = {"VvfpVillagerSexChanged"}
 
 
 def _exports(path: Path) -> dict[str, int]:
@@ -104,7 +107,7 @@ class OriginsCompanionExportTests(unittest.TestCase):
                 self.assertEqual(
                     set(exports),
                     case["by_name"] | set(case["by_ordinal"].values()) | BY_STARTUP_LOADER | BY_LOG_EXPORTERS
-                    | BY_SAVE_RESET,
+                    | BY_SAVE_RESET | BY_SEX_CHANGE,
                 )
                 for ordinal, name in case["by_ordinal"].items():
                     self.assertEqual(exports[name], ordinal, name)

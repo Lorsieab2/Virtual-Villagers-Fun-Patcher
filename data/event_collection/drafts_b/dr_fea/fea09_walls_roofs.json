@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Walls, Not Roofs",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea09_walls_roofs",
+  "source": "draft_fea",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A builder afraid of heights is called up onto a roof: ask to work on the ground, or climb a little way.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is a good builder. Excellent at walls. But today the crew is thatching a roof, and that means climbing up the frame, high above the ground. (subject)'s legs have gone weak just looking at it. Everyone else is already scrambling up. (friend) calls down for (subject.him/her) to come and help.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Ask to Work on the Ground",
+     "next": "o1",
+     "src": "L109"
+    },
+    {
+     "label": "Climb a Little Way",
+     "next": "o2",
+     "src": "L112"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'll stay down and hand things up,\" calls (subject). \"Heights and I don't agree.\" (friend) waves. \"Fine by me!\" (subject) spends the day bundling and passing up thatch. By evening (subject.he/she) has passed up more bundles than anyone has ever passed. The roof gets done. Everybody thanks the person on the ground.",
+   "src": "L110"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) climbs up two rungs. Then three. Then (subject.he/she) stops, gripping the frame, and does not go further. \"This is as far as I go,\" (subject.he/she) says. (friend) climbs down to (subject.him/her) and they work from there, at the lower edge, all afternoon. It isn't the top. It's further than (subject) has ever been.",
+   "src": "L113"
+  }
+ }
+}

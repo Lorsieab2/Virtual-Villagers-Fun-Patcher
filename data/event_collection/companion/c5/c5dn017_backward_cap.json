@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Backward Cap",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn017_backward_cap",
+  "source": "companion",
+  "lines": [
+   2814,
+   2823
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2817",
+  "ledger": [
+   {
+    "src": "L2814",
+    "kind": "structural",
+    "why": "the group heading 'MUSHROOMS  -  FLAVOR AND MECHANICAL EFFECTS'"
+   },
+   {
+    "src": "L2819",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L2823",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   },
+   {
+    "src": "L2820",
+    "kind": "note",
+    "text": "FLAVOR:",
+    "why": "a designer tag on the outcome, never shown"
+   },
+   {
+    "src": "L2821",
+    "kind": "note",
+    "text": "TEMPORARY:",
+    "why": "a designer tag on the outcome, never shown"
+   },
+   {
+    "src": "L2821",
+    "kind": "instruction",
+    "why": "the outcome is a mechanical instruction, never shown: the node carries its text_only reason"
+   }
+  ],
+  "description": "A forager discovers a pale mushroom with a spiral stem.",
+  "cast_only": [
+   "forager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "forager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A forager discovers a pale mushroom with a spiral stem.",
+   "src": "L2818",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The eater insists on walking backward for the afternoon.",
+   "src": "L2820"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Outcome 2",
+   "text_only": [
+    {
+     "what": "movement animation reverses",
+     "reason": "rule 9: no game reverses a villager's walk",
+     "src": "L2821"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The mushroom is catalogued as suspicious and left alone.",
+   "src": "L2822"
+  }
+ }
+}

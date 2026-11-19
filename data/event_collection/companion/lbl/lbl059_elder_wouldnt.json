@@ -1,0 +1,127 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Who Wouldn't Rest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl059_elder_wouldnt",
+  "source": "companion",
+  "lines": [
+   4567,
+   4577
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4567",
+  "ledger": [
+   {
+    "src": "L4568",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L4576",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L4577",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "An aging villager insists on carrying heavy supplies.",
+  "cast_only": [
+   "helper"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "helper": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "An aging villager insists on carrying heavy supplies.",
+   "src": "L4569",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L4570"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L4571"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L4572"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1",
+     "weight": 20
+    },
+    {
+     "next": "e2",
+     "weight": 20
+    },
+    {
+     "next": "e3",
+     "weight": 10,
+     "rarity": "occasional"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "They accept assistance.",
+   "src": "L4573"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "They find a less strenuous way to contribute.",
+   "src": "L4574"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "They strain themselves and require recovery.",
+   "src": "L4575",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "elder",
+     "min": -30,
+     "max": -10,
+     "src": "L4575"
+    }
+   ]
+  }
+ }
+}

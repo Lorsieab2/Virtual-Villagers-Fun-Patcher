@@ -1,0 +1,159 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Village Chooses a Healer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed31_choose_healer",
+  "source": "living",
+  "lines": [
+   20609,
+   20620
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20609",
+  "ledger": [
+   {
+    "src": "L20620",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A new healer proposes experimental operations, while an elder favors familiar treatments and cautious observation.",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A new healer proposes experimental operations, while an elder favors familiar treatments and cautious observation.",
+   "src": "L20610",
+   "choices": [
+    {
+     "label": "Allow innovation with patient consent and careful records.",
+     "next": "a",
+     "src": "L20611"
+    },
+    {
+     "label": "Restrict the most dangerous experiments.",
+     "next": "b",
+     "src": "L20614"
+    },
+    {
+     "label": "Create a council to review risky treatments.",
+     "next": "c",
+     "src": "L20617"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A new technique helps a patient, but its risks remain unknown.",
+   "src": "L20612"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A failed procedure leads to stricter safeguards rather than a ban on questions.",
+   "src": "L20613"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Patients receive more predictable care, though some new ideas are delayed.",
+   "src": "L20615"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The young healer begins safer studies of anatomy and hygiene.",
+   "src": "L20616",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20616"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The council includes healers, patients, and elders, and disagreements become more thoughtful.",
+   "src": "L20618"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The council struggles to agree but establishes a rule against treating patients without consent.",
+   "src": "L20619"
+  }
+ }
+}

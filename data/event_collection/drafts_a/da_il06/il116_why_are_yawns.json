@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Are Yawns Catching?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il116_why_are_yawns",
+  "source": "da_il06",
+  "lines": [
+   182,
+   191
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L182",
+  "ledger": [
+   {
+    "src": "L183",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A yawn goes all the way round the fire at dinner, and a villager wants to know why yawns are catching.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "At dinner, (subject) yawns. Across the fire, (friend) yawns. Then someone else does, and then a child, and then, (subject) is almost sure, a dog lying by the fire. (subject) sits up. \"Did you see that? It went all the way round.\"",
+   "src": "L185",
+   "choices": [
+    {
+     "label": "Try an Experiment",
+     "next": "a",
+     "src": "L187"
+    },
+    {
+     "label": "Wonder About It Quietly",
+     "next": "b",
+     "src": "L190"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) yawns a huge, deliberate yawn. (friend) yawns. (subject) does it again. Two more people yawn. Soon the entire fire is yawning, and nobody can stop, and (subject) is yawning so much (subject.he/she) can't explain the experiment. Everybody goes to bed very early. Nobody is sure if that was science or not.",
+   "src": "L188"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Why would a yawn jump from person to person? Is it because they're all tired? Is it because people like doing what their friends do? (subject) is still wondering when (subject.he/she) catches (subject.him/her)self yawning, just from thinking about yawns. (subject.He/She) gives up and goes to bed.",
+   "src": "L191"
+  }
+ }
+}

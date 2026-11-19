@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shadow Stick",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim165_shadow_stick",
+  "source": "draft_tim2",
+  "lines": [
+   282,
+   287
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L282",
+  "ledger": [
+   {
+    "src": "L283",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L284",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L285",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L286",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L287",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A villager checks the length of a stick's shadow to see how late it is.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(name1) checks the length of a stick's shadow to see how late it is. It is later than (name1) thought, and (name1) hurries off.",
+   "src": "L283,L284"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(name1) checks the length of a stick's shadow to see how late it is. It is earlier than (name1) thought, and (name1) sits back down to rest.",
+   "src": "L283,L285"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(name1) checks the length of a stick's shadow to see how late it is. A child asks how it works, and (name1) explains while drawing in the sand.",
+   "src": "L283,L286"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(name1) checks the length of a stick's shadow to see how late it is. A cloud covers the sun, and the shadow vanishes entirely.",
+   "src": "L283,L287",
+   "text_only": [
+    {
+     "what": "\"vanishes\"",
+     "reason": "the word's everyday sense (a thing or a sound gone); nobody leaves the village -- story only: the file marks no effect (no new mechanics)",
+     "src": "L283,L287"
+    }
+   ]
+  }
+ }
+}

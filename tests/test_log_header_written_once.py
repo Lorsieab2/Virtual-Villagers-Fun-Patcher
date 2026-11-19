@@ -67,18 +67,20 @@ class LogHeaderWrittenOnce(unittest.TestCase):
         position: the measurement has to appear between the previous open and
         this one.
         """
-        # Three writers open a log: append_record, which every record kind
+        # Four writers open a log: append_record, which every record kind
         # shares (a record may be held until the village's first save and
-        # written later, so the write lives in one place), EnsureParentageLog,
-        # and create_extra_log, which starts the Deaths and Unaccounted
-        # Villagers logs at the same save. Each still measures before it opens.
+        # written later, so the write lives in one place), append_event_entry,
+        # which writes a branching Custom Island Event's one entry part by
+        # part (f1782b61a, 2026-11-12), EnsureParentageLog, and
+        # create_extra_log, which starts the Deaths and Unaccounted Villagers
+        # logs at the same save. Each still measures before it opens.
         opens = [m.start() for m in re.finditer(re.escape(APPEND_OPEN), self.code)]
-        self.assertEqual(len(opens), 3,
-                         "expected three append-mode opens, found %d" % len(opens))
+        self.assertEqual(len(opens), 4,
+                         "expected four append-mode opens, found %d" % len(opens))
 
         measures = [m.start() for m in re.finditer(re.escape(MEASURE), self.code)]
-        self.assertEqual(len(measures), 3,
-                         "expected three measurements, found %d" % len(measures))
+        self.assertEqual(len(measures), 4,
+                         "expected four measurements, found %d" % len(measures))
 
         previous = 0
         for index, open_at in enumerate(opens):
@@ -108,10 +110,10 @@ class LogHeaderWrittenOnce(unittest.TestCase):
     def test_the_header_is_guarded_by_that_measurement(self):
         """Each village header write sits under !had_content."""
         writes = re.findall(r'fprintf\(file, "%s", village\)', self.code)
-        self.assertEqual(len(writes), 3,
-                         "expected three header writes, found %d" % len(writes))
+        self.assertEqual(len(writes), 4,
+                         "expected four header writes, found %d" % len(writes))
         self.assertEqual(
-            self.code.count("if (!had_content"), 3,
+            self.code.count("if (!had_content"), 4,
             "every header write must be guarded by the pre-open measurement")
 
 

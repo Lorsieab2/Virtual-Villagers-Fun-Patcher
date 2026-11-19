@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Snake and the Rumor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau05_snake_rumor",
+  "source": "anthology",
+  "lines": [
+   32511,
+   32525
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32511",
+  "ledger": [
+   {
+    "src": "L32512",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS / ADULTS / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32515",
+    "kind": "sensitivity",
+    "before": "A trained observer",
+    "after": "(villager), a trained observer,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32525",
+    "kind": "sensitivity",
+    "before": "A fearful villager",
+    "after": "(villager), a fearful villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A snake seen near a garden is described as enormous and dangerous, though nobody looked closely.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A snake seen near a garden is described as enormous and dangerous, though nobody looked closely.",
+   "src": "L32513",
+   "choices": [
+    {
+     "label": "Keep a Respectful Distance",
+     "next": "a",
+     "src": "L32514"
+    },
+    {
+     "label": "Compare Eyewitness Accounts",
+     "next": "b",
+     "src": "L32517"
+    },
+    {
+     "label": "Clear the Crowded Area",
+     "next": "c",
+     "src": "L32520"
+    },
+    {
+     "label": "Teach Caution Without Panic",
+     "next": "d",
+     "src": "L32523"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(villager), a trained observer, identifies it without handling.",
+   "src": "L32515"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The snake disappears before identification.",
+   "src": "L32516",
+   "text_only": [
+    {
+     "what": "\"disappears\"",
+     "reason": "the word's everyday sense (an animal, a sound, a thing or a mark out of sight); nobody leaves the village -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L32516"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The supposed monster shrinks with each retelling.",
+   "src": "L32518"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The witnesses remain sincerely divided.",
+   "src": "L32519"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Everyone stays safe without harming the snake.",
+   "src": "L32521"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The closure frustrates harvesters.",
+   "src": "L32522"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Children learn to leave unknown snakes alone.",
+   "src": "L32524"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(villager), a fearful villager, still avoids the garden.",
+   "src": "L32525"
+  }
+ }
+}

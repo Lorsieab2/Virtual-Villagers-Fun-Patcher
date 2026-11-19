@@ -1,0 +1,195 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Heart That Falters",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed09_heart_falters",
+  "source": "living",
+  "lines": [
+   20323,
+   20334
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20323",
+  "ledger": [
+   {
+    "src": "L20334",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An elder repeatedly collapses, and a young inventor proposes a device that might deliver a sudden jolt to the chest."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "inventor": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An elder repeatedly collapses, and a young inventor proposes a device that might deliver a sudden jolt to the chest.",
+   "src": "L20324",
+   "choices": [
+    {
+     "label": "Attempt the poorly understood intervention with consent.",
+     "next": "a",
+     "src": "L20325"
+    },
+    {
+     "label": "Provide comfort and monitor the patient.",
+     "next": "b",
+     "src": "L20328"
+    },
+    {
+     "label": "Study the idea before trying it on anyone.",
+     "next": "c",
+     "src": "L20331"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "collapses",
+     "reason": "the elder collapses, not a structure",
+     "src": "L20324"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "a2",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient briefly awakens, but their condition remains critical.",
+   "src": "L20326",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "elder",
+     "min": -60,
+     "max": -40,
+     "src": "L20326"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The attempt fails, and the family mourns the elder.",
+   "src": "L20327",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "elder",
+     "cause": "unknown",
+     "src": "L20327"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The elder survives another season and shares stories with the children.",
+   "src": "L20329"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The elder dies peacefully with loved ones present.",
+   "src": "L20330",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "elder",
+     "cause": "unknown",
+     "src": "L20330"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The inventor discovers that a dramatic jolt is not a reliable cure.",
+   "src": "L20332",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20332"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The study inspires a safer way to observe the pulse.",
+   "src": "L20333"
+  }
+ }
+}

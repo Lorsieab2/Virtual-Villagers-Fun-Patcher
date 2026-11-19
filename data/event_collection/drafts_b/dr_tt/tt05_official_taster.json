@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Official Taster",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt05_official_taster",
+  "source": "draft_tt",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L65",
+    "kind": "sensitivity",
+    "before": "The head cook gently takes",
+    "after": "(cook), the head cook, gently takes",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L65",
+    "kind": "sensitivity",
+    "before": "the head cook sets",
+    "after": "(cook) sets",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager volunteers as feast taster and keeps checking every dish: keep up the good work, or let the cooks taste their own.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "cook"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "cook": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village is preparing a feast, and (subject) has volunteered for the most important job of all: tasting. Every stew, every sauce, every roasted thing must be checked by (subject) \"to make sure it's right.\" Everything has been checked several times. Some dishes have been checked so carefully that there is noticeably less of them.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Keep Up the Good Work",
+     "next": "o1",
+     "src": "L61"
+    },
+    {
+     "label": "Let the Cooks Taste Their Own",
+     "next": "o2",
+     "src": "L64"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) carries on tasting, thoughtful and serious, giving notes to the cooks: \"More salt.\" \"Perfect.\" \"Let me try that one again.\" By the time the feast begins, (subject.he/she) is far too full to eat a single thing. (subject.He/she) sits through the whole feast watching everyone else enjoy it, and insists it was worth it.",
+   "src": "L62"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(cook), the head cook, gently takes the spoon away and gives (subject) a new job: carrying firewood. (subject) carries it with a face of deep tragedy. But when the feast begins, (cook) sets the very first bowl in front of (subject), \"for all your help with the tasting.\" (subject) decides this is a fair outcome.",
+   "src": "L65"
+  }
+ }
+}

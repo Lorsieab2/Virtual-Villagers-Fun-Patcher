@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moment of Courage",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b093_moment_courage",
+  "source": "companion",
+  "lines": [
+   1947,
+   1955
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1947",
+  "ledger": [
+   {
+    "src": "L1949",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L1952",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L1955",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "A timid villager finally speaks during a communal discussion.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A timid villager finally speaks during a communal discussion.",
+   "src": "L1948",
+   "choices": [
+    {
+     "label": "Let the moment unfold naturally.",
+     "next": "ending",
+     "src": "L1950"
+    },
+    {
+     "label": "Invite someone else into the moment.",
+     "next": "ending",
+     "src": "L1951"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "The village listens attentively.",
+   "src": "L1953"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "They stumble over their words but finish anyway.",
+   "src": "L1954"
+  }
+ }
+}

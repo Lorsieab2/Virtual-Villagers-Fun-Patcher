@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Price of Being Different",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz029_being_different",
+  "source": "horizon",
+  "lines": [
+   376,
+   387
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part4",
+  "title_src": "L376",
+  "ledger": [
+   {
+    "src": "L387",
+    "kind": "note",
+    "why": "Content note: the owner's per-event content note (the coming per-event content-notes feature shows it; listed in the build report's content-note table), never part of a page"
+   }
+  ],
+  "description": "A villager wonders whether distant communities welcome people with different appearances, abilities, beliefs, and ways of living.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A villager wonders whether distant communities welcome people with different appearances, abilities, beliefs, and ways of living.",
+   "src": "L377",
+   "choices": [
+    {
+     "label": "Imagine a Welcoming Place.",
+     "next": "a",
+     "src": "L378"
+    },
+    {
+     "label": "Imagine Prejudice.",
+     "next": "b",
+     "src": "L381"
+    },
+    {
+     "label": "Ask Whether Difference Needs Explanation.",
+     "next": "c",
+     "src": "L384"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children describe a town where everyone can participate in work and celebration.",
+   "src": "L379",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration imagined or discussed (or a feeling of joy); no celebration happens in the game",
+     "src": "L379"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A disabled villager asks whether the imagined town has accessible paths and tools, not merely kind words.",
+   "src": "L380"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A storyteller describes someone unfairly excluded and the community members who challenge it.",
+   "src": "L382"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A listener recalls an injustice closer to home; the group considers its own responsibilities.",
+   "src": "L383"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A villager says people should be allowed ordinary lives without constantly defending who they are.",
+   "src": "L385"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Another notes that questions can be sincere or intrusive; the group practices asking respectfully.",
+   "src": "L386"
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Do You Like Anyone?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf31_do_you_like",
+  "source": "draft_blf",
+  "lines": [
+   368,
+   377
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L368",
+  "ledger": [
+   {
+    "src": "L369",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend at the fire asks a villager whether they like anyone: say it is private, or turn the question around.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the fire, (friend) nudges (subject) and whispers, \"So. Do you like anyone? You never say.\" (subject) doesn't say. Not because there's a secret, or because there isn't, but because it's (subject.his/her) business. (friend) is waiting, eyebrows raised.",
+   "src": "L371",
+   "choices": [
+    {
+     "label": "Say It's Private",
+     "next": "o1",
+     "src": "L373"
+    },
+    {
+     "label": "Turn It Around",
+     "next": "o2",
+     "src": "L376"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"That's mine to keep,\" says (subject), smiling. (friend) groans. \"Oh, come on!\" \"No,\" says (subject), cheerfully. \"But I'll tell you a great story about a crab instead.\" (friend) sighs and accepts the crab story. It's a good one. (subject) never does say. (friend) eventually stops asking.",
+   "src": "L374"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Do YOU like anyone?\" asks (subject). (friend) goes very pink and suddenly finds the fire fascinating. (subject) laughs. \"See? It's not so easy to answer.\" \"Point taken,\" mutters (friend). They sit in comfortable silence. Neither of them tells. It's a much more pleasant evening that way.",
+   "src": "L377"
+  }
+ }
+}

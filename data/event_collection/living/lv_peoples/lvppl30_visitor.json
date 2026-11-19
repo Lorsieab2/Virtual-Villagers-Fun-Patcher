@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visitor's Festival Cloth",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl30_visitor",
+  "source": "living",
+  "lines": [
+   22055,
+   22066
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22055",
+  "ledger": [
+   {
+    "src": "L22066",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A visitor admires an Isolan garment but wants to adapt it with motifs from home.",
+  "cast_only": [
+   "tailor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "tailor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A visitor admires an Isolan garment but wants to adapt it with motifs from home.",
+   "src": "L22056",
+   "choices": [
+    {
+     "label": "Encourage the adaptation.",
+     "next": "a",
+     "src": "L22057"
+    },
+    {
+     "label": "Explain the garment's ceremonial meaning.",
+     "next": "b",
+     "src": "L22060"
+    },
+    {
+     "label": "Make a new design together.",
+     "next": "c",
+     "src": "L22063"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The visitor wears a beautiful blended garment.",
+   "src": "L22058"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A villager asks that a sacred symbol be used with care.",
+   "src": "L22059"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The visitor appreciates the explanation and changes the design.",
+   "src": "L22061"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The visitor feels embarrassed, but the tailor reassures them.",
+   "src": "L22062"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The collaboration creates a new pattern.",
+   "src": "L22064"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The first garment fits poorly, and both makers laugh before trying again.",
+   "src": "L22065"
+  }
+ }
+}

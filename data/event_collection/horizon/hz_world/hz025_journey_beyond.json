@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Journey Beyond the Moon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz025_journey_beyond",
+  "source": "horizon",
+  "lines": [
+   322,
+   332
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part3",
+  "title_src": "L322",
+  "ledger": [],
+  "description": "Watching the moon rise, a child asks whether distant peoples might someday send travelers beyond the sky.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Watching the moon rise, a child asks whether distant peoples might someday send travelers beyond the clouds and even beyond the sky.",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Imagine a Journey.",
+     "next": "a",
+     "src": "L324"
+    },
+    {
+     "label": "Imagine Studying from Afar.",
+     "next": "b",
+     "src": "L327"
+    },
+    {
+     "label": "Ask Why Go.",
+     "next": "c",
+     "src": "L330"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children draw a craft crossing darkness toward the moon, then debate what its travelers would eat.",
+   "src": "L325"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A navigator asks how travelers would find their way home without familiar stars overhead.",
+   "src": "L326"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Researchers propose instruments that observe distant worlds without sending people.",
+   "src": "L328"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The astronomer notes that every observation can be misinterpreted; the group lists questions rather than answers.",
+   "src": "L329"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A curious villager says discovery itself can be worthwhile.",
+   "src": "L331"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A farmer asks whether great journeys should take priority over hunger at home; neither view wins automatically.",
+   "src": "L332"
+  }
+ }
+}

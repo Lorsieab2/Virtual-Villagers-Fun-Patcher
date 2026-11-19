@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Pins and Needles",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum36_pins_needles",
+  "source": "draft_hum",
+  "lines": [
+   428,
+   437
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager's leg falls asleep during a long evening story: walk it off, or sit back down and wait.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been sitting cross-legged on the ground through a long evening story, and when everyone gets up to go home, (subject.he/she) discovers that (subject.his/her) left leg has gone completely to sleep. (subject.He/she) stands up. The leg does not.",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "Walk It Off",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "Sit Back Down and Wait",
+     "next": "o2",
+     "src": "L436"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) sets off on a leg that feels as if it belongs to someone else, with a long, careful, wobbly walk, like a seabird on a windy day. Halfway home (subject.he/she) realizes that three children are walking behind (subject.him/her), doing exactly the same walk. By the time the leg wakes up, (subject.he/she) is leading a parade.",
+   "src": "L434"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) sits back down with great dignity and says that (subject.he/she) would like to stay and enjoy the stars a while. (friend) sits down beside (subject.him/her). \"Leg asleep?\" \"Completely.\" They look up at the stars, which really are very good tonight, until the pins and needles fade.",
+   "src": "L437"
+  }
+ }
+}

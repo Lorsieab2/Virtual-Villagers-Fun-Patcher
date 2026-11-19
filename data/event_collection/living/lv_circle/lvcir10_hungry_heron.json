@@ -1,0 +1,155 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hungry Heron",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir10_hungry_heron",
+  "source": "living",
+  "lines": [
+   21361,
+   21372
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21361",
+  "ledger": [
+   {
+    "src": "L21372",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A heron eats fish from the village pond, angering the fish keepers.",
+  "cast_only": [
+   "keeper"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "keeper": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A heron eats fish from the village pond, angering the fish keepers.",
+   "src": "L21362",
+   "choices": [
+    {
+     "label": "Drive it away without injury.",
+     "next": "a",
+     "src": "L21363"
+    },
+    {
+     "label": "Share a portion of the pond.",
+     "next": "b",
+     "src": "L21366"
+    },
+    {
+     "label": "Build a protected breeding pool.",
+     "next": "c",
+     "src": "L21369"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The heron finds another feeding place, though it sometimes returns.",
+   "src": "L21364"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The bird becomes tangled in a barrier and must be freed.",
+   "src": "L21365"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The heron remains and the keepers harvest fewer fish.",
+   "src": "L21367",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L21367"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Visitors delight in watching the bird, but the loss grows costly.",
+   "src": "L21368",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L21368"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Young fish survive while the heron still hunts in open water.",
+   "src": "L21370"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The first barrier fails, and the keepers revise it.",
+   "src": "L21371"
+  }
+ }
+}

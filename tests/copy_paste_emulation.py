@@ -194,6 +194,7 @@ class PasteRun:
             uue._register_uniscribe()
         _register()
         self.machine, _result, self.features, _before, self.shipped = run(game, mode, tuple(selection))
+        self.machine.stop_recording()     # the startup audit's log: nothing after WinMain reads it
         ref["machine"] = self.machine
         if unicode:
             import unicode_text_emulation as ute

@@ -154,6 +154,14 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Classic VV Difficulty) and its alternative, With Stored Food and Tech Points.
                   or p.endswith("_island_events_scale_with_population")
                   or p.endswith("_island_events_scale_with_stored_amounts")
+                  # Scrolling Popups (the owner, 2026-11-12: on in Owner's Defaults only).
+                  or p.endswith("_scrolling_popups")
+                  # The Aspiring Adventurer (the owner, 2026-11-12: on in Owner's Defaults and in Classic VV
+                  # Difficulty).
+                  or p.endswith("_more_island_events")
+                  # Isola Grand Event Collection (the owner, 2026-11-14: "Default ON in Owner's Defaults, OFF
+                  # everywhere else").
+                  or p.endswith("_isola_grand_event_collection")
                   # Memorial Actions Can Also Occur at the Heathen Hovel (the owner, 2026-11-08).
                   or p == "vv5_hovel_memorial_actions"
                   # Shrine to the Ancestors (the owner, 2026-11-08): on in Owner's Defaults only.
@@ -162,7 +170,20 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # DEFAULTS ONLY").
                   or p == "vv5_heathens_keep_masks_when_converted"
                   # Respecting the Legacy of Isola: off by default, on in Owner's Defaults and Select All.
-                  or p == "vv5_respecting_the_legacy_of_isola"})
+                  or p == "vv5_respecting_the_legacy_of_isola"
+                  # Change Sex and Gender Presentation (the owner, 2026-11-15: on in Owner's Defaults only).
+                  or p.endswith("_gender_presentation")})
+
+    def test_change_sex_and_gender_presentation_is_on_in_owners_defaults_only(self) -> None:
+        """The owner (2026-11-15): every new option is ON in Owner's Defaults and OFF everywhere else -- the normal
+        defaults and Select All leave Change Sex and Gender Presentation off in all five games."""
+        for game in range(1, 6):
+            patch_id = f"vv{game}_gender_presentation"
+            with self.subTest(patch_id):
+                self.assertIn(patch_id, fun_patch_ids())
+                self.assertFalse(default_fun_patch_selection(patch_id))
+                self.assertTrue(owners_default_fun_patch_selection(patch_id))
+                self.assertFalse(select_all_fun_patch_selection(patch_id))
 
     def test_heathens_keep_masks_is_on_in_owners_defaults_only(self) -> None:
         """The owner (2026-11-08): "NEW PATCH FOR VV5, default on in OWNERS DEFAULTS ONLY." -- Select All ticks it
@@ -355,6 +376,10 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         # ...and Island Events Scale With Stored Food and Tech Points, the alternative of Island Events Scale With
         # Population (the owner, 2026-11-12).
         held_back |= {f"vv{n}_island_events_scale_with_stored_amounts" for n in (1, 4, 5)}
+        # ...and the Isola Grand Event Collection (the owner, 2026-11-14: on in Owner's Defaults, off everywhere else).
+        held_back |= {f"vv{n}_isola_grand_event_collection" for n in range(1, 6)}
+        # ...and Change Sex and Gender Presentation (the owner, 2026-11-15: on in Owner's Defaults, off everywhere else).
+        held_back |= {f"vv{n}_gender_presentation" for n in range(1, 6)}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)

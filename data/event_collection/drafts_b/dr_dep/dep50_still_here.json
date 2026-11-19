@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Still Here",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep50_still_here",
+  "source": "draft_dep",
+  "lines": [
+   596,
+   599
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L596",
+  "ledger": [
+   {
+    "src": "L597",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder; a single popup, no choice)"
+   },
+   {
+    "src": "L599",
+    "kind": "sensitivity",
+    "before": "A child stops in front of",
+    "after": "(child), a child, stops in front of",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L599",
+    "kind": "sensitivity",
+    "before": "The child finds this hilarious",
+    "after": "(child) finds this hilarious",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "An elder sits outside the hut in the evening, and a child asks whether they ever went away.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(subject) is sitting outside (subject.his/her) hut in the evening, watching the village go by. Over the years (subject.he/she) has seen people leave for a few days and come home tired, leave for a season and come home changed, and leave for good and send word, or not. (subject.He/she) has waved at a great many canoes. (subject.He/she) has said a great many goodbyes, some properly and some not. (subject.He/she) never went anywhere much (subject.him/her)self. (child), a child, stops in front of (subject.him/her) and asks, \"Did you ever go away?\" (subject) thinks about it. \"Once,\" (subject.he/she) says, \"for three days. I missed my own bed.\" (child) finds this hilarious and runs off to tell everyone. (subject) settles back, perfectly comfortable, to watch the sun go down from exactly where (subject.he/she) always watches it.",
+   "src": "L599"
+  }
+ }
+}

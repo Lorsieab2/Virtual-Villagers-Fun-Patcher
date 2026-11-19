@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Canoe with a Small Leak",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon26_canoe_small_leak",
+  "source": "draft_hon",
+  "lines": [
+   308,
+   317
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L308",
+  "ledger": [
+   {
+    "src": "L309",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend asks to borrow a villager's canoe, which has a small leak: mention the leak, or forget to mention it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has asked to borrow (subject)'s canoe to paddle out to the reef. (subject)'s canoe has a small leak near the back; (subject) is so used to it that (subject.he/she) just bails now and then without thinking. (subject) is about to say yes when (subject.he/she) realizes (subject.he/she) hasn't mentioned the leak.",
+   "src": "L311",
+   "choices": [
+    {
+     "label": "Mention the Leak",
+     "next": "o1",
+     "src": "L313"
+    },
+    {
+     "label": "Forget to Mention It",
+     "next": "o2",
+     "src": "L316"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"It leaks a bit at the back,\" says (subject). \"Take the bailer.\" (friend) takes the bailer, paddles out to the reef, and comes back slightly damp and perfectly cheerful. \"It does leak a bit,\" (friend.he/she) agrees. The next day they fix it together, since there are now two people who are tired of bailing.",
+   "src": "L314"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says yes and forgets all about it. An hour later (friend) paddles back, soaked to the waist and bailing with (friend.his/her) hands, very annoyed. \"It LEAKS.\" \"...Oh. Yes. I meant to say.\" (friend) is cross all afternoon. (subject) fixes the leak that evening, and the next morning brings (friend) the first fish (subject.he/she) catches from the dry canoe.",
+   "src": "L317"
+  }
+ }
+}

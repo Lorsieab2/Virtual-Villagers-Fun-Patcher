@@ -1,0 +1,187 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Swing That Squeaks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage03_swing_squeaks",
+  "source": "anthology",
+  "lines": [
+   30157,
+   30171
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30157",
+  "ledger": [
+   {
+    "src": "L30158",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN), carried out as the roles' ages"
+   },
+   {
+    "src": "L30167",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30171",
+    "kind": "sensitivity",
+    "before": "A disappointed child",
+    "after": "(child), a disappointed child,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "The village swing makes an odd sound only when the youngest children use it.",
+  "label_case": "title",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village swing makes an odd sound only when the youngest children use it.",
+   "src": "L30159",
+   "choices": [
+    {
+     "label": "Ask the Children What They Notice",
+     "next": "a",
+     "src": "L30160"
+    },
+    {
+     "label": "Stop Play for an Inspection",
+     "next": "b",
+     "src": "L30163"
+    },
+    {
+     "label": "Let Children Demonstrate from the Ground",
+     "next": "c",
+     "src": "L30166"
+    },
+    {
+     "label": "Find a New Game While Waiting",
+     "next": "d",
+     "src": "L30169"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They explain that the sound happens when feet brush a loose reed below the seat.",
+   "src": "L30161"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One child notices that the swing twists before it squeaks, prompting an adult safety check.",
+   "src": "L30162"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Adults find a fraying cord and repair it before anyone rides again.",
+   "src": "L30164"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The cords are sound, but the children point out a branch rubbing the frame.",
+   "src": "L30165"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(child) reproduces the squeak with a stick while everyone stays off the swing.",
+   "src": "L30167"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The sound disappears, and the children suggest checking again after the afternoon breeze.",
+   "src": "L30168",
+   "text_only": [
+    {
+     "what": "\"disappears\"",
+     "reason": "the word's everyday sense (an animal, a sound, a thing or a mark out of sight); nobody leaves the village -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30168"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The children invent a ground-level jumping game that becomes unexpectedly popular.",
+   "src": "L30170"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child), a disappointed child, helps paint a temporary closed sign and feels included in the decision.",
+   "src": "L30171"
+  }
+ }
+}

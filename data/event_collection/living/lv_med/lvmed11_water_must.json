@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Water That Must Be Clean",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed11_water_must",
+  "source": "living",
+  "lines": [
+   20349,
+   20360
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20349",
+  "ledger": [
+   {
+    "src": "L20360",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Several patients develop illness after treatment, and an apprentice suspects dirty tools and water."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Several patients develop illness after treatment, and an apprentice suspects dirty tools and water.",
+   "src": "L20350",
+   "choices": [
+    {
+     "label": "Require careful washing and boiling where possible.",
+     "next": "a",
+     "src": "L20351"
+    },
+    {
+     "label": "Continue established practice.",
+     "next": "b",
+     "src": "L20354"
+    },
+    {
+     "label": "Compare records across treatment areas.",
+     "next": "c",
+     "src": "L20357"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "New illnesses become less frequent, though the healers cannot prove why.",
+   "src": "L20352"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The new routine takes longer, and some villagers complain.",
+   "src": "L20353"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A patient recovers, and the apprentice remains unconvinced.",
+   "src": "L20355"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Another patient becomes ill, prompting renewed questions.",
+   "src": "L20356",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "patient",
+     "src": "L20356"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The apprentice finds a troubling pattern associated with one water source.",
+   "src": "L20358",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20358"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Poor notes make the evidence inconclusive, inspiring better recordkeeping.",
+   "src": "L20359"
+  }
+ }
+}

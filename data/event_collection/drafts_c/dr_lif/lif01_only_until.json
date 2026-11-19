@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Only Until Someone Else Turns Up",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif01_only_until",
+  "source": "draft_lif",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 35 or older)"
+   }
+  ],
+  "description": "A villager realizes the fish racks they agreed to mind for a while have been theirs for years: laugh about it, or wonder.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 35
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Years ago, (subject) agreed to look after the village's drying racks \"only until someone else turns up.\" Today, turning the fish in the sun as (subject.he/she) has done every morning for as long as anyone can remember, (subject.he/she) suddenly realizes nobody else ever did turn up. And (subject.he/she) never once asked.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Laugh About It",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Wonder What Else Might Have Been",
+     "next": "o2",
+     "src": "L16"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) laughs out loud, alone at the racks. (friend), passing with a basket, asks what's funny. \"I've been filling in for twenty years,\" says (subject). (friend) looks at the racks, the neat rows, the perfect fish. \"Do you want someone to take over?\" (subject) thinks about it honestly. \"No,\" (subject.he/she) says, surprised. \"I'd miss it.\" (subject.He/she) turns the next fish.",
+   "src": "L14"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) wonders what (subject.he/she) would have done if someone had turned up. Built canoes, maybe. Gone fishing. Nothing at all. It doesn't feel like a loss, exactly. It feels like a door (subject.he/she) walked past without noticing. (subject.He/she) finishes the fish, then goes and watches the canoe builders for an hour, just out of curiosity. Then (subject.he/she) goes back to the racks.",
+   "src": "L17"
+  }
+ }
+}

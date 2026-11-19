@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The New Hair",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea39_new_hair",
+  "source": "draft_fea",
+  "lines": [
+   464,
+   473
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L464",
+  "ledger": [
+   {
+    "src": "L465",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a young adult)"
+   }
+  ],
+  "description": "A young villager has woven shells into their hair and fears what people will say: ask a friend, or hide it under a wrap.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has done something new with (subject.his/her) hair: braided, with shells woven in. It looked wonderful in the reflection in the water. Now (subject.he/she) has to walk across the whole village to the fire, where everybody will see it, and (subject.he/she) is suddenly terrified that they'll stare, or laugh, or say something. (friend) is waiting outside.",
+   "src": "L467",
+   "choices": [
+    {
+     "label": "Ask (friend) What (friend.he/she) Thinks",
+     "next": "o1",
+     "src": "L469"
+    },
+    {
+     "label": "Pull It Back Under a Wrap",
+     "next": "o2",
+     "src": "L472"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Is it silly?\" asks (subject). (friend) looks properly. \"It's lovely,\" (friend.he/she) says. \"Different. Lovely.\" They walk over together. A few people look. One person says, \"Oh, that's nice!\" Nobody laughs. (subject) spends the whole evening feeling very aware of (subject.his/her) hair and secretly delighted.",
+   "src": "L470"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) hides the braids under a cloth wrap and goes to the fire. Nobody notices anything. That's a relief. It's also a little disappointing. On the way home, (subject.he/she) pulls the wrap off and walks back through the dark with the shells clicking softly. Nobody sees. Tomorrow, maybe.",
+   "src": "L473"
+  }
+ }
+}

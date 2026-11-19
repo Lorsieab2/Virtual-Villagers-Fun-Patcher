@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Whistling After Dark",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo19_whistling_after",
+  "source": "da_lo",
+  "lines": [
+   225,
+   234
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L225",
+  "ledger": [
+   {
+    "src": "L226",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A teenager whistles after dark on purpose, and a gust of wind rattles every roof in the village.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "The elders say you should never whistle after dark, because it calls the wind. (subject), a teenager, thinks that's silly. Tonight, sitting by the fire, (subject.he/she) whistles a tune, loudly, on purpose, looking straight at (friend), an elder. A moment later, a gust of wind rattles every roof in the village and blows sparks out of the fire.",
+   "src": "L228",
+   "choices": [
+    {
+     "label": "Laugh It Off",
+     "next": "a",
+     "src": "L230"
+    },
+    {
+     "label": "Ask (friend) About It",
+     "next": "b",
+     "src": "L233"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Coincidence,\" says (subject), a bit too quickly. (friend) raises an eyebrow and says nothing. The wind dies down. (subject) doesn't whistle again that night. Or, (subject.he/she) notices, the next night. Not because (subject.he/she) believes it. (subject.He/She) just doesn't feel like whistling, that's all.",
+   "src": "L231",
+   "text_only": [
+    {
+     "what": "\"dies\"",
+     "reason": "death talked about or remembered in the story; nobody dies",
+     "src": "L231"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Does it really call the wind?\" asks (subject). (friend) thinks. \"I don't know,\" (friend.he/she) says honestly. \"My grandmother believed it. I've seen the wind come after whistling. I've seen it not come, too.\" (subject) thinks about this. \"So you don't know either.\" \"No. But I don't whistle after dark. It's polite, just in case.\" (subject) finds that oddly reassuring.",
+   "src": "L234"
+  }
+ }
+}

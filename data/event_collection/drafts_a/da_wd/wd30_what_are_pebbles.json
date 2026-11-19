@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Are Pebbles Doing on Every Doorstep?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd30_what_are_pebbles",
+  "source": "da_wd",
+  "lines": [
+   356,
+   365
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L356",
+  "ledger": [
+   {
+    "src": "L357",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L365",
+    "kind": "casting",
+    "before": "a small child opens",
+    "after": "(child), a small child, opens",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "Every hut in the village wakes to a single smooth pebble on its doorstep: keep it, or investigate.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "This morning, every hut in the village has a single pebble on its doorstep. Every one. Each pebble is smooth, round and about the same size, and they've been placed very carefully, right in the middle of each step. Nobody saw anyone do it. Nobody knows what it means.",
+   "src": "L359",
+   "choices": [
+    {
+     "label": "Keep the Pebble",
+     "next": "a",
+     "src": "L361"
+    },
+    {
+     "label": "Investigate",
+     "next": "b",
+     "src": "L364"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) picks up (subject.his/her) pebble and puts it on the windowsill. It's a nice pebble. (subject.He/She) decides it's a gift, from somebody, for no reason, and that's a good enough thing to have. Over the next few days, (subject.he/she) notices pebbles on windowsills all over the village. Nobody ever says who did it.",
+   "src": "L362"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) goes door to door. Everyone got one. Nobody knows anything. At the last hut, (child), a small child, opens the door, looks at the pebble in (subject)'s hand, and says \"do you like it?\" before clapping both hands over (child.his/her) mouth. (subject) says it's a wonderful pebble. The child beams. The secret, more or less, is kept.",
+   "src": "L365"
+  }
+ }
+}

@@ -407,6 +407,19 @@ static void former_follow(const unsigned char *records) {
     former_roster_known = anyone;
 }
 
+/* A SEX CHANGE in play (native/shared/sex_change.h): a Former Heathens entry's identity holds no sex, but the
+   roster's parts that tell a rename and a likes change do; they are taken from the record now, so a rename in
+   the same frame is still told as one. */
+static int former_sex_changed(int index, const unsigned char *record) {
+    if (g_game != 5 || !former_roster_known || index < 0 || index >= RECORDS_MAX || former_roster[index] == 0u
+        || former_roster[index] != former_identity(record)) {
+        return 0;
+    }
+    former_roster_stable[index] = former_stable(record);
+    former_roster_keep[index] = vv_identity_keep(record, FORMER_NAME, FORMER_NAME_CAP, REC[g_game].sex);
+    return 1;
+}
+
 /* The tick's view of record `index`: `heathen` as it is now, `was_heathen`
    as the last tick saw it (faction_seen). */
 static void former_tick(int index, const unsigned char *record, int heathen, int was_heathen) {

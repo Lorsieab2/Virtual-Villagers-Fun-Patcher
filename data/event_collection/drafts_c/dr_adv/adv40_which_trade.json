@@ -1,0 +1,100 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Which Trade?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv40_which_trade",
+  "source": "draft_adv",
+  "lines": [
+   464,
+   473
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L464",
+  "ledger": [
+   {
+    "src": "L465",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen aged 16-17 and an elder)"
+   },
+   {
+    "src": "L470",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name1), only where the game has it]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "An elder advises a teen choosing a trade to become a healer: become a healer, or become a builder.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 16,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is old enough to start learning a trade, and (subject.he/she) can't choose between the healers and the builders. (subject.He/she) asks (friend) for advice. (friend) thinks carefully and says, \"You have steady hands and a kind heart. I think you'd make a fine healer.\"",
+   "src": "L467",
+   "choices": [
+    {
+     "label": "Become a Healer",
+     "next": "o1",
+     "src": "L469"
+    },
+    {
+     "label": "Become a Builder",
+     "next": "o2",
+     "src": "L472"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) goes to the healers. (subject.He/she) likes it. Some days (subject.he/she) loves it. Some days (subject.he/she) wishes (subject.he/she) were up on a roof in the sunshine instead. (subject.He/she) never quite knows if (friend) was right. Maybe (subject.he/she) would have been just as happy building. Maybe not. (subject.He/she) is a good healer, and that's something.",
+   "src": "L470",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L470"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Thank you,\" says (subject). \"But I think I want to build.\" (friend) nods, not at all offended. \"Steady hands are good for building too.\" (subject) becomes a builder. Years later, (subject.he/she) still helps the healers sometimes when an extra pair of hands is needed. (subject.He/she) never regrets the choice. (subject.He/she) never feels (subject.he/she) ignored (friend) either. (subject.He/she) just listened, and then chose.",
+   "src": "L473"
+  }
+ }
+}

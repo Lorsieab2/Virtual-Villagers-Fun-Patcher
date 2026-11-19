@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rare Dye Vine",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife20_rare_dye_vine",
+  "source": "living",
+  "lines": [
+   20889,
+   20900
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20889",
+  "ledger": [
+   {
+    "src": "L20900",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A nearly vanished vine yields a dye that never fades, making it prized by weavers.",
+  "cast_only": [
+   "weaver"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "weaver": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A nearly vanished vine yields a dye that never fades, making it prized by weavers.",
+   "src": "L20890",
+   "choices": [
+    {
+     "label": "Harvest a small portion with safeguards.",
+     "next": "a",
+     "src": "L20891"
+    },
+    {
+     "label": "Try a common substitute.",
+     "next": "b",
+     "src": "L20894"
+    },
+    {
+     "label": "Cultivate cuttings before use.",
+     "next": "c",
+     "src": "L20897"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "vanished",
+     "reason": "a plant nearly vanished; no villager vanishes",
+     "src": "L20890"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The weavers produce a brilliant cloth, but the vine recovers slowly.",
+   "src": "L20892"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The harvest proves too much, and the village suspends gathering.",
+   "src": "L20893"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The colors fade sooner, but the rare vine remains untouched.",
+   "src": "L20895"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The substitute stains unevenly, disappointing a craftsperson.",
+   "src": "L20896"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Several cuttings root, offering hope for future dye.",
+   "src": "L20898"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The cuttings fail, reminding the village that rarity cannot be hurried.",
+   "src": "L20899"
+  }
+ }
+}

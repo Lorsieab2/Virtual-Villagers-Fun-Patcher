@@ -1,0 +1,126 @@
+# Beyond the Horizon 081-130 (Expansion Volume III, The Common Shore).  The 15-point review: every outside-world
+# idea stays a guess, no outside place is named, found objects keep an unknown origin; modern things described as
+# a tribe would see them; nothing harmful.
+HZ-081
+REVIEW: ok
+HZ-082
+DESC: After a lively ball game, a teenager wonders whether distant people gather in crowds just to watch others play.
+REVIEW: ok
+HZ-083
+REVIEW: ok
+HZ-084
+REVIEW: ok
+HZ-085
+NAME: "a poet wonders" => "(name1), a poet, wonders"
+ROLES: name1=14+
+REVIEW: ok
+HZ-086
+DESC: Watching a shadow stick, a scholar wonders whether distant people carry small objects that tell the time.
+REVIEW: ok
+HZ-087
+NAME: "a child wonders" => "(name1), a child, wonders"
+ROLES: name1=3-13
+REVIEW: ok
+HZ-088
+REVIEW: ok
+HZ-089
+DESC: After watching a distant speck that may have been a whale, a child wonders about boats as big as villages.
+REVIEW: ok
+HZ-090
+DESC: A gardener wonders whether distant people might keep animals from many lands together in one place.
+REVIEW: ok (captive animals discussed both ways, no verdict)
+HZ-091
+DESC: Watching sparks rise from a festival bonfire, a child wonders whether distant people make fire bloom in the sky.
+REVIEW: ok
+HZ-092
+REVIEW: ok
+HZ-093
+REVIEW: ok
+HZ-094
+NAME: "a fisher wonders" => "(name1), a fisher, wonders"
+ROLES: name1=18+
+REVIEW: ok (deep water mentioned only; its content note is a ledger note)
+HZ-095
+REVIEW: ok
+HZ-096
+REVIEW: ok
+HZ-097
+DESC: After a large village gathering, a villager wonders whether people in enormous places never meet their neighbors.
+REVIEW: ok
+HZ-098
+REVIEW: ok
+HZ-099
+REVIEW: ok (no single person; the bottle keeps an unknown origin)
+HZ-100
+NAME: "a child asks" => "(name1), a child, asks"
+ROLES: name1=3-13
+REVIEW: ok
+HZ-101
+REVIEW: ok
+HZ-102
+REVIEW: ok
+HZ-103
+REVIEW: ok
+HZ-104
+DESC: As fish spoil in the heat, a cook wonders whether distant people have a box that keeps food cold as a deep cave.
+REVIEW: ok
+HZ-105
+REVIEW: ok
+HZ-106
+REVIEW: ok
+HZ-107
+NAME: "a villager wonders" => "(name1) wonders"
+ROLES: name1=14+
+DESC: After sharing food with a traveler from across the island, a villager wonders how distant people welcome strangers.
+REVIEW: ok (the traveler is an Isolan from the other side of the island)
+HZ-108
+REVIEW: ok (fear of strangers as an ordinary two-way feeling)
+HZ-109
+REVIEW: ok
+HZ-110
+REVIEW: ok
+HZ-111
+REVIEW: ok
+HZ-112
+REVIEW: ok
+HZ-113
+REVIEW: ok
+HZ-114
+NAME: "a guest wonders" => "(name1), a guest, wonders"
+ROLES: name1=18+
+REVIEW: ok
+HZ-115
+REVIEW: ok
+HZ-116
+REVIEW: ok
+HZ-117
+REVIEW: ok
+HZ-118
+REVIEW: ok (belief and medicine given equal respect)
+HZ-119
+REVIEW: ok
+HZ-120
+REVIEW: ok
+HZ-121
+DESC: Watching an artist paint slowly, a child wonders whether distant people might catch a picture in an instant.
+REVIEW: ok
+HZ-122
+REVIEW: ok (games of chance imagined only; nobody gambles)
+HZ-123
+REVIEW: ok
+HZ-124
+REVIEW: ok
+HZ-125
+REVIEW: ok (overfishing speculation, no perfect answer)
+HZ-126
+REVIEW: ok
+HZ-127
+REVIEW: ok
+HZ-128
+REVIEW: ok
+HZ-129
+REVIEW: ok
+HZ-130
+NAME: "the village scholar opens" => "(name1), the village scholar, opens"
+ROLES: name1=18+
+REVIEW: ok

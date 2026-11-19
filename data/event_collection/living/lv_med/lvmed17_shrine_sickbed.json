@@ -1,0 +1,156 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shrine and the Sickbed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed17_shrine_sickbed",
+  "source": "living",
+  "lines": [
+   20427,
+   20438
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20427",
+  "ledger": [
+   {
+    "src": "L20438",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A patient's family requests a ritual alongside medical care, while an apprentice fears it will delay treatment.",
+  "cast_only": [
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A patient's family requests a ritual alongside medical care, while an apprentice fears it will delay treatment.",
+   "src": "L20428",
+   "choices": [
+    {
+     "label": "Allow the ritual without delaying agreed care.",
+     "next": "a",
+     "src": "L20429"
+    },
+    {
+     "label": "Offer medical treatment alone.",
+     "next": "b",
+     "src": "L20432"
+    },
+    {
+     "label": "Ask the patient how to combine both.",
+     "next": "c",
+     "src": "L20435"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient feels comforted, though their illness follows its own course.",
+   "src": "L20430"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The family and healers cooperate despite different beliefs.",
+   "src": "L20431"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patient improves, but the family feels their traditions were dismissed.",
+   "src": "L20433",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L20433"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The patient asks the healer to respect their spiritual needs.",
+   "src": "L20434"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The patient chooses a brief blessing before treatment.",
+   "src": "L20436"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The patient declines the ritual and is supported without argument.",
+   "src": "L20437"
+  }
+ }
+}

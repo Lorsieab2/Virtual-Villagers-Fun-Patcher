@@ -1,0 +1,102 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Master at Last",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm48_master_last",
+  "source": "draft_drm",
+  "lines": [
+   572,
+   581
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L572",
+  "ledger": [
+   {
+    "src": "L573",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult who is working)"
+   },
+   {
+    "src": "L578",
+    "kind": "instruction",
+    "text": "[effect: small skill gain in (name1)'s work, where the game has one]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager is now the best at their work in the village, and a friend asks how it feels: answer honestly, or say it is wonderful.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After many years, everyone agrees that (subject) is now the best at (subject.his/her) work in the whole village. Elders ask (subject.his/her) advice. Apprentices watch (subject.his/her) hands. It's what (subject.he/she) wanted since (subject.he/she) was young. This evening (subject.he/she) is sitting outside, and (friend) asks how it feels.",
+   "src": "L575",
+   "choices": [
+    {
+     "label": "Answer Honestly",
+     "next": "o1",
+     "src": "L577"
+    },
+    {
+     "label": "Say It Feels Wonderful",
+     "next": "o2",
+     "src": "L580"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Strange,\" says (subject). \"I thought I'd feel finished. I don't. I keep noticing things I still can't do.\" (friend) laughs. \"Isn't that good?\" (subject) thinks about it. \"I suppose it means it isn't over.\" (subject.He/she) goes to bed thinking about a tricky thing (subject.he/she) wants to try tomorrow.",
+   "src": "L578",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming",
+      "Building",
+      "Healing",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L578"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Wonderful,\" says (subject), and means it. (subject.He/she) lets (subject.him/her)self be proud for a whole evening, without adding any \"but.\" It's a rare feeling. (subject.He/she) sits with it for a long time. Tomorrow there will be more to learn. Tonight (subject.he/she) is simply, quietly, good at something, and that's enough.",
+   "src": "L581"
+  }
+ }
+}

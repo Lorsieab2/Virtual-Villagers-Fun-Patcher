@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mask of Cheerfulness",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss089_cheerfulness",
+  "source": "companion",
+  "lines": [
+   6985,
+   6993
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6985",
+  "ledger": [
+   {
+    "src": "L6993",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A lively storyteller privately admits they feel empty despite making others laugh.",
+  "cast_only": [
+   "storyteller",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "storyteller": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A lively storyteller privately admits they feel empty despite making others laugh.",
+   "src": "L6986",
+   "choices": [
+    {
+     "label": "Believe them",
+     "next": "a",
+     "src": "L6987"
+    },
+    {
+     "label": "Offer regular companionship",
+     "next": "b",
+     "src": "L6989"
+    },
+    {
+     "label": "Suggest speaking to a healer",
+     "next": "c",
+     "src": "L6991"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "A friend listens rather than insisting they must be happy.",
+   "src": "L6988"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They begin taking walks together without the pressure to entertain.",
+   "src": "L6990"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The storyteller accepts help at their own pace.",
+   "src": "L6992"
+  }
+ }
+}

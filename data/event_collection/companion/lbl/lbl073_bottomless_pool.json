@@ -1,0 +1,152 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bottomless Pool",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl073_bottomless_pool",
+  "source": "companion",
+  "lines": [
+   4753,
+   4767
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4757",
+  "ledger": [
+   {
+    "src": "L4754",
+    "kind": "structural",
+    "why": "the group heading 'MYSTERIES, EXPLORATION & RECKLESSNESS'"
+   },
+   {
+    "src": "L4758",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L4766",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L4767",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A reckless villager tries to prove an ancient pool has no bottom."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "explorer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A reckless villager tries to prove an ancient pool has no bottom.",
+   "src": "L4759",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L4760"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L4761"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L4762"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1",
+     "weight": 20
+    },
+    {
+     "next": "e2",
+     "weight": 10,
+     "rarity": "occasional"
+    },
+    {
+     "next": "e3",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "A careful survey disproves the legend.",
+   "src": "L4763",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "explorer",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4763"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "A dangerous dive causes injury.",
+   "src": "L4764",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "explorer",
+     "min": -30,
+     "max": -10,
+     "src": "L4764"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "The explorer disappears and an uncertain search begins.",
+   "src": "L4765",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "explorer",
+     "src": "L4765"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "disappears",
+     "reason": "missing is not dead (L3784): the explorer vanishes, no death and no grave; the search is text",
+     "src": "L4765"
+    }
+   ]
+  }
+ }
+}

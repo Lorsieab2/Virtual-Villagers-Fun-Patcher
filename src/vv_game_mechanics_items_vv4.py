@@ -68,7 +68,8 @@ DEFAULT_OFF = frozenset({"vv4_learning_never_fails", "vv4_everyone_collects_like
                          "vv4_yellow_fruit_trees_limited", "vv4_yellow_fruit_refills_partially",
                          "vv4_classic_vv_difficulty", "vv4_hungrier_villagers", "vv4_science_collectibles_complete",
                          "vv4_collectibles_stay_collected", "vv4_island_events_scale_with_population",
-                         "vv4_island_events_scale_with_stored_amounts",
+                         "vv4_island_events_scale_with_stored_amounts", "vv4_more_island_events",
+                         "vv4_scrolling_popups", "vv4_isola_grand_event_collection", "vv4_gender_presentation",
                          "vv4_up_to_99_supplies"})
 
 ORIGINS = "vv4_enable_origins_exclusive_features"
@@ -441,7 +442,12 @@ def _items() -> list[Entry]:
              # (vv4_collectibles_stay_collected); the stew pot's listener 0x42EA30 runs first.
              (patch("vv4_collectibles_stay_collected") + ": a mushroom a child has picked up counts wherever the "
               "child puts it down, once, not only at the food bin; one dropped on the stew pot is left to the pot, "
-              "as without the patch. Collectibles already count wherever they are put down.", VERIFIED_C))),
+              "as without the patch. Collectibles already count wherever they are put down.", VERIFIED_C),
+             # The drop's calls 0x41324C / 0x413266 / 0x413284 (data/builds.json vv4_adult_confused).
+             (patch("vv4_adult_confused") + ": a villager of 14 or more dropped on a mushroom or collectible does the "
+              "game's own Confused action and the status line says \"Only children can see and pick up "
+              "mushrooms.\" or \"Only children can see and pick up collectibles.\" (in the normal game the "
+              "grown-up just stands there).", VERIFIED_C))),
         Entry(ITEM, "The Fish Scale collection", (
             "a set of 12 pieces; each raises the Golden Fish chance by 2 points (Fishing Nets). Fish-scale spots count only in "
             "every other real-life hour."), VERIFIED_E),

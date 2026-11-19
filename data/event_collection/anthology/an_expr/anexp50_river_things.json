@@ -1,0 +1,157 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The River of Old Things",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp50_river_things",
+  "source": "anthology",
+  "lines": [
+   32032,
+   32046
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32032",
+  "ledger": [
+   {
+    "src": "L32033",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   }
+  ],
+  "description": "After heavy rain, discarded objects collect in a shallow stream.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After heavy rain, discarded objects collect in a shallow stream.",
+   "src": "L32034",
+   "choices": [
+    {
+     "label": "Organize a Careful Cleanup",
+     "next": "a",
+     "src": "L32035"
+    },
+    {
+     "label": "Sort the Materials",
+     "next": "b",
+     "src": "L32038"
+    },
+    {
+     "label": "Ask Why It Happens",
+     "next": "c",
+     "src": "L32041"
+    },
+    {
+     "label": "Create a New Custom",
+     "next": "d",
+     "src": "L32044"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Reusable fibers are recovered.",
+   "src": "L32036"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Workers avoid disturbing nesting sites.",
+   "src": "L32037"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Broken pottery becomes a mosaic.",
+   "src": "L32039"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Sharp fragments are secured away from children.",
+   "src": "L32040"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Villagers identify a careless disposal habit.",
+   "src": "L32042"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The source remains uncertain and monitoring begins.",
+   "src": "L32043"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Families repair before discarding.",
+   "src": "L32045"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Some objects are left to decay naturally where appropriate.",
+   "src": "L32046"
+  }
+ }
+}

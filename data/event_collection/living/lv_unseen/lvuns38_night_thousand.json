@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night of a Thousand Eyes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns38_night_thousand",
+  "source": "living",
+  "lines": [
+   22661,
+   22672
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22661",
+  "ledger": [
+   {
+    "src": "L22672",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A strange glow appears above the jungle and villagers debate spirits, insects, weather, or magic.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A strange glow appears above the jungle and villagers debate spirits, insects, weather, or magic.",
+   "src": "L22662",
+   "choices": [
+    {
+     "label": "Observe and sketch the glow.",
+     "next": "a",
+     "src": "L22663"
+    },
+    {
+     "label": "Hold a respectful vigil.",
+     "next": "b",
+     "src": "L22666"
+    },
+    {
+     "label": "Search for a natural source at dawn.",
+     "next": "c",
+     "src": "L22669"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The light fades before its source can be identified.",
+   "src": "L22664"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The sketch reveals a pattern worth investigating later.",
+   "src": "L22665"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The gathering becomes a night of shared stories.",
+   "src": "L22667"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Nothing further happens, disappointing some villagers.",
+   "src": "L22668"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The explorers find luminous fungi nearby, but cannot connect them to the sky.",
+   "src": "L22670"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The forest offers no clues, and the mystery remains.",
+   "src": "L22671"
+  }
+ }
+}

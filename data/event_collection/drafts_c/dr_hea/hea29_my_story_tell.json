@@ -1,0 +1,87 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Not My Story to Tell",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea29_my_story_tell",
+  "source": "draft_hea",
+  "lines": [
+   347,
+   356
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L347",
+  "ledger": [
+   {
+    "src": "L348",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a healer or elder and two adults)"
+   }
+  ],
+  "description": "A busybody asks the healer why a villager keeps visiting: say nothing, or say something kind but nothing true.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has been visiting the healer's hut every few days for a while now. Nobody knows why, and (friend) hasn't said. Today (third), who is curious and well-meaning and a bit of a busybody, stops (subject) the healer on the path. \"Is (friend) alright? What's wrong with (friend.him/her)? You can tell me.\"",
+   "src": "L350",
+   "choices": [
+    {
+     "label": "Say Nothing",
+     "next": "o1",
+     "src": "L352"
+    },
+    {
+     "label": "Say Something Kind but Nothing True",
+     "next": "o2",
+     "src": "L355"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I don't talk about anybody who comes to see me,\" says (subject) pleasantly. \"Not (friend), not you, not anyone.\" (third) blinks. \"But I'm worried about (friend.him/her).\" \"Then you can ask (friend.him/her) yourself,\" says (subject), \"and (friend.he/she) can decide what to tell you.\" (third) goes off, a little put out. Later, (third.he/she) realizes (third.he/she) is rather glad the same rule applies to (third.him/her).",
+   "src": "L353"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Everybody comes to see me sometimes,\" says (subject). \"It's what I'm for.\" (third) looks unsatisfied, but it's all (third.he/she) is going to get. When (friend) hears about the conversation later, (friend.he/she) brings (subject) a basket of mangoes and doesn't say why. (subject) doesn't ask.",
+   "src": "L356"
+  }
+ }
+}

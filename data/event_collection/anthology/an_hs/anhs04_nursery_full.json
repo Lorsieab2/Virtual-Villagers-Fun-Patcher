@@ -1,0 +1,179 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Nursery Full of Opinions",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs04_nursery_full",
+  "source": "anthology",
+  "lines": [
+   29485,
+   29498
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29485",
+  "ledger": [
+   {
+    "src": "L29494",
+    "kind": "sensitivity",
+    "before": "A grandparent",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29495",
+    "kind": "sensitivity",
+    "before": "A younger caregiver",
+    "after": "(caregiver), a younger caregiver,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Caregivers disagree over whether the nursery should be quiet, musical, or full of activity.",
+  "label_case": "title",
+  "cast_only": [
+   "elder",
+   "caregiver"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "caregiver": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Caregivers disagree over whether the nursery should be quiet, musical, or full of activity.",
+   "src": "L29486",
+   "choices": [
+    {
+     "label": "Create Different Activity Periods",
+     "next": "a",
+     "src": "L29487"
+    },
+    {
+     "label": "Let Families Share Practices",
+     "next": "b",
+     "src": "L29490"
+    },
+    {
+     "label": "Ask Experienced Caregivers",
+     "next": "c",
+     "src": "L29493"
+    },
+    {
+     "label": "Watch What the Children Respond To",
+     "next": "d",
+     "src": "L29496"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Babies nap peacefully while older children anticipate story time.",
+   "src": "L29488"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The schedule proves too rigid, so caregivers adjust it to each child.",
+   "src": "L29489"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A lullaby from another tribe becomes a nursery favorite.",
+   "src": "L29491"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Two families discover their soothing routines differ and respectfully keep both.",
+   "src": "L29492"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(elder) offers practical advice without insisting it is universal.",
+   "src": "L29494"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(caregiver), a younger caregiver, politely corrects an outdated assumption.",
+   "src": "L29495"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A fussy infant calms at the sound of a familiar voice.",
+   "src": "L29497"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "One child loves music while another covers their ears, prompting quieter options.",
+   "src": "L29498"
+  }
+ }
+}

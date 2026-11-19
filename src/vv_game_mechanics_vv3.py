@@ -51,6 +51,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_children_play as children_play
 import vv_game_mechanics_death as death
 from vv_game_mechanics_chances import at_most, chance
 import vv_game_mechanics_events as events
@@ -611,6 +612,8 @@ UNSURE = ""                              # every unverified line carries UNCONFI
 GOLDEN = "vv3_super_secret_golden_mushroom"
 # Picked Up Collectibles Stay Collected When Dropped (off by default; Owner's Defaults ticks it).
 COLLECTED = "vv3_collectibles_stay_collected"
+# Adults Dropped on Mushrooms or Collectibles Are Confused (on by default).
+CONFUSED = "vv3_adult_confused"
 HUNGRIER = "vv3_hungrier_villagers"
 RARE_RETRY = "vv3_rare_collectible_retry"
 MORTALITY = "vv3_nature_level_three_alters_mortality"
@@ -760,6 +763,14 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         add("Mushrooms", gm.patch_words(village, COLLECTED, (
             "a mushroom or collectible a child has picked up counts wherever the child puts it down, once, "
             "not only at the food bin or the collection spot")), gm.CODE)
+    # The drop's do-action calls 0x42D377 / 0x42D391: an adult gets the Confused action 0x2C and the status line
+    # (data/builds.json vv3_adult_confused: "VVFP Adult Confused.dll").
+    if village.has(CONFUSED) is not False:
+        add("Mushrooms", gm.patch_words(village, CONFUSED, (
+            "a villager of 14 or more dropped on a mushroom or collectible does the game's own Confused "
+            "action and the status line says \"Only children can see and pick up mushrooms.\" or \"Only "
+            "children can see and pick up collectibles.\" (in the normal game the grown-up just stands "
+            "there)")), gm.CODE)
     add("Mushrooms", f"Mushrooms found in this village: {_i32(buf, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "The others are collectibles: common 83%, uncommon 13%, rare 4%. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity.", gm.RUNNING)
@@ -839,6 +850,8 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                                  else f"was burning when saved, with {gm.duration(fire - stopped_at)} left once "
                                       "the clock runs again")
                   + "; what a burning fire changes: Chances (Regaining health, Falling sick, Research)."), gm.SAVE)
+    for line, ok in children_play.lines(village):   # tag and sandcastles (vv_game_mechanics_children_play)
+        add("Other", line, ok)
     add("Other", POTION_EFFECTS_LINE, gm.RUNNING)
     add("Other", HERBS_LINE, gm.OWNER)
     add("Other", CANT_DRINK_LINE, gm.RUNNING)
