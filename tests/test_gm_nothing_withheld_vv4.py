@@ -160,9 +160,10 @@ class Patcher(unittest.TestCase):
         self.assertIn("every living villager with a free Like slot comes to like running", text)
         self.assertIn("a villager whose 3 Like slots are full gets no like", text)
 
-    def test_the_rows_are_code_but_one(self) -> None:
+    def test_every_row_is_code(self) -> None:
         unconfirmed = [e.name for e in items.entries() if e.kind == items.PATCHER and e.verified is False]
-        self.assertEqual(unconfirmed, ["Change Appearance for All"])
+        self.assertEqual(unconfirmed, [])
+        self.assertIn("heads by hair colour", entry("Change Appearance for All").text)
         self.assertIn("5 real-life seconds after it is bought", entry("Island Event").text)
         self.assertIn("brings 3 children", entry("Barrel of Babies").text)
 

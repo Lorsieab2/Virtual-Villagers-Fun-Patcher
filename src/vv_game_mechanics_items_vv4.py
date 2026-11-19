@@ -602,10 +602,14 @@ def _patcher() -> list[Entry]:
          VERIFIED_C),
         ("All Villagers are Exactly 18", f"{vw}: {_tp(1_000_000)}: every villager's age becomes exactly 18 (360 age "
                                          "units); nothing is taken when everyone already is.", VERIFIED_C),
-        # vv4_apply_for_all: more choices than this line names (random heads, hair-colour heads, the original
-        # look); not read through.
-        ("Change Appearance for All", f"{o}: {_tp(450_000)}: one head, body and mask choice per sex, or a "
-                                      "whole-village mask mode, applied to every villager.", UNCONFIRMED),
+        # native/vv4_origins_icons ShowVv4AppearanceForAll / fa_nothing_selected / vv4_apply_for_all: per-sex
+        # head, body and mask, the village-wide head (random, by hair colour) and body (random) modes, the tribe
+        # mask mode, the head-look rows and Reset to original; a head change warns about descendants.
+        ("Change Appearance for All", f"{o}: {_tp(450_000)}: one window sets the head, body and mask of every "
+                                      "living villager, men and women apart, or by a village-wide choice (random "
+                                      "heads, heads by hair colour, random bodies, a whole-village mask mode, the "
+                                      "original look); a head change warns that it passes to descendants. Nothing "
+                                      "is taken when nothing is chosen.", VERIFIED_C),
         ("Grant Youth", f"{o}: {_tp(50_000)} on the Villager Details screen: that villager is made 35 years "
                         "younger, never below 5 years.", VERIFIED_C),
         ("Grant Full Mastery", f"{o}: {_tp(100_000)} on the Villager Details screen: that villager's five skills "

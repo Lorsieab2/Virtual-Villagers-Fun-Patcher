@@ -94,7 +94,7 @@ PINS = (
     ("item", "A snack at the food bin", "E", ""),
     ("patcher", "Free Origins upgrades", "C", ""),
     ("patcher", "Time Warp", "K", ""),
-) + tuple(("patcher", name, "U" if name == "Change Appearance for All" else "C", "") for name in (
+) + tuple(("patcher", name, "C", "") for name in (
     "Island Event", "Barrel of Babies", "Tech Point Doubler", "Food Point Doubler", "Full Heal / Cure All",
     "Complete All Collections", "Reset All Collections",
     "Equal Division of Labor (Includes Parenting / No Parenting)", "Clear All Skill Preferences",
