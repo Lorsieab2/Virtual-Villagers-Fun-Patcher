@@ -72,6 +72,7 @@ Isola is a tribal society with its own traditions, science, history, and mysteri
 * Different villagers may hold different beliefs, all of which deserve respect.
 * Outsiders and the origins of mysterious objects may remain unknown.
 * Follow the appropriate game-specific lore and terminology.
+* Cloth is a good building and repair material (style guide 8d): sails, awnings, patching roofs and huts, mending nets, bandaged repairs. Only in VV4, which has cloth bolts, does it use up the village's real cloth bolts (when it has some); everywhere else, and in VV4 with none, the cloth is flavor.
 * In VV5, use my respectful Guardians of Isola terminology, including Isolans rather than Heathens, and "the tribe", "a tribe member" or "the newcomers" (whichever fits the sentence) rather than "believers" where the tribe is set against the Isolans, or "a villager of faith", "a person of faith" or "the faithful" where a believer is set against a skeptic or a doubter. In VV5 a Heathen (Isolan) is only ever in an event about meeting them or coming to live with the tribe; give such a role "any faith".
 
 7. Make the Outcomes Matter
@@ -170,6 +171,15 @@ main villager):
   <0-100>. Skills: Farming, Building, Research, Healing, Parenting, and Devotion (VV5 only). Add "FOR <who>" for
   another villager.
   SKILL + BEST a little|some|a lot|hugely raises the villager's own best skill.
+  Crafts count as their main skill (style guide 8c), so <skill> may also be a craft: cooking, fishing, gathering,
+  hunting, trapping = Farming; carving, sculpture, weaving, pottery, canoe-making, jewelry, craftmaking,
+  weaponsmithing, bow-making = Building; archery = Farming or Building; stargazing, scroll-keeping, writing, alchemy,
+  mapping, science = Research; potions, stews, remedies, poultices, salves, tonics = Research or Healing; magic,
+  spells, charms, blessings, sigils = Healing or Devotion; herbalism, bonesetting, midwifery, medicine = Healing;
+  teaching, storytelling = Parenting; omens = Research or Devotion; prayer, ritual, devotion = Devotion. Where two
+  skills are named, one of them is picked at random; a game keeps only the skills it has, so in VV1-VV4 magic is
+  Healing and a Devotion-only craft is flavor. Doubt is flavor only (never a skill), and a doodle is not a sigil. Use
+  a craft only where it makes sense; otherwise it is flavor and needs no Effect line.
 - LIKE + <thing>, DISLIKE + <thing>, LIKE - <thing> (no longer likes it), DISLIKE - <thing> (gets over it),
   LIKE + random, DISLIKE + random. Things are the game's own likes words (for example swimming, dancing, fruit).
   Likes and dislikes are not jobs: never write that someone "hates (a job), so" gains a dislike; name the thing the

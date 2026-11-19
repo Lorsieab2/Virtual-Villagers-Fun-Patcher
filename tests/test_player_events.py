@@ -352,6 +352,28 @@ class FormatSectionMatchesTheParser(unittest.TestCase):
             found += 1
         self.assertGreater(found, 30)
 
+    def test_every_craft_the_prompt_lists_parses_to_its_skills(self):
+        # The prompt's crafts lines (style guide 8c) are read back word by word: each "words = Skill or Skill" group
+        # must be what the parser gives for "SKILL + <craft> some".
+        text = re.sub(r"\s+", " ", pe.ai_prompt())
+        m = re.search(r"so <skill> may also be a craft: (.+?)\. Where two skills", text)
+        self.assertIsNotNone(m, "the prompt lists the crafts")
+        groups = 0
+        for group in m.group(1).split("; "):
+            words, skills = group.split(" = ")
+            want = skills.split(" or ")
+            for word in words.split(", "):
+                with self.subTest(craft=word):
+                    got = pe.plain_effect(f"SKILL + {word} some")
+                    self.assertNotIsInstance(got, str, got)
+                    self.assertEqual(got.effects[0]["skills"], want)
+            groups += 1
+        self.assertGreaterEqual(groups, 8)
+        self.assertIn("Doubt is flavor only", text)
+        self.assertIn("a doodle is not a sigil", text)
+        self.assertIn("Only in VV4, which has cloth bolts, does it use up the village's real cloth bolts", text)
+        self.assertIn("sails, awnings, patching roofs and huts, mending nets, bandaged repairs", text)
+
     def test_the_prompt_keeps_the_owner_sections_and_takes_the_players_parts(self):
         s = pe.Settings(count=3, favour=["sea"], rules={"no_deaths": True})
         text = pe.ai_prompt(5, s, "Themes: sea\nNo talking animals.\n# a note\n")
@@ -379,6 +401,16 @@ class FormatSectionMatchesTheParser(unittest.TestCase):
         self.assertEqual(a, pe.STYLE_SOURCE.read_bytes())
         self.assertTrue(a.startswith(b"ISOLA ISLAND EVENT STYLE GUIDE"))
         self.assertIn(b"THE KEY TO THIS GUIDE", a)
+        # The owner's updated master (2026-11-18): crafts, cloth, songs, lavastones, schools of thought, living culture.
+        for heading in (b"8b. DEVOTION IN VV1-VV4", b"8c. CRAFTS COUNT AS THEIR MAIN SKILL",
+                        b"8d. CLOTH IS A BUILDING AND REPAIR MATERIAL", b"8e. SONGS, CHANTS AND SPEECHES",
+                        b"8f. LAVASTONES", b"8g. ISOLA'S SCHOOLS OF THOUGHT", b"10. ALWAYS",
+                        b"Isola has a rich culture and living traditions of its own", b"APPENDIX A"):
+            self.assertIn(heading, a)
+        flat = re.sub(rb"\s+", b" ", a)
+        self.assertIn(b"In VV4, which has cloth bolts, an event that uses cloth this way uses up real cloth bolts", flat)
+        self.assertIn(b"potions, stews, remedies, poultices, salves, tonics and anything similar = Research or Healing",
+                      flat)
         text = pe.ai_prompt()
         self.assertIn(f'follow my style guide, "{pe.STYLE_NAME}"', text)
         self.assertIn("does not apply to my own handwritten events", text)
@@ -619,6 +651,44 @@ class OwnerLayout(unittest.TestCase):
             self.assertEqual(owner.owner_effects(nothing, [1])[0], [])
         with self.assertRaises(owner.Unmapped):
             owner.owner_effects("each now likes the other's favourite job", [1])
+
+    def test_crafts_count_as_their_main_skill(self):
+        # Style guide 8b-8c (the owner, 2026-11-18), in the importer's plain words and the owner's own layout (the GO
+        # files): a craft is its main skill, two skills are one of them at random, doubt and doodles are flavor.
+        import vv_owner_layout as owner
+        want = {
+            "cooking": ["Farming"], "fishing": ["Farming"], "gathering": ["Farming"], "hunting": ["Farming"],
+            "trapping": ["Farming"], "carving": ["Building"], "sculpture": ["Building"], "weaving": ["Building"],
+            "pottery": ["Building"], "canoe-making": ["Building"], "jewelry": ["Building"],
+            "craftmaking": ["Building"], "weaponsmithing": ["Building"], "bow-making": ["Building"],
+            "archery": ["Farming", "Building"], "stargazing": ["Research"], "scroll-keeping": ["Research"],
+            "writing": ["Research"], "alchemy": ["Research"], "mapping": ["Research"],
+            "potions": ["Research", "Healing"], "potion": ["Research", "Healing"], "stews": ["Research", "Healing"],
+            "remedies": ["Research", "Healing"], "poultices": ["Research", "Healing"], "salves": ["Research", "Healing"],
+            "tonics": ["Research", "Healing"], "magic": ["Healing", "Devotion"], "spells": ["Healing", "Devotion"],
+            "charms": ["Healing", "Devotion"], "blessings": ["Healing", "Devotion"], "sigil": ["Healing", "Devotion"],
+            "herbalism": ["Healing"], "bonesetting": ["Healing"], "midwifery": ["Healing"],
+            "teaching": ["Parenting"], "storytelling": ["Parenting"], "omens": ["Research", "Devotion"],
+            "prayer": ["Devotion"], "ritual": ["Devotion"], "devotion": ["Devotion"], "healing": ["Healing"],
+            "doubt": [], "doodle": [], "doodles": [],
+        }
+        for word, skills in want.items():
+            with self.subTest(word=word):
+                got = pe.plain_effect(f"SKILL + {word.title()} some")
+                self.assertNotIsInstance(got, str, got)
+                self.assertEqual([e.get("skills") for e in got.effects], [skills] if skills else [])
+                if not skills:
+                    self.assertIn("flavor only", got.note)
+                effects, _r, _n = owner.owner_effects(f"gains 10 to 20 {word}", [1, 2, 3, 4, 5])
+                self.assertEqual([e.get("skills") for e in effects], [skills] if skills else [])
+        got = pe.plain_effect("MASTER Canoe-making FOR builder1")
+        self.assertEqual(got.effects, [{"do": "skill", "role": "builder1", "skills": ["Building"], "set": 100}])
+        got = pe.plain_effect("EVERYONE: SKILL + Potions a little")
+        self.assertEqual(got.effects[0]["skills"], ["Research", "Healing"])
+        self.assertEqual(owner.owner_effects("skill + weaving (some)", [4])[0][0]["skills"], ["Building"])
+        with self.assertRaises(owner.Unmapped):
+            owner.owner_effects("gains 10 juggling", [1])
+        compiled(SIMPLE.replace("Effect: SKILL + Building a little", "Effect: SKILL + Magic a little"))
 
     def test_the_engine_forms_of_5ee2b3dc0(self):
         import vv_owner_layout as owner
