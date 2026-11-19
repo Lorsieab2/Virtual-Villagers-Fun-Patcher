@@ -695,8 +695,8 @@ class EveryGame(unittest.TestCase):
         self.assertNotIn("Collectibles\n  A New Home has collectibles", text)
 
     def test_vv1_audit(self) -> None:
-        """The A New Home audit (2026-10-25, the stock exe): the skill gain is (50 - skill) x 2 / 10, / 9 for Healing
-        (0x43D814); research never lacks Science (every technology starts at 1, 0x41C43E); the Golden Child regains
+        """The A New Home audit (2026-10-25, the stock exe): the skill gain is (50 - skill) x 2 / 10, / 9 for Building
+        (0x43D814; test_vv1_skill_gain_cases pins which skill that is); research never lacks Science (every technology starts at 1, 0x41C43E); the Golden Child regains
         health on the food store and from The Black Pearl, which also lifts bodies (0x41A050); a crab is 21.02%
         (0x43F4C3); the crop field never stays past 800 (0x42F2C5); duplicates of other groups are gone."""
         data = bytearray(gzip.decompress((FIXTURES / "vv1-huttest-1.ldw.gz").read_bytes()))
@@ -704,7 +704,9 @@ class EveryGame(unittest.TestCase):
         struct.pack_into("<i", data, vv1.SPEED, 6)
         facts = self.page("vv1-huttest-1", data=bytes(data))
         text = text_of(facts)
-        self.assertIn("and by (50 - skill) x 2 ÷ 9 for Healing: 10 at skill 0 (Healing 11)", text)
+        self.assertIn("for Farming, Healing, Research and Breeding, and by (50 - skill) x 2 ÷ 9 for Building: 10 at "
+                      "skill 0 (Building 11)", text)
+        self.assertNotIn("÷ 9 for Healing", text)
         self.assertNotIn("Research gives no tech points", text)
         self.assertIn("Health does come back two ways", text)
         self.assertIn("instead catches a crab worth 55 food 21.02% of the time", text)
@@ -928,6 +930,22 @@ class TreeOfLifeAudit(unittest.TestCase):
                       text)
         self.assertNotIn("(70 - skill) ÷ 9", text)
 
+    def test_failure_gains(self) -> None:
+        # 0x461930 is "the skill is exactly 0.0"; a failure adds 4.0 (0x4AA908) only past its test: je skips the
+        # add when the skill is not 0 in Farming, Healing, Building and Research, jne skips it AT 0 in Parenting.
+        self.assertEqual(self.code(0x461930, 4), ["fldz", "mov eax, dword ptr [esp + 4]",
+                                                  "fcomp dword ptr [ecx + eax*4]", "fnstsw ax"])
+        for at, skill, jump in ((0x462B91, 0, "je 0x462bad"), (0x462FD9, 2, "je 0x462ff5"),
+                                (0x463165, 4, "je 0x463181"), (0x463356, 3, "je 0x463372"),
+                                (0x462E22, 1, "jne 0x462e3e")):
+            with self.subTest(at=hex(at)):
+                self.assertEqual(self.code(at, 3), ["call 0x461930", "test al, al", jump])
+                self.assertEqual(self.code(at - 4, 2), [f"push {skill}", "mov ecx, edi"])
+        text = text_of(self.page("vv4-huttest-1"))
+        self.assertIn("A failed check gives nothing, except 4 points to a villager whose Farming, Healing, Research or "
+                      "Building is exactly 0; Parenting is the other way round", text)
+        self.assertIn("56% fail for +4, 44% succeed for +6", text)
+
     def test_food_amounts_and_the_room(self) -> None:
         self.assertEqual(self.code(0x464A3F, 2), ["push 0x37", "mov ecx, 0x4d6dd0"])      # a crab found: 55
         self.assertEqual(self.code(0x436F0E, 2), ["push 0x23", "mov ecx, 0x4d6dd0"])      # the Mossy Rocks: 35
@@ -943,6 +961,50 @@ class TreeOfLifeAudit(unittest.TestCase):
             self.assertIn(words, text)
         for gone in ("Village & Tree Malaise", "Some effect", "not individually worked out", "the soapy-stew reaction"):
             self.assertNotIn(gone, text)
+
+
+VV1_STOCK = next((p for p in (ROOT / "research" / "stock-executables" / "Virtual Villagers - A New Home.exe",
+                              ROOT / "inputs" / "vv1-stock-copy" / "Virtual Villagers - A New Home.exe")
+                  if p.is_file()), None)
+
+
+class NewHomeSkillCases(unittest.TestCase):
+    """A New Home's skill check 0x43D440 against the stock exe: which case is which skill."""
+
+    def test_vv1_skill_gain_cases(self) -> None:
+        try:
+            import pefile
+            from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+        except ImportError:
+            self.skipTest("pefile and capstone are needed")
+        if VV1_STOCK is None:
+            self.skipTest("the stock A New Home exe is not in research/stock-executables or inputs")
+        pe = pefile.PE(str(VV1_STOCK), fast_load=True)
+        image = pe.get_memory_mapped_image()
+        base = pe.OPTIONAL_HEADER.ImageBase
+
+        def code(at: int, count: int) -> list[str]:
+            return [f"{i.mnemonic} {i.op_str}"
+                    for i in Cs(CS_ARCH_X86, CS_MODE_32).disasm(image[at - base:at - base + 48], at)][:count]
+
+        # The callers pass the job number 1-5 (dispatcher cases: 1 food, 2 children, 3 research, 4 building,
+        # 5 healing); `dec eax` and the table 0x43DA10 pick the case.
+        self.assertEqual(code(0x43D447, 1), ["dec eax"])
+        self.assertEqual(code(0x43D454, 1), ["jmp dword ptr [eax*4 + 0x43da10]"])
+        table = struct.unpack_from("<5I", image, 0x43DA10 - base)
+        self.assertEqual(table, (0x43D45B, 0x43D5BB, 0x43D887, 0x43D7D3, 0x43D705))
+        # Each case reads its skill (record +0x3BC Parenting, +0x3C0 Building, +0x3C4 Farming, +0x3C8 Healing,
+        # +0x3CC Research: src/vv_corrupt_skills.py), and only the Building case divides by 9.
+        reads = {0x43D45B: "dword ptr [edi + 0x3c4]", 0x43D5BB: "dword ptr [edx + esi + 0x3bc]",
+                 0x43D887: "dword ptr [ecx + esi + 0x3cc]", 0x43D7D3: "dword ptr [edx + esi + 0x3c0]",
+                 0x43D705: "dword ptr [ecx + esi + 0x3c8]"}
+        for case, operand in reads.items():
+            with self.subTest(case=hex(case)):
+                self.assertIn(operand, " | ".join(code(case, 10)))
+        self.assertEqual(code(0x43D814, 1), ["mov eax, 0x38e38e39"])          # the Building case (job 4)
+        self.assertEqual(code(0x43D75B, 1), ["mov eax, 0x66666667"])          # the Healing case (job 5)
+        # The heal queue's step is skill 5 and the research session's skill 3 (hidden-gates rules 53 and 59).
+        self.assertEqual(code(0x446D10, 1), ["push 5"])                        # catch-up cure: Healing
 
 
 class InstalledPatches(unittest.TestCase):

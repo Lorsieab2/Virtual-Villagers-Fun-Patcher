@@ -24,7 +24,7 @@ scratchpad spec, mech_vv1\\spec.md, 2026-10-23):
   * Research gives Research / 7, / 5 or / 3 at Science level 1, 2 or 3, after a (Research + 31)% roll
     (0x43B2AB); every technology starts at level 1 (0x41C43E).
   * The skill check 0x43D440: success at rand(100) <= skill + 30; the gain (50 - skill) x 2 / 10, / 9 for
-    Healing.
+    Building (the case at 0x43D7D3, table 0x43DA10 entry 4, record +0x3C0).
   * The Game Mechanics audit (2026-10-25) read every line of this page against the stock exe; each table below
     names its addresses.
   * Mushrooms: while none is out, a 2-in-120 roll every 2 real seconds (0x42351E), so about 2 real
@@ -430,14 +430,15 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             "Research gives the researcher's Research skill ÷ 7, ÷ 5 or ÷ 3 at Science level 1, 2 or 3, rounded "
             "down, when the skill check passes; 2% of tries injure (0 to 9 health). Every technology starts at "
             "level 1."), gm.RUNNING)
-    # The skill check 0x43D440 (one case per skill, table 0x43DA10): success when rand(100) <= skill + 30
-    # (0x43D47B); the gain (50 - skill) x 2 ÷ 10 for Farming, Building, Research and Breeding (0x66666667 >> 34) and
-    # ÷ 9 for Healing (0x38E38E39 >> 33, 0x43D814), rounded toward 0; at 0 or less rand(100) <= 25 and
-    # rand(100) >= skill give 1 (0x43D558..0x43D579); the skill stops at 100.
+    # The skill check 0x43D440 (one case per skill, table 0x43DA10: Farming +0x3C4, Breeding +0x3BC, Research
+    # +0x3CC, Building +0x3C0, Healing +0x3C8): success when rand(100) <= skill + 30 (0x43D47B); the gain
+    # (50 - skill) x 2 ÷ 10 for Farming, Healing, Research and Breeding (0x66666667 >> 34) and ÷ 9 for Building
+    # (0x38E38E39 >> 33, 0x43D814, the case at 0x43D7D3 reading +0x3C0), rounded toward 0; at 0 or less
+    # rand(100) <= 25 and rand(100) >= skill give 1 (0x43D558..0x43D579); the skill stops at 100.
     add("Tech points and effects", "Every job's skill check succeeds at (skill + 31) in 100 (no like or dislike "
                                    "changes it). A success raises the skill by (50 - skill) x 2 ÷ 10, rounded down, "
-                                   "for Farming, Building, Research and Breeding, and by (50 - skill) x 2 ÷ 9 for "
-                                   "Healing: 10 at skill 0 (Healing 11), 8 at 10, 1 at 45. From 46 up that is 0, and "
+                                   "for Farming, Healing, Research and Breeding, and by (50 - skill) x 2 ÷ 9 for "
+                                   "Building: 10 at skill 0 (Building 11), 8 at 10, 1 at 45. From 46 up that is 0, and "
                                    "instead the skill rises by 1 on 26% x (100 - skill)% of successes (14% at 46, "
                                    "2.6% at 90), up to 100.", gm.CODE)
     # The patch turns the five failure branches of 0x43D440 into jumps to the gain (0x43D483, 0x43D5E0, 0x43D72A,

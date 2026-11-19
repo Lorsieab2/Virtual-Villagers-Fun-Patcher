@@ -1386,12 +1386,12 @@ Reached live via step 9 (`0x46A615`), in catch-up via step 9 (`0x464FDA`), and f
     - Evidence: `0x462A8F`–`0x462AE9` (likes 39 → `mov edi,0x42`; dislikes 39 → 0x10; else 0x21; `0x462AD5` Learning: L2 +0xF, L3 +0x1E). Per skill: `RNG(100) > int(skill)+edi` = fail at `0x462B1F` (Farming), `0x462D9D` (Parenting), `0x462FA8` (Healing), `0x4632AD` (Research), `0x463134` (Building).
 23. **A failed roll wipes out the task.** The queued steps are erased (`0x468C60`), so no food, building points or tech points are produced. The villager "shakes their head" instead (action 32).
     - Evidence: `0x462BAF`/`0x462BC6`, and the same at each skill. R-LIVE and R-CATCHUP.
-24. **Skill gain on a success is (70 − skill) ÷ 9 for Farming, Research and Building, ÷ 6 for Healing, and ÷ 5 for Parenting.**
+24. **Skill gain on a success is (70 − skill) ÷ 18 for Farming, Research and Building, ÷ 12 for Healing, and ÷ 10 for Parenting.**
     - The result is rounded down, with a minimum of 7 at skill 0.
     - It is halved if the villager dislikes learning and doubled if they like it.
-    - Once the formula reaches 0 (around skill 62–66), each success has only 50% × (100 − skill)% chance of +1.
+    - Once the formula reaches 0 (from skill 53 in Farming, Research and Building, 59 in Healing, 61 in Parenting, before the doubling or halving), each success has only 51% × (100 − skill)% chance of +1.
     - At skill 100 nothing more is gained.
-    - Evidence: magic constants `0x38E38E39 sar 2` (÷9) at `0x462CB7`/`0x4631C7`/`0x4633F0`; `0x2AAAAAAB sar 1` (÷6) at `0x46304F`; `0x66666667 sar 2` (÷5) at `0x462EC2`. `RNG(100) > 50` / `RNG(100) >= skill` at `0x462CFA`. The skill writer `0x46AD80` clamps to 0..100 (`0x48A7C0` = 100.0).
+    - Evidence: magic constants `0x38E38E39 sar 2` (÷18: the high dword of the product is already ÷4.5) at `0x462CB7`/`0x4631C7`/`0x4633F0`; `0x2AAAAAAB sar 1` (÷12) at `0x46304F`; `0x66666667 sar 2` (÷10) at `0x462EC2`. `RNG(100) > 50` / `RNG(100) >= skill` at `0x462CFA`. The skill writer `0x46AD80` clamps to 0..100 (`0x48A7C0` = 100.0).
 25. **A failed roll gives +4 skill, but only to a villager whose skill is exactly 0 (Farming, Healing, Research, Building).** For **Parenting the test is reversed**: *every* failed Parenting roll by a villager with Parenting above 0 gives +4. This looks like a developer slip.
     - Evidence: `0x461930` returns "skill == 0.0". Farming `0x462B98 je` skip; Healing `0x462FE0 je`; Building `0x46316C je`; Research `0x46335D je`; but Parenting `0x462E29 jne` skip. The +4.0 constant is at `0x4AA908`.
 26. **Tutorial safety net:** in Farming, Parenting and Research, the second failed roll in a game is turned into a success, once. Healing and Building have no such net.
@@ -1745,11 +1745,11 @@ Each chain below was followed through direct calls or vtable slots. **All of it 
    - **On a failure** the action queue is cleared (`0x473440`) and the villager is given behaviour 0x25, "Shaking head".
    - **Beginner's consolation.** A villager failing with a skill of exactly 0 still gains +4.0 skill (`0x46B340`–`0x46B35B`).
      - **Breeding is inverted:** the +4 is given only when the Breeding skill is *not* 0 (`0x46B517` `jne` skips the add when skill==0).
-   - **Skill gain on success** is (70 − skill) ÷ d, with d = 9 for Farming, Research, Building and Devotion, 5 for Breeding, and 6 for Healing.
+   - **Skill gain on success** is (70 − skill) ÷ d, with d = 18 for Farming, Research, Building and Devotion, 10 for Breeding, and 12 for Healing (`0x38E38E39 sar 2`, `0x66666667 sar 2`, `0x2AAAAAAB sar 1`).
      - A skill of exactly 0 gets at least 7.
      - The gain is halved for villagers who dislike learning and doubled for those who like it.
      - Devotion additionally gets + the Spirituality tech level (`0x46BC82`).
-     - When the computed gain is 0 or less (from about skill 62 for d=9), the villager gains +1 only with chance 51% × (100 − skill)%.
+     - When the computed gain is 0 or less (from skill 53 for d=18, 59 for d=12, 61 for d=10), the villager gains +1 only with chance 51% × (100 − skill)%.
      - Evidence: `0x46B3EE`–`0x46B46E` and siblings (divisors `0x38E38E39`, `0x66666667`, `0x2AAAAAAB`).
    - **Which behaviours queue a skill check.** The queue routine is `0x474780`. Callers: farm `0x457968`, `0x457C2D`, `0x457CD4`, `0x463B62` (skill 0); research `0x45A7A8` (skill 3); study medicine `0x455391` (skill 2); build `0x463DC4` and every totem, statue and granary routine (skill 4); Honoring `0x45CC9B` (skill 5). *Reached* (live executor and catch-up `0x46E05A`).
 
