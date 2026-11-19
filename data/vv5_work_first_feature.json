@@ -32,7 +32,7 @@
     {
       "source": "assets/work_first/VVFP Work First.dll",
       "destination": "VVFP Work First.dll",
-      "sha256": "CB54111312C2B034CCDE9B34E5C136C137665A343F37DB47382ADBAB95959637"
+      "sha256": "B4AA921454E6278627884F8BB2D08BC94CF2EB3BC5D5CFC768902B6FC38AF559"
     }
   ],
   "patches": [],
@@ -47,6 +47,36 @@
       "va": "0x46C5CA",
       "stock_bytes": "3898107E01007506",
       "routine": "the Farming case's catch-up test before noni (cmp byte [game+0x17E10], bl; jne): in catch-up a villager whose selected job is Farming is offered noni on the decision's roll, before the Hungry Totem as a dropped farmer already is",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x434D61",
+      "stock_bytes": "C787541C000000000000",
+      "routine": "the build step's end: mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x434E8E",
+      "stock_bytes": "C781541C000000000000",
+      "routine": "the build step's end (second exit): mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x463D1B",
+      "stock_bytes": "C786541C000000000000",
+      "routine": "the wood-hater builder's 40% walk-off: mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x46D021",
+      "stock_bytes": "C780541C000000000000",
+      "routine": "the noni bushes running low (job event 12): mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x46D09A",
+      "stock_bytes": "C781541C000000000000",
+      "routine": "the noni bushes running low (job event 13): mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game",
       "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
     }
   ]

@@ -863,6 +863,49 @@ static __declspec(naked) void vv2_sewing_stub(void) {
     }
 }
 
+/* ---- The untrained mark stays in the save (The Tree of Life, New Believers) */
+/* A task an untrained villager does with the mark lifted can end at one of
+   the game's own "drop the assignment" writes, mov dword [rec+0x1C54], 0:
+   the build step's end (VV4 0x430251 / 0x430361, VV5 0x434D61 / 0x434E8E),
+   the wood-hater's walk-off (VV4 0x45C80D, VV5 0x463D1B), and the berry /
+   noni bushes running low (VV4 0x4644B8 / 0x464531, VV5 0x46D021 /
+   0x46D09A).  That would train the villager for good in the save, so a game
+   without the patch would no longer be stock (the owner: with the patch off,
+   stock).  Each write now leaves a mark of 1 as it is.  In the stock game a
+   villager with the mark never reaches these writes (they never work; a drop
+   first sets its own task code, 2 or more), so nothing else changes.  The
+   game's own end-of-action resets already keep a 1 (VV4 0x45E6DB, VV5
+   0x452D15 / 0x455235 / 0x465D2B). */
+#define KEEP_MARK_STUB(NAME, REG, BACK)                                       \
+    static const unsigned int NAME##_back = BACK;                             \
+    static __declspec(naked) void NAME(void) {                                \
+        __asm {                                                              \
+            __asm pushfd                                                     \
+            __asm cmp dword ptr [REG + 0x1C54], 1                            \
+            __asm je keep                                                    \
+            __asm mov dword ptr [REG + 0x1C54], 0                            \
+            __asm keep:                                                      \
+            __asm popfd                                                      \
+            __asm jmp dword ptr [NAME##_back]                                \
+        }                                                                    \
+    }
+KEEP_MARK_STUB(vv4_keep_430251, edi, 0x43025Bu)
+KEEP_MARK_STUB(vv4_keep_430361, ecx, 0x43036Bu)
+KEEP_MARK_STUB(vv4_keep_45C80D, esi, 0x45C817u)
+KEEP_MARK_STUB(vv4_keep_4644B8, ecx, 0x4644C2u)
+KEEP_MARK_STUB(vv4_keep_464531, edx, 0x46453Bu)
+KEEP_MARK_STUB(vv5_keep_434D61, edi, 0x434D6Bu)
+KEEP_MARK_STUB(vv5_keep_434E8E, ecx, 0x434E98u)
+KEEP_MARK_STUB(vv5_keep_463D1B, esi, 0x463D25u)
+KEEP_MARK_STUB(vv5_keep_46D021, eax, 0x46D02Bu)
+KEEP_MARK_STUB(vv5_keep_46D09A, ecx, 0x46D0A4u)
+/* mov dword ptr [reg + 0x1C54], 0 -- C7 /0 with the register's ModRM byte. */
+static const unsigned char KEEP_EDI[10] = { 0xC7, 0x87, 0x54, 0x1C, 0, 0, 0, 0, 0, 0 };
+static const unsigned char KEEP_ECX[10] = { 0xC7, 0x81, 0x54, 0x1C, 0, 0, 0, 0, 0, 0 };
+static const unsigned char KEEP_ESI[10] = { 0xC7, 0x86, 0x54, 0x1C, 0, 0, 0, 0, 0, 0 };
+static const unsigned char KEEP_EDX[10] = { 0xC7, 0x82, 0x54, 0x1C, 0, 0, 0, 0, 0, 0 };
+static const unsigned char KEEP_EAX[10] = { 0xC7, 0x80, 0x54, 0x1C, 0, 0, 0, 0, 0, 0 };
+
 /* ---- Installing ---------------------------------------------------------- */
 struct site {
     unsigned int va;
@@ -884,7 +927,7 @@ static const unsigned char VV1_PICKER_GATE_ABOVE_5[3] = { 0x83, 0xFE, 0x05 };
 static const unsigned char VV4_OFFER_STOCK[8] = { 0x38, 0x98, 0xA4, 0x71, 0x01, 0x00, 0x75, 0x0B };
 static const unsigned char VV5_OFFER_STOCK[8] = { 0x38, 0x98, 0x10, 0x7E, 0x01, 0x00, 0x75, 0x06 };
 
-#define MAX_SITES 3
+#define MAX_SITES 7
 static const struct site SITES[6][MAX_SITES] = {
     { { 0 } },
     { { VV1_DISPATCHER, VV1_STOCK, sizeof VV1_STOCK, vv1_stub },
@@ -894,9 +937,19 @@ static const struct site SITES[6][MAX_SITES] = {
       { 0x45FF11u, VV2_HUT_CALL_STOCK, sizeof VV2_HUT_CALL_STOCK, vv2_hut_stub, 0xE8 } },
     { { 0 } },                          /* The Secret City: the fix-huts page's stub */
     { { VV4_DISPATCHER, VV4_STOCK, sizeof VV4_STOCK, vv4_stub },
-      { 0x463A30u, VV4_OFFER_STOCK, sizeof VV4_OFFER_STOCK, vv4_offer_stub } },
+      { 0x463A30u, VV4_OFFER_STOCK, sizeof VV4_OFFER_STOCK, vv4_offer_stub },
+      { 0x430251u, KEEP_EDI, 10, vv4_keep_430251 },
+      { 0x430361u, KEEP_ECX, 10, vv4_keep_430361 },
+      { 0x45C80Du, KEEP_ESI, 10, vv4_keep_45C80D },
+      { 0x4644B8u, KEEP_ECX, 10, vv4_keep_4644B8 },
+      { 0x464531u, KEEP_EDX, 10, vv4_keep_464531 } },
     { { VV5_DISPATCHER, VV5_STOCK, sizeof VV5_STOCK, vv5_stub },
-      { 0x46C5CAu, VV5_OFFER_STOCK, sizeof VV5_OFFER_STOCK, vv5_offer_stub } },
+      { 0x46C5CAu, VV5_OFFER_STOCK, sizeof VV5_OFFER_STOCK, vv5_offer_stub },
+      { 0x434D61u, KEEP_EDI, 10, vv5_keep_434D61 },
+      { 0x434E8Eu, KEEP_ECX, 10, vv5_keep_434E8E },
+      { 0x463D1Bu, KEEP_ESI, 10, vv5_keep_463D1B },
+      { 0x46D021u, KEEP_EAX, 10, vv5_keep_46D021 },
+      { 0x46D09Au, KEEP_ECX, 10, vv5_keep_46D09A } },
 };
 static int install_state[6];
 

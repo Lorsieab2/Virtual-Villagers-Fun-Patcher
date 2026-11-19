@@ -30,7 +30,7 @@
     {
       "source": "assets/work_first/VVFP Work First.dll",
       "destination": "VVFP Work First.dll",
-      "sha256": "CB54111312C2B034CCDE9B34E5C136C137665A343F37DB47382ADBAB95959637"
+      "sha256": "B4AA921454E6278627884F8BB2D08BC94CF2EB3BC5D5CFC768902B6FC38AF559"
     }
   ],
   "patches": [],
@@ -45,6 +45,36 @@
       "va": "0x463A30",
       "stock_bytes": "3898A4710100750B",
       "routine": "the Farming case's catch-up test before the fruit trip (cmp byte [game+0x171A4], bl; jne): in catch-up a villager whose selected job is Farming is offered the fruit trip on the decision's roll",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x430251",
+      "stock_bytes": "C787541C000000000000",
+      "routine": "the build step's end (0x430210): mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x430361",
+      "stock_bytes": "C781541C000000000000",
+      "routine": "the build step's end (second exit): mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x45C80D",
+      "stock_bytes": "C786541C000000000000",
+      "routine": "the wood-hater builder's 40% walk-off: mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x4644B8",
+      "stock_bytes": "C781541C000000000000",
+      "routine": "the berry bush running low (job event): mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game",
+      "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
+    },
+    {
+      "va": "0x464531",
+      "stock_bytes": "C782541C000000000000",
+      "routine": "the berry bush running low (second job event): mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game",
       "installed_by": "VVFP Work First.dll, VvfpWorkFirstInstall"
     }
   ]

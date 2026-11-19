@@ -417,6 +417,25 @@ PICKER_RUNTIME = {
             {"va": "0x46C5CA", "stock_bytes": "3898107E01007506",
              "routine": "the Farming case's catch-up test before noni (cmp byte [game+0x17E10], bl; jne): in catch-up a villager whose selected job is Farming is offered noni on the decision's roll, before the Hungry Totem as a dropped farmer already is"}],
 }
+# The untrained mark stays in the save: the game's own "drop the assignment" writes (mov dword
+# [rec+0x1C54], 0) leave a mark of 1 as it is.
+_KEEP_MARK = {
+    "vv4": (("0x430251", "C787541C000000000000", "the build step's end (0x430210)"),
+            ("0x430361", "C781541C000000000000", "the build step's end (second exit)"),
+            ("0x45C80D", "C786541C000000000000", "the wood-hater builder's 40% walk-off"),
+            ("0x4644B8", "C781541C000000000000", "the berry bush running low (job event)"),
+            ("0x464531", "C782541C000000000000", "the berry bush running low (second job event)")),
+    "vv5": (("0x434D61", "C787541C000000000000", "the build step's end"),
+            ("0x434E8E", "C781541C000000000000", "the build step's end (second exit)"),
+            ("0x463D1B", "C786541C000000000000", "the wood-hater builder's 40% walk-off"),
+            ("0x46D021", "C780541C000000000000", "the noni bushes running low (job event 12)"),
+            ("0x46D09A", "C781541C000000000000", "the noni bushes running low (job event 13)")),
+}
+for _game, _sites in _KEEP_MARK.items():
+    for _va, _stock, _what in _sites:
+        PICKER_RUNTIME[_game].append({
+            "va": _va, "stock_bytes": _stock,
+            "routine": f"{_what}: mov dword [rec+0x1C54], 0 -- a mark of 1 (untrained) is left as it is, so a task done with the mark lifted never trains the villager in the save; any other value is cleared as in the stock game"})
 
 
 def work_first_description(game: str) -> str:

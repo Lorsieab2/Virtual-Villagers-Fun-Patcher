@@ -232,6 +232,44 @@ class LiveScheduler(unittest.TestCase):
                 self.assertEqual(jobs(m)[0] == g["farming"], first)
 
 
+KEEP_MARK = {
+    "vv4": ((0x430251, UC_X86_REG_EDI), (0x430361, UC_X86_REG_ECX), (0x45C80D, UC_X86_REG_ESI),
+            (0x4644B8, UC_X86_REG_ECX), (0x464531, None)),
+    "vv5": ((0x434D61, UC_X86_REG_EDI), (0x434E8E, UC_X86_REG_ECX), (0x463D1B, UC_X86_REG_ESI),
+            (0x46D021, UC_X86_REG_EAX), (0x46D09A, UC_X86_REG_ECX)),
+}
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class TheMarkStaysInTheSave(unittest.TestCase):
+    """The owner: with the patch off, stock -- so a task an untrained villager
+    does with the mark lifted never trains them in the save.  Each of the
+    game's own "drop the assignment" writes, run from its site, keeps a mark
+    of 1 and clears anything else as the stock game does."""
+
+    def test_each_reset_keeps_a_mark_of_1(self):
+        from unicorn.x86_const import UC_X86_REG_EDX
+        for game, sites in KEEP_MARK.items():
+            for va, reg in sites:
+                reg = UC_X86_REG_EDX if reg is None else reg
+                for before, after in ((1, 1), (6, 0), (0x1C, 0), (0, 0)):
+                    with self.subTest(game=game, va=hex(va), before=before):
+                        m = world(game, task=before)
+                        self.assertEqual(bytes(m.mu.mem_read(va, 1)), b"\xE9", "the site is hooked")
+                        reached = run_until(m, va, [va + 10], {reg: RECORD})
+                        self.assertEqual(reached, va + 10)
+                        self.assertEqual(m.u32(RECORD + 0x1C54), after)
+
+    def test_the_sites_are_the_stock_resets(self):
+        for game, sites in KEEP_MARK.items():
+            for va, _ in sites:
+                with self.subTest(game=game, va=hex(va)):
+                    code = _stock_bytes_at(game, va, 10)
+                    self.assertEqual(code[0], 0xC7)
+                    self.assertEqual(code[2:], bytes.fromhex("541C000000000000"))
+
+
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
 @unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
 class UntrainedMarkOff(unittest.TestCase):
