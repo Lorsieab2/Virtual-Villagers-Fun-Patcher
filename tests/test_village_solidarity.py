@@ -91,6 +91,19 @@ class TheRules(unittest.TestCase):
         self.assertIsNone(scores.parse(scores.FILE_HEADER + "\r\nVillage Solidarity 101\r\n"))
         self.assertEqual(scores.parse(scores.FILE_HEADER + "\r\n"), {scores.SOLIDARITY_NAME: 50})
 
+    def test_the_help_popup_is_the_owners_words_and_translatable(self) -> None:
+        """The "?" popup (the owner, 2026-11-18: "Use it exactly, word for word"), each part with its own row."""
+        owners = ("Village Solidarity shows how close and united your village feels, from 0 to 100. Good Island event "
+                  "outcomes raise it, bad ones lower it. High Solidarity (greater than 50) can increase the likelihood "
+                  "of more good events happening, while Low Solidarity (less than 50) does the opposite.")
+        source = (NATIVE / "vvfp_village_solidarity.c").read_text(encoding="utf-8")
+        body = source[source.index("#define SOL_HELP_TEXT"):source.index("static const char *sol_help_title")]
+        self.assertEqual("".join(re.findall(r'"((?:[^"\\]|\\.)*)"', body)), owners)
+        rows = {r["stem"]: r["english"] for r in json.loads(
+            (ROOT / "data" / "translations" / "patcher_strings.json").read_text(encoding="utf-8"))["strings"]}
+        self.assertEqual(rows["vvfp.village_solidarity/vvfp_village_solidarity.SOL_HELP_TEXT.s0"], owners)
+        self.assertEqual(rows["vvfp.village_solidarity/vvfp_village_solidarity.SOL_HELP_TITLE.s0"], "Village Solidarity")
+        self.assertIn('vvfp_tr("vvfp.village_solidarity/vvfp_village_solidarity.SOL_HELP_TEXT.s0"', source)
     def test_the_feeling_words(self) -> None:
         self.assertEqual(scores.tag_for_text("Everyone sang, grateful and happy."), "raise")
         self.assertEqual(scores.tag_for_text("The quarrel stays unresolved, and resentment grows."), "lower")
