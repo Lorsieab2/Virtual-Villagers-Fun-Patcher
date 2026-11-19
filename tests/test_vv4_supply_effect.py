@@ -89,8 +89,11 @@ class PatcherSide(unittest.TestCase):
         self.assertIn("game 4", str(ctx.exception))
 
     def test_no_automatic_line(self):
+        # #823 (merged with #806): the supply's line is written by the game as the change is made (cg_after_line), so
+        # a simulated run has none; the fit check counts the widest line it can write.
         e = {"do": "supply", "item": "cloth", "min": 1, "max": 1}
-        self.assertEqual(cg.auto_line_options(e, 4), [])
+        self.assertEqual(cg.auto_line_options(e, 4, fx=[1, 0]), [])
+        self.assertEqual(cg.auto_line_options(e, 4), ["The village gains 99999 cloth."])
 
 
 @emulated

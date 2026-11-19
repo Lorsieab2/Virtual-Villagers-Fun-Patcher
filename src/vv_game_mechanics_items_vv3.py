@@ -83,7 +83,11 @@ DEFAULT_OFF = frozenset({"vv3_learning_never_fails", "vv3_everyone_collects_like
                          "vv3_hungrier_villagers", "vv3_sickness_multiplier", "vv3_fruit_trees_refill_to_full",
                          "vv3_collectibles_stay_collected", "vv3_more_island_events",
                          "vv3_scrolling_popups", "vv3_isola_grand_event_collection", "vv3_gender_presentation",
-                          "vv3_more_frequent_island_events", "vv3_village_solidarity"}) | frozenset(  # the island events' content controls (the owner, 2026-11-15)
+                          "vv3_more_frequent_island_events", "vv3_village_solidarity",
+                          # the 0.1x-10x sliders (#799), One-Time Collectibles Appear Again (#800) and Every Island
+                          # Event Can Happen (#797): off by default
+                          "vv3_collectible_frequency", "vv3_food_gain", "vv3_tech_gain", "vv3_skill_success",
+                          "vv3_age_speed", "vv3_one_time_collectibles_again", "vv3_every_island_event_can_happen"}) | frozenset(  # the island events' content controls (the owner, 2026-11-15)
     {"vv3_island_event_content_notes", "vv3_island_events_any_time"}
     | {f"vv3_island_event_filter_f{n:02d}" for n in range(1, 29)})
 
@@ -681,11 +685,11 @@ def _patcher() -> list[Entry]:
         ("Tech Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: the tech points research "
                                "earns are doubled (with the chief's, Magic's, the potion's and the fire's extra "
                                "points), and so are duplicate collectibles; island events, rewards, purchases and "
-                               "cheats are not.", UNCONFIRMED),
+                               "cheats are not.", VERIFIED_C),
         ("Food Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: the food gathered from food "
                                "sources is doubled (fruit, honey, fish, crabs and mushrooms, with the chief's "
                                "bonuses), and so is the chief's grant of food; island events, other rewards, "
-                               "purchases and cheats are not.", UNCONFIRMED),
+                               "purchases and cheats are not.", VERIFIED_C),
         ("Full Heal", f"{o}: {_tp(30_000)} on the Tech screen's Origins upgrades: every living villager below 80 "
                       "health is brought to 100 (from 80 to 99 they keep their health), and every sick villager is "
                       "cured, each counting in People Cured; with nobody below 80 and nobody sick, the 30,000 are "

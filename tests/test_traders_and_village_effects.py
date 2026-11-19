@@ -143,6 +143,8 @@ class GameSide(unittest.TestCase):
             world = r.p.alloc(0x13000)
             r.p.stub(0x428B60, lambda q: (world, 0))
             r.p.mu.hook_add(UC_HOOK_CODE, r.p._on_code, begin=0x428B60, end=0x428B60)
+            # #808 (merged): the companion reads the world the game keeps at 0x4B309C, never the getter
+            r.p.put32(0x4B309C, world)
             r.world3 = world
         if game == "vv4" and r.p.u32(0x4CB51C) == 0:
             r.p.put32(0x4CB51C, r.p.alloc(0x18000))
@@ -408,8 +410,10 @@ class GameSide(unittest.TestCase):
                     g["nodes"]["p0"]["auto_text"] = True
                     r, shown = self.run_graph(game, g, lambda r, food=food: self.set_food_tech(r, food, 5))
                     text = " ".join(s[1] for s in shown)
-                    self.assertEqual("The village loses food." in text, told)
-                    self.assertIn("The village gains tech points.", text)
+                    # The result lines say the amount (#821 / #822's wording, the owner's approved lines).
+                    self.assertEqual("The village loses 20 food." in text, told)
+                    self.assertNotIn("The village loses 40 food.", text)
+                    self.assertIn("The village gains 30 tech points.", text)
                     self.assertEqual(self.food_tech(r), (0, 35))
 
     def test_construction_never_reaches_the_weather(self):

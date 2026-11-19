@@ -70,7 +70,10 @@ DEFAULT_OFF = frozenset({"vv4_learning_never_fails", "vv4_everyone_collects_like
                          "vv4_collectibles_stay_collected", "vv4_island_events_scale_with_population",
                          "vv4_island_events_scale_with_stored_amounts", "vv4_more_island_events",
                          "vv4_scrolling_popups", "vv4_isola_grand_event_collection", "vv4_gender_presentation",
-                          "vv4_more_frequent_island_events", "vv4_village_solidarity", "vv4_up_to_99_supplies", "vv4_birth_control"}) | frozenset(  # the island events' content controls (the owner, 2026-11-15)
+                          "vv4_more_frequent_island_events", "vv4_village_solidarity", "vv4_up_to_99_supplies", "vv4_birth_control",
+                          # the 0.1x-10x sliders (#799) and One-Time Collectibles Appear Again (#800): off by default
+                          "vv4_collectible_frequency", "vv4_food_gain", "vv4_tech_gain", "vv4_skill_success",
+                          "vv4_age_speed", "vv4_one_time_collectibles_again"}) | frozenset(  # the island events' content controls (the owner, 2026-11-15)
     {"vv4_island_event_content_notes", "vv4_island_events_any_time"}
     | {f"vv4_island_event_filter_f{n:02d}" for n in range(1, 29)})
 
@@ -599,11 +602,11 @@ def _patcher() -> list[Entry]:
         ("Tech Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: the tech points research "
                                "earns are doubled (with the Lab Equipment bonus and the fire's extra point), and so "
                                "are duplicate collectibles; island events, rewards, purchases and cheats are not.",
-         UNCONFIRMED),
+         VERIFIED_C),
         ("Food Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: the food gathered from food "
                                "sources is doubled after Food Mastery (blackberry bushes, cutting-tool berries, "
                                "yellow breadfruit, fish, golden fish, crabs and mushrooms); island events, rewards, "
-                               "purchases and cheats are not.", UNCONFIRMED),
+                               "purchases and cheats are not.", VERIFIED_C),
         ("Full Heal / Cure All", f"{o}: {_tp(30_000)}: every sick villager is cured and every villager is restored "
                                  "to full health; nothing is taken when everyone is already healthy.", VERIFIED_C),
         ("Complete All Collections", f"{vw}: {_tp(1_000_000)}: every collection piece is marked found; nothing is "
