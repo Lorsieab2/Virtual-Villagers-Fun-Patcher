@@ -2195,15 +2195,15 @@ Makes the game play as hard as the classic Virtual Villagers games; off by defau
 
 #### Complete Fish Scales = Golden Fish in Nets (`vv4_complete_scales_golden_fish`)
 
-Golden Fish become eligible in the fishing nets only after all 12 Fish Scales are collected. This changes the stock partial-collection threshold while preserving the completed collection's original 25% Golden Fish chance and every other fishing outcome.
+Golden Fish neither appear nor can be caught until all 12 Fish Scales are collected. In the stock game the fishing nets already show a Golden Fish in their catch pile from the 2nd scale and can catch one from the 1st; this patch raises both to all 12. With all 12 scales everything is exactly stock: the Golden Fish shows in both nets and the original 25% Golden Fish chance and every other fishing outcome are kept.
 
 **Requires no other patch to be ticked.**
 
-- Behavior changes: Golden Fish become eligible in the fishing nets only after all 12 Fish Scales are collected. This changes the stock partial-collection threshold while preserving the completed collection's original 25% Golden Fish chance and every other fishing outcome.
+- Behavior changes: Golden Fish neither appear nor can be caught until all 12 Fish Scales are collected. In the stock game the fishing nets already show a Golden Fish in their catch pile from the 2nd scale and can catch one from the 1st; this patch raises both to all 12. With all 12 scales everything is exactly stock: the Golden Fish shows in both nets and the original 25% Golden Fish chance and every other fishing outcome are kept.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Copy and Paste in Text Boxes (`vv4_copy_paste`)
 

@@ -355,7 +355,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         f"{levels(55)}; a brown mushroom {levels(6)}, a red one {levels(35)}."
                         + gm.flat_pick_mastery(village, FLAT, flat, levels), gm.RUNNING)
     if village.has(SCALES) is not False:
-        add("Food sources", gm.patch_words(village, SCALES, "a Golden Fish needs all 12 scales"))
+        add("Food sources", gm.patch_words(village, SCALES, "a Golden Fish shows in the nets and is caught only with all 12 scales"))
     # The fishing nets need the piers fixed (stage [0x4D86AC] >= 2, 0x4334CC) and the Clothing Hut built (0x4334FC).
     # Cloth Invented's drop 0x436D40: the Clothing Hut finished -> cutting the pulpy vines (action 0x7A, the only start
     # of the cloth chain); with the patch also Science 3.  Fixing the piers (action 0x80: the drop 0x4334D5, the

@@ -255,9 +255,9 @@ def _puzzles() -> list[Entry]:
         Entry(PUZZLE, "Fishing Nets", (
             "solved in 1 step. Solved, fishing is offered: 4 food a fish before Food Mastery, or 8 for a Golden "
             "Fish, which comes (2 x fish scales found + 1)% of the time -- 3% with 1 scale, 25% with all 12, never "
-            "with none."), VERIFIED_E,
-            ((patch("vv4_complete_scales_golden_fish") + ": a Golden Fish comes only with all 12 scales (25% of the "
-              "time).", UNCONFIRMED),
+            "with none. From the 2nd scale the nets' catch pile shows a Golden Fish in both nets."), VERIFIED_E,
+            ((patch("vv4_complete_scales_golden_fish") + ": a Golden Fish neither shows in the nets nor is caught "
+              "until all 12 scales are found; then it shows and comes 25% of the time.", UNCONFIRMED),
              # The nets' drop: the Clothing Hut test 0x4334FC; the piers 0x4334CC; the builders' job choice (the
              # Building dispatcher 0x463DD8: piers not fixed and some work done).
              ("Mending the nets needs the Clothing Hut finished: once the piers are fixed, a villager dropped on the "
