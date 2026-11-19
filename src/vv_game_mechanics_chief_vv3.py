@@ -10,8 +10,11 @@ THE STOCK EXE (research/stock-executables, The Secret City).
     0x422574 any fruit tree 0x17, 0x422690 / 0x42271A / 0x4227AA / 0x422835 huts 0xB / 0xC / 0xD / 0xF, 0x4229AE
     The Ruins 0x1B, 0x422A0F The Roster of the Dead 0x1D, 0x4698E6 the sea 0x1C once The Sharks is solved).
   * The chief never takes a job (0x45C110 -> 0x45BDA0).  Each time it chooses what to do: a chief under 14 (age
-    shown < 280) plays on rand(100) <= 6 (0x45BDB7); then the game's own check 0x45FF30(0x2D) can send it to
-    behaviour 0x8A first; then, with a site, 0x458C70; else it wanders.  0x458C70 (its table at 0x458D94) clears
+    shown < 280) plays on rand(100) <= 6 (0x45BDB7); then 0x45FF30(0x2D) -> 0x45ECB0 looks for the first present
+    villager whose current behaviour (+0xF24) is 0x2D, "Not feeling well" (string 0x11C, handler 0x449FC0; the
+    sickness roll starts it at 0x4602B8), and if there is one the chief runs behaviour 0x8A, "Concerned about the
+    sick" (string 0x1E4, handler 0x452540: three walks, each followed by a wait of rand(20) + 1, and nothing
+    else), with no roll; then, with a site, 0x458C70; else it wanders.  0x458C70 (its table at 0x458D94) clears
     the site when its work is over -- the Hospital (9) and site 10 at once, a hut once built (0x4321F0), the hive
     while The Bee Hive is not solved, The Ancient Bath (puzzle 7), the scaffolding (puzzle 8), The Ruins (puzzle
     6), The Roster of the Dead (puzzle 3) once solved, the trees once none is planted with fruit -- and otherwise
@@ -169,13 +172,17 @@ def facts(village: gm.Village, leadership: int, science: int, solved) -> list[gm
         "Dead, The Ruins and the Statue's scaffolding end when finished; the bee hive ends at once while The Bee Hive "
         "is not solved; the fruit trees end when no tree is planted and ready. Dropping the chief somewhere else "
         "changes the site.")
-    add("Before directing, a chief under 14 plays 7 times in 100, and a check the game makes first can send the "
-        "chief to another task (what that check looks for was not traced). Directing itself is a short walk to the "
-        "site and gestures: it costs and earns the chief nothing, and gives no skill.", False)
+    add("Before directing, each time the chief chooses what to do: a chief under 14 plays 7 times in 100; then, if "
+        "any villager is \"Not feeling well\" at that moment (the action a villager starts when it falls sick, among "
+        "others), the chief always goes \"Concerned about the sick\" instead: three short walks with a short wait "
+        "after each, which cure no one and change nothing; then it chooses again. There are no odds on it: as long "
+        "as someone is \"Not feeling well\" the chief keeps doing that, and directs work only once no one is. The "
+        "bonus still comes meanwhile, as it needs only the chief's site. Directing itself is a short walk to the "
+        "site and gestures: it costs and earns the chief nothing, and gives no skill.")
     add(f"The roll: each time someone's work at the chief's site pays off, the game rolls 0 to 99 and adds the "
         f"bonus when the roll is under 25 x Leadership: 25%, 50% or 75% at Leadership 1, 2 or 3, never at 0 "
         f"(this village: {pct}). The chief must be alive and not sick; where the chief stands or what it is doing "
-        "does not matter, so the bonus also comes while the chief buries the dead or wanders.")
+        "does not matter, so the bonus also comes while the chief is concerned about the sick, plays or wanders.")
     add("What it adds, by site:")
     for label, site in (("The sea (once The Sharks is solved)", SEA), ("Any fruit tree", TREE),
                         ("The bee hive (once The Bee Hive is solved)", HIVE), ("Research", 4), ("Any hut", 0xB),

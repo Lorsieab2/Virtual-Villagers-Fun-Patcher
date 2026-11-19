@@ -151,6 +151,24 @@ class DirectingWork(unittest.TestCase):
                       "no Food Mastery and no \"Food Gains are Flat\" patch"):
             self.assertIn(words, text)
 
+    def test_the_check_before_directing_is_the_sick(self) -> None:
+        text = "\n".join(self.facts(chief.Chief("Chief", chief.SEA, False, 100)))
+        self.assertIn("if any villager is \"Not feeling well\" at that moment", text)
+        self.assertIn("the chief always goes \"Concerned about the sick\" instead", text)
+        self.assertIn("There are no odds on it", text)
+        self.assertNotIn("not traced", text)
+        stock = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
+        if not stock.is_file():
+            self.skipTest("stock executables not present")
+        exe = stock.read_bytes()
+        # 0x45BDD8: push 0x2D (the behaviour looked for), then on a hit push 0x8A (the chief's own) at 0x45BDED.
+        self.assertEqual(exe[0x5BDD8:0x5BDDA], bytes.fromhex("6A2D"))
+        self.assertEqual(exe[0x5BDED:0x5BDF2], bytes.fromhex("688A000000"))
+        import island_event_exe as strings
+        if strings.available(3):
+            self.assertEqual((strings.text(3, 0x11C), strings.text(3, 0x1E4)),
+                             ("Not feeling well", "Concerned about the sick"))
+
     def test_the_roll_matches_the_exe(self) -> None:
         self.assertEqual([chief.chance(n) for n in range(4)], [0.0, 0.25, 0.5, 0.75])
         stock = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
