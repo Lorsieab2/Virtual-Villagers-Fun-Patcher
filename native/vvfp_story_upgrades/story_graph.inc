@@ -2921,8 +2921,8 @@ static void cg_new_name(const ce_adapter *a, int game, int r) {
 
 /* Bind every planned role (the game's random routine among those who keep the rest fillable), and each
    stranger's sex.  1 when bound. */
-/* 28 / 29, CG_FX_PARTNER_MAY_CARRY (the owner, 2026-11-18): who carries is decided ONCE, when the cast is made --
-   before any page is written -- so every page (names, pronouns, carrier words) names the villager who actually
+/* 28 / 29, CG_FX_PARTNER_MAY_CARRY (the owner, 2026-11-18): who carries is decided ONCE, when the run starts (the
+   cast made and the aliases drawn -- an alias role is its member -- before any page is written), so every page (names, pronouns, carrier words) names the villager who actually
    carries, and the effect makes the same one carry.  For each such effect with a partner role, in effect order, each
    pair once: the carrier must pass the carrier's checks as the effect does (18 or more, not expecting, born female
    unless any_birth_sex), the partner 18 or more and not expecting; then, at the player's chance
@@ -2937,12 +2937,18 @@ static void cg_partner_carry_decide(const ce_adapter *a, int game) {
     int i;
     for (i = 0; i < cg_g.n_effect; ++i) {
         const unsigned char *e = cg_effect_at(&cg_g, i);
-        int c = (int)e[1], p = (int)cg_u32(e + 4), t;
+        int written = (int)e[1], c, p, t;
         unsigned char *cr, *pr;
         unsigned int id;
         char name[CG_NAME_BYTES];
         if ((e[0] != CGE_PREGNANT && e[0] != CGE_NURSING) || !(e[2] & CG_FX_PARTNER_MAY_CARRY)
-            || c >= cg_g.n_role || p >= cg_g.n_role || c == p || (decided & ((1u << c) | (1u << p)))) {
+            || written >= cg_g.n_role || cg_u32(e + 4) >= (unsigned int)cg_g.n_role) {
+            continue;
+        }
+        /* an alias (or "other") role is its member drawn (Codex on #814: the aliases are drawn before this) */
+        c = cg_resolve_role(written);
+        p = cg_resolve_role((int)cg_u32(e + 4));
+        if (c < 0 || p < 0 || c == p || (decided & ((1u << c) | (1u << p)))) {
             continue;
         }
         decided |= (1u << c) | (1u << p);
@@ -2961,7 +2967,7 @@ static void cg_partner_carry_decide(const ce_adapter *a, int game) {
         memcpy(name, cg.name[c], sizeof name);
         memcpy(cg.name[c], cg.name[p], sizeof name);
         memcpy(cg.name[p], name, sizeof name);
-        cg.carry_swapped |= 1u << c;
+        cg.carry_swapped |= 1u << c;   /* the role itself (an alias's member): effects resolve their role first */
     }
 }
 
@@ -3058,7 +3064,6 @@ static int cg_bind(int game) {
             cg_new_name(a, game, r);           /* 28: in role order, after every villager */
         }
     }
-    cg_partner_carry_decide(a, game);
     return 1;
 }
 
@@ -5812,7 +5817,8 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         /* the partner carries (any birth sex): decided at the cast, the roles already swapped
            (cg_partner_carry_decide), so `record` is the partner who carries and `other` the villager the event named
            as the carrier */
-        int swapped_role = e[1] < 32u && ((cg.carry_swapped >> e[1]) & 1u);
+        int resolved = cg_resolve_role((int)e[1]);   /* an alias: its member drawn */
+        int swapped_role = resolved >= 0 && resolved < 32 && ((cg.carry_swapped >> resolved) & 1u);
         int partner_carries = (e[2] & CG_FX_PARTNER_MAY_CARRY) && swapped_role;
         /* Codex on #814: the swap holds for the whole run, so another outcome's nursing baby for that role (a
            foundling the couple takes in: b247, b356) goes to the villager the page names, whatever their birth sex,
@@ -7071,6 +7077,7 @@ static void cg_start_run(const ce_adapter *a, int game) {
     cg.answers = 0;
     cg.choice = -1;
     cg_draw_aliases(a, cg.bound);      /* version 6: before the first node (at the purchase for a question) */
+    cg_partner_carry_decide(a, game);  /* who carries: the cast and the aliases made, no page yet written */
     cg_walk(a, game, cg_g.start, &first, NULL, NULL);   /* its picks are the path's own */
     cg_path_add(&first, NULL, 0);
     cg_layout_from(a, game, 0, 0);

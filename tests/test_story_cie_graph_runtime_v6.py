@@ -345,6 +345,27 @@ class PartnerCarryNamesFollow(unittest.TestCase):
                     shown = r.walk_through()
                     self.check(r, game, carrier, partner, shown)
 
+    def test_an_alias_carrier_is_its_member(self):
+        """Codex on #814: a pregnancy on an alias role is decided for the member drawn (the aliases come first)."""
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            g = carry_graph(game)
+            g["roles"]["chosen"] = {"kind": "alias", "of": ["subject"]}
+            g["nodes"]["p1"] = {"text": "(Chosen) is pregnant, and (chosen.he/she) beams at (friend).",
+                                "effects": [{"do": "pregnant", "role": "chosen", "partner": "friend",
+                                             "partner_may_carry": True}]}
+            for percent, carrier, partner in ((0, 0, 1), (100, 1, 0)):
+                with self.subTest(game=game, percent=percent):
+                    r = V6(game, self.PEOPLE)
+                    text = f"vv{r.n}\n# partner_carry_percent={percent}\n"
+                    buf = r.p.alloc(len(text) + 1)
+                    r.p.write(buf, text.encode("ascii") + b"\0")
+                    r.p.export("VvfpStoryProbeInstalledPatches", r.n, buf)
+                    r.rolls([0] * 40)
+                    self.assertIsNone(r.queue6(compiled(g)))
+                    self.check(r, game, carrier, partner, r.walk_through())
+
     def test_the_other_outcomes_foundling_follows_the_swap(self):
         """Codex on #814 (b247, b356): the swap holds for the run, so the other answer's unflagged nursing baby for
         the carrier role goes to the villager the page names (a father may care for a baby)."""

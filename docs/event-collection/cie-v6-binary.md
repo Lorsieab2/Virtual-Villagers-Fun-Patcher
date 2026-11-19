@@ -1109,11 +1109,13 @@ codes that a `vv_cie_graph` without them does not know.) The run-time side (stor
   Pregnancy). `"partner_may_carry": true` (flags bit 3, value 8; needs `partner`): the carrier is still checked as
   above, then, at the player's "a man may carry the baby by chance" percent (10 unless moved), the partner carries
   instead, of any birth sex, when they are 18 or older and not expecting already; else the carrier does. **Who
-  carries is decided once, when the cast is made, before any page is written** (the owner, 2026-11-18;
-  `story_graph.inc cg_partner_carry_decide`, `vv_cie_graph.partner_carry_pairs`): each such effect's pair once, in
-  effect order, one roll (none at 0 or 100 percent); on a yes the two roles' villagers change places for the whole
-  run, so every page's names, pronouns and carrier words name the villager who carries, the effect makes that
-  villager carry (the born-female check skipped for them) and the conception records the other as the other parent.
+  carries is decided once, when the run starts (the cast made and the aliases drawn), before any page is written**
+  (the owner, 2026-11-18; `story_graph.inc cg_partner_carry_decide`, `vv_cie_graph.partner_carry_pairs`): each
+  such effect's pair once (an alias role as its member drawn), in effect order, one roll (none at 0 or 100 percent);
+  on a yes the two roles' villagers change places for the whole run, so every page's names, pronouns and carrier
+  words name the villager who carries, the effect makes that villager carry (the born-female check skipped for them)
+  and the conception records the other as the other parent. Another outcome's `nursing` for the swapped role (a
+  foundling the couple takes in) also goes to the villager the page names, whatever their birth sex.
   The run's file (version 5) keeps the swap (`carry_swapped`): a loaded run keeps the choice whatever the setting
   says by then; a version 4 file loads with nobody swapped. The new events set it on every couple pregnancy (`pregnant` with a partner and without `any_birth_sex`); a reason-based
   one (`any_birth_sex`), a single parent and a `nursing` foundling never do.
