@@ -1231,6 +1231,14 @@ def _parse_simple(block: list[tuple[int, str]], file: str, how: str) -> Item:
         if key and kname == "filters" and mode in ("outcome",):
             outcome["filters"] += split_list(key.group(2))
             continue
+        if key and kname == "solidarity" and mode in ("outcome",):
+            # Village Solidarity: the outcome page's tag (cie-v6-binary.md 32); text only without the patch.
+            word = key.group(2).strip().lower()
+            if word in cie.SOLIDARITY_CODES:
+                outcome["solidarity"] = word
+            else:
+                it.problem(ln, f"Solidarity: {key.group(2).strip()!r} is not raise, lower or neutral")
+            continue
         if key and kname in ("auto lines", "auto_lines") and outcome is not None:
             outcome["auto"] = key.group(2).strip().lower() in ("yes", "on", "true")
             continue
@@ -1544,6 +1552,8 @@ def _finish_simple(it: Item) -> None:
                 node["auto_text"] = True
             if coda:
                 node["children"] = [{"next": "coda"}]
+            if o.get("solidarity"):
+                node["solidarity"] = o["solidarity"]
             if o["filters"]:
                 meta.setdefault("node_filters", {})[oid] = o["filters"]
             nodes[oid] = node
@@ -3224,6 +3234,13 @@ main villager):
 Optional lines: "Requires: population 20+" (or "3 children+", "golden child present", "chief present"),
 "Filters: F05" under an outcome (content filter tags: the patcher adds most by itself), "Description: one sentence for
 the Pick Island Event list", "Coda:" (a closing paragraph shown after every outcome).
+"Solidarity: raise", "Solidarity: lower" or "Solidarity: neutral" under an outcome, only when its text clearly
+carries one of these feelings: raise for songs and gatherings, fair resolutions, mutual aid, welcoming newcomers,
+happiness, togetherness, trust, comfort, gratitude, pride, hope, courage, respect, relief, reconciliation or
+inspiration; lower for unresolved conflicts, unfairness, broken promises, wrongs left unaddressed, tension, distrust,
+resentment, fear or worry, divisive shame, grief left alone or division; neutral for solemn remembrance, quiet
+reflection, bittersweet moments or private choices respected. Otherwise leave the line out. It changes nothing in the
+game unless the Village Solidarity patch is on, and then it only shifts the odds of new events.
 Role words: adult, child, teen, elder, 18 to 50, 30+, male, female, skill Healing 20+, best at Healing, spouse of
 <who>, parent of <who>, child of <who>, sibling of <who>, within 10 years of <who>, optional, speaks, carrier,
 golden child, tribal chief, stranger, named stranger, any faith (VV5: an Isolan may take it).

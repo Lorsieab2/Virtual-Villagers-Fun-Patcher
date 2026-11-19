@@ -81,6 +81,8 @@ Choice 2: Leave (Him/Her) to It
 - `Filters: F05, Grief and bereavement` under an outcome: that outcome is dropped when that content filter is ticked
   (the patcher also tags every outcome by its effects and words, as it does the collection). At the top: the whole
   event.
+- `Solidarity: raise|lower|neutral` under an outcome: that page's Village Solidarity tag (the graph node's
+  `solidarity`, cie-v6-binary.md 32). Any other word is a problem. Text only unless the Village Solidarity patch is on.
 - `Coda:` a closing paragraph shown after every outcome.
 - `Auto Lines: yes` (top, or under one outcome): the game's automatic lines after the text ("Kai gains some
   Building skill.").

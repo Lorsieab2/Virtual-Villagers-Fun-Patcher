@@ -288,6 +288,68 @@ class TwoClones(unittest.TestCase):
 
     def test_more_than_two_is_refused(self):
         self.assertIsInstance(pe.plain_effect("CLONE OF helper (3)"), str)
+
+
+class VillageSolidarityTag(unittest.TestCase):
+    """"Solidarity: raise|lower|neutral" under an outcome: the page's node tag (cie-v6-binary.md 32)."""
+
+    TAGGED = SIMPLE.replace("  Effect: FOOD GAIN (small)\n", "  Effect: FOOD GAIN (small)\n  Solidarity: Raise\n") \
+                   .replace("  Effect: INJURY helper (minor)\n", "  Effect: INJURY helper (minor)\n  Solidarity: lower\n")
+
+    @staticmethod
+    def node_flags(cieg: bytes) -> dict[str, int]:
+        """Each node's flags byte (byte 3 of its record), read straight from the compiled file."""
+        h = cie._HEADER6.unpack_from(cieg, 0)
+        n_node, n_string, o_node, o_string = h[10], h[15], h[19], h[25]
+        offs = [struct.unpack_from("<I", cieg, o_string + 4 * i)[0] for i in range(n_string)]
+        base = o_string + 4 * n_string
+        out = {}
+        for i in range(n_node):
+            rec = o_node + i * cie._NODE.size
+            sid = struct.unpack_from("<H", cieg, rec + 4)[0]
+            name = cieg[base + offs[sid]:cieg.index(b"\0", base + offs[sid])].decode("ascii")
+            out[name] = cieg[rec + 3]
+        return out
+
+    def test_the_line_tags_the_outcome_page_and_compiles_to_the_flag_bits(self):
+        c = compiled(self.TAGGED)
+        nodes = c.graph["nodes"]
+        self.assertEqual(nodes["c1o1"]["solidarity"], "raise")
+        self.assertEqual(nodes["c1o2"]["solidarity"], "lower")
+        self.assertNotIn("solidarity", nodes["c2o1"])
+        flags = self.node_flags(c.cieg)
+        self.assertEqual(flags["c1o1"], 2)          # raise: code 1 in bits 1-2
+        self.assertEqual(flags["c1o2"], 4)          # lower: code 2
+        self.assertEqual(flags["c2o1"], 0)
+        back = cie.decompile_graph(c.cieg)
+        self.assertEqual(back["nodes"]["c1o1"]["solidarity"], "raise")
+        self.assertEqual(back["nodes"]["c1o2"]["solidarity"], "lower")
+        self.assertNotIn("solidarity", back["nodes"]["c2o1"])
+        neutral = compiled(SIMPLE.replace("* Outcome B: The coconut rolls into the sea.\n",
+                                          "* Outcome B: The coconut rolls into the sea.\n  Solidarity: neutral\n"))
+        self.assertEqual(self.node_flags(neutral.cieg)["c1o2"], 6)
+
+    def test_the_tag_round_trips_through_the_full_format(self):
+        it = one(self.TAGGED)
+        text = pe.full_text(it.graph, {})
+        self.assertIn("  solidarity: raise\n", text)
+        again = one(text)
+        self.assertEqual([str(p) for p in again.problems], [])
+        self.assertEqual(again.graph["nodes"]["c1o1"]["solidarity"], "raise")
+        self.assertEqual(again.graph["nodes"]["c1o2"]["solidarity"], "lower")
+        c, probs = pe.compile_item(again, "pl_test_001")
+        self.assertIsNotNone(c, probs)
+        self.assertEqual(self.node_flags(c.cieg), self.node_flags(compiled(self.TAGGED).cieg))
+
+    def test_another_word_is_refused(self):
+        it = one(SIMPLE.replace("  Effect: FOOD GAIN (small)\n", "  Effect: FOOD GAIN (small)\n  Solidarity: up\n"))
+        self.assertTrue(any(p.line == 9 and "not raise, lower or neutral" in p.text for p in it.problems),
+                        [str(p) for p in it.problems])
+
+    def test_the_prompt_offers_the_line(self):
+        text = pe.ai_prompt()
+        self.assertIn('"Solidarity: raise", "Solidarity: lower" or "Solidarity: neutral" under an outcome', text)
+        self.assertIn("unless the Village Solidarity patch is on", text)
         _g, probs = cie.normalize({"format": cie.FORMAT, "version": 6, "title": "T", "games": [1],
                                    "roles": {"subject": {"kind": "villager"}}, "start": "a",
                                    "nodes": {"a": {"text": "Hi.", "effects": [{"do": "clone", "count": 3}]}}})
