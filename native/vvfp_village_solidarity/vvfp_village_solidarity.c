@@ -501,6 +501,113 @@ static const char *sol_help_text(void) {
     return vvfp_tr("vvfp.village_solidarity/vvfp_village_solidarity.SOL_HELP_TEXT.s0", SOL_HELP_TEXT, 0);
 }
 
+/* ---- Scaled text (the owner, 2026-11-18: the Tech screen's own font, "resizing to fit" allowed) -------------- */
+
+/* None of the five games draws text at any scale but 1 (each glyph is blitted at 1.0; only the width measure takes a
+   scale).  So a line is drawn by the game's own text routine, in its own font and colour, onto a small surface of
+   our own -- the draw context's target (ctx+0x30, an SDL_Surface) and clip (ctx+0x60: left, top, right, bottom) are
+   pointed at it for that one call and put back at once -- and that surface is then blitted onto the screen at the
+   scale wanted with SDL2's own scaled blit.  Every letter is the game's (Unicode Text's too, when that patch draws
+   them).  At scale 1 (or when SDL2 cannot be reached) the line is drawn straight onto the screen as before. */
+
+typedef void (__fastcall *sol_line_fn)(void *wrapper, void *edx, const char *text, int x, int y, unsigned int argb,
+                                       void *font);
+typedef struct { int x, y, w, h; } sol_rect;
+typedef void *(__cdecl *sol_sdl_create_fn)(unsigned int flags, int w, int h, int depth, unsigned int r, unsigned int g,
+                                           unsigned int b, unsigned int a);
+typedef void (__cdecl *sol_sdl_free_fn)(void *surface);
+typedef int (__cdecl *sol_sdl_fill_fn)(void *surface, const sol_rect *rect, unsigned int pixel);
+typedef int (__cdecl *sol_sdl_blend_fn)(void *surface, int mode);
+typedef int (__cdecl *sol_sdl_alpha_fn)(void *surface, unsigned char alpha);
+typedef int (__cdecl *sol_sdl_blit_fn)(void *src, const sol_rect *srcrect, void *dst, sol_rect *dstrect);
+
+static struct {
+    int tried;
+    sol_sdl_create_fn create;
+    sol_sdl_free_fn release;
+    sol_sdl_fill_fn fill;
+    sol_sdl_blend_fn blend;
+    sol_sdl_alpha_fn alpha;
+    sol_sdl_blit_fn blit_scaled;
+} g_sdl;
+
+static int sol_sdl(void) {
+    HMODULE sdl;
+    if (g_sdl.tried) {
+        return g_sdl.blit_scaled != NULL;
+    }
+    g_sdl.tried = 1;
+    sdl = GetModuleHandleA("SDL2.dll");
+    if (sdl == NULL) {
+        return 0;
+    }
+    g_sdl.create = (sol_sdl_create_fn)(void *)GetProcAddress(sdl, "SDL_CreateRGBSurface");
+    g_sdl.release = (sol_sdl_free_fn)(void *)GetProcAddress(sdl, "SDL_FreeSurface");
+    g_sdl.fill = (sol_sdl_fill_fn)(void *)GetProcAddress(sdl, "SDL_FillRect");
+    g_sdl.blend = (sol_sdl_blend_fn)(void *)GetProcAddress(sdl, "SDL_SetSurfaceBlendMode");
+    g_sdl.alpha = (sol_sdl_alpha_fn)(void *)GetProcAddress(sdl, "SDL_SetSurfaceAlphaMod");
+    g_sdl.blit_scaled = (sol_sdl_blit_fn)(void *)GetProcAddress(sdl, "SDL_UpperBlitScaled");
+    if (g_sdl.create == NULL || g_sdl.release == NULL || g_sdl.fill == NULL || g_sdl.blend == NULL || g_sdl.alpha == NULL) {
+        g_sdl.blit_scaled = NULL;
+    }
+    return g_sdl.blit_scaled != NULL;
+}
+
+/* The scale at which a `w` x `h` line fits `room_w` x `room_h`: 1 when it does, never below 0.5. */
+static float sol_fit_scale(int w, int h, int room_w, int room_h) {
+    float s = 1.0f;
+    if (w > room_w && w > 0) {
+        s = (float)room_w / (float)w;
+    }
+    if (h > room_h && h > 0 && (float)room_h / (float)h < s) {
+        s = (float)room_h / (float)h;
+    }
+    return s < 0.5f ? 0.5f : s;
+}
+
+/* Draws one line (`w` x `h` pixels at scale 1, by the game's own measure) with the game's draw `draw` on `wrapper`
+   (whose first dword is the draw context), its top-left at (x, y) on the screen, `scale` times its size.  `centred`:
+   the game's draw takes the line's centre, not its left edge.  `argb` is the game's colour (its alpha too). */
+static void sol_draw_scaled(void *wrapper, unsigned int draw, int centred, void *font, const char *text, int w, int h,
+                            int x, int y, float scale, unsigned int argb) {
+    unsigned char *ctx = wrapper != NULL ? *(unsigned char **)wrapper : NULL;
+    void *surface, *target;
+    int clip[4], sw = w + 4, sh = h + 4;
+    sol_rect dst;
+    if (ctx == NULL || text == NULL || text[0] == '\0') {
+        return;
+    }
+    if (scale >= 0.999f || !sol_sdl() || sw <= 4 || sh <= 4 || sw > 4096 || sh > 512
+        || (target = *(void **)(ctx + 0x30)) == NULL) {
+        ((sol_line_fn)(UINT_PTR)draw)(wrapper, NULL, text, centred ? x + w / 2 : x, y, argb, font);
+        return;
+    }
+    surface = g_sdl.create(0, sw, sh, 32, 0x00FF0000u, 0x0000FF00u, 0x000000FFu, 0xFF000000u);
+    if (surface == NULL) {
+        ((sol_line_fn)(UINT_PTR)draw)(wrapper, NULL, text, centred ? x + w / 2 : x, y, argb, font);
+        return;
+    }
+    /* Transparent, in the text's own colour: the scaled edges blend with no dark fringe. */
+    g_sdl.fill(surface, NULL, argb & 0x00FFFFFFu);
+    memcpy(clip, ctx + 0x60, sizeof clip);
+    *(void **)(ctx + 0x30) = surface;
+    ((int *)(ctx + 0x60))[0] = 0;
+    ((int *)(ctx + 0x60))[1] = 0;
+    ((int *)(ctx + 0x60))[2] = sw;
+    ((int *)(ctx + 0x60))[3] = sh;
+    ((sol_line_fn)(UINT_PTR)draw)(wrapper, NULL, text, centred ? 2 + w / 2 : 2, 2, argb | 0xFF000000u, font);
+    *(void **)(ctx + 0x30) = target;
+    memcpy(ctx + 0x60, clip, sizeof clip);
+    g_sdl.blend(surface, 1);                            /* SDL_BLENDMODE_BLEND */
+    g_sdl.alpha(surface, (unsigned char)((argb >> 24) != 0u ? argb >> 24 : 255u));  /* a fading screen's alpha, as the game's own draw takes it */
+    dst.x = x - (int)(2.0f * scale + 0.5f);
+    dst.y = y - (int)(2.0f * scale + 0.5f);
+    dst.w = (int)((float)sw * scale + 0.5f);
+    dst.h = (int)((float)sh * scale + 0.5f);
+    g_sdl.blit_scaled(surface, NULL, target, &dst);
+    g_sdl.release(surface);
+}
+
 #include "counter_vv1.inc"
 #include "counter_vv2.inc"
 #include "counter_vv3.inc"
