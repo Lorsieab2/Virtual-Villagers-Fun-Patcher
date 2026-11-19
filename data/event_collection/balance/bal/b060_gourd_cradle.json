@@ -164,7 +164,7 @@
    "src": "L2717"
   },
   "c2o1": {
-   "text": "The gourd comes out of the rapids spinning and bobbing, and floats right into (subject)'s arms. An hour later, two exhausted people come stumbling down the riverbank, covered in mud. Their hut was swept away upriver, and they had put the baby in the gourd to save the baby while they swam. They cry, and laugh, and hold the baby, and don't let go. They decide to stay.",
+   "text": "The gourd comes out of the rapids spinning and bobbing, and floats right into (subject)'s arms. An hour later, two exhausted people come stumbling down the riverbank, covered in mud. Their hut was swept away upriver, and they had put the baby in the gourd to save the baby while they swam. They cry, and laugh, and hold the baby, and don't let go. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -200,5 +200,12 @@
    ],
    "src": "L2726"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L2729",
+   "before": "They decide to stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}."
+  }
+ ]
 }

@@ -154,6 +154,176 @@ OVERRIDES: dict[tuple[str, int], tuple[str, list[list[dict]]]] = {
 }
 
 
+# COUNT TOKENS (the owner's rule 13: text about several new villagers or babies fits any count).  A page that makes
+# two or more villagers (new_villager, clone) or babies (pregnant, nursing) makes only as many as the game's room
+# allows, so its fixed words become a count token ({#made:A|B|C}, {#babies:A|B|C}; cie-v6-binary.md 33): A for one,
+# B for two, C for three or more.  The smallest edit: the sentence that says who stays, or the counted words; the
+# owner's text is the last option.  (source, line) -> [(before, after)], each `before` once on its line.
+_ROOM = "the village has no room for more"
+
+
+def _stay(n: int, full: str, one: str = f"Only one of them can stay; {_ROOM}",
+          two: str = f"Only two of them can stay; {_ROOM}") -> str:
+    return "{#made:" + "|".join([one, two, full] if n >= 3 else [one, full]) + "}"
+
+
+COUNT_TOKENS: dict[tuple[str, int], list[tuple[str, str]]] = {
+    ("rewrites", 270): [("They decide to stay.", _stay(3, "They decide to stay") + ".")],
+    ("rewrites", 1512): [("They decide to stay.", _stay(3, "They decide to stay") + ".")],
+    ("rewrites", 1524): [("The adult and the child stay.",
+                          _stay(2, "The adult and the child stay", one=f"Only the adult can stay; {_ROOM}") + ".")],
+    ("rewrites", 4242): [("and the baby, and stay.", "and the baby, and " + _stay(
+        3, "stay", one=f"only one of them can stay; {_ROOM}", two=f"only two of them can stay; {_ROOM}") + ".")],
+    ("balance", 139): [("They decide to stay.", _stay(3, "They decide to stay") + ".")],
+    ("balance", 540): [("They just did.", _stay(3, "They just did", one=f"Only one of them can, as {_ROOM}",
+                                                two=f"Only two of them can, as {_ROOM}") + ".")],
+    ("balance", 543): [("They decide to stay.", _stay(3, "They decide to stay") + ".")],
+    ("balance", 552): [("There is. They decide to stay.", _stay(
+        3, "There is, and they decide to stay", one="There is, but only for one of them, who stays",
+        two="There is, but only for two of them, who stay") + ".")],
+    ("balance", 1312): [("They decide to stay.", _stay(3, "They decide to stay") + ".")],
+    ("balance", 1315): [("They decide to stay.", _stay(3, "They decide to stay") + ".")],
+    ("balance", 1324): [("They decide to stay.", _stay(3, "They decide to stay") + ".")],
+    ("balance", 1552): [("They decide to stay.", _stay(3, "They decide to stay") + ".")],
+    ("balance", 2231): [("They decide to stay.", _stay(3, "They decide to stay") + ".")],
+    ("balance", 2584): [("They decide to stay.", _stay(3, "They decide to stay") + ".")],
+    ("balance", 2593): [("They decide to stay, and are very glad, they say, to sleep under a proper roof.", _stay(
+        3, "They decide to stay, and are very glad, they say, to sleep under a proper roof") + ".")],
+    ("balance", 2729): [("They decide to stay.", _stay(3, "They decide to stay") + ".")],
+    ("balance", 3267): [("The strangers decide to stay.", _stay(
+        3, "The strangers decide to stay", one=f"Only one of the strangers can stay; {_ROOM}",
+        two=f"Only two of the strangers can stay; {_ROOM}") + ".")],
+    ("balance", 3581): [("They decide to stay.", _stay(3, "They decide to stay") + ".")],
+    ("balance", 3584): [("They decide to stay,", _stay(3, "They decide to stay", one=f"Only one of them can stay, as {_ROOM}",
+                                                        two=f"Only two of them can stay, as {_ROOM}") + ",")],
+    ("balance", 3593): [("They decide to stay.", _stay(3, "They decide to stay") + ".")],
+    ("balance", 5733): [("The couple stay.", _stay(3, "The couple stay") + ".")],
+    ("balance", 5775): [("Then, a moment later, another.", "{#made:Then nothing more|Then, a moment later, another}."),
+                        ("They both have (name)'s face", "{#made:The copy has|They both have} (name)'s face"),
+                        ("They take the names (new name) and (new name 2), and they don't agree with each other about anything "
+                         "either.", "{#made:The copy takes the name (new name), and doesn't agree with (name) about "
+                                    "anything either|They take the names (new name) and (new name 2), and they don't agree "
+                                    "with each other about anything either}.")],
+    ("balance", 5962): [("They stay.", _stay(3, "They stay") + ".")],
+    ("balance", 5971): [("They stay.", _stay(3, "They stay") + ".")],
+    ("balance", 6254): [("splitting into two in mid-air, each half turning into a perfect (name) before it lands",
+                         "{#made:turning into a perfect (name) in mid-air before it lands|splitting into two in "
+                         "mid-air, each half turning into a perfect (name) before it lands}"),
+                        ("Now there are three of (name)", "Now there are {#made:two|three} of (name)"),
+                        ("The two copies take the names (new name) and (new name 2), and argue",
+                         "{#made:The copy takes the name (new name), and they argue|The two copies take the names "
+                         "(new name) and (new name 2), and argue}")],
+    ("balance", 6443): [("The couple and their baby stay, and so does the old man.",
+                         _stay(3, "The couple and their baby stay, and so does the old man") + ".")],
+    ("balance", 6446): [("The second canoe stays:", _stay(
+        3, "The second canoe stays", one="The second canoe stays, though the village has room for only one of them",
+        two="The second canoe stays, though the village has room for only two of them") + ":")],
+    ("balance", 6452): [("The couple and their baby stay.", _stay(3, "The couple and their baby stay") + ".")],
+    ("balance", 7255): [("They all stay.", _stay(3, "They all stay") + ".")],
+    ("balance", 7258): [("So she stays with them,", "So " + _stay(
+        3, "she stays with them", one="she stays, though the village has room for no one else",
+        two=f"she stays with one of them, as {_ROOM}") + ",")],
+    ("balance", 7304): [("both babies scream until", "{#babies:the baby screams|both babies scream} until"),
+                        ("They raise the twins together", "They raise {#babies:the baby|the twins} together")],
+    ("balance", 7310): [("says two more won't", "says {#made:one more|two more} won't"),
+                        ("The babies grow up", "{#made:The baby grows|The babies grow} up"),
+                        ("and both of them, when they are old enough, become healers.",
+                         "and {#made:when old enough, becomes a healer|both of them, when they are old enough, "
+                         "become healers}.")],
+    ("balance", 7313): [("The babies go home with", "{#babies:The baby goes|The babies go} home with")],
+    ("balance", 7447): [("there are three of (him/her) standing",
+                         "there are {#made:two|three} of (him/her) standing"),
+                        ("as the three of them walk", "as the {#made:two|three} of them walk"),
+                        ("Two of them take the names (new name) and (new name 2).",
+                         "{#made:One of them takes the name (new name)|Two of them take the names (new name) and (new name 2)}.")],
+    ("balance", 7495): [("and a second one climbs out after it", "{#made:but nothing else comes out|and a second one "
+                                                                      "climbs out after it}"),
+                        ("Two of them: (name)'s face, twice, and two completely different people inside",
+                         "{#made:One of them: (name)'s face, and a completely different person inside|Two of them: "
+                         "(name)'s face, twice, and two completely different people inside}"),
+                        ("Both of them disagree with (name) and with each other",
+                         "{#made:The copy disagrees with (name) about everything|Both of them disagree with "
+                         "(subject) and with each other}"),
+                        ("They take the names (new name) and (new name 2)",
+                         "{#made:The copy takes the name (new name)|They take the names (new name) and (new name 2)}")],
+    ("balance", 8353): [("They stay.", _stay(3, "They stay") + ".")],
+    ("balance", 8362): [("The family stay.", _stay(3, "The family stay") + ".")],
+    ("balance", 9727): [("Two more (name)s climb out, one from each pond: one warm and cheerful, one cold and cross.",
+                         "{#made:One more (name) climbs out of one pond, warm and cheerful|Two more (name)s climb "
+                         "out, one from each pond: one warm and cheerful, one cold and cross}."),
+                        ("walk all three home", "walk all {#made:two|three} home"),
+                        ("The newcomers take the names (new name) and (new name 2).",
+                         "{#made:The newcomer takes the name (new name)|The newcomers take the names (new name) and "
+                         "(made2)}.")],
+    ("balance", 10151): [("and the four of them stay,", "and " + _stay(
+        3, "the four of them stay", one=f"only one of them can stay, as {_ROOM}",
+        two=f"only two of them can stay, as {_ROOM}") + ",")],
+    ("balance", 10157): [("They stay.", _stay(3, "They stay") + ".")],
+    ("balance", 10336): [("but the parents, their teenage daughter and their little son stay", "but " + _stay(
+        3, "the parents, their teenage daughter and their little son stay",
+        one=f"only one of them can stay, as {_ROOM}", two=f"only two of them can stay, as {_ROOM}"))],
+    ("balance", 10348): [("good enough for them.", _stay(
+        3, "good enough for them", one="good enough for them, though the village has room for only one of them",
+        two="good enough for them, though the village has room for only two of them") + ".")],
+    ("balance", 10998): [("Three heads come up", "{#made:Two heads|Three heads} come up"),
+                         ("Three identical (name)s sit", "{#made:Two|Three} identical (name)s sit"),
+                         ("and then all three, at once,", "and then {#made:both|all three}, at once,"),
+                         ("The two new ones take the names (new name) and (new name 2), and bring home three times the crabs.",
+                          "{#made:The new one takes the name (new name), and they bring home twice the crabs|The two new "
+                          "ones take the names (new name) and (new name 2), and bring home three times the crabs}.")],
+    ("balance", 11196): [("and her son, his wife and the tall grandson stay with the other", "and " + _stay(
+        3, "her son, his wife and the tall grandson stay with the other",
+        one=f"only her son can stay, as {_ROOM}", two=f"only her son and his wife can stay, as {_ROOM}"))],
+    ("balance", 11323): [("The couple decide on the spot to stay.",
+                          _stay(2, "The couple decide on the spot to stay") + ".")],
+    ("balance", 11326): [("brings them in,", "brings them " + _stay(
+        3, "in", one="in, though the village has room for only one of them",
+        two="in, though the village has room for only two of them") + ",")],
+    ("balance", 11332): [("they say, and they never leave.", _stay(
+        2, "they say, and they never leave", one=f"they say; only one of them can stay, as {_ROOM}") + ".")],
+    ("balance", 11789): [("The family stays in the village;", _stay(
+        3, "The family stays in the village", one="Only one of them can stay in the village",
+        two="Only two of them can stay in the village") + ";")],
+    ("balance", 12095): [("and the family stays.", "and " + _stay(
+        3, "the family stays", one="the village has room for only one of them",
+        two="the village has room for only two of them") + ".")],
+    ("balance", 12241): [("They never go back to their cove.", _stay(2, "They never go back to their cove") + ".")],
+    ("balance", 13001): [("The family decides to stay,", _stay(
+        2, "The family decides to stay", one=f"Only one of them can stay, as {_ROOM}") + ",")],
+    ("balance", 13004): [("They stay.", _stay(3, "They stay") + ".")],
+    ("balance", 13010): [("with a baby.", "with a " + _stay(
+        2, "baby", one="baby, though the village has room for only one of them") + ".")],
+    ("balance", 13581): [("brings the three of them home", "brings " + _stay(
+        2, "the three of them home", one=f"one of them home, as {_ROOM}"))],
+    ("balance", 13584): [("in the last hut standing.", "in the last hut " + _stay(
+        3, "standing", one="standing, though the village has room for only one of them",
+        two="standing, though the village has room for only two of them") + ".")],
+    ("balance", 13590): [("They stay.", _stay(2, "They stay") + ".")],
+    ("balance", 14172): [("They stay in the village.", _stay(
+        2, "They stay in the village", one="Only one of them can stay in the village; there is no room for more") + ".")],
+    ("balance", 14429): [("They stay.", _stay(2, "They stay") + ".")],
+    ("balance", 14432): [("The family stays.", _stay(3, "The family stays") + ".")],
+    ("balance", 14438): [("They stay.", _stay(2, "They stay") + ".")],
+    ("balance", 14962): [("The village shares out the stores to feed three more, and nobody minds.", _stay(
+        2, "The village shares out the stores to feed three more, and nobody minds",
+        one="The village has room for only one of them") + ".")],
+    ("balance", 14965): [("takes them all in", "takes " + _stay(
+        3, "them all in", one=f"in one of them, as {_ROOM}", two=f"in two of them, as {_ROOM}"))],
+    ("balance", 14971): [("brings the cousin, the cousin's partner and their baby home", "brings " + _stay(
+        2, "the cousin, the cousin's partner and their baby home", one=f"the cousin home, as {_ROOM}"))],
+    ("balance", 15588): [("and the little family moves into the village", "and " + _stay(
+        2, "the little family moves into the village", one="one of them moves into the village, which has no room "
+                                                           "for more"))],
+    ("balance", 15594): [("insist on bringing the family back to the village", "insist on bringing " + _stay(
+        2, "the family back to the village", one="one of them back to the village, which has no room for more"))],
+    ("balance", 16621): [("and they move straight in", "and " + _stay(
+        2, "they move straight in", one=f"one of them moves straight in, as {_ROOM}"))],
+}
+COUNT_USED: set[tuple[str, int]] = set()
+COUNT_WHY = ("the owner's rule 13: the page makes several villagers or babies, as many as the game's room allows, so "
+             "its words fit any count (a count token: one, two, three or more)")
+
+
 class LeftOut(Exception):
     """An event the collection cannot take as written (listed for the owner)."""
 
@@ -205,6 +375,10 @@ def grammar_fixes(n: int) -> list[tuple[str, str, str]]:
     for before, after in PLACEHOLDER_FIXES.items():
         if before in s:
             out.append((before, after, f"the engine has no {before} word: {after} reads the same"))
+    for before, after in COUNT_TOKENS.get((lib.active_source(), n), []):
+        assert s.count(before) == 1, (lib.active_source(), n, before)
+        out.append((before, after, COUNT_WHY))
+        COUNT_USED.add((lib.active_source(), n))
     return out
 
 
@@ -656,6 +830,8 @@ def main(argv: list[str]) -> int:
                     guard.append(f"| `{r['id']}` | {where} | {cell(before)} | {cell(after)} |")
                 sec = r["section"]
                 docs.append((lib.COLLECTION_DIR / sid / sec / f"{r['id']}.json", doc))
+    stale = sorted(set(COUNT_TOKENS) - COUNT_USED)
+    problems += [f"COUNT_TOKENS {k}: no event page reads this line" for k in stale]
     if report:
         for p in problems:
             print("LEFT OUT" if "LeftOut" in p else "PROBLEM", p)

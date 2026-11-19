@@ -142,7 +142,7 @@
    ]
   },
   "c1o2": {
-   "text": "(Name) comes out the far end into the green light. Behind (him/her), out of the log, steps another (name). Then, a moment later, another. \"Sorry,\" says the third one. \"I was behind you.\" They both have (name)'s face and nothing else of (name) at all. They take the names (made1) and (made2), and they don't agree with each other about anything either. The village gets used to it, eventually.",
+   "text": "(Name) comes out the far end into the green light. Behind (him/her), out of the log, steps another (name). {#made:Then nothing more|Then, a moment later, another}. \"Sorry,\" says the third one. \"I was behind you.\" {#made:The copy has|They both have} (name)'s face and nothing else of (name) at all. {#made:The copy takes the name (made1), and doesn't agree with (name) about anything either|They take the names (made1) and (made2), and they don't agree with each other about anything either}. The village gets used to it, eventually.",
    "effects": [
     {
      "do": "new_villager",
@@ -203,5 +203,22 @@
    ],
    "src": "L5778"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L5775",
+   "before": "Then, a moment later, another.",
+   "after": "{#made:Then nothing more|Then, a moment later, another}."
+  },
+  {
+   "src": "L5775",
+   "before": "They both have (name)'s face",
+   "after": "{#made:The copy has|They both have} (name)'s face"
+  },
+  {
+   "src": "L5775",
+   "before": "They take the names (new name) and (new name 2), and they don't agree with each other about anything either.",
+   "after": "{#made:The copy takes the name (new name), and doesn't agree with (name) about anything either|They take the names (new name) and (new name 2), and they don't agree with each other about anything either}."
+  }
+ ]
 }

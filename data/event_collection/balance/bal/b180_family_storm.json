@@ -125,7 +125,7 @@
    "src": "L8342-8344"
   },
   "c1o1": {
-   "text": "By morning everyone is warm and dry, and the man's head has stopped bleeding. They sleep for a day and a night. When they wake up, they look out of the door at the village, and the bay, and the sun on the water, and the woman says, \"I don't think I can get in a canoe again.\" They stay. The girl follows (name) everywhere for a year.",
+   "text": "By morning everyone is warm and dry, and the man's head has stopped bleeding. They sleep for a day and a night. When they wake up, they look out of the door at the village, and the bay, and the sun on the water, and the woman says, \"I don't think I can get in a canoe again.\" {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}. The girl follows (name) everywhere for a year.",
    "effects": [
     {
      "do": "new_villager",
@@ -180,7 +180,7 @@
    "src": "L8350"
   },
   "c2o1": {
-   "text": "The healers come running with blankets and hot water, and get the family into the healers' hut, and save them all. By morning they are all asleep in a row, warm and dry. By morning, (name) is the one coughing, after running through the storm without a blanket. The family stay. The girl brings (name) soup every day until (he/she) is well.",
+   "text": "The healers come running with blankets and hot water, and get the family into the healers' hut, and save them all. By morning they are all asleep in a row, warm and dry. By morning, (name) is the one coughing, after running through the storm without a blanket. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The family stay}. The girl brings (name) soup every day until (he/she) is well.",
    "effects": [
     {
      "do": "new_villager",
@@ -224,5 +224,17 @@
    ],
    "src": "L8359"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L8353",
+   "before": "They stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}."
+  },
+  {
+   "src": "L8362",
+   "before": "The family stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The family stay}."
+  }
+ ]
 }

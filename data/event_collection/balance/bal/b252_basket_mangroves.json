@@ -165,7 +165,7 @@
    "src": "L11777"
   },
   "c2o1": {
-   "text": "A swamped canoe is lying on its side in the mangroves, and a (subject.man/woman), a teenager and a small child are trying to bail it out with their hands. The basket floated off in the night while they were asleep. When (subject) brings them to it, the (subject.man/woman) sits down in the mud and cries. The family stays in the village; they say anyone who would wade an hour through mud for a stranger's baby is worth living beside.",
+   "text": "A swamped canoe is lying on its side in the mangroves, and a (subject.man/woman), a teenager and a small child are trying to bail it out with their hands. The basket floated off in the night while they were asleep. When (subject) brings them to it, the (subject.man/woman) sits down in the mud and cries. {#made:Only one of them can stay in the village|Only two of them can stay in the village|The family stays in the village}; they say anyone who would wade an hour through mud for a stranger's baby is worth living beside.",
    "effects": [
     {
      "do": "new_villager",
@@ -211,5 +211,12 @@
    ],
    "src": "L11786"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L11789",
+   "before": "The family stays in the village;",
+   "after": "{#made:Only one of them can stay in the village|Only two of them can stay in the village|The family stays in the village};"
+  }
+ ]
 }

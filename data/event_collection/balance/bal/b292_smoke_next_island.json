@@ -125,7 +125,7 @@
    "src": "L13571-13572"
   },
   "c1o1": {
-   "text": "On the other island, a brush fire has burned everything down to the sand. Only one family is left: a young couple and their baby, who have been living on the beach for two days, eating raw shellfish. The others left in the first canoes. (Name) brings the three of them home, the baby asleep in a fish basket the whole way.",
+   "text": "On the other island, a brush fire has burned everything down to the sand. Only one family is left: a young couple and their baby, who have been living on the beach for two days, eating raw shellfish. The others left in the first canoes. (Name) brings {#made:one of them home, as the village has no room for more|the three of them home}, the baby asleep in a fish basket the whole way.",
    "effects": [
     {
      "do": "new_villager",
@@ -139,7 +139,7 @@
    "src": "L13581"
   },
   "c1o2": {
-   "text": "On the other island, (name) finds a (man/woman), a teenager and a small child sheltering in the last hut standing. They load everything they have left into the canoe: one cooking pot, one blanket and a pet chicken. The canoe sits so low in the water on the way back that the teenager bails the whole way. The chicken lays an egg in (name)'s lap.",
+   "text": "On the other island, (name) finds a (man/woman), a teenager and a small child sheltering in the last hut {#made:standing, though the village has room for only one of them|standing, though the village has room for only two of them|standing}. They load everything they have left into the canoe: one cooking pot, one blanket and a pet chicken. The canoe sits so low in the water on the way back that the teenager bails the whole way. The chicken lays an egg in (name)'s lap.",
    "effects": [
     {
      "do": "new_villager",
@@ -171,7 +171,7 @@
    "src": "L13578"
   },
   "c2o1": {
-   "text": "The next morning a small, battered canoe comes across the strait, with a young couple paddling and a baby tied to the (man/woman)'s back. A brush fire took their home, and they'd seen (name)'s smoke and decided it meant a welcome. It did. They stay.",
+   "text": "The next morning a small, battered canoe comes across the strait, with a young couple paddling and a baby tied to the (man/woman)'s back. A brush fire took their home, and they'd seen (name)'s smoke and decided it meant a welcome. It did. {#made:Only one of them can stay; the village has no room for more|They stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -202,5 +202,22 @@
    ],
    "src": "L13587"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L13581",
+   "before": "brings the three of them home",
+   "after": "brings {#made:one of them home, as the village has no room for more|the three of them home}"
+  },
+  {
+   "src": "L13584",
+   "before": "in the last hut standing.",
+   "after": "in the last hut {#made:standing, though the village has room for only one of them|standing, though the village has room for only two of them|standing}."
+  },
+  {
+   "src": "L13590",
+   "before": "They stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|They stay}."
+  }
+ ]
 }

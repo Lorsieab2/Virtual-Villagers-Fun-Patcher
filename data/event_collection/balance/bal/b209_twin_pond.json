@@ -145,7 +145,7 @@
    ]
   },
   "c1o2": {
-   "text": "Two more (subject)s climb out, one from each pond: one warm and cheerful, one cold and cross. They have (subject)'s face and their own ideas about everything, and they start arguing with each other before they've stopped dripping. (friend) has to walk all three home. The newcomers take the names (made1) and (made2).",
+   "text": "{#made:One more (subject) climbs out of one pond, warm and cheerful|Two more (subject)s climb out, one from each pond: one warm and cheerful, one cold and cross}. They have (subject)'s face and their own ideas about everything, and they start arguing with each other before they've stopped dripping. (friend) has to walk all {#made:two|three} home. {#made:The newcomer takes the name (made1)|The newcomers take the names (made1) and (made2)}.",
    "effects": [
     {
      "do": "new_villager",
@@ -208,5 +208,22 @@
    ],
    "src": "L9730"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L9727",
+   "before": "Two more (name)s climb out, one from each pond: one warm and cheerful, one cold and cross.",
+   "after": "{#made:One more (name) climbs out of one pond, warm and cheerful|Two more (name)s climb out, one from each pond: one warm and cheerful, one cold and cross}."
+  },
+  {
+   "src": "L9727",
+   "before": "walk all three home",
+   "after": "walk all {#made:two|three} home"
+  },
+  {
+   "src": "L9727",
+   "before": "The newcomers take the names (new name) and (new name 2).",
+   "after": "{#made:The newcomer takes the name (new name)|The newcomers take the names (new name) and (made2)}."
+  }
+ ]
 }

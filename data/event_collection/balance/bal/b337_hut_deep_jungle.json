@@ -136,7 +136,7 @@
    "src": "L15585"
   },
   "c1o2": {
-   "text": "A young (man/woman) opens the door, holding a baby, frightened. (His/Her) partner is lying on a mat, feverish. They ran away from a village on the far coast after a quarrel, and got lost, and found this hut. (Name) gives them the yams, and the next morning brings help. The partner recovers, and the little family moves into the village, where nobody asks about the quarrel.",
+   "text": "A young (man/woman) opens the door, holding a baby, frightened. (His/Her) partner is lying on a mat, feverish. They ran away from a village on the far coast after a quarrel, and got lost, and found this hut. (Name) gives them the yams, and the next morning brings help. The partner recovers, and {#made:one of them moves into the village, which has no room for more|the little family moves into the village}, where nobody asks about the quarrel.",
    "effects": [
     {
      "do": "new_villager",
@@ -164,7 +164,7 @@
    "src": "L15582"
   },
   "c2o1": {
-   "text": "Inside are a young couple and their baby, who have been living in the ruin for a month. The builders take one look at the hut, with its tree through the roof, and insist on bringing the family back to the village. While they're at it, the builders mend every leaking roof in the village, so the newcomers won't think the whole place falls down.",
+   "text": "Inside are a young couple and their baby, who have been living in the ruin for a month. The builders take one look at the hut, with its tree through the roof, and insist on bringing {#made:one of them back to the village, which has no room for more|the family back to the village}. While they're at it, the builders mend every leaking roof in the village, so the newcomers won't think the whole place falls down.",
    "effects": [
     {
      "do": "new_villager",
@@ -199,5 +199,17 @@
    ],
    "src": "L15591"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L15588",
+   "before": "and the little family moves into the village",
+   "after": "and {#made:one of them moves into the village, which has no room for more|the little family moves into the village}"
+  },
+  {
+   "src": "L15594",
+   "before": "insist on bringing the family back to the village",
+   "after": "insist on bringing {#made:one of them back to the village, which has no room for more|the family back to the village}"
+  }
+ ]
 }

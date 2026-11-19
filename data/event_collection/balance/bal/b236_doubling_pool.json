@@ -141,7 +141,7 @@
    "src": "L10995"
   },
   "c1o2": {
-   "text": "Three heads come up out of the pool. The pool has never done that before. Three identical (name)s sit on the mangrove roots, dripping, staring at each other, and then all three, at once, say, \"Well, this is going to be complicated.\" The two new ones take the names (made1) and (made2), and bring home three times the crabs.",
+   "text": "{#made:Two heads|Three heads} come up out of the pool. The pool has never done that before. {#made:Two|Three} identical (name)s sit on the mangrove roots, dripping, staring at each other, and then {#made:both|all three}, at once, say, \"Well, this is going to be complicated.\" {#made:The new one takes the name (made1), and they bring home twice the crabs|The two new ones take the names (made1) and (made2), and bring home three times the crabs}.",
    "effects": [
     {
      "do": "clone",
@@ -200,5 +200,27 @@
    ],
    "src": "L11001"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L10998",
+   "before": "Three heads come up",
+   "after": "{#made:Two heads|Three heads} come up"
+  },
+  {
+   "src": "L10998",
+   "before": "Three identical (name)s sit",
+   "after": "{#made:Two|Three} identical (name)s sit"
+  },
+  {
+   "src": "L10998",
+   "before": "and then all three, at once,",
+   "after": "and then {#made:both|all three}, at once,"
+  },
+  {
+   "src": "L10998",
+   "before": "The two new ones take the names (new name) and (new name 2), and bring home three times the crabs.",
+   "after": "{#made:The new one takes the name (new name), and they bring home twice the crabs|The two new ones take the names (new name) and (new name 2), and bring home three times the crabs}."
+  }
+ ]
 }

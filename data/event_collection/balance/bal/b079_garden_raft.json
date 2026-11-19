@@ -125,7 +125,7 @@
    "src": "L3570-3572"
   },
   "c1o1": {
-   "text": "The two adults and their baby sleep on solid ground for the first time in a month and wake up not wanting to leave it. Their raft garden is pulled up onto the beach and planted into the village's own soil, banana plant and all. They decide to stay. The banana plant fruits that year, and everyone agrees it's the best banana on the island.",
+   "text": "The two adults and their baby sleep on solid ground for the first time in a month and wake up not wanting to leave it. Their raft garden is pulled up onto the beach and planted into the village's own soil, banana plant and all. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}. The banana plant fruits that year, and everyone agrees it's the best banana on the island.",
    "effects": [
     {
      "do": "new_villager",
@@ -144,7 +144,7 @@
    "src": "L3581"
   },
   "c1o2": {
-   "text": "The family turns out to be a grandparent who built the raft, a teenager who steered it, and a child who was in charge of the beans. The farmers want to know everything about how they grew a garden on reeds. The teenager wants to know everything about everything. They decide to stay, and the village tries a raft garden of its own in the lagoon.",
+   "text": "The family turns out to be a grandparent who built the raft, a teenager who steered it, and a child who was in charge of the beans. The farmers want to know everything about how they grew a garden on reeds. The teenager wants to know everything about everything. {#made:Only one of them can stay, as the village has no room for more|Only two of them can stay, as the village has no room for more|They decide to stay}, and the village tries a raft garden of its own in the lagoon.",
    "effects": [
     {
      "do": "new_villager",
@@ -188,7 +188,7 @@
    "src": "L3590"
   },
   "c2o2": {
-   "text": "The raft has other ideas. Its reed bottom has caught on the coral, and when they try to push off, it tears. The garden slides gently into the lagoon. The family stand on the beach looking at it. \"Well,\" says one of them, after a while. \"I suppose that settles it.\" They decide to stay.",
+   "text": "The raft has other ideas. Its reed bottom has caught on the coral, and when they try to push off, it tears. The garden slides gently into the lagoon. The family stand on the beach looking at it. \"Well,\" says one of them, after a while. \"I suppose that settles it.\" {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -220,5 +220,22 @@
    ],
    "src": "L3587"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L3581",
+   "before": "They decide to stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}."
+  },
+  {
+   "src": "L3584",
+   "before": "They decide to stay,",
+   "after": "{#made:Only one of them can stay, as the village has no room for more|Only two of them can stay, as the village has no room for more|They decide to stay},"
+  },
+  {
+   "src": "L3593",
+   "before": "They decide to stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}."
+  }
+ ]
 }

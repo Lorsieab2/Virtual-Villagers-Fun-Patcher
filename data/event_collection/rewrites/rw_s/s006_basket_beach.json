@@ -182,7 +182,7 @@
    ]
   },
   "c2o2": {
-   "text": "Around noon a small boat comes skidding in through the waves, rowed by a frantic young couple who are both shouting at once. They leap out before the boat stops and run up the sand. The basket slipped off the side in last night's swell, they say, they've been searching since before dawn, they thought they'd... They can't finish. They hug the baby, then hug (subject), then hug the baby again, and thank (subject) over and over until (subject.he/she) is quite embarrassed. They were on their way somewhere else. They decide to stay.",
+   "text": "Around noon a small boat comes skidding in through the waves, rowed by a frantic young couple who are both shouting at once. They leap out before the boat stops and run up the sand. The basket slipped off the side in last night's swell, they say, they've been searching since before dawn, they thought they'd... They can't finish. They hug the baby, then hug (subject), then hug the baby again, and thank (subject) over and over until (subject.he/she) is quite embarrassed. They were on their way somewhere else. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}.",
    "effects": [
     {
      "do": "new_villager",
@@ -214,5 +214,12 @@
    ],
    "src": "L264"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L270",
+   "before": "They decide to stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}."
+  }
+ ]
 }

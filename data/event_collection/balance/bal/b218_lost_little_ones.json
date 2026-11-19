@@ -154,7 +154,7 @@
    "src": "L10148"
   },
   "c1o2": {
-   "text": "A week later a man and a woman come stumbling along the beach, calling the children's names. The reunion is so loud the whole village comes out. The parents won't let go of the children for a day. Then they decide they have had enough of travelling, and the four of them stay, and the girl still follows (subject) everywhere.",
+   "text": "A week later a man and a woman come stumbling along the beach, calling the children's names. The reunion is so loud the whole village comes out. The parents won't let go of the children for a day. Then they decide they have had enough of travelling, and {#made:only one of them can stay, as the village has no room for more|only two of them can stay, as the village has no room for more|the four of them stay}, and the girl still follows (subject) everywhere.",
    "src": "L10151",
    "effects": [
     {
@@ -192,7 +192,7 @@
    "src": "L10145"
   },
   "c2o1": {
-   "text": "On the second day, they find the family on a sandbank in the river mouth, cold, hungry and frantic: a mother, a father and an older son with a broken arm. The canoes bring them home. When the girl sees them, she screams so loudly the birds go up off the whole island. They stay.",
+   "text": "On the second day, they find the family on a sandbank in the river mouth, cold, hungry and frantic: a mother, a father and an older son with a broken arm. The canoes bring them home. When the girl sees them, she screams so loudly the birds go up off the whole island. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}.",
    "src": "L10157",
    "effects": [
     {
@@ -247,5 +247,17 @@
    ],
    "src": "L10154"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L10151",
+   "before": "and the four of them stay,",
+   "after": "and {#made:only one of them can stay, as the village has no room for more|only two of them can stay, as the village has no room for more|the four of them stay},"
+  },
+  {
+   "src": "L10157",
+   "before": "They stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}."
+  }
+ ]
 }

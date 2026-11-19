@@ -165,7 +165,7 @@
    "src": "L12229"
   },
   "c2o1": {
-   "text": "At the third cove, (subject) finds a young couple searching the shallows, frantic. Their canoe tipped over in the swell that morning and the baby's bundle was swept away. When they reach the healers' hut and see the baby asleep in a basket, the (subject.man/woman) has to sit down on the floor. They never go back to their cove. \"The whale chose your beach,\" they say. \"So do we.\"",
+   "text": "At the third cove, (subject) finds a young couple searching the shallows, frantic. Their canoe tipped over in the swell that morning and the baby's bundle was swept away. When they reach the healers' hut and see the baby asleep in a basket, the (subject.man/woman) has to sit down on the floor. {#made:Only one of them can stay; the village has no room for more|They never go back to their cove}. \"The whale chose your beach,\" they say. \"So do we.\"",
    "effects": [
     {
      "do": "new_villager",
@@ -203,5 +203,12 @@
    ],
    "src": "L12238"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L12241",
+   "before": "They never go back to their cove.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|They never go back to their cove}."
+  }
+ ]
 }

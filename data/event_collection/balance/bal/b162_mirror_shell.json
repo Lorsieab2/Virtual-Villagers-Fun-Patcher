@@ -152,7 +152,7 @@
    ]
   },
   "c1o2": {
-   "text": "The reflection climbs out, and then the shell flashes again, and a second one climbs out after it. Two of them: (subject)'s face, twice, and two completely different people inside. One is loud, one is quiet. Both of them disagree with (subject) and with each other. They take the names (made1) and (made2). The shell cracks right across, as if it is exhausted.",
+   "text": "The reflection climbs out, and then the shell flashes again, {#made:but nothing else comes out|and a second one climbs out after it}. {#made:One of them: (subject)'s face, and a completely different person inside|Two of them: (subject)'s face, twice, and two completely different people inside}. One is loud, one is quiet. {#made:The copy disagrees with (subject) about everything|Both of them disagree with (subject) and with each other}. {#made:The copy takes the name (made1)|They take the names (made1) and (made2)}. The shell cracks right across, as if it is exhausted.",
    "effects": [
     {
      "do": "new_villager",
@@ -207,5 +207,27 @@
    ],
    "src": "L7498"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L7495",
+   "before": "and a second one climbs out after it",
+   "after": "{#made:but nothing else comes out|and a second one climbs out after it}"
+  },
+  {
+   "src": "L7495",
+   "before": "Two of them: (name)'s face, twice, and two completely different people inside",
+   "after": "{#made:One of them: (name)'s face, and a completely different person inside|Two of them: (name)'s face, twice, and two completely different people inside}"
+  },
+  {
+   "src": "L7495",
+   "before": "Both of them disagree with (name) and with each other",
+   "after": "{#made:The copy disagrees with (name) about everything|Both of them disagree with (subject) and with each other}"
+  },
+  {
+   "src": "L7495",
+   "before": "They take the names (new name) and (new name 2)",
+   "after": "{#made:The copy takes the name (new name)|They take the names (new name) and (new name 2)}"
+  }
+ ]
 }
