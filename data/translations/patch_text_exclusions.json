@@ -2,8 +2,9 @@
  "about": "Strings in the patcher's companion DLLs and exe patches that scripts/scan_patch_text.py finds but that are deliberately NOT in the translation template, each rule with its reason. tests/test_translations_patch_coverage.py fails on any found string that is neither in data/translations/patcher_strings.json nor matched here. A rule: files (globs, repo-relative), optional functions (globs on the function or array a literal is in), optional match (a regular expression on the text); patch_files for exe-patch texts.",
  "rules": [
   {
-   "reason": "The Food Mastery fix (Fix Vanilla Bugs, VV4/VV5): the game's own line and its replacement inside the string table's eTechFoodMasteryInfo text. That whole text is the template's sm/eTechFoodMasteryInfo row, whose English src/vv_translations.py gives with the new line when the companion is in the game; the line is never shown on its own.",
-   "files": ["native/vvfp_food_mastery_text/*"]
+   "reason": "The game-text fixes (Fix Vanilla Bugs, all five games; VVFP Text Fixes.dll): the games' own stock texts and their fixed versions (data/vanilla_text_fixes.json), and the Food Mastery line inside eTechFoodMasteryInfo. Each is the game's own string-table row, whose English src/vv_translations.py gives fixed when the companion is in the game; none is patcher text of its own (and the stock \"Harvesting blackberries\" the cutting-tool caption compares with). Not the cutting-tool harvest caption itself (The Tree of Life): its own row is vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0.",
+   "files": ["native/vvfp_text_fixes/*"],
+   "match": "^(?!Harvesting berries with a cutting tool$)"
   },
   {
    "reason": "Log and export writers: the Births, Deaths, History, Arrived, Unaccounted and Statistics logs and the Family Tree / Statistics data the patcher's own tools read back. Logs and files stay in the game's English (src/vv_translations.py: never for logs or files the patcher writes) so the patcher can parse them and every language's logs match.",

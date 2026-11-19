@@ -13262,9 +13262,9 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # The third word's chain companion (STARTUP_LOADER_COMPANIONS_3): shipped when a build ships any third-word
     # companion (_attach_more_companions).
     "VVFP More Companions.dll",
-    # Fix Vanilla Bugs (The Tree of Life, New Believers): the Food Mastery tech's description says its Level 2 bonus
-    # is to collected food.
-    "VVFP Food Mastery Text.dll",
+    # Fix Vanilla Bugs (all five games): the games' own text fixes -- the owner's approved typos, and the Food Mastery
+    # tech's Level 2 line (The Tree of Life, New Believers).
+    "VVFP Text Fixes.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

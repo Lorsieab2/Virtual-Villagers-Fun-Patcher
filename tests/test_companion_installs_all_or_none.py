@@ -412,10 +412,11 @@ CASES = [
          lambda g: [f"vv{g}_scrolling_popups"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpScrollingPopupsInstalled"))[1]),
     # Fix Vanilla Bugs (The Lost Children .. New Believers): the justified paragraph's and the line fit's long-word steps.
-    # Fix Vanilla Bugs (The Tree of Life, New Believers): the string table loader's cookie-check call.
-    Case("Food Mastery Text", "assets/food_mastery_text/VVFP Food Mastery Text.dll", (4, 5),
+    # Fix Vanilla Bugs (The Secret City .. New Believers): the string table loader's epilogue / cookie-check call.
+    # (A New Home, The Lost Children write table pointers only, all or none through the same writer.)
+    Case("Text Fixes", "assets/text_fixes/VVFP Text Fixes.dll", (3, 4, 5),
          lambda g: [f"vv{g}_fix_vanilla_bugs"],
-         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpFoodMasteryTextInstalled"))[1]),
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpTextFixesInstalled"))[1]),
     Case("Long Words", "assets/long_words/VVFP Long Words.dll", (2, 3, 4, 5),
          lambda g: [f"vv{g}_fix_vanilla_bugs"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpLongWordsInstalled"))[1]),
