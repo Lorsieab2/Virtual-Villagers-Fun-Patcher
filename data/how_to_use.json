@@ -216,7 +216,7 @@
     {
       "ids": ["vv1_hungrier_villagers", "vv2_hungrier_villagers", "vv3_hungrier_villagers", "vv4_hungrier_villagers", "vv5_hungrier_villagers"],
       "guide": [
-        "Off by default. Every villager's meal takes more food: set how many times with the Hungrier Villagers slider (2 to 100).",
+        "Off by default. Every villager's meal takes more or less food: set how many times with the Hungrier Villagers slider (0.1 to 100; 1 is the normal game).",
         "Food never goes below 0. When it runs out, the game's own starvation rules take over.",
         "Patch again after moving the slider."
       ]
@@ -225,7 +225,7 @@
       "ids": ["vv4_classic_vv_difficulty", "vv5_classic_vv_difficulty"],
       "guide": [
         "Off by default, and Select All does not tick it; its title is red. Ticking it ticks these together:",
-        "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-100x Meals), 2-100x Tech Cost, Science Collectibles Only Count When Complete,",
+        "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (0.1-100x Meals), 0.1-100x Tech Cost, Science Collectibles Only Count When Complete,",
         "and Harder Fishing Unlock in VV4, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited (The Tree of Life)",
         "or Faith Loss is Doubled/Gains Halved (New Believers), and Sickness works like VV1-3 and Difficulty Settings (so Hard can be chosen),",
         "and Island Events Scale With Population (like The Lost Children), More Island Events, the Isola Grand Event Collection and Scrolling Popups.",
@@ -308,7 +308,7 @@
     {
       "ids": ["vv1_sickness_multiplier", "vv2_sickness_multiplier", "vv3_sickness_multiplier", "vv4_sickness_multiplier", "vv5_sickness_multiplier"],
       "guide": [
-        "Off by default. Villagers fall sick more often: set how many times with the 2-100x Sickness slider (2 to 100).",
+        "Off by default. Villagers fall sick more or less often: set how many times with the 0.1-100x Sickness slider (0.1 to 100; 1 is the normal game).",
         "Every Medicine level and difficulty keeps its own chance, multiplied; old villagers' extra chance too.",
         "It also multiplies Sickness works like VV1-3. Healers, the fire, Easy and events cure as before. Patch again after moving the slider."
       ]
@@ -318,7 +318,7 @@
       "guide": [
         "Off by default. Villagers fall sick as in The Secret City: twice as often while the fire is out, and one step more on Hard.",
         "With the fire burning on Easy or Medium nothing changes; Medicine's levels keep their own chances.",
-        "Keep the fire lit to protect your villagers. 2-100x Sickness multiplies these chances too."
+        "Keep the fire lit to protect your villagers. 0.1-100x Sickness multiplies these chances too."
       ]
     },
     {
@@ -380,8 +380,8 @@
     {
       "ids": ["vv4_louder_wind_flutes"],
       "guide": [
-        "On by default. The wind flutes that play in fog once you have found a Wind Flute are louder, so you hear them over the music:",
-        "2 to 100 times, set with the Louder Wind Flutes slider (5 unless you move it). They never distort.",
+        "On by default. The wind flutes that play in fog once you have found a Wind Flute are louder, so you hear them over the music.",
+        "0.1 to 100 times (below 1 quieter), set with the Louder Wind Flutes slider (5 unless you move it). They never distort.",
         "Only the three flute sounds change; every other sound, the music and the Sound and Music sliders are as before.",
         "The game's sound files are never changed: the flutes are made louder as the game loads them."
       ]
@@ -398,11 +398,11 @@
     {
       "ids": ["vv1_more_frequent_island_events", "vv2_more_frequent_island_events", "vv3_more_frequent_island_events", "vv4_more_frequent_island_events", "vv5_more_frequent_island_events"],
       "guide": [
-        "Off by default; Owner's Defaults ticks it. Select All does not tick it.",
-        "The game's own island events come more often: 2 to 100 times as often, set with the More Frequent Island Events slider (2 unless you move it).",
+        "Off by default; Owner's Defaults ticks it. Select All does not tick it. The game's own island events come more or less often.",
+        "0.1 to 100 times as often, set with the More Frequent Island Events slider (2 unless you move it; 1 is the normal game).",
         "At 2, A New Home's 12 to 23 hours between events become 6 to 11.5, The Lost Children's 10 to 19 become 5 to 9.5, and the other games' 8 to 15 become 4 to 7.5.",
-        "The first events of a new village, which event comes and its rules are the game's own.",
-        "A bought or picked island event still leaves the next natural one where it was. Not yet tested in play."
+        "The first events of a new village, which event comes and its rules are the game's own. A bought or picked island event still leaves the next natural one where it was.",
+        "Not yet tested in play."
       ]
     },
     {
@@ -932,7 +932,7 @@
     {
       "ids": ["vv3_both_factions"],
       "guide": [
-        "Buy a faction on the Tech screen and say Yes to the new message, then do the same for the other one, at its Tech screen price (times the multiplier with 2-100x Tech Cost).",
+        "Buy a faction on the Tech screen and say Yes to the new message, then do the same for the other one, at its Tech screen price (times the multiplier with 0.1-100x Tech Cost).",
         "Both then work together, every level of each: food refills, longer lives, the research point and the population bonus, and both herbs grow on the island.",
         "Seven new potions need a Pitcher Plant and a Berry Plant in the pot together.",
         "The latest shark potion decides how the sharks look; nothing else changes.",
@@ -1236,7 +1236,7 @@
     {
       "ids": ["vv1_tech_cost_multiplier", "vv2_tech_cost_multiplier", "vv3_tech_cost_multiplier", "vv4_tech_cost_multiplier", "vv5_tech_cost_multiplier"],
       "guide": [
-        "Every technology level on the Tech screen costs 2 to 100 times its normal tech points: you choose how many with the 2-100x Tech Cost slider.",
+        "Every technology level on the Tech screen costs 0.1 to 100 times its normal tech points: you choose how many with the 0.1-100x Tech Cost slider (1 is the normal price).",
         "At 3, for example, 6,000 becomes 18,000. The higher you set it, the harder the game.",
         "The Tech screen shows the multiplied price, and a level cannot be bought with fewer points. Nothing else costs more.",
         "In The Secret City choosing a faction (Nature or Magic) costs that many times too. Patch again after moving the slider.",
@@ -1319,7 +1319,7 @@
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
-        "2-100x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation",
+        "0.1-100x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation",
         "and More Frequent Island Events and The Golden Child May Be Born Female (50:50) are not ticked either.",
         "The island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either; it does not change the population mode."
       ]
@@ -1329,7 +1329,7 @@
       "guide": [
         "All but: Learning Skills Never Fails, Manual Drop-Breeding, 256 Villagers, VV1 Mushroom/Collectible Duplication Cheat, Move the \"Playing in the dirt\" Spot,",
         "Super-Secret Golden Mushroom, Fruit Trees Take Turns Refilling, Use Unicode Font (overrides in-game fonts), Checked Skill Preferences are listed as Jobs on Graves,",
-        "Change Sex and Gender Presentation, 2-100x Tech Cost, 2-100x Sickness, Hungrier Villagers (2-100x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
+        "Change Sex and Gender Presentation, 0.1-100x Tech Cost, 0.1-100x Sickness, Hungrier Villagers (0.1-100x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full, More Frequent Island Events,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited, The Golden Child May Be Born Female (50:50),",
         "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups, More Island Events, Isola Grand Event Collection,",
@@ -1345,7 +1345,7 @@
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
         "Move the \"Playing in the dirt\" Spot is off too: Puddle Play Moves to the Lake Shore is ticked instead. So is Yellow Breadfruit Refills Partially Every Time.",
         "That includes Story / Cheat Upgrades, Respecting the Legacy of Isola and 256 Villagers (Experimental), which uses its own save folder.",
-        "It ticks the harder-game patches too, Classic VV Difficulty and 2-100x Tech Cost included, and sets both sliders to 2.",
+        "It ticks the harder-game patches too, Classic VV Difficulty and 0.1-100x Tech Cost included, and sets both sliders to 2.",
         "Story / Cheat Upgrades cost Tech Points is off here (the upgrades are free). So is Island Events Scale With Stored Food and Tech Points.",
         "The island event controls: every Content Filter and No Safeguards for Island Events (and Additional Events too) are off here too; it does not change the population mode."
       ]
@@ -1369,8 +1369,9 @@
     "meal_multiplier": {
       "title": "Hungrier Villagers",
       "guide": [
-        "How many times its normal food every villager meal takes with the Hungrier Villagers patch: a whole number from 2 to 100, 2 unless you move it;",
-        "above 64 it is 64, the most the game's meal can take. Drag the slider or type the number in the box beside it (then press Enter).",
+        "How many times its normal food every villager meal takes with the Hungrier Villagers patch: 0.1 to 100 in steps of 0.1, 2 unless you move it; 1 is the normal game.",
+        "Above 64 it is 64, the most the game's meal can take; a number like 0.3 takes that much on average (a meal is whole food).",
+        "Drag the slider or type the number in the box beside it (then press Enter).",
         "It is written into each game the next time you patch with Hungrier Villagers ticked; patch again after changing it.",
         "Owner's Defaults sets it to 2. It does nothing while Hungrier Villagers is not ticked."
       ]
@@ -1378,40 +1379,40 @@
     "island_frequency_multiplier": {
       "title": "More Frequent Island Events",
       "guide": [
-        "How many times as often the game's own island events come with the More Frequent Island Events patch: a whole number from 2 to 100, 2 unless you move it.",
-        "Drag the slider or type the number in the box beside it (then press Enter).",
+        "How many times as often the game's own island events come with the More Frequent Island Events patch: 0.1 to 100 in steps of 0.1, 2 unless you move it.",
+        "1 is the normal game, below 1 they come less often. Drag the slider or type the number in the box beside it (then press Enter).",
         "The wait between events is divided by it: at 10, The Secret City's 8 to 15 hours become 48 to 90 minutes.",
-        "It is written into each game the next time you patch with More Frequent Island Events ticked;",
-        "patch again after changing it. Owner's Defaults sets it to 2. It does nothing while the patch is not ticked."
+        "It is written into each game the next time you patch with More Frequent Island Events ticked; patch again after changing it. Owner's Defaults sets it to 2.",
+        "It does nothing while the patch is not ticked."
       ]
     },
     "louder_flutes_multiplier": {
       "title": "Louder Wind Flutes",
       "guide": [
-        "How many times louder the wind flutes are with the Louder Wind Flutes patch (The Tree of Life): a whole number from 2 to 100, 5 unless you move it.",
-        "Drag the slider or type the number in the box beside it (then press Enter).",
-        "The loudest moments are held just under the loudest a sound can be, so the flutes never distort;",
-        "higher numbers make the quiet parts louder. At 5, with the game's Sound and Music at their maximum, the flutes are heard over the music.",
-        "It is written into the game the next time you patch with Louder Wind Flutes ticked; patch again after changing it.",
-        "Owner's Defaults sets it to 5. It does nothing while Louder Wind Flutes is not ticked."
+        "How many times louder the wind flutes are with the Louder Wind Flutes patch (The Tree of Life): 0.1 to 100 in steps of 0.1, 5 unless you move it.",
+        "1 is the normal volume, below 1 quieter. Drag the slider or type the number in the box beside it (then press Enter).",
+        "The loudest moments are held just under the loudest a sound can be, so the flutes never distort; higher numbers make the quiet parts louder.",
+        "At 5, with the game's Sound and Music at their maximum, the flutes are heard over the music.",
+        "It is written into the game the next time you patch with Louder Wind Flutes ticked; patch again after changing it. Owner's Defaults sets it to 5.",
+        "It does nothing while Louder Wind Flutes is not ticked."
       ]
     },
     "sickness_multiplier": {
-      "title": "2-100x Sickness",
+      "title": "0.1-100x Sickness",
       "guide": [
-        "How many times as often villagers fall sick with the 2-100x Sickness patch: a whole number from 2 to 100, 2 unless you move it.",
-        "Drag the slider or type the number in the box beside it (then press Enter).",
-        "It is written into each game the next time you patch with 2-100x Sickness ticked; patch again after changing it.",
-        "Owner's Defaults sets it to 2. It does nothing while 2-100x Sickness is not ticked."
+        "How many times as often villagers fall sick with the 0.1-100x Sickness patch: 0.1 to 100 in steps of 0.1, 2 unless you move it.",
+        "1 is the normal game, below 1 they fall sick less often. Drag the slider or type the number in the box beside it (then press Enter).",
+        "It is written into each game the next time you patch with 0.1-100x Sickness ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 2. It does nothing while 0.1-100x Sickness is not ticked."
       ]
     },
     "tech_cost_multiplier": {
-      "title": "2-100x Tech Cost",
+      "title": "0.1-100x Tech Cost",
       "guide": [
-        "How many times its normal price every technology level costs with the 2-100x Tech Cost patch: a whole number from 2 to 100, 3 unless you move it.",
-        "Drag the slider or type the number in the box beside it (then press Enter).",
-        "It is written into each game the next time you patch with 2-100x Tech Cost ticked; patch again after changing it.",
-        "The higher you set it, the harder the game. It does nothing while 2-100x Tech Cost is not ticked."
+        "How many times its normal price every technology level costs with the 0.1-100x Tech Cost patch: 0.1 to 100 in steps of 0.1, 3 unless you move it.",
+        "1 is the normal price, below 1 cheaper (a whole tech point, never below 1). Drag the slider or type the number in the box beside it (then press Enter).",
+        "It is written into each game the next time you patch with 0.1-100x Tech Cost ticked; patch again after changing it.",
+        "The higher you set it, the harder the game. It does nothing while 0.1-100x Tech Cost is not ticked."
       ]
     },
     "patch_selection_settings": {

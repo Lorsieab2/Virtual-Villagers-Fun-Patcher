@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import struct
 import subprocess
@@ -79,6 +80,8 @@ from vv_fun_patcher import (
     PARTNER_CARRY_RANGE,
     UNICODE_FONT_DEFAULT_FACE,
     conflict_ids,
+    multiplier_text,
+    parse_multiplier,
     set_louder_flutes_multiplier,
     set_island_frequency_multiplier,
     set_unicode_font_face,
@@ -144,7 +147,7 @@ ALTERNATIVE_OFF_FUN_PATCH_IDS = ALTERNATIVE_FUN_PATCH_IDS
 #
 # Matched by exact id rather than by substring or display name, so a future
 # patch whose name merely mentions learning is not excluded by accident.
-# 2-100x Tech Cost, one row per game: only ever ticked by the player's own
+# 0.1-100x Tech Cost, one row per game: only ever ticked by the player's own
 # click on it (the owner, 2026-11-06: "7 should be default off for
 # everything. players who want it must explicitly choose it.").
 TECH_COST_MULTIPLIER_FUN_PATCH_IDS = ["vv%d_tech_cost_multiplier" % game for game in range(1, 6)]
@@ -299,7 +302,7 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # table and changes the save format. Owner's Defaults ticks it (owner,
     # 2026-10-03); Select All does not (SELECT_ALL_OFF_FUN_PATCH_IDS).
     + ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
-    # 2-100x Tech Cost (all five games) makes the game super hard: the owner
+    # 0.1-100x Tech Cost (all five games) makes the game super hard: the owner
     # (2026-11-06): "Default OFF", and "players who want it must explicitly
     # choose it" -- so Owner's Defaults and Select All leave it off too
     # (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS, SELECT_ALL_OFF_FUN_PATCH_IDS).
@@ -309,14 +312,14 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Believers): a difficulty change too, so off by default; Owner's Defaults
     # ticks it like every default-off patch it does not name.
     + ["vv4_science_collectibles_complete", "vv5_science_collectibles_complete"]
-    # Hungrier Villagers (2-100x Meals) (all five games): a difficulty change,
+    # Hungrier Villagers (0.1-100x Meals) (all five games): a difficulty change,
     # off by default; Owner's Defaults ticks it like every default-off patch
     # it does not name.
     + ["vv%d_hungrier_villagers" % game for game in range(1, 6)]
     # Classic VV Difficulty (The Tree of Life, New Believers): ticks the
     # harder-game patches; off by default. The owner (2026-11-07): "have the
     # classic vv difficulty on default for owner's defaults! (set the sliders
-    # to 2x." -- Owner's Defaults ticks it, which ticks its pieces (2-100x Tech
+    # to 2x." -- Owner's Defaults ticks it, which ticks its pieces (0.1-100x Tech
     # Cost included, there), and sets both sliders to 2.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
     # Collectible Spawn Timing works like VV1-3 (The Tree of Life): a
@@ -325,7 +328,7 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Harder Fishing Unlock in VV4 (The Tree of Life, the owner 2026-11-08:
     # "Default ON in Owner's Defaults"), in Classic VV Difficulty.
     + ["vv4_harder_fishing_unlock"]
-    # 2-100x Sickness (all five games) and Sickness works like VV1-3 (The Tree
+    # 0.1-100x Sickness (all five games) and Sickness works like VV1-3 (The Tree
     # of Life, New Believers; in Classic VV Difficulty): the owner
     # (2026-11-08): off by default, Owner's Defaults ticks both.
     + ["vv%d_sickness_multiplier" % game for game in range(1, 6)]
@@ -407,7 +410,7 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner (2026-11-01): "For Owner's Defaults, I'd like to have the ingame fonts toggled on." --
     # Render Unicode with In-Game Fonts on, its alternative Use Unicode Font (overrides in-game fonts) off.
     + ["vv%d_unicode_font" % game for game in range(1, 6)]
-    # 2-100x Tech Cost is NOT here: the owner (2026-11-07), after Classic VV
+    # 0.1-100x Tech Cost is NOT here: the owner (2026-11-07), after Classic VV
     # Difficulty ticked it in The Tree of Life and New Believers: "sure,
     # default them on in vv1-3 too!" -- Owner's Defaults ticks it in all five
     # games, with the slider at 2.
@@ -434,9 +437,9 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
 # separate "- Modded 256" game with its own save folder and save format.
 SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
-    # The owner (2026-11-06): 2-100x Tech Cost is ticked only by its own row.
+    # The owner (2026-11-06): 0.1-100x Tech Cost is ticked only by its own row.
     + TECH_COST_MULTIPLIER_FUN_PATCH_IDS
-    # Classic VV Difficulty would tick 2-100x Tech Cost through its dependencies.
+    # Classic VV Difficulty would tick 0.1-100x Tech Cost through its dependencies.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
     # (The Isola Grand Event Collection is NOT here: the owner (2026-11-16), Select All ticks the whole "More Island
     # Events and Creator" row, the collection too.)
@@ -521,20 +524,18 @@ def refresh_conflict_rows(win) -> None:
             del rows[patch_id]
 
 
-def saved_tech_cost_multiplier(settings: dict) -> int:
-    """The 2-100x Tech Cost multiplier a settings file holds: a whole number 2 to 100, else the default 3."""
-    value = settings.get("tech_cost_multiplier", TECH_COST_MULTIPLIER_DEFAULT) if isinstance(settings, dict) else None
-    if isinstance(value, bool) or not isinstance(value, int) or value not in TECH_COST_MULTIPLIER_RANGE:
-        return TECH_COST_MULTIPLIER_DEFAULT
-    return value
+def saved_multiplier(settings: dict, key: str, multipliers, default):
+    """A multiplier slider's number a settings file holds, kept within its range (0.1 to its maximum, to a tenth:
+    the owner, 2026-11-17, every slider goes less as well as more): a saved number outside it is the nearest end (an
+    old 0 or below is 0.1, an old 500 is 100), a missing one or anything not a number (text, true) the default."""
+    value = settings.get(key, default) if isinstance(settings, dict) else None
+    clamped = multipliers.clamp(value)
+    return default if clamped is None else clamped
 
 
-def saved_meal_multiplier(settings: dict) -> int:
-    """Hungrier Villagers' multiplier a settings file holds: a whole number 2 to 100, else the default 2."""
-    value = settings.get("meal_multiplier", MEAL_MULTIPLIER_DEFAULT) if isinstance(settings, dict) else None
-    if isinstance(value, bool) or not isinstance(value, int) or value not in MEAL_MULTIPLIER_RANGE:
-        return MEAL_MULTIPLIER_DEFAULT
-    return value
+def saved_tech_cost_multiplier(settings: dict):
+    """The 0.1-100x Tech Cost multiplier a settings file holds (saved_multiplier; default 3)."""
+    return saved_multiplier(settings, "tech_cost_multiplier", TECH_COST_MULTIPLIER_RANGE, TECH_COST_MULTIPLIER_DEFAULT)
 
 
 def saved_partner_carry(settings: dict) -> int:
@@ -545,40 +546,55 @@ def saved_partner_carry(settings: dict) -> int:
     return value
 
 
-def saved_sickness_multiplier(settings: dict) -> int:
-    """2-100x Sickness's multiplier a settings file holds: a whole number 2 to 100, else the default 2."""
-    value = settings.get("sickness_multiplier", SICKNESS_MULTIPLIER_DEFAULT) if isinstance(settings, dict) else None
-    if isinstance(value, bool) or not isinstance(value, int) or value not in SICKNESS_MULTIPLIER_RANGE:
-        return SICKNESS_MULTIPLIER_DEFAULT
-    return value
+def saved_meal_multiplier(settings: dict):
+    """Hungrier Villagers' multiplier a settings file holds (saved_multiplier; default 2)."""
+    return saved_multiplier(settings, "meal_multiplier", MEAL_MULTIPLIER_RANGE, MEAL_MULTIPLIER_DEFAULT)
 
 
-def saved_louder_flutes_multiplier(settings: dict) -> int:
-    """Louder Wind Flutes' multiplier a settings file holds: a whole number 2 to 100, else the default 5."""
-    value = (settings.get("louder_flutes_multiplier", LOUDER_FLUTES_MULTIPLIER_DEFAULT)
-             if isinstance(settings, dict) else None)
-    if isinstance(value, bool) or not isinstance(value, int) or value not in LOUDER_FLUTES_MULTIPLIER_RANGE:
-        return LOUDER_FLUTES_MULTIPLIER_DEFAULT
-    return value
+def saved_sickness_multiplier(settings: dict):
+    """0.1-100x Sickness's multiplier a settings file holds (saved_multiplier; default 2)."""
+    return saved_multiplier(settings, "sickness_multiplier", SICKNESS_MULTIPLIER_RANGE, SICKNESS_MULTIPLIER_DEFAULT)
 
 
-def saved_island_frequency_multiplier(settings: dict) -> int:
-    """More Frequent Island Events' multiplier a settings file holds: a whole number 2 to 100, else the default 2."""
-    value = (settings.get("island_frequency_multiplier", ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
-             if isinstance(settings, dict) else None)
-    if isinstance(value, bool) or not isinstance(value, int) or value not in ISLAND_FREQUENCY_MULTIPLIER_RANGE:
-        return ISLAND_FREQUENCY_MULTIPLIER_DEFAULT
-    return value
+def saved_louder_flutes_multiplier(settings: dict):
+    """Louder Wind Flutes' multiplier a settings file holds (saved_multiplier; default 5)."""
+    return saved_multiplier(settings, "louder_flutes_multiplier", LOUDER_FLUTES_MULTIPLIER_RANGE,
+                            LOUDER_FLUTES_MULTIPLIER_DEFAULT)
 
 
-def typed_multiplier(text: str, multipliers: range) -> int | None:
-    """A slider's type-in box: the whole number typed, kept within the slider's range (2 to 100), or None when
-    nothing like a whole number was typed (the box then shows the slider's number again)."""
-    cleaned = str(text).strip().rstrip("xX").strip()
-    if not cleaned or not (cleaned.isdigit() or (cleaned[0] in "+-" and cleaned[1:].isdigit())) \
-            or not cleaned.isascii():
-        return None
-    return max(multipliers[0], min(multipliers[-1], int(cleaned)))
+def saved_island_frequency_multiplier(settings: dict):
+    """More Frequent Island Events' multiplier a settings file holds (saved_multiplier; default 2)."""
+    return saved_multiplier(settings, "island_frequency_multiplier", ISLAND_FREQUENCY_MULTIPLIER_RANGE,
+                            ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+
+
+def typed_multiplier(text: str, multipliers):
+    """A slider's type-in box: the number typed ("0.5", ".5", "2", "2x"), rounded to a tenth and kept within the
+    slider's range (0.1 to its maximum), or None when nothing like a number was typed (the box then shows the
+    slider's number again)."""
+    value = parse_multiplier(text)
+    return None if value is None else multipliers.clamp(value)
+
+
+# The sliders run on a logarithmic track (the owner, 2026-11-17: 0.1x to 100x, 1x the normal game): 1,000 steps from
+# 0.1 to the maximum, so the small numbers are as easy to pick as the large ones and 1 sits a third of the way along
+# a 0.1-100 slider.  The track's step is only where the knob is; the number is always the one in the box beside it.
+SLIDER_STEPS = 1000
+
+
+def slider_position(value, multipliers) -> int:
+    """The track step (0 to SLIDER_STEPS) nearest a multiplier."""
+    low, high = multipliers[0], multipliers[-1]
+    value = min(max(float(value), low), high)
+    return round(math.log(value / low) / math.log(high / low) * SLIDER_STEPS)
+
+
+def slider_value(position, multipliers):
+    """The multiplier at a track step, rounded to a tenth (whole numbers above 10, where a step is wider than 0.1)."""
+    low, high = multipliers[0], multipliers[-1]
+    position = min(max(float(position), 0.0), SLIDER_STEPS)
+    raw = low * (high / low) ** (position / SLIDER_STEPS)
+    return multipliers.clamp(round(raw) if raw >= 10 else raw)
 
 
 def select_all_fun_patch_selection(patch_id: str) -> bool:
@@ -1541,20 +1557,22 @@ class App(tk.Tk):
             # "Can you make the check logs automatically default on?"); a
             # per-install choice, written into each game built from now on.
             self.check_logs_var = tk.BooleanVar(value=True)
-            # 2-100x Tech Cost's multiplier, the slider beside the patch settings (the owner, 2026-11-07: "how
+            # 0.1-100x Tech Cost's multiplier, the slider beside the patch settings (the owner, 2026-11-07: "how
             # about a slider? 2-10x Tech Cost"): a whole number 2 to 100, 3 unless moved; written into each game
             # built with that row ticked.
-            self.tech_cost_var = tk.IntVar(value=TECH_COST_MULTIPLIER_DEFAULT)
-            # Hungrier Villagers' multiplier, the second slider (the owner, 2026-11-07): 2 to 100, 2 unless moved.
-            self.meal_var = tk.IntVar(value=MEAL_MULTIPLIER_DEFAULT)
-            # 2-100x Sickness's multiplier, the third slider (the owner, 2026-11-08): 2 to 100, 2 unless moved.
-            self.sickness_var = tk.IntVar(value=SICKNESS_MULTIPLIER_DEFAULT)
+            # Every multiplier slider goes from 0.1 to its maximum in tenths (the owner, 2026-11-17: "less as well
+            # as more", 1 the normal game), so each holds a number, not a whole one.
+            self.tech_cost_var = tk.DoubleVar(value=TECH_COST_MULTIPLIER_DEFAULT)
+            # Hungrier Villagers' multiplier, the second slider (the owner, 2026-11-07): 2 unless moved.
+            self.meal_var = tk.DoubleVar(value=MEAL_MULTIPLIER_DEFAULT)
+            # 0.1-100x Sickness's multiplier, the third slider (the owner, 2026-11-08): 2 unless moved.
+            self.sickness_var = tk.DoubleVar(value=SICKNESS_MULTIPLIER_DEFAULT)
             # Louder Wind Flutes' multiplier (The Tree of Life; the owner, 2026-11-15: "control how loud the wind
-            # flutes are too! (same slider)"): 2 to 100, 5 unless moved; written beside its companion.
-            self.louder_flutes_var = tk.IntVar(value=LOUDER_FLUTES_MULTIPLIER_DEFAULT)
-            # More Frequent Island Events' multiplier (all five games; the owner, 2026-11-15): 2 to 100, 2 unless
-            # moved; written beside its companion.
-            self.island_frequency_var = tk.IntVar(value=ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+            # flutes are too! (same slider)"): 5 unless moved; written beside its companion.
+            self.louder_flutes_var = tk.DoubleVar(value=LOUDER_FLUTES_MULTIPLIER_DEFAULT)
+            # More Frequent Island Events' multiplier (all five games; the owner, 2026-11-15): 2 unless moved;
+            # written beside its companion.
+            self.island_frequency_var = tk.DoubleVar(value=ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
             # "A man may carry the baby by chance" (the owner, 2026-11-16): 0 to 100 percent, 10 unless moved; the
             # slider and its box in every game's Island Events section share it.
             self.partner_carry_var = tk.IntVar(value=PARTNER_CARRY_DEFAULT)
@@ -1864,69 +1882,24 @@ class App(tk.Tk):
         unicode_font_box.bind("<<ComboboxSelected>>", lambda _e: self._unicode_font_changed())
         unicode_font_box.bind("<FocusOut>", lambda _e: self._unicode_font_changed())
         self._help_button(font_group, "unicode_font").pack(side="left", padx=(2, 0))
-        # 2-100x Tech Cost: the multiplier, a slider of whole numbers 2 to 100 (only used with that row ticked).
-        # Every multiplier slider has a box beside it to type the number in (the owner, 2026-11-15).
-        tech_cost_group = ttk.Frame(fun_settings)
-        tech_cost_group.pack(side="left", padx=(0, 16))
-        ttk.Label(tech_cost_group, text="2-100x Tech Cost:").pack(side="left", padx=(0, 4))
-        self.tech_cost_scale = tk.Scale(
-            tech_cost_group, variable=self.tech_cost_var, orient="horizontal",
-            from_=TECH_COST_MULTIPLIER_RANGE[0], to=TECH_COST_MULTIPLIER_RANGE[-1], resolution=1,
-            length=120, showvalue=True, command=lambda _value: self._save_settings())
-        self.tech_cost_scale.pack(side="left")
-        self.tech_cost_box = self._multiplier_box(tech_cost_group, self.tech_cost_var, TECH_COST_MULTIPLIER_RANGE)
-        self._help_button(tech_cost_group, "tech_cost_multiplier").pack(side="left", padx=(2, 0))
-        # Hungrier Villagers: the meal multiplier, whole numbers 2 to 100 (only used with that row ticked).
-        meal_group = ttk.Frame(fun_settings)
-        meal_group.pack(side="left", padx=(0, 16))
-        ttk.Label(meal_group, text="Hungrier Villagers:").pack(side="left", padx=(0, 4))
-        self.meal_scale = tk.Scale(
-            meal_group, variable=self.meal_var, orient="horizontal",
-            from_=MEAL_MULTIPLIER_RANGE[0], to=MEAL_MULTIPLIER_RANGE[-1], resolution=1,
-            length=120, showvalue=True, command=lambda _value: self._save_settings())
-        self.meal_scale.pack(side="left")
-        self.meal_box = self._multiplier_box(meal_group, self.meal_var, MEAL_MULTIPLIER_RANGE)
-        self._help_button(meal_group, "meal_multiplier").pack(side="left", padx=(2, 0))
-        # 2-100x Sickness: whole numbers 2 to 100 (only used with that row ticked).
-        sickness_group = ttk.Frame(fun_settings)
-        sickness_group.pack(side="left", padx=(0, 16))
-        ttk.Label(sickness_group, text="2-100x Sickness:").pack(side="left", padx=(0, 4))
-        self.sickness_scale = tk.Scale(
-            sickness_group, variable=self.sickness_var, orient="horizontal",
-            from_=SICKNESS_MULTIPLIER_RANGE[0], to=SICKNESS_MULTIPLIER_RANGE[-1], resolution=1,
-            length=120, showvalue=True, command=lambda _value: self._save_settings())
-        self.sickness_scale.pack(side="left")
-        self.sickness_box = self._multiplier_box(sickness_group, self.sickness_var, SICKNESS_MULTIPLIER_RANGE)
-        self._help_button(sickness_group, "sickness_multiplier").pack(side="left", padx=(2, 0))
-        # Louder Wind Flutes (The Tree of Life): how many times louder, whole numbers 2 to 100 (only used with that
-        # row ticked).
-        louder_flutes_group = ttk.Frame(fun_settings)
-        louder_flutes_group.pack(side="left", padx=(0, 16))
-        ttk.Label(louder_flutes_group, text="Louder Wind Flutes:").pack(side="left", padx=(0, 4))
-        self.louder_flutes_scale = tk.Scale(
-            louder_flutes_group, variable=self.louder_flutes_var, orient="horizontal",
-            from_=LOUDER_FLUTES_MULTIPLIER_RANGE[0], to=LOUDER_FLUTES_MULTIPLIER_RANGE[-1], resolution=1,
-            length=120, showvalue=True, command=lambda _value: self._save_settings())
-        self.louder_flutes_scale.pack(side="left")
-        self.louder_flutes_box = self._multiplier_box(louder_flutes_group, self.louder_flutes_var,
-                                                      LOUDER_FLUTES_MULTIPLIER_RANGE)
-        self._help_button(louder_flutes_group, "louder_flutes_multiplier").pack(side="left", padx=(2, 0))
+        # The multiplier sliders (each only used with its row ticked): 0.1 to the maximum on a logarithmic track
+        # (SLIDER_STEPS), 1 the normal game, with a box beside each to type the number in (the owner, 2026-11-15)
+        # that also shows it.
+        self.tech_cost_scale, self.tech_cost_box = self._multiplier_slider(
+            fun_settings, "0.1-100x Tech Cost:", self.tech_cost_var, TECH_COST_MULTIPLIER_RANGE, "tech_cost_multiplier")
+        self.meal_scale, self.meal_box = self._multiplier_slider(
+            fun_settings, "Hungrier Villagers:", self.meal_var, MEAL_MULTIPLIER_RANGE, "meal_multiplier")
+        self.sickness_scale, self.sickness_box = self._multiplier_slider(
+            fun_settings, "0.1-100x Sickness:", self.sickness_var, SICKNESS_MULTIPLIER_RANGE, "sickness_multiplier")
+        self.louder_flutes_scale, self.louder_flutes_box = self._multiplier_slider(
+            fun_settings, "Louder Wind Flutes:", self.louder_flutes_var, LOUDER_FLUTES_MULTIPLIER_RANGE,
+            "louder_flutes_multiplier")
         # What patches use follows the slider, whichever way it is moved (slider, box, settings, Owner's Defaults).
         self.louder_flutes_var.trace_add("write", lambda *_args: self._louder_flutes_changed())
         self._louder_flutes_changed()       # the saved number, loaded before the window was built
-        # More Frequent Island Events (all five games): how many times as often, whole numbers 2 to 100 (only used
-        # with that row ticked).
-        island_frequency_group = ttk.Frame(fun_settings)
-        island_frequency_group.pack(side="left")
-        ttk.Label(island_frequency_group, text="More Frequent Island Events:").pack(side="left", padx=(0, 4))
-        self.island_frequency_scale = tk.Scale(
-            island_frequency_group, variable=self.island_frequency_var, orient="horizontal",
-            from_=ISLAND_FREQUENCY_MULTIPLIER_RANGE[0], to=ISLAND_FREQUENCY_MULTIPLIER_RANGE[-1], resolution=1,
-            length=120, showvalue=True, command=lambda _value: self._save_settings())
-        self.island_frequency_scale.pack(side="left")
-        self.island_frequency_box = self._multiplier_box(island_frequency_group, self.island_frequency_var,
-                                                         ISLAND_FREQUENCY_MULTIPLIER_RANGE)
-        self._help_button(island_frequency_group, "island_frequency_multiplier").pack(side="left", padx=(2, 0))
+        self.island_frequency_scale, self.island_frequency_box = self._multiplier_slider(
+            fun_settings, "More Frequent Island Events:", self.island_frequency_var, ISLAND_FREQUENCY_MULTIPLIER_RANGE,
+            "island_frequency_multiplier")
         self.island_frequency_var.trace_add("write", lambda *_args: self._island_frequency_changed())
         self._island_frequency_changed()    # the saved number, loaded before the window was built
         # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
@@ -3195,22 +3168,6 @@ class App(tk.Tk):
         }
         SETTINGS.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
-    def _tech_cost_multiplier(self) -> int:
-        """The 2-100x Tech Cost slider's whole number, kept within 2 to 100."""
-        try:
-            value = int(self.tech_cost_var.get())
-        except (tk.TclError, ValueError, AttributeError):
-            value = TECH_COST_MULTIPLIER_DEFAULT
-        return value if value in TECH_COST_MULTIPLIER_RANGE else TECH_COST_MULTIPLIER_DEFAULT
-
-    def _meal_multiplier(self) -> int:
-        """The Hungrier Villagers slider's whole number, kept within 2 to 100."""
-        try:
-            value = int(self.meal_var.get())
-        except (tk.TclError, ValueError, AttributeError):
-            value = MEAL_MULTIPLIER_DEFAULT
-        return value if value in MEAL_MULTIPLIER_RANGE else MEAL_MULTIPLIER_DEFAULT
-
     def _partner_carry(self) -> int:
         """"A man may carry the baby by chance": the slider's percent, kept within 0 to 100."""
         try:
@@ -3219,29 +3176,39 @@ class App(tk.Tk):
             value = PARTNER_CARRY_DEFAULT
         return value if value in PARTNER_CARRY_RANGE else PARTNER_CARRY_DEFAULT
 
-    def _sickness_multiplier(self) -> int:
-        """The 2-100x Sickness slider's whole number, kept within 2 to 100."""
+    @staticmethod
+    def _slider_number(variable, multipliers, default):
+        """A multiplier slider's number, kept within its range to a tenth (2.0 is 2); the default when the
+        variable holds nothing readable."""
         try:
-            value = int(self.sickness_var.get())
-        except (tk.TclError, ValueError, AttributeError):
-            value = SICKNESS_MULTIPLIER_DEFAULT
-        return value if value in SICKNESS_MULTIPLIER_RANGE else SICKNESS_MULTIPLIER_DEFAULT
+            value = multipliers.clamp(float(variable.get()))
+        except (tk.TclError, ValueError, TypeError, AttributeError):
+            value = None
+        return default if value is None else value
 
-    def _louder_flutes_multiplier(self) -> int:
-        """The Louder Wind Flutes slider's whole number, kept within 2 to 100."""
-        try:
-            value = int(self.louder_flutes_var.get())
-        except (tk.TclError, ValueError, AttributeError):
-            value = LOUDER_FLUTES_MULTIPLIER_DEFAULT
-        return value if value in LOUDER_FLUTES_MULTIPLIER_RANGE else LOUDER_FLUTES_MULTIPLIER_DEFAULT
+    def _tech_cost_multiplier(self):
+        """The 0.1-100x Tech Cost slider's number, kept within 0.1 to 100."""
+        return App._slider_number(getattr(self, "tech_cost_var", None), TECH_COST_MULTIPLIER_RANGE,
+                                  TECH_COST_MULTIPLIER_DEFAULT)
 
-    def _island_frequency_multiplier(self) -> int:
-        """The More Frequent Island Events slider's whole number, kept within 2 to 100."""
-        try:
-            value = int(self.island_frequency_var.get())
-        except (tk.TclError, ValueError, AttributeError):
-            value = ISLAND_FREQUENCY_MULTIPLIER_DEFAULT
-        return value if value in ISLAND_FREQUENCY_MULTIPLIER_RANGE else ISLAND_FREQUENCY_MULTIPLIER_DEFAULT
+    def _meal_multiplier(self):
+        """The Hungrier Villagers slider's number, kept within 0.1 to 100."""
+        return App._slider_number(getattr(self, "meal_var", None), MEAL_MULTIPLIER_RANGE, MEAL_MULTIPLIER_DEFAULT)
+
+    def _sickness_multiplier(self):
+        """The 0.1-100x Sickness slider's number, kept within 0.1 to 100."""
+        return App._slider_number(getattr(self, "sickness_var", None), SICKNESS_MULTIPLIER_RANGE,
+                                  SICKNESS_MULTIPLIER_DEFAULT)
+
+    def _louder_flutes_multiplier(self):
+        """The Louder Wind Flutes slider's number, kept within 0.1 to 100."""
+        return App._slider_number(getattr(self, "louder_flutes_var", None), LOUDER_FLUTES_MULTIPLIER_RANGE,
+                                  LOUDER_FLUTES_MULTIPLIER_DEFAULT)
+
+    def _island_frequency_multiplier(self):
+        """The More Frequent Island Events slider's number, kept within 0.1 to 100."""
+        return App._slider_number(getattr(self, "island_frequency_var", None), ISLAND_FREQUENCY_MULTIPLIER_RANGE,
+                                  ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
 
     def _island_frequency_changed(self) -> None:
         """The More Frequent Island Events slider moved: the next patch writes its number beside the companion."""
@@ -3251,27 +3218,59 @@ class App(tk.Tk):
         """The Louder Wind Flutes slider moved: the next patch writes its number beside the companion."""
         set_louder_flutes_multiplier(App._louder_flutes_multiplier(self))
 
-    def _multiplier_box(self, group, variable, multipliers: range) -> ttk.Entry:
-        """A multiplier slider's type-in box (the owner, 2026-11-15): it always shows the slider's number; a number
-        typed (or pasted: Tk's own Ctrl+V and Shift+Insert; Ctrl+C and Ctrl+X copy and cut) moves the slider when Enter is pressed or the
-        box is left, kept within 2 to 100; anything else puts the slider's number back.  Nothing out of range is
-        ever saved."""
-        text = tk.StringVar(value=str(variable.get()))
-        box = ttk.Entry(group, textvariable=text, width=4, justify="right")
+    def _multiplier_slider(self, parent, label: str, variable, multipliers, help_key: str):
+        """One multiplier setting kept whole on its line: its label, its slider (a logarithmic track of
+        SLIDER_STEPS steps; moving it sets the number and saves), its type-in box and its "?".  Returns the slider
+        and the box."""
+        group = ttk.Frame(parent)
+        group.pack(side="left", padx=(0, 16))
+        ttk.Label(group, text=label).pack(side="left", padx=(0, 4))
+        position = tk.IntVar(value=slider_position(App._slider_number(variable, multipliers, multipliers[0]),
+                                                   multipliers))
+
+        def moved(_value) -> None:
+            value = slider_value(position.get(), multipliers)
+            if value != App._slider_number(variable, multipliers, None):
+                variable.set(value)
+            self._save_settings()
+
+        def follow(*_args) -> None:
+            # The number came from elsewhere (the box, the settings, Owner's Defaults): the knob goes to it.
+            value = App._slider_number(variable, multipliers, None)
+            if value is not None and slider_value(position.get(), multipliers) != value:
+                position.set(slider_position(value, multipliers))
+
+        scale = tk.Scale(group, variable=position, orient="horizontal", from_=0, to=SLIDER_STEPS, resolution=1,
+                         length=120, showvalue=False, command=moved)
+        scale.pack(side="left")
+        variable.trace_add("write", follow)
+        scale.position = position
+        box = self._multiplier_box(group, variable, multipliers)
+        self._help_button(group, help_key).pack(side="left", padx=(2, 0))
+        return scale, box
+
+    def _multiplier_box(self, group, variable, multipliers) -> ttk.Entry:
+        """A multiplier slider's type-in box (the owner, 2026-11-15): it always shows the slider's number ("2",
+        "0.5"); a number typed (or pasted: Tk's own Ctrl+V and Shift+Insert; Ctrl+C and Ctrl+X copy and cut) moves
+        the slider when Enter is pressed or the box is left, rounded to a tenth and kept within 0.1 to the
+        slider's maximum; anything else puts the slider's number back.  Nothing out of range is ever saved."""
+        text = tk.StringVar()
+        box = ttk.Entry(group, textvariable=text, width=5, justify="right")
         box.pack(side="left", padx=(4, 0))
 
         def show(*_args) -> None:
-            try:
-                text.set(str(int(variable.get())))
-            except (tk.TclError, ValueError):
-                pass
+            value = App._slider_number(variable, multipliers, None)
+            if value is not None:
+                text.set(multiplier_text(value))
+
+        show()
 
         def commit(_event=None) -> None:
             value = typed_multiplier(text.get(), multipliers)
             if value is None:
                 show()
                 return
-            changed = value != variable.get()
+            changed = value != App._slider_number(variable, multipliers, None)
             variable.set(value)
             show()
             if changed:

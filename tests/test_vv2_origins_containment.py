@@ -48,11 +48,11 @@ REMAINING = {
     "vv2_copy_paste",
     # companion only: replaces the story pages' vtable slots at run time, owns no bytes
     "vv2_skip_all_intro",
-    # 2-100x Tech Cost: its price immediates only, nothing of Origins.
+    # 0.1-100x Tech Cost: its price immediates only, nothing of Origins.
     "vv2_tech_cost_multiplier",
     # Hungrier Villagers: the meal's two immediates only, nothing of Origins.
     "vv2_hungrier_villagers",
-    # 2-100x Sickness: no render byte (written at publish), nothing of Origins.
+    # 0.1-100x Sickness: no render byte (written at publish), nothing of Origins.
     "vv2_sickness_multiplier",
     "vv2_island_events",
     "vv2_storytelling",
