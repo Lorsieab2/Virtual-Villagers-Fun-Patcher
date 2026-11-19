@@ -55,13 +55,22 @@ DESCRIPTION = (
 # Each game's Tech screen splice (native/vvfp_village_solidarity/counter_vv<N>.inc; pinned against the stock
 # executables by tests/test_village_solidarity_counter_*.py): (va, stock bytes, what).
 COUNTER_SITES: dict[int, list[tuple[int, str, str]]] = {
-    1: [(0x43401B, "8B8E24010000", "the Tech screen draw 0x433B20, where its text widgets are drawn")],
-    2: [(0x441D2B, "8B8E24010000", "the Tech screen draw 0x441830, where its text widgets are drawn")],
-    3: [(0x464C1D, "5F5E83C424C3", "the Tech screen draw 0x4649C0, its return")],
-    4: [(0x43E87E, "5F5E5D5B83C418C3", "the Tech screen draw 0x43E640, its return")],
-    5: [(0x44121C, "5E5D5B83C428C3", "the Tech screen draw 0x440F80, its return")],
+    1: [(0x43401B, "8B8E24010000", "the Tech screen draw 0x433B20, where its text widgets are drawn"),
+        (0x435846, "8B4E18688D000000", "the Tech screen's constructor 0x4347E0, after its title is attached"),
+        (0x4819F8, "B05A4300", "the Tech screen's vtable slot 3 (its handler 0x435AB0)")],
+    2: [(0x441D2B, "8B8E24010000", "the Tech screen draw 0x441830, where its text widgets are drawn"),
+        (0x443559, "8B4E1868C9000000", "the Tech screen's constructor, after its title is attached"),
+        (0x48F9E4, "C0374400", "the Tech screen's vtable slot 3 (its handler 0x4437C0)")],
+    3: [(0x464C1D, "5F5E83C424C3", "the Tech screen draw 0x4649C0, its return"),
+        (0x4652A8, "C744241001000000", "the Tech screen's constructor, before its technologies' loop"),
+        (0x49E840, "40564600", "the Tech screen's vtable slot 3 (its handler 0x465640)")],
+    4: [(0x43E87E, "5F5E5D5B83C418C3", "the Tech screen draw 0x43E640, its return"),
+        (0x43E16B, "64890D00000000", "the Tech screen's constructor, its end"),
+        (0x48EC70, "F0E94300", "the Tech screen's vtable slot 3 (its handler 0x43E9F0)")],
+    5: [(0x44121C, "5E5D5B83C428C3", "the Tech screen draw 0x440F80, its return"),
+        (0x4407B7, "C744241401000000", "the Tech screen's constructor, before its technologies' loop"),
+        (0x49A218, "F0154400", "the Tech screen's vtable slot 3 (its handler 0x4415F0)")],
 }
-
 
 def counter_sites(game: int) -> list[tuple[int, str, str]]:
     """(va, stock bytes, what) of each Tech screen splice the companion makes in `game`."""

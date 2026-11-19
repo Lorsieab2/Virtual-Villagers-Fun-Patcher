@@ -52,7 +52,7 @@ def _define(name: str, text: str) -> int:
     return int(re.search(r"#define %s (0x[0-9A-Fa-f]+)u" % name, text).group(1), 16)
 
 
-def _routines(game: int, text: str) -> tuple[int, int, int]:
+def _routines(game: int, text: str) -> tuple[int, ...]:
     body = re.search(r"sol12_game SOL_VV%d = \{([^}]*)\}" % game, text).group(1)
     return tuple(int(v, 16) for v in re.findall(r"0x([0-9A-Fa-f]+)u", body))
 
@@ -78,11 +78,28 @@ class CounterSitesAreStock(unittest.TestCase):
             self.assertTrue(ins.mnemonic.startswith("j"), (hex(jump), ins.mnemonic))
             self.assertEqual(int(ins.op_str, 16), site)
         self.assertTrue(DRAW[game] < site)
-        text_routine, width, height = _routines(game, text)
+        (text_routine, width, height, op_new, button, label, attach, popup, run, free, sound, picture,
+         question, handler) = _routines(game, text)
         for va, name in ((text_routine, "SOL12_TEXT_STOCK"), (width, "SOL12_WIDTH_STOCK"),
                          (height, "SOL12_HEIGHT_STOCK")):
             expect = _bytes(name, self.shared)
             self.assertEqual(read(va, len(expect)), expect, (game, hex(va)))
+        # The "?" button and its help (the owner, 2026-11-18): every routine the technologies' own "?" use.
+        for va, name in ((op_new, "SOL12_NEW_STOCK"), (button, "SOL12_SEH_STOCK"), (label, "SOL12_LABEL_STOCK"),
+                         (attach, "SOL12_CHILD_STOCK"), (popup, "SOL12_SEH_STOCK"), (run, "SOL12_RUN_STOCK"),
+                         (free, "SOL12_SEH_STOCK"),
+                         (sound, "SOL12_SOUND_STOCK" if game == 1 else "SOL12_SOUND_STOCK_VV2")):
+            expect = _bytes(name, self.shared)
+            self.assertEqual(read(va, len(expect)), expect, (game, hex(va), name))
+        self.assertEqual(read(picture, 16), b"info_button.png\0")
+        self.assertEqual(read(question, 2), b"?\0")
+        # The constructor point (after the title is attached) and the screen's vtable slot 3 (its stock handler).
+        make = _define("SOL_VV%d_MAKE_SITE" % game, text)
+        self.assertEqual(_define("SOL_VV%d_MAKE_RESUME" % game, text), make + 8)
+        self.assertEqual(read(make, 8), _bytes("SOL_VV%d_MAKE_STOCK" % game, text))
+        slot = _define("SOL_VV%d_SLOT" % game, text)
+        self.assertEqual(struct.unpack("<I", read(slot, 4))[0], handler)
+        self.assertEqual(read(slot, 4), _bytes("SOL_VV%d_SLOT_STOCK" % game, text))
 
     def test_a_new_home(self):
         self.check(1)
