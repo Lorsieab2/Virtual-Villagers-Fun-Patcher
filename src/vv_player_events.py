@@ -31,6 +31,7 @@ import random
 import re
 import shutil
 import struct
+import textwrap
 import zlib
 from fractions import Fraction
 from dataclasses import dataclass, field
@@ -654,6 +655,14 @@ GROUP_SKILLS = {"healer": "Healing", "builder": "Building", "farmer": "Farming",
 _GROUP = re.compile(r"^(everyone|every villager|all villagers|every (healer|builder|farmer|researcher|scholar|scientist|"
                     r"parent|nanny|priest|devout)|(\d+|one|two|three|four|five) random villagers?)\s*:\s*", re.I)
 _NUM_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5}
+FLAVOR_NOTE = "{0!r} is flavor only: no skill changes"
+
+
+def _plain_skills(word: str) -> list[str]:
+    """A skill word's skills (style guide 8b-8c: a craft counts as its main skill; two are one of them at random; []
+    for a flavor word); an unknown word stays as written, for the engine's check to name."""
+    sk = owner.skills_of(word)
+    return [word.title()] if sk is None else sk
 
 
 def plain_effect(line: str) -> PlainEffect | str:
@@ -722,11 +731,14 @@ def plain_effect(line: str) -> PlainEffect | str:
             if word.lower() not in SKILL_WORDS and word.lower() not in ("small", "normal", "large", "huge"):
                 tail_target = _target(word)
                 s = s[:m.start()]
-        m = re.fullmatch(r"skill ([+-]) ([A-Za-z]+)(?: (a little|a bit|some|a lot|hugely|a great deal|small|normal|"
-                         r"large|huge))?", s, re.I)
+        m = re.fullmatch(r"skill ([+-]) ([A-Za-z][A-Za-z-]*)(?: (a little|a bit|some|a lot|hugely|a great deal|small|"
+                         r"normal|large|huge))?", s, re.I)
         if m:
             best = m.group(2).lower() == "best"          # SKILL + BEST: the villager's own best skill
-            e = {"do": "skill", "role": need(tail_target), "skills": None if best else [m.group(2).title()],
+            skills = None if best else _plain_skills(m.group(2))
+            if skills == []:
+                return PlainEffect([], roles, FLAVOR_NOTE.format(m.group(2)))
+            e = {"do": "skill", "role": need(tail_target), "skills": skills,
                  "best": True if best else None, "size": SKILL_WORDS[(m.group(3) or "a little").lower()]}
             if m.group(1) == "-":
                 e["loss"] = True
@@ -744,13 +756,14 @@ def plain_effect(line: str) -> PlainEffect | str:
         m = re.fullmatch(r"young look(?: " + _T + r")?", s, re.I)
         if m:
             return PlainEffect([fx(do="young_look", role=need(_target(m.group(1))))], roles)
-        m = re.fullmatch(r"master(?:s)? ([A-Za-z]+)", s, re.I)
+        m = re.fullmatch(r"master(?:s)? ([A-Za-z][A-Za-z-]*)", s, re.I) or \
+            re.fullmatch(r"skill set ([A-Za-z][A-Za-z-]*) (\d+)", s, re.I)
         if m:
-            return PlainEffect([fx(do="skill", role=need(tail_target), skills=[m.group(1).title()], set=100)], roles)
-        m = re.fullmatch(r"skill set ([A-Za-z]+) (\d+)", s, re.I)
-        if m:
-            return PlainEffect([fx(do="skill", role=need(tail_target), skills=[m.group(1).title()],
-                                   set=int(m.group(2)))], roles)
+            skills = _plain_skills(m.group(1))
+            if not skills:
+                return PlainEffect([], roles, FLAVOR_NOTE.format(m.group(1)))
+            return PlainEffect([fx(do="skill", role=need(tail_target), skills=skills,
+                                   set=int(m.group(2)) if m.lastindex == 2 else 100)], roles)
         m = re.fullmatch(r"(like|dislike) ([+-]) (.+)", s, re.I)
         if m:
             word = m.group(3).strip().strip('"')
@@ -3199,6 +3212,7 @@ main villager):
   <0-100>. Skills: Farming, Building, Research, Healing, Parenting, and Devotion (VV5 only). Add "FOR <who>" for
   another villager.
   SKILL + BEST a little|some|a lot|hugely raises the villager's own best skill.
+<<CRAFTS>>
 - LIKE + <thing>, DISLIKE + <thing>, LIKE - <thing> (no longer likes it), DISLIKE - <thing> (gets over it),
   LIKE + random, DISLIKE + random. Things are the game's own likes words (for example swimming, dancing, fruit).
   Likes and dislikes are not jobs: never write that someone "hates (a job), so" gains a dislike; name the thing the
@@ -3245,6 +3259,20 @@ Role words: adult, child, teen, elder, 18 to 50, 30+, male, female, skill Healin
 <who>, parent of <who>, child of <who>, sibling of <who>, within 10 years of <who>, optional, speaks, carrier,
 golden child, tribal chief, stranger, named stranger, any faith (VV5: an Isolan may take it).
 """
+
+
+def crafts_text() -> str:
+    """The AI prompt's crafts lines, from the importer's own table (vv_owner_layout.CRAFT_GROUPS)."""
+    groups = "; ".join(", ".join(words) + " = " + " or ".join(sk) for words, sk in owner.CRAFT_GROUPS)
+    text = ("Crafts count as their main skill (style guide 8c), so <skill> may also be a craft: " + groups + ". "
+            "Where two skills are named, one of them is picked at random; a game keeps only the skills it has, so in "
+            "VV1-VV4 magic is Healing and a Devotion-only craft is flavor. Doubt is flavor only (never a skill), and "
+            "a doodle is not a sigil. Use a craft only where it makes sense; otherwise it is flavor and needs no "
+            "Effect line.")
+    return textwrap.fill(text, 118, initial_indent="  ", subsequent_indent="  ", break_on_hyphens=False)
+
+
+FORMAT_SECTION = FORMAT_SECTION.replace("<<CRAFTS>>", crafts_text())
 
 PROMPT_TEMPLATE = """\
 Write {count_words} Original Virtual Villagers Island Event{plural}
@@ -3321,6 +3349,7 @@ Isola is a tribal society with its own traditions, science, history, and mysteri
 * Different villagers may hold different beliefs, all of which deserve respect.
 * Outsiders and the origins of mysterious objects may remain unknown.
 * Follow the appropriate game-specific lore and terminology.
+* Cloth is a good building and repair material (style guide 8d): sails, awnings, patching roofs and huts, mending nets, bandaged repairs. Only in VV4, which has cloth bolts, does it use up the village's real cloth bolts (when it has some); everywhere else, and in VV4 with none, the cloth is flavor.
 * In VV5, use my respectful Guardians of Isola terminology, including Isolans rather than Heathens, and "the tribe", "a tribe member" or "the newcomers" (whichever fits the sentence) rather than "believers" where the tribe is set against the Isolans, or "a villager of faith", "a person of faith" or "the faithful" where a believer is set against a skeptic or a doubter. In VV5 a Heathen (Isolan) is only ever in an event about meeting them or coming to live with the tribe; give such a role "any faith".
 
 7. Make the Outcomes Matter

@@ -131,6 +131,7 @@ game's own ranges (the same as the More Island Events rewards); food and tech sc
 | `FOOD AWARD (size)`, `TECH AWARD (size)`, `PAY AWARD` | an amount the text names with `(award)`, paid later | defer, pay_award |
 | `SKILL + Research a little\|some\|a lot\|hugely`, `SKILL - ...`, `... FOR <who>` | a skill rises or falls | skill |
 | `MASTER Healing`, `SKILL SET Healing 50` | the skill set to 100 / a value | skill set |
+| `SKILL + Carving some`, `MASTER Potions` (a craft) | a craft counts as its main skill (style guide 8c; `vv_owner_layout.CRAFT_GROUPS`): carving = Building, potions = Research or Healing (one at random), magic = Healing or Devotion (Healing in VV1-VV4), ...; `Doubt` and `Doodle` are flavor only (no effect, a note) | skill |
 | `LIKE + swimming`, `DISLIKE + work`, `LIKE - dancing`, `DISLIKE - water`, `LIKE + random` | a like or dislike given or taken away | preference |
 | `INJURY <who> [(minor\|serious\|grave)]`, `HEALTH <who> +10 TO +20`, `HEAL <who>`, `ILLNESS <who>` | health, sickness | health_change, health, sick |
 | `DEATH <who> [CAUSE "words"]`, `DISAPPEARS <who>`, `LOST FOREVER <who>` | a death with a grave, a disappearance, a death with no body | kill, vanish, die_unrecovered |
