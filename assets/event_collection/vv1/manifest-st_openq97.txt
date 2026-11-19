@@ -18,7 +18,7 @@ living_st_ef17d2	The Old Watchpost	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS 
 living_st_ae345a	A Shield at the Memorial	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A villager places an ancestral shield beside a memorial.		
 living_st_eb9568	The Bow Put Away	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A hunter stores a bow safely inside a hut.		
 living_st_a27efa	Materials for Protection	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	Two artisans discuss protective materials.		
-living_st_31190a	Rehearsing the Shield Dance	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A group rehearses a traditional shield dance.		
+living_st_31190a	Rehearsing the Shield Dance	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A group rehearses a traditional shield dance.			cooperative
 living_st_b2dc27	The Veteran's Equipment	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A veteran helps preserve old equipment for future generations.		
 living_st_18ffa6	Markings on the Shield	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A grandparent shows a child the markings on a family shield.		
 living_st_8f0dc9	The Inherited Bow	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	An apprentice carefully wraps an inherited bow for storage.		
@@ -32,6 +32,6 @@ living_st_01ae46	The Shield Not Used	1,2,3,4,5	1	living_st_openq97	OPEN QUESTION
 living_st_a6cd61	The Bowyer's Favorite Tool	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A bowyer passes a favorite tool to a trusted apprentice.		
 living_st_583de6	A Story Retold	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	An elder tells a story that changes slightly with each retelling.		
 living_st_663fd3	Faded Breastplate Designs	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A villager studies faded designs on an inherited breastplate.		
-living_st_bec8d6	The Heirloom Gathering	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	Several families gather to share stories about their heirlooms.		
+living_st_bec8d6	The Heirloom Gathering	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	Several families gather to share stories about their heirlooms.			cooperative
 living_st_b23934	The Damaged Spear Shaft	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A craftsperson preserves a damaged spear shaft as a historical object.		
 living_st_b8953b	The Care of Heirlooms	1,2,3,4,5	1	living_st_openq97	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A young villager learns that inheriting an object also means caring for it.		

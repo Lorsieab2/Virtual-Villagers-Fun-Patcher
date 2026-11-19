@@ -1,7 +1,7 @@
 # Isola Grand Event Collection: events of this game, read by VVFP Story Upgrades.dll.
 # id	title	games	draw weight	series	credit	description	Guardians title	Guardians description
 living_st_31caee	All by Myself	1,2,3,4,5	1	living_st_da_il09	NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)	A child announces they are old enough to fetch the water alone with the big jar: let them go, or offer the small one.		
-living_st_14e356	The Almost Dance	1,2,3,4,5	1	living_st_da_il09	NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)	There is music at the fire, and two teens looking for each other to ask for a dance keep missing each other.		
+living_st_14e356	The Almost Dance	1,2,3,4,5	1	living_st_da_il09	NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)	There is music at the fire, and two teens looking for each other to ask for a dance keep missing each other.			cooperative
 living_st_e1e7a5	The Mud Bakery	1,2,3,4,5	1	living_st_da_il09	NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)	A child and friends have opened a mud bakery on the beach, and a passing villager is called over to buy a cake.		
 living_st_f94e27	Dinner by (name1)	1,2,3,4,5	1	living_st_da_il09	NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)	A teen announces they are cooking dinner tonight, all of it, alone: stay out of the way, or offer one piece of advice.		
 living_st_463c8a	Not Tired	1,2,3,4,5	1	living_st_da_il09	NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)	It is long past dark, and a small child is not tired, not tired at all.		
