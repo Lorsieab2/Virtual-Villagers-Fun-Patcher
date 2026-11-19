@@ -556,7 +556,7 @@ static int c2_behave(int index, int behaviour) {
     return 1;
 }
 
-/* The work rush's busy state at the job's site (cie-v6-binary.md 36), as A New Home's c1_behave_at: the job's own
+/* The work rush's busy state at the job's site (cie-v6-binary.md 42), as A New Home's c1_behave_at: the job's own
    starter picks the place (its first walk step, type 3: Harvesting coconuts 0x456F70 the foot of a palm,
    Exercising 0x455330 the first point of the run, Researching 0x457CC0 a point by the research spot, Telling a story
    0x449F40 the storytelling place; Healing someone 0x45D580 has none), then the stop 0x4492A0, that walk queued again

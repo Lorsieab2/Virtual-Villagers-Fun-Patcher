@@ -478,7 +478,7 @@ static int c3_behave(int index, int behaviour) {
     return 1;
 }
 
-/* The work rush's busy state at the job's site (cie-v6-binary.md 36): the job's own handler picks the place (its
+/* The work rush's busy state at the job's site (cie-v6-binary.md 42): the job's own handler picks the place (its
    first walk step, type 3 in the 80 steps of 0x2C bytes at record +0: Fishing 0x453440 a point of the sea, Researching
    0x448640 a point of the research area, Doing exercise 0x4447E0 the first point of the run, Studying medicine
    0x451890 the medicine garden, Telling a story 0x446930 the storytelling place), then the busy handler ("Working 'til

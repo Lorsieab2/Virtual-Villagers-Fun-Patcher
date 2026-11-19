@@ -1,4 +1,4 @@
-"""Traders and the new island-event effects (docs/event-collection/cie-v6-binary.md 33-35; the owner's spec of
+"""Traders and the new island-event effects (docs/event-collection/cie-v6-binary.md 39-41; the owner's spec of
 2026-11-16/17; docs/event-collection/traders-and-effects-research.md).
 
 - Patcher side: "supply" for every game's goods, "trade", "group", "village" and the condition "has_supply" compile,
@@ -492,7 +492,7 @@ SPAWNER = {"vv3": (0x42D940, 0x58F428, 12), "vv4": (0x413EE0, 0x4CC838, 12), "vv
 
 @emulated
 class WorkRushSpawnTempEffects(unittest.TestCase):
-    """The owner's 2026-11-18 additions (cie-v6-binary.md 36), in each stock executable."""
+    """The owner's 2026-11-18 additions (cie-v6-binary.md 42), in each stock executable."""
 
     side = None
 
@@ -604,7 +604,7 @@ EVENT_DIRS = [ROOT / "data" / "event_collection" / "drafts_c" / d for d in ("dr_
 @emulated
 class NewEventsRunInEveryGame(unittest.TestCase):
     """Every trader and Village Moments event, every choice, in each of its games, through the engine; a trader's
-    Trade gives exactly what it says when the goods are food or tech (cie-v6-binary.md 33)."""
+    Trade gives exactly what it says when the goods are food or tech (cie-v6-binary.md 39)."""
 
     def test_every_event_every_choice(self):
         sys.path.insert(0, str(ROOT / "scripts"))

@@ -478,7 +478,7 @@ static int c4_behave(int index, int behaviour) {
     return 1;
 }
 
-/* The work rush's busy state at the job's site (cie-v6-binary.md 36), as The Secret City's c3_behave_at: the job's
+/* The work rush's busy state at the job's site (cie-v6-binary.md 42), as The Secret City's c3_behave_at: the job's
    first walk step (type 3 in the 80 steps of 0x58 bytes at record +0; Harvesting blackberries 0x451C30 a point of the
    bush area 0x20 from the map's own picker 0x46C660, Doing exercise the first point of the run, Researching a point of
    the research area), then "Needs to sit down" queues its steps, its walk is taken out and the job's walk put first:

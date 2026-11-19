@@ -48,6 +48,25 @@ class Lists(unittest.TestCase):
         self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_2[-1], "VVFP More Companions.dll")
         self.assertLessEqual(len(patcher.STARTUP_LOADER_COMPANIONS_2), 32)
 
+    def test_every_startup_word_holds_what_its_bits_can(self) -> None:
+        # The v1.35.97 merge (the second word would have held 36): each word is a 32-bit mask.  The first word's bit 0
+        # is the Origins companion, entry i is bit 1 + i, and bits 30 and 31 are settings
+        # (native/shared/startup_companions.h), so it holds at most 29.  The headers the companions are built from
+        # list the same names in the same order.
+        words = ((patcher.STARTUP_LOADER_COMPANIONS, "startup_companions.h", "VVFP_STARTUP_COMPANIONS[] = {", 29),
+                 (patcher.STARTUP_LOADER_COMPANIONS_2, "startup_companions_2.h", "VVFP_STARTUP_COMPANIONS_2[] = {", 32),
+                 (patcher.STARTUP_LOADER_COMPANIONS_3, "startup_companions_3.h", "VVFP_STARTUP_COMPANIONS_3[] = {", 32))
+        seen: set[str] = set()
+        for names, header, start, room in words:
+            with self.subTest(word=header):
+                self.assertLessEqual(len(names), room)
+                text = (ROOT / "native" / "shared" / header).read_text("utf-8")
+                body = text[text.index(start):text.index("};", text.index(start))]
+                body = re.sub(r"/\*.*?\*/", "", body, flags=re.S)
+                self.assertEqual(tuple(re.findall(r'"([^"]+)"', body)), tuple(names))
+                self.assertEqual(seen & set(names), set(), "a companion in two words")
+                seen |= set(names)
+
     def test_the_record_pins_the_built_dll(self) -> None:
         record = json.loads((ROOT / "data" / "more_companions_companion.json").read_text("utf-8"))
         self.assertEqual(record["destination"], "VVFP More Companions.dll")
@@ -130,7 +149,8 @@ class Emulated(unittest.TestCase):
                                      (b"abc", 0, []), (b"", 0, []), (b" 1", 1, ["VVFP Meal Scale.dll"]),
                                      (b"99999999999", 0, []), (b"2", 2, ["VVFP Collectible Frequency.dll"]),
                                      (b"60", 60, ["VVFP Food Gain.dll", "VVFP Tech Gain.dll", "VVFP Skill Success.dll",
-                                                  "VVFP Age Speed.dll"]), (b"64", 64, [])):
+                                                  "VVFP Age Speed.dll"]), (b"64", 64, ["VVFP Herb Study.dll"]),
+                                     (b"2048", 2048, [])):   # bit 11: past the word's last entry (bit 10)
             with self.subTest(setting=setting):
                 m = self.machine(setting)
                 m.export("VvfpStartup", 3, 0)

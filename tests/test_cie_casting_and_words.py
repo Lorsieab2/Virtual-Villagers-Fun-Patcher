@@ -1,4 +1,4 @@
-"""Casting and words that follow the villager (the owner, 2026-11-16; docs/event-collection/cie-v6-binary.md 35).
+"""Casting and words that follow the villager (the owner, 2026-11-16; docs/event-collection/cie-v6-binary.md 37).
 
 * A role may PREFER a special villager ("prefer": "tribal_chief" / "golden_child"): The Secret City's robed Tribal
   Chief (A New Home's Golden Child) is cast when they may take the role, else any villager the role takes.

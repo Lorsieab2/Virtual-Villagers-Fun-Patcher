@@ -124,7 +124,7 @@ def _general_effect(what: str) -> list[dict] | None:
 
 
 # Tree of Life Supplies (draft_sup): "the village gains 2 cutting tools", "loses 1 bar of soap", "gains 1 cloth bolt"
-# -- the "supply" effect (docs/event-collection/cie-v6-binary.md 32; a sack is a cloth bolt).
+# -- the "supply" effect (docs/event-collection/cie-v6-binary.md 38; a sack is a cloth bolt).
 SUPPLY_RE = re.compile(r"the village (gains|loses) (\d+)(?: to (\d+))? (cutting tools?|bars? of soap|cloth bolts?)")
 SUPPLY_WORDS = {"cutting tool": "cutting_tools", "bar of soap": "soap", "cloth bolt": "cloth"}
 

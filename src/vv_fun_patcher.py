@@ -13323,14 +13323,14 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # No Safeguards for Island Events (and Additional Events too) (all five games): the game's own island events
     # without their conditions; shipped with that row (_attach_no_safeguards).
     "VVFP No Safeguards.dll",
-    # The third word's chain companion (STARTUP_LOADER_COMPANIONS_3): shipped when a build ships any third-word
-    # companion (_attach_more_companions).
-    "VVFP More Companions.dll",
     # Fix Vanilla Bugs (all five games): the games' own text fixes -- the owner's approved typos, and the Food Mastery
     # tech's Level 2 line (The Tree of Life, New Believers).
     "VVFP Text Fixes.dll",
     # Fix Vanilla Bugs (The Tree of Life): after The Frog Rescue the frogs leap all along the river's blue water.
     "VVFP VV4 Frogs.dll",
+    # The third word's chain companion (STARTUP_LOADER_COMPANIONS_3): shipped when a build ships any third-word
+    # companion (_attach_more_companions).  The word's last entry (bit 31); the word is full (32 of 32).
+    "VVFP More Companions.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

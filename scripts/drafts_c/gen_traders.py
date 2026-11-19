@@ -7,7 +7,7 @@ The draft's shape is group C's with two more lines: the setup / Trade: / its out
 the worse haggle / Decline: / its outcome / the "nothing to trade" line.  Each event is built by gen_drafts_c.build
 from its seven usual parts, then:
 - the start is a branch: the setup (the question) when the village has what the trader asks for (`has_supply`, the
-  most any trade of the event gives), else the "nothing to trade" page (cie-v6-binary.md 33);
+  most any trade of the event gives), else the "nothing to trade" page (cie-v6-binary.md 39);
 - the requirement holds the same condition, so the natural roll and Pick Island Event offer the trader only then;
 - Haggle leads to a branch of the better and the worse haggle, equally likely (the owner: "randomly better or
   worse");

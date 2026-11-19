@@ -964,7 +964,7 @@ def check_tokens(doc: dict, row: dict | None, rep: Report) -> None:
         if rid not in roles or roles[rid].get("kind", "villager") != "villager":
             rep.add("d TOKENS", f"cast_only {rid!r} is not a villager role")
     for rid in roles:
-        # a special villager's role, or one that prefers one (cie-v6-binary.md 35: the chief's title words name it)
+        # a special villager's role, or one that prefers one (cie-v6-binary.md 37: the chief's title words name it)
         if rid not in used_roles and not roles[rid].get("special") and not roles[rid].get("prefer") \
                 and rid not in cast_only:
             rep.add("d TOKENS", f"role {rid} is declared but never used")

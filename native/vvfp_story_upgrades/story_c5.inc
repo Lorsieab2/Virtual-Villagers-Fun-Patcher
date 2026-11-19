@@ -655,7 +655,7 @@ static int c5_behave(int index, int behaviour) {
     return 1;
 }
 
-/* The work rush's busy state at the job's site (cie-v6-binary.md 36), as The Secret City's c3_behave_at; New
+/* The work rush's busy state at the job's site (cie-v6-binary.md 42), as The Secret City's c3_behave_at; New
    Believers' walk step is type 4 (80 steps of 0x58 bytes at record +0): Harvesting noni a point of the noni area,
    Researching, Health chanting and Praising their own places; then "Needs to sit down" queues its steps, its walk is
    taken out and the job's walk put first. */

@@ -37,7 +37,7 @@ FRAME_RE = re.compile(r"^(?P<seed>.+?) \(first\), (?P<a>.+?), and \(second\), (?
                       + re.escape(mx.FRAME_TAIL) + "$")
 SUPPORTED = {"skill", "food", "tech", "mood", "celebrate", "health_change", "kill", "vanish", "die_unrecovered",
              "preference", "appearance", "old_look", "sick", "baby_lost",
-             "supply"}            # The Tree of Life's cutting tools, soap, cloth (cie-v6-binary.md 32; the owner, 2026-11-17)
+             "supply"}            # The Tree of Life's cutting tools, soap, cloth (cie-v6-binary.md 38; the owner, 2026-11-17)
 STRANGER_SAFE = {"food", "tech", "celebrate"}
 
 

@@ -324,10 +324,17 @@ def apply_solidarity_tags(ident: str, g: dict) -> str:
     entry = _SOLIDARITY_CACHE.get(ident) or {}
     for nid, tag in (entry.get("nodes") or {}).items():
         node = g["nodes"].get(nid)
-        if node is None or tag not in cie.SOLIDARITY_CODES or node["type"] == "branch":
+        targets = [node]
+        split = (f"{nid}__fx", f"{nid}__text")
+        if node is not None and node["type"] == "branch" and all(s in g["nodes"] for s in split):
+            # The outcome-effects pass (scripts/outcome_effects.py, #821) made page X a branch over its two copies,
+            # X__fx (with the added effects) and X__text: both copies keep X's tag; the branch itself shows no page.
+            targets = [g["nodes"][s] for s in split]
+        if node is None or tag not in cie.SOLIDARITY_CODES or any(t["type"] == "branch" for t in targets):
             raise SystemExit(f"{SOLIDARITY_TAGS.relative_to(ROOT)}: {ident} node {nid}: not a page of the event, or "
                              f"not raise, lower or neutral")
-        node["solidarity"] = tag
+        for t in targets:
+            t["solidarity"] = tag
     kind = entry.get("kind", "")
     if kind not in ("", "cooperative", "repair"):
         raise SystemExit(f"{SOLIDARITY_TAGS.relative_to(ROOT)}: {ident}: kind is cooperative or repair")
@@ -569,7 +576,7 @@ def row(game: int, files: list[tuple[str, str, bytes]], count: int, living_count
         ] + ([
             "The Tree of Life (the owner, 2026-11-17): an event whose words give or take cutting tools, bars of soap or "
             "cloth bolts (a sack is a cloth bolt) changes the game's own counts (the \"supply\" effect, "
-            "docs/event-collection/cie-v6-binary.md 32; [0x4D8618], [0x4D8D98], [0x4D8ACC]): cutting tools and cloth "
+            "docs/event-collection/cie-v6-binary.md 38; [0x4D8618], [0x4D8D98], [0x4D8ACC]): cutting tools and cloth "
             "within 0..6, or 0..99 when \"VVFP VV4 Supply Cap.dll\" says every site of Up to 99 Cutting "
             "Tools/Soap/Cloth is written; soap within 0..99; never below 0; a count already above the cap is never "
             "lowered by a gain. Before The Cutting Tool, Soap Invented or Cloth Invented is solved the item's words "

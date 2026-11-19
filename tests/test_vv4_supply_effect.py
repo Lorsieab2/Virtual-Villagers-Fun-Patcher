@@ -1,4 +1,4 @@
-"""The "supply" effect (docs/event-collection/cie-v6-binary.md 32, the owner 2026-11-17): an island event's words about
+"""The "supply" effect (docs/event-collection/cie-v6-binary.md 38, the owner 2026-11-17): an island event's words about
 The Tree of Life's cutting tools, bars of soap and cloth bolts (a "sack" is a cloth bolt) change the real counts.
 
 * the patcher side (src/vv_cie_graph.py): the effect loads, compiles and decompiles; a bad item, a range of 0 or

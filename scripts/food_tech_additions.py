@@ -514,7 +514,7 @@ def write_log(files: dict[str, Path], docs: dict[str, dict]) -> None:
     lines.insert(10, "")
     lines += ["# Likes, skills, looks and new villagers where the text fits (second pass)", "",
               "The owner's second request (2026-11-15): a like or dislike from each game's own list, skill points,",
-              "a new head or clothes, and the new effects of cie-v6-binary.md 32 (new villager, pregnancy, nursing,",
+              "a new head or clothes, and the new effects of cie-v6-binary.md 38 (new villager, pregnancy, nursing,",
               "clone, body swap, lost name), each only where the outcome's own words say it. The table is",
               "`scripts/food_tech_additions.py` EFFECT_ADDITIONS.", "",
               "| Event | Node | Effect | Why (the outcome's text) |", "|---|---|---|---|"]

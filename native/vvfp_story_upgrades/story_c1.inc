@@ -375,7 +375,7 @@ static int c1_behave(int index, int behaviour) {
     return 1;
 }
 
-/* The work rush's busy state at the job's site (cie-v6-binary.md 36): the job's own starter picks the place (its
+/* The work rush's busy state at the job's site (cie-v6-binary.md 42): the job's own starter picks the place (its
    first walk step, type 3: Foraging 0x441E10 a point of the berry area, Fixing hut 0x440AD0 one of the four huts,
    Researching 0x442C10 a point by the research rock; Healing someone 0x445580 has none: it heals where the healer
    stands; ce_site_pick: another pick when the spot is crowded), then the stop 0x439470, that walk queued again

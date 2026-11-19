@@ -151,7 +151,7 @@ def _effects(node) -> set[str]:
 
 
 def _supplies(node) -> bool:
-    """Whether a graph has a "supply" effect (The Tree of Life's cutting tools, soap, cloth; cie-v6-binary.md 32)."""
+    """Whether a graph has a "supply" effect (The Tree of Life's cutting tools, soap, cloth; cie-v6-binary.md 38)."""
     if isinstance(node, dict):
         if node.get("do") == "supply":
             return True

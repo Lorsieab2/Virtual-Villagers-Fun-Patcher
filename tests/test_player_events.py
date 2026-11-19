@@ -291,7 +291,7 @@ class TwoClones(unittest.TestCase):
 
 
 class VillageSolidarityTag(unittest.TestCase):
-    """"Solidarity: raise|lower|neutral" under an outcome: the page's node tag (cie-v6-binary.md 32)."""
+    """"Solidarity: raise|lower|neutral" under an outcome: the page's node tag (cie-v6-binary.md 44)."""
 
     TAGGED = SIMPLE.replace("  Effect: FOOD GAIN (small)\n", "  Effect: FOOD GAIN (small)\n  Solidarity: Raise\n") \
                    .replace("  Effect: INJURY helper (minor)\n", "  Effect: INJURY helper (minor)\n  Solidarity: lower\n")

@@ -1,5 +1,5 @@
 """The existing added events whose words give or take The Tree of Life's cutting tools, soap or cloth (the owner,
-2026-11-17): each outcome below makes the "supply" effect (docs/event-collection/cie-v6-binary.md 32) its words say.
+2026-11-17): each outcome below makes the "supply" effect (docs/event-collection/cie-v6-binary.md 38) its words say.
 
 THE OWNER'S RULES: where an existing added event's text says the village gains, loses, uses, breaks or finds a cutting
 tool, soap or cloth (a "sack" is a cloth bolt: the sacks are made per trip), that outcome gets the matching real effect

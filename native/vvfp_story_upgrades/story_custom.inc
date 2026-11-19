@@ -184,7 +184,7 @@ typedef struct {
        babies made, 0 when the parent was not nursing, -1 when the game did not deliver (nothing changed); *early
        = 1 when the nursing was cut short.  NULL = not offered. */
     int (*deliver)(int index, int *early);
-    /* The work rush (cie-v6-binary.md 36): behaviour `behaviour` done at the place behaviour `job` walks to first
+    /* The work rush (cie-v6-binary.md 42): behaviour `behaviour` done at the place behaviour `job` walks to first
        (the job's own first walk step, its site), with no step of the job kept.  NULL = not offered. */
     int (*behave_at)(int index, int job, int behaviour);
 } ce_adapter;

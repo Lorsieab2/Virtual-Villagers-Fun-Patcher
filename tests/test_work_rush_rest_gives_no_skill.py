@@ -1,4 +1,4 @@
-"""The work rush's busy state gives no skill (cie-v6-binary.md 36; the owner's rule of 2026-11-18): each game's rest
+"""The work rush's busy state gives no skill (cie-v6-binary.md 42; the owner's rule of 2026-11-18): each game's rest
 action runs to its end in the stock executable (tests/farmers_emulation_vvN.py: the real map, the villagers' update
 frame by frame), and not one skill value changes -- while the same village's work action (the control) does change
 one, so the check can see a skill gain.

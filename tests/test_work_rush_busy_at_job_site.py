@@ -1,4 +1,4 @@
-"""The work rush's busy villagers go to the rushed job's own site (the owner, 2026-11-18; cie-v6-binary.md 36).
+"""The work rush's busy villagers go to the rushed job's own site (the owner, 2026-11-18; cie-v6-binary.md 42).
 
 A villager who is not the rushed skill's worker (another job ticked, or none ticked and another skill the highest;
 children never take part) goes where the job's workers go and does the busy state THERE, with no skill and no

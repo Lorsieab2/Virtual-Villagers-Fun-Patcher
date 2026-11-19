@@ -1251,7 +1251,7 @@ def _parse_simple(block: list[tuple[int, str]], file: str, how: str) -> Item:
             outcome["filters"] += split_list(key.group(2))
             continue
         if key and kname == "solidarity" and mode in ("outcome",):
-            # Village Solidarity: the outcome page's tag (cie-v6-binary.md 32); text only without the patch.
+            # Village Solidarity: the outcome page's tag (cie-v6-binary.md 44); text only without the patch.
             word = key.group(2).strip().lower()
             if word in cie.SOLIDARITY_CODES:
                 outcome["solidarity"] = word

@@ -153,12 +153,12 @@ effect of that kind, or a `text_only` entry for that line.
 | the child survives but the mother dies | `{"do": "birth_then_die", "role": r, "cause": "unknown"}` on a `"special": "nursing_parent"` role with `"protected": "allow"` (cie-v6-binary.md 23: the baby is born now, then the parent dies with a grave) |
 | looks older, the old head look | `{"do": "old_look", "role": r}` (cie-v6-binary.md 27) |
 | a gender transition that changes the villager's recorded sex (explicitly chosen) | `{"do": "sex_change", "role": r}` (cie-v6-binary.md 29: refused while carrying or nursing, for special villagers, and while a companion that keeps data by the sex is in the game; the text still shows) |
-| The Tree of Life's cutting tools, soap, cloth (a sack is a cloth bolt) gained, lost, used, broken or found | `{"do": "supply", "item": "cutting_tools" \| "soap" \| "cloth", "min": a, "max": b}` (cie-v6-binary.md 32: a gain 1..99 or a loss -99..-1; tools and cloth kept 0..6, 0..99 with Up to 99 Cutting Tools/Soap/Cloth, soap 0..99; nothing before the item is invented or outside The Tree of Life). An existing event's is listed in `scripts/supply_effects.py` (`--format` adds it) |
-| any game's goods given, taken, found or lost (food, tech, berries, coconuts, fish, honey, fruit, blackberries, noni, collectibles) | `{"do": "supply", "item": ..., "min": a, "max": b}` (cie-v6-binary.md 33: never below 0, the game's ceiling; a word the game does not keep is story only there; mushrooms, VV3/VV4/VV5 fish and crabs, potions, herbs, stews, firewood and water are never counts) |
-| a trader's exchange | `{"do": "trade", "give": g, "give_amount": n, "get": h, "get_amount": m}` behind a child `if` `{"has_supply": {"item": g, "min": n}}` (cie-v6-binary.md 33: all or nothing) |
+| The Tree of Life's cutting tools, soap, cloth (a sack is a cloth bolt) gained, lost, used, broken or found | `{"do": "supply", "item": "cutting_tools" \| "soap" \| "cloth", "min": a, "max": b}` (cie-v6-binary.md 38: a gain 1..99 or a loss -99..-1; tools and cloth kept 0..6, 0..99 with Up to 99 Cutting Tools/Soap/Cloth, soap 0..99; nothing before the item is invented or outside The Tree of Life). An existing event's is listed in `scripts/supply_effects.py` (`--format` adds it) |
+| any game's goods given, taken, found or lost (food, tech, berries, coconuts, fish, honey, fruit, blackberries, noni, collectibles) | `{"do": "supply", "item": ..., "min": a, "max": b}` (cie-v6-binary.md 39: never below 0, the game's ceiling; a word the game does not keep is story only there; mushrooms, VV3/VV4/VV5 fish and crabs, potions, herbs, stews, firewood and water are never counts) |
+| a trader's exchange | `{"do": "trade", "give": g, "give_amount": n, "get": h, "get_amount": m}` behind a child `if` `{"has_supply": {"item": g, "min": n}}` (cie-v6-binary.md 39: all or nothing) |
 | the village (or one villager) relaxes, swims, dances, prays, celebrates, visits the pond, plays, tells stories, sings, chants, gives a speech; falls sick; is cured | `{"do": "group", "kind": ..., "who": "all" \| r}` (`"percent"` for `sick`; cie-v6-binary.md 34) |
 | the next island event sooner / later; a tech level up / down; rain, a storm, fog, sun | `{"do": "village", "what": "event_timer" \| "tech_level" \| "weather", ...}` (cie-v6-binary.md 35; no weather in A New Home or The Lost Children) |
-| a skill's workers rush to work (everyone else kept busy) | `{"do": "group", "kind": "work", "skill": "Farming"}` (cie-v6-binary.md 36: the job ticked, or no job ticked and it is the highest skill; the rest take a busy state with no skill) |
+| a skill's workers rush to work (everyone else kept busy) | `{"do": "group", "kind": "work", "skill": "Farming"}` (cie-v6-binary.md 42: the job ticked, or no job ticked and it is the highest skill; the rest take a busy state with no skill) |
 | new things to find wash up / turn up | words only (the owner's final list, 2026-11-18) |
 | a potion's effect (VV3), clean / glow / gunk / the stew wait (VV4), a fish run, research progress, a hut built faster | words only (the owner's final list, 2026-11-18: the compiler refuses them) |
 | yellow fruit (VV4) given or taken | `supply` / `trade` with `yellow_fruit` (36: only with Yellow Fruit Trees are No Longer Unlimited) |
@@ -293,7 +293,7 @@ A skill loss is the same range negative (`"min": -10, "max": -5`); it makes the 
   singular VV3 value with a plural other. An event without VV3 has only `"*"`. A game word cannot sit inside an
   inline pick: make that list a named pool (`RULE`, `POWERS`). "Chief" in any text a non-VV3 game can show is an
   error.
-- **The chief's title is drawn per run** (the owner, 2026-11-16; cie-v6-binary.md 35): a chief word (`chief`,
+- **The chief's title is drawn per run** (the owner, 2026-11-16; cie-v6-binary.md 37): a chief word (`chief`,
   `Chief`, `a_chief`, `tribal_chief` ...) shows one of "Chief", "leader", "elder", "headman" / "headwoman" (a
   cast chief's presentation) or "council head" in every game, the same on every page of the run and after a
   resume; the real Tribal Chief cast in the event's chief role is always the word's VV3 text. Write the words as
@@ -641,7 +641,7 @@ pronoun's owner; `OWNERS` fixes the ones the nearest name gets wrong).
 (`collection_lib.DRAFTS_C`, source id `draft_sup`, section and series `dr_sup`, SHA-256 in `DRAFT_SUP.sha256`), built by
 `scripts/drafts_c/gen_drafts_c.py` with `scripts/drafts_c/annotations/sup.txt`. Every heading ends "(VV4 only)": the row
 is The Tree of Life only (`collection_manifest.DRAFTS_C_VV4_TAG`, cut from the title, a ledger note). An "[effect: the
-village gains / loses N cutting tools / bars of soap / cloth bolts]" is the `supply` effect (cie-v6-binary.md 32); one
+village gains / loses N cutting tools / bars of soap / cloth bolts]" is the `supply` effect (cie-v6-binary.md 38); one
 bracket may hold several effects separated by "; ". Like every new added event: off by default, on in Owner's
 Defaults (the collection's rows).
 

@@ -148,7 +148,7 @@ class TheFormat(unittest.TestCase):
         blob = cg.compile_graph(cg.load(copy.deepcopy(GRAPH), scrolling=True))
         o_node = struct.unpack_from("<I", blob, 48)[0]
         flags = [blob[o_node + 28 * i + 3] for i in range(4)]
-        self.assertEqual(flags, [0, 2, 4, 0])                     # raise 1 << 1, lower 2 << 1
+        self.assertEqual(flags, [0, 4, 8, 0])                     # raise 1 << 2, lower 2 << 2 (bit 1: a new page)
 
     def test_an_untagged_graph_compiles_as_before(self) -> None:
         plain = copy.deepcopy(GRAPH)
@@ -172,8 +172,37 @@ class TheFormat(unittest.TestCase):
 
     def test_the_story_companion_reads_the_tag_bits(self) -> None:
         graph = (STORY / "story_graph.inc").read_text(encoding="utf-8")
-        self.assertIn("(n[3] & ~(CG_NODE_AUTO_TEXT | 6u)) != 0u", graph)
-        self.assertEqual(cg.NODE_SOLIDARITY_MASK, 6)
+        # v1.35.97 merge: bit 1 is the new-page flag (cie-v6-binary.md 19a), so the tag is bits 2-3.
+        self.assertIn("#define CG_NODE_SOLIDARITY 12u", graph)
+        self.assertIn("(n[3] & ~(CG_NODE_AUTO_TEXT | CG_NODE_NEW_PAGE | CG_NODE_SOLIDARITY)) != 0u", graph)
+        self.assertIn("#define CG_NODE_SOL_MASK 12u", (STORY / "story_solidarity.inc").read_text(encoding="utf-8"))
+        self.assertEqual((cg.NODE_SOLIDARITY_MASK, cg.NODE_SOLIDARITY_SHIFT), (12, 2))
+
+    def test_a_tagged_page_split_by_the_outcome_pass_tags_both_copies(self) -> None:
+        # #821 x #804: scripts/outcome_effects.py turns tagged page X into a branch over X__fx / X__text; the
+        # collection build tags both copies (the same Village Solidarity change either way), never the branch.
+        import build_event_collection_features as bec
+        g = copy.deepcopy(GRAPH)
+        glad = g["nodes"]["glad"]
+        glad.pop("solidarity", None)
+        g["nodes"]["glad__fx"] = copy.deepcopy(glad)
+        g["nodes"]["glad__text"] = copy.deepcopy(glad)
+        g["nodes"]["glad"] = {"type": "branch", "children": [{"next": "glad__fx"}, {"next": "glad__text"}]}
+        g["nodes"]["sour"].pop("solidarity", None)
+        lg = cg.load(g, scrolling=True)
+        old = bec._SOLIDARITY_CACHE
+        try:
+            bec._SOLIDARITY_CACHE = {"ev": {"nodes": {"glad": "raise", "sour": "lower"}}}
+            bec.apply_solidarity_tags("ev", lg)
+        finally:
+            bec._SOLIDARITY_CACHE = old
+        self.assertNotIn("solidarity", lg["nodes"]["glad"])
+        self.assertEqual((lg["nodes"]["glad__fx"]["solidarity"], lg["nodes"]["glad__text"]["solidarity"]),
+                         ("raise", "raise"))
+        self.assertEqual(lg["nodes"]["sour"]["solidarity"], "lower")
+        back = cg.decompile_graph(cg.compile_graph(lg))
+        self.assertEqual({k: n.get("solidarity") for k, n in back["nodes"].items() if k.startswith("glad")},
+                         {"glad": None, "glad__fx": "raise", "glad__text": "raise"})
 
 
 class StockOddsUntouched(unittest.TestCase):

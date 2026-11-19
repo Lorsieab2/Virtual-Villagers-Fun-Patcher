@@ -10283,7 +10283,7 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphPuzzles(int solved) {
     test_graph_puzzles = solved;
 }
 
-/* "VVFP VV4 Supply Cap.dll" as the "supply" effect sees it (cie-v6-binary.md 32): -1 the real check, 0 none, 1 in. */
+/* "VVFP VV4 Supply Cap.dll" as the "supply" effect sees it (cie-v6-binary.md 38): -1 the real check, 0 none, 1 in. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphSupplyCap(int mode) {
     test_graph_supply_cap = mode;
 }
