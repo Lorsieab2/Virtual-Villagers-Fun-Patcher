@@ -71606,6 +71606,20 @@
    "context": "VVFP Text Fixes.dll",
    "notes": "drawn by the game's text routine; the villager's caption while harvesting blackberries with a cutting tool (at most 39 letters)",
    "route": "key"
+  },
+  {
+   "stem": "vvfp.gui/game_mechanics.minimum_detail",
+   "english": "Minimal Detail",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Game Mechanics window (the tick box beside Auto-refresh: show only the vital statistics and numbers)",
+   "notes": "a patcher window"
   }
  ]
 }

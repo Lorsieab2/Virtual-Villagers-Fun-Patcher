@@ -1661,6 +1661,7 @@ class App(tk.Tk):
             self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
             # Game Mechanics' Browse...: the game exe the player chose for each save folder.
             self.game_mechanics_exes: dict = {}
+            self.game_mechanics_minimum = False   # Game Mechanics' Minimum Detail, off by default
             self.all_folder_vars = {build.id: tk.StringVar() for build in self.builds}
             self.status_var = tk.StringVar(
                 value="Choose a population mode and one game or all five."
@@ -3224,6 +3225,7 @@ class App(tk.Tk):
         saved_exes = data.get("game_mechanics_exes", {})
         self.game_mechanics_exes = ({str(k): v for k, v in saved_exes.items() if isinstance(v, str)}
                                     if isinstance(saved_exes, dict) else {})
+        self.game_mechanics_minimum = data.get("game_mechanics_minimum") is True   # Game Mechanics' Minimum Detail
         # Translations: the language each game uses (vv_translations_window; a file name, "" for English).
         saved_translations = data.get(vv_translations_window.SETTINGS_KEY, {})
         self.translation_choices = saved_translations if isinstance(saved_translations, dict) else {}
@@ -3304,6 +3306,7 @@ class App(tk.Tk):
             "tree_window": self.tree_window,
             "tree_style": self.tree_style,
             "game_mechanics_exes": self.game_mechanics_exes,
+            "game_mechanics_minimum": getattr(self, "game_mechanics_minimum", False) is True,
             vv_translations_window.SETTINGS_KEY: getattr(self, "translation_choices", {}),
             "all_game_folders": {
                 build.id: self.all_folder_vars[build.id].get().strip()

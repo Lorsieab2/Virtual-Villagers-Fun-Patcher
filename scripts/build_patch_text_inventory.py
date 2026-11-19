@@ -228,6 +228,11 @@ def add_gui_rows(strings: list[dict]) -> None:
         strings.append({"stem": f"vvfp.gui/difficulty_sliders.{name}", "english": english,
                         "games": ["vv1", "vv2", "vv3", "vv4", "vv5"], "mechanism": "b", "context": context,
                         "notes": "a patcher window"})
+    import vv_game_mechanics
+    strings.append({"stem": "vvfp.gui/game_mechanics.minimum_detail", "english": vv_game_mechanics.MINIMUM_DETAIL,
+                    "games": ["vv1", "vv2", "vv3", "vv4", "vv5"], "mechanism": "b",
+                    "context": "Game Mechanics window (the tick box beside Auto-refresh: show only the vital statistics "
+                               "and numbers)", "notes": "a patcher window"})
 
 
 def main() -> None:
