@@ -1844,6 +1844,42 @@ if HAVE_EMULATOR:
                     self.assertIn(f"is now called {name}.", text)
 
 
+CHOSEN_RENAME_GRAPH = {
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Name That Fits", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager", "min_age": 25, "sex": "female"},
+              "chosen": {"kind": "stranger", "new_name_for": "subject", "sex": "same", "last_name": "same"}},
+    "start": "p",
+    "nodes": {"p": {"text": "(Name) asks to be called (Chosen).", "auto_text": True,
+                    "effects": [{"do": "change_name", "role": "subject", "name_of": "chosen"}]}},
+}
+
+
+if HAVE_EMULATOR:
+    class ChosenRename(unittest.TestCase):
+        def test_the_villager_takes_the_chosen_name(self):
+            # The owner (2026-11-19): a REL event's chosen name is the name the villager is renamed to.
+            for game in GAME_IDS:
+                if not have_stock(game):
+                    continue
+                with self.subTest(game=game):
+                    r = V6(game, [(0, "m", 20, "Cy", 0, False), (1, "f", 30, "Ana", 0, False)])
+                    r.rolls([3] * 60)
+                    self.assertIsNone(r.queue6(compiled(CHOSEN_RENAME_GRAPH), strict=True, origin=2))
+                    text = " ".join(" ".join(t for _kind, t, _labels in r.walk_through()).split())
+                    name = r.p.cstring(r.v.record(1) + r.v.L["name"])
+                    self.assertNotEqual(name, "Ana")
+                    self.assertIn(f"asks to be called {name}.", text)
+                    self.assertIn(f"is now called {name}.", text)
+
+
+class ChosenRenameFormat(unittest.TestCase):
+    def test_round_trip(self):
+        g = cg.load(copy.deepcopy(CHOSEN_RENAME_GRAPH), True)
+        self.assertEqual(cg.decompile_graph(cg.compile_graph(g))["nodes"]["p"]["effects"][0]["name_of"], "chosen")
+        self.assertEqual(cg.auto_line_options(g["nodes"]["p"]["effects"][0], 3),
+                         ["(subject.Name) is now called (chosen)."])
+
+
 SEX_GRAPH = {
     "format": "vvfp-cie-graph", "version": 6, "title": "The Person They Have Always Been", "games": [1, 2, 3, 4, 5],
     "roles": {"subject": {"kind": "villager", "min_age": 25, "sex": "female"}},

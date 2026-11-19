@@ -999,6 +999,13 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             if not isinstance(e.get("with"), str) or e.get("with") == out["role"]:
                 problems.append(f"{where}: body_swap with names another villager role")
             out["with"] = e.get("with")
+        elif do == "change_name" and "name_of" in e:
+            # Code 33, value a = the role's index + 1: the name drawn for that named stranger (cie-v6-binary.md 16,
+            # 28 -- a REL event's "(Chosen)"), the same on the page and in the game (the owner, 2026-11-19).
+            known.add("name_of")
+            if not isinstance(e["name_of"], str) or "name" in e:
+                problems.append(f"{where}: change_name name_of names a named stranger role (and gives no name)")
+            out["name_of"] = e["name_of"]
         elif do == "change_name" and "name" in e:
             # Code 33: a fixed name (the effect's string; story_graph.inc refuses any other); left out: a random one.
             known.add("name")
@@ -2997,6 +3004,8 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
         return [_auto_fill(do, r)]
     if do == "body_swap":
         return [_auto_fill("body_swap", r, other=e["with"])]
+    if do == "change_name" and e.get("name_of"):
+        return [_auto_fill("change_name", r, word=f"({e['name_of']})")]   # the stranger's drawn name
     if do == "change_name":
         # a random name: drawn when the page is laid out (the engine's cg_pre), the widest the game's room holds
         name = e.get("name") or ("W" * gm.name_room if fx is None else None)
@@ -4076,6 +4085,8 @@ def _compile_v6(g: dict) -> bytes:
                 a = rx(e["partner"]) if e.get("partner") else 0xFF
             elif do == "body_swap":
                 a = rx(e["with"])
+            elif do == "change_name" and e.get("name_of"):
+                a = rx(e["name_of"]) + 1
             elif do == "change_name" and e.get("name"):
                 st = s(e["name"])
             elif do == "clone" and e.get("count") == 2:
@@ -4355,6 +4366,8 @@ def _decompile_v6(data: bytes) -> dict:
                         e["babies"] = BABIES_NAMES[flags & 6]
                 elif do == "body_swap":
                     e["with"] = rn(a)
+                elif do == "change_name" and a > 0:
+                    e["name_of"] = rn(a - 1)
                 elif do == "change_name" and st != NONE and s(st):
                     e["name"] = s(st)
                 elif do == "clone" and a == 2:

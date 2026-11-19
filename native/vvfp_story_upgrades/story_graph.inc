@@ -1400,8 +1400,11 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 ok = a == 0 && b == 0 && str == CG_NONE;
                 break;
             case CGE_CHANGE_NAME:
-                /* the string: NONE (a random first name), or the fixed name to give (cg_fixed_name_ok) */
-                ok = a == 0 && b == 0 && (str == CG_NONE || cg_fixed_name_ok(cg_s(g, str)));
+                /* the string: NONE (a random first name), or the fixed name to give (cg_fixed_name_ok); or a:
+                   a named stranger role's index + 1, its drawn name (the owner, 2026-11-19) */
+                ok = b == 0 && ((a == 0 && (str == CG_NONE || cg_fixed_name_ok(cg_s(g, str))))
+                                || (a > 0 && a <= g->n_role && str == CG_NONE && cg_role_at(g, a - 1)[0] == 1
+                                    && (cg_role_at(g, a - 1)[1] & CG_STRANGER_NAMED)));
                 break;
             case CGE_CHANGE_AGE:
                 ok = str == CG_NONE && e[2] <= CG_AGE_ADD && cg_u16(e + 14) <= 120u   /* the cap, years (0 none) */
@@ -5906,8 +5909,9 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         const char *olds[1];
         unsigned int fixed = cg_u16(e + 12);
         lstrcpynA(was, (const char *)record + a->off_name, (int)sizeof was);
-        int k = cg_pre_find(e);
-        if (fixed != CG_NONE && cg_s(&cg_g, fixed)[0] != '\0' ? !cg_rename_fixed(a, record, cg_s(&cg_g, fixed))
+        int k = cg_pre_find(e), of = (int)cg_u32(e + 4) - 1;
+        if (of >= 0 && of < cg_g.n_role ? cg.name[of][0] == '\0' || !cg_rename_fixed(a, record, cg.name[of])
+            : fixed != CG_NONE && cg_s(&cg_g, fixed)[0] != '\0' ? !cg_rename_fixed(a, record, cg_s(&cg_g, fixed))
             : k >= 0 && cg_pre[k].name[0] != '\0' ? !ce_write_name(record + a->off_name, a->name_bytes, cg_pre[k].name)
             : !cg_rename_from_list(a, game, record, 1)) {
             return;
@@ -6732,6 +6736,12 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
             /* drawn now, made later exactly so (cg_pre) */
             int who = a != NULL ? cg_resolve_role(e[1]) : -1, k;
             const unsigned char *record = who >= 0 ? cg_villager(a, who) : NULL;
+            if (e[0] == CGE_CHANGE_NAME && (int)cg_u32(e + 4) > 0 && (int)cg_u32(e + 4) <= cg_g.n_role) {
+                char ph[48];           /* the stranger's drawn name, filled in with the page's names */
+                wsprintfA(ph, "(%s)", cg_s(&cg_g, cg_u16(cg_role_at(&cg_g, (int)cg_u32(e + 4) - 1) + 4)));
+                cg_auto_add(out, cap, "change_name", role, "", ph, 0, -1);
+                break;
+            }
             if (e[0] == CGE_CHANGE_NAME && cg_u16(e + 12) != CG_NONE && cg_s(&cg_g, cg_u16(e + 12))[0] != '\0') {
                 cg_auto_add(out, cap, "change_name", role, "", cg_s(&cg_g, cg_u16(e + 12)), 0, -1);
                 break;
