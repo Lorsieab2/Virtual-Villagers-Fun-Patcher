@@ -1081,12 +1081,11 @@ def fishing_catches(ctx: Context, s, eaten_unit: float) -> tuple[float | None, f
     return live, caught
 
 
-# The Origins Food Point Doubler and fishing, as each game's doubler hook is built (scripts/build_vv<N>_origins_
-# feature.py): A New Home's (0x41D140) and The Lost Children's (0x4262B0) double every catch; The Secret City's
-# (0x4263F0) leaves alone every gain paid from inside 0x458DB0..0x45943F, which holds the fish and crab awards
-# (0x458EE5); The Tree of Life's (0x41D94F) leaves alone the job event's food (0x4642F0: returns 0x4645B5, the fish,
-# and 0x464600, the Golden Fish); New Believers' doubles mushrooms only.
-DOUBLES_FISHING = {1: True, 2: True, 3: False, 4: False, 5: False}
+# The Origins Food Point Doubler and fishing, as each game's doubler is built in v1.35.97 (PR #805's whitelists,
+# docs/doubler-composition-audit.md): every game doubles each catch -- A New Home fish 0x43AF41, The Lost Children
+# fish 0x463317 and the big catch 0x463369, The Secret City fish 0x458EEA and crab 0x458FE6, The Tree of Life fish
+# 0x4645B5 and Golden Fish 0x464600, New Believers lake fish 0x46D7A1.
+DOUBLES_FISHING = {1: True, 2: True, 3: True, 4: True, 5: True}
 
 
 def _doubler_note(ctx: Context) -> str:

@@ -33,10 +33,10 @@ THE STOCK EXE (research/stock-executables, The Secret City).
   * Catch-up: the chief gets no job turns (0x460555); the others' catch-up payoffs ask the same roll.
 
 THE PATCHER'S PATCHES (scripts/ and data/ of this repository).
-  * Origins doublers (scripts/build_vv3_origins_feature.py): the food writer 0x4263F0 and tech writer 0x427130
-    are wrapped, but every gain paid from inside 0x458DB0..0x45943F is left as it is -- the fish and crab awards
-    and all research points.  So on this build an owned Food Point Doubler doubles fruit and honey with their
-    chief bonus, not fish; the Tech Point Doubler doubles no research.  PR #805 changes this scope.
+  * Origins doublers (scripts/build_vv3_origins_feature.py, v1.35.97's whitelist from PR #805,
+    docs/doubler-composition-audit.md): an owned Food Point Doubler doubles fruit, honey, fish and crabs, with the
+    chief's fruit and honey bonus and the chief's grant (job event 43); an owned Tech Point Doubler doubles the
+    research points, the chief's quarter and third, Magic, the potion point, the fire's point and duplicates.
   * vv3_chief_hospital_supervision (native/vvfp_chief_hospital): the Hospital site directs (the stock clears it).
   * vv3_fruit_harvested_at_food_bin (data/builds.json): the fruit and its chief bonus are paid at the food bin.
   * vv3_learning_never_fails: every work skill test passes, so more payoffs ask the roll; the roll is unchanged.
@@ -199,10 +199,9 @@ def facts(village: gm.Village, leadership: int, science: int, solved) -> list[gm
         + ("a third" if science <= 0 else "a quarter") + " more.")
     # The patcher's patches (see the module notes).
     add("With the patcher's patches:")
-    add(_patch(village, ORIGINS, "an owned Food Point Doubler doubles fruit and honey picks, their chief bonus "
-                       "included, but not fish or crabs; an owned Tech Point Doubler doubles no research points, so "
-                       "the research bonus is not doubled either (as this build's doublers are written; a later fix "
-                       "may widen them)"), gm.CODE, True)
+    add(_patch(village, ORIGINS, "an owned Food Point Doubler doubles fruit and honey picks, fish and crabs, the "
+                       "chief's bonus and the chief's grant included; an owned Tech Point Doubler doubles the "
+                       "research points, the chief's research bonus included"), gm.CODE, True)
     add(_patch(village, "vv3_chief_hospital_supervision", "the chief dropped on the Hospital directs work there: "
                        "a healer's failed cure goes ahead when the chief's roll passes, and study there gives twice "
                        "the Medicine skill"), gm.CODE, True)
