@@ -1124,7 +1124,8 @@ def fishing_lines(ctx: Context, eaters: int, per_unit: float, short: bool = Fals
            + (f"; {ctx.fishing_food_words}" if ctx.fishing_food_words else "") + "." + _doubler_note(ctx)]
     expert = fishing_supply(ctx, eaten_unit, expert=True)
     if expert is not None:
-        out.append(f"Expert fishers (Farming {ctx.fishing_expert[0]}; {ctx.fishing_expert[3]}): "
+        out.append(f"Expert fishers (Farming {ctx.fishing_expert[0]}; {ctx.fishing_expert[3]}), to feed the same "
+                   f"village on {on} speed: "
                    + "; ".join(_fishing_parts(ctx, expert, eaten_unit)) + ".")
     return out
 

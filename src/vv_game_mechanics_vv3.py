@@ -910,8 +910,24 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
             puzzles.append((name, progress, PUZZLE_THRESHOLDS[pid]))
     pick_food = {gm.FAST: 7, gm.NORMAL: 3, gm.SLOW: 2}[speed]
     srcs = list(sources or [])
+
+    def solved(pid: int) -> bool:
+        return struct.unpack_from("<i", buf, PUZZLES + 4 + 8 * pid)[0] >= PUZZLE_THRESHOLDS[pid]
+
+    # The Tribal Chief's Directing work (src/vv_game_mechanics_chief_vv3.py), and its bonus on the fish.
+    import vv_game_mechanics_chief_vv3 as chief
+    out.extend(chief.facts(village, level[LEADERSHIP], level[SCIENCE], solved))
+    fish_live = {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed]
+    with_chief = chief.fish_food(village, level[LEADERSHIP], fish_live)
+    plain = with_chief or (fish_live, 8)
+    # An expert fisher (Farming 88 or more): a crab, 55 food with no chief bonus, on rand(100) < 10 (0x4535A2)
+    # after the Farming check, which passes always from Farming 66; its live cycle is measured at Farming 100.
+    crab = 10 / 100
+    expert = (100, crab * 55 + (1 - crab) * plain[0], crab * 55 + (1 - crab) * plain[1],
+              "from Farming 88, 10 catches in 100 are a crab worth 55 food instead of a fish"
+              + ("; the chief's bonus on the fish counted" if with_chief else ""))
     # The sea is a farming source only once The Sharks (puzzle 10) is solved (the dispatcher 0x45AFD3).
-    sharks = struct.unpack_from("<i", buf, PUZZLES + 4 + 8 * SHARKS)[0] >= PUZZLE_THRESHOLDS[SHARKS]
+    sharks = solved(SHARKS)
     if sharks:
         srcs.append(life.Source("Fishing", None, unlimited=True, refill_words="the sea never runs out",
                                 verified=gm.RUNNING))
@@ -954,7 +970,12 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                ("honey picks", pick_food if _i32(buf, PUZZLES + 4 + 8 * BEE_HIVE) >= 1 else 0, "Honey"),
                ("fishing trips", {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed] if sharks else 0, "Fishing")],
         fishing_trip="fishing trips",
-        fishing_unlock="fishing opens once The Sharks is solved; it is not solved in this village yet.")
+        fishing_unlock="fishing opens once The Sharks is solved; it is not solved in this village yet.",
+        fishing_food=with_chief,
+        fishing_food_words=(f"the Tribal Chief directing the sea adds a third to a fish {chief.chance(level[LEADERSHIP]):.0%} "
+                            "of the time, counted (Tribal Chief: Directing work)" if with_chief else
+                            "no Tribal Chief directs the sea now, so no chief bonus is counted"),
+        fishing_expert=expert)
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=epoch,
                            nature=max(level[5], nature)))
