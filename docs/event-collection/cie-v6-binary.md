@@ -1056,7 +1056,7 @@ the whole village's only. No roll; no automatic line.
   - VV4: `clean` (0x437EC0 on 0x4D8B18, mode 1: the soapy pond's sparkles, 240 s), `glow` (mode 0: the meditation's,
     240 s; research x3), `gunk` (0x438CA0 on 0x4D8CCC, 180 s; wiped off on the tree), `stew_wait` (0x460A90, the pit's
     source 0x4D6F50, stew 8: a little health and the 600 s "no more stew so soon" wait; a bare wait has no setter).
-    **Owner question:** `clean` and `glow` together are the two marks The Tree of Life's purification test asks of a villager (0x45EBE0 / 0x45EB90): a villager carrying both, dropped on the Tree within their 240 s, could skip the bath and the meditation steps. An effect alone never advances a puzzle; the patcher refuses any event that gives both.
+    **Allowed together (the owner, 2026-11-18):** `clean` and `glow` are the two marks The Tree of Life's purification test asks of a villager (0x45EBE0 / 0x45EB90), so a villager with both counts as pure of body for Purify Tree: dropped on the Tree within their 240 s (with Dendrology 3) it purifies it, the bath and the meditation skipped. An effect alone never advances a puzzle.
 - **Yellow fruit** (`supply` / `trade` / `has_supply` word `yellow_fruit`, The Tree of Life): "VVFP VV4 Fruit
   Supply.dll"'s own count through its new export `VvfpYellowFruitAdd(delta)` (0..1,000; 0 reads; -1 not installed or
   no village; nothing written until the next save). Without "Yellow Fruit Trees are No Longer Unlimited" the tree has no

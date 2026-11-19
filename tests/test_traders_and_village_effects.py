@@ -438,11 +438,10 @@ class WorkRushSpawnTempEffects(unittest.TestCase):
             with self.subTest(bad=bad), self.assertRaises(Exception) as ctx:
                 cg.load(pages([[bad]], games), scrolling=True)
             self.assertIn(why, str(ctx.exception))
-        # clean and glow together are the Tree of Life's purification (0x45EBE0): no event may give both
-        with self.assertRaises(Exception) as ctx:
-            cg.load(pages([[{"do": "group", "kind": "effect", "effect": "clean", "who": "subject"}],
-                           [{"do": "group", "kind": "effect", "effect": "glow", "who": "all"}]], [4]), scrolling=True)
-        self.assertIn("clean and glow", str(ctx.exception))
+        # clean and glow together are allowed (the owner, 2026-11-18): one event may give both
+        both = pages([[{"do": "group", "kind": "effect", "effect": "clean", "who": "subject"}],
+                      [{"do": "group", "kind": "effect", "effect": "glow", "who": "subject"}]], [4])
+        self.assertTrue(compiled(both))
 
     def test_work_rush_only_the_skills_workers_work(self):
         """The owner's rule: the job ticked for the skill (the Details screen's preference), or listed as its Master,
