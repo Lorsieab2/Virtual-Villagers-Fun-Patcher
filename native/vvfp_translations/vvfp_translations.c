@@ -57,6 +57,10 @@
 #define TR_GLYPHS_DLL L"VVFP Unicode Text.dll"
 #define TR_FONT_DLL L"VVFP Unicode Font.dll"
 #define TR_FONT_DLL_A "VVFP Unicode Font.dll"
+/* Fix Vanilla Bugs' game-text fixes (all five games): started before this companion's own start when shipped
+   beside it (tr_start_text_fixes), so the table rows of A New Home and The Lost Children hold the fixed English
+   that the template's keys are made from. */
+#define TR_TEXT_FIXES_DLL_A "VVFP Text Fixes.dll"
 #define TR_FILE_LEAF "Translation\\Translation.txt"
 #define TR_MAX_FILE (4u * 1024u * 1024u)
 /* The longest prepared text: the island-event sprintf buffers of A New Home and The Lost Children are
@@ -3355,6 +3359,30 @@ static void tr_start(int game) {
 
 /* ---- exports ------------------------------------------------------------------------------------- */
 
+/* "VVFP Text Fixes.dll" (Fix Vanilla Bugs) is later in VVFP Startup.dll's list (append-only); when it is shipped
+   beside this one it is loaded by its full path in the patcher's folder and started first, so the texts it fixes
+   are the English this companion's rows are matched with.  Its VvfpStartup installs once (VVFP Startup.dll's own
+   call later does nothing); a missing file or export leaves the game as without it. */
+static void tr_start_text_fixes(int game) {
+    typedef void(__stdcall * start_fn)(int, unsigned int);
+    HMODULE fixes;
+    start_fn start;
+    if (!vvfp_patcher_file_exists(TR_TEXT_FIXES_DLL_A)) {
+        return;
+    }
+    fixes = vvfp_load_patcher_dll(TR_TEXT_FIXES_DLL_A);
+    if (fixes == NULL) {
+        return;
+    }
+    start = (start_fn)GetProcAddress(fixes, "VvfpStartup");
+    if (start != NULL) {
+        __try {
+            start(game, 0);
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+        }
+    }
+}
+
 /* Called once at game start by "VVFP Startup.dll" (its second word), on the game's own thread, outside
    DllMain. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
@@ -3362,6 +3390,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     if (g_game != 0 || game < 1 || game > 5) {
         return;
     }
+    tr_start_text_fixes(game);
     g_game = game;
     tr_start(game);
     if (!g_active) {
