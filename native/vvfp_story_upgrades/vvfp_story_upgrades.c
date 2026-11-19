@@ -722,22 +722,31 @@ static int vv5_arm(void) {
 
 /* Whether the game's own condition for an event holds right now.  VV3-VV5:
    the event object's own condition, through the game's own event table
-   (built by the game's own getter if no event has run yet this session). */
-static int table_event_possible(unsigned int table, getter_fn getter, int slot) {
+   (built by the game's own getter if no event has run yet this session).
+
+   The event manager's getter builds it when it is missing, so it is called only once the game object exists
+   (`world`, the word its getter keeps): never during start-up, where a getter called from a hook can run inside
+   the game object's own constructor (the New Believers start-up crash, 2026-11-18).  No game object: no event. */
+static void *table_event_object(unsigned int table, getter_fn getter, unsigned int world, int slot) {
     void *object = *(void **)(uintptr_t)(table + 4u * (unsigned int)slot);
-    if (object == NULL) {
+    if (object == NULL && *(void *volatile *)(uintptr_t)world != NULL) {
         getter();
         object = *(void **)(uintptr_t)(table + 4u * (unsigned int)slot);
     }
+    return object;
+}
+
+static int table_event_possible(unsigned int table, getter_fn getter, unsigned int world, int slot) {
+    void *object = table_event_object(table, getter, world, slot);
     return object != NULL && can_fire_with_retries(object);
 }
 
 static int vv3_possible(const story_event *e) {
-    return table_event_possible(VV3_EVENT_TABLE, (getter_fn)(uintptr_t)VV3_EVENT_GETTER, e->slot);
+    return table_event_possible(VV3_EVENT_TABLE, (getter_fn)(uintptr_t)VV3_EVENT_GETTER, VV3_MANAGER_GLOBAL, e->slot);
 }
 
 static int vv4_possible(const story_event *e) {
-    return table_event_possible(VV4_EVENT_TABLE, (getter_fn)(uintptr_t)VV4_EVENT_GETTER, e->slot);
+    return table_event_possible(VV4_EVENT_TABLE, (getter_fn)(uintptr_t)VV4_EVENT_GETTER, VV4_WORLD_GLOBAL, e->slot);
 }
 
 /* Whether the chooser lists `e`: an event whose slot of The Tree of Life's
@@ -750,16 +759,12 @@ static int event_listed(int game, const story_event *e) {
     if (game != 4 || e->slot < 1 || e->slot > 49) {
         return 1;
     }
-    object = *(void **)(uintptr_t)(VV4_EVENT_TABLE + 4u * (unsigned int)e->slot);
-    if (object == NULL) {
-        ((getter_fn)(uintptr_t)VV4_EVENT_GETTER)();
-        object = *(void **)(uintptr_t)(VV4_EVENT_TABLE + 4u * (unsigned int)e->slot);
-    }
+    object = table_event_object(VV4_EVENT_TABLE, (getter_fn)(uintptr_t)VV4_EVENT_GETTER, VV4_WORLD_GLOBAL, e->slot);
     return object != NULL;
 }
 
 static int vv5_possible(const story_event *e) {
-    return table_event_possible(VV5_EVENT_TABLE, (getter_fn)(uintptr_t)VV5_EVENT_GETTER, e->slot);
+    return table_event_possible(VV5_EVENT_TABLE, (getter_fn)(uintptr_t)VV5_EVENT_GETTER, VV5_WORLD_GLOBAL, e->slot);
 }
 
 /* ---- Custom Island Event -------------------------------------------------- */

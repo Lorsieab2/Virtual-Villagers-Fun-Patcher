@@ -209,18 +209,21 @@ static void old_sandcastles(const old_game *g, const place *beach, const char *s
 
 /* ---- The Secret City and The Tree of Life: tag through the game's own actions ---------------------------------- */
 
+/* strings_word: where the string table's getter (0x42F740 / 0x44DA20) keeps it -- read, never the getter, which
+   builds it when missing (a getter called from a hook can run inside a constructor: the New Believers start-up
+   crash, 2026-11-18).  The game has its text by the time villagers play; 0: no words. */
 typedef struct new_game {
-    UINT_PTR strings, lookup, copy, stop, act, walk, last, start;
+    UINT_PTR strings_word, lookup, copy, stop, act, walk, last, start;
     int running, tag_id, it_id;
     unsigned int text, in_use, health, age, sick, carried, dislike, chief, corpse;
     unsigned int stride, records_from;   /* records = manager + records_from */
 } new_game;
 
-static const new_game VV3 = { 0x42F740u, 0x42F190u, 0x46F780u, 0x460F70u, 0x455570u, 0x4611B0u, 0x461B50u, 0x461BF0u,
+static const new_game VV3 = { 0x593A74u, 0x42F190u, 0x46F780u, 0x460F70u, 0x455570u, 0x4611B0u, 0x461B50u, 0x461BF0u,
                               0x94, 0x190, 0x191,
                               0xF28u, 0xF10u, 0xE78u, 0xDC4u, 0xE89u, 0xF20u, 0xFC0u, 0xE80u, 0u,
                               0x1F8Cu, 0x14u };
-static const new_game VV4 = { 0x44DA20u, 0x44D3D0u, 0x4724E0u, 0x468C60u, 0x45DEC0u, 0x469050u, 0x469EC0u, 0x46A030u,
+static const new_game VV4 = { 0x4DFF28u, 0x44D3D0u, 0x4724E0u, 0x468C60u, 0x45DEC0u, 0x469050u, 0x469EC0u, 0x46A030u,
                               0x46, 0x1EB, 0x1EC,
                               0x1CE4u, 0x1CC4u, 0x1C40u, 0x1B8Cu, 0x1C48u, 0x1CDCu, 0x1E6Cu, 0u, 0x1CC7u,
                               0x2E3Cu, 0x44u };
@@ -264,8 +267,8 @@ static void new_player(const new_game *g, unsigned char *r, int it, const int *o
     new_stop(g, r);
     ((tc2_fn)g->act)(r, NULL, g->running, (int)(UINT_PTR)block);
     new_stop(g, r);
-    strings = ((getter_fn)g->strings)();
-    words = (const char *)((tc1_fn)g->lookup)(strings, NULL, it ? g->it_id : g->tag_id);
+    strings = *(void *volatile *)g->strings_word;
+    words = strings != NULL ? (const char *)((tc1_fn)g->lookup)(strings, NULL, it ? g->it_id : g->tag_id) : NULL;
     if (words != NULL) {
         ((copy_fn)g->copy)((char *)(r + g->text), words, 0x27);
     }

@@ -553,8 +553,10 @@ static int c3_set_status(int index, int status) {
 
 static const unsigned int C3_CHIEF_POWER_STAMPS[C3_CHIEF_POWERS] = { 0x12F00u, 0x12EFCu, 0x12EF8u };
 
+/* The world object 0x428B60 keeps at 0x4B309C, or NULL before it is built: read, never the getter, which would
+   build it (and could re-enter its own constructor from a hook -- the New Believers start-up crash, 2026-11-18). */
 static unsigned char *c3_world(void) {
-    return (unsigned char *)((getter_fn)(uintptr_t)0x428B60u)();
+    return *(unsigned char *volatile *)(uintptr_t)0x4B309Cu;
 }
 
 /* Whether power `k` is resting now, as each use tests it (`cmp [stamp],
@@ -596,6 +598,9 @@ static int c3_recharge_chief_powers(void) {
         return why;
     }
     world = c3_world();
+    if (world == NULL) {
+        return C3_RECHARGE_NO_CHIEF;
+    }
     for (k = 0; k < C3_CHIEF_POWERS; ++k) {
         if (c3_chief_power_resting(world, k)) {
             *(unsigned int *)(world + C3_CHIEF_POWER_STAMPS[k]) = 0;
@@ -729,8 +734,12 @@ static int c3_skeleton(const unsigned char *r) {
    which the revive dialog shows). */
 static int c3_revive(int index, int health, int cure) {
     unsigned char *r = c3_record(index);
+    unsigned char *world = c3_world();
+    if (world == NULL) {
+        return 0;
+    }
     TC2(0x462670u, r + 0xE6C, health, -1);
-    *(int *)(r + 0xE70) = TC0(0x403330u, ((getter_fn)(uintptr_t)0x428B60u)());
+    *(int *)(r + 0xE70) = TC0(0x403330u, world);
     if (cure) {
         r[0xE89] = 0;
     }

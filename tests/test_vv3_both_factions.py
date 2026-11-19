@@ -348,6 +348,7 @@ class Game:
         drawn: list[tuple] = []
         mgr = p.alloc(0x40)
         p.stub(0x42E9D0, lambda q: (mgr, 0))
+        p.mu.mem_write(0x592714, struct.pack("<I", mgr))   # the word the companion reads, never the getter
         p.stub(0x42EB90, lambda q: (drawn.append(("image", q.arg(0), q.arg(1), q.arg(2), q.arg(3))) or 0, 0x14))
         p.stub(0x42ECA0, lambda q: (drawn.append(("pip", q.arg(0), q.arg(1), q.arg(2))) or 0, 0x18))
         p.stub(0x408940, lambda q: (mgr, 0))

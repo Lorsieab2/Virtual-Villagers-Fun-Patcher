@@ -105,6 +105,8 @@ class Game:
                 self.words[sid] = text + 0x40 * k
             getter, lookup = (0x42F740, 0x42F190) if game == 3 else (0x44DA20, 0x44D3D0)
             m.stub(getter, lambda p: (strings, 0))
+            # the word the getter keeps the table in: the companion reads it, never the getter (which builds it)
+            m.write(0x593A74 if game == 3 else 0x4DFF28, struct.pack("<I", strings))
 
             def lookup_fn(p):
                 assert p.reg("ecx") == strings

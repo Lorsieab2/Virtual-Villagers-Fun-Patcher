@@ -2454,7 +2454,6 @@ static int vv_prefs_purchase(HWND owner, int kind) {
     world = *(unsigned char **)(UINT_PTR)0x0048AEDCu;
     records = world != NULL ? *(unsigned char **)(world + 0xADE8) : NULL;
 #else
-    typedef unsigned char *(__cdecl *vv_prefs_records_fn)(void);
     static const int job_code[5] = { 1, 5, 4, 3, 2 };
     static const int skill_offset[5] = { 0x7EC, 0x7E8, 0x7F4, 0x7F0, 0x7E4 };
     const int tech_offset = 0x2EADC, stride = 0xE48C;
@@ -2463,7 +2462,8 @@ static int vv_prefs_purchase(HWND owner, int kind) {
     sex_offset = 0x538;
     male_value = 1;
     world = *(unsigned char **)(UINT_PTR)0x004997BCu;
-    records = world != NULL ? ((vv_prefs_records_fn)0x0044F4E0)() : NULL;
+    /* the record array the getter 0x44F4E0 keeps at 0x499F24: read, never the getter, which builds it */
+    records = world != NULL ? *(unsigned char *volatile *)(UINT_PTR)0x00499F24u : NULL;
 #endif
     vv1_format_cost(price, cost_text);
     wsprintfA(message,

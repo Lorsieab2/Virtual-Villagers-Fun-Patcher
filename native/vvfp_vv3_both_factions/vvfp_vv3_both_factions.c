@@ -83,7 +83,9 @@
 #define LEVEL_UP 0x426FD0u        /* thiscall(id): one level up, listeners told */
 #define TECH_SAVE 0x426F60u       /* thiscall(out): the seven levels copied out */
 #define TECH_LOAD 0x427060u       /* thiscall(in): the stock loader (refuses both) */
-#define IMAGES 0x42E9D0u          /* the image manager (no arguments) */
+/* where the image manager's getter 0x42E9D0 keeps it: read, never the getter, which builds it when missing (a getter
+   called from a hook can run inside a constructor: the New Believers start-up crash, 2026-11-18) */
+#define IMAGES_WORD 0x592714u
 #define DRAW_IMAGE 0x42EB90u      /* thiscall(image, x, y, alpha, 0x64) */
 #define SUNBEAM 0x90              /* sunbeam.png */
 #define NATURE_X 0x16F            /* the Tech screen's columns (0x4B1F6C + 16*id) */
@@ -622,11 +624,13 @@ static __declspec(naked) void shark_stub(void) {
 }
 /* ---- the Tech screen ----------------------------------------------------- */
 
-typedef void *(__cdecl *images_fn)(void);
 typedef void (__fastcall *draw_fn)(void *images, void *unused, int image, int x, int y, float alpha, int mode);
 
 static void __cdecl draw_both(void) {
-    void *images = ((images_fn)(uintptr_t)IMAGES)();
+    void *images = *(void *volatile *)(uintptr_t)IMAGES_WORD;
+    if (images == NULL) {
+        return;
+    }
     ((draw_fn)(uintptr_t)DRAW_IMAGE)(images, 0, SUNBEAM, NATURE_X - 0x28, 0, 1.0f, 0x64);
     ((draw_fn)(uintptr_t)DRAW_IMAGE)(images, 0, SUNBEAM, MAGIC_X - 0x28, 0, 1.0f, 0x64);
 }
