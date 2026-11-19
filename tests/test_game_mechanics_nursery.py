@@ -185,8 +185,10 @@ class Lesson(unittest.TestCase):
         e.villager(1, age=0, skills=[1.0] * 6)
         e.lesson([0, 0])
         self.assertGreater(e.skills(1)[0], 1.0)
-        line = next(f for f in nursery.lines(_Village(), 5) if "whether it stays was not traced" in f.text)
-        self.assertFalse(line.confirmed)
+        # 2026-11-18: turning Heathen never touches the job (0x4669E0 -> 0x466880), so the line is code, not open.
+        line = next(f for f in nursery.lines(_Village(), 5) if "a teacher who turns Heathen keeps the Nursery" in f.text)
+        self.assertTrue(line.confirmed)
+        self.assertNotIn("not traced", line.text)
 
     def test_four_hundred_children_from_zero(self) -> None:
         """The emulated counts the page quotes: which skill a child starting at 0 ends up trained in."""

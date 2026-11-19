@@ -368,9 +368,17 @@ def _puzzle_entries() -> list[Entry]:
               (("The game's tip says the lake becomes the believers'. In the code, one area of the island's ground "
                 "(the one the tip means) is marked closed to the villagers' walking until the totem falls; solving it "
                 "opens that ground, so villagers can walk there.", VERIFIED_C),)),
+        # CConvertMasterBuilderPuzzle: the drop 0x4379D0 (area 0x20) needs no structure up and the Heathen Master
+        # Builder (role 14) standing at the build-off spot (x 501-851, y 2141-2354); the believer does 0xAD (events
+        # 0x39..0x36, the tribe's structure 0x18..0x15) while the Heathen does 0xB0 (0x3D..0x3A, his 0x1C..0x19).
+        # At his last stage (0x46D5BA) the tribe's last stage shown -> 0xB1 "The heathen is impressed" -> event 0x3E:
+        # Faith set to 25 + rand(35) (0x467F90) and puzzle 9 +1 (solved); otherwise 0xB2 "...not impressed" -> 0x3F.
         Entry(PUZZLE, "The Heathen Builder", "a build-off with the Heathen Master Builder", (
-            "the Master Builder joins the tribe (the game's tip); how the build-off is won and the Faith it sets were "
-            "not traced."), UNCONFIRMED),
+            "drop a villager on the build-off spot while the Heathen Master Builder stands there: the villager and the "
+            "Heathen each build their own structure in four stages, at the same time. If the villager's is finished "
+            "when the Heathen finishes his, \"The heathen is impressed\": his Faith is set to 25 to 59 (each equally "
+            "likely), so he joins the tribe, and the puzzle is solved; otherwise \"The heathen is not impressed\" and "
+            "it can be tried again."), VERIFIED_C),
         Entry(PUZZLE, "The Lake", "2 points", (
             "1 point from a Tempest cast while The Lake has none and the weather level is above 50 (it comes 120 "
             # The points 0x43C7E0, 0x4233DD; the fish 0x46D790.
@@ -389,9 +397,15 @@ def _puzzle_entries() -> list[Entry]:
               (("The game's tip says the warm springs become the villagers'. In the code, one area of the island's "
                 "ground (the one the tip means) is marked closed to the villagers' walking until the totem falls; "
                 "solving it opens that ground, so villagers can walk there.", VERIFIED_C),)),
+        # CConvertMasterScientistPuzzle: the drop 0x438250 (area 0x1F) starts 0xAC "Attempting the proof" (Learning
+        # 2 checked at 0x4382CE); its end (0x43815B) compares Research (+0x1C68) with 88.0: 88 or more queues event
+        # 0x32 (the Heathen 0xE4 "Celebrating the solution!"), less 0x33 (0xE3 "Examining the proposed solution").
+        # 0xE4's event 0x35 (0x46D2A8): Faith +30 (0x468020) and, with Faith above 0, puzzle 13 solved.
         Entry(PUZZLE, "The Heathen Scientist", "a proof the Heathen Master Scientist examines", (
-            "the Master Scientist joins the tribe (the game's tip); the steps and the Faith set were not traced."),
-         UNCONFIRMED),
+            "drop a villager on the drawing board (\"Attempting the proof\") while the Heathen Master Scientist "
+            "watches. With Research 88 or more the proof is right: the Heathen celebrates the solution, gains 30 "
+            "Faith, and once his Faith is above 0 he joins the tribe and the puzzle is solved. With less, he only "
+            "examines it and nothing changes."), VERIFIED_C),
         Entry(PUZZLE, "The Tribute Statue", "three building stages", (
             f"each stage raises the Divine Energy cap: +50 at the first, +50 more at the second, +100 once solved; "
             f"each age unit every believer gains 1 Faith {p(10)} of the time at the first stage, {p(20)} at the second "
@@ -399,9 +413,12 @@ def _puzzle_entries() -> list[Entry]:
             f"and {p(30)} once solved. The second stage needs Construction and Spirituality both at 2 or more, the "
             "third both at 3. From the first stage villagers choose Honoring as a job."),
          VERIFIED_E,
-              # Work event 40 at 0x46DA1B.
-              (("Polishing the finished statue: a work step of the game's adds 1 Divine Energy; which action starts "
-                "it was not traced.", UNCONFIRMED),
+              # Work event 40 at 0x46DA1B (+1 Divine Energy): the work-event step 0x474EF0 is queued at 58 places,
+              # none with 40, and nothing else builds that step (op 0x14) or calls the dispatcher 0x46CE60 but the
+              # step executor 0x473D13; "Polishing the statue" (0x455040) is animation, Building practice and waits.
+              (("DEAD (never runs): the game's step that adds 1 Divine Energy for polishing the finished statue is "
+                "never asked for by any action, so \"Polishing the statue\" trains Building but gives no Divine Energy "
+                "(the game's tip says it gives energy).", VERIFIED_C),
                (f"{_feature('vv5_statue_polishing_or_honoring')}: a villager dropped on the finished statue polishes it "
                 "or Honors, 50% each, whatever their skills; one who carries the job on alone keeps the 50/50 only when "
                 "checked on that skill, and anyone else 14% of the time.", VERIFIED_C))),
@@ -410,8 +427,14 @@ def _puzzle_entries() -> list[Entry]:
             "above 445): the game says \"Your vision and power are blocked here!\""), VERIFIED_E),  # 0x4234C8
         Entry(PUZZLE, "The Heathen Chief", "four necklace pieces brought to the Chief", (
             "the Heathen Chief's Faith is set to 100, so the Chief joins the tribe."), VERIFIED_E,  # 0x4360EE
+              # CConvertHeathenChiefPuzzle registers four drop places (0x436CEE..0x436D1E): areas 0x26 (farmer's,
+              # needs puzzle 5), 0x27 (scientist's, puzzle 13), 0x28 (doctor's, puzzle 1), 0x29 (builder's, puzzle 9),
+              # each only while puzzle 16 is unsolved; the actions 0xB9..0xBC pick the piece up, 0xBD assembles.
               (("The pieces are the scientist's, the doctor's, the farmer's and the builder's (the game's own action "
-                "names); where each is found was not traced.", UNCONFIRMED),)),
+                "names). Each lies at its own place on the island and can be picked up only once its Heathen master "
+                "has joined: the farmer's after The Hydroponic Farm, the doctor's after The Sick Heathen, the "
+                "builder's after The Heathen Builder and the scientist's after The Heathen Scientist (before that "
+                "the villager only \"sees a piece of a necklace\").", VERIFIED_C),)),
         Entry(PUZZLE, "The Heathen Parent", "convert the Heathen Mommy", (
             f"{_feature('vv5_heathen_mommy_puzzle')} only: a new village's Heathen Mommy carries one baby, and solving "
             # Her Faith set at 0x43979C; the Puzzles screen's count 0x44974C.
@@ -471,7 +494,13 @@ def _building_entries() -> list[Entry]:
             "Normal or Slow. While it burns a believer who fails the health check gets a second roll (see Chances) and "
             "a research success gives 1 more tech point 10.01% of the time; the Cold Snap island event puts it out."),
          VERIFIED_E,
-              (("Which of the three actions gives each of the 3 points was not traced.", UNCONFIRMED),)),
+              # CFirePit's put-down handler 0x439100 (area type 1): item 4 (firewood) +1 once (byte +5), item 15
+              # (dry grass, carried by "Gathering dry grass" 0x45AF83) +1 once (byte +4), an empty hand with both in +1
+              # (0x4391A3); "Starting a fire" ends with the build step 0x474FC0(0x12) -> slot 10 0x438D40 (+1 while
+              # unsolved).  Each +1 is 0x43AF80(18).
+              (("\"Gathering firewood\" gives the first point when its wood is put in the pit, \"Gathering dry "
+                "grass\" the second when its grass is put in (each counts once), and \"Starting a fire\" with both in "
+                "gives the third.", VERIFIED_C),)),
         Entry(BUILDING, "Fixing a hut (the repair)", "free; a builder's own job", (
             # Offered at 0x46C9E6; the 70% at 0x463F47.
             "offered only once Huts 1 to 3 and the Clothing Hut are all built: the builder examines one of the three "

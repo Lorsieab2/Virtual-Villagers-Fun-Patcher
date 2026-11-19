@@ -148,6 +148,20 @@ class RemainingList(unittest.TestCase):
         for name in ("The Hollow Totem", "The Rainbow Totem"):
             self.assertIn("closed to the villagers' walking until the totem falls", entry(name).subs[0][0])
 
+    def test_the_last_six(self) -> None:
+        self.assertIn("Faith is set to 25 to 59", entry("The Heathen Builder").text)
+        self.assertIn("With Research 88 or more", entry("The Heathen Scientist").text)
+        self.assertIn("gains 30 Faith", entry("The Heathen Scientist").text)
+        self.assertTrue(entry("The Tribute Statue").subs[0][0].startswith("DEAD (never runs)"))
+        self.assertIn("the builder's after The Heathen Builder", entry("The Heathen Chief").subs[0][0])
+        self.assertIn("\"Starting a fire\" with both in gives the third", entry("The fire pit").subs[0][0])
+        self.assertFalse([e.name for e in items.entries() if e.verified is False])
+        self.assertFalse([e.name for e in items.entries() for _t, v in e.subs if v is False])
+        import vv_game_mechanics_nursery as nursery
+        source = Path(nursery.__file__).read_text(encoding="utf-8")
+        self.assertIn("a teacher who turns Heathen keeps the Nursery", source)
+        self.assertNotIn("stays was not traced", source)
+
 
 if __name__ == "__main__":
     unittest.main()
