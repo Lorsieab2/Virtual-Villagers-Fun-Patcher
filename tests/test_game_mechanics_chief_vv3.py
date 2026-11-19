@@ -206,6 +206,20 @@ class OneShortfall(unittest.TestCase):
         self.assertEqual(gap, eaten - refilled)
         self.assertEqual(eaten, 3 * life.eat_per_unit(ctx) * 3600 / ctx.unit)
 
+    def test_villagers_on_the_refills_alone_agree_with_a_full_source(self) -> None:
+        # The owner, 2026-11-19 (yes to Q1): the same rule as the shortfall, one shared function in both places.
+        data = bytearray(save(4, False))
+        struct.pack_into("<i", data, vv4.BERRIES, vv4.BERRY_CAP)
+        page = render(4, bytes(data))
+        glance = re.search(r"Villagers the food can keep at 100% health: about ([\d,.]+) on the refills alone", page)
+        estimate = re.search(r"Sustainable population on the refills alone: about ([\d,.]+) villagers", page)
+        self.assertEqual(glance[1], estimate[1])
+        self.assertEqual(glance[1], "0.0")                   # the only refilling source, the bush, is full
+        village = gm.Village(Path("."), 4, 1, Path("4.ldw"), bytes(data), frozenset(), NOW)
+        ctx = life.Context(village, 6, NOW, 1000, low_food=500, extra_from=8000,
+                           sources=[life.Source("Full", 10, 10, 5.0), life.Source("Open", 0, 10, 1.0)])
+        self.assertEqual(life.on_refills(ctx), 1.0 / life.eat_per_unit(ctx))
+
 
 if __name__ == "__main__":
     unittest.main()

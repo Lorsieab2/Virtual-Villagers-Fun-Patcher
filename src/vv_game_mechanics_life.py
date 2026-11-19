@@ -830,6 +830,14 @@ def shortfall_hour(ctx: Context, eaters: int) -> tuple[float, float, float]:
     return eaten, refilled, eaten - refilled
 
 
+def on_refills(ctx: Context) -> float:
+    """The villagers the refills alone keep fed, At a glance's and the Food estimates' one figure: what refills()
+    refills an age unit (a source that is full now adds nothing until it is picked, the owner, 2026-10-24; Food
+    Mastery applied) over what one villager eats an age unit (eat_per_unit); 0 when no one eats."""
+    per_unit = eat_per_unit(ctx)
+    return refills(ctx)[0] / per_unit if per_unit else 0.0
+
+
 def glance_lines(ctx: Context, everyone: list[Person]) -> list[str]:
     """Vital statistics' short summary, from the same figures as the Food estimates below (real-life time, the
     save's speed)."""
@@ -839,16 +847,15 @@ def glance_lines(ctx: Context, everyone: list[Person]) -> list[str]:
     per_unit = eat_per_unit(ctx)
     units_hour = 3600.0 / ctx.unit
     per_hour = eaters * per_unit * units_hour
-    _, _, on_sources = refills(ctx)
-    refill_unit = sum(s.per_unit for s in ctx.sources) * ctx.mastery
-    refill_hour = refill_unit * units_hour
+    # The refills as refills() counts them, as in the Food estimates: a full source adds nothing until it is picked.
+    _, refill_hour, on_sources = refills(ctx)
     gap = shortfall_hour(ctx, eaters)[2]
     nexts = [w for w in (_next_refill_words(ctx, s) for s in ctx.sources) if w]
     out = [f"At a glance (estimates, in real-life time at {on} speed):",
            "Next refills (real time): " + ("; ".join(nexts) if nexts else "no food source here runs out and refills") + "."]
     if per_unit:
         day = max(0.0, ctx.food - (ctx.low_food + 1) + on_sources + refill_hour * 24) / (per_unit * units_hour * 24)
-        out.append(f"Villagers the food can keep at 100% health: about {refill_unit / per_unit:,.1f} on the "
+        out.append(f"Villagers the food can keep at 100% health: about {on_refills(ctx):,.1f} on the "
                    f"refills alone; about {day:,.1f} for the next 24 real-life hours on {on} speed, counting the food in storage and on the "
                    f"sources too. You have {eaters} who eat"
                    + (" (fishing can feed more, as far as your farmers bring it in)"
@@ -944,7 +951,7 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
                 "with the eating, so it lasts while farmers bring it in.", True)
     per_villager_unit = per_unit
     if per_villager_unit:
-        add(f"Sustainable population on the refills alone: about {refill_unit / per_villager_unit:,.1f} villagers "
+        add(f"Sustainable population on the refills alone: about {on_refills(ctx):,.1f} villagers "
             f"(refills {refill_unit:,.2f} food per age unit, each villager eats {per_villager_unit:g})"
             + ("; fishing adds without limit, as far as the farmers bring it"
                if any(s.unlimited and not s.capped_words for s in ctx.sources) else "")
