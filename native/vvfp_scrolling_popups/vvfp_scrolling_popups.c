@@ -1664,8 +1664,11 @@ static unsigned int sp_size_common(unsigned int ret, void *popup, unsigned int *
             }
         } __except (EXCEPTION_EXECUTE_HANDLER) {
         }
+        /* the widest word of the text drawn: the whole text when the field holds only its start (a wide word past
+           the cut needs the horizontal bar's room too) */
         if (holder != NULL && box_w > 0 && sp_art_ready()
-            && sp_widest_word(holder, (const char *)(p + c->text), 0, *(void **)(p + c->font)) > box_w) {
+            && sp_widest_word(holder, whole != NULL ? whole : (const char *)(p + c->text), 0,
+                              *(void **)(p + c->font)) > box_w) {
             a[2] += (unsigned int)(SP_HBAR_GAP + sp_hbar_h());
         }
         if (cap > 0 && (int)a[2] > cap) {
