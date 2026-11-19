@@ -146,7 +146,18 @@
   "c2": {
    "name": "Outcome C2",
    "text": "Believers maintain the symbol has value beyond measurable effects.",
-   "src": "L22580"
+   "src": "L22580",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "The faithful maintain the symbol has value beyond measurable effects."
+    }
+   ]
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Little Sister of the Hills",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b320_sister_hills",
+  "source": "balance",
+  "lines": [
+   14816,
+   14857
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14816",
+  "ledger": [
+   {
+    "src": "L14817",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14818",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14825",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14834",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14822",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14823",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14826",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14835",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14828",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14831",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14837",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14840",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14843-14857",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "An island event: The Little Sister of the Hills.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A strange child has been seen at the edge of the jungle for a week, always at dusk: small, barefoot, with leaves woven into (subject.his/her) hair, never coming closer than the last garden row. The elders say the hills have their own children, spirits who sometimes come down to look at the village and decide whether to stay. (subject) and (friend) are weeding the last row when the child steps out of the trees, looks at them, and holds out (subject.his/her) hand.\nShould (subject) take the child's hand, or call (subject.him/her) to come and eat with the village instead?",
+   "choices": [
+    {
+     "label": "Take (subject.His/Her) Hand",
+     "next": "c1",
+     "src": "L14822"
+    },
+    {
+     "label": "Call (subject.Him/Her) to Supper",
+     "next": "c2",
+     "src": "L14823"
+    }
+   ],
+   "src": "L14819-14820"
+  },
+  "c1o1": {
+   "text": "(friend) shouts after them, but (subject) just looks back once, smiling, and steps into the trees with the child, and is gone. They search for days. Months later, a hunter in the hills reports seeing two figures, one tall and one small, walking along a ridge at dusk, with leaves in their hair.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L14829"
+  },
+  "c1o2": {
+   "text": "At the edge of the trees, the child stops, looks back at the village, then up at (subject). Then, all at once, (subject.he/she) is smaller: a baby, lying in the leaves, with the woven leaves still in its hair. The hills, it seems, have decided. (subject) carries the baby home and raises it. It always loves the jungle, and comes home from it with leaves in its hair.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L14832"
+  },
+  "c1": {
+   "text": "(subject) wipes the dirt off (subject.his/her) palm and takes the small cold hand. The child smiles, and starts to walk back towards the trees, pulling (subject) gently after (subject.him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14826"
+  },
+  "c2o1": {
+   "text": "The child turns away and runs back into the trees, laughing. (friend), before (subject) can stop (subject.him/her), runs after (subject.him/her). \"I'll bring (subject.him/her) back!\" (friend) calls. Neither of them comes back. On still evenings, people at the last garden row say they hear (friend) laughing in the hills, as if (subject.he/she) is having the time of (subject.his/her) life.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "friend"
+    }
+   ],
+   "src": "L14838"
+  },
+  "c2o2": {
+   "text": "The child comes. (subject.He/She) sits by (subject) at the fire, eats a whole bowl of stew without a word, falls asleep against (subject)'s arm, and in the morning is gone, leaving a ring of leaves on the mat. (subject), who has never had any patience for children, finds that (subject.he/she) misses the weight of that small sleeping head, and starts minding the village's little ones in the evenings.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L14841"
+  },
+  "c2": {
+   "text": "\"Come and eat,\" says (subject), pointing to the smoke of the cooking fire. The child looks at the smoke for a long time...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14835"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "children",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

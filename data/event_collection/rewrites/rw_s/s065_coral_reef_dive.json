@@ -1,0 +1,214 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coral Reef Dive",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s065_coral_reef_dive",
+  "source": "rewrites",
+  "lines": [
+   3077,
+   3119
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3077",
+  "ledger": [
+   {
+    "src": "L3078",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3079",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3087",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3096",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3084",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3085",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3088",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3097",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3090",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3093",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3099",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3102",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3105-3119",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The reef is the most beautiful place on the island.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The reef is the most beautiful place on the island. Under the water it's like another world: forests of coral in every colour, fish like scattered jewels, slow green turtles, long-armed things waving from the cracks. And the best fish, the biggest shellfish, are always just a little deeper than the last ones.\n(Name) has been going a little deeper every day. A little further down the coral wall, a little longer holding (his/her) breath. Today (he/she) wants to touch the bottom.\n(He/She) treads water at the edge of the reef, looking down. Below (him/her), the water fades from bright green, to blue, to a deep, cold, dark blue that seems to go on forever. (He/She) fills (his/her) lungs. Should (name) dive all the way down, or stay near the bright surface where it's safe?",
+   "choices": [
+    {
+     "label": "Dive Deep",
+     "next": "c1",
+     "src": "L3084"
+    },
+    {
+     "label": "Stay Near the Surface",
+     "next": "c2",
+     "src": "L3085"
+    }
+   ],
+   "src": "L3080-3082"
+  },
+  "c1o1": {
+   "text": "(Name) touches the bottom. (His/her) fingers sink into cold, soft sand. (He/She) grabs the biggest shells (he/she) can see, two handfuls, and turns and kicks for the light, (his/her) lungs screaming, up, up, up through the green, and bursts out into the sunshine gasping and spluttering and grinning so wide it hurts. The others in the canoe cheer. (Name) comes home soaked and glowing with pride, and tells everyone about it for a week. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L3091"
+  },
+  "c1o2": {
+   "text": "(Name) touches the bottom, and grabs at a shell, and it's stuck, and (he/she) pulls, and pulls, a moment too long. When (he/she) turns for the light, it's too far away. The others in the canoe wait, watching the water. Then they wait longer. Then two of them dive in after (him/her), and find (him/her) halfway up the coral wall, and pull (him/her) from the water. But it is too late. The village buries (name) on the headland above the reef, and mourns a fearless diver who loved the deep blue more than anyone.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L3094"
+  },
+  "c1": {
+   "text": "(Name) jack-knifes and kicks down, hard, along the coral wall. Ten strokes. Twenty. The light fades. The water turns cold, then colder. (His/her) ears ache. (His/her) chest starts to burn. The bottom is right there, pale sand in the dark blue...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3088"
+  },
+  "c2o1": {
+   "text": "It turns out there's plenty near the surface, for anyone who looks carefully. Fat shellfish tucked into the coral, crabs hiding under ledges, a whole school of little silver fish that can be caught in a net. (Name) spends a long, warm, happy afternoon on the shallow reef, and comes home sunburnt and safe with a good full basket. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L3100"
+  },
+  "c2o2": {
+   "text": "Even in the shallows, things can go wrong. Halfway back to the canoe, (name)'s leg cramps, suddenly and agonisingly, knotting up like a fist. (He/She) goes under, and swallows what feels like half the sea, and comes up choking, and goes under again. Somehow, coughing and kicking with one leg, (he/she) makes it back to shore and crawls up the sand. The healers keep (him/her) for a few days, pressing on (his/her) chest. After that, (name) won't go in any deeper than (his/her) ankles.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "swimming",
+     "role": "subject"
+    }
+   ],
+   "src": "L3103"
+  },
+  "c2": {
+   "text": "(Name) looks down into the dark blue for a long, long time. Then (he/she) lets the breath out slowly, and shakes (his/her) head, and decides the bottom will still be there tomorrow. (He/She) dives along the bright, sunny top of the reef instead...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3097"
+  }
+ }
+}

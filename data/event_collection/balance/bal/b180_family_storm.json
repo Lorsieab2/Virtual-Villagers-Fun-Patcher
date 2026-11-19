@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Family in the Storm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b180_family_storm",
+  "source": "balance",
+  "lines": [
+   8339,
+   8382
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8339",
+  "ledger": [
+   {
+    "src": "L8340",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8341",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8349",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8358",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8346",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8347",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8350",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8359",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8352",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8355",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8361",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8364",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8367-8382",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The storm has been blowing for two days.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The storm has been blowing for two days. On the second night, through the rain, (name) sees a light on the beach, moving. It is a torch, guttering, held by someone stumbling along the sand. Behind them come more shapes, bent against the wind.\nBy the time (name) reaches them, the torch has gone out. There is a man with a bleeding head, holding the hand of a girl of about twelve. Behind him, a woman is carrying a baby wrapped in a soaked shawl, and she can hardly stand. Their canoe broke up on the reef. They have been walking the beach for hours, looking for any light.\n(Name)'s hut is the nearest. It is very small. Should (name) take them in, or run for the healers?",
+   "choices": [
+    {
+     "label": "Take Them In",
+     "next": "c1",
+     "src": "L8346"
+    },
+    {
+     "label": "Run for the Healers",
+     "next": "c2",
+     "src": "L8347"
+    }
+   ],
+   "src": "L8342-8344"
+  },
+  "c1o1": {
+   "text": "By morning everyone is warm and dry, and the man's head has stopped bleeding. They sleep for a day and a night. When they wake up, they look out of the door at the village, and the bay, and the sun on the water, and the woman says, \"I don't think I can get in a canoe again.\" They stay. The girl follows (name) everywhere for a year.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L8353"
+  },
+  "c1o2": {
+   "text": "The woman is very ill by morning. The healers come, and do all they can, but she dies before the next night. The man and the girl, half-mad with grief, can't care for the baby. When they leave a month later, to go back to their own island and their own people, they ask (name) to keep the baby, \"because (he/she) has been so kind.\" (Name) says yes.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L8356",
+   "text_only": [
+    {
+     "src": "L8356",
+     "what": "\"dies\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1": {
+   "text": "(Name) half-carries the woman, and the man carries the girl, and they fall into (name)'s hut together, dripping on everything. (Name) builds the fire up as high as it will go...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8350"
+  },
+  "c2o1": {
+   "text": "The healers come running with blankets and hot water, and get the family into the healers' hut, and save them all. By morning they are all asleep in a row, warm and dry. By morning, (name) is the one coughing, after running through the storm without a blanket. The family stay. The girl brings (name) soup every day until (he/she) is well.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    },
+    {
+     "do": "sick",
+     "role": "subject"
+    }
+   ],
+   "src": "L8362"
+  },
+  "c2o2": {
+   "text": "The healers come, and the family is saved. They stay for a week, eating, resting and thanking everyone, and then a cousin's canoe comes looking for them, and they go home to their own island. Before they leave, the girl gives (name) the torch that went out on the beach. \"So you can find us,\" she says.",
+   "src": "L8365"
+  },
+  "c2": {
+   "text": "(Name) wraps (his/her) own blanket round the woman and the baby, sits them all down out of the wind behind the canoe shed, and runs for the healers through the storm...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8359"
+  }
+ }
+}

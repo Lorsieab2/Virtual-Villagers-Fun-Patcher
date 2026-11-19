@@ -1,0 +1,204 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Crocodile in the River Mouth",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b298_crocodile_river",
+  "source": "balance",
+  "lines": [
+   13836,
+   13876
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13836",
+  "ledger": [
+   {
+    "src": "L13837",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13838",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13845",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13854",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13842",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13843",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13846",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13855",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13848",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13851",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13857",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13860",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13863-13876",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A crocodile has moved into the river mouth.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A crocodile has moved into the river mouth. Nobody has seen one on the island in years; this one must have swum over from the big islands. It's the length of two canoes and it lies on the sandbank all day with its mouth open, showing teeth that the fishers say could crack a boulder.\nThe trouble is that the river mouth is where the village washes clothes and fetches water. (Name) has a basket of washing and a thirsty family. Should (he/she) go down to the river anyway, carefully, or walk all the way to the spring in the hills instead?",
+   "choices": [
+    {
+     "label": "Go to the River Carefully",
+     "next": "c1",
+     "src": "L13842"
+    },
+    {
+     "label": "Walk to the Hill Spring",
+     "next": "c2",
+     "src": "L13843"
+    }
+   ],
+   "src": "L13839-13840"
+  },
+  "c1o1": {
+   "text": "The water bulges right in front of (name), and the crocodile comes up out of it. (Name) doesn't have time to scream. The fishers hear the splash and come running with spears, and the crocodile lets go and slides away downstream, but it is too late. They carry (name) home. The next day, every spear in the village goes down to the river mouth, and the crocodile is never seen there again.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L13849"
+  },
+  "c1o2": {
+   "text": "The crocodile comes out of the water at (name)'s side and catches (his/her) arm. (Name) hits it on the nose with the water jar, as hard as (he/she) can, and it lets go. The healers save (his/her) life, but not the use of (his/her) arm. (Name) never goes near the river again, and from then on fetches (his/her) water from the hill spring, one-handed.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "swimming",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L13852"
+  },
+  "c1": {
+   "text": "(Name) creeps down to the water's edge, well upstream of the sandbank, and kneels to fill the water jar, keeping one eye on the crocodile. It isn't on the sandbank...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13846"
+  },
+  "c2o1": {
+   "text": "The walk takes all morning there and all afternoon back. (Name) does it the next day, and the day after, and every day until the crocodile finally swims away a month later. By then, (he/she) has carried so many jars and baskets up and down that hill that (he/she) never wants to fetch or carry anything ever again.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "lifting",
+     "role": "subject"
+    }
+   ],
+   "src": "L13858"
+  },
+  "c2o2": {
+   "text": "The hill spring turns out to be lovely: cool, quiet, shaded by ferns, and there are no crocodiles. (Name) finds the washing goes faster there, too. By the time the crocodile leaves the river mouth, half the village has started walking up to the spring instead. The river mouth goes quiet, and the crocodile, people say, seemed almost offended.",
+   "src": "L13861"
+  },
+  "c2": {
+   "text": "(Name) sighs, hoists the washing onto (his/her) head and the jar onto (his/her) hip, and sets off on the long walk up to the spring in the hills...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13855"
+  }
+ }
+}

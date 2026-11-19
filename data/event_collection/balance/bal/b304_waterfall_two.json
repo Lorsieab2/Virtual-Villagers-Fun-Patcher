@@ -1,0 +1,218 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Waterfall of Two Rivers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b304_waterfall_two",
+  "source": "balance",
+  "lines": [
+   14102,
+   14143
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14102",
+  "ledger": [
+   {
+    "src": "L14117",
+    "kind": "instruction",
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): 10 in a best skill for each (the engine's best skill is the villager's own)"
+   },
+   {
+    "src": "L14103",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14104",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14111",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14120",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14108",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14109",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14112",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14121",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14114",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14117",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14123",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14126",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14129-14143",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Where the two rivers meet in the hills, they fall together over a cliff in a single waterfall, one stream warm and one cold.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Where the two rivers meet in the hills, they fall together over a cliff in a single waterfall, one stream warm and one cold. The elders say that anyone who stands under it with a friend will see the world through the friend's eyes for a moment, because the two rivers swap everything they touch. (subject) and (friend) have climbed all morning to try it.\nThey stand at the edge of the pool, looking up at the falling water. It's very loud. Should they stand under it together, holding hands, or take turns, one at a time, to be safe?",
+   "choices": [
+    {
+     "label": "Stand Under It Together",
+     "next": "c1",
+     "src": "L14108"
+    },
+    {
+     "label": "Take Turns",
+     "next": "c2",
+     "src": "L14109"
+    }
+   ],
+   "src": "L14105-14106"
+  },
+  "c1o1": {
+   "text": "For a moment they see the world through each other's eyes, just as the elders said. Then the moment goes on, and on. They stagger out of the pool in each other's bodies, and stay that way. Going home takes twice as long, because each of them keeps reaching for a branch with the wrong length of arm. \"The elders said a moment,\" (subject) keeps saying in (friend)'s voice. \"A moment!\"",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L14115"
+  },
+  "c1o2": {
+   "text": "They see the world through each other's eyes for one dizzy moment, and then the water lets them go. It was long enough. Each of them came out of it knowing a little of what the other knows: how (subject) reads the weather, how (friend) ties a knot. They walk home quietly, grinning, and from then on each of them is better at the other's best work.",
+   "src": "L14118",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "best": true,
+     "min": 10,
+     "max": 10
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "best": true,
+     "min": 10,
+     "max": 10
+    }
+   ]
+  },
+  "c1": {
+   "text": "They wade in, holding hands, and step under the falling water. It hits them like a slap, warm on one side and cold on the other...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14112"
+  },
+  "c2o1": {
+   "text": "(friend) reaches (subject) just as the two streams pull hardest, and they are swapped as cleanly as two stones passed from one hand to the other. They spend the evening on the rocks, trying to stand under the falls again and again to swap back. The rivers seem to think once was plenty.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L14124"
+  },
+  "c2o2": {
+   "text": "(subject) slips on the cold side, goes under, and comes up spluttering and frozen to the bone. (friend) hauls (subject.him/her) out. Nothing is swapped except a lot of water into (subject)'s lungs. (subject) shivers for two days, and after that, the thought of cold water makes (subject.him/her) want to curl up by the fire.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "swimming",
+     "role": "subject"
+    }
+   ],
+   "src": "L14127"
+  },
+  "c2": {
+   "text": "(subject) goes first, alone, while (friend) waits on the rocks. Under the water, (subject) feels the cold side and the warm side pulling in two directions. Then (friend), impatient, wades in after (subject.him/her)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14121"
+  }
+ }
+}

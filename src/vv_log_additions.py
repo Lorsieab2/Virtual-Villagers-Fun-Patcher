@@ -1668,9 +1668,10 @@ def write_preferred_graves(folder: Path, game: int, slot: int, kinds: list[Kind]
         raise tools.LogToolError(str(exc)) from exc
 
 
-def plan(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None) -> list[Kind]:
+def plan(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None, rec=None) -> list[Kind]:
     """Everything older records of this slot's village lack, kind by kind.  Reads only.  `game_folders`:
-    where the game's exe may be (the repair window's), for what depends on its patches."""
+    where the game's exe may be (the repair window's), for what depends on its patches.  `rec`: a
+    reconciliation of this slot already made (src/vv_reconcile.py), so it is not made again."""
     folder = Path(folder)
     people = person_blocks(folder, slot, game)
     page, current = population_page(folder, slot, game)
@@ -1705,7 +1706,7 @@ def plan(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
     kinds.append(vv_misfiled_records.plan(folder, game, slot))
     # The read-only reconciliation's contradictions, asked before any repair (src/vv_reconcile.py).
     import vv_reconcile
-    kinds.append(vv_reconcile.kind(folder, game, slot))
+    kinds.append(vv_reconcile.kind(folder, game, slot, rec))
     # What the player answered before is not asked again (src/vv_answered_questions.py): those questions
     # are held back, their answers applied as given.
     import vv_answered_questions

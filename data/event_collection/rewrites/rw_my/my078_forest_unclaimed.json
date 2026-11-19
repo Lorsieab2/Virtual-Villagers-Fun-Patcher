@@ -1,0 +1,297 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forest's Unclaimed Box",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my078_forest_unclaimed",
+  "source": "rewrites",
+  "lines": [
+   14397,
+   14452
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14397",
+  "ledger": [
+   {
+    "src": "L14398",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14399",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14407",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14414",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14421",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14428",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14402",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14403",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14404",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14405",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14408",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14415",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14422",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14429",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14409",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14411",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14416",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14418",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14423",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14425",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14430",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14432",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14435-14452",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Deep in the forest, farther than a villager usually goes, a box sits on top of an old stump.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "crafter": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Deep in the forest, farther than (subject) usually goes, a box sits on top of an old stump. It is wrapped in fresh green leaves, still wet with dew, and pinned to it with a thorn is a note: \"For the one who is willing to ask.\"\n(subject) looks around. The forest is very quiet. There is nobody in sight, but the leaves are so fresh that whoever wrapped the box cannot have gone far. (subject.He/she) has the uncomfortable feeling of being watched, and the even more uncomfortable feeling that (subject.he/she) is being tested. Should (subject) open it?",
+   "choices": [
+    {
+     "label": "Ask Who Left It",
+     "next": "c1",
+     "src": "L14402"
+    },
+    {
+     "label": "Open It",
+     "next": "c2",
+     "src": "L14403"
+    },
+    {
+     "label": "Take It to the Village",
+     "next": "c3",
+     "src": "L14404"
+    },
+    {
+     "label": "Leave It Untouched",
+     "next": "c4",
+     "src": "L14405"
+    }
+   ],
+   "src": "L14400-14401"
+  },
+  "c1o1": {
+   "text": "A traveler steps out from behind a tree, looking embarrassed. \"It belongs to a friend of mine,\" (subject.he/she) says. \"We were travelling together, and (subject.he/she) went missing near here a season ago. I've been leaving the box in places (subject.he/she) might pass, hoping (subject.he/she) would find it and ask about it. You're the first who did.\" (subject) helps the traveler search the forest for the rest of the day. They do not find the friend, but they find the friend's old camp, and the traveler weeps with relief to know which way (subject.he/she) went.",
+   "src": "L14410"
+  },
+  "c1o2": {
+   "text": "No one answers. But a little way off, the leaves rustle, crunch, crunch, crunch, the way they would under the feet of someone walking slowly away. (subject) calls again. The footsteps do not stop. They grow fainter and fainter until the forest is silent again. When (subject) turns back to the stump, the box is still there, waiting. (subject.He/she) decides it can keep on waiting, and goes home.",
+   "src": "L14412"
+  },
+  "c1": {
+   "text": "The note says to ask, so (subject) asks. \"Hello?\" (subject.he/she) calls into the trees, feeling foolish. \"Who left this? Who is it for?\" (subject.His/her) voice echoes among the trunks...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14408"
+  },
+  "c2o1": {
+   "text": "Inside are dozens of little cloth packets of seeds, each one carefully labelled, and a drawing on bark of a garden laid out around a pool: rows of beans, squash, herbs and fruit, with a small heart drawn in one corner. (subject) takes the box home. The farmers plant the seeds following the drawing exactly, and by the end of the season, the village has a beautiful new garden, heavy with food. Nobody ever finds out who drew the heart.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L14417"
+  },
+  "c2o2": {
+   "text": "Inside is a broken amulet of carved green stone, snapped in half, and a strip of bark with a list of names written on it. None of them are names (subject) knows. Something about it makes the hair on (subject.his/her) neck stand up. (subject.He/she) closes the box and takes it home anyway, and shows the list to the elders. They do not recognize the names either. The box sits in the elders' hut, and every so often, someone reads the names aloud, just in case someone is waiting to hear them.",
+   "src": "L14419"
+  },
+  "c2": {
+   "text": "(subject) peels away the wet leaves. The box underneath is plain dark wood, with a simple latch. (subject.He/she) takes a breath and lifts the lid...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14415"
+  },
+  "c3o1": {
+   "text": "The box will not open; the latch is a strange puzzle lock of sliding wooden pegs. But (crafter), one of the village craftspeople, lets out a whoop of delight. \"I've heard of these! Never seen one!\" (subject.He/she) spends three days working it out, and when (subject.he/she) finally slides the last peg, the box pops open, empty. Nobody minds. (crafter) teaches everyone how the lock works, and soon the village is making locked boxes of its own.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L14424"
+  },
+  "c3o2": {
+   "text": "By the time (subject) reaches the village, the box has sealed itself shut. The lid, which had a simple latch in the forest, now has no seam at all, as though the box were carved from one solid piece of wood. The villagers try everything: knives, prying, warm water, sweet talk. Nothing works. When (subject) finally takes it back to the stump, the lid falls open by itself, empty. (subject) puts it down very carefully and backs away.",
+   "src": "L14426"
+  },
+  "c3": {
+   "text": "(subject) tucks the box under (subject.his/her) arm, leaves and all, and carries it back to the village to let someone wiser deal with it...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14422"
+  },
+  "c4o1": {
+   "text": "The next day, curiosity gets the better of (subject.him/her), and (subject) goes back to look. The stump is bare. The box is gone, the leaves are gone, and there is no sign that either was ever there. (subject) is relieved. Then (subject.he/she) is disappointed. Then relieved again. Somebody, somewhere, must have asked.",
+   "src": "L14431"
+  },
+  "c4o2": {
+   "text": "The next morning, there is a second note pinned to (subject)'s own front door, with a fresh thorn. It says: \"You asked by leaving.\" (subject) reads it a dozen times and still cannot work out what it means. (subject.He/she) keeps the note, and every so often, when (subject.he/she) has a difficult choice to make, (subject.he/she) takes it out and reads it again. It never makes any more sense. But somehow it always helps.",
+   "src": "L14433"
+  },
+  "c4": {
+   "text": "(subject) decides this gift is meant for someone else. (subject.He/she) leaves the box exactly where it is, on its stump in its wet green leaves, and walks home...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14429"
+  }
+ }
+}

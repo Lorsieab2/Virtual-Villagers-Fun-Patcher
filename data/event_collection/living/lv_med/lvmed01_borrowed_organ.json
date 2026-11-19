@@ -182,6 +182,12 @@
      "min": 5,
      "max": 10,
      "src": "L20229"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L20229"
     }
    ]
   }

@@ -13,7 +13,7 @@
    626
   ],
   "section": "original",
-  "credit": "* The Cooking Contest (VV2): original premise, original event manuscript,\n  randomized cook-off framework and extensive outcome banks by Lorsieab2.\n  Later additional branches, repairs and expansion text: ChatGPT.",
+  "credit": "* The Cooking Contest (VV2): written by Lorsieab2.",
   "draw_weight": 1,
   "series": null,
   "title_src": "L100",
@@ -8299,6 +8299,12 @@
      "min": 10,
      "max": 20,
      "src": "L6969"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6967-6968"
     }
    ],
    "text_only": [

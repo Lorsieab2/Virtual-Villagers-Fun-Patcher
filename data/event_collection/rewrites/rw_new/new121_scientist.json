@@ -1,0 +1,249 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Little Scientist",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new121_scientist",
+  "source": "rewrites",
+  "lines": [
+   5670,
+   5715
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5670",
+  "ledger": [
+   {
+    "src": "L5671",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5672",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5680",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5687",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5694",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5676",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5677",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5678",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5681",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5688",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5695",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5682",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5684",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5689",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5691",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5696",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5698",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5701-5715",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The board is now covered in tiny drawings of fruit with faces.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On a ledge outside (subject.his/her) family's hut, little (subject) has lined up a banana, a mango and a breadfruit, in a very straight row, with great ceremony.\nEvery morning since, (subject.he/she) has scratched a mark on a board to show how ripe each one is. The board is now covered in tiny drawings of fruit with faces. The banana's faces started out happy. By day four, the banana looks deeply worried. The mango looks smug. The breadfruit has no expression at all, which (subject) says is \"because breadfruit is like that.\"\n(adult) stops to look, and (subject) glares up with the fierce suspicion of a scientist guarding (subject.his/her) work. How can (adult) help without spoiling it?",
+   "choices": [
+    {
+     "label": "Ask About the Fruit Faces",
+     "next": "c1",
+     "src": "L5676"
+    },
+    {
+     "label": "Help Count the Marks",
+     "next": "c2",
+     "src": "L5677"
+    },
+    {
+     "label": "Let the Child Find the Pattern",
+     "next": "c3",
+     "src": "L5678"
+    }
+   ],
+   "src": "L5673-5675"
+  },
+  "c1o1": {
+   "text": "(subject) explains everything in great detail: the happy faces mean \"nice and hard\", the worried faces mean \"getting soft\", and the sad faces mean \"too squishy, do not eat, bad.\" (subject.He/She) beams at being taken seriously by a grown-up, and for the rest of the day follows (adult) around explaining the faces to anyone who will stand still.",
+   "src": "L5683"
+  },
+  "c1o2": {
+   "text": "Halfway through explaining, (subject) stops, stares at the board, and gasps. \"The mango faces are all WRONG!\" (subject.He/She) wanders off to redraw every single one of them, muttering, and forgets (adult) entirely. Nobody minds a bit. The mango, now redrawn, looks even more smug.",
+   "src": "L5685"
+  },
+  "c1": {
+   "text": "(adult) crouches down to (subject)'s height and asks, very seriously, what the faces mean. (subject)'s eyes light up...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5681"
+  },
+  "c2o1": {
+   "text": "Counting marks side by side, (adult) shows (subject) how to group them in fives with a line across, so they're easier to count, and how to keep each fruit's marks in its own neat row. (subject) catches on fast, and by the end of the day (subject.he/she) has redone the whole board properly. (subject.He/She) learns a little about keeping a proper tally, and is very proud of it.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Research"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L5690"
+  },
+  "c2o2": {
+   "text": "After about three marks, (subject) asks politely if (subject.he/she) can please do the counting alone. So (adult) sits close by and pretends to be very busy whittling a stick, while sneaking glances at the board. (subject) counts everything twice, gets the same answer both times, and is extremely pleased with (subject.himself/herself).",
+   "src": "L5692"
+  },
+  "c2": {
+   "text": "(adult) offers to help, and after a long, hard, suspicious look, (subject) allows (subject.him/her) to sit on the other end of the ledge. But not to touch the fruit...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5688"
+  },
+  "c3o1": {
+   "text": "On day six, (subject) comes running to the adults, nearly tripping in (subject.his/her) excitement. (subject.He/She) moved one banana into the shade and left one in the sun, \"for fairness\", and the one in the sun went squishy twice as fast! The adults look at each other, then at the storehouse, where all the fruit baskets sit in a sunny corner. That afternoon, the store baskets are moved into the shade, and (subject) supervises.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5697"
+  },
+  "c3o2": {
+   "text": "On day five, a bird lands on the ledge and eats the banana. The whole banana. (subject) stands there with (subject.his/her) board, looking at the empty spot. For a moment everyone thinks (subject.he/she) might cry. Then (subject.he/she) sets the board down firmly and says, \"Tomorrow I'm doing a new row. And a bird net.\"",
+   "src": "L5699"
+  },
+  "c3": {
+   "text": "(adult) decides not to say anything at all, and just watches over the next few days to see what (subject) figures out alone...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5695"
+  }
+ }
+}

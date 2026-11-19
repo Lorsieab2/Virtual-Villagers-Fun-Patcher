@@ -1,0 +1,206 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival of Lanterns",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b036_festival_lanterns",
+  "source": "balance",
+  "lines": [
+   1617,
+   1658
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1617",
+  "ledger": [
+   {
+    "src": "L1618",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1619",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1627",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1636",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1624",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1625",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1628",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1637",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1630",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1633",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1639",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1642",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1645-1658",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is in charge this year, and has spent a month teaching the children how to fold them.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It's the night of the lantern festival, when every family makes a little lantern of bark and leaves and floats it out on the lagoon for the people they've lost. (Name) is in charge this year, and has spent a month teaching the children how to fold them.\nThere's a stiff wind tonight, blowing from the sea towards the huts. One of the elders thinks they should wait for a still night. The children have been looking forward to it all month.\nShould (name) go ahead with the festival, or wait?",
+   "choices": [
+    {
+     "label": "Go Ahead Tonight",
+     "next": "c1",
+     "src": "L1624"
+    },
+    {
+     "label": "Wait for a Still Night",
+     "next": "c2",
+     "src": "L1625"
+    }
+   ],
+   "src": "L1620-1622"
+  },
+  "c1o1": {
+   "text": "The wind carries the lanterns out across the lagoon in a long, glittering line, faster than anyone has ever seen them go. They float right out past the reef, all of them, a river of tiny lights on the dark sea, until they're lost among the stars. Nobody speaks for a long time. Then someone starts the old song, and everyone joins in.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L1631"
+  },
+  "c1o2": {
+   "text": "A gust swings round and blows half the lanterns back up the beach, and one of them lands on a roof. The thatch catches. Everyone runs for water, and the fire is out in minutes, but two roofs are scorched black. The next day the village patches them together, and someone paints a little lantern over each patch. \"We'll remember this one,\" says the elder who wanted to wait. The elder doesn't say \"I told you so.\" The elder doesn't have to.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L1634"
+  },
+  "c1": {
+   "text": "The whole village gathers at the water's edge, and one by one the little lanterns are lit and set on the water. The wind catches them...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1628"
+  },
+  "c2o1": {
+   "text": "The lanterns drift out slowly on the still water, every one of them, and their reflections hang beneath them so there seem to be twice as many. The children, who sulked for two days, are speechless. Someone's grandmother says it's the most beautiful lantern night she's seen in seventy years, and she's seen a lot of them.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L1640"
+  },
+  "c2o2": {
+   "text": "The waiting does something to the village. For three days everyone keeps thinking about who they'll be floating a lantern for, and talking about them, and telling stories. When the night comes, it feels less like a festival and more like a long, quiet conversation. Afterwards, even the people who always kept away from village gatherings find they want to be among everyone.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "crowds",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L1643"
+  },
+  "c2": {
+   "text": "The children groan, but (name) holds firm. They wait, one night, two nights, and on the third, the wind drops to nothing and the lagoon is flat as glass...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1637"
+  }
+ }
+}

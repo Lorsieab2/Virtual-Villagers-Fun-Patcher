@@ -29,7 +29,9 @@ MAX_LINE_CHARS = 180
 # 1,000 since 2026-11-11: the Default Patches guide must name every default-off patch, and the list grew past 900;
 # 1,100 since 2026-11-12, when the two Island Events Scale patches joined that list; 1,150 since 2026-11-12, when
 # Scrolling Popups joined it; 1,200 the same day, when The Aspiring Adventurer (More Island Events) joined it.
-MAX_GUIDE_CHARS = 1200
+# 1,250 since 2026-11-16, when the island event controls (Content Notes, the Content Filters, No Safeguards for Island
+# Events) joined it.
+MAX_GUIDE_CHARS = 1250
 
 
 @dataclass(frozen=True)

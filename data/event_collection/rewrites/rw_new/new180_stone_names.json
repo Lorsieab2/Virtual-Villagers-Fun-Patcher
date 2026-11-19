@@ -1,0 +1,255 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone of Names",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new180_stone_names",
+  "source": "rewrites",
+  "lines": [
+   8723,
+   8768
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8723",
+  "ledger": [
+   {
+    "src": "L8724",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8725",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8733",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8740",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8747",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8729",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8730",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8731",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8734",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8741",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8748",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8735",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8737",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8742",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8744",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8749",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8751",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8754-8768",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The weather has worn the oldest names down to shallow scratches.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the edge of the village stands the carved stone bearing the names of the ancestors: the first villagers, and their children, and their children's children, down through the years.\nIt is very old. The weather has worn the oldest names down to shallow scratches. Moss fills the rest, soft and green, hiding whole lines.\nFamilies come by often now, tracing the marks with their fingers, trying to find their own great-grandparents. Some of them find nothing, and walk away quietly. (Name) watched a child do it this morning, searching and searching, and then ask (his/her) mother, \"Are we not on it?\" How can (name) make sure every family is remembered?",
+   "choices": [
+    {
+     "label": "Trace the Last Clear Names",
+     "next": "c1",
+     "src": "L8729"
+    },
+    {
+     "label": "Ask the Families Who Remember",
+     "next": "c2",
+     "src": "L8730"
+    },
+    {
+     "label": "Carve a New Stone Beside It",
+     "next": "c3",
+     "src": "L8731"
+    }
+   ],
+   "src": "L8726-8728"
+  },
+  "c1o1": {
+   "text": "Working slowly, (name) takes rubbings of every clear name, and in the process, studies how the old carvers cut their lines: deep and angled, so the rain runs off instead of pooling. It's useful knowledge, preserved, and every carving in the village is done that way from then on. The rubbings go into the record hut, safe.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8736"
+  },
+  "c1o2": {
+   "text": "Scrubbing off the moss in one corner, (name) feels the stone give under (his/her) brush. A crumbling corner chips away, and falls in pieces on the grass, and a fragile part of the stone is lost: four names, maybe five, gone. (Name) kneels there for a long time, holding the pieces.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L8738"
+  },
+  "c1": {
+   "text": "(Name) brings charcoal and thin bark, and begins, very carefully, to scrub the moss away and take rubbings of the names...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8734"
+  },
+  "c2o1": {
+   "text": "The families' memories, put together, reveal something nobody had noticed: the names weren't carved randomly, or by family. They were carved in order of arrival, the first ones to come to the village at the top. It's a detail that had been overlooked, and suddenly the stone makes sense. The child from this morning finds (his/her) family's name near the bottom. \"We were LATE,\" (he/she) says, delighted.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8743"
+  },
+  "c2o2": {
+   "text": "The families disagree about whose names are whose. Two families claim the same name. A third claims it's a spelling mistake. Nobody pretends to know. It gets heated for a while, and then everyone goes home a little sad, still unsure.",
+   "src": "L8745"
+  },
+  "c2": {
+   "text": "(Name) invites every family to come to the stone, and share whatever they remember about the names...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8741"
+  },
+  "c3o1": {
+   "text": "The village carves a new stone with every name that can still be read or remembered, and leaves room at the bottom for the names to come. It takes a whole season. When it's done, every family in the village is on it, including the child's. It's a careful record for future generations, and (name)'s carving skills grow tremendously in the making of it.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L8750"
+  },
+  "c3o2": {
+   "text": "In the end, (name) decides that some names should be left to the moss, and to the memories of their families. Not everything needs to be carved again. (He/She) cleans the stone gently, and leaves it as it is, and plants flowers at its base.",
+   "src": "L8752"
+  },
+  "c3": {
+   "text": "(Name) proposes a new stone, carved fresh, beside the old one, with every name that can still be read or remembered...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8748"
+  }
+ }
+}

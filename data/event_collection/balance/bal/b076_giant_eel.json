@@ -1,0 +1,213 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Giant Eel",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b076_giant_eel",
+  "source": "balance",
+  "lines": [
+   3431,
+   3472
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3431",
+  "ledger": [
+   {
+    "src": "L3432",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3433",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3441",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3450",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3438",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3439",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3442",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3451",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3444",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3447",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3453",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3456",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3459-3472",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Something has been stealing fish from the traps at the river mouth.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 16
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Something has been stealing fish from the traps at the river mouth. This morning (name) finds out what: a moray eel as thick as a man's leg, coiled in the biggest trap, with a mouth full of teeth that the fishers say \"could take a hand off without noticing.\"\nThe trap is the village's best, three seasons in the making. (Name) can try to open it and let the eel out, carefully, or leave the eel in and go back for help, which means the eel will probably wreck the trap getting out on its own.\nWhat should (name) do?",
+   "choices": [
+    {
+     "label": "Open the Trap Carefully",
+     "next": "c1",
+     "src": "L3438"
+    },
+    {
+     "label": "Go Back for Help",
+     "next": "c2",
+     "src": "L3439"
+    }
+   ],
+   "src": "L3434-3436"
+  },
+  "c1o1": {
+   "text": "The lashing comes loose, and the eel lunges, and catches (name)'s hand on the way out. The healers save the hand, but two fingers are gone, and the hand never grips the way it did. (Name) learns to tie knots a new way, slowly, with help from a fisher who lost fingers the same way long ago. (He/She) doesn't go near the traps again. (He/She) makes the best fish hooks in the village instead.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "fish",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L3445"
+  },
+  "c1o2": {
+   "text": "The eel lunges free, and (name) steps back sharply, onto the slick rocks of the river mouth, and goes down into the fast water. The current takes (him/her) out past the rocks before anyone can reach (him/her). The fishers find (him/her) down the beach that evening. The village buries (name) by the river mouth, and the fishers move the traps upstream, to quieter water.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L3448"
+  },
+  "c1": {
+   "text": "(Name) wades in and reaches for the lashing at the end of the trap, keeping (his/her) other hand well away. The eel's head turns, slowly, to follow (his/her) fingers...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3442"
+  },
+  "c2o1": {
+   "text": "The oldest fisher shows (name) the trick: a forked pole behind the eel's head, a quick twist of the lashing, and a hard shove, and the eel is out and gone in a swirl of mud, and the trap is whole. (Name) practises the trick all season, and gets so good at it, and at everything that goes with it, that the young fishers come to (him/her) to learn.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L3454"
+  },
+  "c2o2": {
+   "text": "The eel bursts out through the side of the trap just as they arrive, and is gone. Three seasons of work, wrecked. (Name) stands in the shallows looking at it, and something goes out of (him/her). The fishing that (he/she) loved now just makes (him/her) think of that broken trap. (He/She) fishes when (he/she) has to, and finds (his/her) joy elsewhere.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "fish",
+     "role": "subject"
+    }
+   ],
+   "src": "L3457"
+  },
+  "c2": {
+   "text": "(Name) backs away and runs for the village. By the time (he/she) comes back with four fishers and a long pole, the eel is thrashing in the trap, and the trap is creaking...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3451"
+  }
+ }
+}

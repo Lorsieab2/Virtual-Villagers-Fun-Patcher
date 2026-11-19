@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lightning Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b083_lightning_stone",
+  "source": "balance",
+  "lines": [
+   3748,
+   3789
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3748",
+  "ledger": [
+   {
+    "src": "L3749",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3750",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3758",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3767",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3755",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3756",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3759",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3768",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3761",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3764",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3770",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3773",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3776-3789",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "On the hill above the village stands a tall black stone that lightning strikes every few years.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On the hill above the village stands a tall black stone that lightning strikes every few years. The elders say the lightning leaves something of itself in the stone each time, and that whoever touches the stone during a storm \"gets struck twice, once on each side.\"\nA storm is coming in fast, and (name) is caught on the hill, right beside the stone, with the sky turning purple overhead. The air is buzzing. (His/Her) hair is starting to stand on end.\nShould (name) hold onto the stone to steady (himself/herself), or run for the trees?",
+   "choices": [
+    {
+     "label": "Hold Onto the Stone",
+     "next": "c1",
+     "src": "L3755"
+    },
+    {
+     "label": "Run for the Trees",
+     "next": "c2",
+     "src": "L3756"
+    }
+   ],
+   "src": "L3751-3753"
+  },
+  "c1o1": {
+   "text": "When (name) opens (his/her) eyes, there's someone on the other side of the stone with (his/her) arms wrapped round it too, (his/her) face, (his/her) hair standing up just the same. The lightning struck twice, once on each side, and left two of them. The newcomer is (name) exactly, and takes the name (made1), and they both have singed eyebrows for a month.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L3762"
+  },
+  "c1o2": {
+   "text": "The lightning goes through the stone and into (name). The villagers who find (him/her) carry (him/her) down the hill unconscious, with burns branching across (his/her) arms like the roots of a tree. (He/She) lives, and heals slowly. The marks never fade, and (his/her) hands are never steady again, and (he/she) keeps well away from fires. (He/She) shows the marks to the children, who think they're beautiful, and in a way they are.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L3765"
+  },
+  "c1": {
+   "text": "(Name) wraps (his/her) arms round the cold black stone and shuts (his/her) eyes. There's a flash so bright (he/she) sees it through (his/her) eyelids, and a crack like the sky breaking...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3759"
+  },
+  "c2o1": {
+   "text": "In the trees, (name) finds someone sitting against a trunk, panting, with (his/her) own face. The flash threw (his/her) shadow so hard it came loose and kept running, and it has (name)'s shape and nothing else of (him/her): different likes, different gifts, a terrible fear of storms. It takes the name (made1).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L3771"
+  },
+  "c2o2": {
+   "text": "(Name) reaches the trees and lies flat in the leaves while the storm goes over, counting between flashes and thunder like (his/her) grandmother taught (him/her). When it's over, (he/she) walks home with (his/her) hair still standing straight up. It stays that way for two days.",
+   "src": "L3774"
+  },
+  "c2": {
+   "text": "(Name) runs. Behind (him/her), the lightning hits the stone with a crack that knocks (him/her) flat. (His/Her) shadow, thrown out long by the flash, seems to keep running without (him/her)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3768"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "fire",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

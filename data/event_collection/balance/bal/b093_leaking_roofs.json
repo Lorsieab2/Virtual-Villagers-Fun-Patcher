@@ -1,0 +1,244 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Leaking Roofs",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b093_leaking_roofs",
+  "source": "balance",
+  "lines": [
+   4202,
+   4244
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4202",
+  "ledger": [
+   {
+    "src": "L4203",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4204",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4212",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4221",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4209",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4210",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4213",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4222",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4215",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4218",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4224",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4227",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4230-4244",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L4228",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "The rains have come early and hard, and half the roofs in the village are leaking.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The rains have come early and hard, and half the roofs in the village are leaking. (builder) wants everyone up on the roofs now, in the rain, patching. (subject), who loves the rain more than anyone, has been out dancing in it all morning and is the only one already soaked.\n(builder) hands (subject) a bundle of thatch. \"You're wet anyway,\" (builder.he/she) says. \"Up you go.\"\nShould (subject) climb up and patch, or go round with buckets and catch the leaks inside?",
+   "choices": [
+    {
+     "label": "Climb Up and Patch",
+     "next": "c1",
+     "src": "L4209"
+    },
+    {
+     "label": "Go Round with Buckets",
+     "next": "c2",
+     "src": "L4210"
+    }
+   ],
+   "src": "L4205-4207"
+  },
+  "c1o1": {
+   "text": "Roof after roof, all afternoon, (subject) and (builder) patch and tie and patch again, while the rain pours. By nightfall every hut in the village is dry. (subject) climbs down, soaked to the bone, and goes straight back out to dance in the puddles. (builder) just shakes (builder.his/her) head.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L4216"
+  },
+  "c1o2": {
+   "text": "By the eighth roof, (subject) is cold to the bone, and the rain has gone from wonderful to miserable. By the twelfth, (subject.he/she) never wants to feel another drop. The roofs get fixed, but (subject) spends the rest of the season indoors whenever it rains, wrapped in a blanket. \"I've had enough rain,\" (subject.he/she) says, \"for the rest of my life.\"",
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L4219"
+  },
+  "c1": {
+   "text": "(subject) scrambles up onto the first roof. The rain hammers down, the thatch is slippery, and the wind keeps trying to snatch the bundle out of (subject.his/her) hands...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4213"
+  },
+  "c2o1": {
+   "text": "The buckets save the sleeping mats and the stored food. When the rain finally stops, the whole village climbs up together and patches every roof in a single bright morning. (subject) finds that the plinking of the buckets has given (subject.him/her) an idea for a drum, and builds one out of three bowls.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L4225",
+   "text_only": [
+    {
+     "src": "L4225",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "There aren't enough buckets in the village. By the time the rain stops, the food store has been dripping for hours, and a good deal of it is soggy. The roofs get patched the next day, and (builder) says nothing about it, quite pointedly.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L4228"
+  },
+  "c2": {
+   "text": "(subject) grabs every bowl and bucket in the village and goes hut to hut, setting them under the drips. The huts fill with the plink and plonk of water...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4222"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "rain",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

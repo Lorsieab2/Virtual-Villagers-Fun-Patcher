@@ -1,0 +1,325 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dusty Season",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new159_dusty_season",
+  "source": "rewrites",
+  "lines": [
+   7681,
+   7736
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7681",
+  "ledger": [
+   {
+    "src": "L7682",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7683",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7692",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7699",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7706",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7713",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7687",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7688",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7689",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7690",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7693",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7700",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7707",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7714",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7694",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7696",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7701",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7703",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7708",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7710",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7715",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7717",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7720-7736",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Dry winds have been blowing for days, carrying fine red dust from who-knows-where.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Dry winds have been blowing for days, carrying fine red dust from who-knows-where. It gets into everything. The tools. The food baskets. The sleeping mats. The inside of everyone's ears.\nEvery meal crunches. The water tastes of grit. Everyone's hair has turned the same shade of rusty red.\nEven the children have stopped complaining, because every time they open their mouths to complain, dust gets in. (Name), the storehouse keeper, is staring at the storehouse door with deep foreboding. How can (name) protect the stores, and the village, from the dust?",
+   "choices": [
+    {
+     "label": "Seal the Food Baskets",
+     "next": "c1",
+     "src": "L7687"
+    },
+    {
+     "label": "Check on the Coughing Neighbours",
+     "next": "c2",
+     "src": "L7688"
+    },
+    {
+     "label": "Track Where the Dust Comes From",
+     "next": "c3",
+     "src": "L7689"
+    },
+    {
+     "label": "Shake Out Every Mat and Tool",
+     "next": "c4",
+     "src": "L7690"
+    }
+   ],
+   "src": "L7684-7686",
+   "text_only": [
+    {
+     "src": "L7684",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "Quick work seals the baskets, and at the very back of the storehouse, behind everything, (name) finds a forgotten bundle of dried fruit, still perfectly clean, wrapped tight in leaves by someone long ago. It adds a little food to the stores, and (name) feels like (he/she) found treasure.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7695"
+  },
+  "c1o2": {
+   "text": "Despite everything, dust gets into one basket that someone left unsealed, and turns the food inside into red, gritty paste. It's ruined, and has to be thrown out. (Name) says some words the children aren't supposed to hear.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7697"
+  },
+  "c1": {
+   "text": "(Name) gets to work sealing every basket in the storehouse with big leaves and sticky sap...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7693"
+  },
+  "c2o1": {
+   "text": "Everyone is accounted for. Families tie damp cloths over their faces and share clean water, and the coughing eases. The village looks like a gathering of very polite bandits, and the children think it's the best game ever.",
+   "src": "L7702"
+  },
+  "c2o2": {
+   "text": "Half-blinded by a sudden gust of blowing dust, (name) trips over a digging stick someone left lying on the path, and falls hard, gashing (his/her) knee open on a stone. The healer has to clean the dust out of the wound and see to it, and (he/she) will be limping for a while.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L7704"
+  },
+  "c2": {
+   "text": "Half the village is coughing. (Name) goes from hut to hut checking on everyone...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7700"
+  },
+  "c3o1": {
+   "text": "After a few days, it's clear: the dust only blows in when the wind comes from the volcano side of the island. It's a useful pattern for knowing when to cover the stores, and from then on, whenever the wind turns toward the volcano, (name) seals everything up.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7709"
+  },
+  "c3o2": {
+   "text": "The dust seems to come from everywhere at once, filling every bowl equally. (Name) decides to wait for more evidence, and in the meantime, keeps everything covered all the time.",
+   "src": "L7711"
+  },
+  "c3": {
+   "text": "(Name) sets out bowls of water all around the village, and watches which ones get dusty first, and when...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7707"
+  },
+  "c4o1": {
+   "text": "Workers clean and cover the tools, mats and storehouse before nightfall, and enormous red clouds of dust billow up from every hut. That night, for the first time in days, dinner doesn't crunch.",
+   "src": "L7716"
+  },
+  "c4o2": {
+   "text": "Every spare basket is emptied out to use as a cover for something else, and the food that was inside them has to be eaten early or thrown out, leaving less in the stores. The tools, at least, are spotless.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7718"
+  },
+  "c4": {
+   "text": "(Name) declares a cleaning day. Everyone hauls everything out of the huts and starts shaking, beating and wiping...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7714"
+  }
+ }
+}

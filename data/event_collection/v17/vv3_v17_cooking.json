@@ -135,6 +135,14 @@
     {
      "next": "u"
     }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8227"
+    }
    ]
   },
   "set_b": {

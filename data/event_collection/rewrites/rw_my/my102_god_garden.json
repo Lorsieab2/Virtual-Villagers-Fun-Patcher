@@ -1,0 +1,297 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Little God of the Garden",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my102_god_garden",
+  "source": "rewrites",
+  "lines": [
+   15788,
+   15843
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15788",
+  "ledger": [
+   {
+    "src": "L15789",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15790",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15798",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15805",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15812",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15819",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15793",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15794",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15795",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15796",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15799",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15806",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15813",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15820",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15800",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15802",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15807",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15809",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15814",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15816",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15821",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15823",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15826-15843",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Then, one morning, another villager goes out to water the beans and stops.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Little (subject) has been insisting for weeks that a tiny person lives under the leaves of the vegetable garden and protects it from slugs. Nobody believed (subject.him/her). Then, one morning, (friend) goes out to water the beans and stops.\nIn the soft soil between the rows are footprints. Tiny ones, no bigger than a fingertip, pressed neatly into the earth and walking in a line between the beans, all the way to the water barrel. (subject) is standing at the end of the row, arms folded, looking extremely smug. (friend) doesn't know what to believe. How should (subject.he/she) respond?",
+   "choices": [
+    {
+     "label": "Watch Quietly",
+     "next": "c1",
+     "src": "L15793"
+    },
+    {
+     "label": "Leave a Small Offering",
+     "next": "c2",
+     "src": "L15794"
+    },
+    {
+     "label": "Ask the Child to Explain",
+     "next": "c3",
+     "src": "L15795"
+    },
+    {
+     "label": "Protect the Garden",
+     "next": "c4",
+     "src": "L15796"
+    }
+   ],
+   "src": "L15791-15792"
+  },
+  "c1o1": {
+   "text": "As the sun goes down, the leaves rustle, and out hops... a little brown frog, with very long, very spread-out toes, which leave very small, very neat footprints in the soil all the way to the water barrel. It sits on the rim of the barrel and glares at them, extremely annoyed to be discovered. (subject) is heartbroken for about a breath, and then decides the frog is the little god's helper. The frog is given a name and a little dish of water of its own.",
+   "src": "L15801"
+  },
+  "c1o2": {
+   "text": "They watch until the stars come out. Nothing appears. But in the morning, the tiny footprints are back, and this time they stop at the foot of the water barrel, beside a minute clay cup, no bigger than a thumbnail, filled to the brim with water. Neither of them has ever seen it before. Neither of them made it. (subject) is beside (subject.himself/herself) with joy. (friend) is not quite sure what (subject.he/she) is feeling.",
+   "src": "L15803"
+  },
+  "c1": {
+   "text": "That evening, (friend) and little (subject) lie on their stomachs at the edge of the garden, hidden behind the squash leaves, and wait, as still and quiet as two people can be when one of them is very excited...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15799"
+  },
+  "c2o1": {
+   "text": "In the morning, the offering is gone. All of it, the berry, the crumb and the petal, without a trace. And over the following weeks, the garden does better than it ever has: the beans climb higher, the squash grow fatter, and not one slug is seen all season. The harvest is the best the family has ever had. (subject) leaves an offering every evening from then on. (friend) helps, and does not ask too many questions.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L15808"
+  },
+  "c2o2": {
+   "text": "In the morning, the offering is still there, untouched, except for one ant investigating the honey cake. (subject)'s lip trembles. (friend) kneels down beside (subject.him/her). \"Maybe the little god just wasn't hungry,\" (subject.he/she) says. \"Or maybe the little god doesn't need proof that we're grateful. Maybe just knowing is enough.\" (subject) thinks about this for a very long time. Then (subject.he/she) decides it is a very good answer, and gives the berry to the ant.",
+   "src": "L15810"
+  },
+  "c2": {
+   "text": "\"Well,\" (friend) says, \"if there is a little god looking after our garden, we should say thank you.\" (subject) is thrilled. Together they set a single berry, a crumb of honey cake and a flower petal on a leaf at the end of the bean row...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15806"
+  },
+  "c3o1": {
+   "text": "(subject) takes a deep breath, and out it all comes. The little guardian is about the size of a thumb, wears a hat made from a shiny green beetle shell, loves worms more than anything, dances when it rains, and sings to the seeds every night so they know to grow. \"And (subject.he/she) doesn't like the cat,\" (subject) adds darkly. It is such a wonderful story that (friend) tells it to the whole village that evening, and soon every child on the island is looking for little gods in their gardens.",
+   "src": "L15815"
+  },
+  "c3o2": {
+   "text": "(subject)'s smug look wavers. Then (subject.he/she) bursts into guilty tears, and pulls a small twig out of (subject.his/her) pocket, carved at one end into the shape of a tiny foot. \"I made the footprints,\" (subject.he/she) sobs. \"Nobody believed me. I just wanted you to believe me.\" (friend) hugs (subject.him/her) tight. \"You know what? I still believe there might be one,\" (subject.he/she) says. \"But next time, just ask me to look harder.\" (subject) sniffles, and keeps the twig.",
+   "src": "L15817"
+  },
+  "c3": {
+   "text": "(friend) sits (subject) down on an upturned bucket. \"All right. Tell me everything. Who is this little god, and what does (subject.he/she) do?\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15813"
+  },
+  "c4o1": {
+   "text": "It is a good thing they do. Two nights after the fence is finished, a pair of hungry wild pigs come snuffling around the garden in the dark, but cannot get through. In the morning their hoofprints circle the whole fence, and not a single plant has been touched. The neighbours, whose gardens have no such fence, are not so lucky. (subject) insists the little god warned them. (friend) is starting to think (subject.he/she) might be right.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L15822"
+  },
+  "c4o2": {
+   "text": "The fence is mended, the season passes, and the garden grows well enough. No pigs come. No more tiny footprints appear. No little god is ever seen. (subject) grows a little older, and stops talking about it, and starts helping with the weeding instead. But years later, grown up, (subject.he/she) still leaves one berry at the end of the bean row every harvest. Just in case.",
+   "src": "L15824"
+  },
+  "c4": {
+   "text": "Little god or no little god, the footprints have reminded (friend) that the garden fence is falling apart. The next morning, (subject.he/she) and (subject) start fixing it, post by post...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15820"
+  }
+ }
+}

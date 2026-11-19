@@ -1,0 +1,302 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Man at the Storm Gate",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my074_man_storm_gate",
+  "source": "rewrites",
+  "lines": [
+   14165,
+   14220
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14165",
+  "ledger": [
+   {
+    "src": "L14166",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14167",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14175",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14182",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14189",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14196",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14170",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14171",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14172",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14173",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14176",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14183",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14190",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14197",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14177",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14179",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14184",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14186",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14191",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14193",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14198",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14200",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14203-14220",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The storm hits at midday and does not let up.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The storm hits at midday and does not let up. Rain slants sideways, the palms thrash and howl, and everyone is huddled inside, praying the roofs hold. Peering out through the gap in the door, (name) sees someone standing at the village gate: a bent old man, perfectly still in the gale, his long white hair blowing straight back. He leans on a walking stick carved with a jagged bolt of lightning.\nWhen he sees (name), he raises his voice over the roar of the wind. \"May I wait out the storm beneath your roof?\" Behind him, the sky flashes white. Should (name) let a stranger in, in the middle of a storm like this?",
+   "choices": [
+    {
+     "label": "Invite Him In",
+     "next": "c1",
+     "src": "L14170"
+    },
+    {
+     "label": "Offer a Blanket Outside",
+     "next": "c2",
+     "src": "L14171"
+    },
+    {
+     "label": "Demand He Leave",
+     "next": "c3",
+     "src": "L14172"
+    },
+    {
+     "label": "Ask About the Stick",
+     "next": "c4",
+     "src": "L14173"
+    }
+   ],
+   "src": "L14168-14169"
+  },
+  "c1o1": {
+   "text": "No sooner is he dry than a gust tears one corner of the roof loose, and rain pours in. Before anyone can move, the old man is on his feet. \"Rope! There, and there! Tie it to the post, not the beam!\" He knows exactly where every rope should go, and climbs the ladder more nimbly than anyone half his age, lashing the roof down while the younger villagers stare. By the time the storm blows itself out, not a single roof in the village has been lost. In the morning, the old man is gone.",
+   "src": "L14178"
+  },
+  "c1o2": {
+   "text": "The old man sits quietly by the fire all night, nodding along to the villagers' stories and laughing at their jokes. When the storm finally passes at dawn, he thanks everyone kindly and sets off down the road. Where he sat, he has left a large bundle wrapped in leaves: dried fish, dried fruit and hard little cakes of nuts and honey, far more food than one old man could ever have carried. Nobody saw him put it there.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L14180"
+  },
+  "c1": {
+   "text": "\"Come in, come in, quickly!\" (Name) dashes out into the rain, takes the old man's arm and hurries him under the communal roof, where the villagers make room for him by the fire...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14176"
+  },
+  "c2o1": {
+   "text": "\"Thank you,\" the old man says, smiling with real warmth. \"That's very kind.\" He hobbles to the shelter of the big fig tree beside the gate, wraps himself up, and settles down to wait. In the morning, the storm has passed, the old man is gone, and the blanket is folded neatly on (name)'s doorstep, completely dry, even though it rained all night.",
+   "src": "L14185"
+  },
+  "c2o2": {
+   "text": "The old man thanks (name) and shuffles off toward the trees. A moment later there is a blinding flash and a deafening CRACK, and every villager hits the floor. When they peer out, the old stump beside the gate has been split clean in two by lightning, still smoking, the smell of burnt wood hanging in the rain. The old man is nowhere to be seen. The villagers spend the rest of the storm talking in low voices about that carved lightning bolt.",
+   "src": "L14187"
+  },
+  "c2": {
+   "text": "(Name) is not comfortable letting a stranger in, but cannot leave him out in the wind with nothing. (He/she) runs out with a thick blanket and wraps it around the old man's shoulders...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14183"
+  },
+  "c3o1": {
+   "text": "He has barely disappeared from sight when a monstrous gust howls through the village. With a shriek of tearing thatch, half the roof of the food store is ripped away and flung into the trees. Rain pours in on the baskets inside. By the time the villagers manage to cover them, a good portion of the stored food is soaked and ruined. Some of the villagers say it was just the storm. Others look at (name) in a way (he/she) does not much like.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L14192"
+  },
+  "c3o2": {
+   "text": "The storm blows through and passes without doing any real damage. A few days later, a trader comes through and mentions, in passing, that an old man with a lightning stick spent the storm in the next village down the coast. \"Lovely fellow. Fixed their roof, told them stories all night. They were sad to see him go.\" (Name) says nothing, but (he/she) feels quite small for the rest of the day.",
+   "src": "L14194"
+  },
+  "c3": {
+   "text": "\"We've no room for strangers!\" (name) shouts over the wind. \"Go on, find somewhere else!\" The old man looks at (him/her) for a long moment, then nods, and turns away into the rain...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14190"
+  },
+  "c4o1": {
+   "text": "\"This?\" he chuckles, ducking under the roof as (name) waves him in. \"I carved it myself, the year a storm like this one sank my canoe and washed me up on a strange beach. I lost everything that day. And then I met my wife on that beach.\" He smiles fondly at the carving. \"So I keep the storm with me. It was the worst day of my life, and the best.\" The villagers listen to his stories until the wind dies down.",
+   "src": "L14199",
+   "text_only": [
+    {
+     "src": "L14199",
+     "what": "\"dies\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c4o2": {
+   "text": "The old man looks down at the carving as though seeing it for the first time. \"The lightning?\" he says. \"It was there before I was born.\" He says nothing more, and the storm keeps on raging, and the lightning keeps flashing, and every time it does, (name) could swear the carving on the stick flashes too. In the morning he is gone, and the storm with him.",
+   "src": "L14201"
+  },
+  "c4": {
+   "text": "Before (name) decides anything, (his/her) curiosity gets the better of (him/her). \"That carving on your stick,\" (he/she) shouts through the rain. \"What is it?\" The old man lifts the stick, and lightning flashes behind him as if on cue...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14197"
+  }
+ }
+}

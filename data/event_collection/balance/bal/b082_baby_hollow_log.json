@@ -1,0 +1,196 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Baby in the Hollow Log",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b082_baby_hollow_log",
+  "source": "balance",
+  "lines": [
+   3702,
+   3744
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3702",
+  "ledger": [
+   {
+    "src": "L3703",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3704",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3712",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3721",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3709",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3710",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3713",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3722",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3715",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3718",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3724",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3727",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3730-3744",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Out on the reef there's a broken outrigger, and nothing else.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "After the great wind, a hollow log has washed up on the beach, the kind that people on the other islands use as a shelter on long canoe trips. (subject) hears crying from inside it, and finds a baby, wrapped in bark cloth, wedged safe in the hollow with a gourd of milk tied beside the little one.\nOut on the reef there's a broken outrigger, and nothing else. The fishers search, and find no one.\nThe baby has stopped crying and is chewing (subject)'s finger. What should (subject) do?",
+   "choices": [
+    {
+     "label": "Take the Baby Home",
+     "next": "c1",
+     "src": "L3709"
+    },
+    {
+     "label": "Take the Baby to the Healers",
+     "next": "c2",
+     "src": "L3710"
+    }
+   ],
+   "src": "L3705-3707"
+  },
+  "c1o1": {
+   "text": "Whoever wedged the baby in that log did it to keep the little one safe, and it worked. Nobody ever comes looking. (subject) keeps the baby, and keeps the log, too, dragged up into the shade beside (subject.his/her) hut, where the child plays inside it for years.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L3716"
+  },
+  "c1o2": {
+   "text": "(friend) is asleep when they come in, and wakes to a baby being put in (friend.his/her) arms. \"What,\" says (friend), and then the baby grabs (friend.his/her) nose, and that's the end of the argument. They raise the baby together, and nobody ever comes looking.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L3719"
+  },
+  "c1": {
+   "text": "(subject) carries the baby home tucked inside (subject.his/her) wrap. By the time (subject.he/she) gets there, half the village is following, asking questions (subject.he/she) can't answer...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3713"
+  },
+  "c2o1": {
+   "text": "\"You found the baby,\" says the oldest healer. \"And the baby seems to have chosen. Look at that grip.\" (subject) goes home with the baby, a basket of cloths and a great deal of advice. Nobody comes looking. The baby never lets go of (subject)'s finger for long.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L3725"
+  },
+  "c2o2": {
+   "text": "The healers keep the baby in the healers' hut until a family can be found, and in a week, a couple who have been hoping for a child take the baby in. (subject) visits often. The baby always reaches for (subject.his/her) finger.",
+   "src": "L3728"
+  },
+  "c2": {
+   "text": "The healers check the baby over: well fed, a little cold, perfectly healthy. Then they all look at (subject), who hasn't let go of the baby's foot...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3722"
+  }
+ }
+}

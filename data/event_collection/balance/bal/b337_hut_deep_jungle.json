@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hut in the Deep Jungle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b337_hut_deep_jungle",
+  "source": "balance",
+  "lines": [
+   15572,
+   15612
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15572",
+  "ledger": [
+   {
+    "src": "L15573",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15574",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15581",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15590",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15578",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15579",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15582",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15591",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15584",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15587",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15593",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15596",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15599-15612",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Deep in the jungle, where nobody goes, a villager has found a hut.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Deep in the jungle, where nobody goes, (name) has found a hut. It is old and overgrown, with vines through the walls and a tree growing out of the roof. But there is smoke coming from it, and the sound of a baby crying. Nobody from the village lives out here.\n(Name) has a basket of wild yams and a long way to walk home before dark. Should (he/she) knock on the door, or hurry back to the village and bring the elders?",
+   "choices": [
+    {
+     "label": "Knock on the Door",
+     "next": "c1",
+     "src": "L15578"
+    },
+    {
+     "label": "Bring the Elders",
+     "next": "c2",
+     "src": "L15579"
+    }
+   ],
+   "src": "L15575-15576"
+  },
+  "c1o1": {
+   "text": "Inside, the fire is burning low, and a baby lies on a mat beside it, wrapped in leaves. There is nobody else. No footprints, no belongings, nothing but the fire and the baby. (Name) waits until the fire burns out, and nobody comes. (He/She) carries the baby home. When the elders go back the next week to look, the hut has fallen in completely, as if it had been empty for a hundred years.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L15585"
+  },
+  "c1o2": {
+   "text": "A young (man/woman) opens the door, holding a baby, frightened. (His/Her) partner is lying on a mat, feverish. They ran away from a village on the far coast after a quarrel, and got lost, and found this hut. (Name) gives them the yams, and the next morning brings help. The partner recovers, and the little family moves into the village, where nobody asks about the quarrel.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L15588"
+  },
+  "c1": {
+   "text": "(Name) pushes through the vines and knocks. The crying stops. The door creaks open on its own...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15582"
+  },
+  "c2o1": {
+   "text": "Inside are a young couple and their baby, who have been living in the ruin for a month. The builders take one look at the hut, with its tree through the roof, and insist on bringing the family back to the village. While they're at it, the builders mend every leaking roof in the village, so the newcomers won't think the whole place falls down.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L15594"
+  },
+  "c2o2": {
+   "text": "By the time they arrive, the smoke has stopped and the hut is empty, cold and dark, with dead leaves on the floor that look as if they've lain there for years. The elders look at (name) strangely. \"It was crying,\" (name) says. \"I heard it.\" The elders believe (him/her). That's what worries them.",
+   "src": "L15597"
+  },
+  "c2": {
+   "text": "(Name) hurries home through the jungle and brings back three elders and two builders. It's nearly dark when they reach the hut...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15591"
+  }
+ }
+}

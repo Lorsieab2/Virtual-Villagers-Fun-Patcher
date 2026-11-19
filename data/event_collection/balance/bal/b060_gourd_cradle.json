@@ -1,0 +1,204 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gourd Cradle on the River",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b060_gourd_cradle",
+  "source": "balance",
+  "lines": [
+   2706,
+   2748
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2706",
+  "ledger": [
+   {
+    "src": "L2707",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2708",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2716",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2725",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2713",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2714",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2717",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2726",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2719",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2722",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2728",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2731",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2734-2748",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "After the heavy rains, the river is high and brown and fast.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "After the heavy rains, the river is high and brown and fast. (subject) is watching it from the bank when something comes bobbing down: a big hollowed gourd, tied shut with vine, with a small face peering out of a hole in the side. A baby. The gourd is spinning, heading for the rapids below the village.\nThere's a fallen log reaching halfway across the river. (subject) could climb out on it and grab the gourd as it passes. Or (subject.he/she) could run downstream, past the rapids, to the calm pool where the river slows, and hope the gourd makes it through.\nWhat should (subject) do?",
+   "choices": [
+    {
+     "label": "Climb Out on the Log",
+     "next": "c1",
+     "src": "L2713"
+    },
+    {
+     "label": "Run to the Calm Pool",
+     "next": "c2",
+     "src": "L2714"
+    }
+   ],
+   "src": "L2709-2711"
+  },
+  "c1o1": {
+   "text": "(subject) gets a hand on the vine as the gourd spins past, and holds on, and drags it to the bank. Inside, the baby is wet and angry and fine. Whoever put the baby in the gourd must have been caught by the flood upriver, and wanted the baby to float to safety. Nobody comes down the river after it. (subject) takes the baby home, and keeps the gourd, cleaned and polished, as the baby's first cradle.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2720"
+  },
+  "c1o2": {
+   "text": "(subject) grabs the gourd and nearly goes in after it, and (friend), who has come running, grabs (subject)'s ankle just in time. The three of them end up in a heap on the muddy bank, the baby laughing for the first time. Nobody comes looking. \"Well,\" says (friend), wiping the mud off the baby's nose, \"I suppose we're keeping (subject.him/her).\" They are.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2723"
+  },
+  "c1": {
+   "text": "(subject) edges out along the slippery log, the brown water roaring underneath, and lies flat, arm out, as the gourd comes spinning towards (subject.him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2717"
+  },
+  "c2o1": {
+   "text": "The gourd comes out of the rapids spinning and bobbing, and floats right into (subject)'s arms. An hour later, two exhausted people come stumbling down the riverbank, covered in mud. Their hut was swept away upriver, and they had put the baby in the gourd to save the baby while they swam. They cry, and laugh, and hold the baby, and don't let go. They decide to stay.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L2729"
+  },
+  "c2o2": {
+   "text": "The gourd floats into (subject)'s arms, and the baby inside is cold and quiet. (subject) runs all the way to the healers, who warm the baby by the fire until the little one is pink and screaming again. When the river goes down, the elders send word upriver, and a cousin of the baby's family comes to fetch the little one home. (subject) gets to say goodbye.",
+   "src": "L2732"
+  },
+  "c2": {
+   "text": "(subject) runs, slipping in the mud, along the bank, past the roaring rapids, to where the river widens into a brown, slow pool. (subject.He/She) wades in up to (subject.his/her) chest and waits...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2726"
+  }
+ }
+}

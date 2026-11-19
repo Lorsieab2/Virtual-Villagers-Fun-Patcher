@@ -1,0 +1,227 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tree Remembers",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "s028_tree_remembers",
+  "source": "rewrites",
+  "lines": [
+   1305,
+   1349
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1305",
+  "ledger": [
+   {
+    "src": "L1306",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1307",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1315",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1324",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1312",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1313",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1316",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1325",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1318",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1321",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1327",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1330",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1333-1349",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager wakes up with a gasp.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has been working in the shade of the Tree of Life all afternoon, and sometime after lunch, (he/she) sits down against its roots for a rest and falls fast asleep. The bark against (his/her) back is warm, warm as skin, and the leaves overhead whisper like a crowd waiting for a story to start.\nIn (his/her) dream, the Tree shows (him/her) things. Every season it has ever lived through, one after another, faster and faster: storms and droughts, floods and fires, the first people coming up the beach, villages rising and falling, a thousand harvests, a thousand winters.\n(Name) wakes up with a gasp. There are leaves in (his/her) hair, and (his/her) head is full of things (he/she) never knew before, all crowding to get out. Should (he/she) rush to write it all down before it fades, or stay and thank the Tree?",
+   "choices": [
+    {
+     "label": "Write It All Down",
+     "next": "c1",
+     "src": "L1312"
+    },
+    {
+     "label": "Thank the Tree",
+     "next": "c2",
+     "src": "L1313"
+    }
+   ],
+   "src": "L1308-1310"
+  },
+  "c1o1": {
+   "text": "(Name) grabs the nearest sheet of bark and starts writing, and doesn't stop. (He/She) fills one scroll, then another, then another, faster than the researchers can bring them. Rainfall over a thousand years. Which years the fruit failed, and why. Where the river used to run. The researchers read over (his/her) shoulder in growing amazement. They understand almost half of it, which is still more than they've learned in years. When (name) finally puts down the charcoal, it's dawn, and the floor is covered in scrolls. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "skill",
+     "min": 20,
+     "max": 30,
+     "skills": [
+      "Research"
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L1319"
+  },
+  "c1o2": {
+   "text": "By the time (name) finds a stick of charcoal and a scrap of bark that isn't already written on, most of it has gone, the way dreams go: one moment it's all there, and the next there's just a feeling. (He/She) sits in the research hut with the empty bark in front of (him/her), close to tears. All that's left is one thing, which stays with (him/her), very clear and very strong: an opinion about soil. Where it's good, where it's tired, what it needs. It turns out to be a very useful opinion, and the farmers are delighted with it.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 20,
+     "max": 30,
+     "skills": [
+      "Farming"
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L1322"
+  },
+  "c1": {
+   "text": "(Name) leaps up and runs for the research hut, holding (his/her) head with both hands as if it might spill. Everything is fading already, like a dream does, and (he/she) has to get it down before it's gone...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1316"
+  },
+  "c2o1": {
+   "text": "The leaves rustle, though there is no wind, and a single fruit drops into (name)'s lap. That's all. (Name) carries it home and shares it with (his/her) family, and it's the sweetest thing any of them has ever tasted. That season, the Tree's fruit is especially sweet and especially plentiful, so heavy that the branches bend. The elders say they haven't seen a harvest like it in years. (Name) doesn't say anything, but (he/she) knows. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L1328"
+  },
+  "c2o2": {
+   "text": "The Tree seems pleased. A single drop of its dark, old sap gathers on the bark above (name)'s head, swells, and falls, right onto (his/her) lips. It tastes of earth and rain and time. With it, it seems, comes a little of the Tree's own age. (Name) wakes the next morning with silver threads in (his/her) hair and lines at the corners of (his/her) eyes, ten years older than (he/she) went to sleep. And with a great calm in (his/her) heart, and a steadiness in (his/her) hands at (his/her) work, that (he/she) never had before.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      10,
+      10
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L1331"
+  },
+  "c2": {
+   "text": "(Name) doesn't move. (He/She) turns round, very slowly, presses both hands flat against the warm bark and bows (his/her) head. \"Thank you,\" (he/she) says. The whole Tree seems to shiver, from the roots to the topmost leaves...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1325"
+  }
+ }
+}

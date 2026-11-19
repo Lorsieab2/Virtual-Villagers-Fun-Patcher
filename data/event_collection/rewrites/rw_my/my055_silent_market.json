@@ -1,0 +1,291 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Silent Market Stall",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my055_silent_market",
+  "source": "rewrites",
+  "lines": [
+   13060,
+   13115
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13060",
+  "ledger": [
+   {
+    "src": "L13061",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13062",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13071",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13078",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13085",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13092",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13066",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13067",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13068",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13069",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13072",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13079",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13086",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13093",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13073",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13075",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13080",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13082",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13087",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13089",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13094",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13096",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13099-13115",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Overnight, a market stall has appeared at the edge of the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Overnight, a market stall has appeared at the edge of the village. It's made of driftwood and woven palm, with its wares laid out on a red cloth: little glass bottles, carved wooden boxes, tiny figures of birds and fish. A small bell hangs from the roof, without a clapper.\nThere's no merchant in sight. No sign, no prices, nothing. Just the goods, waiting. A small crowd has gathered, but nobody wants to be the first to touch anything. (Name) is standing closest. What should (he/she) do?",
+   "choices": [
+    {
+     "label": "Trade for a Bottle",
+     "next": "c1",
+     "src": "L13066"
+    },
+    {
+     "label": "Choose a Wooden Box",
+     "next": "c2",
+     "src": "L13067"
+    },
+    {
+     "label": "Wait for the Merchant",
+     "next": "c3",
+     "src": "L13068"
+    },
+    {
+     "label": "Leave the Goods Untouched",
+     "next": "c4",
+     "src": "L13069"
+    }
+   ],
+   "src": "L13063-13064"
+  },
+  "c1o1": {
+   "text": "The bottle holds a fragrant golden oil that smells of flowers and honey. The healers test a drop and are delighted: it's wonderful for soothing cracked, sore skin. Within a week, every fisher with chapped hands is begging (name) for a dab. When the bottle runs dry, the healers try very hard to copy it, but never quite manage.",
+   "src": "L13074"
+  },
+  "c1o2": {
+   "text": "The moment (name) picks it up, the clear liquid inside turns cloudy, swirling grey like a storm in a jar. (Name) watches it swirl for a moment, then sets it carefully aside. (He/She) isn't about to put that on (his/her) skin. Or in (his/her) mouth. Or anywhere. It sits on a shelf, cloudy forever.",
+   "src": "L13076"
+  },
+  "c1": {
+   "text": "(Name) leaves a handful of shells on the red cloth, as fair payment, and picks up one of the little bottles...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13072"
+  },
+  "c2o1": {
+   "text": "Inside is a bundle of preserved herbs, dried and tied with grass, still fragrant: wild ginger, lemon leaf and something peppery nobody recognizes. The cooks are thrilled. They add a pinch to everything for weeks, and the village eats better than it has in ages. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L13081"
+  },
+  "c2o2": {
+   "text": "Inside is a single folded piece of bark with a message on it. (Name) unfolds it, and goes cold. It's written in (his/her) own handwriting. Unmistakably. The message says: \"You already know.\" (Name) has no memory of writing it. (He/She) has no idea what (he/she) already knows. (He/She) keeps the note anyway, folded in (his/her) pocket, and takes it out to read sometimes.",
+   "src": "L13083"
+  },
+  "c2": {
+   "text": "(Name) leaves a few shells and picks up one of the little carved boxes. It's light. Something inside shifts as (he/she) turns it...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13079"
+  },
+  "c3o1": {
+   "text": "After a while, an elderly traveler comes hobbling up the path with an armful of fresh wares. \"Oh! Customers!\" The old one explains that (he/she) set up before sunrise, then wandered off to find breakfast, and lost track of time chatting with some fishers. (He/She) is very pleased to have someone waiting, and gives (name) a little carved fish for (his/her) patience.",
+   "src": "L13088"
+  },
+  "c3o2": {
+   "text": "(Name) waits all morning. The merchant doesn't come. Around midday, thirsty, (name) gets up to fetch water from the well, just for a moment. When (he/she) comes back, the stall is gone: the driftwood, the palm, the red cloth, the bottles, the boxes, all of it. There's not even a mark on the ground where it stood.",
+   "src": "L13090"
+  },
+  "c3": {
+   "text": "(Name) sits down beside the stall to wait. Surely the merchant will be back soon...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13086"
+  },
+  "c4o1": {
+   "text": "By evening, the stall is gone. No one saw anyone take it down. No one saw a merchant come or go. There's not a single trace that it was ever there, except the memory of it, which the villagers discuss endlessly over supper.",
+   "src": "L13095"
+  },
+  "c4o2": {
+   "text": "By evening, the stall is gone. But lying on the ground where it stood is a small carved bird, apparently forgotten. It's carved from pale wood, with a tiny beak and closed eyes, and it fits neatly in the palm. (Name) picks it up. It feels as though it was left there on purpose. (He/She) keeps it by (his/her) bed.",
+   "src": "L13097"
+  },
+  "c4": {
+   "text": "(Name) decides that goods without an owner aren't goods (he/she) wants to take. (He/She) tells the others to leave the stall alone...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13093"
+  }
+ }
+}

@@ -1,0 +1,274 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Smoked Fish Contest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b347_smoked_fish",
+  "source": "balance",
+  "lines": [
+   16021,
+   16062
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L16021",
+  "ledger": [
+   {
+    "src": "L16022",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16023",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16030",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16039",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16027",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16028",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16031",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16040",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16033",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16036",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16042",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16045",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16048-16062",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager's secret is to use green coconut husks, which make a sweet smoke.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "cook": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(cook), the head cook, has always smoked the village's fish, and has always said that nobody else does it right. This year (subject) has challenged (subject.him/her) to a contest: each of them will smoke a basket of fish in their own way, and the village will taste both and choose.\n(subject)'s secret is to use green coconut husks, which make a sweet smoke. (cook) uses ironwood chips, the way the elders always did. Should (subject) stick to the coconut husks, or use ironwood too and try to do it better?",
+   "choices": [
+    {
+     "label": "Coconut Husks",
+     "next": "c1",
+     "src": "L16027"
+    },
+    {
+     "label": "Ironwood, But Better",
+     "next": "c2",
+     "src": "L16028"
+    }
+   ],
+   "src": "L16024-16025"
+  },
+  "c1o1": {
+   "text": "The village tastes both, and chooses (subject)'s, by a lot. (cook) tastes it too, and goes very quiet. \"It's better,\" (subject.he/she) says, at last. From then on (subject) smokes the fish, and (cook), who has cooked for the village for twenty years, finds the cooking fire has lost its joy for (subject.him/her). (subject.He/She) doesn't say so. Everyone can see it.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 15,
+     "max": 15,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L16034"
+  },
+  "c1o2": {
+   "text": "(subject)'s fish taste wonderful the first day and strange the second, and by the third they've gone soft and sticky. (cook)'s ironwood fish keep for a month. The village chooses (cook)'s. (subject) takes it well, and (cook) takes it even better, and shows (subject) the trick with the ironwood, just once.",
+   "src": "L16037"
+  },
+  "c1": {
+   "text": "(subject) smokes (subject.his/her) fish over the green husks all day, turning them carefully. The smoke is white and sweet and drifts all over the village...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16031"
+  },
+  "c2o1": {
+   "text": "The village can't decide. Both baskets are perfect. In the end, (subject) and (cook) smoke the next batch together, side by side, arguing the whole time, and it's the best smoked fish the village has ever had. The two of them smoke so much fish together that the racks are full for a month. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L16043"
+  },
+  "c2o2": {
+   "text": "The herbs catch fire, the smoke turns black, and (subject)'s whole basket of fish comes out tasting like a burnt sandal. (subject) eats one anyway, to prove a point, and is ill all night. (cook) wins without trying. After that, (subject) can't look at food of any kind without remembering the taste of that fish.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L16046",
+   "text_only": [
+    {
+     "src": "L16046",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(subject) uses ironwood chips like (cook), but adds a handful of dried herbs to the fire, and keeps the smoke low and slow...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16040"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "cook",
+     "remove": true,
+     "like": "cooking"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "eating",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

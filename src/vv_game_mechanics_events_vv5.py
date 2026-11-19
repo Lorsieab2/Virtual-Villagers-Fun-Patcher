@@ -220,10 +220,14 @@ EVENTS = (
         "\"Research potions that kill aphids\": noni cut to 50 if above.")),
     # The Defector: "Accept the heathen" 0x416988 (the coin is rolled with the condition, at 0x416902); the Faith
     # setter SetFaith 0x467F90 converts them and keeps the 20.
+    # Fix Vanilla Bugs: the picker's minimum age 0x118 (14 years) in the condition's pick, as Outreach?'s envoy
+    # (data/builds.json vv5_fix_vanilla_bugs, offset 0x1690E).
     Event("The Defector", "needs a living Heathen who is not sick", (
         "\"Accept the heathen\": 50.05% a genuine defector -- Faith set to 20, so they join the tribe and keep "
         "the 20 (a convert is raised to 55 only when given less than 5); 49.95% a spy -- -2,000 tech points.",
-        "\"Better not\": nothing changes.")),
+        "\"Better not\": nothing changes."),
+        patched=(("vv5_fix_vanilla_bugs", "the Heathen is 14 or more, like the envoy in Outreach? (in the normal "
+                                          "game any age, a child too)"),)),
     # The Straw Hat: "Wear it" 0x416A38; "Use it as a cooking strainer" 0x416A56.
     Event("The Straw Hat", f"needs {BELIEVER}", (
         "\"Wear it\": Devotion +35.",

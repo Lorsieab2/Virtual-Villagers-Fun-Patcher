@@ -1,0 +1,280 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Guest with the Old Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my112_guest_old_song",
+  "source": "rewrites",
+  "lines": [
+   16368,
+   16423
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L16368",
+  "ledger": [
+   {
+    "src": "L16369",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16370",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16378",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16385",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16392",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16399",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16373",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16374",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16375",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16376",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16379",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16386",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16393",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16400",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16380",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16382",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16387",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16389",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16394",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16396",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16401",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16403",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16406-16423",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "And the visitor keeps going.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A visitor sits by the fire one evening and asks (name), politely, if (he/she) would sing one of the old village songs. (Name) picks the oldest one (he/she) knows, the canoe song that every child learns, and starts to sing. The visitor joins in. (He/she) knows every word, in a voice that is old and clear and very lovely.\nThen they reach the place where the song always stops, where everyone in the village has always stopped, because that is all there is. And the visitor keeps going. Another verse. One nobody has ever heard. The fire crackles. Everyone at the fire has gone completely silent. Should (name) keep singing?",
+   "choices": [
+    {
+     "label": "Sing Together",
+     "next": "c1",
+     "src": "L16373"
+    },
+    {
+     "label": "Ask Where They Learned It",
+     "next": "c2",
+     "src": "L16374"
+    },
+    {
+     "label": "Offer Hospitality",
+     "next": "c3",
+     "src": "L16375"
+    },
+    {
+     "label": "Refuse to Sing",
+     "next": "c4",
+     "src": "L16376"
+    }
+   ],
+   "src": "L16371-16372"
+  },
+  "c1o1": {
+   "text": "The lost verse is about the very first canoe that reached Isola: who paddled it, what they carried, and what they saw when they first set foot on the sand. It fits the song so perfectly that once it has been sung, nobody can imagine the song without it. The children learn it within a day. The elders weep when they hear it. From that night on, the canoe song is always sung all the way through, and the village feels, somehow, a little more complete.",
+   "src": "L16381"
+  },
+  "c1o2": {
+   "text": "Halfway through the new verse, the visitor's voice breaks. (He/she) stops singing and puts (his/her) face in (his/her) hands. \"I'm sorry,\" (he/she) says, when (he/she) can speak. \"This song belonged to my family. My grandmother sang it to me every night. I thought everyone who knew it was gone.\" (Name) puts an arm around (his/her) shoulders. Then (he/she) starts the song again, from the beginning, and this time the whole fire sings it with them.",
+   "src": "L16383"
+  },
+  "c1": {
+   "text": "(Name) catches the tune, stumbles over the unfamiliar words, then finds them, and sings along with the visitor into the new verse, while the whole fire listens...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16379"
+  },
+  "c2o1": {
+   "text": "\"My grandfather taught me,\" the visitor says. \"He came from this village, long ago, before he married and moved across the water. He used to sing it to me in the evenings and tell me about the big fire and the canoe races. I always wanted to come and see it.\" (He/she) smiles around at the faces in the firelight. \"It's exactly how he said.\" The oldest elder, it turns out, remembers the grandfather, and the two of them talk until dawn.",
+   "src": "L16388"
+  },
+  "c2o2": {
+   "text": "The visitor smiles. \"I heard it sung,\" (he/she) says, \"before there was a village here.\" Nobody laughs. The visitor does not look old enough to have heard anything from that long ago, and does not look young enough to be joking. (He/she) simply goes on looking into the fire, humming the new verse softly to (himself/herself). In the morning, (he/she) is gone, and nobody can agree on what (he/she) looked like.",
+   "src": "L16390"
+  },
+  "c2": {
+   "text": "When the last note fades, (name) asks, quietly, \"Where did you learn that verse? Nobody here knows it.\" The visitor looks into the fire...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16386"
+  },
+  "c3o1": {
+   "text": "The visitor stays for a whole season. Every evening, (he/she) sits with the village children by the fire and teaches them the old songs, not just the lost verse, but songs nobody in the village has sung in generations: harvest songs, fishing songs, a lullaby, a very silly song about a crab. When (he/she) finally leaves, the children walk (him/her) to the edge of the village singing every one of them. They never forget them.",
+   "src": "L16395"
+  },
+  "c3o2": {
+   "text": "The visitor stays the night, and leaves at dawn. Later that day, (name) tries to describe (him/her) to someone who was not at the fire, and finds (he/she) cannot. Not the face, not the hair, not the height. Nobody who was there can, either. Every one of them remembers the voice, and the new verse, perfectly. But the face is simply gone, as if it had never been seen at all.",
+   "src": "L16397"
+  },
+  "c3": {
+   "text": "\"You must stay with us,\" (name) says. \"Please. At least for a few days.\" The visitor hesitates, then accepts with a little bow...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16393"
+  },
+  "c4o1": {
+   "text": "\"Of course,\" the visitor says gently. \"Songs should only be sung when they want to be.\" (He/she) thanks everyone at the fire, picks up (his/her) things, and walks off into the night. The fire is quieter after (he/she) leaves. Nobody sings anything else that evening. And nobody in the village ever learns how the canoe song was meant to end.",
+   "src": "L16402"
+  },
+  "c4o2": {
+   "text": "The visitor gets up and walks away into the dark, humming as (he/she) goes. It is the lost verse. The tune drifts back over the fields long after the visitor is out of sight, faint and clear on the night wind. By morning, half the village is humming it without realizing. Nobody knows the words. But every child born that year falls asleep to that tune, and nobody can remember who taught it to their mothers.",
+   "src": "L16404"
+  },
+  "c4": {
+   "text": "(Name) stops singing, uneasy. \"I'm sorry,\" (he/she) says, \"I don't think I want to sing any more tonight.\" The visitor nods, unoffended...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16400"
+  }
+ }
+}

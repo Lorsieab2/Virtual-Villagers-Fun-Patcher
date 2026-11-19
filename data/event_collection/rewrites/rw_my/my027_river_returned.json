@@ -1,0 +1,305 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The River's Returned Gift",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my027_river_returned",
+  "source": "rewrites",
+  "lines": [
+   11408,
+   11463
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11408",
+  "ledger": [
+   {
+    "src": "L11409",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11410",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11419",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11426",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11433",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11440",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11414",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11415",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11416",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11417",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11420",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11427",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11434",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11441",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11421",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11423",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11428",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11430",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11435",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11437",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11442",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11444",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11447-11463",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "This morning, on a flat stone just above the waterline, lies the very same tool.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject)'s favourite digging tool finally snapped in half yesterday, and in a fit of temper, (subject.he/she) flung both pieces into the river. Then (subject.he/she) went home and sulked about it all evening.\nThis morning, on a flat stone just above the waterline, lies the very same tool. Only it isn't broken anymore. It's whole, and polished, and shining as if it had just been made, with a fresh new edge and a handle smoothed to a soft gleam. (subject) looks up and down the river. Nobody's there. The river is low and green and says nothing. What should (subject) do?",
+   "choices": [
+    {
+     "label": "Use the Returned Tool",
+     "next": "c1",
+     "src": "L11414"
+    },
+    {
+     "label": "Study the Workmanship",
+     "next": "c2",
+     "src": "L11415"
+    },
+    {
+     "label": "Leave a Thank-You Gift",
+     "next": "c3",
+     "src": "L11416"
+    },
+    {
+     "label": "Watch the River at Night",
+     "next": "c4",
+     "src": "L11417"
+    }
+   ],
+   "src": "L11411-11412"
+  },
+  "c1o1": {
+   "text": "It works beautifully. Better than beautifully. It slides through the hardest soil like a knife through ripe fruit, and its edge never seems to dull. (subject) digs up more roots in a day than (subject.he/she) usually does in a week. Soon the other gatherers are fighting over whose turn it is, and the baskets are fuller than they've been all season. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11422"
+  },
+  "c1o2": {
+   "text": "On (subject.his/her) very first swing, there's a loud crack, and (subject) is left holding half a handle again. Broken in exactly the same place as before. (subject) stares at the pieces in disbelief. Everyone who's gathered to watch is terribly disappointed. (subject) does not throw it in the river this time. (subject.He/She) just sits down on the bank with the pieces in (subject.his/her) lap.",
+   "src": "L11424"
+  },
+  "c1": {
+   "text": "(subject) picks up the tool, weighs it in (subject.his/her) hand, and heads out to the gardens to give it a try...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11420"
+  },
+  "c2o1": {
+   "text": "\"Look at this shine,\" (friend) breathes. \"Sand, then ash, then... some kind of oil, rubbed in with leather.\" It takes days of experimenting, but at last (friend) manages to copy the finish on an old axe handle, and it gleams just the same. Soon the whole village's tools are polished, smooth, and far less likely to give anyone splinters. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11429"
+  },
+  "c2o2": {
+   "text": "On the underside of the handle, (friend) finds a row of small marks scratched into the wood, neat and deliberate, like a signature. Nobody recognizes them. Not the carvers, not the elders, not the researchers. The marks weren't there before (subject) threw it in the river. (subject) is quite sure of that.",
+   "src": "L11431"
+  },
+  "c2": {
+   "text": "(subject) takes the tool to (friend), the village's best craftsperson, who turns it over and over in the sunlight, muttering...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11427"
+  },
+  "c3o1": {
+   "text": "In the morning, the gift is gone. In its place is a single pebble, perfectly round and striped with pale bands like a tiny moon. (subject) keeps it in (subject.his/her) pocket from then on, and every so often takes it out and turns it over, thinking about the river.",
+   "src": "L11436"
+  },
+  "c3o2": {
+   "text": "The gift sits there for days. The fruit gets eaten by ants, the shell gets crusted with dried mud, and in the end (subject) quietly collects what's left and takes it home. Whoever fixed the tool apparently doesn't need thanking. Or doesn't like fruit.",
+   "src": "L11438"
+  },
+  "c3": {
+   "text": "Just to be polite, (subject) leaves a little bundle of fruit and a pretty shell on the flat stone where the tool was, and says thank you to the river, feeling slightly silly...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11434"
+  },
+  "c4o1": {
+   "text": "Around midnight, mist rises off the water, and a figure appears on the far bank. It's too dark to see a face. The figure stands perfectly still for a moment, then slowly raises one hand toward (subject), as if in greeting, or farewell. Then the mist thickens, and when it clears, the far bank is empty. (subject) never tells anyone except (subject.his/her) closest friend, who doesn't laugh.",
+   "src": "L11443"
+  },
+  "c4o2": {
+   "text": "Just after dusk, (friend), an old fisher from the village, comes shuffling along the bank with a net, sees (subject) in the reeds, and goes red to the ears. \"Oh. You've found me out.\" (friend) had seen the broken pieces floating past the day before, fished them out, and spent the whole night mending the tool as a quiet kindness, too shy to hand it over in person. (subject) hugs (friend) so hard (friend.he/she) drops (friend.his/her) net.",
+   "src": "L11445"
+  },
+  "c4": {
+   "text": "(subject) hides in the reeds by the river after dark, determined to catch whoever, or whatever, mended (subject.his/her) tool...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11441"
+  }
+ }
+}

@@ -1,0 +1,206 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lantern Night",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b171_lantern_night",
+  "source": "balance",
+  "lines": [
+   7911,
+   7954
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7911",
+  "ledger": [
+   {
+    "src": "L7912",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7913",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7921",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7930",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7918",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7919",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7922",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7931",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7924",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7927",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7933",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7936",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7939-7954",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager have made theirs with great care.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On Lantern Night, every couple in the village makes a little floating lantern from a coconut shell, with a candle of fish oil inside, and sets it out on the lagoon. The elders say that if a couple's lantern drifts out through the gap in the reef before it goes out, a baby will follow it home before the year is over.\n(subject) and (friend) have made theirs with great care. (friend) carved a turtle on the side. Now it is bobbing on the black water with a hundred others, and a breeze has come up, and their lantern has drifted into a tangle of seaweed near the shore and stuck there, flickering.\nShould they wade in and free it, or leave it to the breeze?",
+   "choices": [
+    {
+     "label": "Wade In and Free It",
+     "next": "c1",
+     "src": "L7918"
+    },
+    {
+     "label": "Leave It to the Breeze",
+     "next": "c2",
+     "src": "L7919"
+    }
+   ],
+   "src": "L7914-7916"
+  },
+  "c1o1": {
+   "text": "The lantern sails straight out across the lagoon, ahead of all the others, and through the gap in the reef, still burning. The whole beach cheers. Before the year is out, (subject) is pregnant. (friend) carves another turtle on the cradle. Nobody laughs about the wading any more.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L7925"
+  },
+  "c1o2": {
+   "text": "(friend)'s push sends the lantern out, and it bumps two other lanterns loose on the way, and all three go out through the gap together, bobbing side by side. Within the year (subject) is pregnant, and when the time comes, (subject) is expecting {#babies:a baby|twins|triplets}. \"{#babies:One lantern of ours, and only one baby, fair|The lantern took a friend|The lantern took two friends},\" says (friend).",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "role": "subject"
+    }
+   ],
+   "src": "L7928"
+  },
+  "c1": {
+   "text": "(friend) wades in up to (friend.his/her) waist, holding the shell up out of the seaweed, and gives it a little push towards the gap. Everyone on the beach is watching. Some of them are laughing...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7922"
+  },
+  "c2o1": {
+   "text": "Just before midnight the breeze turns, and lifts the lantern out of the seaweed, and carries it across the lagoon and through the gap, the very last one. The candle is almost out. A few months later, (subject) is pregnant. \"Last, but it got there,\" says (friend).",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L7934"
+  },
+  "c2o2": {
+   "text": "The lantern burns down in the seaweed and goes out. (subject) is quiet on the walk home. (friend) says it doesn't mean anything, and that there's always next year. In the morning, the lantern has washed up on their doorstep somehow, turtle and all, and (subject) keeps it for next year.",
+   "src": "L7937"
+  },
+  "c2": {
+   "text": "\"It's not meant to be helped,\" says (subject). They sit on the sand holding hands and watch their lantern flicker in the seaweed, while the others drift out one by one...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7931"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L7928",
+   "before": "{#babies:One lantern of ours, and only one baby. Fair|The lantern took a friend|The lantern took two friends}",
+   "after": "{#babies:One lantern of ours, and only one baby, fair|The lantern took a friend|The lantern took two friends}"
+  }
+ ]
+}

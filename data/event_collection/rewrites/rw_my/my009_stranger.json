@@ -1,0 +1,305 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger at the Crossroads",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my009_stranger",
+  "source": "rewrites",
+  "lines": [
+   10346,
+   10401
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10346",
+  "ledger": [
+   {
+    "src": "L10347",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10348",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10357",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10364",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10371",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10378",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10352",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10353",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10354",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10355",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10358",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10365",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10372",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10379",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10359",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10361",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10366",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10368",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10373",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10375",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10380",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10382",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10385-10401",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "You'll be taking the left-hand path, the traveler says pleasantly, before a villager has said a word.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) is heading out on a long errand when (he/she) reaches the place where three paths divide. There, leaning on a staff wrapped in faded red cord, stands a traveler in a plain cloak that smells of salt, though the sea is half a day away.\n\"You'll be taking the left-hand path,\" the traveler says pleasantly, before (name) has said a word. That's exactly the path (name) meant to take. (Name) hasn't told a soul. The traveler just smiles, waiting, as if this happens every day. What should (name) do?",
+   "choices": [
+    {
+     "label": "Ask for Directions",
+     "next": "c1",
+     "src": "L10352"
+    },
+    {
+     "label": "Ask the Stranger's Name",
+     "next": "c2",
+     "src": "L10353"
+    },
+    {
+     "label": "Share the Journey",
+     "next": "c3",
+     "src": "L10354"
+    },
+    {
+     "label": "Take Another Path",
+     "next": "c4",
+     "src": "L10355"
+    }
+   ],
+   "src": "L10349-10350"
+  },
+  "c1o1": {
+   "text": "\"Take the middle path,\" the traveler says. \"Cross at the shallows. Not the bridge.\" (Name) does as (he/she) is told, grumbling about the longer walk. On the way home, (he/she) passes the end of the usual route and sees the old rope bridge hanging in tatters over the brown, rushing river, torn loose sometime that morning. (Name) sits down on a rock for a while before walking on.",
+   "src": "L10360"
+  },
+  "c1o2": {
+   "text": "\"Go right,\" the traveler says, with a twinkle. \"You'll want a bigger basket.\" The right-hand path winds down into a hidden valley where the mango trees are so heavy with fruit their branches touch the ground. (Name) has to make three trips to carry it all home. When (he/she) goes back to thank the traveler, the crossroads is empty. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10362"
+  },
+  "c1": {
+   "text": "\"Well, since you seem to know where I'm going,\" (name) says slowly, \"is there a better way?\" The traveler taps the staff thoughtfully against a stone...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10358"
+  },
+  "c2o1": {
+   "text": "The traveler gives a name. (Name) knows it. It's the name of a villager who died many, many years ago, a name on an old grave at the edge of the village. \"That can't be,\" (name) whispers. The traveler only smiles and walks off down the right-hand path. (Name) checks the grave that evening. It's still there, mossy and quiet, and that's somehow worse.",
+   "src": "L10367"
+  },
+  "c2o2": {
+   "text": "The traveler laughs and gives a perfectly ordinary name. \"I trade salt between the coastal villages. Half the people on this island take the left path to reach the river, you know. Lucky guess.\" (Name) feels a bit silly. They chat about the price of salt for a while, and then go their separate ways.",
+   "src": "L10369"
+  },
+  "c2": {
+   "text": "\"Who are you?\" (name) asks. \"How do you know where I'm going?\" The traveler bows...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10365"
+  },
+  "c3o1": {
+   "text": "They swap stories for miles. The traveler is funny and kind and knows every bird by its call. At a bend in the road, the traveler says, \"This is where I leave you,\" and steps around the corner. (Name) follows a moment later. The road behind the bend is soft, wet mud, smooth and unmarked. There's no one there, and not a single footprint.",
+   "src": "L10374"
+  },
+  "c3o2": {
+   "text": "By the end of the walk, the traveler has asked (name) a hundred questions about the village: the huts, the farms, the research, the children. \"It sounds like a good place,\" the traveler says. \"Do you think they'd have me?\" They would. The traveler moves into the village that same week, and nobody ever does find out how (he/she) knew which path (name) would take.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L10376"
+  },
+  "c3": {
+   "text": "\"If we're going the same way, we may as well walk together,\" (name) says. The traveler seems pleased, and they set off side by side...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10372"
+  },
+  "c4o1": {
+   "text": "The right-hand path is a bit longer and a bit muddier, but (name) gets where (he/she) is going and back without trouble. (He/She) never sees the traveler again. Nobody else in the village ever did see (him/her).",
+   "src": "L10381"
+  },
+  "c4o2": {
+   "text": "The right-hand path splits, and splits again, and soon (name) has no idea where (he/she) is. (He/She) wanders in circles all night, tripping over roots and scraping (his/her) shins, and finally limps back into the village at dawn, exhausted, scratched and soaking wet. \"Should have taken the left,\" someone says. (Name) does not find this funny.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L10383"
+  },
+  "c4": {
+   "text": "(Name) doesn't like being predicted. Just to be stubborn, (he/she) turns on (his/her) heel and takes the right-hand path instead...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10379"
+  }
+ }
+}

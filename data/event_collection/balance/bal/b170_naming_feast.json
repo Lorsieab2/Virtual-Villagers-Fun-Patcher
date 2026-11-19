@@ -1,0 +1,201 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Naming Feast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b170_naming_feast",
+  "source": "balance",
+  "lines": [
+   7864,
+   7907
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7864",
+  "ledger": [
+   {
+    "src": "L7865",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7866",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7874",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7883",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7871",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7872",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7875",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7884",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7877",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7880",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7886",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7889",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7892-7907",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "This year, the elders have decided that a villager has earned one.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Once a generation the village holds a Naming Feast, where anyone who has done something the village will remember can be given a new name to go with it. This year, the elders have decided that (subject) has earned one. Nobody is quite sure what for. (elder) says it was \"the business with the pig,\" and won't explain.\nAt the feast, the elders sit in a row with a bowl of shells, each one with a name scratched on it. (subject) is to pick one without looking. Or (subject.he/she) can stand up and tell the village what name (subject.he/she) wants, which is allowed, but which nobody has done in living memory.\nShould (subject) pick a shell, or choose (subject.his/her) own name?",
+   "choices": [
+    {
+     "label": "Pick a Shell",
+     "next": "c1",
+     "src": "L7871"
+    },
+    {
+     "label": "Choose (subject.His/Her) Own Name",
+     "next": "c2",
+     "src": "L7872"
+    }
+   ],
+   "src": "L7867-7869"
+  },
+  "c1o1": {
+   "text": "(subject) holds it up, and (elder) reads it out: (made1). The whole village cheers and shouts it three times, and the drums start up. (made1) wears the shell round (subject.his/her) neck on a string from then on. It is a good name. It suits (subject.him/her). Everyone says so, and keeps saying so, which helps.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L7878"
+  },
+  "c1o2": {
+   "text": "(elder) reads it out, and the elders fall about laughing. The shell says \"Kayak,\" which was the name of the {@chief}'s old pig. Someone put it in the bowl as a joke, because of the business with the pig. By the rules of the feast, a name drawn is a name kept. (subject) is Kayak now. After a few days of being cross about it, (subject.he/she) decides (subject.he/she) quite likes it, and so does everyone else.",
+   "effects": [
+    {
+     "do": "change_name",
+     "name": "Kayak",
+     "role": "subject"
+    }
+   ],
+   "src": "L7881"
+  },
+  "c1": {
+   "text": "(subject) closes (subject.his/her) eyes and puts (subject.his/her) hand in the bowl. The shells are cool and clink together. (subject.His/her) fingers close on one that feels warmer than the rest...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7875"
+  },
+  "c2o1": {
+   "text": "(subject) says the name (subject.he/she) has been thinking of for years: Ginger, after the ginger root that grows by the stream. The elders confer for a long time. Then they nod. \"It's allowed,\" says (elder). \"It's just never done.\" The village cheers. Ginger is very happy, and very glad (subject.he/she) didn't draw a pig.",
+   "effects": [
+    {
+     "do": "change_name",
+     "name": "Ginger",
+     "role": "subject"
+    }
+   ],
+   "src": "L7887"
+  },
+  "c2o2": {
+   "text": "The elders confer, and confer, and in the end decide that it might be allowed, but they'd need to ask the last person who did it, who died a hundred years ago. So (subject) keeps (subject.his/her) old name. The feast goes on anyway, and it is a very good feast, and nobody ever does explain about the pig.",
+   "src": "L7890"
+  },
+  "c2": {
+   "text": "(subject) stands up. The drums stop. Everyone stares. \"I'd like to choose,\" (subject.he/she) says, and (subject.his/her) voice only shakes a little. (elder) raises one eyebrow very high, and nods...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7884"
+  }
+ }
+}

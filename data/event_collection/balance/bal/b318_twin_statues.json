@@ -1,0 +1,196 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Twin Statues on the Headland",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b318_twin_statues",
+  "source": "balance",
+  "lines": [
+   14728,
+   14768
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14728",
+  "ledger": [
+   {
+    "src": "L14729",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14730",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14737",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14746",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14734",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14735",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14738",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14747",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14740",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14743",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14749",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14752",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14755-14768",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "On the headland stand two old stone statues of the same person, side by side, worn smooth by centuries of wind.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On the headland stand two old stone statues of the same person, side by side, worn smooth by centuries of wind. The elders say a sculptor carved them long ago, one of herself and one of her sister, and that they stood so long looking at each other that they forgot which was which. Lately the children say a third statue has appeared beside them: a rough, unfinished one, with (name)'s face.\n(Name) has gone up to see. It's true. A half-carved block of stone with (his/her) own face is standing next to the twins. Should (name) knock it down, or finish carving it?",
+   "choices": [
+    {
+     "label": "Knock It Down",
+     "next": "c1",
+     "src": "L14734"
+    },
+    {
+     "label": "Finish Carving It",
+     "next": "c2",
+     "src": "L14735"
+    }
+   ],
+   "src": "L14731-14732"
+  },
+  "c1o1": {
+   "text": "Where it cracks, the stone falls away like a shell, and someone sits up out of it, dusty and blinking: someone with (name)'s face, and none of (name)'s ways. \"That hurt,\" it says, rubbing its head. \"Couldn't you have waited?\" It follows (name) home, takes the name (made1), and spends a long time complaining about being knocked over.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L14741"
+  },
+  "c1o2": {
+   "text": "It's just stone, and it breaks in two. (Name) rolls the pieces off the headland into the sea and goes home feeling a little guilty. A week later, the children report that the twin statues seem to be turned slightly away from each other now, facing the spot where the third stood. Nobody can prove it.",
+   "src": "L14744"
+  },
+  "c1": {
+   "text": "(Name) puts (his/her) shoulder to the rough statue and pushes. It rocks, tips, and falls over in the grass with a thud. A crack runs right down the middle of it...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14738"
+  },
+  "c2o1": {
+   "text": "On the day (name) finishes the last curl of hair, the statue blinks. Then it steps down off its base, warm and breathing, exactly (name) in every way. And as it steps down, {#made:the twin statues stay still, worn and quiet|one of the old twins, as if not wanting to be left out, steps down too, with (name)'s face as well}. The village names {#made:the newcomer (made1)|them (made1) and (made2)}. (Name) puts away the chisel for good.",
+   "effects": [
+    {
+     "do": "clone",
+     "count": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L14750"
+  },
+  "c2o2": {
+   "text": "It stays a statue. It's a very fine one, the best carving anyone in the village has seen in a generation, and it stands between the twins on the headland as if it always belonged there. (Name) has learned more about working stone in a month than most builders learn in years.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 15,
+     "max": 15,
+     "skills": [
+      "Building"
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L14753"
+  },
+  "c2": {
+   "text": "(Name) borrows a chisel and a mallet and goes up to the headland every day for a month, finishing the face that is (his/her) own...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14747"
+  }
+ }
+}

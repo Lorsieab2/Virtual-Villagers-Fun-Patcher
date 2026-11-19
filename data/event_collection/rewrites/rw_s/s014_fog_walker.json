@@ -1,0 +1,205 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fog Walker",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s014_fog_walker",
+  "source": "rewrites",
+  "lines": [
+   630,
+   674
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L630",
+  "ledger": [
+   {
+    "src": "L631",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L632",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L640",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L649",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L637",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L638",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L641",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L650",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L643",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L646",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L652",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L655",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L658-674",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A thick fog has been sitting over the village for three days.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A thick fog has been sitting over the village for three days. It came in from the sea and simply stayed. Huts vanish ten steps away. Voices come from nowhere. Everyone's hair is beaded with tiny condensation drops, and the fires hiss and smoke and won't burn properly. The children have been told not to wander, and for once they listen.\nOn the third night, (name) lies awake on (his/her) mat and hears someone singing, far off in the white mist. It's a woman's voice, or a man's, soft and low. The tune is one (he/she) almost remembers. Something from when (he/she) was very small, something someone sang to (him/her) once, a long time ago.\n(Name) gets up and goes to the doorway. The fog is so thick (he/she) can't see (his/her) own feet. The singing goes on, patient, as if it's waiting for (him/her).",
+   "choices": [
+    {
+     "label": "Follow the Song",
+     "next": "c1",
+     "src": "L637"
+    },
+    {
+     "label": "Stay Inside and Hum Along",
+     "next": "c2",
+     "src": "L638"
+    }
+   ],
+   "src": "L633-635",
+   "text_only": [
+    {
+     "src": "L633",
+     "what": "\"vanish\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "(Name) walks and walks, and the song walks ahead of (him/her), and the village falls away behind (him/her) until there is nothing but fog and the tune, which (he/she) almost knows. (He/She) never comes back. When the fog lifts the next morning, as suddenly as it came, (name)'s mat is empty and (his/her) footprints lead out of the village and stop in the middle of an open field, as if (he/she) simply flew up into the air. The village searches for days. They never find anything. Some say that on misty nights, anyone who listens can still hear the tune, and that now there are two voices singing it.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L644"
+  },
+  "c1o2": {
+   "text": "The song leads (name) a long way, over roots and stones (he/she) can't see, down a slope, through wet ferns that soak (him/her) to the waist. Then, all at once, it stops. The fog is thinner here. (Name) is standing in a sheltered grove (he/she) has never seen before, full of trees so heavy with ripe fruit that the branches touch the ground. There is nobody there. Nobody at all. (He/She) gathers all (he/she) can carry, and finds (his/her) way home by the smell of the village's cooking fires. Nobody can ever find the grove again, though (name) tries every misty morning. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L647"
+  },
+  "c1": {
+   "text": "(Name) steps out into the fog. It closes behind (him/her) like a curtain. (He/She) walks towards the singing, one hand out in front, and the singing moves too, always a little ahead, never any closer...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L641"
+  },
+  "c2o1": {
+   "text": "(Name) hums the tune all night, until (he/she) falls asleep sitting in the doorway. By morning the fog has gone, and so has the singing, but (name) wakes up knowing all the words. They were there all along, (he/she) realises, somewhere at the very back of (his/her) mind. It's a song about the sea coming home. (He/She) teaches it to the children that afternoon, and they sing it to their parents, and by the end of the week the whole village is singing it. It becomes a village song, sung at every festival, and nobody remembers that it came out of the fog.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L653"
+  },
+  "c2o2": {
+   "text": "The singing stops as soon as (name) starts humming, as if someone has been caught out. The fog lies there, silent and empty. (Name) stands in the doorway until dawn, waiting for it to start again. It never does. (He/She) can't sleep for wondering what the song was, and who was singing it, and why (he/she) almost knew it, and (he/she) is grumpy with everybody for a whole week. When the fog lifts, the village is exactly as it was. Nobody else heard a thing.",
+   "src": "L656"
+  },
+  "c2": {
+   "text": "(Name) stays in the doorway, one hand on the post. Something about the fog feels like a held breath. But (he/she) can't stop listening to the song, so quietly, very quietly, (he/she) begins to hum along...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L650"
+  }
+ }
+}

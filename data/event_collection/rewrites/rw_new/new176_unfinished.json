@@ -1,0 +1,255 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unfinished Portrait",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new176_unfinished",
+  "source": "rewrites",
+  "lines": [
+   8527,
+   8572
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8527",
+  "ledger": [
+   {
+    "src": "L8528",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8529",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8537",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8544",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8551",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8533",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8534",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8535",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8538",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8545",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8552",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8539",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8541",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8546",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8548",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8553",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8555",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8558-8572",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Clearing out an old hut, a villager finds a roll of bark cloth tucked into the rafters.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Clearing out an old hut, (name) finds a roll of bark cloth tucked into the rafters. Unrolled, it's a portrait: a villager who died long ago, painted by an artist nobody can name.\nIt's only half finished. The painter did the eyes, and one ear, and then stopped. The rest is bare cloth.\nBut the eyes. The eyes are very, very good. They look straight out of the cloth, warm and amused and alive, as if the person is about to say something. Several villagers have looked at it and had to sit down. What should (name) do with it?",
+   "choices": [
+    {
+     "label": "Restore the Faded Paint",
+     "next": "c1",
+     "src": "L8533"
+    },
+    {
+     "label": "Ask Those Who Knew the Sitter",
+     "next": "c2",
+     "src": "L8534"
+    },
+    {
+     "label": "Finish It for the Future",
+     "next": "c3",
+     "src": "L8535"
+    }
+   ],
+   "src": "L8530-8532"
+  },
+  "c1o1": {
+   "text": "From the tiny flakes, (name) works out the old painter's pigment mix: red earth, crushed shell, burnt coconut husk and something oily that might be fish. (He/She) copies the recipe down, and tries it. The colours are richer than anything the village has used before. It's a useful method, and the village's painters, potters and dyers all start using it.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8540"
+  },
+  "c1o2": {
+   "text": "While (name) is cleaning the cloth, very gently, it tears, right across the bottom. Flakes of paint shower onto the floor. The old painter's brushwork is lost, and along with it, everything it could have taught. The eyes, thank goodness, survive. They seem to look at (name) a little reproachfully.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L8542"
+  },
+  "c1": {
+   "text": "(Name) sits with the portrait for days, studying every flake of paint under a magnifying shell, trying to work out how it was made...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8538"
+  },
+  "c2o1": {
+   "text": "An old man looks at it for a long time, then laughs, wiping his eyes. He remembers the painter, a strange, quiet woman, who only ever worked at night, by firelight. That explains the colours, which looked wrong in daylight. It's a forgotten detail, and (name) learns something useful about how light changes paint.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8547"
+  },
+  "c2o2": {
+   "text": "Nobody agrees on what the sitter looked like. One says the nose was big. One says it was small. One says that isn't the sitter at all, it's the painter's cousin. Nobody pretends to know, and the eyes look on, amused.",
+   "src": "L8549"
+  },
+  "c2": {
+   "text": "(Name) shows the portrait to the oldest villagers, to see if anyone remembers the sitter, or the painter...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8545"
+  },
+  "c3o1": {
+   "text": "The artist finishes the portrait from the villagers' memories, slowly, carefully, over a whole season. When it's done, the sitter's great-grandchildren come to see it, and cry. It's so well received that (name) starts painting other villagers, and soon there's a whole hut of portraits, a careful record of the village's faces for future generations.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L8554"
+  },
+  "c3o2": {
+   "text": "(Name) picks up the brush. Puts it down. Picks it up again. And decides, in the end, that the portrait should stay unfinished, as the painter left it, and private. It goes back into the rafters, rolled up safe. Only the eyes were ever meant to be seen, (name) thinks.",
+   "src": "L8556"
+  },
+  "c3": {
+   "text": "(Name) decides that the portrait deserves to be finished. (He/She) asks everyone who knew the sitter to describe them...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8552"
+  }
+ }
+}

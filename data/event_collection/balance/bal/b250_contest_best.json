@@ -1,0 +1,320 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Contest of Best Hands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b250_contest_best",
+  "source": "balance",
+  "lines": [
+   11676,
+   11718
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11676",
+  "ledger": [
+   {
+    "src": "L11677",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11678",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11686",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11695",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11683",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11684",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11687",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11696",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11689",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11692",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11698",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11701",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11704-11718",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A basket, a carving, a stew, a roof, a song.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "chief": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(chief) has decided the village needs livening up, and announces a contest: by sunset tomorrow, everyone must bring the best thing they can make with their own hands. A basket, a carving, a stew, a roof, a song. The winner gets the {@chief}'s own feathered headband for a week.\n(subject) has entered every contest for years and never won one. This time (subject.he/she) has two ideas: make the thing (subject.he/she) is already best at, and make it better than ever, or try something completely new that might surprise everyone.\nWhich should (subject) do?",
+   "choices": [
+    {
+     "label": "Do What (subject.He/She) Does Best",
+     "next": "c1",
+     "src": "L11683"
+    },
+    {
+     "label": "Try Something New",
+     "next": "c2",
+     "src": "L11684"
+    }
+   ],
+   "src": "L11679-11681"
+  },
+  "c1o1": {
+   "text": "It is the best work (subject) has ever done, and everyone can see it. (chief) puts the feathered headband on (subject.his/her) head in front of the whole village, and (subject) wears it for exactly one week, including to bed. The rest of the village is so pleased for (subject.him/her) that it feels like everyone won.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 15,
+     "max": 15,
+     "best": true,
+     "role": "subject"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L11690"
+  },
+  "c1o2": {
+   "text": "(subject)'s work is very good. Unfortunately, so is everyone else's. Seeing (subject) up all night has got the whole village working hard, and (chief) can't choose between the top three. In the end (subject.he/she) gives each of them one feather from the headband. (subject) isn't one of them, but (subject.he/she) has never seen the village work so well, and is quietly proud of that.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "target": {
+      "random": 3
+     }
+    }
+   ],
+   "src": "L11693"
+  },
+  "c1": {
+   "text": "(subject) works all night by the firelight, doing the thing (subject.he/she) knows best, slowly and carefully, the way (subject.he/she) has always wanted to and never had the time...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11687"
+  },
+  "c2o1": {
+   "text": "(subject) decides to build something, though (subject.he/she) has never been able to stand the splinters and the sore thumbs that come with building. What (subject.he/she) brings to the contest is a little stool, lopsided and a bit cracked, but somewhere in the making of it the feel of two pieces of wood fitting together turned into a pleasure. (chief) gives (subject.him/her) a feather anyway, \"for nerve.\" (subject) keeps building long after the contest is forgotten.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Farming",
+      "Building",
+      "Research",
+      "Healing",
+      "Parenting"
+     ],
+     "min": 10,
+     "max": 10,
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c2o1_c2"
+    }
+   ],
+   "src": "L11699"
+  },
+  "c2o2": {
+   "text": "(subject) decides to build a little tower out of driftwood, because how hard can it be? Very hard, it turns out. It falls down four times, the last time on (subject.his/her) foot, in front of the whole village. (subject) limps home, and the pleasure (subject.he/she) used to take in building things is gone, along with some of the skin on (subject.his/her) toes.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L11702"
+  },
+  "c2": {
+   "text": "(subject) decides to try something nobody has ever seen (subject.him/her) do. (subject.He/She) borrows tools, asks questions, and gets in everyone's way...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11696"
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "rocks",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       1
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  },
+  "c2o1_g2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "wood",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c2": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g2",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_c1"
+    }
+   ]
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "wood",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

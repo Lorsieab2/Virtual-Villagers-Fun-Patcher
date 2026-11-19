@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hourglass Shell",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b095_hourglass_shell",
+  "source": "balance",
+  "lines": [
+   4294,
+   4334
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4294",
+  "ledger": [
+   {
+    "src": "L4295",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4296",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4303",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4312",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4300",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4301",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4304",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4313",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4306",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4309",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4315",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4318",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4321-4334",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The scholars are fascinated.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 25,
+   "max_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has found a long spiral shell full of fine white sand that runs from one end to the other, back and forth, all by itself, without anyone turning it. The scholars are fascinated. The oldest of them says that the old island tales describe such a shell as \"the keeper of hours,\" and that whoever turns it over by hand \"turns their own time with it.\"\n(Name) is holding it. The sand is running down. Should (name) turn it over, or let it run?",
+   "choices": [
+    {
+     "label": "Turn It Over",
+     "next": "c1",
+     "src": "L4300"
+    },
+    {
+     "label": "Let It Run",
+     "next": "c2",
+     "src": "L4301"
+    }
+   ],
+   "src": "L4297-4298"
+  },
+  "c1o1": {
+   "text": "(Name) feels it at once: a heaviness in (his/her) bones, a stiffness in (his/her) knees. When (he/she) looks down at (his/her) hands, they're ten years older. The scholars write it all down very fast, and then take the shell away, wrapped in three layers of cloth. \"Well,\" says (name), \"at least now I know what it does.\"",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      10,
+      10
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L4307"
+  },
+  "c1o2": {
+   "text": "The sand rushes back, and (name) feels it in (his/her) face: a tightness, then a lightness. In the water bowl, (his/her) face is years younger, though (his/her) knees still creak exactly as before. The scholars want to try it on themselves. The elders forbid it. The scholars try anyway, at night, and nothing happens to any of them, which annoys them very much.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L4310"
+  },
+  "c1": {
+   "text": "(Name) flips the shell. The sand stops, hangs in the air inside the spiral, and then begins to fall the other way, faster...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4304"
+  },
+  "c2o1": {
+   "text": "(Name) sits watching it for most of the day without meaning to, and when (he/she) finally looks up, (his/her) friends are staring. (His/Her) face has aged, quietly, while (he/she) watched, though (his/her) body feels no different. \"Time passes when you watch it,\" says the scholar, which is not much comfort.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L4316"
+  },
+  "c2o2": {
+   "text": "The sand runs, and runs, and nothing happens. The scholars study it for a month and decide the sand moves with the tides, not with time. They're quite disappointed. (Name) keeps it on (his/her) shelf, where it runs back and forth with the sea.",
+   "src": "L4319"
+  },
+  "c2": {
+   "text": "(Name) sets the shell down and watches the sand run. Down, and back, and down again, steady as breathing...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4313"
+  }
+ }
+}

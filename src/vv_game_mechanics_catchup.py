@@ -698,7 +698,7 @@ def _vv2(village: gm.Village) -> list[gm.Fact]:
                "turn chooses what it does (14 times in 100 for one whose job is not Healing)."),
         _patch(village, VV2_EASIER, "Normally healers study plants only when the game's own choice sends them.",
                "healers and villagers who prefer Healing study plants when no sick villager needs treatment, in "
-               "job turns too."),
+               "job turns too (75% of those times for one checked on Healing, 14% for anyone else)."),
     ):
         if fact:
             out.append(fact)
@@ -825,8 +825,9 @@ def _vv1(village: gm.Village) -> list[gm.Fact]:
                "a villager who was studying the cactus carries on, at any food level, half the time each time a job "
                "turn chooses what it does (14 times in 100 for one whose job is not Healing)."),
         _patch(village, VV1_EASIER, "Normally healers study the cactus only when the game's own choice sends them.",
-               "healers and villagers who prefer Healing study the cactus whenever they get healing work and no one "
-               "is sick, in job turns too."),
+               "healers and villagers who prefer Healing study the cactus when they get healing work and no one "
+               "is sick, in job turns too (75% of those times for one checked on Healing, 14% for anyone "
+               "else)."),
         _patch(village, VV1_WATERING, "Normally \"Watering the field\" gives no Building skill.",
                "each watering that advances the garden puzzle ends with a Building practice roll, in job turns "
                "too."),

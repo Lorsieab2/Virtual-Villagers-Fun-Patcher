@@ -32,6 +32,14 @@
   "label_case": "title",
   "cast_only": [
    "subject"
+  ],
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "Around the fire sit the faithful, doubters and the uninterested, and they all talk about the rain, as a village mostly does."
+   }
   ]
  },
  "requirement": {
@@ -50,5 +58,8 @@
    "text": "Tonight, around the fire, are: a villager who prays every morning, a villager who thinks the spirits are just stories, a villager who isn't sure, a villager who believes in something but won't say what, and a villager who has never given it a moment's thought. There's also a couple who have been together for years, a villager who has never wanted a partner and doesn't see why anyone would, someone with a chosen name, and someone in the brightest green wrap on Isola. Nobody is talking about any of that. They are talking about the rain. It's been raining for days. The rain is ruining the drying fish. Someone thinks it'll stop tomorrow; someone thinks it'll go on all week; someone thinks the frogs are getting too loud. Everybody agrees the fish stew is good tonight. One of them tells a terrible joke, and everyone groans, and then everyone laughs. It's a very ordinary evening. It's what a village looks like, most of the time.",
    "src": "L593"
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

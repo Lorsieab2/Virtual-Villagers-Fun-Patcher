@@ -2,13 +2,20 @@
 
    WHAT.  The wind flutes (Flute1.ogg, Flute3.ogg, Flute5.ogg: in fog the weather update 0x46BE10 plays one every
    60 to 89 seconds of the game clock once a Wind Flute is found -- Flute1 with 1 to 4 pieces, Flute3 with 5 to 9,
-   Flute5 with 10 to 12) are recorded quietly: peaks of -9.1, -11.7 and -11.4 dBFS and an average of about -26 to
-   -29 dBFS, against about -16 dBFS for the game's music (song1-4.ogg).  The game already plays them at 3.0 x the
-   Sound slider (the float at 0x4AB3A8, used only there), which FMOD caps at full volume (255) from a third of
-   the slider up, so a bigger volume number cannot make them louder.  This companion makes the three recordings
-   themselves 2.5 times louder (+8 dB) as the game loads them: every 16-bit sample is multiplied by 5/2 and kept
-   within -32768..32767 (with these three files nothing reaches the limit: the loudest peak becomes -1.2 dBFS).
-   Every other sound, the music, the volume the game asks for and when the flutes play are unchanged.
+   Flute5 with 10 to 12) are recorded quietly: peaks of -9.1, -11.7 and -11.4 dBFS, and the louder half of each
+   about -23, -27 and -26 dBFS, against about -13 to -15 dBFS for the game's music (song1-4.ogg).  The game already
+   plays them at 3.0 x the Sound slider (the float at 0x4AB3A8, used only there), which FMOD caps at full volume
+   (255) from a third of the slider up, so a bigger volume number cannot make them louder.  This companion makes
+   the three recordings themselves N times louder as the game loads them, N the patcher window's slider (2 to 100,
+   5 unless moved; the owner, 2026-11-15), read from "VVFP VV4 Louder Flutes.txt" beside this DLL.
+
+   A plain N x gain would clip from about 2.8 x up, so the gain goes through a limiter, worked out over the whole
+   sample before any of it is changed: each frame (both channels together) gets the largest gain that keeps it
+   at or under -1 dBFS (29,204), and the gain may then change only gradually -- it falls ahead of a loud frame by
+   at most 3 dB per 220 frames (60 dB in 5 ms at 44,100 Hz, the rate of all three files) and recovers after it
+   by at most 3 dB per 4,410 frames (60 dB in 100 ms).  So nothing is ever clipped, quiet passages get the whole
+   N x, and every higher N is louder.  Whole numbers only (24-bit fixed point), so the result is the same on
+   every machine.
 
    HOW.  Every sound effect the game loads goes through one call of FSOUND_Sample_Load (FMOD 3.74), at 0x40C4E1
    in the sound loader 0x40C490: FSOUND_Sample_Load(FSOUND_FREE, path, 0, 0, 0) through the import thunk 0x47099E.
@@ -20,17 +27,28 @@
    again.  The game's files on disk are never changed.
 
    SAFETY.  The FMOD functions are found in the game's own fmod.dll at start; if any is missing, nothing is
-   installed.  A sample that is not 16-bit signed PCM, or that FMOD does not hand back whole, is left as it is.
-   The scaling runs under structured exception handling: a fault leaves the sample as loaded.  Nothing is written
-   to a save, a villager record or a file; no text is shown.  No debug output. */
+   installed.  A sample that is not 16-bit signed PCM, or that FMOD does not hand back whole, or whose gain list
+   cannot be allocated, is left as it is.  The scaling runs under structured exception handling: a fault leaves
+   the sample unchanged or partly scaled, never out of range.  The setting file is only read (its first 15
+   bytes); a number above 100 is 100, below 2 is 2, and no number is 5.  Nothing is written to a save, a villager
+   record or a file; no text is shown.  No debug output. */
 #include <windows.h>
 #include "../shared/install_sites.h"
 
 #define LF_GAME 4                        /* The Tree of Life */
 #define LF_LOAD_CALL 0x40C4E1u           /* call 0x47099E (FSOUND_Sample_Load) in the sound loader 0x40C490 */
 #define LF_STOCK_LOAD 0x47099Eu          /* jmp [0x48A3xx]: fmod.dll's _FSOUND_Sample_Load@20 */
-#define LF_GAIN_TIMES 5                  /* 2.5 = 5 / 2 (+8 dB) */
-#define LF_GAIN_OVER 2
+#define LF_CHOICE_FILE L"VVFP VV4 Louder Flutes.txt"
+#define LF_DEFAULT 5u                    /* the slider's default */
+#define LF_MINIMUM 2u
+#define LF_MAXIMUM 100u
+
+/* The limiter (24-bit fixed point). */
+#define LF_ONE 16777216u                 /* a gain of 1 */
+#define LF_CEILING 29204u                /* -1 dBFS: 32768 x 10^(-1/20) */
+#define LF_ATTACK 17312359u              /* 10^(3/220) x 2^24: 3 dB per 220 frames, ahead of a peak */
+#define LF_RELEASE 16803516u             /* 10^(3/4410) x 2^24: 3 dB per 4,410 frames, after it */
+#define LF_MAX_FRAMES 0x04000000u        /* the gain list's limit (256 MB); the flutes are about 1.3 million */
 
 /* FMOD 3.74's sample mode bits (fmod.h). */
 #define LF_8BITS 0x00000008u
@@ -52,9 +70,11 @@ static length_fn g_length;
 static mode_fn g_mode;
 static lock_fn g_lock;
 static unlock_fn g_unlock;
+static HMODULE g_module;
 static unsigned char g_call_stock[5];
 static int g_installed;
 static int g_scaled;                     /* samples made louder (for the tests' emulation) */
+static unsigned int g_multiplier = LF_DEFAULT;
 
 static const char *const LF_FLUTES[] = { "flute1.ogg", "flute3.ogg", "flute5.ogg" };
 
@@ -79,12 +99,103 @@ static int is_flute(const char *path) {
     return 0;
 }
 
-static void scale(short *pcm, unsigned int count) {
-    unsigned int i;
-    for (i = 0; i < count; ++i) {
-        int v = (int)pcm[i] * LF_GAIN_TIMES / LF_GAIN_OVER;
-        pcm[i] = (short)(v > 32767 ? 32767 : (v < -32768 ? -32768 : v));
+/* The slider's number from "VVFP VV4 Louder Flutes.txt" beside this DLL: 2 to 100, else 5 (no number). */
+static unsigned int read_multiplier(void) {
+    WCHAR path[MAX_PATH * 2];
+    char text[16];
+    DWORD length, got = 0, i, slash = 0;
+    const DWORD room = (DWORD)(sizeof path / sizeof path[0]);
+    HANDLE file;
+    unsigned int value = 0;
+    int digits = 0;
+    length = GetModuleFileNameW(g_module, path, room);
+    if (length == 0 || length >= room) {
+        return LF_DEFAULT;
     }
+    for (i = 0; i < length; ++i) {
+        if (path[i] == L'\\' || path[i] == L'/') {
+            slash = i + 1;
+        }
+    }
+    if (slash == 0 || slash + (DWORD)(sizeof LF_CHOICE_FILE / sizeof(WCHAR)) > room) {
+        return LF_DEFAULT;
+    }
+    memcpy(path + slash, LF_CHOICE_FILE, sizeof LF_CHOICE_FILE);
+    file = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        return LF_DEFAULT;
+    }
+    if (!ReadFile(file, text, (DWORD)(sizeof text - 1), &got, NULL)) {
+        got = 0;
+    }
+    CloseHandle(file);
+    for (i = 0; i < got && (text[i] == ' ' || text[i] == '\t'); ++i) {
+    }
+    for (; i < got && text[i] >= '0' && text[i] <= '9'; ++i) {
+        if (value < 1000u) {
+            value = value * 10u + (unsigned int)(text[i] - '0');
+        }
+        ++digits;
+    }
+    if (digits == 0) {
+        return LF_DEFAULT;
+    }
+    return value < LF_MINIMUM ? LF_MINIMUM : (value > LF_MAXIMUM ? LF_MAXIMUM : value);
+}
+
+/* Sample k of the locked sample, in its one or two pieces. */
+static short *sample_at(short *one, unsigned int count1, short *two, unsigned int k) {
+    return k < count1 ? one + k : two + (k - count1);
+}
+
+/* The sample N x louder through the limiter (see WHAT); 0 when it cannot be (left as it is). */
+static int scale(short *one, unsigned int count1, short *two, unsigned int count2, unsigned int channels) {
+    unsigned int frames = (count1 + count2) / channels;
+    unsigned int *gain;
+    unsigned int f, c;
+    if (frames == 0 || frames > LF_MAX_FRAMES || (count1 + count2) % channels != 0) {
+        return 0;
+    }
+    gain = (unsigned int *)HeapAlloc(GetProcessHeap(), 0, (SIZE_T)frames * sizeof *gain);
+    if (gain == NULL) {
+        return 0;
+    }
+    /* The largest gain that keeps each frame at or under the ceiling. */
+    for (f = 0; f < frames; ++f) {
+        unsigned int peak = 0, loud;
+        for (c = 0; c < channels; ++c) {
+            int v = *sample_at(one, count1, two, f * channels + c);
+            unsigned int size = (unsigned int)(v < 0 ? -v : v);
+            if (size > peak) {
+                peak = size;
+            }
+        }
+        loud = peak * g_multiplier;
+        gain[f] = loud > LF_CEILING ? (unsigned int)(((unsigned long long)LF_CEILING << 24) / loud) : LF_ONE;
+    }
+    /* Falling gradually ahead of each loud frame (from the end back), then recovering gradually after it. */
+    for (f = frames - 1; f-- > 0;) {
+        unsigned int ahead = (unsigned int)(((unsigned long long)gain[f + 1] * LF_ATTACK) >> 24);
+        if (ahead < gain[f]) {
+            gain[f] = ahead;
+        }
+    }
+    for (f = 1; f < frames; ++f) {
+        unsigned int after = (unsigned int)(((unsigned long long)gain[f - 1] * LF_RELEASE) >> 24);
+        if (after < gain[f]) {
+            gain[f] = after;
+        }
+    }
+    for (f = 0; f < frames; ++f) {
+        long long factor = (long long)g_multiplier * gain[f];
+        for (c = 0; c < channels; ++c) {
+            short *s = sample_at(one, count1, two, f * channels + c);
+            long long v = ((long long)*s * factor) >> 24;
+            *s = (short)(v > 32767 ? 32767 : (v < -32768 ? -32768 : v));
+        }
+    }
+    HeapFree(GetProcessHeap(), 0, gain);
+    return 1;
 }
 
 static void make_louder(void *sample) {
@@ -101,11 +212,9 @@ static void make_louder(void *sample) {
     }
     if (ptr1 != NULL && len1 + len2 == bytes && (len1 & 1u) == 0 && (len2 & 1u) == 0
         && (len2 == 0 || ptr2 != NULL)) {
-        scale((short *)ptr1, len1 / 2u);
-        if (len2 != 0) {
-            scale((short *)ptr2, len2 / 2u);
+        if (scale((short *)ptr1, len1 / 2u, (short *)ptr2, len2 / 2u, (mode & LF_STEREO) ? 2u : 1u)) {
+            ++g_scaled;
         }
-        ++g_scaled;
     }
     g_unlock(sample, ptr1, ptr2, len1, len2);
 }
@@ -134,6 +243,11 @@ int __stdcall VvfpLouderFlutesScaled(void) {
     return g_scaled;
 }
 
+/* The multiplier read at start (for the tests' emulation). */
+int __stdcall VvfpLouderFlutesMultiplier(void) {
+    return (int)g_multiplier;
+}
+
 /* Called once by VVFP Startup.dll before WinMain. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     vvfp_site_write site;
@@ -154,6 +268,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     if (g_length == NULL || g_mode == NULL || g_lock == NULL || g_unlock == NULL) {
         return;
     }
+    g_multiplier = read_multiplier();
     g_call_stock[0] = 0xE8;
     memcpy(g_call_stock + 1, &rel, 4);
     vvfp_site_branch(&site, LF_LOAD_CALL, 5, g_call_stock, 0xE8, (const void *)load_sample);
@@ -165,6 +280,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
     if (reason == DLL_PROCESS_ATTACH) {
+        g_module = instance;
         DisableThreadLibraryCalls(instance);
     }
     return TRUE;

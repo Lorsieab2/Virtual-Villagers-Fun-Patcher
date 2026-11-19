@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Prank Mirror",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s038_prank_mirror",
+  "source": "rewrites",
+  "lines": [
+   1788,
+   1831
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1788",
+  "ledger": [
+   {
+    "src": "L1789",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1790",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1798",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1807",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1795",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1796",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1799",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1808",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1801",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1804",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1810",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1813",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1816-1831",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It tells the truth, the trader said, with a wink, and was gone before anyone could ask what that meant.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A trader passing through left behind a strange gift: a polished bronze mirror, round as the moon, in a frame of twisted copper vines. \"It tells the truth,\" the trader said, with a wink, and was gone before anyone could ask what that meant. The mirror is warm to the touch, even in the shade, and nobody has wanted to look in it. The elders have heard of such mirrors: bronze from the far islands, polished under the full moon until the reflection learns to think for itself.\n(Name) finally does. (He/She) sees (himself/herself). But better. Happier, cleverer-looking, with straighter shoulders and much, much better posture, and a little smile (name) doesn't recognise.\nThen the reflection puts one foot on the frame, and steps out. Should (name) shake its hand, or smash the mirror before anything else climbs out?",
+   "choices": [
+    {
+     "label": "Shake Hands",
+     "next": "c1",
+     "src": "L1795"
+    },
+    {
+     "label": "Smash the Mirror",
+     "next": "c2",
+     "src": "L1796"
+    }
+   ],
+   "src": "L1791-1793"
+  },
+  "c1o1": {
+   "text": "The reflection is a perfect likeness of (name) on the outside, and a completely different person on the inside. It loves everything (name) hates. It hates everything (name) loves. It is wonderful at everything (name) is bad at, and terrible at everything (name) is good at, and it has no idea how anyone could possibly eat taro. It shakes everyone's hand, very firmly, and introduces itself as (made1). It moves into the empty hut next door to (name), and the two of them argue over the fence every morning for the rest of their lives, and are both secretly very fond of each other.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L1802"
+  },
+  "c1o2": {
+   "text": "The reflection shakes (his/her) hand warmly, and looks around at the village with real admiration: the huts, the fields, the cooking fire, the children. \"It's lovely here,\" it says, in (name)'s voice, but softer. \"You're lucky.\" Then it steps back up onto the frame and climbs back into the mirror, and the surface ripples once and goes still. The mirror is never quite as shiny again. And (name), for reasons (he/she) can't explain, starts standing up a little straighter.",
+   "src": "L1805"
+  },
+  "c1": {
+   "text": "The reflection holds out a hand. (Name) looks at it, then at the reflection's confident smile, and then, very slowly, takes it. The hand is warm, warm as the mirror...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1799"
+  },
+  "c2o1": {
+   "text": "The reflection hops out of the frame just a moment before the rock hits. The mirror bursts into a hundred bright pieces. The reflection stands there in the scattered bronze, looking at (name) with a very hurt face. \"That,\" it says, \"was extremely rude.\" It turns and walks off without another word, and goes to live with the farmers on the far side of the village under the name (made1). It never really forgives (name), and won't sit next to (him/her) at festivals.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L1811"
+  },
+  "c2o2": {
+   "text": "The mirror cracks right down the middle with a sound like a bell. The reflection, halfway out, flickers, and vanishes. Just like that. (Name) stands there with the rock in (his/her) hand, breathing hard, and then feels seven different kinds of guilty all at once. (He/She) can't stop thinking about the look on its face. From then on (he/she) can't stand mirrors, or polished things, or the still surface of the lagoon, where (his/her) face looks back at (him/her), and (he/she) won't go swimming at all.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "swimming",
+     "role": "subject"
+    }
+   ],
+   "src": "L1814",
+   "text_only": [
+    {
+     "src": "L1814",
+     "what": "\"vanishes\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(Name) doesn't trust it. Not for a moment. (He/She) grabs the nearest rock and swings it at the mirror with all (his/her) strength...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1808"
+  }
+ }
+}

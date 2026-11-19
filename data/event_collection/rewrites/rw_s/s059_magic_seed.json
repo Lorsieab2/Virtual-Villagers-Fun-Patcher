@@ -1,0 +1,227 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Magic Seed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s059_magic_seed",
+  "source": "rewrites",
+  "lines": [
+   2800,
+   2845
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2800",
+  "ledger": [
+   {
+    "src": "L2801",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2802",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2810",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2819",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2807",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2808",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2811",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2820",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2813",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2816",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2822",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2825",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2828-2845",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A bird nobody has ever seen before flies over the village at lunchtime.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A bird nobody has ever seen before flies over the village at lunchtime. It's blue, bright blue, with a long gold tail that streams out behind it like a ribbon, and every head turns to watch it go. As it passes over the cooking fire, something drops from its beak: a tiny shimmering seed, glinting like a drop of water in the sun.\nIt lands, with a little plop, right in (subject)'s bowl of soup.\n(subject) is talking to (friend) and doesn't notice, and eats it with the next spoonful. That night, (subject) dreams of a little green sprout, curling up out of the earth, growing slowly, quietly, right in the middle of (subject.his/her) heart. Should (subject) tell the healers about the seed, or wait and see?",
+   "choices": [
+    {
+     "label": "Ask the Healers",
+     "next": "c1",
+     "src": "L2807"
+    },
+    {
+     "label": "Wait and See",
+     "next": "c2",
+     "src": "L2808"
+    }
+   ],
+   "src": "L2803-2805"
+  },
+  "c1o1": {
+   "text": "The healers are very puzzled. Then very excited. Then they go and fetch the oldest healer, who listens for a long time, and sits back on (subject.his/her) heels, and says, slowly, \"Well. I've heard of it. I never thought I'd see it.\" (subject) is going to have a baby. Magic or not, there's no mistaking it. (friend) has to sit down on the floor. The whole village talks about nothing else for a month, and every lunchtime, people look up at the sky, hoping to see the blue bird again.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2814"
+  },
+  "c1o2": {
+   "text": "The healers listen, and poke, and prod, and look in (subject)'s eyes and ears and mouth, and in the end they say it was just a seed. Probably a nice one, they say. Possibly even good for (subject.him/her). And dreams are just dreams. (subject) thanks them, and goes home, and is surprised to find that (subject.he/she) feels a little bit disappointed. So does (friend). They don't talk about it. But that evening they both find themselves looking up, every so often, for a flash of blue.",
+   "src": "L2817"
+  },
+  "c1": {
+   "text": "In the morning, (subject) tells (friend) about the dream, and the seed that somebody saw drop into the soup. (friend) insists they go to the healers right away. The healers listen, very seriously, and then put their ears to (subject)'s chest, and then lower...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2811"
+  },
+  "c2o1": {
+   "text": "(subject) waits. And something grows. Slowly, quietly, just like the sprout in the dream. By the time anybody notices, there's no hiding it, and the healers are astonished. A few months later, a baby arrives, healthy and loud and perfect, with a tiny green birthmark on (subject.his/her) shoulder, in the exact shape of a leaf. On the morning of the birth, the blue bird with the golden tail is seen sitting on the roof of the hut, and then it's gone, and nobody ever sees it again.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2823"
+  },
+  "c2o2": {
+   "text": "Nothing happens. The dream fades after a week. No baby, no magic, nothing at all. Except that (subject) suddenly, very much, wants to garden. (subject.He/She) can't explain it. (subject.He/She) has never cared about plants in (subject.his/her) life. But now (subject.he/she) wants to plant things, and water things, and watch things grow, all day long. (subject.He/She) starts a little garden behind the hut, and spends every spare moment in it, and is very happy there. (friend) brings (subject.him/her) lunch.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L2826"
+  },
+  "c2": {
+   "text": "(subject) decides not to make a fuss over a dream. (subject.He/She) and (friend) wait, and go about their days, and say nothing to anyone. But every night, the dream comes back: the little green sprout, a little bigger each time...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2820"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "vegetables",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

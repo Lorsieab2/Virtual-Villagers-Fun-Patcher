@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rope Bridge",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b077_rope_bridge",
+  "source": "balance",
+  "lines": [
+   3476,
+   3518
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3476",
+  "ledger": [
+   {
+    "src": "L3477",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3478",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3486",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3495",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3483",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3484",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3487",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3496",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3489",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3492",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3498",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3501",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3504-3518",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The young people have built a rope bridge across the ravine behind the village, all by themselves, to prove they can.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The young people have built a rope bridge across the ravine behind the village, all by themselves, to prove they can. (subject) designed it. It sways alarmingly, and (builder), the best builder, has looked at it and gone pale.\nToday (subject) wants to be the first across. (builder) wants to test it first with a sack of stones. The other young people are chanting (subject)'s name.\nShould (subject) walk across, or let the builder test it?",
+   "choices": [
+    {
+     "label": "Walk Across",
+     "next": "c1",
+     "src": "L3483"
+    },
+    {
+     "label": "Let the Builder Test It",
+     "next": "c2",
+     "src": "L3484"
+    }
+   ],
+   "src": "L3479-3481"
+  },
+  "c1o1": {
+   "text": "Halfway across, a plank tips, and (subject) slips and cracks (subject.his/her) head on the rope post as (subject.he/she) grabs for it. (subject.He/She) hangs on, somehow, until (builder) crawls out and drags (subject.him/her) back. (subject.He/She) wakes the next day with a bandaged head and no name. The healers say it may come back. It doesn't. (subject.He/She) is \"?\" now, and the bridge is taken down and built again properly, by the young people, with (builder) watching every knot.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L3490"
+  },
+  "c1o2": {
+   "text": "(subject) makes it to the far side, turns, and raises (subject.his/her) arms, and the young people go wild. (builder) lets out a breath (subject.he/she) seems to have been holding for an hour. Then (builder.he/she) walks out onto the bridge, tests every knot and every plank, re-ties eleven of them, and walks back without a word. (subject) never quite lives it down.",
+   "src": "L3493"
+  },
+  "c1": {
+   "text": "(subject) steps onto the first plank. The bridge dips and sways. (subject.He/She) takes another step, and another, arms out, the ravine yawning below...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3487"
+  },
+  "c2o1": {
+   "text": "A plank snaps, and the sack drops into the ravine with a crash that echoes for a long time. Everyone goes quiet. (builder) puts a hand on (subject)'s shoulder. \"Good design,\" (builder.he/she) says. \"Bad knots. Let me show you.\" They rebuild it together, and (subject) learns more in that week than in a year.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L3499"
+  },
+  "c2o2": {
+   "text": "The crack is just the rope settling. The sack goes all the way across and back. (builder) shakes (subject.his/her) head in disbelief and admits, grudgingly, that it'll hold. (subject) walks across to cheers, and the bridge becomes the young people's favourite place, and (builder) checks it every week without telling them.",
+   "src": "L3502"
+  },
+  "c2": {
+   "text": "(builder) swings a heavy sack of stones onto the bridge and hauls it across on a rope. Halfway, there's a crack...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3496"
+  }
+ }
+}

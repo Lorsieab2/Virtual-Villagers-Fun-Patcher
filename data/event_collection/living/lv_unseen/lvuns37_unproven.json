@@ -131,7 +131,18 @@
   "c2": {
    "name": "Outcome C2",
    "text": "A believer explains that present kindness and future hope can coexist.",
-   "src": "L22658"
+   "src": "L22658",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "A villager of faith explains that present kindness and future hope can coexist."
+    }
+   ]
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

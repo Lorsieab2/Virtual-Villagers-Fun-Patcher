@@ -172,7 +172,16 @@
   "d2": {
    "name": "Outcome D2",
    "text": "The apprentice mourns the loss of a promising discovery.",
-   "src": "L23792"
+   "src": "L23792",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L23792"
+    }
+   ]
   }
  }
 }

@@ -53,6 +53,8 @@ VV1_STUDY = 0x443270
 VV2_PLANTS = {0x458CD0: "plant 0", 0x4589A0: "plant 1", 0x458FD0: "plant 2", 0x459130: "plant 3"}
 STUDIES = {"study cactus", *VV2_PLANTS.values()}
 OTHER = 1                                               # a job that is neither Healing nor research
+VV2_CAVE_ROLL = 0x473CAF                                # the cave's rand(100) returns here
+VV2_CAVES = [(0x473CA0, 0x473CD0), (0x473CF1, 0x473CFB)]   # Easier Healing Mastery's caves
 
 _RENDERED: dict = {}
 
@@ -81,7 +83,9 @@ def machine(game, *, rows, runtime=False, force=FORCE_PASS, pick=None, selected=
     modules = ("fix_huts", "work_first", "healers") if runtime else ()
     m = Machine(game, render(game, tuple(rows), mode), modules=modules)
     m.real.add(DISPATCHER[game])
-    rolls = rolls or Rolls()
+    # Default: The Lost Children's cave roll (rand(100), returning to
+    # VV2_CAVE_ROLL) passes; every other rand(n) answers n - 1.
+    rolls = rolls or Rolls(by_site={VV2_CAVE_ROLL: 0})
     rec = VILLAGE + INDEX * STRIDE[game]
     obj = 0x38000000
     m.w32(obj + 4, VILLAGE)
@@ -123,10 +127,10 @@ def machine(game, *, rows, runtime=False, force=FORCE_PASS, pick=None, selected=
             m.leaves[va] = Leaf(1, lambda m, a, c, r: 1, name=name)
         if cont is None:
             m.real.add(0x460590)
-            m.real_ranges += [(0x473CA0, 0x473CCE), (0x473CF1, 0x473CFB)]   # Easier Healing Mastery's caves
+            m.real_ranges += VV2_CAVES
         else:
             m.leaves[0x460590] = Leaf(2, lambda m, a, c, r: cont, name="continue")
-            m.real_ranges += [(0x473CA0, 0x473CCE), (0x473CF1, 0x473CFB)]
+            m.real_ranges += VV2_CAVES
     m.w32(rec + STATE_FIELD[game], task)
     m.plan(WORKER[game], HALT, {UC_X86_REG_ECX: obj}, stack=(HALT, INDEX))
     if runtime:
@@ -260,7 +264,7 @@ class LostChildrenNotCheckedOnHealing(unittest.TestCase):
                     m = machine("vv2", rows=(EHM["vv2"],), mode=mode, selected=selected, rolls=rolls).decide()
                     self.assertEqual(len(studies(m)), 1, names(m))
                     self.assertEqual(state(m, "vv2"), 9)
-                    self.assertIn((0x473CB8, 100, 13), rolls.seen, "rand(100) from the cave")
+                    self.assertIn((VV2_CAVE_ROLL, 100, 13), rolls.seen, "rand(100) from the cave")
                 with self.subTest(selected=selected, mode=mode, roll=14):
                     kw = dict(selected=selected, rolls=_roll100(14))
                     m = machine("vv2", rows=(EHM["vv2"],), mode=mode, **kw).decide()
@@ -277,24 +281,43 @@ class LostChildrenNotCheckedOnHealing(unittest.TestCase):
                     self.assertEqual(live(m, "vv2", ret), al)
                     self.assertEqual(len(studies(m)), studied)
 
-    def test_a_healer_never_meets_the_roll(self):
-        rolls = _roll100(99)
-        m = machine("vv2", rows=(EHM["vv2"],), rolls=rolls).decide()
-        self.assertEqual(len(studies(m)), 1)
-        self.assertNotIn(0x473CB8, [s[0] for s in rolls.seen])
+    def test_a_healer_studies_three_times_in_four(self):
+        # The owner (2026-11-15): villagers set to Healing still do other
+        # things, as in the normal game, where this exit does nothing.  A
+        # healer studies when the same rand(100) is below 75, else the stock
+        # exit -- in catch-up and in live play.
+        for mode in MODES:
+            for roll, studied in ((0, 1), (74, 1), (75, 0), (99, 0)):
+                with self.subTest(mode=mode, roll=roll):
+                    rolls = _roll100(roll)
+                    m = machine("vv2", rows=(EHM["vv2"],), mode=mode, rolls=rolls).decide()
+                    self.assertEqual(len(studies(m)), studied, names(m))
+                    self.assertEqual(state(m, "vv2"), 9 if studied else 0)
+                    self.assertIn((VV2_CAVE_ROLL, 100, roll), rolls.seen)
+        for ret in LIVE_RETS["vv2"]:
+            for roll, al in ((74, 1), (75, 0)):
+                with self.subTest(ret=hex(ret), roll=roll):
+                    m = machine("vv2", rows=(EHM["vv2"],), rolls=_roll100(roll))
+                    self.assertEqual(live(m, "vv2", ret), al)
+                    self.assertEqual(len(studies(m)), al)
 
     def test_measured_share(self):
+        # Stock: no study at this exit for anyone.  Patched: 75% for a healer
+        # (a quarter of these choices go on to other things), 14% for others.
         import random
-        rng = random.Random(20261020)
-        n, hits = 1500, 0
-        m = machine("vv2", rows=(EHM["vv2"],), selected=1, rolls=Rolls(default=lambda n: rng.randrange(n)))
-        for _ in range(n):
-            m.w32(VILLAGE + INDEX * STRIDE["vv2"] + STATE_FIELD["vv2"], 0)
-            m.decide()
-            hits += bool(studies(m))
-        share = hits / n
-        print(f"vv2 Easier Healing Mastery, not checked on Healing: studies {share:.3f}")
-        self.assertTrue(0.11 <= share <= 0.17, share)
+        for selected, low, high in ((HEALING["vv2"], 0.71, 0.79), (1, 0.11, 0.17)):
+            with self.subTest(selected=selected):
+                rng = random.Random(20261020)
+                n, hits = 1500, 0
+                m = machine("vv2", rows=(EHM["vv2"],), selected=selected,
+                            rolls=Rolls(default=lambda n: rng.randrange(n)))
+                for _ in range(n):
+                    m.w32(VILLAGE + INDEX * STRIDE["vv2"] + STATE_FIELD["vv2"], 0)
+                    m.decide()
+                    hits += bool(studies(m))
+                share = hits / n
+                print(f"vv2 Easier Healing Mastery, checkmark {selected}: studies {share:.3f}")
+                self.assertTrue(low <= share <= high, share)
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)

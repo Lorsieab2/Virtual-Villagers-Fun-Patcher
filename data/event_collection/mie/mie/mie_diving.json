@@ -1,0 +1,362 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Diving for Treasure",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "mie_diving",
+  "source": "mie",
+  "lines": [
+   561,
+   616
+  ],
+  "section": "mie",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L561",
+  "ledger": [
+   {
+    "src": "L571",
+    "kind": "structural",
+    "text": "Choice \"",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L571",
+    "kind": "structural",
+    "text": "\":",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L609",
+    "kind": "structural",
+    "text": "Choice \"",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L609",
+    "kind": "structural",
+    "text": "\" -- gains 10 to 20 Parenting (random):",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L563",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L565-566",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L568",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L574",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L576",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L579",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L582",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L585",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L588",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L590",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L593",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L597",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L599",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L602",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L605",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L612-616",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   }
+  ],
+  "description": "A diver sees something shimmering at the bottom of the reef: swim deeper, or better not.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "mixer_only": true,
+  "approximations": [
+   "after the sinking: dies 1 in 6, disappears 1 in 6, rescued 4 in 6 (16.7% / 16.7% / 66.7%) for the owner's 17% / 17% / 66%: the engine draws equal children"
+  ]
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "protected": "exclude"
+  },
+  "doctor": {
+   "kind": "villager",
+   "min_age": 18,
+   "protected": "exclude"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "text": "(subject) is a diver. (subject.He/She) regularly swims around the sea using a complex setup of reeds and animal skins to carry air. During one of (subject.his/her) dives, (subject.he/she) sees something shimmering deep down in the bottom of the reef. Should (subject.he/she) swim down and look?",
+   "src": "L569",
+   "choices": [
+    {
+     "label": "Swim Deeper",
+     "next": "deeper",
+     "src": "L571"
+    },
+    {
+     "label": "Better Not",
+     "next": "better",
+     "src": "L609"
+    }
+   ]
+  },
+  "deeper": {
+   "text": "(subject) swims deeper towards the shimmering object. (subject.He/She) can feel the pressure of the ocean getting heavier and heavier all around (subject.him/her). Just a little bit closer, and...",
+   "src": "L572",
+   "children": [
+    {
+     "next": "doubloons"
+    },
+    {
+     "next": "buoy"
+    },
+    {
+     "next": "container"
+    },
+    {
+     "next": "tank"
+    }
+   ]
+  },
+  "doubloons": {
+   "text": "It's an abandoned net wrapped around a seaweed-encrusted crate. When (subject) surfaces, (subject.he/she) cracks it open to find a bunch of golden doubloons! Your village gains (award) tech points.",
+   "src": "L577",
+   "popup": "append",
+   "join": "paragraph",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ]
+  },
+  "buoy": {
+   "text": "It's a chewed-up buoy, which to (subject), is some heavy striped ball. Whatever it is, it certainly has no use now. (subject) lets go of the mysterious heavy ball and swims up to the surface. Maybe next time (subject.he/she) will find something worthwhile.",
+   "src": "L580",
+   "popup": "append",
+   "join": "paragraph"
+  },
+  "container": {
+   "text": "It's a large rectangular shipping container, all rusted from the salt. To (subject), it's just some random container, but it must contain something to be so heavy. (subject.He/She) carefully swims to the surface and hauls it ashore. Turns out, it's full of exotic ingredients, the likes of which (subject) has never seen before! Your village gains (award) food.",
+   "src": "L583",
+   "popup": "append",
+   "join": "paragraph",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ]
+  },
+  "tank": {
+   "text": "POP! Before (subject) can react, one of (subject.his/her) makeshift air tanks pops like a balloon. (subject.He/She) stares wide-eyed in horror as the air rises to the surface in a large bubble before exploding in a deafening blast. (subject) forgets (subject.his/her) training and starts clawing through the water like a drowning animal.",
+   "src": "L586",
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "ashore"
+    },
+    {
+     "next": "ashore"
+    },
+    {
+     "next": "ashore"
+    },
+    {
+     "next": "sinks"
+    }
+   ]
+  },
+  "ashore": {
+   "text": "After some agonizingly long minutes, (subject) heaves (subject.himself/herself) ashore, gasping for breath. (subject.His/Her) eyes, nose and mouth sting from the salty water, and (subject.he/she) is dazed for a while. Eventually, (subject) manages to recover enough to make (subject.his/her) way to the healers'. (subject) spends several days recovering from (subject.his/her) near-death experience and is now afraid of the unforgiving ocean.",
+   "src": "L591",
+   "popup": "append",
+   "join": "paragraph",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "dislikes",
+     "preference": "swimming"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L591",
+     "what": "\"experience\", \"death\"",
+     "reason": "the word in the owner's story; what changes in the game is the outcome's own effects (the owner's spec beside it), so this word alone changes nothing"
+    }
+   ]
+  },
+  "sinks": {
+   "text": "After some agonizingly long minutes, (subject) struggles harder and harder to make it to the surface. (subject.His/Her) body becomes weaker and more painful with every stroke and (subject.his/her) lungs are ready to burst. The sunlight starts becoming fainter as (subject) begins sinking towards the briny blue depths...\n(subject)'s last thoughts before inhaling water are of (subject.his/her) family, and the foolish dreams (subject.he/she) once had of taming the great, blue ocean...",
+   "src": "L594-595",
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "dies"
+    },
+    {
+     "next": "lost"
+    },
+    {
+     "next": "rescued"
+    },
+    {
+     "next": "rescued"
+    },
+    {
+     "next": "rescued"
+    },
+    {
+     "next": "rescued"
+    }
+   ]
+  },
+  "dies": {
+   "text": "Eventually, (subject)'s body washes ashore, to the dismay and grief of the villagers. They bury (subject) and mournfully lament the loss of a great sea explorer.",
+   "src": "L600",
+   "popup": "append",
+   "join": "paragraph",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "subject",
+     "cause": "unknown"
+    }
+   ]
+  },
+  "lost": {
+   "text": "Several days pass, and (subject)'s body is never found. (subject)'s friends, family and the entire village gather to remember (subject) and mourn the loss of a great sea explorer.",
+   "src": "L603",
+   "popup": "append",
+   "join": "paragraph",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ]
+  },
+  "rescued": {
+   "text": "\"Thank goodness, (subject.he/she)'s alive!\" (subject) coughs hard, bringing up water. \"Wh-where am I?!\" (subject.he/she) sputters. (Subject) opens (subject.his/her) eyes to see the faces of many doctors, friends, as well as (subject.his/her) family huddled over (subject.him/her). (doctor), the head Doctor, says, \"We found you unconscious here on the shore. We performed lifesaving measures until you started moving again.\" (subject) sits up to see worried loved ones crying in distress, and is moved with pity. (subject.He/She) goes to hug them and thanks everyone for saving (subject.his/her) life.\nOnce (subject.he/she) has sufficiently recovered from (subject.his/her) near-death experience, (subject.he/she) makes a silent, solemn vow to the majestic Ocean. In (subject.his/her) heart, (subject.he/she) apologizes for almost throwing (subject.his/her) life away for the sake of some tempting treasure, and promises never to take Them for granted again. (subject) devotes (subject.himself/herself) to the healing arts in gratitude towards those who saved (subject.him/her) that day.",
+   "src": "L606-607",
+   "popup": "append",
+   "join": "paragraph",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L607",
+     "what": "\"death\"",
+     "reason": "the word in the owner's story; what changes in the game is the outcome's own effects (the owner's spec beside it), so this word alone changes nothing"
+    }
+   ]
+  },
+  "better": {
+   "text": "(subject) knows that diving can be dangerous, and the sea can be both generous and cruel. Gambling with the ocean's patience could spell death, and (subject) has a family waiting back home. (subject) hangs up (subject.his/her) diving equipment to be a gentle (subject.father/mother) to (subject.his/her) spouse and children.",
+   "src": "L610",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L610",
+     "what": "\"death\"",
+     "reason": "the word in the owner's story; what changes in the game is the outcome's own effects (the owner's spec beside it), so this word alone changes nothing"
+    }
+   ]
+  }
+ }
+}

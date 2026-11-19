@@ -33,8 +33,9 @@
    "named": true
   },
   "isolan": {
-   "kind": "stranger",
-   "sex": "random"
+   "kind": "villager",
+   "min_age": 14,
+   "heathen_ok": true
   },
   "judge1": {
    "kind": "villager",
@@ -167,6 +168,14 @@
    "children": [
     {
      "next": "pp"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8395-8396"
     }
    ]
   },

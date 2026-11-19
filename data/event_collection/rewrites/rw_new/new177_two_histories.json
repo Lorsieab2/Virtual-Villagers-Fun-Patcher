@@ -1,0 +1,262 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Histories",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new177_two_histories",
+  "source": "rewrites",
+  "lines": [
+   8575,
+   8621
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8575",
+  "ledger": [
+   {
+    "src": "L8576",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8577",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8586",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8593",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8600",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8582",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8583",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8584",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8587",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8594",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8601",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8588",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8590",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8595",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8597",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8602",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8604",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8607-8621",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager says the records are right: lightning started it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "scholar": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For three days now, (subject) and (friend) have been arguing about the great fire of long ago, the one that burned down half the old village.\n(subject) says the records are right: lightning started it. It's written down. It's official.\n(friend) says (subject.his/her) grandfather swore, on his deathbed, that it was a cooking pot left on the coals by someone who went for a swim.\nThey have been arguing at breakfast. At lunch. At the well. In the middle of the night, from their separate huts, shouting across the village. Both of them are getting very loud, and (scholar) is being asked, increasingly desperately, to settle it. How should (scholar) settle it?",
+   "choices": [
+    {
+     "label": "Copy the Old Fire Record",
+     "next": "c1",
+     "src": "L8582"
+    },
+    {
+     "label": "Gather the Grandparents' Stories",
+     "next": "c2",
+     "src": "L8583"
+    },
+    {
+     "label": "Record Both Versions",
+     "next": "c3",
+     "src": "L8584"
+    }
+   ],
+   "src": "L8578-8581"
+  },
+  "c1o1": {
+   "text": "The record does say lightning. But it also describes, in detail, how the village rebuilt afterward: wider gaps between huts, fire breaks, water jars by every door. (scholar) copies all of it onto fresh bark, saving useful knowledge that the village had half forgotten. (subject) is triumphant. (friend) points out that the record was written by someone who wasn't there.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8589"
+  },
+  "c1o2": {
+   "text": "The old record is so dry that it cracks apart as it is unrolled, splitting into pieces that crumble at the edges. A fragile part of the history is lost, including, ironically, the part that said what started the fire. (subject) and (friend) stare at the pieces. Then at each other. Then, for the first time in three days, they're both quiet.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L8591"
+  },
+  "c1": {
+   "text": "(scholar) fetches the ancient bark record of the fire, and unrolls it very, very carefully, with (subject) and (friend) breathing down (subject.his/her) neck...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8587"
+  },
+  "c2o1": {
+   "text": "Comparing all the stories turns up a detail everyone had missed: the fire started near the cooking hut, during a lightning storm. Lightning struck the cooking hut. Where, yes, someone had left a pot on the coals. Both sides were half right. (subject) and (friend) are both furious, and then both laugh, and then go and eat lunch together.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8596"
+  },
+  "c2o2": {
+   "text": "The grandparents' stories contradict each other completely: lightning, a cooking pot, a dropped torch, an angry spirit, and one great-aunt who insists there was no fire at all. Nobody pretends to know the truth. (subject) and (friend) keep arguing, but now there are seven sides.",
+   "src": "L8598"
+  },
+  "c2": {
+   "text": "(scholar) visits every elder whose family lived through the fire, and writes down every version...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8594"
+  },
+  "c3o1": {
+   "text": "The village writes down both versions side by side, carefully, with the names of who told each one, a careful record for future generations to argue about. In the writing of it, (scholar) works out a better way of keeping records: always noting who said what, and how they knew. (subject) and (friend) both sign their versions, with a flourish.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L8603"
+  },
+  "c3o2": {
+   "text": "As (scholar) writes, an old woman comes to ask that some parts of the story be left out: the parts about which families lost people, and who was blamed afterwards. (scholar) decides those parts should stay private to the families involved. (subject) and (friend), hearing why, quietly stop arguing.",
+   "src": "L8605"
+  },
+  "c3": {
+   "text": "(scholar) declares that the village will keep both versions, side by side, and let the future decide...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8601"
+  }
+ }
+}

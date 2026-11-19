@@ -1,0 +1,242 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Teacher Who Retired",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new135_teacher_retired",
+  "source": "rewrites",
+  "lines": [
+   6339,
+   6384
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6339",
+  "ledger": [
+   {
+    "src": "L6340",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6341",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6349",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6356",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6363",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6345",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6346",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6347",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6350",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6357",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6364",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6351",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6353",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6358",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6360",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6365",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6367",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6370-6384",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has taught every child in the village for years.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has taught every child in the village for years. Counting, tides, which berries can kill, why nobody should ever poke a pufferfish. Most of the adults in the village were (subject.his/her) pupils once, and some of them still sit up straight when (subject.he/she) walks past.\nThis morning, (subject) announced that the daily lessons have become too exhausting, and (subject.he/she) is stopping.\nThe children are horrified. One of them burst into tears. So, secretly, are some of the parents, who have suddenly realized they will have to teach their own children which berries can kill. (young) can see how tired (subject) is, but the village still needs (subject.his/her) lessons. How can (young) help?",
+   "choices": [
+    {
+     "label": "Ask What They Would Like Now",
+     "next": "c1",
+     "src": "L6345"
+    },
+    {
+     "label": "Learn Their Teaching Ways",
+     "next": "c2",
+     "src": "L6346"
+    },
+    {
+     "label": "Move Lessons Into the Shade",
+     "next": "c3",
+     "src": "L6347"
+    }
+   ],
+   "src": "L6342-6344"
+  },
+  "c1o1": {
+   "text": "(subject) smiles slowly. (subject.He/She) has thought about it a lot. (subject.He/She) decides to teach once a week, just one long, good lesson, and go fishing the rest of the time. Entirely by (subject.his/her) own choice. The children are thrilled to have (subject.him/her) at all, and the once-a-week lessons become the most popular event in the village.",
+   "src": "L6352"
+  },
+  "c1o2": {
+   "text": "(subject) admits that (subject.he/she) doesn't actually want to stop. (subject.He/She) just can't do it all alone anymore. (subject.He/She) asks for an assistant, surprising everyone who thought (subject.he/she) would refuse any help. (young) volunteers on the spot, and the lessons start again the next day, with two teachers instead of one.",
+   "src": "L6354"
+  },
+  "c1": {
+   "text": "(young) finds (subject) sitting alone on the beach, looking at the sea, and sits down beside (subject.him/her). \"What would you like to do now?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6350"
+  },
+  "c2o1": {
+   "text": "(subject) shows (young) how to teach counting with pebbles and shells: pebbles for ones, shells for tens, a coconut for a hundred. It's simple, but it works on even the most fidgety children. (young) learns a useful skill to pass on, and teaches (subject.his/her) first lesson the next day, with (subject) watching from the back, nodding.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "young",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L6359"
+  },
+  "c2o2": {
+   "text": "(subject) tries to teach (subject.his/her) favourite counting rhyme, the one every child in the village learns first, and gets stuck after \"seven fishes in a net.\" (subject.He/She) can't remember the rest! (subject.He/She) asks (subject.his/her) former pupils to help, and soon half the adults in the village are standing around chanting it, getting it wrong in different ways, until they finally put it back together.",
+   "src": "L6361"
+  },
+  "c2": {
+   "text": "(young) asks if (subject) would show (subject.him/her) how to teach, so someone can carry on. (subject) gives (subject.him/her) a long, measuring look, the same look (subject.he/she) gave (subject.him/her) when (subject.he/she) was six and hadn't done (subject.his/her) counting...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6357"
+  },
+  "c3o1": {
+   "text": "Under the big shade tree, with a cushion and a cool breeze and a jar of water, (subject) teaches comfortably for the first time in ages. (subject.He/She) decides (subject.he/she) isn't quite ready to stop after all. The children cheer, and the lessons under the tree become a village tradition.",
+   "src": "L6366"
+  },
+  "c3o2": {
+   "text": "(subject) sits under the tree, looks at the waiting children, and decides that even this is too tiring today. The children get a surprise day off, and run off shrieking with joy before (subject.he/she) can change (subject.his/her) mind. (subject) watches them go, smiling, and dozes off under the tree.",
+   "src": "L6368"
+  },
+  "c3": {
+   "text": "(young) suggests moving the lessons out of the stuffy hut, under the big shade tree, with a cushion and a water jar for (subject)...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6364"
+  }
+ }
+}

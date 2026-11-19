@@ -1,0 +1,270 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Parrot with Opinions",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s051_parrot_opinions",
+  "source": "rewrites",
+  "lines": [
+   2417,
+   2461
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2417",
+  "ledger": [
+   {
+    "src": "L2418",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2419",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2427",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2436",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2424",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2425",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2428",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2437",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2430",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2433",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2439",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2442",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2445-2461",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A big green parrot has moved onto a villager's roof.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A big green parrot has moved onto (name)'s roof. Nobody invited it. It has a red patch over one eye like a little cap worn at an angle, and when it's bored it pulls bits out of the thatch and drops them on (name)'s head.\nIt knows three words. Two of them are (name)'s name, which it shouts at dawn, every dawn, very loudly. The third is \"No.\"\nIt says \"No\" whenever (name) starts a job. Picks up a hoe: \"No.\" Reaches for a basket: \"NO.\" Bends to tie a sandal: \"No,\" quietly, almost sadly, as if it's disappointed in (him/her). (Name) has started to wonder if the parrot knows something. Should (he/she) listen to it, or ignore the bossy bird?",
+   "choices": [
+    {
+     "label": "Listen to the Parrot",
+     "next": "c1",
+     "src": "L2424"
+    },
+    {
+     "label": "Ignore the Parrot",
+     "next": "c2",
+     "src": "L2425"
+    }
+   ],
+   "src": "L2420-2422"
+  },
+  "c1o1": {
+   "text": "The parrot says \"No\" loudest, by far, whenever (name) picks up a building tool. It screams it. It flaps its wings and bobs its head and screams \"NO NO NO\" until (name) puts the hammer down. So (name) stops building, and after a while, without the parrot even saying anything, (he/she) finds (he/she) has come to dislike the feel of wood. But the parrot never once says no to the thing (name) used to hate the most. It just watches, quietly, with its head on one side. And (name) finds, to (his/her) astonishment, that (he/she) doesn't mind that thing any more.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L2431"
+  },
+  "c1o2": {
+   "text": "The parrot says \"No\" to absolutely everything. Hoe, hammer, scroll, basket, net: \"No.\" Then one evening (name) picks up a cooking pot, and the parrot goes completely silent. It hops down from the roof onto the edge of the pot and looks inside, hopefully. (Name) takes up cooking. (He/She) spends the whole season at the fire, gathering herbs and roots and fruits, stewing and roasting and baking, and turns out to be wonderful at it. The parrot was right. It gets the first taste of everything, which may have been the point all along.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "skills": [
+      "Farming"
+     ],
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L2434"
+  },
+  "c1": {
+   "text": "(Name) decides to try an experiment. For a whole week, (he/she) picks up each tool in turn, holds it up towards the roof, and waits to see what the parrot says. The neighbours think (he/she) has lost (his/her) mind...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2428"
+  },
+  "c2o1": {
+   "text": "The parrot sulks. It sits on the roof with its feathers puffed up, saying nothing, all afternoon. The next morning, (name) wakes up to silence. No name shouted at dawn. No \"No.\" The parrot has flown off to sit on someone else's hut on the other side of the village, and is shouting their name instead. (Name) is very relieved. And then, a few days later, rather to (his/her) own surprise, (he/she) misses it. A little.",
+   "src": "L2440"
+  },
+  "c2o2": {
+   "text": "\"No,\" says the parrot, as (name) heads out to work. So (name) works harder. \"No,\" says the parrot, as (name) comes back. So (name) goes out again, and works even harder, just to show it. Every day for a month (name) works twice as hard as anyone else in the village, out of pure stubbornness, to prove that bird wrong. By the end of the month (he/she) is far better at (his/her) work than (he/she) ever was. The parrot says \"No\" anyway. But it sounds, perhaps, a little impressed.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2443"
+  },
+  "c2": {
+   "text": "(Name) refuses to be bossed about by a bird. (He/She) picks up (his/her) tools, walks right past the hut, and gets on with the day. \"No,\" says the parrot. \"No. NO.\" (Name) doesn't look up...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2437"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "wood",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "eating",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

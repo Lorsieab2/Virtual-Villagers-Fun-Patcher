@@ -1,0 +1,294 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Clay Figure in the Garden",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my039_clay_figure",
+  "source": "rewrites",
+  "lines": [
+   12116,
+   12171
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12116",
+  "ledger": [
+   {
+    "src": "L12117",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12118",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12127",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12134",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12141",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12148",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12122",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12123",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12124",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12125",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12128",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12135",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12142",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12149",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12129",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12131",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12136",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12138",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12143",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12145",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12150",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12152",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12155-12171",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "One morning, a villager goes out to the gardens and finds a tiny clay figure standing among the crops.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "One morning, (subject) goes out to the gardens and finds a tiny clay figure standing among the crops. It's the size of a thumb, with a round body and one arm pointing out, and the soil around it has been smoothed very carefully.\nThe next morning, it's pointing a different way. And the next, a different way again. The soil is always freshly smoothed. Nobody ever sees anyone near it. The other gardeners have started leaving it alone very politely, the way people might leave alone a sleeping dog. What should (subject) do?",
+   "choices": [
+    {
+     "label": "Follow Its Direction",
+     "next": "c1",
+     "src": "L12122"
+    },
+    {
+     "label": "Leave It Alone",
+     "next": "c2",
+     "src": "L12123"
+    },
+    {
+     "label": "Ask Who Made It",
+     "next": "c3",
+     "src": "L12124"
+    },
+    {
+     "label": "Place It in the Shrine",
+     "next": "c4",
+     "src": "L12125"
+    }
+   ],
+   "src": "L12119-12120"
+  },
+  "c1o1": {
+   "text": "Right where (subject) ends up, past the last row, is a patch of ground nobody's ever bothered with. When (subject) digs into it, the soil is black and crumbly and full of worms, the richest soil (subject.he/she) has ever seen. The gardeners plant it with yams, and the yams grow fat as piglets. The little figure, the next morning, is pointing at the new yams, looking rather smug. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L12130"
+  },
+  "c1o2": {
+   "text": "The figure is pointing straight at a big muddy puddle. (subject) stares at it. There's nothing there. Then a small, giggling voice comes from behind the bean poles, and a child pops out, covered in clay. The child has been making the figure, turning it every morning, and smoothing the soil \"so it looks magic\". (subject) laughs so hard (subject.he/she) has to sit down in the mud.",
+   "src": "L12132"
+  },
+  "c1": {
+   "text": "Feeling more than a little silly, (subject) walks in a straight line in the direction the little figure is pointing, all the way to the far edge of the garden...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12128"
+  },
+  "c2o1": {
+   "text": "The figure stays for weeks, pointing a different way each morning. It becomes a familiar curiosity, then a friend. The gardeners say good morning to it. The children leave it flowers. Somebody makes it a tiny hat out of a leaf. Nobody ever finds out who turns it, and after a while, nobody wants to.",
+   "src": "L12137"
+  },
+  "c2o2": {
+   "text": "One morning, it's gone. All that's left is a small round imprint in the smoothed soil where it stood, and no tracks around it at all. The gardeners are surprisingly sad about it. (subject) keeps looking for it in the rows for weeks, and once or twice thinks (subject.he/she) sees a little figure out of the corner of (subject.his/her) eye.",
+   "src": "L12139"
+  },
+  "c2": {
+   "text": "(subject) decides the little figure isn't doing any harm, and goes about (subject.his/her) work, giving it a polite nod each morning...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12135"
+  },
+  "c3o1": {
+   "text": "(friend), a young potter, goes very red and finally mumbles a confession: (friend.he/she) made it as a gift for (subject), to say thank you for something kind (subject) did ages ago that (subject) doesn't even remember. (friend) was too shy to give it in person, so left it in the garden, and kept sneaking back to turn it for fun. (subject) is completely touched, and keeps the little figure on a shelf from then on.",
+   "src": "L12144"
+  },
+  "c3o2": {
+   "text": "Nobody claims it. Not the potters, not the children, not the elders. And the potters point out something odd: the clay is reddish and fine, nothing like the grey river clay they use, nothing like any clay on this part of the island. (subject) puts it back in the garden, very gently, and smooths the soil around it.",
+   "src": "L12146"
+  },
+  "c3": {
+   "text": "(subject) carries the little figure around the village, holding it up and asking everyone, \"Is this yours?\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12142"
+  },
+  "c4o1": {
+   "text": "In the heat of the midday sun, the clay figure cracks right down the middle with a tiny pop. (subject) is horrified. (subject.He/She) and the village potter spend a whole afternoon carefully mending it with fresh clay, and when they're done, it looks almost as good as new, with a little scar down its middle that (subject) quite likes.",
+   "src": "L12151"
+  },
+  "c4o2": {
+   "text": "At dawn, there's a second figure standing beside the first on the shrine. It's a little taller, made of the same clay, and it holds its arms out as if offering a gift. Nobody saw anyone put it there. The two of them stand side by side on the shrine from then on, and the villagers leave them a tiny bowl of seeds every morning.",
+   "src": "L12153"
+  },
+  "c4": {
+   "text": "(subject) decides the little figure deserves a proper home, and places it respectfully on the village shrine beside the offering bowls...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12149"
+  }
+ }
+}

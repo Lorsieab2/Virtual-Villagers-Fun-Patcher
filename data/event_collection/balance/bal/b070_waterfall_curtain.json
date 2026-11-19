@@ -1,0 +1,196 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Waterfall Curtain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b070_waterfall_curtain",
+  "source": "balance",
+  "lines": [
+   3160,
+   3201
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3160",
+  "ledger": [
+   {
+    "src": "L3161",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3162",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3170",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3179",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3167",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3168",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3171",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3180",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3173",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3176",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3182",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3185",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3188-3201",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At the head of the valley a waterfall drops in a thin, shining curtain over a dark hollow in the cliff.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the head of the valley a waterfall drops in a thin, shining curtain over a dark hollow in the cliff. The children say someone lives behind it. The elders say that's nonsense, and also that nobody should stand too long looking at their reflection in the falling water, because \"the waterfall learns your face.\"\n(Name) has come up to fill gourds, and has been standing in the spray for a while. In the curtain of water, (his/her) reflection hangs, wavering, and then, very clearly, it steps forward.\nShould (name) reach into the water, or step back?",
+   "choices": [
+    {
+     "label": "Reach into the Water",
+     "next": "c1",
+     "src": "L3167"
+    },
+    {
+     "label": "Step Back",
+     "next": "c2",
+     "src": "L3168"
+    }
+   ],
+   "src": "L3163-3165"
+  },
+  "c1o1": {
+   "text": "(Name) pulls, and someone comes through the curtain, soaked and gasping: (name)'s face, (name)'s height, and nothing else of (name) at all. The waterfall learned only the face. The newcomer is shy, and loves the rain, and wants to learn everything. It chooses the name (made1), and the children say they knew all along that someone lived back there.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L3174"
+  },
+  "c1o2": {
+   "text": "The warm hand pulls back, harder. (Name) stumbles forward through the cold curtain and is gone. (His/Her) gourds are found the next day at the pool's edge, full. The village searches the hollow behind the waterfall and finds only wet rock and moss. The children don't play near the waterfall anymore, and the elders don't call it nonsense.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L3177"
+  },
+  "c1": {
+   "text": "(Name) reaches out. (His/Her) hand goes through the falling water, cold as ice, and closes round another hand, warm, on the other side...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3171"
+  },
+  "c2o1": {
+   "text": "The reflection takes one more step, and walks out through the curtain onto the rocks, dripping. It has (name)'s face. It has someone else's smile, someone else's walk, and someone else's opinions about absolutely everything. \"Hello,\" it says politely. The village names it (made1).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L3183"
+  },
+  "c2o2": {
+   "text": "The reflection fades back into the falling water. (Name) goes home with (his/her) gourds, and only notices at supper that everyone is staring. The spray has done something: (his/her) face looks years younger, fresh as a child's after a swim. \"The waterfall learned your face,\" says an elder, \"and gave back an earlier one.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L3186"
+  },
+  "c2": {
+   "text": "(Name) takes a step back, and then another. The reflection in the water doesn't step back. It stays where it is, close to the front of the curtain, as if it is waiting...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3180"
+  }
+ }
+}

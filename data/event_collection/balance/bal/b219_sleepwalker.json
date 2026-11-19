@@ -1,0 +1,205 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sleepwalker",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b219_sleepwalker",
+  "source": "balance",
+  "lines": [
+   10181,
+   10224
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10181",
+  "ledger": [
+   {
+    "src": "L10182",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10183",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10191",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10200",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10188",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10189",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10192",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10201",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10194",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10197",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10203",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10206",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10209-10224",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager's grandmother, before she died, used to say the opposite: that whoever is calling should be answered.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For a week, (subject) has been walking in (subject.his/her) sleep. Every night (subject.he/she) gets up, eyes open but empty, and walks out of the village towards the old burial ground on the hill, and every night someone catches (subject.him/her) and leads (subject.him/her) home. (subject.He/She) never remembers. In the mornings there is grey dust on (subject.his/her) feet.\n(healer) says sleepwalkers who go to burial grounds \"are being called,\" and that it's best to tie them to the doorpost. (subject)'s grandmother, before she died, used to say the opposite: that whoever is calling should be answered.\nTonight, should the village tie (subject) to the doorpost, or let (subject.him/her) walk and follow?",
+   "choices": [
+    {
+     "label": "Tie (subject.Him/Her) to the Doorpost",
+     "next": "c1",
+     "src": "L10188"
+    },
+    {
+     "label": "Let (subject.Him/Her) Walk, and Follow",
+     "next": "c2",
+     "src": "L10189"
+    }
+   ],
+   "src": "L10184-10186"
+  },
+  "c1o1": {
+   "text": "(subject) pulls all night, and the rope holds, and at dawn (subject.he/she) lies down on the doorstep and sleeps properly for the first time in a week. When (subject.he/she) wakes, (subject.his/her) hair has gone grey, all at once, in the night, as if (subject.he/she) had spent the hours walking a great deal further than the end of the rope. (subject.He/She) never sleepwalks again.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L10195"
+  },
+  "c1o2": {
+   "text": "In the morning the rope is lying on the floor, still knotted, untied neatly from (subject)'s ankle by someone with small, careful fingers. (subject) is gone. There is grey dust on the doorstep. The village goes up to the burial ground and finds (subject.his/her) footprints walking in among the graves, and none walking out.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L10198"
+  },
+  "c1": {
+   "text": "They tie a soft rope round (subject)'s ankle and the other end to the doorpost. At midnight, (subject) gets up, eyes open and empty, and walks to the end of the rope, and pulls, and pulls...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10192"
+  },
+  "c2o1": {
+   "text": "(subject) kneels by the grave and seems to listen for a long time, nodding. Then (subject.he/she) lies down beside it and sleeps till dawn. When (subject.he/she) wakes, (subject.he/she) remembers a long talk with (subject.his/her) grandmother, and won't say what about. (subject.His/her) hair has gone grey at the temples, the way hers did, and (subject.he/she) is calmer about everything after that. (subject.He/She) never sleepwalks again.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L10204"
+  },
+  "c2o2": {
+   "text": "At the grave, a mist comes up out of the ground, white and thick, and wraps round (subject), and when the followers rush in with the torch, there is nobody there. Only the mist, sinking back into the grass, and grey dust. The village leaves flowers on the grandmother's grave every week after that, for both of them.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L10207"
+  },
+  "c2": {
+   "text": "At midnight (subject) gets up and walks, and (healer) and two others follow at a distance, carrying a covered torch. Up the hill, into the burial ground, between the old stones, to (subject.his/her) grandmother's grave...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10201"
+  }
+ }
+}

@@ -76,7 +76,15 @@
   "b": {
    "name": "Answer B",
    "text": "The coconuts are collected for a feast, but nobody learns who wrote the sign.",
-   "src": "L6456"
+   "src": "L6456",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L6456"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",

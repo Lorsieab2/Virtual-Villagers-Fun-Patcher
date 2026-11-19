@@ -295,8 +295,10 @@ class ChoicesAndQuestions(unittest.TestCase):
                 self.assertIn("walks to the old cliff", shown[0][1])
                 self.assertNotIn("finds many doors", shown[0][1])
                 self.assertEqual(shown[1][0], "question")
-                self.assertFalse(any(s[1].lstrip().startswith("Open door number") for s in shown[2:]),
-                                 "no label line without Scrolling Popups")
+                # The answer page's title is the choice picked (chosen-choice titles); its text below the title
+                # never starts with the label line.
+                self.assertFalse(any(s[1].split("\n", 1)[-1].lstrip().startswith("Open door number")
+                                     for s in shown[2:]), "no label line without Scrolling Popups")
 
 
 class ThePatchersMirror(unittest.TestCase):

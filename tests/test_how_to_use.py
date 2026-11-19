@@ -42,6 +42,8 @@ CONTROLS = {
     "back_up_saves", "restore_saves", "backups", "rename_tribe", "check_logs", "repair_logs",
     "check_logs_automatically", "check_for_updates", "family_tree_maker", "village_matchmaker",
     "game_mechanics", "stew_recipes", "custom_island_event_library", "copy_player_slot", "picture_studio", "translations", "unicode_font", "unicode_font_tool", "game_text", "tech_cost_multiplier", "meal_multiplier", "sickness_multiplier",
+    "louder_flutes_multiplier", "island_frequency_multiplier",
+    "island_event_content_filters",  # the Island Events section's filters (the owner, 2026-11-15)
 }
 
 # Words a player never sees in the patcher or the game.
@@ -124,7 +126,11 @@ class ContentTests(unittest.TestCase):
     def test_the_selection_guides_match_the_selection_rules(self) -> None:
         import vv_fun_patcher_gui as gui
 
-        names = {patch.id: patch.name for patch in vfp.load_public_fun_patches()}
+        # The island event controls are named together in the selection guides.
+        names = {patch.id: ("island event controls"
+                            if re.search(r"_island_event_(filter_f|content_notes)|_island_events_any_time", patch.id)
+                            else patch.name)
+                 for patch in vfp.load_public_fun_patches()}
         default = " ".join(how.guide("default_patches").lines)
         for patch_id in gui.DEFAULT_OFF_FUN_PATCH_IDS:
             name = names[patch_id]
@@ -264,7 +270,8 @@ class WindowTests(unittest.TestCase):
         self.assertEqual(set(self.result["keys"]), set(all_guides()))
 
     def test_every_patch_row_has_its_own_question_mark(self) -> None:
-        public = {patch.id for patch in vfp.load_public_fun_patches()}
+        # The 28 content filters sit in the Island Events section's grid: one "?" (Content Filters) for them all.
+        public = {patch.id for patch in vfp.load_public_fun_patches() if "_island_event_filter_f" not in patch.id}
         self.assertEqual(set(self.result["beside"]), public)
         self.assertEqual(set(self.result["beside"].values()), {1})
 

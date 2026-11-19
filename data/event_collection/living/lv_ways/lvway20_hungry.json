@@ -111,7 +111,15 @@
   "a2": {
    "name": "Outcome A2",
    "text": "The feast inspires neighbors to share hidden supplies.",
-   "src": "L23012"
+   "src": "L23012",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L23012"
+    }
+   ]
   },
   "b": {
    "type": "branch",

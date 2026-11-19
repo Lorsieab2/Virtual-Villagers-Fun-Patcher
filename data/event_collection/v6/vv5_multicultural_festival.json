@@ -121,8 +121,9 @@
    "optional": true
   },
   "visitor": {
-   "kind": "stranger",
-   "sex": "random"
+   "kind": "villager",
+   "min_age": 14,
+   "heathen_ok": true
   }
  },
  "pools": {

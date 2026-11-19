@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Beach Wedding",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s089_beach_wedding",
+  "source": "rewrites",
+  "lines": [
+   4170,
+   4213
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L4170",
+  "ledger": [
+   {
+    "src": "L4171",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4172",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4180",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4189",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4177",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4178",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4181",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4190",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4183",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4186",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4192",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4195",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4198-4213",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L4184",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L4187",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "A villager and another villager are getting married on the beach at sunset.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) are getting married on the beach at sunset. The whole village is there, standing barefoot in the warm sand in their best clothes, with flowers in their hair. The children are throwing petals at everyone, whether they're getting married or not. The elders are crying a little, and pretending they've got sand in their eyes.\nThe beach is strewn with white and yellow frangipani. The sky is going gold, then pink. And the tide keeps creeping up the sand, wave by wave, a little further each time, as if the sea itself wants a better view.\n(subject) and (friend) stand in the middle of it all, holding hands, grinning like fools. Should there be a big feast, or should they keep it small?",
+   "choices": [
+    {
+     "label": "Have a Big Feast",
+     "next": "c1",
+     "src": "L4177"
+    },
+    {
+     "label": "Keep It Small",
+     "next": "c2",
+     "src": "L4178"
+    }
+   ],
+   "src": "L4173-4175"
+  },
+  "c1o1": {
+   "text": "The feast goes on all night, on the sand, by torchlight, with dancing and singing and far too much honey bread. (subject) and (friend) dance every single dance. They're the last ones still dancing when the sun comes up. And a few weeks later, there's more good news: (subject) is pregnant. The whole village says that a wedding feast that good was bound to bring luck, and they're probably right.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    },
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "auto_text": true,
+   "src": "L4184"
+  },
+  "c1o2": {
+   "text": "The feast goes on all night. There's so much food, and so much dancing, and so much singing, that in the end nobody can manage to walk home. One by one, everyone just lies down where they are, on the warm sand, under the stars, and falls asleep. In the morning the whole village wakes up on the beach together, sandy and stiff and smiling, with petals in their hair and gulls stealing the leftovers. It's the best wedding anyone can remember.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "auto_text": true,
+   "src": "L4187"
+  },
+  "c1": {
+   "text": "As soon as the words are said and the elders have tied the cord round their joined hands, the drums start, and the cooks bring out everything: roast fish, honey bread, fruit piled in towers, the special sweet wine...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4181"
+  },
+  "c2o1": {
+   "text": "Just the two of them, their families, a few flowers, and the sunset, going down slowly into the sea in red and gold and purple. (subject)'s mother sings a song from when she was married. (friend)'s father tells a terrible joke, and everyone laughs anyway. The tide comes right up and washes over their feet, warm as a bath. Nobody says much. It's perfect.",
+   "src": "L4193"
+  },
+  "c2o2": {
+   "text": "A small wedding, a quiet evening, a walk home along the beach under the first stars, hand in hand. Nothing more. And then, a little later, a happy surprise: (subject) is pregnant. (subject) tells (friend) at the exact spot on the beach where they were married, at sunset, with the tide coming in. (friend) sits down in the wet sand and doesn't even notice.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L4196"
+  },
+  "c2": {
+   "text": "(subject) and (friend) don't want a fuss. When the words are said, they thank everyone, hug everyone, and then slip away down the beach, just the two of them and their families, to watch the rest of the sunset...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4190"
+  }
+ }
+}

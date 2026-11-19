@@ -1,0 +1,317 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Box of Winter in Summer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my052_box_winter",
+  "source": "rewrites",
+  "lines": [
+   12883,
+   12938
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12883",
+  "ledger": [
+   {
+    "src": "L12884",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12885",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12894",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12901",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12908",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12915",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12889",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12890",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12891",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12892",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12895",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12902",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12909",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12916",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12896",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12898",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12903",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12905",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12910",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12912",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12917",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12919",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12922-12938",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L12897",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "A traveling trader sells a villager a small wooden box for a handful of shells.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A traveling trader sells (name) a small wooden box for a handful of shells. \"Very special,\" the trader says, with a wink, and is gone before (name) can ask why.\nIt turns out the box is cold. Not cool, cold. Even in the blazing midday sun, frost-like beads of water gather on its sides, and when (name) holds it, (his/her) fingers ache like (he/she) has been fishing in a mountain stream. Nobody in the village has ever felt anything like it. What should (name) do?",
+   "choices": [
+    {
+     "label": "Open the Box",
+     "next": "c1",
+     "src": "L12889"
+    },
+    {
+     "label": "Use It to Cool Food",
+     "next": "c2",
+     "src": "L12890"
+    },
+    {
+     "label": "Return It to the Seller",
+     "next": "c3",
+     "src": "L12891"
+    },
+    {
+     "label": "Leave It in the Sun",
+     "next": "c4",
+     "src": "L12892"
+    }
+   ],
+   "src": "L12886-12887"
+  },
+  "c1o1": {
+   "text": "A blast of freezing air rushes out of the box and rolls across the drying racks next to (name). The fruit laid out there to dry turns brown and soft in moments, slumping and weeping juice, and the smell of it brings every fly in the village at once. (Name) slams the lid shut, but the damage is done.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L12897"
+  },
+  "c1o2": {
+   "text": "Inside, nestled in dry moss, is a lump of pale, glittering mineral that stays cool even after it's taken out into the shade. The researchers are fascinated. They spend weeks testing it, wrapping it, chilling water with it and learning how certain stones pull warmth out of the air around them. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L12899"
+  },
+  "c1": {
+   "text": "(Name) wedges a thumbnail under the lid and flips it open...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12895"
+  },
+  "c2o1": {
+   "text": "It works! By evening, when every other bit of fish in the village is going limp and smelly in the heat, the fish in the box is as fresh and firm as when it was caught. It's only a small portion, but the cooks are overjoyed, and that night they make the freshest fish stew anyone has eaten in a long time. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L12904"
+  },
+  "c2o2": {
+   "text": "By the time (name) has fetched the fish and opened the lid, the box isn't cold anymore. Not even cool. Just an ordinary wooden box, warm from the sun. Whatever made it cold has faded before anyone could test it. (Name) is very disappointed and goes looking for the trader to complain.",
+   "src": "L12906"
+  },
+  "c2": {
+   "text": "(Name) has an idea. (He/She) puts a portion of the morning's fish inside the cold box and closes the lid, to see whether it'll keep...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12902"
+  },
+  "c3o1": {
+   "text": "(Name) catches the trader at the edge of the village, packing up. \"Ah, not for you?\" the trader says cheerfully, and hands back the shells without any complaint. \"It's from the high mountains, far to the south. Cold places. Most people don't know what to do with it.\" The trader goes on (his/her) way, box and all.",
+   "src": "L12911"
+  },
+  "c3o2": {
+   "text": "(Name) searches the whole village. Nobody remembers seeing a trader that day. Nobody remembers anyone coming or going on the road. When (name) describes the trader, people just shake their heads. (Name) goes home holding the cold little box, feeling a chill that has nothing to do with it.",
+   "src": "L12913"
+  },
+  "c3": {
+   "text": "(Name) decides (he/she) doesn't want a box that makes (his/her) fingers ache, and goes looking for the trader to give it back...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12909"
+  },
+  "c4o1": {
+   "text": "Slowly, over the afternoon, the box warms up, until by sunset it's just a box. Ordinary wood, ordinary lid, ordinary temperature. Whatever it was, it's gone now. (Name) uses it to keep sewing needles in, and it never gets cold again.",
+   "src": "L12918"
+  },
+  "c4o2": {
+   "text": "At the hottest moment of the day, something strange happens. Fine white feathers of frost spread across the lid, glittering, delicate as lace, beautiful and impossible in the heat. The children gasp. Then, a heartbeat later, they melt away into droplets, and the box is warm. It never happens again.",
+   "src": "L12920"
+  },
+  "c4": {
+   "text": "(Name) sets the box on a flat rock in the full blazing sun and waits to see what happens...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12916"
+  }
+ }
+}

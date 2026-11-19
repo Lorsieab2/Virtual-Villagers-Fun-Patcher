@@ -1366,7 +1366,7 @@
       "id": "vv2_easier_healing_mastery",
       "game_id": "vv2",
       "name": "Easier Healing Mastery",
-      "description": "Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up. A villager not checked on Healing (any other job, or none) studies there only 14% of the time; otherwise, as in the normal game, there is nothing to do.",
+      "description": "Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up: a villager checked on Healing about three times in four (75%) of those times, so healers still do other things as in the normal game; a villager not checked on Healing (any other job, or none) only 14% of the time; otherwise, as in the normal game, there is nothing to do there and the game chooses something else.",
       "output_tag": "Easier Healing",
       "patches": [
         {
@@ -1377,9 +1377,9 @@
         },
         {
           "offset": "0x73CA0",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "69FD8CE4000001F76A6483BFF8070000037409E8E8F4F8FF3C0E73356A098F87E00700005589F1E8C4C8FEFFEB26",
-          "purpose": "for a villager checked on Healing (job preference +0x7F8 = 3), set plant-study state 9 and reuse the stock live and catch-up work dispatcher; for any other villager only when the game's rand(100) is below 14, else the stock no-patient exit"
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "69FD8CE4000001F76A64E8F1F4F8FF83BFF80700000375022C3D3C0E7D336A098F87E00700005589F1E8C2C8FEFFEB24",
+          "purpose": "draw the game's rand(100) once; a villager checked on Healing (job preference +0x7F8 = 3) studies when it is below 75, any other villager when it is below 14 (the checked villager's roll less 61, compared signed with 14); a study sets plant-study state 9 and reuses the stock live and catch-up work dispatcher, else the stock no-patient exit"
         },
         {
           "offset": "0x73CF1",
@@ -1499,7 +1499,7 @@
       "id": "vv1_easier_healing_mastery",
       "game_id": "vv1",
       "name": "Easier Healing Mastery",
-      "description": "Healers and villagers who prefer Healing study the Medical Cactus whenever the game gives them healing work and no sick villager needs treatment, including during catch-up (the time that passes while the game is closed, and Time Warp). A villager not checked on Healing (any other job, or none) studies there only 14% of the time; otherwise, as in the normal game, there is nothing to do. Without this patch only a villager you dropped on the cactus does that, and such a villager always studies. The study and its Healing practice are the game's own. **Needs no other patch. With Builders and Healers Work First also selected, healers are given healing work more often, so they study more.** The 14% roll lives in \"VVFP VV1 Easier Healing.dll\", started by VVFP Startup.dll; if the DLL cannot be loaded, every villager studies as before.",
+      "description": "Healers and villagers who prefer Healing study the Medical Cactus when the game gives them healing work and no sick villager needs treatment, including during catch-up (the time that passes while the game is closed, and Time Warp). A villager checked on Healing does so about three times in four (75%) of those times, so healers still do other things as in the normal game (with Builders Fix Huts When Idle also selected, this is that patch's one roll per choice, shared); a villager not checked on Healing (any other job, or none) only 14% of the time; otherwise, as in the normal game, there is nothing to do there and the game chooses something else. Without this patch only a villager you dropped on the cactus does that, and such a villager always studies. The study and its Healing practice are the game's own. **Needs no other patch. With Builders and Healers Work First also selected, healers are given healing work more often, so they study more.** The 75% and 14% rolls live in \"VVFP VV1 Easier Healing.dll\", started by VVFP Startup.dll; if the DLL cannot be loaded, every villager studies as before.",
       "output_tag": "Easier Healing",
       "patches": [
         {
@@ -1513,14 +1513,14 @@
         {
           "source": "assets/easier_healing/VVFP VV1 Easier Healing.dll",
           "destination": "VVFP VV1 Easier Healing.dll",
-          "sha256": "E1950F9E45ECE8B44C5BDBC760EFFA170EAC26D39DABC4D9CA91E76BD4446909"
+          "sha256": "1F2CA5421603F8AF464B9668C691A78730F1ABB51126238AE9C9DD82D908C10E"
         }
       ],
       "runtime_detours": [
         {
           "va": "0x4478E7",
           "stock_bytes": "558BCEE881B9FFFF5F5D5BB0015EC20800909090909090909090",
-          "routine": "this row's no-patient exit of the work dispatcher's Healing case (0x4472C0 case 5): a villager checked on Healing (+0x3D0 = 5) or in plant-study state 9 (the player's drop) studies as the row does; anyone else only when the companion's own roll passes 14 times in 100, else the stock exit 0x447901",
+          "routine": "this row's no-patient exit of the work dispatcher's Healing case (0x4472C0 case 5): a villager in plant-study state 9 (the player's drop) studies as the row does; one checked on Healing (+0x3D0 = 5) when the decision's roll passes (VvfpFixHutsRoll, 75% once per idle-scheduler run, or the companion's own 75% without that DLL); anyone else only when the companion's own roll passes 14 times in 100; else the stock exit 0x447901",
           "installed_by": "VVFP VV1 Easier Healing.dll, VvfpStartup"
         }
       ]
@@ -2080,7 +2080,7 @@
       "id": "vv1_fix_vanilla_bugs",
       "game_id": "vv1",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. Every default name can be chosen: the game numbers its 101 male and 101 female names from 0 but picks a number from 1, so Achak (male) and Aba (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". The Likes and Dislikes on the Details screen are always shown correctly: the game read each word up to the next comma, but the last word of its list (\"sleeping\") has none, so a villager with that like or dislike showed stray characters and lost every word after it, and a number past the end of the list showed garbage. Now the last word shows like any other, a number that is not a word is left out, and the line can never run past the space the game keeps for it. A villager's name can no longer be given to another villager on the Details screen: when the arrows or Done are used, the game saves the name box into the selected villager, but it fills the box with the next villager's name only when the screen is next drawn, so two arrow clicks (or an arrow and then Done) taken in the same moment wrote one villager's whole name onto the next villager. Now the screen remembers which villager it filled the name box for, and the box is saved only into that samevillager; otherwise the box is dropped and the right name is shown. A name you type is still saved to that villager. Healers learn Healing while you are away: during catch-up -- the time that passes while the game is closed, and Time Warp -- the game skipped a healer's Healing practice (healing work, or studying the medical cactus) unless a small chance, the healer's Healing out of 1,500, made it look for a patient instead, so a healer learned almost no Healing while you were away, and one with no Healing learned none. Now that practice counts as it does while you play, whenever the search for a patient has not already given it; the search itself is unchanged. The Golden Child can't be picked by an island event that could kill him or make him disappear: he stays five and never heals, yet The Strange Berries, The Mysterious Face and The Book (always), and The Suspicious Monkey, The Wild Mushroom and the rotting and old fruit Mysterious Crates (whenever the most they could take from him is at least the health he has), could pick him like anyone else. Now they pick among the other villagers, each as likely as before; when he is the only villager such an event could be about, it does not happen, as in an empty village. The rotting crate's rats also pass over him (no bite, no sickness) when their bite would bring his health to 0. Every other island event, and every other villager, is the game's own. **Only the game's own random island events change: Pick Island Event and Custom Island Event (Story / Cheat Upgrades) can still choose any villager you wish, the Golden Child included.** Villagers keep what they carry when a walk is blocked: a villager with berries, crops, fish or a mushroom in its hands who could not get past an obstacle gave up the walk after fifteen sideways steps (or by walking off the edge of the map), and the game threw away the whole job -- the item was dropped and the food never paid. Now, instead of giving up, a villager who is carrying something looks for another way over the map (the cells the game itself lets a villager walk on), walks it, and goes on to the food bin and puts the food down as usual; it tries a new way up to four times, and only when there is no way at all does the walk end as it always did. A villager carrying nothing (or a baby), and every other walk, are exactly as before. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. Every default name can be chosen: the game numbers its 101 male and 101 female names from 0 but picks a number from 1, so Achak (male) and Aba (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". The Likes and Dislikes on the Details screen are always shown correctly: the game read each word up to the next comma, but the last word of its list (\"sleeping\") has none, so a villager with that like or dislike showed stray characters and lost every word after it, and a number past the end of the list showed garbage. Now the last word shows like any other, a number that is not a word is left out, and the line can never run past the space the game keeps for it. A villager's name can no longer be given to another villager on the Details screen: when the arrows or Done are used, the game saves the name box into the selected villager, but it fills the box with the next villager's name only when the screen is next drawn, so two arrow clicks (or an arrow and then Done) taken in the same moment wrote one villager's whole name onto the next villager. Now the screen remembers which villager it filled the name box for, and the box is saved only into that samevillager; otherwise the box is dropped and the right name is shown. A name you type is still saved to that villager. Healers learn Healing while you are away: during catch-up -- the time that passes while the game is closed, and Time Warp -- the game skipped a healer's Healing practice (healing work, or studying the medical cactus) unless a small chance, the healer's Healing out of 1,500, made it look for a patient instead, so a healer learned almost no Healing while you were away, and one with no Healing learned none. Now that practice counts as it does while you play, whenever the search for a patient has not already given it; the search itself is unchanged. The Golden Child can't be picked by an island event that could kill him or make him disappear: he stays five and never heals, yet The Strange Berries, The Mysterious Face and The Book (always), and The Suspicious Monkey, The Wild Mushroom and the rotting and old fruit Mysterious Crates (whenever the most they could take from him is at least the health he has), could pick him like anyone else. Now they pick among the other villagers, each as likely as before; when he is the only villager such an event could be about, it does not happen, as in an empty village. The rotting crate's rats also pass over him (no bite, no sickness) when their bite would bring his health to 0. Every other island event, and every other villager, is the game's own. **Only the game's own random island events change: Pick Island Event and Custom Island Event (Story / Cheat Upgrades) can still choose any villager you wish, the Golden Child included.** Villagers keep what they carry when a walk is blocked: a villager with berries, crops, fish or a mushroom in its hands who could not get past an obstacle gave up the walk after fifteen sideways steps (or by walking off the edge of the map), and the game threw away the whole job -- the item was dropped and the food never paid. Now, instead of giving up, a villager who is carrying something looks for another way over the map (the cells the game itself lets a villager walk on), walks it, and goes on to the food bin and puts the food down as usual; it tries a new way up to four times, and only when there is no way at all does the walk end as it always did. A villager carrying nothing (or a baby), and every other walk, are exactly as before. Liking work now matters as in the later games: the 15 in 100 job choices the game skips are skipped only for villagers who do not like work, disliking work still refuses 70 in 100 of the rest, and a job you assigned by dropping a villager is kept by one who likes work, while anyone else skips it 20 in 100 times and, of the rest, 40 in 100 when the village has 4,000 food or more or the villager dislikes work. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "A Mysterious Vial (blue liquid), \"Drink the liquid\", toddler result: the drinker's litter size (+0x35C) is cleared together with the pregnancy (+0x358), as the game's own delivery code does, so a later single conception brings one baby.",
@@ -2091,7 +2091,9 @@
         "Villager Details name box (A New Home): the screen remembers which villager it filled the box for -- the villager-name pointer (+0x370) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0x350), kept in 8 new bytes at the end of the screen object (+0xCC) -- whenever the box is filled (the update 0x44A630's strcpy(buf, name) at 0x44A66A (Fix Vanilla Bugs' own strcpy 0x44F380)); every write-back (getText 0x40BB70 (Done 0x44A748, right arrow 0x44A7A4, left arrow 0x44A859, all through the guard at 0x44A6F2)) goes ahead only when its destination is that same name and that villager still has the same fingerprint, otherwise the box is not saved (the next fill shows the right name). This covers any way the selected record could stop holding the villager shown (two clicks in one frame, a record reused or moved while the screen is open).",
         "Catch-up Healing practice (the catch-up step runner 0x446C70, step 6 = practice, skill 5 = Healing): live play completes a practice step with one call 0x43D440(index, skill) for every skill (0x448846); the catch-up runner instead rolled rand(1500) < Healing (0x446CCF) and, when it passed and the first-sickness hint (state +0x149) was clear, practised once per living villager it checked for a patient, and never made the plain call for skill 5 (0x446D92). Now the plain call 0x43D440(index, 5) is made at the join (0x446D97) when the roll fails (0x446CE4) and when the hint is still pending (the loop's hint test 0x446D0A now leaves the loop for the join instead of passing over every villager, which practised and cured nobody); when the loop has practised -- a cure (0x446D6D, re-encoded with the same writes and registers and ending in a jump past the join) or its end (0x446D6B) -- the step finishes at 0x446DA4 with no second practice.",
         "Golden Child and island events (\"VVFP VV1 Golden Child Safe.dll\", started by \"VVFP Speed Change Timers.dll\"): the villager picker 0x43BCD0, called from the setups of The Strange Berries (0x418AA3), The Mysterious Face (0x418BB1) and The Book (0x4191C8) -- always -- and of The Suspicious Monkey (0x418F25, -50 floored at 0, 0x419DB1), The Wild Mushroom (0x418FAC, -25..-49 floored at 0, 0x419F65), the rotting crate (0x42B22B, a bite of up to 20 at 0x42C1D8 then -15 with no floor at 0x42C2B0: 35) and the old fruit crate (0x42B391, -40/-70/-110 with no floor: 110) when that most is at least his health, leaves out the record whose +0x36C is 0xC7 and picks among the others exactly as the stock picker does (health +0x344 above 0, present +0x28, adults when asked, in record order, one rand(count) at the game's 0x402F10); with nobody else it returns -1, the stock answer for an empty village, and the setup returns 0 (0x41925F / 0x42B5D7). The rotting crate's bite 0x42AAA0 passes over him (0x42AAFC to the next villager, 0x42AB3E) when his health is at or below the bite (10/15/20 by level); its rand(100) is drawn first, so everyone else's rolls are unchanged.",
-        "Keep what a villager carries (\"VVFP Keep Carried.dll\", started by \"VVFP Startup.dll\"): the three calls of the clear 0x439470 that end a walk -- the blocked handler's after fifteen nudges (0x43DFEE) and the walk's two map-edge clears (0x445F3B, 0x445F71) -- go to the companion. When the villager holds something (record +0x3C is not 0x13, not 3 the baby), the front steps are walks and other steps (the rest of the job: the release and the reward) are queued behind them, the nudges' leftover waypoints are dropped and a route over the game's own map read 0x414200 (cells 1 to 14 and 0x2A block) from the feet to the walk's target is queued as walks (0x4399F0, in front, at the walk's speed) and started (0x43DEF0, +0x40 = 0, +0x54 = 99); at most four routes per walk, none found: the stock clear runs and the item is lost as before."
+        "Keep what a villager carries (\"VVFP Keep Carried.dll\", started by \"VVFP Startup.dll\"): the three calls of the clear 0x439470 that end a walk -- the blocked handler's after fifteen nudges (0x43DFEE) and the walk's two map-edge clears (0x445F3B, 0x445F71) -- go to the companion. When the villager holds something (record +0x3C is not 0x13, not 3 the baby), the front steps are walks and other steps (the rest of the job: the release and the reward) are queued behind them, the nudges' leftover waypoints are dropped and a route over the game's own map read 0x414200 (cells 1 to 14 and 0x2A block) from the feet to the walk's target is queued as walks (0x4399F0, in front, at the walk's speed) and started (0x43DEF0, +0x40 = 0, +0x54 = 99); at most four routes per walk, none found: the stock clear runs and the item is lost as before.",
+        "Liking work (word 42): the job chooser's blank roll (0x439AEB, rand(100) < 15 -> no job, 0x439AF8) now first asks the like test 0x437310(index, 42), as The Lost Children (0x449C7F, word 43), The Secret City, The Tree of Life and New Believers do; a villager who likes work goes on to the stock choice (0x439B00), anyone else gets the stock no job. The chooser is shared by live play (0x448347, 0x448374) and catch-up (0x42E7DB).",
+        "Keeping an assigned job (The Lost Children's 0x461580 rule): the work-spot routine 0x447CD0, before its spot jump table (0x447CFF), asks the like test 0x437310(index, 42): a villager who likes work goes on to the spot as before; anyone else returns nothing started (0x447FFB) when rand(100) < 20, and otherwise when a second rand(100) < 40 and either the stored food (state +0xA2EC) is 4,000 or more or the dislike test 0x4372E0(index, 42) holds; every other case goes on to the spot."
       ],
       "explicit_non_changes": [
         "Catch-up's cure roll -- its rand(1500), its loop, its practice per villager checked and its cure -- and every other step and skill are the base game's own; skill 2 (Parenting, record +0x3BC), which the base catch-up runner also leaves out of plain practice, is not changed (no step 6 the game queues names it).",
@@ -2102,7 +2104,9 @@
         "Renaming a villager on the Details screen works as before: a typed name is saved to the villager shown when the arrows or Done are used; which villager the arrows select (and the Sort By order) is unchanged.",
         "Renaming on the Details screen works as before: a typed name is saved to the villager shown by Done and the arrows; which villager the arrows select, the box's length and every other Details control are unchanged.",
         "A Pick Island Event or Custom Island Event may pick any villager the player wishes, the Golden Child included: an event Story / Cheat Upgrades delivered (VvfpStoryEventChosen) and every other caller of the picker (every other event, the Troubled Child's picker 0x43BE70, Fast Delivery) are the game's own; the Golden Child's own rules (age 100, never healing) are unchanged.",
-        "A villager holding nothing or the baby, every other caller of the clear 0x439470, every walk that never meets an obstacle it cannot pass, and the game's own nudging before the fifteenth are the base game's own; with Improved Pathfinding installed its routing runs first and its \"no route at all\" give-up still ends the walk (no route can exist then)."
+        "A villager holding nothing or the baby, every other caller of the clear 0x439470, every walk that never meets an obstacle it cannot pass, and the game's own nudging before the fifteenth are the base game's own; with Improved Pathfinding installed its routing runs first and its \"no route at all\" give-up still ends the walk (no route can exist then).",
+        "Disliking work keeps the base game's own 70 in 100 refusal (0x439B13); the blank roll, every other roll of the chooser and the work-spot continuation are unchanged.",
+        "The spot's own checks (skills, the difficulty) and every spot job are the base game's; a spot is never cleared by this rule (+0x3B8 stays), only skipped for that turn; catch-up never runs 0x447CD0."
       ],
       "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test builds, 2026-10-02): without the fix the toddler result left the litter at 2, with it the litter is 0; a single pregnancy ends either way; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes; the Details name box: static exact-build evidence (the three write-back sites, the reload flag's writers in the screen's code 0x4498EA/0x44A64E/0x44A751/0x44A7AC/0x44A861, and the SDL_PollEvent loop 0x403970..0x403C82 that handles every queued event in one frame) and emulation of the real Done/Next/Prev handler and update, stock and patched, in every mode; seen in the owner's village (Iruwa Okelani became a second 'Tiki Alosaka'); the Details name box identity guard: static exact-build evidence (every fill and write-back of the box, the screen's allocation, the padding used) and emulation of the real handlers, stock and patched, in every mode; catch-up Healing practice: static exact-build evidence (the catch-up runner, live play's step-6 completion 0x448846, every step 6 the game queues, the hint flag's writers 0x41C760/0x42ED62) and emulation of the real catch-up runner and practice routine, stock and patched, in every mode; live test pending; the Golden Child and island events: static exact-build evidence (the picker 0x43BCD0 and its 25 callers, both setup jump tables 0x419338 / 0x42B71C, the resolves 0x419380 / 0x42B740 and every health and present-flag write in them, the bite 0x42AAA0 and its 4 callers, the Golden Child's age lock 0x42EB70) and emulation of the real picker and bite, stock and patched, for every value rand can return, the health thresholds, picked events and Story / Cheat Upgrades' scope calls; live test pending; villager keeps what it carries: emulation of the stock executable with the companion's own machine code (tests/test_keep_carried_vv1.py): a villager carrying fish into the blocked corner at the stock give-up loses the fish and is never paid, with the companion it walks round and the fish is paid (55 food, reward 17); eighteen further blocked starts, including ones the stock walk drove off the map edge, all end paid; ordinary walks are identical frame for frame, with and without Improved Pathfinding; live test pending",
       "companion_files": [
@@ -2354,6 +2358,126 @@
           "before": "83F805740D",
           "after": "0F1F440000",
           "purpose": "Catch-up Healing practice: the join no longer skips skill 5 (Healing), so a failed cure roll or a pending hint gets the plain practice 0x43D440(index, 5) live play makes; skill 2 is still skipped as in the base game."
+        },
+        {
+          "offset": "0x39AF8",
+          "before": "5E5D33C05BC20800",
+          "after": "E994B90100909090",
+          "purpose": "Liking work: the job chooser's blank roll (rand(100) < 15 at 0x439AF3) no longer returns no job at once; it goes to the like test at 0x455491"
+        },
+        {
+          "offset": "0x55491",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "6A2AFF7424148BCBE8721EFEFFEB12",
+          "purpose": "Liking work (part one), in unused padding between functions: the like test 0x437310(index, 42 = work) with the chooser's own ECX, then on to part two"
+        },
+        {
+          "offset": "0x554B2",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "84C00F854646FEFF57E96246FEFF",
+          "purpose": "Liking work (part two), in unused padding between functions: a villager who likes work goes on to the stock choice (0x439B00); anyone else takes the chooser's own no-job exit (0x439B22, after pushing the EDI it pops)"
+        },
+        {
+          "offset": "0x47CFF",
+          "before": "FF2485A8804400",
+          "after": "E92ECE00009090",
+          "purpose": "Keeping an assigned job: the work-spot routine's jump to its spot (0x447CFF) goes to the like-work rule first (its first piece at 0x454B32)"
+        },
+        {
+          "offset": "0x54B32",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "506A2A5589F1E935000000",
+          "purpose": "Keeping an assigned job (piece 1 of 16, in unused padding between functions; each piece ends in a jump to the next): likes work (0x437310, word 42) -> the stock spot jump; else rand(100) < 20 -> nothing started (0x447FFB); else rand(100) >= 40 -> the spot; else stored food (+0xA2EC) >= 4,000 or dislikes work (0x4372E0) -> nothing started; else the spot.  EAX (the spot) and ECX (the villager table) as at the site"
+        },
+        {
+          "offset": "0x54B72",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "E89927FEFF84C0E944020000",
+          "purpose": "Keeping an assigned job (piece 2 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x54DC2",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "0F85800A00006A64E943020000",
+          "purpose": "Keeping an assigned job (piece 3 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55012",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "E8F9DEFAFF83C404E933000000",
+          "purpose": "Keeping an assigned job (piece 4 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55052",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "83F8140F8CD70C0000E972000000",
+          "purpose": "Keeping an assigned job (piece 5 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x550D2",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "6A64E837DEFAFFE9A4000000",
+          "purpose": "Keeping an assigned job (piece 6 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55182",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "83C40483F828E915010000",
+          "purpose": "Keeping an assigned job (piece 7 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x552A2",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "0F8DA0050000E9A5030000",
+          "purpose": "Keeping an assigned job (piece 8 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55652",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "8B8610E00300E915000000",
+          "purpose": "Keeping an assigned job (piece 9 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55672",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "8B80ECA20000E945000000",
+          "purpose": "Keeping an assigned job (piece 10 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x556C2",
+          "before": "CCCCCCCCCCCCCCCCCCCC",
+          "after": "3DA00F0000E976000000",
+          "purpose": "Keeping an assigned job (piece 11 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55742",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "0F8DEA0500006A2A55E992000000",
+          "purpose": "Keeping an assigned job (piece 12 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x557E2",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "89F1E8F71AFEFF84C0E952000000",
+          "purpose": "Keeping an assigned job (piece 13 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55842",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "0F85EA0400005889F1E992000000",
+          "purpose": "Keeping an assigned job (piece 14 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x558E2",
+          "before": "CCCCCCCCCCCCCC",
+          "after": "FF2485A8804400",
+          "purpose": "Keeping an assigned job (piece 15 of 16, in unused padding between functions)"
+        },
+        {
+          "offset": "0x55D32",
+          "before": "CCCCCCCCCCCC",
+          "after": "58E9C322FFFF",
+          "purpose": "Keeping an assigned job (piece 16 of 16, in unused padding between functions)"
         }
       ]
     },
@@ -4783,7 +4907,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "8D2C267A5E97326807431427FA7685873E0C799E5781A753F2CA70AFB9BA39C4"
+          "sha256": "95C1769B9557EF32D82A1E8BDEEF1C48079635A6BDFAC528D148DFC83E82E661"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -4807,6 +4931,12 @@
         {
           "va": "0x4236ED",
           "stock_bytes": "85E4C39090",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 1"
+        },
+        {
+          "va": "0x444683",
+          "stock_bytes": "6A64E96769FFFF",
           "routine": "part of the secret",
           "installed_by": "VVFP Golden Mushroom.dll, ordinal 1"
         }
@@ -4959,6 +5089,21 @@
           "after": "0F85CCFDFFFF61C3CCCCCCCC",
           "purpose": "part of the secret"
         }
+      ],
+      "companion_files": [
+        {
+          "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
+          "destination": "VVFP Golden Mushroom.dll",
+          "sha256": "95C1769B9557EF32D82A1E8BDEEF1C48079635A6BDFAC528D148DFC83E82E661"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x4633CD",
+          "stock_bytes": "E8330A0100",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 2"
+        }
       ]
     },
     {
@@ -4971,7 +5116,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "8D2C267A5E97326807431427FA7685873E0C799E5781A753F2CA70AFB9BA39C4"
+          "sha256": "95C1769B9557EF32D82A1E8BDEEF1C48079635A6BDFAC528D148DFC83E82E661"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -4989,6 +5134,12 @@
         {
           "va": "0x42FAD9",
           "stock_bytes": "85E4C39090",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 3"
+        },
+        {
+          "va": "0x42E064",
+          "stock_bytes": "0FB6860EE04200",
           "routine": "part of the secret",
           "installed_by": "VVFP Golden Mushroom.dll, ordinal 3"
         }
@@ -5054,7 +5205,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "8D2C267A5E97326807431427FA7685873E0C799E5781A753F2CA70AFB9BA39C4"
+          "sha256": "95C1769B9557EF32D82A1E8BDEEF1C48079635A6BDFAC528D148DFC83E82E661"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -5072,6 +5223,12 @@
         {
           "va": "0x489140",
           "stock_bytes": "85E4C39090",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 4"
+        },
+        {
+          "va": "0x41460A",
+          "stock_bytes": "E9414B0700",
           "routine": "part of the secret",
           "installed_by": "VVFP Golden Mushroom.dll, ordinal 4"
         }
@@ -5137,7 +5294,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "8D2C267A5E97326807431427FA7685873E0C799E5781A753F2CA70AFB9BA39C4"
+          "sha256": "95C1769B9557EF32D82A1E8BDEEF1C48079635A6BDFAC528D148DFC83E82E661"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -5155,6 +5312,12 @@
         {
           "va": "0x4947B0",
           "stock_bytes": "85E4C39090",
+          "routine": "part of the secret",
+          "installed_by": "VVFP Golden Mushroom.dll, ordinal 5"
+        },
+        {
+          "va": "0x414915",
+          "stock_bytes": "E9A6FE0700",
           "routine": "part of the secret",
           "installed_by": "VVFP Golden Mushroom.dll, ordinal 5"
         }
@@ -5245,9 +5408,10 @@
       "id": "vv5_fix_vanilla_bugs",
       "game_id": "vv5",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". The gold dust pouring sound plays: the game asked for it as \"gold_dust_pour .ogg\", with a stray space, so the sound file it ships (Sounds\\gold_dust_pour.ogg) was never found and the game wrote \"ldwSoundFx Missing File ->gold_dust_pour .ogg\" to its log each time it opened; now it asks for \"gold_dust_pour.ogg\". The game no longer writes \"String Table (sm.xml) malformed near id=\\\"eDemo\\\"\" to its log each time it opens: it looked up the demo version's population message under the name \"eDemo\", which its text file calls \"eTipDemo\"; now it uses \"eTipDemo\" (the message is for the demo version only, is never shown in the full game, and has the same words either way). A villager's name is saved only to the villager it belongs to on the Details screen: the screen remembers which villager it filled the name box for, and Done or the arrows save the box only into that same villager; if the selected villager is not the one the box was filled for, the box is dropped and the right name is shown. A name you type is still saved to the villager shown. Every body can be given: the game rolled a new villager's body from 0 to 28 only, so body 29, the last of its 30 bodies for each sex, was never given to a newborn, a twin, a Barrel of Babies baby, an arrival or a new village's villager; now each of the 30 is equally likely. No crash from a raindrop of no length: the game draws each raindrop as a short line from where it is to where it was, and its line drawer divides by the line's length, so a line whose two ends are the same point stops the game (a divide by zero). A raindrop has no length when it starts at the screen's top left corner before it has moved, which can happen when rain starts. Now such a line is drawn as a single dot, and every other line is drawn exactly as before. Villagers keep what they carry when the way to where they are going is blocked: a villager with a mushroom or a collectible in its hands whose goal could not be reached (the spot was under a building or a tree) gave up the walk, the game dropped the item and it was never credited. Now the game's own route finder is asked for the nearest spot round the goal that it can reach (up to 64 pixels away, nearest first); the villager walks there, puts the item down and it is credited as for any delivery if it is in the right place. Only when no spot can be reached does the walk end as it always did. A villager carrying nothing (or a baby), a goal the game can reach, and every other walk are exactly as before. The Puzzles screen shows how long The Hungry Totem took: the game keeps the time each puzzle was solved at, but for The Hungry Totem its Puzzles screen skipped the step that reads that time, so it always said \"0 hours\"; now it shows the hours the game kept, as for every other puzzle (a village that has already solved it shows its real time too, since the save always held it). A child's Nursery School lesson no longer nearly always goes to Devotion: the whole lesson goes to the child's highest skill, but the game counted a skill with any fraction above the whole number of an earlier one as higher, so among skills with the same whole number the last in the list, Devotion, always won, and a child whose skills are all below 1 (every newborn, and every Heathen child, who never ages) was taught Devotion almost every time. Now skills with the same whole number tie, and a tie is broken at random (each tied skill equally likely). The 50 limit, the 50-in-100 choice between one skill and all of them, and the amounts are the base game's own. The Last Heathen's hovel sits on the island: once The Last Heathen is converted, the game covers the old camp with a picture that sat 3 pixels too far right and 6 too high, so its edges showed against the map. Now it is drawn 3 pixels left and 6 lower, in the owner's redrawn picture (art by Lorsieab2), which the patcher puts in the game's Images folder as vvfp_hovel.png; the game's own hovel_cover.png is never changed. Children \"Playing in puddles\" in the dry lake bed use all of their part of it: the game picks a spot of an area from its first 1,024 map cells only, so of the puddles' 1,479 cells only the first 1,024 were ever used; now every spot is equally likely for that action. Every other walk to an area, fishing and \"Excited about the puddles\" included, picks exactly as before. A word too wide for its line (a long name or an unbroken word in a translation or a Custom Island Event) no longer freezes the game: the justified paragraph of island events, tips and notices dropped the word and tried it again for ever, and the tips' line fitter cut it into empty lines. Now such a word gets a line of its own, at its full width (wider than its box), and the text goes on; text without such a word is laid out exactly as before (\"VVFP Long Words.dll\"). **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". The gold dust pouring sound plays: the game asked for it as \"gold_dust_pour .ogg\", with a stray space, so the sound file it ships (Sounds\\gold_dust_pour.ogg) was never found and the game wrote \"ldwSoundFx Missing File ->gold_dust_pour .ogg\" to its log each time it opened; now it asks for \"gold_dust_pour.ogg\". The game no longer writes \"String Table (sm.xml) malformed near id=\\\"eDemo\\\"\" to its log each time it opens: it looked up the demo version's population message under the name \"eDemo\", which its text file calls \"eTipDemo\"; now it uses \"eTipDemo\" (the message is for the demo version only, is never shown in the full game, and has the same words either way). A villager's name is saved only to the villager it belongs to on the Details screen: the screen remembers which villager it filled the name box for, and Done or the arrows save the box only into that same villager; if the selected villager is not the one the box was filled for, the box is dropped and the right name is shown. A name you type is still saved to the villager shown. Every body can be given: the game rolled a new villager's body from 0 to 28 only, so body 29, the last of its 30 bodies for each sex, was never given to a newborn, a twin, a Barrel of Babies baby, an arrival or a new village's villager; now each of the 30 is equally likely. No crash from a raindrop of no length: the game draws each raindrop as a short line from where it is to where it was, and its line drawer divides by the line's length, so a line whose two ends are the same point stops the game (a divide by zero). A raindrop has no length when it starts at the screen's top left corner before it has moved, which can happen when rain starts. Now such a line is drawn as a single dot, and every other line is drawn exactly as before. Villagers keep what they carry when the way to where they are going is blocked: a villager with a mushroom or a collectible in its hands whose goal could not be reached (the spot was under a building or a tree) gave up the walk, the game dropped the item and it was never credited. Now the game's own route finder is asked for the nearest spot round the goal that it can reach (up to 64 pixels away, nearest first); the villager walks there, puts the item down and it is credited as for any delivery if it is in the right place. Only when no spot can be reached does the walk end as it always did. A villager carrying nothing (or a baby), a goal the game can reach, and every other walk are exactly as before. The Puzzles screen shows how long The Hungry Totem took: the game keeps the time each puzzle was solved at, but for The Hungry Totem its Puzzles screen skipped the step that reads that time, so it always said \"0 hours\"; now it shows the hours the game kept, as for every other puzzle (a village that has already solved it shows its real time too, since the save always held it). A child's Nursery School lesson no longer nearly always goes to Devotion: the whole lesson goes to the child's highest skill, but the game counted a skill with any fraction above the whole number of an earlier one as higher, so among skills with the same whole number the last in the list, Devotion, always won, and a child whose skills are all below 1 (every newborn, and every Heathen child, who never ages) was taught Devotion almost every time. Now skills with the same whole number tie, and a tie is broken at random (each tied skill equally likely). The 50 limit, the 50-in-100 choice between one skill and all of them, and the amounts are the base game's own. The Last Heathen's hovel sits on the island: once The Last Heathen is converted, the game covers the old camp with a picture that sat 3 pixels too far right and 6 too high, so its edges showed against the map. Now it is drawn 3 pixels left and 6 lower, in the owner's redrawn picture (art by Lorsieab2), which the patcher puts in the game's Images folder as vvfp_hovel.png; the game's own hovel_cover.png is never changed. Children \"Playing in puddles\" in the dry lake bed use all of their part of it: the game picks a spot of an area from its first 1,024 map cells only, so of the puddles' 1,479 cells only the first 1,024 were ever used; now every spot is equally likely for that action. Every other walk to an area, fishing and \"Excited about the puddles\" included, picks exactly as before. A word too wide for its line (a long name or an unbroken word in a translation or a Custom Island Event) no longer freezes the game: the justified paragraph of island events, tips and notices dropped the word and tried it again for ever, and the tips' line fitter cut it into empty lines. Now such a word gets a line of its own, at its full width (wider than its box), and the text goes on; text without such a word is laid out exactly as before (\"VVFP Long Words.dll\"). The Defector is always a Heathen of 14 or more, like the envoy in Outreach?: the game could pick a Heathen child to defect. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
+        "The Defector's Heathen pick (the condition 0x416900's call of the villager picker 0x471870) gets the picker's own minimum age 0x118 (280 age units, 14 years) in place of -1 (none), as Outreach?'s envoy pick (0x4162D6) has; every other argument, the 50% roll (cmp eax,0x32 / setge cl) and [this+0x10] are unchanged.",
         "A villager's default first name is picked from the whole of the game's male or female list (185 names each): name numbers 0 to 184 instead of 1 to the base game's limit.",
         "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\".",
         "Details screen Likes/Dislikes builders: a slot is skipped when it is negative (the stock test was 'equal to -1'); every word index from 0 up is shown exactly as before.",
@@ -5281,6 +5445,12 @@
       ],
       "evidence_status": "static exact-build evidence: the villager naming routine's roll and the comma walk that reads the chosen name, with every list ending in a comma; the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes; the Details name box identity guard: static exact-build evidence (every fill and write-back of the box, the screen's allocation, the padding used) and emulation of the real handlers, stock and patched, in every mode; the zero-length line: emulation of the real line drawer and rain draw routine on the stock and patched executable (tests/test_no_divide_by_zero_crashes.py): a zero-length line and a rain drop whose point equals its previous point fault at the drawer's idiv on stock and return on the patched build; lines of every other length give the same alpha step, stack and registers on both; no live test yet; villager keeps what it carries (New Believers): emulation of the stock executable on the game's real map with the companion's own machine code (tests/test_keep_carried_routers.py): a villager holding a mushroom walking to a goal the route finder cannot reach drops it where the walk gave up in stock, and with the companion walks to the nearest reachable spot and releases it there; a goal the router reaches, nothing held, the baby, and no step behind the walk are identical to stock; live test pending; The Hungry Totem's Puzzles screen time (tests/test_vv5_hungry_totem_solve_time.py): emulation of the real Puzzles screen hover routine on the stock and patched executable, with a solve time in the puzzle table: stock formats 0 hours for The Hungry Totem (and the right hours for its neighbours), patched formats the stored hours; no live test yet; the Nursery School tie (tests/test_nursery_tie_random.py): emulation of the real lesson on the stock and patched executable: stock gives every tie to Devotion; patched, 6 skills tied at 12 were each picked about 1 in 6 of 600 lessons, the highest whole number still wins alone, a top skill at 50 still gets nothing and a child at 0 still gets the lesson's own draw; no live test yet; the hovel cover: static exact-build evidence (its one load, one drawer, the top-left blit at 100% and the name's one reader) and a mockup of the built result on the game's own map tiles approved by the owner; no live test yet; the long-word layout: emulation of the published build's own justified paragraph and line fit with the game's fonts (tests/test_long_words.py): the stock paragraph never finishes and the stock line fit cuts a word wider than its box, the companion lays it out on its own line at full width, every other text identical; no live test yet",
       "patches": [
+        {
+          "offset": "0x1690E",
+          "before": "6A006A006A016A018D542414526A006A006A0033C96AFF83F8326A000F9DC16A016AFF6AFF6AFF",
+          "after": "33C951516A016A018D542414525151516AFF516A016AFF6AFF681801000083F8320F9DC1909090",
+          "purpose": "The Defector picks a Heathen of 14 or more (0x41690E..0x416934, the condition 0x416900): the same fourteen picker arguments in the same order, the zeros pushed from ecx (cleared first, then the 50% roll's cmp eax,0x32 / setge cl after the pushes, so [this+0x10] is set as before), which makes room for the minimum age push 0x118 (14 years) in place of push -1, as Outreach?'s envoy pick 0x4162D6 has; three nops end it at 0x416935."
+        },
         {
           "offset": "0x77C63",
           "before": "81FD000400007D34",

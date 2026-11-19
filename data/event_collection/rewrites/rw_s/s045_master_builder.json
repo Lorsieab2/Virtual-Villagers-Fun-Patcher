@@ -1,0 +1,251 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Master Builder's Last Lesson",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s045_master_builder",
+  "source": "rewrites",
+  "lines": [
+   2126,
+   2172
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2126",
+  "ledger": [
+   {
+    "src": "L2127",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2128",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2137",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2146",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2134",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2135",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2138",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2147",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2140",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2143",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2149",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2152",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2155-2172",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has built half the huts in the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has built half the huts in the village. (subject.His/her) hands are rough as bark, scarred and knobbly, and (subject.he/she) can still tell if a beam is straight just by tapping it and listening. (subject.He/She) has built through storms and droughts, built for weddings and for new babies, built the meeting hut twice.\nBut (subject.he/she) is old now. Slow. (subject.His/her) back aches when (subject.he/she) bends, and (subject.his/her) eyes aren't what they were. And this morning (subject.he/she) has knocked on (friend)'s door with (subject.his/her) tool bag over (subject.his/her) shoulder and announced that it's time.\n\"I'm going to teach you everything I know,\" (subject) says. \"All of it. In one week. Starting now.\"\nShould (friend) simply copy everything (subject) does, or ask why it's done that way?",
+   "choices": [
+    {
+     "label": "Learn Everything",
+     "next": "c1",
+     "src": "L2134"
+    },
+    {
+     "label": "Ask Questions Instead",
+     "next": "c2",
+     "src": "L2135"
+    }
+   ],
+   "src": "L2129-2132"
+  },
+  "c1o1": {
+   "text": "(friend) listens, and watches, and does it all again, from dawn until long after dark. Joints, beams, thatch, knots, how to read the grain, how to set a post so it never leans. On the seventh day, (subject) sits on a stump with (subject.his/her) arms folded and watches while (friend) builds a whole hut, alone, from the ground up. It's perfect. Every beam straight, every knot tight. (subject) walks all the way round it twice, tapping the posts and listening. Then (subject.he/she) stops in front of (friend) and opens (subject.his/her) mouth, and finds that there is nothing left to say except \"Good.\" It's the proudest word (friend) has ever heard.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "set": 100
+    }
+   ],
+   "src": "L2141"
+  },
+  "c1o2": {
+   "text": "(friend) learns a great deal. More than (friend.he/she) thought one person could fit in their head in one week. And then, being only human, (friend.he/she) forgets about half of it, in the way anyone forgets a dream: the fiddly knot, the trick with the wet thatch, the exact angle for the roof poles. But half of everything (subject) knows is still a very great deal. (friend) comes out of that week a far better builder than anyone else (friend.his/her) age. (subject) grumbles that (subject.he/she) wasn't listening properly, then smiles when (friend) isn't looking.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "min": 20,
+     "max": 30,
+     "skills": [
+      "Building"
+     ]
+    }
+   ],
+   "src": "L2144"
+  },
+  "c1": {
+   "text": "For seven days (friend) does exactly what (subject) says. (friend.He/She) watches every movement of (subject)'s hands, and copies them, and does them again, and again, until (friend.his/her) own hands are blistered and sore and doing it without thinking...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2138"
+  },
+  "c2o1": {
+   "text": "(friend) asks so many questions that (subject) has to really think about the answers, for the first time in decades. And in thinking about them, (subject.he/she) starts remembering things (subject.he/she) had forgotten: things (subject.his/her) own teacher showed (subject.him/her), sixty years ago, that (subject.he/she) stopped doing because (subject.he/she) got lazy. They spend the week arguing happily, trying things both ways, laughing when they're wrong. By the end of it they're both better builders than they were, and (subject) says it's the best week (subject.he/she) has had in years.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "skills": [
+      "Building"
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "min": 10,
+     "max": 20,
+     "skills": [
+      "Building"
+     ]
+    }
+   ],
+   "src": "L2150"
+  },
+  "c2o2": {
+   "text": "(subject) gets tired of the questions very quickly. \"Just DO it,\" (subject.he/she) snaps, on the second day, and by the third (subject.he/she) throws down (subject.his/her) tools and goes home to have a lie-down. (subject.He/She) doesn't come back. (friend) has to teach (friend.himself/herself) the rest, badly, with a lot of mistakes and a lot of fallen-down beams, and a lot of staring at the half-finished practice hut wondering what (subject) would have done. By the end of the week, (friend) can't stand the sight of a hammer.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L2153"
+  },
+  "c2": {
+   "text": "(friend) doesn't just copy. On the very first morning, (friend.he/she) starts asking. Why this way and not that? Why this wood? Why does the knot go over and not under? Why, why, why. (subject) stops, blinks, and puts down (subject.his/her) hammer...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2147"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "friend",
+     "dislike": "wood"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

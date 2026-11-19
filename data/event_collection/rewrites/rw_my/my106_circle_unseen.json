@@ -1,0 +1,315 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Circle of Unseen Dancers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my106_circle_unseen",
+  "source": "rewrites",
+  "lines": [
+   16020,
+   16075
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L16020",
+  "ledger": [
+   {
+    "src": "L16021",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16022",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16030",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16037",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16044",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16051",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16025",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16026",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16027",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16028",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16031",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16038",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16045",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16052",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16032",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16034",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16039",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16041",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16046",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16048",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16053",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16055",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16058-16075",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "But there is no festival tonight.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Walking home at dusk, (name) hears music coming from the clearing in the woods: a drumbeat felt more than heard, and laughter, light and many-voiced, like a festival in full swing. But there is no festival tonight. (Name) creeps to the edge of the trees and peers in.\nThe clearing is empty. Completely empty. But the grass in the middle is flattened in a perfect ring, faintly glowing in the dusk, and the laughter and the drumbeat are coming from the ring itself, as though a crowd of people (name) cannot see are dancing round and round in it, having the time of their lives. The drumbeat is pulling at (name)'s feet. Should (he/she) step into the ring?",
+   "choices": [
+    {
+     "label": "Join the Dance",
+     "next": "c1",
+     "src": "L16025"
+    },
+    {
+     "label": "Bring Musicians",
+     "next": "c2",
+     "src": "L16026"
+    },
+    {
+     "label": "Examine the Clearing",
+     "next": "c3",
+     "src": "L16027"
+    },
+    {
+     "label": "Leave an Offering",
+     "next": "c4",
+     "src": "L16028"
+    }
+   ],
+   "src": "L16023-16024"
+  },
+  "c1o1": {
+   "text": "(Name) dances alone in the empty ring, spinning and stamping and laughing, and for a while, (he/she) could swear (he/she) feels hands brushing (his/hers) and hears someone laugh right in (his/her) ear. When the music finally fades, (he/she) staggers home breathless and grinning, with grass seeds stuck all over (his/her) hair. From that night on, (name) cannot hear a drum without wanting to dance, and is the first one up at every festival.",
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L16033"
+  },
+  "c1o2": {
+   "text": "(Name) dances and dances. The music never stops. (He/she) does not feel tired. When the drumbeat finally fades, (he/she) blinks, and finds the sun coming up over the trees. (He/she) has danced the whole night through, though it felt like a few minutes. (He/she) stumbles home to find the family frantic and a search party just setting out. (Name) has no explanation. (His/her) feet ache for three days.",
+   "src": "L16035"
+  },
+  "c1": {
+   "text": "The drumbeat is impossible to resist. Before (name) has quite decided, (his/her) feet are already moving, and (he/she) steps into the glowing ring, and begins to dance...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16031"
+  },
+  "c2o1": {
+   "text": "The musicians strike up a lively tune at the edge of the ring, and the unseen laughter seems to swell in answer, louder and merrier. Soon half the village has followed the music out to the clearing, and everyone is dancing in the glowing circle together, seen and unseen. It is the best party anyone can remember. From then on, the clearing becomes the village's favourite place for festivals, and the ring of grass never grows back.",
+   "src": "L16040"
+  },
+  "c2o2": {
+   "text": "The moment the first drum sounds, the unseen laughter stops dead. The glowing ring fades. The clearing is just a clearing, dark and quiet, with a ring of flattened grass in the middle. The musicians look at (name) doubtfully. They play a couple of songs anyway, since they came all this way, and it is a pleasant evening. But the unseen dancers never come back, and (name) feels as though (he/she) has walked in on something private and broken it up.",
+   "src": "L16042"
+  },
+  "c2": {
+   "text": "(Name) runs back to the village and rounds up every musician (he/she) can find, with drums, flutes and rattles. \"Come on! There's a party in the woods and no one invited us!\" They follow (him/her) to the clearing...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16038"
+  },
+  "c3o1": {
+   "text": "In the torchlight, (name) sees tiny tracks all along the ring: hundreds of little hooves and paws. The next evening, (he/she) hides at the edge of the clearing and watches as a herd of small, deer-like animals trot out of the woods and run round and round the ring in the dusk, squeaking and grunting playfully, their hooves drumming on the earth. The laughter, the drumbeat, the dancing ring: all of it. (Name) laughs out loud, and startles the whole herd into the trees.",
+   "src": "L16047"
+  },
+  "c3o2": {
+   "text": "There are no tracks. No footprints, no hoofprints, nothing. Just a perfect ring of pressed-down grass, as smooth and even as if it had been rolled flat. It rains hard that night, and the next night, and for a week. Every other patch of grass in the woods springs back up. The ring stays exactly as it is, perfectly smooth, perfectly round. Nobody ever finds out what flattened it.",
+   "src": "L16049"
+  },
+  "c3": {
+   "text": "(Name) waits until the music has faded and the light has gone, then creeps into the clearing with a torch to have a proper look at the flattened ring...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16045"
+  },
+  "c4o1": {
+   "text": "The next morning, the cake is gone. In its place lies a wreath, braided from vines and wildflowers, so fresh that bees are still visiting it. (Name) carries it home and hangs it on (his/her) door, and it stays fresh and blooming for a whole month, bees and all. The neighbours are deeply envious. (Name) leaves a cake at the clearing every new moon after that, and never once comes back to find it uneaten.",
+   "src": "L16054"
+  },
+  "c4o2": {
+   "text": "The next morning, the cake is still there, wet with dew, a few ants exploring it. The ring of flattened grass is already springing back up. And the music never comes again, no matter how many evenings (name) walks past the clearing at dusk. (He/she) misses it far more than (he/she) expected to. Sometimes, on very still evenings, (he/she) hums the drumbeat to (himself/herself), just to remember.",
+   "src": "L16056"
+  },
+  "c4": {
+   "text": "(Name) does not dare step into the ring. Instead, (he/she) takes the little sweet cake (he/she) was saving for later and sets it carefully at the edge of the circle, as a thank-you for the music...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16052"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "jumping",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  }
+ }
+}

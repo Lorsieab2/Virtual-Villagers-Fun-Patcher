@@ -32,6 +32,17 @@
    (0x42E81C) -- the game's own choices; the player's drop on the cactus
    calls the study directly (0x424A6A) and never comes here.
 
+   A villager checked on Healing studies about three times in four, not
+   always.  The owner (2026-11-15): villagers set to healing still do other
+   things too, as in the normal game, where a healer with no one to treat
+   does nothing here and the scheduler goes on to its next choice.  So the
+   study is one more behaviour inside the decision's shared roll
+   (VvfpFixHutsRoll, "VVFP Fix Huts.dll": 75%, once per run of the idle
+   scheduler, shared with Builders and Healers Work First and Healers
+   Study); when that DLL is not loaded, a 75% roll of this companion's own.
+   A failed roll is the stock exit.  The player's cactus drop (state 9) is
+   the stock game's own study and is never rolled.
+
    Started by VVFP Startup.dll (VvfpStartup) at game start, before any
    catch-up; with the row's bytes not in place (another build, the row off)
    it installs nothing.  esi = the villager array, ebp = the villager's index. */
@@ -85,11 +96,53 @@ static int preference_roll(void) {
     return x % 100u < NOT_PREFERRED_PERCENT;
 }
 
+/* The decision's roll for a villager checked on Healing (see the header):
+   the fix-huts companion's shared one when it is loaded, else our own 75%. */
+#define CHECKED_PERCENT 75u
+static int (__cdecl *shared_roll)(void);
+static unsigned int decision_state;
+
+#ifdef VVFP_TEST
+__declspec(dllexport) struct vv1_easier_healing_roll_test VvfpVv1EasierHealingDecisionRollTest = { 0, 0 };
+#endif
+
+static int decision_roll(void) {
+    unsigned int x;
+    if (shared_roll == NULL) {
+        /* Looked up each time until found: the fix-huts DLL may load later. */
+        HMODULE fix_huts = GetModuleHandleA("VVFP Fix Huts.dll");
+        if (fix_huts != NULL) {
+            shared_roll = (int (__cdecl *)(void))GetProcAddress(fix_huts, "VvfpFixHutsRoll");
+        }
+    }
+    if (shared_roll != NULL) {
+        return shared_roll();
+    }
+    x = decision_state;
+    if (x == 0) {
+        x = (unsigned int)__rdtsc() ^ 0x165667B1u;
+        if (x == 0) x = 0x165667B1u;
+    }
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    decision_state = x;
+#ifdef VVFP_TEST
+    ++VvfpVv1EasierHealingDecisionRollTest.draws;
+    if (VvfpVv1EasierHealingDecisionRollTest.force == 1) return 1;
+    if (VvfpVv1EasierHealingDecisionRollTest.force == 2) return 0;
+#endif
+    return x % 100u < CHECKED_PERCENT;
+}
+
 /* 1: study (the row's behaviour); 0: the stock no-patient exit. */
 static int __cdecl study_allowed(const unsigned char *village, unsigned int index) {
     const unsigned char *record = village + index * 0x3D8u;
-    if (*(const int *)(record + PREFERENCE) == HEALING || *(const int *)(record + ACTIVITY) == PLANT_STUDY) {
-        return 1;
+    if (*(const int *)(record + ACTIVITY) == PLANT_STUDY) {
+        return 1;                                   /* the stock game's own study */
+    }
+    if (*(const int *)(record + PREFERENCE) == HEALING) {
+        return decision_roll();
     }
     return preference_roll();
 }

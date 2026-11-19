@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Talking Pig",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b228_talking_pig",
+  "source": "balance",
+  "lines": [
+   10606,
+   10648
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10606",
+  "ledger": [
+   {
+    "src": "L10607",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10608",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10616",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10625",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10613",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10614",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10617",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10626",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10619",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10622",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10628",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10631",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10634-10648",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "One of the village pigs has started talking.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "One of the village pigs has started talking. Only one word, and only to (name), and only when nobody else is around. The word is a name. It isn't (name)'s name. It's a name nobody in the village has. The pig says it every morning, very clearly, looking straight at (name), and then goes back to eating.\n(Name) has told nobody, because nobody would believe (him/her). But this morning the pig has followed (him/her) all the way to the gardens, saying the name over and over, and climbed onto the garden wall to say it louder. The wall is tall, and the pig is wobbling.\nShould (name) answer to the name, or grab the pig before it falls?",
+   "choices": [
+    {
+     "label": "Answer to the Name",
+     "next": "c1",
+     "src": "L10613"
+    },
+    {
+     "label": "Grab the Pig",
+     "next": "c2",
+     "src": "L10614"
+    }
+   ],
+   "src": "L10609-10611"
+  },
+  "c1o1": {
+   "text": "From that day on, everyone in the village starts calling (name) \"Obi,\" the name the pig kept saying. Nobody can explain why. They just do. Even the elders. (Name) gives up and answers to it. The pig never says another word to anyone, and lives a long and very contented life.",
+   "effects": [
+    {
+     "do": "change_name",
+     "name": "Obi",
+     "role": "subject"
+    }
+   ],
+   "src": "L10620"
+  },
+  "c1o2": {
+   "text": "The pig, satisfied, says the name to everyone else in the village too, one by one, over the next week. By the end of it, the whole village is calling (name) (made1), and (name) has stopped noticing. The healers say pigs are cleverer than people think. The pig agrees, in a way.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L10623"
+  },
+  "c1": {
+   "text": "(Name) looks at the pig, and sighs, and says, \"Yes? What?\" The pig looks enormously satisfied, and says the name once more, very softly, and climbs down off the wall...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10617"
+  },
+  "c2o1": {
+   "text": "(Name) lands on (his/her) head, with the pig on top. When (he/she) comes round, the pig is sitting beside (him/her), saying the strange name softly, and (name) can't remember (his/her) own. It never comes back. The village calls (him/her) \"?\". The pig follows (him/her) round for the rest of its life, as if apologising.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L10629"
+  },
+  "c2o2": {
+   "text": "They land in a pile of soft compost, both unhurt and both disgusting. The pig gets up, shakes itself, looks at (name), and says, very clearly, \"Thank you.\" Then it never speaks again. (Name) tells nobody about it, ever. (He/She) does start bringing that pig the best scraps.",
+   "src": "L10632"
+  },
+  "c2": {
+   "text": "(Name) lunges for the pig as it wobbles, catches it round the middle, and both of them go over the other side of the wall together...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10626"
+  }
+ }
+}

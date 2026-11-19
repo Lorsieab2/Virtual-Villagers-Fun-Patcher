@@ -1,0 +1,215 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fever That Burns Away Names",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b287_fever_burns_away",
+  "source": "balance",
+  "lines": [
+   13345,
+   13386
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13345",
+  "ledger": [
+   {
+    "src": "L13346",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13347",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13354",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13363",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13351",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13352",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13355",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13364",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13357",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13360",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13366",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13369",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13372-13386",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Most people get through it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has a high fever, the kind the elders call the white fever, which burns so hot that people talk in their sleep about things they've never seen. (healer) knows it well. Most people get through it. But (subject.he/she) warns (subject)'s family that the white fever sometimes takes something with it when it goes: a memory, a habit, even a name.\nThere are two ways to break it. A cold plunge in the river at night, which is quick and brutal, or a slow week of tea and cloths. Which should (healer) choose?",
+   "choices": [
+    {
+     "label": "The Cold Plunge",
+     "next": "c1",
+     "src": "L13351"
+    },
+    {
+     "label": "The Slow Week",
+     "next": "c2",
+     "src": "L13352"
+    }
+   ],
+   "src": "L13348-13349"
+  },
+  "c1o1": {
+   "text": "The fever breaks at once, with a hiss like water on a fire. (subject) climbs out of the river shaking, alive and well, and when (healer) asks how (subject.he/she) feels, (subject) says, \"Fine. Who's asking? And who am I?\" The fever took (subject.his/her) name with it. The family calls (subject.him/her) \"?\" for now, and (healer) says it may come back, one day, in a dream.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L13358"
+  },
+  "c1o2": {
+   "text": "The fever breaks. (subject) climbs out of the river, looks at the stars, and says a name out loud. It isn't (subject.his/her) name. But (subject.he/she) answers to it from then on, and the old one sounds strange and wrong to (subject.him/her) whenever anybody tries it. (healer) writes it down: (made1), the name the white fever left behind.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L13361"
+  },
+  "c1": {
+   "text": "(healer) and two strong helpers carry (subject) down to the river at midnight and lower (subject.him/her) into the black water. (subject) gasps, shudders, and goes rigid...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13355"
+  },
+  "c2o1": {
+   "text": "On the seventh day the fever slips away quietly, like a guest leaving early in the morning so as not to wake anyone. (subject) wakes up with everything still where it should be: (subject.his/her) name, (subject.his/her) memories, (subject.his/her) dreadful taste in jokes. (healer) is proud of the week's work and teaches the slow method to every young healer who will listen.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "role": "healer",
+     "min": 10,
+     "max": 10,
+     "best": true
+    }
+   ],
+   "src": "L13367"
+  },
+  "c2o2": {
+   "text": "On the fifth night, the fever climbs higher than (healer) has ever seen, and (subject) stops muttering. (healer) sits with (subject.him/her) until dawn, holding (subject.his/her) hand. The village buries (subject) the next day. (healer) does not speak for a week, and when (subject.he/she) does, it is to ask the elders to teach (subject.him/her) everything they know about the white fever.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L13370"
+  },
+  "c2": {
+   "text": "(healer) settles in for a long week. Tea every hour, cool cloths, quiet voices. (subject) burns and mutters and sleeps...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13364"
+  }
+ }
+}

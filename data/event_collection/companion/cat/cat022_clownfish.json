@@ -119,6 +119,12 @@
      "min": 5,
      "max": 10,
      "src": "L7368"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7368"
     }
    ],
    "text_only": [

@@ -90,7 +90,17 @@
   "a": {
    "name": "Answer A",
    "text": "The gardener appreciates quiet company, though the heaviness remains.",
-   "src": "L6788"
+   "src": "L6788",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "gardener",
+     "list": "likes",
+     "preference": "flowers",
+     "remove": true,
+     "src": "L6788"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -105,6 +115,14 @@
      ],
      "min": 5,
      "max": 10,
+     "src": "L6790"
+    },
+    {
+     "do": "preference",
+     "role": "gardener",
+     "list": "likes",
+     "preference": "flowers",
+     "remove": true,
      "src": "L6790"
     }
    ]
@@ -122,6 +140,14 @@
      ],
      "min": 5,
      "max": 10,
+     "src": "L6792"
+    },
+    {
+     "do": "preference",
+     "role": "gardener",
+     "list": "likes",
+     "preference": "flowers",
+     "remove": true,
      "src": "L6792"
     }
    ],

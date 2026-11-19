@@ -171,7 +171,15 @@
   "c1": {
    "name": "Outcome C1",
    "text": "Families learn which foods keep reliably.",
-   "src": "L20794"
+   "src": "L20794",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L20794"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",

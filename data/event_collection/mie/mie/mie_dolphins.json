@@ -1,0 +1,189 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Playful Dolphins",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "mie_dolphins",
+  "source": "mie",
+  "lines": [
+   694,
+   732
+  ],
+  "section": "mie",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L694",
+  "ledger": [
+   {
+    "src": "L708",
+    "kind": "structural",
+    "text": "First popup (the opening). The player chooses \"",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L708",
+    "kind": "structural",
+    "text": "\" or \"",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L708",
+    "kind": "structural",
+    "text": "\".",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L696",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L698-701",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L703-705",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L713",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L716",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L720",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L724",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L728-732",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   }
+  ],
+  "description": "A villager sees dolphins playing just offshore: swim towards them, or hang back.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "mixer_only": true,
+  "approximations": [
+   "'loses 30 to 50% health' is a health change of -30..-50 points (the engine clamps at 1: never dies from it)"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "protected": "exclude"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "text": "(Subject) has been swimming underwater as a hobby. One day, (subject.he/she) spots a pod of dolphins playing just offshore! They seem to be chasing something, but (subject) is unsure whether (subject.he/she) can hold (subject.his/her) breath long enough to see what. What should (subject.he/she) do?",
+   "src": "L710",
+   "choices": [
+    {
+     "label": "Swim Towards the Dolphins",
+     "next": "swim",
+     "src": "L708"
+    },
+    {
+     "label": "Hang Back",
+     "next": "hang",
+     "src": "L708"
+    }
+   ]
+  },
+  "swim": {
+   "text": "(subject) swims towards the dolphins, being careful not to disturb them.",
+   "src": "L714",
+   "children": [
+    {
+     "next": "hunt"
+    },
+    {
+     "next": "slap"
+    }
+   ]
+  },
+  "hunt": {
+   "text": "(subject.He/She) gleefully watches the clever dolphins herd shoals of fish through giant bubble rings, disorienting them enough to become easy prey. \"What magnificent creatures!\" (subject.he/she) thinks.\nLater, (subject.he/she) shares (subject.his/her) observations with the researchers and farmers, which revolutionize their catches that season. (subject) becomes a skilled fisher(subject.man/woman) and is lauded as a pioneer of aquaculture. Your villagers gain (award) food.",
+   "src": "L717-718",
+   "popup": "append",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "set": 100
+    },
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ]
+  },
+  "slap": {
+   "text": "Ouch! (subject) is blinded by the slap of a large fluke in (subject.his/her) face. (subject.He/She) must have gotten too close to one of them and accidentally gotten hit by their tail flipper. (subject) holds (subject.his/her) nose to prevent any more red coming out. Luckily, (subject) is not too far from the surface, but if (subject.he/she) had been any deeper... (subject.he/she) shudders to think about what might happen. (subject.He/She) surfaces, leaves the beach, and heads off to the doctors for some medical treatment.",
+   "src": "L721",
+   "popup": "append",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -50,
+     "max": -30
+    }
+   ]
+  },
+  "hang": {
+   "text": "(subject) doubts that it's a good idea to follow the dolphins. They clearly seem to be busy doing something important, and (subject.he/she) is second-guessing whether they're playing anyway. (subject) resolves to stick to the shallows and gather shellfish and seaweed on the nearby rocks. Your village gains (award) food.",
+   "src": "L725",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ]
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L718",
+   "before": "(fisherman/fisherwoman)",
+   "after": "fisher(man/woman)"
+  }
+ ]
+}

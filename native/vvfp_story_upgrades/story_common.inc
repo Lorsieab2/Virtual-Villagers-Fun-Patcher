@@ -221,6 +221,7 @@ static int story_host_running(const story_host *host) {
    `field`: the host keeps the time the game's own next event was due. */
 static void story_island_arming(int game, void *field, unsigned int value) {
     const story_host *host = game >= 1 && game <= 5 ? story_hosts[game] : NULL;
+
     if (host != NULL && host->size > STORY_HOST_RUNNING_SIZE && host->island_arming != NULL) {
         host->island_arming(field, value);
     }

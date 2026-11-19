@@ -125,7 +125,15 @@
   "b1": {
    "name": "Outcome B1",
    "text": "The next harvest improves, but the reason remains uncertain.",
-   "src": "L20817"
+   "src": "L20817",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L20817"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",

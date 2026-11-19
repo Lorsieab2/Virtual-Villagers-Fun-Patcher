@@ -1,0 +1,323 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Beggar at the Door",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my002_old_beggar_door",
+  "source": "rewrites",
+  "lines": [
+   9932,
+   9988
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L9932",
+  "ledger": [
+   {
+    "src": "L9933",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9934",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9943",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9950",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9957",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9964",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9938",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9939",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9940",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9941",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9944",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9951",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9958",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9965",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9945",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9947",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9952",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9954",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9959",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9961",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9966",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9968",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9971-9988",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L9967",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "It's pouring rain when someone knocks at a villager's door.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It's pouring rain when someone knocks at (name)'s door. On the step stands an elderly stranger, barefoot and soaked, with grey hair plastered to (his/her) cheeks and a ragged wrap that smells of wet ashes. \"Please,\" the stranger croaks. \"Only a corner out of the rain, and something to eat, if you can spare it.\"\n(Name) is about to answer when (he/she) notices something odd. When the stranger shifts on the step, (his/her) shadow seems to follow a heartbeat late, like it had to catch up. (Name) blinks. It's probably the lamplight. Probably. What should (name) do?",
+   "choices": [
+    {
+     "label": "Offer Food and a Place to Rest",
+     "next": "c1",
+     "src": "L9938"
+    },
+    {
+     "label": "Invite the Stranger to Stay",
+     "next": "c2",
+     "src": "L9939"
+    },
+    {
+     "label": "Refuse Politely",
+     "next": "c3",
+     "src": "L9940"
+    },
+    {
+     "label": "Drive the Stranger Away",
+     "next": "c4",
+     "src": "L9941"
+    }
+   ],
+   "src": "L9935-9936"
+  },
+  "c1o1": {
+   "text": "In the morning the stranger is up before (name), folding the blanket neatly. \"For your kindness,\" the stranger says, pressing a little cloth bundle into (name)'s hand, and then shuffles off down the path. Inside are seeds, small and speckled. The farmers plant them out of curiosity, and they sprout faster and fatter than anything else in the garden. By the next harvest everyone is asking (name) where on earth (he/she) found them. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L9946"
+  },
+  "c1o2": {
+   "text": "At sunrise the bedding is empty. The door is still latched from the inside. On the pillow sits a polished stone, smooth as an egg and faintly warm, and no one in the village has ever seen one like it. (Name) asks everyone if they saw the old stranger leave. Nobody did. The stone ends up on (name)'s shelf, and on cold nights (he/she) swears it's warmer than it ought to be.",
+   "src": "L9948"
+  },
+  "c1": {
+   "text": "(Name) waves the old stranger inside, wraps a dry blanket around those bony shoulders, and puts a bowl of stew into trembling hands. The stranger eats slowly, eyes closed, as if it is the best meal in the world...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9944"
+  },
+  "c2o1": {
+   "text": "The stranger accepts. Within a week the newcomer is mending baskets, minding the cooking fires and telling the children stories that make them shriek with laughter. (He/She) never says much about where (he/she) came from, and nobody presses. If (his/her) shadow ever lags behind again, no one mentions it. The village simply has one more quiet, capable pair of hands.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "elder"
+    }
+   ],
+   "src": "L9953"
+  },
+  "c2o2": {
+   "text": "The stranger smiles and shakes (his/her) head. \"Kind of you. But my road isn't finished.\" Before leaving, though, the old one notices a cracked storage jar by the door and spends the whole morning showing (name) how to seal it with heated resin and fibre, a trick so simple (name) can't believe nobody thought of it. The stranger leaves at noon. The jar never leaks again. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L9955"
+  },
+  "c2": {
+   "text": "\"You shouldn't be wandering about at your age,\" (name) says firmly. \"Stay here. Stay with us. There's always room for one more.\" The old stranger stares at (him/her) for a long moment, then (his/her) eyes fill up...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9951"
+  },
+  "c3o1": {
+   "text": "\"Thank you anyway, child,\" the stranger says, bowing low. Then (he/she) turns and plods off into the rain toward the next village. (Name) watches until the shape is gone, feeling worse than (he/she) expected to.",
+   "src": "L9960"
+  },
+  "c3o2": {
+   "text": "That night, long after the rain stops, the door latch begins to rattle. Slowly. Three times. Then nothing. There's no wind. The dogs never bark once. (Name) lies awake clutching (his/her) blanket until dawn, and in the morning nothing at all is missing or out of place. (He/She) decides not to tell anyone, because (he/she) knows exactly how it would sound.",
+   "src": "L9962"
+  },
+  "c3": {
+   "text": "\"I'm sorry,\" (name) says, and means it. \"We have barely enough for ourselves. The next village might be able to help.\" (He/She) hands over a broad banana leaf to keep the rain off...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9958"
+  },
+  "c4o1": {
+   "text": "The stranger leaves without a word of protest. An hour later, a sudden gust tears through the village out of a calm sky and flips the drying racks, scattering stored grain into the mud. Half the village says it was just a freak wind. The other half keep glancing at (name). Whether the two things are connected, nobody can say for sure.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L9967"
+  },
+  "c4o2": {
+   "text": "The next morning, gatherers find the old traveler slumped beside the path, exhausted and shivering. They bring (him/her) back, feed (him/her), and send (him/her) on (his/her) way properly once (he/she) can walk. But the story gets around, and that evening the whole village argues about how they treat people who come to them in need. (Name) sits at the edge of the fire and doesn't say a word.",
+   "src": "L9969"
+  },
+  "c4": {
+   "text": "\"Go on! Get away from here!\" (name) snaps, waving (his/her) arms. \"We don't want beggars sniffing around our stores!\" The old stranger flinches...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9965"
+  }
+ }
+}

@@ -1,0 +1,238 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coughing Season",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b189_coughing_season",
+  "source": "balance",
+  "lines": [
+   8765,
+   8809
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8765",
+  "ledger": [
+   {
+    "src": "L8766",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8767",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8775",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8784",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8772",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8773",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8776",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8785",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8778",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8781",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8787",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8790",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8793-8809",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A dry, barking cough has gone through the village, and half of everyone has it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A dry, barking cough has gone through the village, and half of everyone has it. The healers are run off their feet. (healer), the head healer, has it too, and is giving orders from (subject.his/her) mat between coughs. The usual brew isn't working.\n(subject) has two ideas. One is an old cure (subject.his/her) mother used: steam from boiled eucalyptus leaves, breathed under a blanket. The other is a new thing (subject.he/she) heard from a trader: honey mixed with crushed ginger root, which nobody in the village has ever tried. There is only enough time and firewood to try one properly.\nWhich cure should (subject) try?",
+   "choices": [
+    {
+     "label": "The Old Steam Cure",
+     "next": "c1",
+     "src": "L8772"
+    },
+    {
+     "label": "The Trader's Honey and Ginger",
+     "next": "c2",
+     "src": "L8773"
+    }
+   ],
+   "src": "L8768-8770"
+  },
+  "c1o1": {
+   "text": "The steam does what the brew couldn't. By the third day the coughing has stopped in every hut. The whole village smells of eucalyptus for a month. The healers are so impressed that they make (subject) teach them exactly how many leaves, how much water and how long, and add it to their own songs.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 10,
+     "max": 10,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L8779"
+  },
+  "c1o2": {
+   "text": "The steam works on (friend), the sickest, who stops coughing by morning. But with every pot in the village on the fire at once, a spark catches a blanket, and three people get scorched before the fire is out. The coughing goes away slowly after that. The healers decide the cure is good, but only one pot at a time.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    },
+    {
+     "do": "health_change",
+     "min": -20,
+     "max": -10,
+     "target": {
+      "random": 3
+     }
+    }
+   ],
+   "src": "L8782"
+  },
+  "c1": {
+   "text": "(subject) sets every pot in the village boiling with eucalyptus leaves. The sick sit in rows with blankets over their heads, breathing in the sharp green steam, coughing and spluttering...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8776"
+  },
+  "c2o1": {
+   "text": "The honey soothes the throats and the ginger clears the chests, and in a week the cough is gone. (healer) gets up off (subject.his/her) mat, eats three spoonfuls just to be sure, and declares it the best medicine (subject.he/she) has ever tasted. The bees are less pleased. The village needs a lot more honey now.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L8788"
+  },
+  "c2o2": {
+   "text": "The honey runs out on the second day, and the ginger the day after. Two of the sickest get better. The rest go on coughing, and the healers, worn out and arguing about whose idea it was, forget half of what they were doing and mix up two of their own brews. The cough goes away by itself, eventually.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "random": 2
+     }
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": -5,
+     "max": -5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L8791"
+  },
+  "c2": {
+   "text": "(subject) mixes honey with crushed ginger and hands out spoonfuls to everyone who's coughing. It's sweet and hot and makes people's eyes water. The children ask for seconds...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8785"
+  }
+ }
+}

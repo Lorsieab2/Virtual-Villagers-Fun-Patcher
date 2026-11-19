@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mirror Twins",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s079_mirror_twins",
+  "source": "rewrites",
+  "lines": [
+   3714,
+   3756
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3714",
+  "ledger": [
+   {
+    "src": "L3715",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3716",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3724",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3733",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3721",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3722",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3725",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3734",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3727",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3730",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3736",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3739",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3742-3756",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Tonight is one of those nights.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Once in a very long while, after rain, the moon makes two rainbows at once: a double moonbow, pale and silver, arching over the forest. The elders say it's a night when the island is thin: still water becomes a doorway, and a reflection can climb out and walk around for a while.\nTonight is one of those nights. And (name), who can't sleep, has gone to bathe in the still forest pool that's ringed all round with white lilies. The air is so still that every drop that falls from (his/her) fingers rings like a tiny bell.\nWhen (he/she) climbs out onto the bank, (he/she) hears the water move behind (him/her). Someone else climbs out after (him/her). The same face. The same scars. The same way of wringing out (his/her) hair, twisting it to the left, exactly the way (name) does. Should (name) take this newcomer home, or ask it who it is first?",
+   "choices": [
+    {
+     "label": "Bring (Him/Her) Home",
+     "next": "c1",
+     "src": "L3721"
+    },
+    {
+     "label": "Ask Who (He/She) Is",
+     "next": "c2",
+     "src": "L3722"
+    }
+   ],
+   "src": "L3717-3719"
+  },
+  "c1o1": {
+   "text": "They walk home side by side, in step, in silence. In the village the newcomer stands in the firelight while everyone stares, and it is a perfect copy of (name) in every way: the same laugh, the same favourite food, the same skills and the same fears, the same funny way of standing on one foot. When the elders gently ask what it would like to be called, it thinks for a moment, exactly the way (name) thinks, with (his/her) head on one side. \"(made1),\" it says. \"If that's all right.\" It is.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L3728",
+   "text_only": [
+    {
+     "src": "L3728",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "The newcomer follows (name) halfway home through the dark forest, close behind, (his/her) bare feet making no sound on the path. Then, where the path bends, (name) hears the footsteps stop. (He/She) turns round. The newcomer is standing at the edge of the trees, in the silver light, smiling (name)'s own smile. It raises one hand. Then it steps back into the trees, and the leaves close behind it, and above the forest, the double moonbow fades.",
+   "src": "L3731"
+  },
+  "c1": {
+   "text": "(Name) doesn't know what else to do. (He/She) holds out (his/her) spare wrap, and the newcomer takes it with (name)'s own hands, and puts it on exactly the way (name) would, and they set off through the trees together...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3725"
+  },
+  "c2o1": {
+   "text": "\"I'm you,\" says the newcomer, simply, in (name)'s own voice. It doesn't seem to think there's anything strange about it. Then it wrinkles its nose, exactly the way (name) does. \"But you'd better call me (made1). It's less confusing.\" It takes (name)'s arm, and they walk home together, and the newcomer chatters the whole way about all the things (name) was planning to do tomorrow, as if they're its plans too. They probably are.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L3737"
+  },
+  "c2o2": {
+   "text": "The newcomer just smiles, and says nothing at all. (Name) asks again. Still nothing, only the smile, warm and a little sad. Above the forest, the double moonbow is fading, its silver colours draining away into the night. And as it fades, so does the newcomer, slowly, like a reflection in water when a cloud goes over the moon. In a few breaths, there's only (name) on the bank, alone, among the white lilies.",
+   "src": "L3740"
+  },
+  "c2": {
+   "text": "(Name) stands very still on the bank, dripping, (his/her) heart racing, and looks the newcomer right in the eye. \"Who are you?\" (he/she) asks. The newcomer opens its mouth...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3734"
+  }
+ }
+}

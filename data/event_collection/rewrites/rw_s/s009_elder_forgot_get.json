@@ -1,0 +1,211 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Who Forgot to Get Old",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s009_elder_forgot_get",
+  "source": "rewrites",
+  "lines": [
+   388,
+   434
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L388",
+  "ledger": [
+   {
+    "src": "L389",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L390",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L399",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L408",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L396",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L397",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L400",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L409",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L402",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L405",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L411",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L414",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L417-434",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has been an elder for as long as anyone in the village can remember.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "grandchild": {
+   "kind": "villager",
+   "min_age": 10,
+   "max_age": 17
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has been an elder for as long as anyone in the village can remember. There is a sitting stone by the cooking fire worn smooth in exactly (subject.his/her) shape, and everyone knows not to sit on it. Every morning (subject.he/she) gets up slowly, complains about (subject.his/her) back, and makes (subject.his/her) way to the stone.\nThis morning (subject) wakes up, stretches, and touches (subject.his/her) toes. There is no creak. There is no complaint. (subject.He/She) stands up straight and looks down at (subject.his/her) hands: smooth, strong, the hands of someone thirty years younger. (subject.His/her) hair, when (subject.he/she) pulls it in front of (subject.his/her) eyes, is full and luscious again.\n\"Well,\" says (subject), out loud, to nobody. \"That's odd. How'd I get so limber?\"\nIn the doorway stands (grandchild), very pale, clutching a little bundle of feathers and crushed herbs. Last night (grandchild) tried out a new spell, one the elders say is far too old and strong for a youngster. \"I only wanted to make your knees stop hurting,\" (grandchild) whispers. Should (subject) enjoy it while it lasts, or ask the healers what the spell has done?",
+   "choices": [
+    {
+     "label": "Enjoy It",
+     "next": "c1",
+     "src": "L396"
+    },
+    {
+     "label": "Ask the Healers",
+     "next": "c2",
+     "src": "L397"
+    }
+   ],
+   "src": "L391-394"
+  },
+  "c1o1": {
+   "text": "(subject) climbs it, all the way to the top, for the first time in forty years. Then (subject.he/she) climbs back down, very pleased with (subject.himself/herself), and goes for a swim, and a run, and picks a fight with the strongest farmer over who can carry more. The next morning (subject.he/she) wakes up and is still young. And the morning after that. The magic holds. (grandchild) can't work out why, and (subject) refuses to let anyone poke at it in case it stops. The sitting stone by the fire sits empty, and after a while the children start using it to crack nuts.",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "adult",
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L403"
+  },
+  "c1o2": {
+   "text": "It lasts exactly one day. (subject) spends every moment of it. (subject.He/She) runs on the beach, swims out past the reef, dances at the fire until the drummers are too tired to drum, and kisses every baby in the village. (subject.He/She) goes to bed the happiest (subject.he/she) has been in years. In the morning (subject.he/she) wakes up an elder again, with (subject.his/her) creaking knees, bad back and (subject.his/her) grey hair, and lies there for a while, smiling at the roof. Then (subject.he/she) gets up slowly, complains about (subject.his/her) knees, and goes to (subject.his/her) stone. \"Worth it,\" (subject.he/she) tells anyone who asks.",
+   "src": "L406"
+  },
+  "c1": {
+   "text": "(subject) does not waste a moment wondering. (subject.He/She) walks straight out of (subject.his/her) hut, past the sitting stone, past (subject.his/her) astonished neighbours, and up to the tallest climbing tree in the village...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L400"
+  },
+  "c2o1": {
+   "text": "The healers are fascinated. They spend the whole afternoon poking and prodding (subject.him/her), listening to (subject.his/her) heart, bending (subject.his/her) body, writing down everything. They learn a great deal they didn't know about how bodies change with age. By evening, though, the magic seems to have settled halfway, like water finding its own level. When (subject) wakes the next morning (subject.he/she) is about fifty, and stays that way. \"Fifty,\" (subject.he/she) says. \"I'll take it.\" Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "50",
+     "role": "subject"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L412"
+  },
+  "c2o2": {
+   "text": "The healers look at each other, look at (subject), and admit they have no idea what to do. So, wisely, they do nothing. (subject) stays young, about forty, for good. At first (subject.he/she) is delighted. Then (subject.he/she) finds out that forty-year-old knees are just as tired by evening as old ones, only nobody gives (subject.him/her) a seat. (subject.He/She) complains about it constantly, and the sitting stone by the fire is still worn smooth in exactly (subject.his/her) shape, so (subject.he/she) sits on it anyway.",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "adult",
+     "role": "subject"
+    }
+   ],
+   "src": "L415"
+  },
+  "c2": {
+   "text": "(subject) walks, very quickly and with no pain at all, to the healers' hut. \"Something has happened to me,\" (subject.he/she) says, \"and I'd like to know if it's going to un-happen.\" The healers stare at (subject.him/her) for a long time...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L409"
+  }
+ }
+}

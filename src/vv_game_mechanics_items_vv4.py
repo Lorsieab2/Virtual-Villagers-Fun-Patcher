@@ -69,7 +69,10 @@ DEFAULT_OFF = frozenset({"vv4_learning_never_fails", "vv4_everyone_collects_like
                          "vv4_classic_vv_difficulty", "vv4_hungrier_villagers", "vv4_science_collectibles_complete",
                          "vv4_collectibles_stay_collected", "vv4_island_events_scale_with_population",
                          "vv4_island_events_scale_with_stored_amounts", "vv4_more_island_events",
-                         "vv4_scrolling_popups", "vv4_isola_grand_event_collection", "vv4_gender_presentation"})
+                         "vv4_scrolling_popups", "vv4_isola_grand_event_collection", "vv4_gender_presentation",
+                          "vv4_more_frequent_island_events"}) | frozenset(  # the island events' content controls (the owner, 2026-11-15)
+    {"vv4_island_event_content_notes", "vv4_island_events_any_time"}
+    | {f"vv4_island_event_filter_f{n:02d}" for n in range(1, 29)})
 
 ORIGINS = "vv4_enable_origins_exclusive_features"
 VILLAGE_WIDE = "vv4_origins_village_wide_upgrades"

@@ -1,0 +1,217 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Goat Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b128_goat_path",
+  "source": "balance",
+  "lines": [
+   5854,
+   5897
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5854",
+  "ledger": [
+   {
+    "src": "L5855",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5856",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5864",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5873",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5861",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5862",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5865",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5874",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5867",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5870",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5876",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5879",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5882-5897",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Most of the village takes the long way round through the jungle.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The quickest way to the cliff-top fruit trees is the goat path, a ledge as wide as a foot along the face of the cliff, with the sea crashing on the rocks far below. Most of the village takes the long way round through the jungle. The goats take the goat path, and look down on everyone who doesn't.\n(subject) is late. The fruit is ripe, the other gatherers set off an hour ago, and the long way takes all morning. The goat path takes ten minutes, for a goat. A goat is standing at the start of it, chewing, looking at (subject) as if (subject.he/she) is a very slow and stupid goat.\nShould (subject) take the goat path, or the long way round?",
+   "choices": [
+    {
+     "label": "Take the Goat Path",
+     "next": "c1",
+     "src": "L5861"
+    },
+    {
+     "label": "Go the Long Way",
+     "next": "c2",
+     "src": "L5862"
+    }
+   ],
+   "src": "L5857-5859"
+  },
+  "c1o1": {
+   "text": "The ledge gives way. The gatherers on the cliff-top hear one shout, and then only the sea. They bring (subject) home on a litter that evening, and lay (subject.him/her) to rest under the fruit trees (subject.he/she) was trying to reach. Someone cuts a long walking path round the cliff that same month, with steps and a rope, and calls it by (subject)'s name. The goats still use the old one.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L5868"
+  },
+  "c1o2": {
+   "text": "(subject) slips, grabs, and lands on a lower ledge with a crack that (subject.he/she) feels in (subject.his/her) teeth. (subject.His/her) head hit the rock. The gatherers haul (subject.him/her) up with a rope, dazed and smiling. (subject.He/She) knows them all. (subject.He/She) knows the way home and the names of all the goats. But when (healer) asks (subject.him/her) what (subject.his/her) own name is, (subject.he/she) frowns and says, \"I was hoping you'd tell me.\" It never comes back, and the village calls (subject.him/her) \"?\".",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L5871"
+  },
+  "c1": {
+   "text": "(subject) puts (subject.his/her) back to the cliff and shuffles out along the ledge, one foot, then the other. The wind pulls at (subject.his/her) clothes. Far below, the waves boom on the rocks. Halfway along, the ledge crumbles a little under (subject.his/her) heel...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5865"
+  },
+  "c2o1": {
+   "text": "At a jog, through the jungle, in a hurry, (subject) does not see the root. (subject.His/her) ankle twists right round with a sound like a stick breaking. (subject.He/She) limps the rest of the way, and the healers bind it that evening, but it never sets quite right. (subject) walks with a stick now. (subject.He/She) also never hurries anywhere again, and is never late, because (subject.he/she) leaves an hour early.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -20,
+     "max": -20,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "running",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L5877"
+  },
+  "c2o2": {
+   "text": "The long way is long, and hot, and full of mosquitoes. But halfway along, (subject) finds old (elder) sitting on a log, resting, and walks the rest of the way with (subject.him/her). (elder) talks the whole time about how (subject.he/she) used to do (subject)'s job, back when (subject.he/she) was young, and all the tricks (subject.he/she) learned. By the time they arrive, (subject) has learned more about (subject.his/her) own work than in the last five years.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L5880"
+  },
+  "c2": {
+   "text": "(subject) looks at the goat. The goat looks at (subject). \"Not today,\" says (subject), and sets off the long way round through the jungle, at a jog, to make up the time...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5874"
+  }
+ }
+}

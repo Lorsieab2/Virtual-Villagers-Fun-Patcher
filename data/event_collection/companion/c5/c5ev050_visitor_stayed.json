@@ -62,14 +62,28 @@
    "popup": "append",
    "join": "paragraph",
    "text": "Arrange a welcoming mentorship.",
-   "src": "L3685"
+   "src": "L3685",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult",
+     "src": "L3685"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome B",
    "popup": "append",
    "join": "paragraph",
    "text": "Discuss rights, duties and belonging together.",
-   "src": "L3686"
+   "src": "L3686",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult",
+     "src": "L3686"
+    }
+   ]
   }
  }
 }

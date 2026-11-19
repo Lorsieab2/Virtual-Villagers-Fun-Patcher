@@ -1,0 +1,29 @@
+{
+  "id": "vv4_island_event_content_notes",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Content Notes for Island Events",
+  "description": "Before the main text of a new island event that may touch a sensitive subject, a short note names it, for example \"Content note: Bereavement\". It never says which outcome will come. The labels are: Child death, Pregnancy loss, Bereavement, Serious injury, Disappearance, Historical suffering, Emotional distress. A subject the content filters below have removed from that event is left out of its note. New events only (the Isola Grand Event Collection's); the game's own events are unchanged. Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**",
+  "output_tag": "Content Notes for Island Events",
+  "dependencies": [],
+  "needs_on": [
+    {
+      "id": "vv4_isola_grand_event_collection",
+      "for": "the new island events it acts on"
+    }
+  ],
+  "conflicts": [],
+  "behavior_changes": [
+    "The first text of each new event that may touch a sensitive subject starts with \"Content note: <labels>\" (a variant of that text compiled into the event, shown while this row is installed)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte, game file or save is changed: the row is only a name in the installed patches' list (\"VVFP Installed Patches.txt\") that Story / Cheat Upgrades reads.",
+    "The game's own island events, their text and their chances are never changed: it acts on the added events only."
+  ],
+  "evidence_status": "the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending",
+  "companion_files": [],
+  "patches": [],
+  "runtime_detours": []
+}

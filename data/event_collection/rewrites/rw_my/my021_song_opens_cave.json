@@ -1,0 +1,313 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song That Opens the Cave",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my021_song_opens_cave",
+  "source": "rewrites",
+  "lines": [
+   11054,
+   11109
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11054",
+  "ledger": [
+   {
+    "src": "L11055",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11056",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11065",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11072",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11079",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11086",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11060",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11061",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11062",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11063",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11066",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11073",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11080",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11087",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11067",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11069",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11074",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11076",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11081",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11083",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11088",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11090",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11093-11109",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A breath of cold air sighs out of the rock, and then goes still.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Little (child) has been humming the same tune for days, a strange, rising melody that nobody taught (child.him/her). \"The tall visitor at the cliff taught me,\" (child) says, as if this explains everything.\n(subject) takes (child) out to the cliff to see. The rock face is streaked with orange lichen, and when (child) hums the last note of the song, (subject) could swear the thin crack running down the cliff gets just a little wider. A breath of cold air sighs out of the rock, and then goes still. (Child) looks up at (subject), very pleased. What should (subject) do?",
+   "choices": [
+    {
+     "label": "Sing the Melody Again",
+     "next": "c1",
+     "src": "L11060"
+    },
+    {
+     "label": "Explore the Crack",
+     "next": "c2",
+     "src": "L11061"
+    },
+    {
+     "label": "Ask the Child About the Visitor",
+     "next": "c3",
+     "src": "L11062"
+    },
+    {
+     "label": "Leave the Cliff Undisturbed",
+     "next": "c4",
+     "src": "L11063"
+    }
+   ],
+   "src": "L11057-11058"
+  },
+  "c1o1": {
+   "text": "On the very last note, there's a low grinding sound, and a slab of rock tips back on itself, opening a narrow passage. (subject) squeezes in with a torch \\(leaving (child) safely outside\\). On a ledge inside sits a whole cache of old tools, wrapped in oiled leaves, as neatly as if someone had left them there yesterday. The researchers are speechless. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11068"
+  },
+  "c1o2": {
+   "text": "Nothing happens. They sing it again. Nothing. (Child) tugs at (subject)'s sleeve, frowning. \"You're not supposed to sing it twice,\" (child.he/she) whispers. \"The visitor said. It's only for once.\" (subject) feels a little shiver at that, then laughs and takes (child) home for supper.",
+   "src": "L11070"
+  },
+  "c1": {
+   "text": "(subject) has (child) teach (subject.him/her) the tune, and the two of them hum it together, loudly, right in front of the crack...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11066"
+  },
+  "c2o1": {
+   "text": "A little way inside, the crack opens into a damp, shady hollow where pale roots grow thick out of the rock, plump and edible and tasting faintly of nuts. The group fills their baskets and squeezes back out, delighted. The hollow is cool even at noon, and it becomes a favourite spot for gatherers on hot days. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11075"
+  },
+  "c2o2": {
+   "text": "They're only a few steps in when the cliff groans. Pebbles patter down. \"Out! Everybody out!\" A stone the size of a coconut strikes (subject)'s shoulder with a horrible crack, and the others haul (subject.him/her) out into the daylight as a shower of rubble fills the crack behind them. (subject) spends a week at the healers with (subject.his/her) arm strapped up.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L11077"
+  },
+  "c2": {
+   "text": "(subject) sends (child) home, fetches some friends and a torch, and the group squeezes sideways into the narrow crack in the cliff...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11073"
+  },
+  "c3o1": {
+   "text": "\"(subject.He/She) was very tall,\" (child) says, \"and very kind, and (subject.his/her) eyes were like water when the moon's on it. (subject.He/She) said the cliff was lonely and liked to hear singing.\" (Child) says it all so simply, so sure of it, that (subject) doesn't have the heart to argue. (subject) checks the cliff top that evening. No footprints. Only the wind.",
+   "src": "L11082"
+  },
+  "c3o2": {
+   "text": "(Child) wriggles uncomfortably and finally confesses: there wasn't any visitor. (child.He/She) heard the wind whistling through the stone one day and copied the sound, and made up the visitor because it made a better story. (subject) laughs and ruffles (child.his/her) hair. The crack in the cliff does whistle, though. The exact same tune.",
+   "src": "L11084"
+  },
+  "c3": {
+   "text": "(subject) sits down on a rock beside (child). \"Tell me about this visitor. Everything you can remember.\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11080"
+  },
+  "c4o1": {
+   "text": "The melody stays, though. (Child) hums it to the babies, and the mothers pick it up, and soon it's the favourite lullaby in the whole village. Nobody remembers where it came from. Every baby who hears it goes straight to sleep.",
+   "src": "L11089"
+  },
+  "c4o2": {
+   "text": "After the next heavy rain, (subject) goes back to look. The crack in the cliff has closed up completely, as if it was never there, the orange lichen growing smoothly over the place where it was. (Child) is very disappointed. (subject) is mostly relieved.",
+   "src": "L11091"
+  },
+  "c4": {
+   "text": "(subject) decides that a cliff with a song is best left alone. (subject.He/She) takes (child) home by the hand...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11087"
+  }
+ }
+}

@@ -1,0 +1,222 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b212_last_canoe",
+  "source": "balance",
+  "lines": [
+   9851,
+   9894
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9851",
+  "ledger": [
+   {
+    "src": "L9852",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9853",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9861",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9870",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9858",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9859",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9862",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9871",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9864",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9867",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9873",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9876",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9879-9894",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It is half carved, a great log on the beach, with the shape of the hull just coming out of the wood.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "carver": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(carver) has carved every canoe in the village for fifty years. (subject.His/her) eyes are going now, and (subject.his/her) hands shake, and (subject.he/she) says this canoe will be (subject.his/her) last. It is half carved, a great log on the beach, with the shape of the hull just coming out of the wood.\n(carver) has asked (subject) to help (subject.him/her) finish it. It will take all season. Or (subject) could ask (carver) to teach (subject.him/her) to carve while they work, which will take longer, and might mean it isn't finished at all.\nShould (subject) help finish the canoe, or ask to learn?",
+   "choices": [
+    {
+     "label": "Help Finish It",
+     "next": "c1",
+     "src": "L9858"
+    },
+    {
+     "label": "Ask to Learn",
+     "next": "c2",
+     "src": "L9859"
+    }
+   ],
+   "src": "L9854-9856"
+  },
+  "c1o1": {
+   "text": "By the end of the season the canoe is finished, the most beautiful one (carver) has ever made. The whole village launches it. (subject) learned more from watching (carver)'s hands than (subject.he/she) would have from any lesson, and (subject.his/her) own work is better for the rest of (subject.his/her) life.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L9865"
+  },
+  "c1o2": {
+   "text": "One morning, near the end, (carver) makes the last fine cut on the prow, sits back on (subject.his/her) heels to look at it, and smiles, and doesn't get up again. (subject) finishes the canoe alone. The village launches it at sunset with (carver)'s name carved on the prow, and (subject) paddles it out first.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    },
+    {
+     "do": "kill",
+     "role": "carver",
+     "cause": "unknown"
+    }
+   ],
+   "src": "L9868"
+  },
+  "c1": {
+   "text": "(subject) works beside (carver) every day, doing the heavy work while the old carver does the fine shaping, (subject.his/her) shaking hands somehow steady on the wood...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9862"
+  },
+  "c2o1": {
+   "text": "It takes two seasons, and the canoe is a little lopsided, but it floats, and (carver) says it is the best first canoe (subject.he/she) has ever seen. The village has a carver again. (carver) sits on (subject.his/her) log on the beach every day after that, shouting at (subject), very happily.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L9874"
+  },
+  "c2o2": {
+   "text": "Before the canoe is done, (carver) dies in (subject.his/her) sleep. The half-carved canoe sits on the beach for a long time. (subject) can't bring (subject.himself/herself) to touch it. In the end the village leaves it there, and the children play in it, and it becomes (carver)'s canoe, the one that never went to sea.",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "carver",
+     "cause": "unknown"
+    }
+   ],
+   "src": "L9877"
+  },
+  "c2": {
+   "text": "(carver) looks at (subject) for a long time. Then (subject.he/she) hands (subject.him/her) the adze. \"Then you'll carve it,\" (subject.he/she) says, \"and I'll shout.\" (subject.He/She) sits down on a log, and starts shouting...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9871"
+  }
+ }
+}

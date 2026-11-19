@@ -1,0 +1,306 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Woman No One Else Hears",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my006_woman_else_hears",
+  "source": "rewrites",
+  "lines": [
+   10169,
+   10224
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10169",
+  "ledger": [
+   {
+    "src": "L10170",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10171",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10180",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10187",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10194",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10201",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10175",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10176",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10177",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10178",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10181",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10188",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10195",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10202",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10182",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10184",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10189",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10191",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10196",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10198",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10203",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10205",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10208-10224",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At the edge of the village one evening, a villager hears a woman singing somewhere behind a stand of trees.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the edge of the village one evening, (subject) hears a woman singing somewhere behind a stand of trees. The song is slow and low, rising and falling like a swell over the reef, and it is the most beautiful thing (subject.he/she) has ever heard. One by one, the crickets around (subject) go quiet, as if they're listening too.\n\"Do you hear that?\" (subject) asks the villagers sitting by the fire. They stop talking and listen. \"Hear what?\" they say. \"There's only the insects.\" (subject) can still hear the song, clear as day, and it seems to be coming closer. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Answer the Song",
+     "next": "c1",
+     "src": "L10175"
+    },
+    {
+     "label": "Bring a Companion",
+     "next": "c2",
+     "src": "L10176"
+    },
+    {
+     "label": "Record the Melody",
+     "next": "c3",
+     "src": "L10177"
+    },
+    {
+     "label": "Leave the Woods Alone",
+     "next": "c4",
+     "src": "L10178"
+    }
+   ],
+   "src": "L10172-10173"
+  },
+  "c1o1": {
+   "text": "For a long time, (subject) and the unseen singer trade lines back and forth across the dark. The singer teaches (subject.him/her) a verse in a language (subject) almost remembers, the way a dream is almost remembered. When the song finally stops, (subject) can sing the whole verse perfectly. (subject.He/She) has no idea what it means. The elders don't either, though one of the elders gets a strange, faraway look on hearing it.",
+   "src": "L10183"
+  },
+  "c1o2": {
+   "text": "(subject) follows the melody into the trees, just a few steps, (subject.he/she) thinks. When (subject.he/she) walks back into the firelight, the fire has burned down to coals and the others are frantic. (subject) has been gone for hours. (subject.He/She) remembers nothing of the path. (subject.His/Her) sandals are soaked, and there's sand between (subject.his/her) toes, though the shore is a long way off.",
+   "src": "L10185"
+  },
+  "c1": {
+   "text": "Feeling rather silly, (subject) hums back. The song pauses, as if surprised. Then it starts again, a little softer, as if inviting (subject.him/her) closer...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10181"
+  },
+  "c2o1": {
+   "text": "(friend) stops dead. \"I hear it,\" (friend.he/she) whispers. \"But it's coming from the shore, not the trees. And it's a man singing, not a woman.\" The two of them stand there arguing in whispers about two completely different songs, from two completely different directions, until both songs stop at exactly the same moment. They walk home in total silence.",
+   "src": "L10190"
+  },
+  "c2o2": {
+   "text": "By the time they reach the trees, there's only silence. But on a flat stone behind the trunks sits a basket of roots, freshly dug, still beaded with dew, the soil on them still damp. No one in the village gathered them. (subject) and (friend) look at each other, shrug, and carry the basket home. They're very good roots. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10192"
+  },
+  "c2": {
+   "text": "(subject) grabs (friend) by the wrist. \"Come with me. Please. I need to know I'm not going mad.\" (friend) grumbles but comes along, and the two of them creep toward the trees...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10188"
+  },
+  "c3o1": {
+   "text": "(friend), one of the village musicians, stops (subject.him/her) halfway through. \"I know that song! My grandmother sang it. It's an old harvesting tune, for keeping time while you work.\" (friend) teaches it to the gardeners, and soon everyone is humming it over the yams. Somehow the work goes a little faster with it. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10197"
+  },
+  "c3o2": {
+   "text": "Everyone learns the first part easily. But nobody can agree on how it ends. Each person who heard (subject) hum it remembers the final notes differently, and when (subject) tries to sing it again, even (subject.he/she) gets it wrong. The village ends up with eleven different endings to the same song and argues about them for weeks.",
+   "src": "L10199"
+  },
+  "c3": {
+   "text": "(subject) rushes home and hums the tune over and over to anyone who will listen, trying to fix it in (subject.his/her) memory before it slips away...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10195"
+  },
+  "c4o1": {
+   "text": "The singing stops. The crickets start up again. That night (subject) sleeps more deeply and peacefully than (subject.he/she) has in months and wakes up feeling oddly refreshed, as if someone had sung (subject.him/her) to sleep.",
+   "src": "L10204"
+  },
+  "c4o2": {
+   "text": "The song doesn't go away. It comes back, again and again, but only ever when (subject) is alone: at the well at dawn, in the fields at dusk. It never comes closer, never threatens, never explains itself. After a while (subject) stops being frightened and starts humming along under (subject.his/her) breath.",
+   "src": "L10206"
+  },
+  "c4": {
+   "text": "(subject) turns (subject.his/her) back on the trees, sits down by the fire, and tries very hard to listen to the crickets...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10202"
+  }
+ }
+}

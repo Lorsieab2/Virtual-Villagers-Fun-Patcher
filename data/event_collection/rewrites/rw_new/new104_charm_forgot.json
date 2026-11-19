@@ -1,0 +1,255 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Charm That Forgot",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new104_charm_forgot",
+  "source": "rewrites",
+  "lines": [
+   4863,
+   4908
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L4863",
+  "ledger": [
+   {
+    "src": "L4864",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4865",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4873",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4880",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4887",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4869",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4870",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4871",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4874",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4881",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4888",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4875",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4877",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4882",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4884",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4889",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4891",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4894-4908",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The memory charm, a braid of hair and little shell beads, was made to help forgetful villagers remember their chores.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The memory charm, a braid of hair and little shell beads, was made to help forgetful villagers remember their chores. It has worked well for years. Mostly.\nThis morning (subject), who was wearing it, opened (subject.his/her) mouth to say good morning and could not remember (subject.his/her) own name. Not for long, just for one horrible breath, but long enough. And when the others look closely at the charm, one of the shell beads now shows a tiny carved name that nobody in the village recognizes.\nThe charm sits on its cord looking completely innocent. What should (subject) do with it?",
+   "choices": [
+    {
+     "label": "Unpick the Charm's Knots",
+     "next": "c1",
+     "src": "L4869"
+    },
+    {
+     "label": "Let Someone Wear It Overnight",
+     "next": "c2",
+     "src": "L4870"
+    },
+    {
+     "label": "Show It to the Weaving Elder",
+     "next": "c3",
+     "src": "L4871"
+    }
+   ],
+   "src": "L4866-4868"
+  },
+  "c1o1": {
+   "text": "Knot by knot, (subject) maps out how the braid was woven: which strands cross, which hold the beads, which do nothing at all except look nice. (subject.He/She) scratches it all down for the researchers. It is a little more known about how charms are made, and (subject) remembers (subject.his/her) own name the whole time, which is the main thing.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L4876"
+  },
+  "c1o2": {
+   "text": "At knot twenty-three the whole braid slips loose at once. The odd carved bead bounces off (subject)'s knee, rolls across the floor and drops neatly into a crack, never to be seen again. The charm is plain string now. (subject) cannot decide if (subject.he/she) is relieved or not, and keeps checking that (subject.he/she) still knows (subject.his/her) name.",
+   "src": "L4878"
+  },
+  "c1": {
+   "text": "(subject) takes the charm to the brightest spot in the village and begins, very carefully, to untangle the braid, counting each knot under (subject.his/her) breath. Seventeen... eighteen...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4874"
+  },
+  "c2o1": {
+   "text": "In the morning, (friend) sits up, stretches, and greets everyone cheerfully by name. Good news: (subject.he/she) remembers everything. Bad news, or at least surprising news: the charm seems to have \"forgotten\" (subject.his/her) old face, and given (subject.him/her) a new one. (subject.His/Her) face and hair have changed for good. The family stares. (friend) asks why everybody is staring. Someone hands (subject.him/her) a bowl of water to look into. There is a long silence, and then, to everyone's relief, (friend) laughs.",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "friend",
+     "head": "random"
+    }
+   ],
+   "src": "L4883"
+  },
+  "c2o2": {
+   "text": "At the last moment (friend) pulls the charm off. \"Actually, I quite like knowing who I am.\" Nobody blames (subject.him/her). The charm is hung on a peg by the door where no one has to touch it, and people walk around it carefully, the way people walk around a sleeping dog.",
+   "src": "L4885"
+  },
+  "c2": {
+   "text": "(friend) volunteers. \"What's the worst that happens? I forget to do the dishes?\" (subject.He/She) ties the charm around (subject.his/her) wrist and goes to bed, while (subject.his/her) family watches (subject.him/her) a little too closely...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4881"
+  },
+  "c3o1": {
+   "text": "\"Or so my mother said,\" (elder) adds. \"She also said the cooking pot was haunted, and that was just my father.\" (subject.He/She) cannot say whether any of it is true, hands the charm back, and goes for a nap.",
+   "src": "L4890"
+  },
+  "c3o2": {
+   "text": "\"Here. I'll show you how they tested a weave.\" (elder) soaks a strand in seawater and has (subject) watch how it dries: tight weaves curl, loose ones sag, and good ones dry straight as an arrow. It is an old method worth keeping, and (subject) writes it down so the village will not forget it, then checks the bark twice to make sure the writing has not forgotten anything either.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L4892"
+  },
+  "c3": {
+   "text": "(elder) turns the charm over in (subject.his/her) knobbly fingers, frowning at the carved bead. \"Hmm. The old charm makers... they made things that sometimes got ideas.\"",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4888"
+  }
+ }
+}

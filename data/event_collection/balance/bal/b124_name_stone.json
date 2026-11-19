@@ -1,0 +1,202 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Name Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b124_name_stone",
+  "source": "balance",
+  "lines": [
+   5663,
+   5706
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5663",
+  "ledger": [
+   {
+    "src": "L5664",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5665",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5673",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5682",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5670",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5671",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5674",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5683",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5676",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5679",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5685",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5688",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5691-5706",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every time someone says it, someone else remembers the wedding.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the edge of the village there is a flat grey stone with names scratched all over it, hundreds of them, some so old the rain has nearly washed them away. The elders say that anyone who scratches a new name on it and sleeps beside it for one night will wake up wearing that name, and the old one will be scratched out by morning.\n(Name) has never liked (his/her) name. It was (his/her) great-uncle's, and (his/her) great-uncle was famous mostly for falling out of a tree during a wedding. Every time someone says it, someone else remembers the wedding. (Name) is standing in front of the stone with a sharp shell in (his/her) hand.\nShould (name) scratch a new name on the stone, or learn to live with the old one?",
+   "choices": [
+    {
+     "label": "Scratch a New Name",
+     "next": "c1",
+     "src": "L5670"
+    },
+    {
+     "label": "Keep the Old Name",
+     "next": "c2",
+     "src": "L5671"
+    }
+   ],
+   "src": "L5666-5668"
+  },
+  "c1o1": {
+   "text": "In the morning, (name)'s old name has been scratched out, neatly, as if by someone careful. Underneath it, fresh and clear, is \"Tonga,\" the name (he/she) wrote. When (he/she) walks back into the village, the first person (he/she) passes says, \"Morning, Tonga,\" as if they've always said it. Nobody mentions the wedding ever again. Tonga doesn't miss the old name at all.",
+   "effects": [
+    {
+     "do": "change_name",
+     "name": "Tonga",
+     "role": "subject"
+    }
+   ],
+   "src": "L5677"
+  },
+  "c1o2": {
+   "text": "In the morning, the old name has been scratched out. But the new name underneath is not the one (name) wrote. It is in somebody else's handwriting, older and loopier, and says \"(made1).\" Nobody in the village knows who wrote it. The elders say the stone sometimes knows better. (made1) grumbles about it for a few days, and then admits it does suit (him/her) better.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L5680"
+  },
+  "c1": {
+   "text": "(Name) kneels and scratches carefully into the stone, tongue between (his/her) teeth. At sunset (he/she) lies down beside it on a mat, feeling a little silly, and watches the first stars come out over the names of everyone who did the same before...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5674"
+  },
+  "c2o1": {
+   "text": "This time (name) asks to hear the whole story. It turns out (his/her) great-uncle fell out of the tree because he climbed up to rescue a child's kite, during the wedding, in his best clothes, while everyone shouted at him to come down. He got the kite. The child grew up to be one of the village's elders, who is sitting right there by the fire, and laughs until she cries. (Name) walks home feeling very different about (his/her) name, and about a few other things too.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L5686"
+  },
+  "c2o2": {
+   "text": "(Name) stands up by the fire and tells everyone that from now on, the name means a person who climbs a tree for someone else's sake, wedding or not. Then (he/she) climbs the nearest palm to prove it, with everyone shouting at (him/her) to come down. (He/She) gets a coconut. (He/She) does not fall. The village cheers so loudly the chickens leave. It becomes a small festival every year after: Uncle's Day.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L5689"
+  },
+  "c2": {
+   "text": "(Name) looks at all the names on the stone, all the people who wanted to be someone else, and puts the shell down. \"It's just a name,\" (he/she) says, and goes home. That evening, by the fire, someone mentions the wedding again...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5683"
+  }
+ }
+}

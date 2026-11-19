@@ -1,0 +1,230 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "openq97",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "armm01_polished": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm02_bowyer": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm03_practice_spears": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm04_weathered": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "armm05_symbols_shield": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm06_helmets_display": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm07_cracked_shield": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm08_ancestral_spear": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm09_harvesting_tool": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm10_balancing_staff": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm11_protective": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm12_implements_hunt": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "armm13_shields": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm14_bindings_made": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm15_old_watchpost": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm16_shield_memorial": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm17_bow_put_away": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "armm18_materials": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm19_rehearsing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm20_veteran": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm21_markings_shield": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm22_inherited_bow": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm23_names_old_tools": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm24_new_family_mark": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm25_memories_spear": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm26_grandparent": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm27_repaired": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm28_helmet_history": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm29_shield_used": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm30_bowyer_favorite": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm31_story_retold": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm32_faded": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm33_heirloom": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm34_damaged_spear": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "armm35_care_heirlooms": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

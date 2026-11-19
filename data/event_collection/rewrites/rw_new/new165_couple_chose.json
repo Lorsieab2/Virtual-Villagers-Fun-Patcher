@@ -1,0 +1,233 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Couple Who Chose to Wait",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new165_couple_chose",
+  "source": "rewrites",
+  "lines": [
+   7993,
+   8039
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7993",
+  "ledger": [
+   {
+    "src": "L7994",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7995",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8004",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8011",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8018",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8000",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8001",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8002",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8005",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8012",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8019",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8006",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8008",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8013",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8015",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8020",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8022",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8025-8039",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager are happy.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "parent": {
+   "kind": "villager",
+   "min_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) are happy. Very happy. They are also building a new hut together, which is taking much longer than planned.\nAnd they disagree about when to have a child.\n(subject) wants to start now. (friend) wants to wait until the hut is finished. This should be a simple conversation. Somehow, every single time they try to have it, it turns into an argument about the hut. The roof angle. The door. Whose idea the extra window was. Last night they argued about the window for an hour and never mentioned children once.\nThe half-built hut stands there, looking innocent. How can they talk about children without arguing about the window?",
+   "choices": [
+    {
+     "label": "Talk It Out at Home",
+     "next": "c1",
+     "src": "L8000"
+    },
+    {
+     "label": "Take a Day Off Together",
+     "next": "c2",
+     "src": "L8001"
+    },
+    {
+     "label": "Ask a Parent They Trust",
+     "next": "c3",
+     "src": "L8002"
+    }
+   ],
+   "src": "L7996-7999"
+  },
+  "c1o1": {
+   "text": "Without the hut to hide behind, it comes out quickly. They each explain how they really feel, honestly, without demanding that the other give in. (subject) is afraid of waiting too long. (friend) is afraid of not being ready. It turns out they're both just afraid, and somehow that helps. They hold hands for a long time afterwards.",
+   "src": "L8007"
+  },
+  "c1o2": {
+   "text": "(friend) finally admits it isn't about the hut at all. (subject.He/She) is simply not ready yet. (subject) is quiet for a while, and then accepts that answer. \"Then we'll wait,\" (subject.he/she) says. \"But we're still arguing about the window.\"",
+   "src": "L8009"
+  },
+  "c1": {
+   "text": "That night, (subject) sits (friend) down and makes one rule: they are not allowed to mention the hut...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8005"
+  },
+  "c2o1": {
+   "text": "They spend a quiet afternoon on the rocks, far from the hut, talking and not talking, and remember why they wanted to build a home together in the first place. They decide to make it a habit, one day off a week, no hut allowed. The question of children can wait, (subject) decides. This can't.",
+   "src": "L8014"
+  },
+  "c2o2": {
+   "text": "Away from the hut, they realize clearly that they want different timing, and that neither of them can simply give in. It's hard to hear. But they love each other, and they say so, and walk home holding hands, still not sure what comes next.",
+   "src": "L8016"
+  },
+  "c2": {
+   "text": "(subject) and (friend) walk away from the half-built hut for a whole day, and go to the far side of the island...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8012"
+  },
+  "c3o1": {
+   "text": "(parent) listens to both of them, carefully, without taking sides, and without making the decision for them. \"There's never a perfect time,\" (subject.he/she) says at the end. \"But there's a time that's right for you two. Only you know when.\" They walk home in thoughtful silence.",
+   "src": "L8021"
+  },
+  "c3o2": {
+   "text": "(parent)'s advice turns out to be mostly a long list of how tired babies make a person. And how loud they are. And how they never sleep. And the thing with the coconut. The couple thank (subject.him/her), and follow their own judgment, which, for now, involves finishing the hut.",
+   "src": "L8023"
+  },
+  "c3": {
+   "text": "They go together to (parent), who has raised a whole hut full of children, and ask what (subject.he/she) thinks...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8019"
+  }
+ }
+}

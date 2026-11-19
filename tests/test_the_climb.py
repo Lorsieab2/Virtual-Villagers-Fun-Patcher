@@ -204,7 +204,7 @@ class TheMechanicsPage(unittest.TestCase):
                       "not an Esteemed Elder's totem statue", "one such villager is enough", "Go with the plan",
                       "Follow the scientists' advice", "the fall 50%", "the summit 50%", "1,000 to 6,000 tech points",
                       "Research becomes 100", "celebrat", "+10 to 20 Research", "a grave", "Distinguished Scientist",
-                      "never takes a share of the game's own draw", "separate rare roll comes up 25%",
+                      "never takes a share of the game's own draw", "30-50% chance (rolled each time) to be one of the patcher's new events instead",
                       "Pick Island Event", "when the page"):
             with self.subTest(words=words):
                 self.assertIn(words, text)

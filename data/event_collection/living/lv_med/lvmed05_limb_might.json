@@ -98,7 +98,7 @@
   },
   "a1": {
    "name": "Outcome A1",
-   "text": "The patient consents and survives, beginning a difficult adjustment to daily life.",
+   "text": "The patient consents and survives, beginning a difficult adjustment to daily life without running.",
    "src": "L20274",
    "effects": [
     {
@@ -195,7 +195,7 @@
   },
   "c2": {
    "name": "Outcome C2",
-   "text": "The patient chooses surgery and later trains apprentices in a new craft.",
+   "text": "The patient chooses surgery and later trains apprentices in a new craft, though running is now hard.",
    "src": "L20281",
    "effects": [
     {
@@ -214,5 +214,17 @@
     }
    ]
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L20274",
+   "before": "adjustment to daily life.",
+   "after": "adjustment to daily life without running."
+  },
+  {
+   "src": "L20281",
+   "before": "in a new craft.",
+   "after": "in a new craft, though running is now hard."
+  }
+ ]
 }

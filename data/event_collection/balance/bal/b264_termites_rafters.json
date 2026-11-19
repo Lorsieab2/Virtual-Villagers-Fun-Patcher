@@ -1,0 +1,224 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Termites in the Rafters",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b264_termites_rafters",
+  "source": "balance",
+  "lines": [
+   12309,
+   12350
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12309",
+  "ledger": [
+   {
+    "src": "L12310",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12311",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12319",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12328",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12316",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12317",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12320",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12329",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12322",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12325",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12331",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12334",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12337-12350",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Inside the hut, the rafters are hollow.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) leans on a doorpost and it crumbles to powder under (his/her) hand. Inside the hut, the rafters are hollow. Termites. And not just in that hut. Wherever (name) taps, there is the dry, papery sound of wood that has been eaten from the inside.\nThe worst of it is the scroll hut, where the village keeps its notes on farming, building and healing. Its shelves are made of the same wood.\nThere is only time to save one thing first. Should (name) get everyone to prop up the huts before they fall, or rush to save the scrolls?",
+   "choices": [
+    {
+     "label": "Prop Up the Huts",
+     "next": "c1",
+     "src": "L12316"
+    },
+    {
+     "label": "Save the Scrolls",
+     "next": "c2",
+     "src": "L12317"
+    }
+   ],
+   "src": "L12312-12314"
+  },
+  "c1o1": {
+   "text": "By nightfall every hut is propped and patched with fresh wood from the hills. Not one roof falls. But in the morning the builders go to the scroll hut, and the shelves have given way. The scrolls are on the floor, chewed at the edges but still readable, and the scroll-keepers spend a week copying them onto fresh bark, grumbling about termites the whole time.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L12323"
+  },
+  "c1o2": {
+   "text": "Once the props are in, (name) shows the other builders how to spot termite wood before it gives way: tap it, and listen for the dry papery sound. They go through the whole village, scroll hut included, and replace every bad post. It takes a week. When it's done, every builder can find termites with their eyes shut.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Building"
+     }
+    }
+   ],
+   "src": "L12326"
+  },
+  "c1": {
+   "text": "(Name) runs from hut to hut, shouting for the builders. They drag in every spare pole in the village and start jamming them under the sagging rafters, one hut after another...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12320"
+  },
+  "c2o1": {
+   "text": "Every scroll comes out. The shelves collapse a moment after the last armful. That evening the whole village helps prop up the other huts by torchlight, grumbling, but nobody's roof comes down, and the scrolls end up in a new hut built of ironwood, which termites won't touch.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L12332",
+   "text_only": [
+    {
+     "src": "L12332",
+     "what": "\"collapse\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "The scrolls are safe, but two huts collapse in the night, one of them (name)'s own. Nobody is hurt, but it is a long, cold night for the families. (Name) spends the next week rebuilding both huts, from the ground up, alone, out of guilt. By the end, (he/she) is a much better builder than (he/she) was, and a very tired one.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L12335",
+   "text_only": [
+    {
+     "src": "L12335",
+     "what": "\"collapse\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(Name) runs to the scroll hut and starts carrying scrolls out into the sun by the armful. Behind (him/her) the shelves are already beginning to lean...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12329"
+  }
+ }
+}

@@ -1,0 +1,321 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Water That Tasted Different",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new191_water_tasted",
+  "source": "rewrites",
+  "lines": [
+   9262,
+   9318
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L9262",
+  "ledger": [
+   {
+    "src": "L9263",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9264",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9274",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9281",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9288",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9295",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9269",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9270",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9271",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9272",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9275",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9282",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9289",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9296",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9276",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9278",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9283",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9285",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9290",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9292",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9297",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9299",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9302-9318",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Water from the old well tastes sweet and cool, the way water should.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "cook": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "novice": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Water from the old well tastes sweet and cool, the way water should.\nWater from the new well tastes faintly of metal. Like licking a stone. And when it goes into the stew pot, the stew turns a funny, unappetizing grey.\nThe cooks have refused to touch it. \"Grey stew,\" (cook) announced, \"is not stew.\" The villagers who spent a whole season digging the new well are taking this very personally. One of them has been drinking the new well's water ostentatiously in front of the cooks all morning, saying \"Delicious!\" with an increasingly strained smile.\n(subject) has been asked to settle it. But how does anyone find out why water tastes different?",
+   "choices": [
+    {
+     "label": "Taste Both Wells Every Morning",
+     "next": "c1",
+     "src": "L9269"
+    },
+    {
+     "label": "Weigh the Rock Against the Rain",
+     "next": "c2",
+     "src": "L9270"
+    },
+    {
+     "label": "Let the Cooks Poke Holes in It",
+     "next": "c3",
+     "src": "L9271"
+    },
+    {
+     "label": "Show a Novice How to Taste-Test",
+     "next": "c4",
+     "src": "L9272"
+    }
+   ],
+   "src": "L9265-9268"
+  },
+  "c1o1": {
+   "text": "By the end of the week, there's a clear pattern: the metal taste is strongest the morning after rain, and fades as the days go dry. It's a repeatable pattern that adds to village knowledge, and the cooks agree to use the new well only on dry days. The diggers are mollified. Mostly.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9277"
+  },
+  "c1o2": {
+   "text": "The tastings contradict each other from day to day: metal one day, sweet the next, metal again the day after, and \"sort of fishy\" the day after that. (subject) writes down the uncertainty honestly, which the diggers take as a victory and the cooks take as proof of everything.",
+   "src": "L9279"
+  },
+  "c1": {
+   "text": "(subject) decides to taste both wells, every morning, at the same time, for a whole week, and write down exactly what (subject.he/she) tastes...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9275"
+  },
+  "c2o1": {
+   "text": "In the morning, there's a thin layer of red grit at the bottom of the new well's jar, and nothing at all in the old one's. The rock, not the rain, explains it better: the new well was dug through a band of red stone. Letting the water settle overnight before using it takes most of the taste away. The cooks try it, and the stew comes out almost the right colour.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L9284"
+  },
+  "c2o2": {
+   "text": "Both jars look the same in the morning, and both explanations still fit what they've seen. More tasting is needed. (subject) sighs, and fetches two more jars.",
+   "src": "L9286"
+  },
+  "c2": {
+   "text": "(subject) has two ideas: the taste comes from the rock the well was dug through, or from rainwater seeping in. (subject.He/She) sets up a test: a jar from each well, left to settle overnight...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9282"
+  },
+  "c3o1": {
+   "text": "(cook) narrows (subject.his/her) eyes. \"Did anyone look at the new well's water before it went in the stew pot? Or only after?\" There's a pause. Nobody had. The pot they always used for the new well's water was the old iron-stained one. The grey might come from the pot! It's a hidden assumption, exposed, and the village learns to always test things in a clean bowl first.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9291"
+  },
+  "c3o2": {
+   "text": "Everyone argues about whose tongue to trust. The cooks say theirs, obviously. The diggers say the cooks are biased. Someone suggests a child, because children are honest, and the child says both waters taste \"like water.\" Eventually everyone agrees to taste from the same cup, at the same time.",
+   "src": "L9293"
+  },
+  "c3": {
+   "text": "(subject) invites the cooks to point out anything (subject.he/she) might have got wrong...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9289"
+  },
+  "c4o1": {
+   "text": "(subject) teaches (novice) how to repeat the tasting fairly: the same cup every time, the same hour every day, rinse the mouth between wells, and never know which water is which until afterwards. (novice) takes it very seriously, and learns a great deal about how to test things properly.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "novice",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L9298"
+  },
+  "c4o2": {
+   "text": "Watching (subject) work, (novice) notices that (subject.he/she) always tastes the old well first. Every single time. So the new well always tastes strange by comparison. The notes are revised, and (subject) is a little embarrassed, and quietly proud of (subject.his/her) pupil.",
+   "src": "L9300"
+  },
+  "c4": {
+   "text": "(subject) decides this is a good chance to teach (novice) how a proper test is done...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9296"
+  }
+ }
+}

@@ -52,6 +52,8 @@
    Installed at run time by VvfpStoryInstall(game) from the Origins
    companion (once it runs in the game process, outside DllMain).  The stock
    or Origins bytes at every site are verified first. */
+/* The Golden Child may change sex: his draws stay a boy's (native/shared/sex_change.h, option 1). */
+#define VV_SEX_GC_OPTION1 1
 #include <windows.h>
 #include <string.h>
 #include <intrin.h>
@@ -187,6 +189,40 @@ static unsigned int choice_resolve_target(int game, unsigned int va, unsigned in
 /* Defined with the host (story_common.inc), used by the arms below: the
    game's own next island event keeps its time (island_timer_keep.h). */
 static void story_island_arming(int game, void *field, unsigned int value);
+/* The big tables (the collection's entries, the Pick Island Event list, the library) are allocated to what they
+   hold, from the process heap, and never shrink (the owner, 2026-11-15: "it is 2026. 8 MB is nothing"); every one
+   has a sanity limit far above need (STORY_TABLE_LIMIT).  *p grows to hold `need` elements of `size` bytes (new
+   ones zeroed); 1 when it holds them, 0 when they could not be had (the table keeps what it had). */
+#define STORY_TABLE_LIMIT 65536
+static int story_grow(void **p, int *cap, int need, size_t size) {
+    void *grown;
+    int want;
+    if (need <= *cap) {
+        return 1;
+    }
+    if (need > STORY_TABLE_LIMIT) {
+        return 0;
+    }
+    want = *cap > 0 ? *cap : 256;
+    while (want < need) {
+        want *= 2;
+    }
+    if (want > STORY_TABLE_LIMIT) {
+        want = STORY_TABLE_LIMIT;
+    }
+    grown = *p == NULL ? HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, (SIZE_T)want * size)
+                       : HeapReAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, *p, (SIZE_T)want * size);
+    if (grown == NULL) {
+        return 0;
+    }
+    *p = grown;
+    *cap = want;
+    return 1;
+}
+
+/* story_collection.inc: the game whose armed new event is taking a natural one's place, until the island timer's
+   keeper has its arm (0 none). */
+static int sc_replace_pending;
 /* ... and by the locks below: a bought island event is on its way until the
    game's trigger delivers it (island_timer_keep.h itk_on_its_way). */
 static int story_bought_on_its_way(int game);
@@ -218,9 +254,19 @@ static int cg_busy(int game);
 static void cg_tick(int game);
 /* Defined with the Isola Grand Event Collection's rare roll (story_collection.inc), used earlier. */
 static void sc_tick(int game);
+static void st_tick(int game);   /* story_structures.inc: the structures a village has finished (the repair effect) */
 static int sc_pick_fill(int game);
 static int sc_pick_buy(int game, HWND owner, int i);
 static void sc_library_add(int game);
+/* The procedural events (story_procedural.inc), called by the collection's draw, Pick Island Event and the library. */
+static int pc_index(int game);
+static int pc_weight(int g);
+static int pc_draw_group(int game, int g);
+static int pc_pick_fill(int game);
+static int pc_pick_buy(int game, HWND owner, int ref);
+static void pc_library_add(int game);
+static int pc_library_path(const char *path);
+static int pc_library_load(int game, const char *path);
 static void cg_village_seen(int game, int slot, const unsigned int *roster);
 static void cg_flush_file(int game, int slot, const unsigned int *roster);
 static void cg_village_reset(int game, int slot);
@@ -1091,8 +1137,10 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     ce_requeue_tick(game);
     /* A branching Custom Island Event: its next popup, once the slot is free (story_graph.inc). */
     cg_tick(game);
-    /* The Isola Grand Event Collection's separate rare roll after a natural island event (story_collection.inc). */
+    /* The new island events in a natural one's place (story_collection.inc): half of them, from 61 villagers. */
     sc_tick(game);
+    /* The structures this village has finished, for the "repair" effect (story_structures.inc). */
+    st_tick(game);
     /* The custom titles' tick: bind to the save slot, notice a Start Over,
        forget the titles of villagers who are gone. */
     now = GetTickCount();
@@ -1373,8 +1421,11 @@ static int lv_test_has_pack(void);
 #endif
 
 #include "story_graph.inc"      /* branching Custom Island Events from the library (v1.35.97) */
-#include "story_collection.inc" /* the Isola Grand Event Collection's separate rare roll (v1.35.97) */
+#include "story_collection.inc" /* when the new island events come: in a natural one's place (v1.35.97) */
 #include "story_living.inc"     /* the Living Event Engine: living.pak, its history (v1.35.97) */
+#include "story_traits.inc"     /* the new island events' story traits (v1.35.97) */
+#include "story_procedural.inc" /* procedural island events composed from pieces-<group>.pcb (v1.35.97) */
+#include "story_structures.inc" /* the structures a village has finished, for the repair effect (v1.35.97) */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;

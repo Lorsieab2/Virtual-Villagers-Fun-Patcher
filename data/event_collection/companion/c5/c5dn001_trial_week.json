@@ -108,13 +108,11 @@
    "join": "paragraph",
    "text": "Dislike the first job and try another.",
    "src": "L2669",
-   "effects": [
+   "text_only": [
     {
-     "do": "preference",
-     "role": "teen",
-     "list": "dislikes",
-     "preference": "work",
-     "src": "L2669"
+     "src": "L2669",
+     "what": "Dislike the first job",
+     "reason": "likes and dislikes are not jobs (the owner, 2026-11-16): no game's word fits disliking one job"
     }
    ]
   },

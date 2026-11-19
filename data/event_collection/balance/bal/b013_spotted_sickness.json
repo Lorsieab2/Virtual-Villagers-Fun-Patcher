@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spotted Sickness",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b013_spotted_sickness",
+  "source": "balance",
+  "lines": [
+   571,
+   612
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L571",
+  "ledger": [
+   {
+    "src": "L572",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L573",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L581",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L590",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L578",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L579",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L582",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L591",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L584",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L587",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L593",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L596",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L599-612",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A sickness has come to the village: red spots, aching joints and a cough like a barking dog.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A sickness has come to the village: red spots, aching joints and a cough like a barking dog. Three people are down with it already, lying in the healers' hut, and (name), the best healer in the village, hasn't slept in two days.\nThe usual leaves aren't working. But (name) remembers an old remedy: a steam of boiled sea-grape and smoke-root, breathed in under a mat. It might clear the chest. It might also spread the sickness to whoever stands over the pot breathing it in.\nShould (name) try the steam, or keep the sick apart and let the sickness run its course?",
+   "choices": [
+    {
+     "label": "Try the Steam",
+     "next": "c1",
+     "src": "L578"
+    },
+    {
+     "label": "Keep the Sick Apart",
+     "next": "c2",
+     "src": "L579"
+    }
+   ],
+   "src": "L574-576"
+  },
+  "c1o1": {
+   "text": "By the third day, the barking coughs have softened into ordinary ones. By the fifth, the spots are fading. (Name) teaches the recipe to every healer in the village, who all write it down, and argue about the amounts, and write it down again. The sick go home, weak and spotty and very grateful. \"It smells like a swamp,\" says one of them, \"but I'll take it.\"",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L585"
+  },
+  "c1o2": {
+   "text": "The steam works. The coughs ease, and one by one the sick get up and go home. But by then (name) is coughing too, the deep, barking cough, and (he/she) is too tired to fight it. The other healers try everything, including the steam. (Name) dies in the healers' hut, among the empty mats of the people (he/she) saved. The village buries (him/her) with (his/her) healing basket, and the recipe is cut into the doorpost of the healers' hut, so no one ever has to remember it again.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    },
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L588"
+  },
+  "c1": {
+   "text": "(Name) sets the pot boiling in the middle of the healers' hut and holds the mat over each patient in turn, breathing the same steam (himself/herself) to keep the pot right...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L582"
+  },
+  "c2o1": {
+   "text": "It is a slow, miserable two weeks. The coughing can be heard across the village at night. But nobody else catches it, and one by one the sick come out, thinner and paler and very tired of the inside of that hut. (Name) finally sleeps, for a day and a half. When (he/she) wakes, someone has left a basket of fruit by (his/her) door, with a carving of a barking dog on top.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L594"
+  },
+  "c2o2": {
+   "text": "It's too late; the sickness was already in the village. Three more people wake up spotted and coughing, and then the hut at the edge of the village is full, and the healers are running between two huts with no sleep at all. It will pass. But it will take a while.",
+   "effects": [
+    {
+     "do": "sick",
+     "target": {
+      "random": 3
+     }
+    }
+   ],
+   "src": "L597"
+  },
+  "c2": {
+   "text": "(Name) moves the sick into a hut of their own at the edge of the village. Only two healers go in, with cloths over their faces, and the rest of the village leaves food at the door...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L591",
+   "text_only": [
+    {
+     "src": "L591",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  }
+ }
+}

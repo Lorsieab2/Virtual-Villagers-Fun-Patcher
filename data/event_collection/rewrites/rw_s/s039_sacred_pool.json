@@ -1,0 +1,189 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sacred Pool",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s039_sacred_pool",
+  "source": "rewrites",
+  "lines": [
+   1835,
+   1880
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1835",
+  "ledger": [
+   {
+    "src": "L1836",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1837",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1845",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1854",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1842",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1843",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1846",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1855",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1848",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1851",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1857",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1860",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1863-1880",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Deep in the hills there is a pool inside a ring of black standing stones.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Deep in the hills there is a pool inside a ring of black standing stones. The elders say that if two people bathe in it together at midnight, they \"will see through each other's eyes.\" Most people think it's just a nice saying, the kind of thing people say at weddings. The elders say the first two people on the island bathed there so that each could see the world the way the other did, and the stones have kept the custom ever since.\n(subject) and (friend) think it's just a saying too. They've decided to go and find out anyway, mostly for the walk.\nThey get there just before midnight. The pool is perfectly still, and holds the stars so clearly anyone could count them. The black stones stand around it like people waiting. It is very, very quiet. Should they bathe now, at midnight, as the custom says, or come back when it's light?",
+   "choices": [
+    {
+     "label": "Bathe at Midnight",
+     "next": "c1",
+     "src": "L1842"
+    },
+    {
+     "label": "Bathe at Noon Instead",
+     "next": "c2",
+     "src": "L1843"
+    }
+   ],
+   "src": "L1838-1840"
+  },
+  "c1o1": {
+   "text": "They climb out of the pool, dripping, and look at each other. And see themselves. \"Well,\" says (subject), in (friend)'s voice. \"Well,\" says (friend), in (subject)'s. They stare. Then, slowly, they start to laugh. It's not just a nice saying after all. They walk home through the dark hand in hand, getting used to each other's legs. They decide it's very romantic, actually. Nobody else in the village agrees, and their families find the whole thing exhausting.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L1849"
+  },
+  "c1o2": {
+   "text": "For exactly one breath, they see through each other's eyes. (subject) sees (subject.himself/herself), standing in the starlit pool, looking a little frightened and very hopeful. (friend) sees the same. Then the stars in the water go still, and they're themselves again, each behind their own eyes. Neither of them says a word. They walk all the way home in silence, very close together, and very quiet, and neither of them ever tells anyone else what they saw.",
+   "src": "L1852"
+  },
+  "c1": {
+   "text": "They take a deep breath, grin at each other, and step down into the water together, right in the middle of the reflected stars. It's warmer than they expected. The moment the moon reaches the top of the sky, the stars in the water begin to swirl...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1846"
+  },
+  "c2o1": {
+   "text": "At noon the pool is just a pool. A pretty one, with little blue fish in it and a frog on a stone, and the black stones are just stones, warm in the sun. They splash about for an hour and nothing happens at all, except that they both fall asleep on the bank afterwards and wake up with terrible sunburns. They walk home red as crabs, laughing about how frightened they were the night before.",
+   "src": "L1858"
+  },
+  "c2o2": {
+   "text": "At noon, nothing happens. They splash about, shrug, and walk home, a little disappointed. But the pool, it seems, keeps a different clock to everyone else. That night, at exactly midnight, asleep in their own beds on opposite sides of the village, they swap anyway. In the morning (subject) wakes up in (friend)'s hut, and (friend) wakes up in (subject)'s, and both of them sit bolt upright and scream.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L1861"
+  },
+  "c2": {
+   "text": "Standing there in the dark with the black stones all around them, they both lose their nerve at the same moment. \"Maybe,\" whispers (friend), \"we could come back tomorrow. When it's light.\" They sleep under a tree nearby, and come back at noon...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1855"
+  }
+ }
+}

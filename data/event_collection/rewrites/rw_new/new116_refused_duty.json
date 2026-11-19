@@ -1,0 +1,252 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Refused Duty",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new116_refused_duty",
+  "source": "rewrites",
+  "lines": [
+   5432,
+   5477
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5432",
+  "ledger": [
+   {
+    "src": "L5433",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5434",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5442",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5449",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5456",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5438",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5439",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5440",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5443",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5450",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5457",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5444",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5446",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5451",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5453",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5458",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5460",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5463-5477",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager was asked to climb the cliff behind the village and cut fresh vines for rope.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "leader": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "name3": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) was asked to climb the cliff behind the village and cut fresh vines for rope. It is a long, hard climb, but someone has to do it, and it was (subject.his/her) turn.\n(subject) said no. Just \"no\", flatly, and walked away.\nBy evening, the word \"lazy\" is drifting around the cooking fires, getting a little louder every time it passes from one fire to the next. (subject) is sitting alone on the edge of the village with (subject.his/her) jaw set, not eating, not looking at anyone. What should (leader) do?",
+   "choices": [
+    {
+     "label": "Hear Why They Refused",
+     "next": "c1",
+     "src": "L5438"
+    },
+    {
+     "label": "Inspect the Cliff Face",
+     "next": "c2",
+     "src": "L5439"
+    },
+    {
+     "label": "Pair Them with a Climber",
+     "next": "c3",
+     "src": "L5440"
+    }
+   ],
+   "src": "L5435-5437"
+  },
+  "c1o1": {
+   "text": "(subject) explains that an old shoulder injury gives out without warning on hard climbs. If it went halfway up that cliff, (subject.he/she) would fall, and (subject.his/her) family would be left without help for a season, or forever. (subject.He/She) was too proud to say it in front of everyone. When (leader) repeats it at the fire, the word \"lazy\" stops going around very quickly.",
+   "src": "L5445",
+   "text_only": [
+    {
+     "src": "L5445",
+     "what": "\"injury\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "Before (subject) can answer, (friend) hurries over. \"Did you tell them about the rockfall?\" Last week, the two of them watched a slab of that cliff break loose and smash onto the path below. (subject) didn't want to frighten anyone. Suddenly the talk at the fires is about the cliff, not about (subject), and nobody else wants to climb it either.",
+   "src": "L5447"
+  },
+  "c1": {
+   "text": "(leader) brings two bowls of stew and sits down beside (subject) without a word. After a while, (subject) starts eating. After a longer while, (subject.he/she) starts talking...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5443"
+  },
+  "c2o1": {
+   "text": "Poking around the shady base of the cliff, the climbers find thick, strong vines growing in the damp, every bit as good for rope as the ones at the top, and much easier to reach. The risky climb is no longer necessary at all. The rope makers learn which shady spots grow the best vines and save themselves a great deal of climbing from then on.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5452"
+  },
+  "c2o2": {
+   "text": "The cliff is crumbling exactly as (subject) feared: loose stones, fresh cracks, a rock that wobbles when a climber touches it. Laziness was never the issue. Nobody is punished, and the cliff is marked as off-limits with a row of white stones.",
+   "src": "L5454"
+  },
+  "c2": {
+   "text": "At first light, (leader) and a few climbers walk to the foot of the cliff to see what (subject) was so afraid of...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5450"
+  },
+  "c3o1": {
+   "text": "It works well enough to keep trying. (Name3) climbs fast and light, (subject) is strong and steady on the ground, and by midday they have more vines than anyone has ever brought back in one trip. They start doing the job together every season.",
+   "src": "L5459"
+  },
+  "c3o2": {
+   "text": "The pairing slows everyone down. (Name3) shouts instructions that (subject) can't hear, (subject) pulls when (subject.he/she) should let go, and by noon three ropes are so tangled together that they have to be cut apart. Nobody is hurt, but the plan is dropped, and they go home with fewer vines than they started with.",
+   "src": "L5461"
+  },
+  "c3": {
+   "text": "(leader) suggests a compromise: (name3) climbs, while (subject) holds the ropes at the bottom and hauls the vines down...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5457"
+  }
+ }
+}
