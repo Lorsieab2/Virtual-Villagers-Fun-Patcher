@@ -191,10 +191,12 @@ ROLLS = (
           "\"Standing on the lift\", and \"Playing seesaw\" is picked only at strength 0 with nobody on the lift. "
           "When rain or a storm ends, villagers \"Drinking rain\", \"Getting out of the rain\" or \"Playing in "
           "puddles\" stop.",
-          # 0x429269, 0x4210DA
-          "Above 50 the scene also draws one more picture and sets one scene object's look; what they show was not "
-          "seen."),
-         sub_verified=(gm.RUNNING, gm.RUNNING, gm.RUNNING, gm.RUNNING, False)),
+          # 0x429269: the overview map's puddle (amppuddle.png, record +0x1494 loaded from resource 0x7E at 0x428E20),
+          # drawn at (0x1CD, 0x259) while [0x4B86D8] > 50.  0x4210DA (0x4210D0, called each update from 0x468677):
+          # the ground map's region 6 (the Lift) gets the value 4 above 50, else 6 (0x420A30 -> 0x420640).
+          "Above 50 the overview map also shows a puddle, and the ground map's patch at the Lift is switched to "
+          "another kind of ground; at 50 or less both go back."),
+         sub_verified=(gm.RUNNING, gm.RUNNING, gm.RUNNING, gm.RUNNING, gm.CODE)),
     Roll("Heavy rain: in rain or a storm of strength 50 or more (the weather line above), a worker who neither likes "
          "nor dislikes rain stops working {0} of the time (rain-lovers go to drink the rain, rain-haters get out of "
          "it).",
@@ -216,6 +218,16 @@ ROLLS = (
     Roll("The chief's Grant Food (Leadership 1 or more, every 23 real-life hours, real time at any speed): 3 x Leadership x (10 to 29, each "
          "equally) food, so 30 to 87 at Leadership 1, 60 to 174 at 2, 90 to 261 at 3.",
          (Check(0x459042, 20),)),
+    # Educate the Children: the chief dropped on the children (0x4667F4..0x4668D5: chief +0xE80, Leadership >= 2 at
+    # 0x466842, the 23-hour timer 0x466895) sends the children (0x45E0C0(0x37, 1, ...)) to "Attending lecture" (action
+    # 0x37, 0x452E70); one under 14 at its end gets special step 42 (0x452F91..0x452FA1): rand(5) picks the skill
+    # through the table 0x459474 (Farming, Research, Building, Parenting, Healing), rand(3) + 7 is added, capped at 100
+    # (0x455740).
+    Roll("Educate the Children's lesson (the Tribal Chief's power, Leadership 2 or more, every 23 real-life hours, real "
+         "time at any speed): each child still under 14 at the end of \"Attending lecture\" gains 7, 8 or 9 points "
+         "(a third each) in one of the five skills -- Farming, Parenting, Healing, Research or Building, each 20% "
+         "(a roll of 0 to 4) -- up to 100.",
+         (Check(0x458F13, 5), Check(0x458F2D, 3)), verified=gm.CODE),
     Roll("Hut repairs: once all four huts are finished, a builder who examines a hut goes on to fix it {0} of the time; "
          "fixing trains Building and changes nothing on the hut.",
          (Check(0x453CDE, 100, 0x46, "jge", take=False),)),
@@ -233,6 +245,12 @@ ROLLS = (
          "(each equally) {0} of the time; while the fire burns, the session pays 1 more tech point {1} of the time.",
          (Check(0x45916F, 100, 2, "jge", take=False), Check(0x459421, 100, 0x0A, "jge", take=False),
           Check(0x459180, 10))),
+    # The research step's look (0x459095): skipped in catch-up ([game+0x12FB4], the flag the fishing trip's catch-up
+    # test 0x4535B8 reads); rand(100) < 10, then rand(3) picks one of three particle effects at the researcher.
+    Roll("Research's sparkle: at each research session while playing (not while the game catches up), the researcher "
+         "shows one of three small effects {0} of the time (a roll of 0 to 99 under 10, then each effect a third of "
+         "those); it changes nothing.",
+         (Check(0x4590AF, 100, 0x0A, "jge", take=False), Check(0x4590C4, 3)), verified=gm.CODE),
     Roll("A snack at the food bin (a villager below 100 health who goes to eat while there is food): it costs 1 food "
          "and gives +1 health {0} of the time.",
          (Check(0x458E47, 100, 0x32, "jge", take=False),)),
@@ -267,6 +285,37 @@ ROLLS = (
          "so a villager has no likes " + _ch(_LIKES[0]) + ", one " + _ch(_LIKES[1]) + " and two " + _ch(_LIKES[2])
          + "; dislikes the same; each is one of the game's 79 words, never one it already holds.",
          (Check(0x4548D4, 100, 0x19, "jge", take=False), Check(0x455414, 100, 0x19, "jge", take=False))),
+    # Looks at creation, in the record set-up 0x456120 (its only caller the add-villager wrapper 0x45F0B0, called by
+    # the founders 0x42812F..0x4282E1, the island events' wrapper 0x45FF50 and the births' wrapper 0x45FF90 from
+    # 0x4603B6).  Head +0xDF0: rand(100) < 5 (0x4564A9), or no parents' looks passed (args 8-11 all 0), gives rand(30)
+    # (0x456500); otherwise rand(3) + (the two parents' heads) / 2 - 1 (0x4564DC..0x4564F8), kept to 0..29.  Body
+    # +0xDF4: rand(29) (0x456522); the 30th, 29, is the robe 0x45FBDE gives the chief.
+    Roll("A new villager's looks, rolled once when the villager is made (a founder, a baby or an island-event "
+         "arrival): the body is one of the 29 everyday bodies, each " + chance(below(29, 1)) + " (a roll of 0 to "
+         "28); the 30th, the robe, comes only with becoming the Tribal Chief. A founder's or an arrival's head is one "
+         "of the 30 heads, each " + chance(below(30, 30) - below(30, 29)) + " or " + chance(below(30, 1)) + " (a roll "
+         "of 0 to 29).",
+         (Check(0x456522, 29), Check(0x456500, 30), Check(0x4564A9, 100, 5, "jl"), Check(0x4564DC, 3),
+          Check(0x4565C4, 100), Check(0x456365, 78), Check(0x4563C7, 66), Check(0x456545, 14), Check(0x456556, 17),
+          Check(0x456563, 9), Check(0x456577, 10)),
+         ("A baby's head: " + chance(_not(below(100, 5))) + " of the time the average of its two parents' heads "
+          "(rounded down) moved by -1, 0 or +1, a third each, and kept within the 30; otherwise ({2}) one of the 30 "
+          "at random, as for a founder.",
+          # 0x4565C4: rand(100) > 50 queues pose 2 (frame 8, sitting) instead of pose 0 (frame 19, standing), through
+          # 0x461080 -> step type 2 -> 0x457170 (tables 0x49DF90, 0x49DF48); the Crystal of Reflections copy 0x4566E0
+          # rolls the same at 0x4567F0.
+          "A new villager first appears standing " + chance(at_most(100, 50)) + " of the time and sitting "
+          + chance(_not(at_most(100, 50))) + "; a Crystal of Reflections copy rolls the same.",
+          # 0x456365 / 0x4563C7: x = 3 x (rand(78) + 265), y = 3 x (rand(66) + 209) when the caller passes no place.
+          "A baby or an island-event arrival first appears at a random spot of one patch of the village (78 by 66 "
+          "places, each about equally often); the founders have fixed places.",
+          # 0x456537..0x45659E: only with the set-up's 14th argument set, which no caller passes (every push of it is
+          # 0 or ebx = 0, 0x427F74).  Men: body from 14 (0, 1, 2, 4-9, 11-15), head from 17; women: body from 9, head
+          # from 10.
+          "DEAD code (never runs): the game also holds short lists to pick a man's body (14) and head (17) or a "
+          "woman's body (9) and head (10) from, used only when the code making a villager asks for them; nothing in "
+          "the game asks."),
+         verified=gm.CODE),
     # -- Births and gender ---------------------------------------------------------------------------------------
     Roll("Conception (dropping one villager on another, or a villager embracing on their own): the pair must be a man "
          "and a woman, both 18 or older, alive, not sick, neither already pregnant or nursing; with 250 food or less "
@@ -327,7 +376,8 @@ ROLLS = (
          patched="a Custom Island Event's new villagers are the sex the player sets for each."),
 )
 
-# Cosmetic rolls left out (reported, not shown): looks at creation (head and body, 0x456365 / 0x4563C7 / 0x4564A9 ..
-# 0x456577), the pose at creation (0x4565C4), walk targets, step lengths, animations and speech inside the 181 villager
-# actions, the research lab's visual effect (0x4590AF, 10% of live sessions, particles only), the chief's lessons and
-# the step-42 skill reward (0x458F13, queued by actions not traced to a player-visible name).
+# The cosmetic rolls once left out are shown above (the owner, 2026-11-18: nothing withheld): looks, pose and place at
+# creation (0x456365 .. 0x4565C4, the dead look tables 0x456545 .. 0x456577), research's sparkle (0x4590AF), and the
+# step-42 reward, which is Educate the Children's lesson (0x458F13).  Still not listed one by one: walk targets, step
+# lengths, animations and speech inside the 181 villager actions (vv_game_mechanics_vv3.CHANCE_LINES says so on the
+# page).

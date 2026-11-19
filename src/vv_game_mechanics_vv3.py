@@ -490,7 +490,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                     else "Nature is level 0")
     if patch is None:
         patch_words = (f"Whether the game has the patcher's \"{NATURE_PATCH_NAME}\" could not be told (its game "
-                       "folder was not found); the stock rule is shown.")
+                       f"folder was not found; {gm.BROWSE_HINT}); the stock rule is shown.")
     else:
         patch_words = (f"The patcher's \"{NATURE_PATCH_NAME}\" is {'in' if patch else 'not in'} the game"
                        + (" but needs Nature level 1." if patch and nature < 1 else "."))
@@ -678,8 +678,17 @@ CHANCE_LINES = (
     # settings, the slot and slot + 20, once 600 seconds of the system clock 0x401ED0 have passed.  It is called at
     # 0x427B40, the last step of the game object's per-frame update 0x427720 (vtable slot 0x1C), skipped only while
     # the start-up loading step [+0x2C] is 6 or less (0x427B37); gm.autosave_line has the five games' trace.
-    ("Not traced: how long a fixed-spot coral from puzzle code stays out, and the sharks' timer (so their clocks, "
-     "real time or on the game's clock, are not known).", False),
+    # The sharks: the puzzle object (vtable 0x49D348) keeps only its solved byte; the drawer 0x436200 draws
+    # max(1, (100 - progress of puzzle 6) x 10 / 100) sharks at ten fixed spots (0x594B50.., set once at 0x436270);
+    # nothing in it, or in the sharks' listeners 0x436390 / 0x436580, reads a clock.
+    ("The sharks have no timer: they stay off the beach, at fixed spots, until The Sharks is solved; the game draws "
+     "10 of them, one fewer for each 10% of the puzzle's progress (at least 1).", True),
+    # The pop-up hook 0x437310's case for tip 658 (byte table 0x437594, jump table 0x437544) calls 0x42D530: item
+    # 0x40 (the first common Coral piece) at (1487, 620), gone 90 seconds of the wall clock later (0x42D55A), as
+    # every placed piece (0x42DB10, 0x42DC70).
+    ("The tutorial's step \"Children can also contribute to village life...\" (tip 658) puts a common Coral piece "
+     "at a fixed spot for the children to collect; like every collectible it is gone after 90 real-life seconds "
+     "unpicked (real time, the same at every speed).", True),
     # A live run of The Secret City, written down in the Game Mechanics audit of 2026-10-25 (commit 72b88737): a
     # village played for 30 minutes left no new save.  The code says otherwise (Autosave above); the owner,
     # 2026-10-27: "for cases where the code contradicts live observation write both cases down".

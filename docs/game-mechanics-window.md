@@ -45,8 +45,10 @@ A fact whose clock is stopped (saved paused, a frozen clock) passes `due=None` a
 - **Minimal Detail** (off by default, kept in `patcher_local_settings.json` as `game_mechanics_minimum`; the owner,
   2026-11-17) shows only the vital statistics and the numbers: `gm.minimum(facts)` keeps each line's first sentence
   (the lines are written answer-first), leaves out a line whose answer holds no number, the explanations ("How ...",
-  "Normally ...", "Not counted ...", "DEAD", what a patcher patch does) and the Time and units, Sources and Hidden
-  keys groups; every Vital statistics line and every countdown stays. A left-out line whose sub-lines are kept is
+  "Normally ...", "DEAD", what a patcher patch does) and the Time and units and Hidden keys groups; every Vital
+  statistics line and every countdown stays. Sources keeps one short line (the owner, 2026-11-18): the exe it read
+  and whether its patch list came from the patcher's log or the exe's own bytes, or a warning when the patches could
+  not be told (`gm.sources_brief`). A line saying what a figure leaves out now gives the value, so it is not hidden. A left-out line whose sub-lines are kept is
   shown as its heading (the words before its first colon). Selecting and copying the page copies what is shown.
 - The top of each tab says when the save was last written. If the game for the save is running (looked for
   read-only in the list of running programs), it says that the values are from the last save, because the

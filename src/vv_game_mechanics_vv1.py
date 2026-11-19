@@ -152,7 +152,9 @@ HIDDEN_LINES = (
     # dislike test 0x4372E0 is called for word 38 (running) only at 0x43CD25 (every call scanned); the walk 0x43CCF0
     # is step 3 of the villager step dispatcher 0x43DEF0 (jump table 0x43DF74 -> 0x43DF1E -> 0x43DF22), run from the
     # game's own drop and walk paths (tests/test_manual_drop_breeding.py).  Step 1 (0x43DF0C -> 0x43CBD0) sets 300
-    # for a villager under 14 (0x43CBE4..0x43CBF7) with no like or dislike read; what queues step 1 is not traced.
+    # for a villager under 14 (0x43CBE4..0x43CBF7) with no like or dislike read.  Step 1 is queued (the step builder
+    # 0x4399F0's step-type argument 1) at three places only: "Not feeling well" (0x441D22, string 0xA8), the Golden
+    # Child's own wandering (0x447A92) and "Strolling" (0x448058, string 0x9B).
     # "not given the running speed": 0x43CD20..0x43CD2C; "only a like is read": 0x43CD33.
     # The speed is a field of the villager's record, +0x58, written in three places only (every write of +0x58
     # after a villager-record index scanned): 300 at 0x43CBF7 (step 1, under 14) and 0x43CD3C (step 3: a child
@@ -166,9 +168,9 @@ HIDDEN_LINES = (
      "keeps, which nothing in that code resets at 14); the path that makes an adult who dislikes running slower, as "
      "seen in the game, has not been found in the code.", gm.CODE),
     # The other step: 0x43CBD0 (step 1 of the dispatcher 0x43DEF0).
-    ("Another movement step gives every villager under 14 the running speed without reading the dislike; which "
-     "actions use that step was not traced, so whether a child who dislikes running ever runs through it is not "
-     "settled.", False),
+    ("Another movement step gives every villager under 14 the running speed without reading the dislike, and three "
+     "actions use it: \"Not feeling well\", \"Strolling\" and the Golden Child's own wandering. So a child who "
+     "dislikes running still runs while strolling or not feeling well.", gm.CODE),
     # The chooser 0x439AE0: rand(100) < 15 -> no job (0x439AEB..0x439AFD) whatever is liked; with Fix Vanilla
     # Bugs (vv1_fix_vanilla_bugs: 0x439AF8 -> 0x455491 / 0x4554B2) the like test 0x437310(index, 42 = work) is
     # asked first, as The Lost Children (0x449C7F), The Secret City (0x45973A), The Tree of Life (0x461CCC) and

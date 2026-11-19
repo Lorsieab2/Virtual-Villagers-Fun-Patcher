@@ -269,8 +269,12 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Mushrooms", "Apart from fog's doubling, this is exactly The Secret City's timing (3 in 6,000 each update, a "
                      "second 3 in 6,000 above weather strength 50, at most 2 out at once), so New Believers needs no "
                      "\"Collectible Spawn Timing works like VV1-3\" patch.", gm.CODE)
-    add("Mushrooms", "That is about one thing a real-life minute at any speed if the village updates about 30 times a "
-                     "real-life second; the update rate was not read from the code, so this is an estimate.")
+    # The spawn 0x414550 is called once a frame from the village update (0x442B32, right after the villagers' update
+    # 0x471EB0); the frame limiter 0x40965B..0x409688 holds a frame to 1000 // 30 = 33 ms (vv_game_mechanics_farmers_vv5
+    # docstring).  30 x 60 x 18 / 32,768 = 0.99 a real-life minute.
+    add("Mushrooms", "That is about one thing a real-life minute at any speed (0.99 on average): the game makes this "
+                     "check once a frame and draws 30 frames a real-life second. A computer too slow to draw 30 "
+                     "frames a second makes the checks, and so the things, rarer.", gm.CODE)
     if village.has(GOLDEN):
         out.extend(gm.golden_lines(GOLDEN, 18.0, speed_value, "about one thing a real-life minute at every speed, 30% "
                                    "of them mushrooms in fair weather"))

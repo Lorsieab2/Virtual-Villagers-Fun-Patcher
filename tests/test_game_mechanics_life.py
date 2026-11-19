@@ -569,7 +569,8 @@ class Vitals(unittest.TestCase):
         self.assertIn(life.COLLECTIBLES_POINTER, vitals)
         # No game exe here, so the mode is not known; the normal game's limit with the save's two complete sets.
         self.assertIn("Population limit: not known (this game's exe was not found, so its population mode is not "
-                      "known). In the normal game it would be 90, plus 5 for each complete collection, 25 with all "
+                      "known; pick the game with Browse... on the Game Mechanics window to find out). In the normal "
+                      "game it would be 90, plus 5 for each complete collection, 25 with all "
                       "four; this village has 2 complete (Fish Scale 12, Lab Equipment 12, Mausoleum Mural 0, Wind "
                       "Flute 0 of 12), so 100.", vitals)
 

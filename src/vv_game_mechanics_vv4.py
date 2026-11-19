@@ -92,9 +92,12 @@ STEW_LINES = (
     ("Sweet x3: honours the tree; sweet, sweet, soapy: the children get hiccups; sweet, soapy, soapy: heals 25 to "
      "59 health (5 to 14 with under 100 food), and that villager cannot eat that stew again for 10 real-life "
      "minutes (real time, the same at every speed); soapy x3: \"I feel sick!\" and \"Throwing up soapy stew!\" (it "
-     "does not make the villager sick), with the same 10-minute wait. In salt water, pulpy vines x3 make soap; any "
-     "other mix tastes nasty or too salty.", gm.RUNNING),
+     "does not make the villager sick), with the same 10-minute wait. In salt water, soapy x3 makes soap and "
+     "pulpy vines x3 the pulp for cloth; any other mix tastes nasty or too salty.", gm.RUNNING),
 )
+# The salt-water pair (2026-11-18): the recipes 0x42EDB2 (stew 10, soapy 0x21 x3, state 0xA) and 0x42EDC3 (stew 11,
+# pulpy vines 0x22 x3); the pot says "Soap is ready to stack." for 10 (0x42E58A) and "Pulp for cloth is ready." for
+# 11 (0x42E5A5).  The line used to give soap to the pulpy vines.
 # The stew pot (0x4D76D8) and its herb table (0x4D8220), the same design as The Secret City's potion: a stew
 # made (0x42EDE0) sets the table's deadline +8 to the real clock 0x403750 + 300 (0x42F240, from 0x42EEB2); the
 # table's update 0x42F1D0 empties the pot there (0x42F060 -> 0x42DA30, the herbs put back).  The pot's countdown
@@ -253,17 +256,29 @@ CHANCE_V4 = (
      "(Refills, Villager timers), births (Births and gender), ghost visits and the hummingbird (Collectibles), how "
      "long an item lies (Mushrooms), the stews and the Fire Pit (Other), weather an event brings (Island "
      "events).", gm.RUNNING),
-    # Read from the coordinator's spec (mech_vv4\\spec.md), not traced in the game's code.
-    ("A new village: one of the first five villagers has a 30% chance of liking running (not traced in the game's "
-     "code).", False),
+    # Traced 2026-11-18: every villager made (0x45EF10, the new village's first ones through 0x466270 included) gets
+    # its likes from 0x45D840 -- two rand(100) < 25 rolls for how many (0 to 2), each a different one of the 81 likes
+    # (rand(81)) -- and its dislikes from 0x45D300 the same way, never one it likes.  Nothing in the new village
+    # (0x41FEF0) or in making a villager singles out running (id 38); the spec's "30%" is not in the code.
+    ("A new villager, the first five of a new village included, gets 0, 1 or 2 likes at random (none 56.25% of "
+     "the time, 1 37.5%, 2 6.25%), each one of the game's 81 likes, so 1 villager in 162 likes running; that one "
+     "of a new village's first five does is 3.05%. Dislikes come the same way, never one the villager likes.",
+     gm.CODE),
     # The refresh 0x466D20 runs at 0x43F801 when the game's clock reaches [game+0x171BC]; the 2-second step sets
     # that to the clock + 40 every time (0x43F962), as does the pause (0x43F7E3) and the refresh itself (0x43F814).
     ("Every villager's queue of actions is refreshed only when 40 seconds of the game's clock (whole real-life "
      "seconds) go by without the village's 2-second step, and each step pushes that moment 40 seconds ahead: so "
      "not every 40 seconds in normal play, only after the village has stopped updating for 40 real-life seconds "
      "or more.", gm.CODE),
-    ("Clear weather lasts 4 to 15, 8 to 30 or 13 to 50 real-life minutes on Fast, Normal or Slow speed (not traced "
-     "in the game's weather code).", False),     # read from the coordinator's spec (mech_vv4\\spec.md)
+    # Traced 2026-11-18: setting the weather 0x46BC30 gives it an end on the game's clock (0x41DB20): clear (0)
+    # 480 + rand(1320) seconds, any other 180 + rand(180) (0x46BD18..0x46BD55).  When it ends (0x46C08C) a weather an
+    # event queued comes next; else clear is followed by rand(5) redrawn until not 0 (one of the four others,
+    # equally likely) and any other by clear.  The game's clock runs 2, 1 and 0.6 times real time on Fast, Normal
+    # and Slow (the Fire Pit's 72,000 seconds above are 10, 20 and 33 h 20 min).
+    ("Clear weather lasts 4 to 15, 8 to 30 or 13 to 50 real-life minutes on Fast, Normal or Slow speed (480 to "
+     "1,799 seconds on the game's clock); then comes one of the four other kinds of weather, each equally likely, "
+     "for 1.5 to 3, 3 to 6 or 5 to 10 real-life minutes (180 to 359 seconds on the game's clock), and then clear "
+     "weather again, unless an island event brings a weather of its own. Paused, the weather waits.", gm.CODE),
     # Traced in the stock exe (the coordinator, 2026-11-10): setting the weather 0x46BC30 clears the flute timer
     # (weather object +0xC) for every kind but fog (state 4, 0x46BCA0), which sets it to the game's clock (0x41DB20)
     # + 60 + rand(30); the weather update 0x46BE10 re-arms it the same way when it passes and, with at least 1 Wind
@@ -285,8 +300,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     data = village.data
     found = vv_save_backup.save_speed(GAME, data)
     if found is not None and found[0] != SPEED:
+        # Kept, truly unknowable: the older layout has a 12-byte header (src/vv_save_backup.py _SAVE_LAYOUTS) without
+        # the newer header's 64-bit real-life clock base at 8, which every date on this page is counted from.  The
+        # stock game's own reader (0x403840..0x4038C4) reads 24 bytes and needs the buffer length at +0x10, so this
+        # version of the game refuses such a save too: nothing it does says where an older save's clock starts.
         return [gm.Fact("Other", f"{village.save.name} could not be read: it is in the older Tree of Life save "
-                                 "layout, which this page does not read.")]
+                                 "layout of an earlier version of the game, which this version of the game does not "
+                                 "load either (it reads only the newer layout), so its clocks cannot be read.",
+                        gm.CODE)]
     if found is None:
         return [gm.Fact("Other", f"{village.save.name} could not be read: it is not a Tree of Life save.")]
     base = struct.unpack_from("<q", data, 8)[0]
@@ -365,7 +386,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Food sources", "The fruit never runs out (nothing counts it). The 4 spots limit only the start of a trip, and "
                         "a spot frees itself 45 seconds on the game's clock after it is claimed (22.5, 45 or 75 real-life "
                         "seconds on Fast, Normal or Slow) even while its villager is still busy, so more than 4 can be "
-                        "on fruit trips at once: about 14, 7 or 5 (an estimate). A villager dropped on the tree does "
+                        "on fruit trips at once: about 14, 7 or 5 on average (4 spots x the 162-second trip, "
+                        "divided by how long a trip holds its places: 45 or 90 real-life seconds on Fast or Normal, "
+                        "about 130 on Slow, where a trip's own steps end some holds before the 75 seconds are up). "
+                        "A villager dropped on the tree does "
                         "one trip (no task is set); a farmer the game sends picks the bush, the fruit or the nets at "
                         "random among those open, and one who dislikes fruit runs away 60 times in 100.", gm.CODE)
     add("Food sources", "While catching up nobody is sent to the fruit and no fruit trip runs. Instead, once The "
@@ -503,14 +527,19 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # The appearance: 0x413EE0 (at most 2 at a time, 0x413EFA); a mushroom when rand(100) < 30, or always in rain
     # (weather 2 or 3) or with the weather level above 20 (0x413F33..0x413F5C); red (0x77) when rand(100) < 8, else
     # brown (0x76) (0x413F8F); the item lies 90 real-life seconds (0x4140EC, the wall clock 0x403750).  Picked: brown
-    # 6, red 35 (0x4145DE..0x414660), and Mushrooms Found +1 (0x414665).  How many updates the village gets each
-    # real-life second is the game loop's and is not read here, so "about every 45 seconds" stays an estimate.
+    # 6, red 35 (0x4145DE..0x414660), and Mushrooms Found +1 (0x414665).  The update rate (traced 2026-11-18): the
+    # roll 0x4142A0 is called once per scene update 0x43F750 (0x43FFE0, outside the 2-second step); the scene runner
+    # 0x401D40 calls the update (+0x10 -> 0x40C140 -> +0x20) and the draw once a loop, then the frame limiter
+    # 0x409370, which sleeps (SDL_Delay) to a frame of 1000 / 30 = 33 ms (0x408150, the 30 from 0x403020); so 24 in
+    # 32,768 a frame averages 1,365.3 frames, 45.06 real-life seconds.
     add("Mushrooms", "While playing (not paused) a mushroom or a collectible appears by the roll under Collectibles: "
-                     "about every 45 real-life seconds (an estimate: the roll is made once per update of the village, "
-                     "and how many updates come each real-life second is not read here); at most 2 lie at a time, "
-                     "each gone after 90 real-life seconds (real time, the same at every speed: it runs on the "
+                     "about every 45 real-life seconds on average. The roll is made once per update of the village, "
+                     "and the game updates the village once a frame, 30 frames a second (a frame every 33 "
+                     "thousandths of a second), so the roll's 24 in 32,768 comes up about once in 1,365 frames, 45 "
+                     "seconds; a computer too slow to keep 30 frames a second rolls less often. At most 2 lie at a "
+                     "time, each gone after 90 real-life seconds (real time, the same at every speed: it runs on the "
                      "computer's clock).",
-                     False)
+                     gm.CODE)
     # The roll 0x4143A8: rand(6000) < 4 (fog: (Wind Flute pieces / 2) x 4); above weather strength 50 a second < 4
     # (0x4143CF).  The Secret City's is < 3 and < 3 (0x42DD7A, 0x42DD95).
     add("Mushrooms", "The roll: 4 in 6,000 each update of the village (The Secret City: 3 in 6,000); in fog (Wind "
@@ -830,7 +859,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                              "shaking, stomping, cooking and walking to the food bin for 3 food, and a "
                                              "trip can start only while one of its 4 fruit spots is free (each frees "
                                              "itself after 45 seconds on the game's clock, so about 14, 7 or 5 "
-                                             "villagers work it at once on Fast, Normal or Slow, an estimate)",
+                                             "villagers work it at once on Fast, Normal or Slow, on average)",
                                 verified=gm.CODE,
                                 capped_words="the Cooking Pit fruit never runs out, but live only about 14, 7 or 5 "
                                              "villagers work it at once on Fast, Normal or Slow, and while catching up only the Cooking Pit's own food comes "

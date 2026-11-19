@@ -73,7 +73,7 @@ def _patch(village: gm.Village, feature: str, normal: str, patched: str) -> gm.F
     has = village.has(feature)
     if has is False:
         return None
-    state = "is in the game" if has else "may be in the game (it could not be told)"
+    state = "is in the game" if has else f"may be in the game (it could not be told; {gm.BROWSE_HINT})"
     return gm.Fact(G, f"{normal} The patcher's \"{gm.feature_name(feature)}\" {state}: {patched}", CODE)
 
 

@@ -318,11 +318,14 @@ EXTRA = (
                             "(real time, at any speed) starts; rung during the rest, nothing happens", (
         "Tiers -- 5% A, 23.75% B (25% of the rest), 71.25% C -- but A and B only once a C result has happened in "
         "this village, so the village's first ring is always C (100%). Each tier's results are equally likely.",
+        # The pregnancy result: 0x44EAF5..0x44EB3E calls the conception 0x44B980 with the father's name "?"
+        # (0x476290); the other father values pushed are 0.
         "Tier A, each 1 in 6 (0.83% of rings): \"Grants vision\" -- only two pictures drawn by the Gong for 30 "
         "real-life seconds (real time); no amount and no villager changes; +1,000 stored food with the crops set "
         "to 800 and the coconut trees to 30; +20,000 to 59,999 tech points; the stored food, the crops and the "
         "coconuts all set to 0; every woman of 18 to 49 villager years who is not pregnant is cured, set to 100 "
-        "health and becomes pregnant (father unknown), each if there is room; the ringer dies (health 0).",
+        "health and becomes pregnant, the father recorded as \"?\", each if there is room; the ringer dies "
+        "(health 0).",
         "Tier B, each 1 in 9 (2.64% of rings): every living villager falls sick at 30% each; \"luck\" -- 20 sparkles "
         "by the Gong and the next island event 1 real-life minute later (real time); +10,000 to 29,999 tech points; +1,000 to "
         "2,999 stored food; the ringer loses 90 health, down to 0; the crops set to 0; the coconuts set to 0; "

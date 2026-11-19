@@ -32,8 +32,9 @@ matching docs/hidden-gates-all-five-games.md (Research sections) and src/vv_game
   * The fire: 1 more on rand(100) < 10 while it burns, in VV2 (0x4637C5..0x463809: its end, a real moment, later
     than the clock 0x403200), VV3 (0x459410..0x459435), VV4 (0x464E87..0x464EAB) and VV5 (0x46DE7C..0x46DEA0); none
     of these tests the catch-up flag.  VV1 has no bonus.
-  * Not counted (each lasts real-life minutes or needs a villager the save does not name): VV3's potion "scientific
-    clarity" (+1, 0x4593F2) and the Tribal Chief's supervision (0x4593AF); VV4's Purify Tree glow (x 3, 0x464E46).
+  * Outside the times, each given with its value on the page (each lasts real-life minutes or needs a villager the
+    save does not name): VV3's potion "scientific clarity" (+1, 0x4593F2) and the Tribal Chief's supervision
+    (0x4593AF); VV4's Purify Tree glow (x 3, 0x464E46).
   * Difficulty: none of the code above reads it (VV1 state +0xA30C, VV2 +0x2EAEC, VV3 +0x12F08, VV4 +0x170F4, VV5
     +0x17D54 appear nowhere in the chooser, the skill test, the payout or the tech adders VV1 0x41D120, VV2
     0x426290, VV3 0x427130, VV4 0x41E300, VV5 0x4237B0), and the prices are fixed tables (VV1 0x435AF8, VV2
@@ -243,7 +244,7 @@ def patcher_line(village) -> str:
             "price, refuses a purchase with fewer points and takes exactly that many.")
     has = village.has(multiplier_feature(game))
     if has is None:
-        return head + " Whether the game has it could not be told."
+        return head + f" Whether the game has it could not be told: {gm.BROWSE_HINT}."
     if has is False:
         return head + " It is not in this game."
     factor = read_multiplier(village)
@@ -325,6 +326,25 @@ def buyable(game: int, levels: dict[str, int], both_factions: bool = False) -> l
         elif levels.get("Magic", 0) > 0:
             out = [n for n in out if n != "Nature"]
     return out
+
+
+# Where a save keeps the Origins Tech Point Doubler's ownership, as (file offset, the bit that marks it):
+#   A New Home: state +0x9E90, a whole dword (native/vv1_origins_icons VV_DOUBLER_TECH_OFFSET; file = state + 4);
+#   The Lost Children: state +0x2EAE8 bit 1 (scripts/build_vv2_origins_feature.py do_tech_doubler; file = state + 4);
+#   The Secret City, The Tree of Life, New Believers: bit 1 of the live statistics block's +0x30 (VV3 0x5824D0, VV4
+#   0x4D6E10, VV5 0x51D388), which the game saves and loads with the block (VV3 0x4264A0 / 0x426480 copy its 0x98
+#   bytes to and from manager +0x4EC), so file = the block's file offset (counts.SAVE_ROWS bases 0x4F0, 0x860,
+#   0x7C4) + 0x30.  The builders' "not in the save" notes for VV3/VV4 predate that reading.
+DOUBLER_TECH_AT = {1: (0x9E90 + 4, 0xFFFFFFFF), 2: (0x2EAE8 + 4, 1), 3: (0x4F0 + 0x30, 1), 4: (0x860 + 0x30, 1),
+                   5: (0x7C4 + 0x30, 1)}
+
+
+def doubler_owned(game: int, data: bytes) -> bool | None:
+    """Whether this save owns the Origins Tech Point Doubler; None when the save ends before its field."""
+    at, bit = DOUBLER_TECH_AT.get(game, (None, 0))
+    if at is None or at + 4 > len(data):
+        return None
+    return struct.unpack_from("<I", data, at)[0] & bit != 0
 
 
 def lab_bonus(game: int, data: bytes) -> float:
@@ -549,9 +569,20 @@ def lines(ctx, everyone) -> list[gm.Fact]:
         add(gm.patch_words(village, f"vv{game}_learning_never_fails", "every Research test passes (in the rate "
                            "above)"), gm.CODE)
     if village.has(f"vv{game}_enable_origins_exclusive_features") is True:
-        add(f"With the patcher's \"{gm.feature_name(f'vv{game}_enable_origins_exclusive_features')}\" (in this "
-            "game): an owned Tech Point Doubler doubles the tech points research earns, so every time above halves; "
-            "whether this save owns one is not read here.", gm.CODE)
+        origins = f"With the patcher's \"{gm.feature_name(f'vv{game}_enable_origins_exclusive_features')}\" (in this game)"
+        owned = doubler_owned(game, village.data)
+        # v1.35.97 (PR #805, docs/doubler-composition-audit.md): every game's Tech Point Doubler doubles research's
+        # pay and its research-table bonuses (The Secret City's chief, Magic and potion points, The Tree of Life's Lab
+        # Equipment, the fire's point), so the times halve in all five games.
+        lead = (origins + ": an owned Tech Point Doubler doubles the tech points research earns, so every time "
+                "above halves")
+        if owned is None:
+            # Only a save that ends before the field (DOUBLER_TECH_AT) reaches here.
+            add(lead + "; whether this village owns one: this save ends before its field, and the Tech screen's "
+                "Upgrades list says \"Remove\" on its row when it does.", gm.CODE)
+        else:
+            add(lead + (": this save owns one, so each time above takes half as long as it says." if owned else
+                        ": this save does not own one."), gm.SAVE)
     chosen = farmers_mod.game_module(game).FARMING_CHOSEN
     add(f"How it is worked out: points still needed ÷ (job turns x the share of turns that choose Research, "
         f"{chosen:.5f} x min(1, (Research + 40) ÷ 100), x the share that pass the Research test x the points a "
@@ -564,12 +595,18 @@ def lines(ctx, everyone) -> list[gm.Fact]:
         "the real-life time closed is the counted time when one closing that long covers it, otherwise more than "
         f"{gm.duration(gm.AWAY_LIMITS[game]['band_end'])} for each catch-up needed.", True)
     # The Secret City: the potion 0x4593F2, the Chief's supervision 0x4593AF; The Tree of Life: the glow 0x464E46.
-    add("Not counted: a villager who likes or dislikes learning (a different test), "
-        + {3: "the potion \"scientific clarity\" (+1 for 10 real-life minutes, the same at every speed) and the "
-              "Tribal Chief's supervision, ",
-           4: "the Purify Tree's glow (3 times the points for 4 real-life minutes, the same at every speed), "
+    # The owner, 2026-11-18 ("nothing withheld"): what the times leave out is given with its value.
+    add("Outside the times above, each with its value: liking or disliking learning changes only the test for "
+        "gaining skill, never the Research test or its pay, so it changes no time here; "
+        + {3: "the potion \"scientific clarity\" adds 1 to each success for 10 real-life minutes (the same at every "
+              "speed); a supervising Tribal Chief adds a third (Science 0) or a quarter (Science 1 or more) of a "
+              "success, 25, 50 or 75% of the time at Leadership 1, 2 or 3 (it needs the chief dropped there in live "
+              "play); ",
+           4: "the Purify Tree's glow pays 3 times the points for 4 real-life minutes (the same at every speed); ",
            }.get(game, "")
-        + "the skill gained on each success and tech points that come any other way.", gm.CODE)
+        + f"the skill gained on each success makes later sessions pay more (the times hold it at {RESEARCH_SHOWN}, so "
+        "they run long for a researcher who improves); and tech points from puzzles, collectibles found again and "
+        "the island's own events come on top.", gm.CODE)
     if game >= 3:
         add(LOW_FOOD, gm.CODE)
     add(difficulty_line(game), gm.CODE)

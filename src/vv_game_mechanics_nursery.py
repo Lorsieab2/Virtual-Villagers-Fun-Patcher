@@ -116,10 +116,14 @@ def lines(village: gm.Village, game: int) -> list[gm.Fact]:
         f"teacher also solves The Nursery School {puzzle}. A new teacher interrupts the one teaching now, but only "
         "stops what they are doing: the old teacher's job is left as it is.")
     if vv5:
+        # Turning Heathen (0x4669E0 -> 0x466880) sets the Heathen byte +0x1CEC and +0x1CFC, never the job +0x1C54;
+        # no job writer is on the Heathen's path (Heathens skip the job dispatcher 0x46BCF0: 0x46F0BA -> 0x46E9E0),
+        # and the teacher pick 0x471BB0 tests only present (0x466170), health and job 8.
         add("Heathens cannot be picked up (\"You cannot touch heathens because they do not believe in you.\"), so "
-            "the player can never make a Heathen the teacher. The game's pick of the teacher has no Heathen test, so "
-            "a teacher who becomes a Heathen would go on teaching if the job stays the Nursery School; whether it "
-            "stays was not traced.", False, True)
+            "the player can never make a Heathen the teacher. But a teacher who turns Heathen keeps the Nursery "
+            "School as their job (turning Heathen does not change it), and the game's pick of the teacher has no "
+            "Heathen test, so the lessons go on from that Heathen's skills, though they no longer walk to teach.",
+            gm.CODE, True)
     add(f"Solving The Nursery School gives no skill: {crowd} stop to celebrate (\"Celebrating\") and the tip "
         "\"The Nursery School ... This will help them raise smarter children.\" shows. The lessons below start with "
         "the first teacher and go on with no end, as long as someone has the Nursery School as their job.")

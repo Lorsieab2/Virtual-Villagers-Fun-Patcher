@@ -137,9 +137,16 @@ HIDDEN_LINES = (
      "talking, sand or resting, disliked: never chosen. Dancing or jumping, disliked: no dance or jump. Children, "
      "disliked: a storyteller tells a story only 2% of the time. Playing, liked: a child picks one of 4 lively "
      "plays.", gm.RUNNING),
-    ("The other 37 likes and dislikes: none of the game's checks of a like or dislike that were traced reads "
-     "them, so no effect of theirs is known; not every one of the about 90 places that check likes was traced. "
-     "The preferred job and Parenting's own odds are under Chances (Choosing a job).", False),
+    # Every call of the like test 0x445510 (9) and the dislike test 0x4454E0 (101), each with its word pushed, read
+    # from the whole code (2026-11-18): they test only the 25 words named in the lines above.  The other direct
+    # reads of the likes (+0x5F0) and dislikes (+0x6E8) -- 0x4214BF/0x4214D3 (the first two of each, with the
+    # skills and name, for text), 0x4215B0..0x42171E (copies), 0x420605..0x420D53 and 0x425492 (writes) -- test
+    # no word.
+    ("The other 37 likes and dislikes (ants, butterflies, flowers, bees, the dark, caves, berries, snakes, wind, "
+     "rocks, exploring, blue, green, red, yellow, drums, bushes, bananas, sunlight, crab meat, whale meat, fruit, "
+     "papaya, flies, monkeys, parrots, lifting, surprises, jokes, sleeping, dragonflies, owls, dreaming, holidays, "
+     "quiet, clouds, dirt): the game's code never tests them, so they change nothing in play. The preferred job "
+     "and Parenting's own odds are under Chances (Choosing a job).", gm.CODE),
     ("A baby is born with points in one parent's best skill (the mother's or the father's, 50% each; on a tie "
      "the first of Parenting, Building, Healing, Farming, Research): 5 to 7, each 1 in 3; when both parents' best "
      "is the same skill, 4 to 5, 5 to 8 or 7 to 11 at Culture level 1, 2 or 3 (each equally likely). A best "
@@ -202,6 +209,58 @@ def _i32(data: bytes, state: int) -> int:
 SUSTAINABLE_FISHING, FARMING_LEVEL = 0x2E7E8, 5
 FIX = "vv2_fix_vanilla_bugs"
 
+# The birds (the owner, 2026-11-18: the whole explanation, answer first).  The allowance starts at 1,000 (0x425261)
+# and each crop harvest subtracts its food (0x463264), 10 / 7 / 4 on Fast / Normal / Slow (7 while catching up),
+# so it is used up on harvest 100 / 143 / 250 (the test is "> 0").  Nothing in the stock game adds it back.
+# 0x425AC0 says the birds are at the field when the dam's byte is 1, the Scarecrow's byte 0 and the allowance <= 0.
+# The regrowth loop 0x43B9B0..0x43BA45 then sets the crops to 0 (0x43BA0D) instead of adding 800 (0x43B9FF), at
+# every regrowth with no roll.  After the loop, when a regrowth emptied the field and the birds are there
+# (0x43BA4B..0x43BA67), message 0x1CA (tip 458) is queued, kind 1 (the message line, 0x42F34F..0x42F404: no
+# shown-once test): so it comes at every regrowth they eat the crops, while the 10-slot queue (0x4257A0) has
+# room.  0x425AC0 itself also queues it once while the new village's help flag +0x1FB is set (set at 0x425557,
+# cleared at 0x428BC5 / 0x428C65 with the tutorial's other flags).  The regrowth writes only the crops (and the
+# coconuts), never the food in storage.
+BIRD_ALLOWANCE = 1000
+BIRD_HARVEST = (10, 7, 4)              # food a crop harvest brings on Fast, Normal, Slow
+
+
+def birds_lines(village: gm.Village, allowance: int, crops: int, dam: bool, scared: bool) -> list[gm.Fact]:
+    """The birds: this save's state first (not on the general page), then the rule, in plain words."""
+    out: list[gm.Fact] = []
+    harvests = [-(-BIRD_ALLOWANCE // n) for n in BIRD_HARVEST]          # 100, 143, 250
+    if not village.general:
+        if scared:
+            state = "kept away by The Scarecrow for good"
+        elif allowance > 0:
+            left = [-(-allowance // n) for n in BIRD_HARVEST]
+            state = (f"not here yet: {allowance:,} of the {BIRD_ALLOWANCE:,} harvest allowance is left, about "
+                     f"{left[0]:,}, {left[1]:,} or {left[2]:,} more crop harvests on Fast, Normal or Slow")
+        elif dam:
+            state = "they have found the field and eat every crop at each regrowth"
+        else:
+            state = ("the allowance is used up; they come at the first regrowth after the dam is built (until then "
+                     "the field stays empty for want of the dam, not because of birds)")
+        out.append(gm.Fact("Food sources", f"The birds: {state}. Crops on the field now: {crops:,}.", gm.SAVE))
+    out.append(gm.Fact("Food sources", (
+        f"When the birds come they eat every crop on the field, and the field is set to 0 instead of refilling to "
+        f"{CROPS_FULL} at every regrowth (every {gm.duration(2400 * 3)}, {gm.duration(2400 * 6)} or "
+        f"{gm.duration(2400 * 10)} of real-life play on Fast, Normal or Slow; none while paused; every missed one "
+        "after time away). There is no chance roll; the weather and the time of day do not matter; the food in "
+        "storage is never touched. The field stays empty until The Scarecrow is solved."), gm.CODE, sub=True))
+    out.append(gm.Fact("Food sources", (
+        f"When they come: a new village allows {BIRD_ALLOWANCE:,} food of crop harvest, and each harvest takes its "
+        f"food from it ({BIRD_HARVEST[0]}, {BIRD_HARVEST[1]} or {BIRD_HARVEST[2]} on Fast, Normal or Slow, "
+        f"{BIRD_HARVEST[1]} while catching up), so it runs out after {harvests[0]}, {harvests[1]} or {harvests[2]} "
+        "harvests; then the birds come once the dam is built. Nothing in the game gives the allowance back."
+        + (" " + gm.patch_words(village, STORY, "a Custom Island Event can set the allowance (\"Field protection "
+                                                "from birds\") or refill it to 1,000")
+           if village.has(STORY) is True else "")), gm.CODE, sub=True))
+    out.append(gm.Fact("Food sources", (
+        "The game says \"Oh my! Birds found your field and are relentlessly eating the young crops before your "
+        "villagers can harvest them!\" at every regrowth the birds eat the crops (not only the first time), and "
+        "once more the first time while the new village's help tips are on."), gm.CODE, sub=True))
+    return out
+
 
 def _fishing(data: bytes) -> tuple[int, bool, bool]:
     """(the fish count, Sustainable Fishing solved, fishing now has no limit)."""
@@ -251,32 +310,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # else in the game writes the allowance (0x425261, 0x463264 only); the patcher's Story / Cheat Upgrades does,
     # in its Custom Island Event values and refill (native/vvfp_story_upgrades/story_c2.inc, c2_refill).
     allowance = _i32(data, ALLOWANCE)
-    if scared:
-        birds = "kept away by The Scarecrow."
-    elif allowance > 0:
-        birds = f"{allowance:,} more food of crop harvest before they find the field and eat the young crops."
-    elif dam:
-        birds = "they have found the field: each regrowth's new crops are eaten."
-    else:
-        birds = ("they come only once the dam is built; until then each regrowth leaves the field empty because "
-                 "there is no dam, not because of birds.")
-    add("Food sources", "The birds: " + birds, gm.RUNNING)
-    out.append(gm.Fact("Food sources", "A new village allows 1,000 food of crop harvest; every harvest (10, 7 or 4 "
-                                       "food on Fast, Normal or Slow, 7 while catching up) counts against it, and the "
-                                       "game never gives it back.", gm.RUNNING, sub=True))
-    out.append(gm.Fact("Food sources", ("Once it is used up, at every regrowth (every "
-                                        f"{gm.duration(2400 * 3)}, {gm.duration(2400 * 6)} or {gm.duration(2400 * 10)} "
-                                        "of real-life time on Fast, Normal or Slow; none while paused; every missed one "
-                                        "after time away) the birds eat all the field's crops instead of it being "
-                                        "refilled to 800. No chance is rolled; the time of day and the weather do not "
-                                        "matter, and stored food is never touched."), gm.RUNNING, sub=True))
-    out.append(gm.Fact("Food sources", "Only The Scarecrow stops it, for good."
-                       + (" " + gm.patch_words(village, STORY, "a Custom Island Event can set the allowance (\"Field "
-                                                               "protection from birds\") or refill it to 1,000")
-                          if village.has(STORY) is True else ""),
-                       gm.RUNNING, sub=True))
-    out.append(gm.Fact("Food sources", "The game says: \"Oh my! Birds found your field and are relentlessly eating "
-                                       "the young crops before your villagers can harvest them!\"", gm.RUNNING, sub=True))
+    out.extend(birds_lines(village, allowance, _i32(data, CROPS), dam, scared))
     if village.has(FIX) is True:
         # data/builds.json vv2_fix_vanilla_bugs (the owner, 2026-11-18): `jns; and [..], 0` after 0x463264 / 0x463300
         out.append(gm.Fact("Food sources", gm.patch_words(village, FIX, "the allowance and the fish stop at 0 instead "
@@ -533,7 +567,8 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
     # A save's page gives the pieces found once, by collection, under Village counts (src/vv_game_mechanics_counts.py).
     if village.general:
         collectible_words = ("Collectibles: " + (f"{sum(found)} of the 48 pieces found" if found is not None
-                                                 else "not read from this save")
+                                                 else "not in this save (the file ends before them; the game's "
+                                                      "Collections screen shows them)")
                              + "; what a piece found again pays is under Collectibles.")
     else:
         collectible_words = ("Collectibles: the pieces found, by collection, are under Village counts; what a piece "
