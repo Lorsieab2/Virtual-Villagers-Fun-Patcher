@@ -458,7 +458,8 @@ ITEMS = (
     )),
     Entry(ITEM, "Stews", (
         ("Cooked in the pot from water, food and herbs; ready the moment it is made and kept 15 real-life minutes "
-         "(real time, the same at every speed, paused too; Other). Every villager who eats from it in that time "
+         "(real time, the same at every speed; in the base game paused time counts too, Fix Vanilla Bugs "
+         "pauses it; Other). Every villager who eats from it in that time "
          "gets its effect, once, at the moment it eats.", E),
         ("Adding food to the stew uses food; there are 18 stews, each told apart only by what it does.", C),
         # 0x461040, table 0x461510.

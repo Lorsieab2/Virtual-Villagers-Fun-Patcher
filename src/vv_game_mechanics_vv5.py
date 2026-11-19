@@ -370,6 +370,23 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Other", "Ages, pregnancies, noni, crops, weather and the fire follow the speed; mushrooms and collectibles "
                  "appearing, island events, God Power spells and a Heathen's 2-hour wait after preaching run on "
                  "real-life time at any speed.", gm.RUNNING)
+    # A villager's effects: the list +0x1D3C (12 entries of 0x1C, count +0x1E8C), each ending at +0x14 on the computer's
+    # clock 0x4036E0 (adder 0x467E20; the spells' callers 0x4215A7 / 0x421988: rand(20) + 20 s, 0x421D26: 15 s,
+    # 0x43A424: 5 s).  The save writer 0x46F9B0 ends them (0x46F9CF -> 0x4660C0) on every save, the autosave 0x424660
+    # (0x424684) too; the other saves call 0x424620 from 0x418CD1, 0x4194A3, 0x419775, 0x419BD1 and 0x424990.
+    # VVFP Speed Change Timers.dll: the clock's from-pause branch 0x41EE6E moves every set end on by the paused time,
+    # and the autosave's call runs with a flag that makes the writer skip 0x4660C0.
+    add("Other", "A villager's short effects (each kept on the villager's own list) last 5 to 39 real-life seconds "
+                 "(real time, the same at every speed). In the base game they also count while the game is paused, and every save (the "
+                 "10-minute autosave too) ends them. The short stop-and-wait in Hiding in the water (from the bees), "
+                 "Going indoors, Hiding from lightning, Escaping from foulness, Getting new clothes and a few other "
+                 "actions also ends every effect the villager has.", gm.CODE)
+    add("Other", gm.patch_words(village, "vv5_fix_vanilla_bugs",
+                                "those effects stop while the game is paused and go on when it runs again, and only "
+                                "the autosave (every 10 minutes of real time) keeps them: every other save (quitting, leaving the village "
+                                "for the slot menu, starting a new village, a menu's save) still ends them, and the "
+                                "save never holds them; and that stop-and-wait ends only the bees in Hiding in the "
+                                "water, and no effect in the other actions (each ends at its own time)"), gm.CODE)
     for line, ok in FIRE_LINES:
         add("Other", line, ok)
     for line, ok in PUDDLE_LINES:

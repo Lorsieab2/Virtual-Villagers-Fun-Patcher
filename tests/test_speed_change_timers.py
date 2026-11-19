@@ -392,6 +392,326 @@ class WipingGunkEndsOnlyTheGunk(EffectsProcess, unittest.TestCase):
         self.assertEqual(p.read(self.STRIP_SITE, 5), bytes.fromhex("E8D789FFFF"))
 
 
+# ---- The Secret City, New Believers: the villagers' effects; The Lost Children: the stew pot (the owner, 2026-11-16)
+# Per game: the first villager record (stock table), record size, effect list, count, entry size, end offset, the most
+# entries, the autosave site, the save routine, the writer's per-villager call, the vtable slots the remove routine
+# calls (2 arguments, 1 argument).
+FX = {
+    3: dict(records=0x59E124, size=0x1F8C, effects=0xF50, count=0xFB0, entry=0x18, end=0x10, max=4,
+            autosave=0x427DF3, autosave_stock="E998FFFFFF", save=0x427D90, save_args=0,
+            strip=0x45EF9C, strip_stock="E82F6EFFFF", slots=(8, 0xC)),
+    5: dict(records=0x554190, size=0x2F44, effects=0x1D3C, count=0x1E8C, entry=0x1C, end=0x14, max=12,
+            autosave=0x424684, autosave_stock="E897FFFFFF", save=0x424620, save_args=1,
+            strip=0x46F9CF, strip_stock="E8EC66FFFF", slots=(0, 4)),
+}
+VV5_PAUSE_SITE, VV5_PAUSE_STOCK, VV5_RESUME = 0x41EE6E, "D9E82B4E28D95C2410EB48", 0x41EEC1
+VV2_SITE, VV2_STOCK, VV2_POT = 0x43B6B8, "8B97E4EA0200", 0x30450
+
+
+def stock_process(game: int, dll: bool = True, install: bool = True):
+    from story_emulator import Process
+    p = Process(edit.stock_exe(game).read_bytes(), DLL if dll else None)
+    if dll and install:
+        p.export("VvfpStartup", game, 0)
+    return p
+
+
+def target(p, site: int) -> int:
+    return (site + 5 + struct.unpack("<i", p.read(site + 1, 4))[0]) & MASK
+
+
+def have_game(game: int) -> bool:
+    return edit.have(game) and DLL.is_file()
+
+
+class LaterGamesEffects:
+    """A villager (record 0) carrying `n` effects, each owned by a stand-in object whose vtable answers the remove
+    routine's two calls; the save routine replaced by a stand-in that runs the writer's per-villager call site."""
+
+    def village(self, game: int, dll: bool = True, install: bool = True, n: int = 3):
+        f = FX[game]
+        p = stock_process(game, dll, install)
+        code = p.alloc(16)
+        p.write(code, b"\xC2\x08\x00\x90\xC2\x04\x00")
+        vtable = p.alloc(16)
+        p.put32(vtable + f["slots"][0], code)
+        p.put32(vtable + f["slots"][1], code + 4)
+        owner = p.alloc(16)
+        p.put32(owner, vtable)
+        rec = f["records"]
+        for k in range(n):
+            p.write(rec + f["effects"] + k * f["entry"], struct.pack("<II", owner, 10 + k) + b"\0" * (f["entry"] - 8))
+            p.put32(rec + f["effects"] + k * f["entry"] + f["end"], 1_000_000 + 60 * k)
+        p.put32(rec + f["count"], n)
+        strip = target(p, f["strip"])
+        ret = b"\xC3" if f["save_args"] == 0 else b"\xC2\x04\x00"
+        p.write(f["save"], b"\xB9" + struct.pack("<I", rec) + b"\xB8" + struct.pack("<I", strip) + b"\xFF\xD0" + ret)
+        return p, rec
+
+    def autosave(self, p, game: int) -> None:
+        f = FX[game]
+        p.call(target(p, f["autosave"]), [0] * f["save_args"], ecx=0x4E0000)
+
+    def other_save(self, p, game: int) -> None:
+        f = FX[game]
+        p.call(f["save"], [0] * f["save_args"], ecx=0x4E0000)
+
+    def left(self, p, game: int) -> int:
+        return p.u32(FX[game]["records"] + FX[game]["count"])
+
+
+class OnlyTheAutosaveKeepsEffects(LaterGamesEffects, unittest.TestCase):
+    """The Secret City and New Believers: the save writer ends every villager's effects; with the DLL the autosave
+    runs with a flag that makes the writer's call skip that, and every other save is the base game's."""
+
+    def test_the_autosave_keeps_every_effect(self) -> None:
+        for game in (3, 5):
+            if not have_game(game):
+                continue
+            with self.subTest(game=game):
+                f = FX[game]
+                p, rec = self.village(game)
+                before = p.read(rec + f["effects"], f["count"] + 4 - f["effects"])
+                self.autosave(p, game)
+                self.assertEqual(p.read(rec + f["effects"], f["count"] + 4 - f["effects"]), before)
+                self.other_save(p, game)                       # the flag is down again
+                self.assertEqual(self.left(p, game), 0)
+
+    def test_every_other_save_and_the_stock_autosave_end_them(self) -> None:
+        for game in (3, 5):
+            if not have_game(game):
+                continue
+            for dll in (True, False):
+                with self.subTest(game=game, dll=dll):
+                    p, _ = self.village(game, dll)
+                    self.other_save(p, game)
+                    self.assertEqual(self.left(p, game), 0)
+                    if not dll:
+                        p, _ = self.village(game, dll)
+                        self.assertEqual(target(p, FX[game]["autosave"]), FX[game]["save"])
+                        self.autosave(p, game)
+                        self.assertEqual(self.left(p, game), 0)
+
+    def test_the_sites_are_written_together(self) -> None:
+        for game in (3, 5):
+            if not have_game(game):
+                continue
+            f = FX[game]
+            pause = {3: (SITES[3][0], SITES[3][1].hex().upper()), 5: (VV5_PAUSE_SITE, VV5_PAUSE_STOCK)}[game]
+            sites = [(f["autosave"], f["autosave_stock"]), (f["strip"], f["strip_stock"]), pause]
+            p = stock_process(game)
+            for va, stock in sites:
+                self.assertNotEqual(p.read(va, len(stock) // 2).hex().upper(), stock, hex(va))
+            for va, _stock in sites:
+                with self.subTest(game=game, changed=hex(va)):
+                    p = stock_process(game, install=False)
+                    p.write(va + 1, bytes([p.read(va + 1, 1)[0] ^ 0xFF]))
+                    p.export("VvfpStartup", game, 0)
+                    for other, other_stock in sites:
+                        if other != va:
+                            self.assertEqual(p.read(other, len(other_stock) // 2).hex().upper(), other_stock)
+
+
+class TheSecretCityEffectsPause(unittest.TestCase):
+    """A potion's effect ends when the computer's clock reaches its end (+0x10); with the DLL coming out of a pause
+    (the real set_speed) moves every set end on by the time paused."""
+
+    ENDS = (1_000_600, 1_000_300, 0, 1_000_001)
+
+    def _base(self, record: int) -> int:
+        return FX[3]["records"] + record * FX[3]["size"]
+
+    def _village(self, c: Clock) -> None:
+        p, f = c.emu.p, FX[3]
+        for record in (0, 77, 149):
+            for n, end in enumerate(self.ENDS):
+                p.put32(self._base(record) + f["effects"] + n * f["entry"] + f["end"], end)
+            p.put32(self._base(record) + f["count"], len(self.ENDS))
+        p.put32(self._base(5) + f["count"], 9)                       # not a real count: left alone
+        p.put32(self._base(5) + f["effects"] + f["end"], 1_000_100)
+
+    def _ends(self, c: Clock, record: int) -> list[int]:
+        f = FX[3]
+        return [c.emu.p.u32(self._base(record) + f["effects"] + n * f["entry"] + f["end"])
+                for n in range(len(self.ENDS))]
+
+    def test_a_pause_stops_every_effect(self) -> None:
+        if not have(3):
+            self.skipTest("the stock Secret City or the DLL is missing")
+        now = 1_000_000
+        for dll in (False, True):
+            for before, after in ((6, 6), (3, 6), (10, 3)):
+                with self.subTest(dll=dll, before=before, after=after):
+                    c = Clock(3, dll=dll)
+                    c.start(before, now, now + 50_000)
+                    self._village(c)
+                    c.at(now + 30, 999)
+                    c.at(now + 30 + 600, after)
+                    shift = 600 if dll else 0
+                    for record in (0, 77, 149):
+                        self.assertEqual(self._ends(c, record), [e + shift if e else 0 for e in self.ENDS])
+                    self.assertEqual(c.emu.p.u32(self._base(5) + FX[3]["effects"] + FX[3]["end"]), 1_000_100)
+
+    def test_a_speed_change_while_running_moves_nothing(self) -> None:
+        if not have(3):
+            self.skipTest("the stock Secret City or the DLL is missing")
+        now = 1_000_000
+        c = Clock(3, dll=True)
+        c.start(6, now, now + 50_000)
+        self._village(c)
+        c.at(now + 30, 3)
+        c.at(now + 60, 10)
+        self.assertEqual(self._ends(c, 0), list(self.ENDS))
+
+
+class NewBelieversEffectsPause(unittest.TestCase):
+    """The game clock's speed routine 0x41EE00 from a pause (rate 0): from 0x41EE61 (eax = now) to the rescale
+    0x41EEC1, run for real; with the DLL every set effect end moves on by now - the pause's wall clock."""
+
+    ENDS = (1_000_015, 1_000_035, 0)
+
+    def run_branch(self, dll: bool, now: int, paused_at: int):
+        p, f = stock_process(5, dll), FX[5]
+        for record in (0, 149):
+            base = f["records"] + record * f["size"]
+            for n, end in enumerate(self.ENDS):
+                p.put32(base + f["effects"] + n * f["entry"] + f["end"], end)
+            p.put32(base + f["count"], len(self.ENDS))
+        clock = p.alloc(0x40)
+        p.put32(clock + 0x20, 0)
+        p.put32(clock + 0x24, 6)
+        p.put32(clock + 0x28, paused_at)
+        p.call(0x41EE61, [0] * 8, regs={"eax": now, "esi": clock}, until=VV5_RESUME)
+        return p
+
+    def test_a_pause_stops_every_effect(self) -> None:
+        if not have_game(5):
+            self.skipTest("the stock New Believers or the DLL is missing")
+        for dll in (False, True):
+            with self.subTest(dll=dll):
+                p, f = self.run_branch(dll, 1_000_620, 1_000_020), FX[5]
+                shift = 600 if dll else 0
+                for record in (0, 149):
+                    base = f["records"] + record * f["size"]
+                    got = [p.u32(base + f["effects"] + n * f["entry"] + f["end"]) for n in range(len(self.ENDS))]
+                    self.assertEqual(got, [e + shift if e else 0 for e in self.ENDS])
+                self.assertEqual(p.reg("ecx"), 600)            # the stock branch's own result is unchanged
+
+
+class TheLostChildrenStewPotPauses(unittest.TestCase):
+    """The village step 0x43B690 while paused (from 0x43B6B8: eax = now, edi = the game) moves its real-clock timers
+    on by the time since its last step; with the DLL the stew pot's end (+0x30450) moves with them."""
+
+    def step(self, dll: bool, pot: int):
+        p = stock_process(2, dll)
+        game = p.alloc(0x31000)
+        p.put32(game + 0x2EAE4, 1_000)                 # the last step
+        p.put32(game + 0x2EAE0, 5_000)
+        p.put32(game + VV2_POT, pot)
+        p.call(VV2_SITE, [], regs={"eax": 1_600, "edi": game}, until=0x43B6CE)
+        return p.u32(game + VV2_POT), p.u32(game + 0x2EAE0)
+
+    def test_the_pot_pauses(self) -> None:
+        if not have_game(2):
+            self.skipTest("the stock Lost Children or the DLL is missing")
+        self.assertEqual(self.step(True, 2_000), (2_600, 5_600))
+        self.assertEqual(self.step(False, 2_000), (2_000, 5_600))
+        self.assertEqual(self.step(True, 0), (0, 5_600))     # no stew: nothing to move
+
+    def test_a_changed_byte_installs_nothing(self) -> None:
+        if not have_game(2):
+            self.skipTest("the stock Lost Children or the DLL is missing")
+        for va in (0x43B6AF, VV2_SITE + 2, 0x43B6CD):
+            with self.subTest(changed=hex(va)):
+                p = stock_process(2, install=False)
+                p.write(va, bytes([p.read(va, 1)[0] ^ 0xFF]))
+                p.export("VvfpStartup", 2, 0)
+                if not VV2_SITE <= va < VV2_SITE + 6:
+                    self.assertEqual(p.read(VV2_SITE, 6).hex().upper(), VV2_STOCK)
+                else:
+                    self.assertEqual(p.read(VV2_SITE, 1), b"\x8B")
+
+
+class ActionsEndOnlyTheirEffect(unittest.TestCase):
+    """The owner (2026-11-17): a game action that ended every effect ends only the one it is about.  The Secret City:
+    the hiccups' drink (18), the nonsense talk (38), the breath's meal (36, 37); New Believers: the "stop and wait"
+    reset ends the bees in "Hiding in the water" (170) and nothing in any other action."""
+
+    VV3_SITES = {0x42131F: (18,), 0x4218B6: (38,), 0x421AE1: (36, 37)}
+    VV3_OWNER = 0x582610
+    VV5_RESET, VV5_BEES, VV5_OTHER, VV5_ACTION = 0x467524, 0x4DE000, 0x51C430, 0x1D10
+
+    def villager(self, game: int, entries, dll: bool = True):
+        """Record 0 with `entries` [(owner, id)]; every owner's vtable answers the remove routine's two calls."""
+        f = FX[game]
+        p = stock_process(game, dll)
+        code = p.alloc(16)
+        p.write(code, b"\xC2\x08\x00\x90\xC2\x04\x00")
+        vtable = p.alloc(16)
+        p.put32(vtable + f["slots"][0], code)
+        p.put32(vtable + f["slots"][1], code + 4)
+        for owner in {o for o, _ in entries}:
+            p.put32(owner, vtable)
+        rec = f["records"]
+        for k, (owner, number) in enumerate(entries):
+            p.write(rec + f["effects"] + k * f["entry"], struct.pack("<Ii", owner, number) + b"\0" * (f["entry"] - 8))
+            p.put32(rec + f["effects"] + k * f["entry"] + f["end"], 1_000_000 + k)
+        p.put32(rec + f["count"], len(entries))
+        return p, rec
+
+    def left(self, p, game: int, rec: int) -> list[tuple[int, int]]:
+        f = FX[game]
+        return [struct.unpack("<Ii", p.read(rec + f["effects"] + k * f["entry"], 8))
+                for k in range(p.u32(rec + f["count"]))]
+
+    def test_the_secret_city(self) -> None:
+        if not have_game(3):
+            self.skipTest("the stock Secret City or the DLL is missing")
+        everything = [(self.VV3_OWNER, n) for n in (18, 36, 37, 38)]       # 4 entries: the most a villager has
+        for site, ends in self.VV3_SITES.items():
+            for dll in (True, False):
+                with self.subTest(site=hex(site), dll=dll):
+                    p, rec = self.villager(3, everything, dll)
+                    self.assertEqual(target(p, site) == 0x455DD0, not dll)
+                    p.call(target(p, site), [], ecx=rec)
+                    want = [e for e in everything if e[1] not in ends] if dll else []
+                    self.assertEqual(self.left(p, 3, rec), want)
+
+    def test_new_believers(self) -> None:
+        if not have_game(5):
+            self.skipTest("the stock New Believers or the DLL is missing")
+        entries = [(self.VV5_BEES, 4), (self.VV5_OTHER, 9), (self.VV5_BEES, 6)]
+        for action, dll, want in ((170, True, [(self.VV5_OTHER, 9)]), (158, True, entries), (7, True, entries),
+                                  (170, False, []), (158, False, [])):
+            with self.subTest(action=action, dll=dll):
+                p, rec = self.villager(5, entries, dll)
+                p.put32(rec + self.VV5_ACTION, action)
+                p.call(target(p, self.VV5_RESET), [], ecx=rec)
+                self.assertEqual(self.left(p, 5, rec), want)
+
+    def test_a_changed_byte_writes_no_effect_site(self) -> None:
+        for game, sites in ((3, list(self.VV3_SITES)), (5, [self.VV5_RESET])):
+            if not have_game(game):
+                continue
+            for site in sites:
+                with self.subTest(game=game, site=hex(site)):
+                    p = stock_process(game, install=False)
+                    stock = p.read(site, 5)
+                    p.write(site - 1, bytes([p.read(site - 1, 1)[0] ^ 0xFF]))
+                    p.export("VvfpStartup", game, 0)
+                    self.assertEqual(p.read(site, 5), stock)
+                    self.assertEqual(p.read(FX[game]["autosave"], 5).hex().upper(), FX[game]["autosave_stock"])
+
+
+class ANewHomeIsUnchanged(unittest.TestCase):
+    def test_nothing_is_written(self) -> None:
+        if not have_game(1):
+            self.skipTest("the stock A New Home or the DLL is missing")
+        p0, p = stock_process(1, dll=False), stock_process(1)
+        for va, n in ((0x41BFE3, 5), (0x42E830, 0x60)):            # the autosave's jump; the rescale
+            self.assertEqual(p.read(va, n), p0.read(va, n))
+
+
 class TheOtherGamesAlreadyRescale(unittest.TestCase):
     """A New Home, The Lost Children, New Believers: pause on Fast, unpause on Normal (an Options
     button: rescale(paused, 6)) -- the stock routine gives Normal's length."""

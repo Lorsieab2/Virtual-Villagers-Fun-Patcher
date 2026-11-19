@@ -164,9 +164,12 @@ HIDDEN_LINES = (
 # the clock 0x403200 nor the engine timer 0x401EA0.
 STEW_POT_LINE = (
     "A stew is ready the moment it is made, and the pot keeps it 15 real-life minutes at every speed, then empties "
-    "itself; the pot's timer runs on the real clock, so paused time counts too. Eating does not empty it: every "
+    "itself; the pot's timer runs on the real clock, so in the base game paused time counts too. Eating does not "
+    "empty it: every "
     "villager who eats from it in those 15 minutes gets the stew. The game shows no countdown for it, and the save "
     "does not keep the pot.")
+STEW_POT_FIX = ("the stew pot's 15 minutes stop while the game is paused and go on when it runs again (real time "
+                "while the game runs, the same at every speed)")
 STEW_EFFECT_LINE = (
     "Each stew acts once, at the moment a villager eats it: none of the stews' effects sets a timer, so no "
     "villager has one running and a save holds none to count down.")
@@ -437,6 +440,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         village, "vv2_fix_vanilla_bugs", "it is drawn once, in the same place and size, flickering through the "
         "village fire's 7 pictures, a new one every 231 milliseconds as in the village view"), gm.CODE, True))
     add("Other", STEW_POT_LINE, gm.RUNNING)
+    # VVFP Speed Change Timers.dll at 0x43B6B8: the village step's paused branch moves the pot's end +0x30450 on with
+    # the game's other real-clock timers.
+    add("Other", gm.patch_words(village, "vv2_fix_vanilla_bugs", STEW_POT_FIX), gm.CODE)
     if village.has(EMPTY_STEW) is not False:
         add("Other", gm.patch_words(village, EMPTY_STEW, EMPTY_STEW_EFFECT), gm.CODE)
     add("Other", STEW_EFFECT_LINE, gm.RUNNING)

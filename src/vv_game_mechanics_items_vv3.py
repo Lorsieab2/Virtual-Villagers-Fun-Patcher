@@ -432,7 +432,8 @@ def _items() -> list[Entry]:
             "drop a villager on the pot with a potion ready. A villager cannot drink a potion whose effect they "
             "already have, or any potion while they already have 4 effects; the game then says \"That villager "
             "can't drink another potion so soon.\" Effects last 10 or 5 real-life minutes at every speed (as each "
-            "potion says), and saving the game ends every villager's effects."), VERIFIED_E,
+            "potion says); in the base game paused time counts too and every save ends every villager's effects (with Fix "
+            "Vanilla Bugs they pause, and only the 10-minute autosave keeps them: Other)."), VERIFIED_E,
             (("A villager cannot drink a potion whose effect they already have, nor any potion with 4 effects.",
               gm.OWNER),)),
         Entry(ITEM, "The recipe book", (
