@@ -239,7 +239,12 @@ class TheRows(unittest.TestCase):
             self.assertEqual(row["dependencies"], [f"vv{game}_story_cheat_upgrades"])
             self.assertEqual(row["companion_files"][0]["sha256"], digest)
             self.assertIn("**Needs Story / Cheat Upgrades", row["description"])
-            self.assertEqual(len(row["runtime_detours"]), 1)
+            # Three Tech screen sites: the draw (the counter), the constructor (the "?" button is made) and the
+            # screen's vtable slot 3 (the button's click opens the help box).
+            self.assertEqual(len(row["runtime_detours"]), 3)
+            self.assertIn("draw", row["runtime_detours"][0]["routine"])
+            self.assertIn("constructor", row["runtime_detours"][1]["routine"])
+            self.assertIn("vtable slot 3", row["runtime_detours"][2]["routine"])
 
     def test_the_release_ships_its_files(self) -> None:
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")

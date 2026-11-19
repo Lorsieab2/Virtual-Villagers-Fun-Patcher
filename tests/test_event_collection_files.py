@@ -361,9 +361,11 @@ class FrozenDraftsD(unittest.TestCase):
                 for p in files:
                     doc = json.loads(p.read_text(encoding="utf-8"))
                     self.assertEqual(doc["games"], [1, 2, 3, 4, 5], p.name)
-                    # No effects, but the owner's supply audit of 2026-11-17 (scripts/supply_effects.py: tim133)
-                    self.assertFalse(any(e["do"] != "supply" for nd in doc["nodes"].values()
-                                         for e in nd.get("effects", [])), p.name)
+                    # No effects, but the owner's supply audit of 2026-11-17 (scripts/supply_effects.py: tim133) and
+                    # the outcomes pass (#821, scripts/outcome_effects.py), whose effects are only on the "__fx" half
+                    # of each 50% split
+                    self.assertFalse(any(e["do"] != "supply" for nid, nd in doc["nodes"].items()
+                                         if not nid.endswith("__fx") for e in nd.get("effects", [])), p.name)
                     for c in doc["nodes"]["setup"].get("choices", []):
                         self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
                     if sid in ("moments500", "draft_tim2"):
@@ -412,15 +414,17 @@ class FrozenAnthology(unittest.TestCase):
         files = [p for p in cc.collection_files() if lib.ANTHOLOGY_DIR in p.parents]
         self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
         effects = {}
+        outcome_fx = {}   # the outcomes pass (#821): the "__fx" half of each 50% split
         for p in files:
             doc = json.loads(p.read_text(encoding="utf-8"))
             self.assertEqual(doc["collection"]["label_case"], "title", p.name)
             for c in (c for nd in doc["nodes"].values() for c in nd.get("choices", [])):   # REL-04/26: two copies
                 self.assertEqual(c["label"], lib.title_case_label(c["label"].replace("{@Chief}", "Chief")).replace(
                     "Chief", "{@Chief}"), p.name)
-            for nd in doc["nodes"].values():
+            for nid, nd in doc["nodes"].items():
+                into = outcome_fx if nid.endswith("__fx") else effects
                 for e in nd.get("effects", []):
-                    effects[e["do"]] = effects.get(e["do"], 0) + 1
+                    into[e["do"]] = into.get(e["do"], 0) + 1
             for r in doc["roles"].values():
                 if r.get("special") == "nursing_parent":     # a carrying or nursing parent: an adult born female
                     # (the engine casts only villagers born female; the owner, 2026-11-16: no "sex", the words follow
@@ -429,6 +433,10 @@ class FrozenAnthology(unittest.TestCase):
         # nothing harmful: hair dye (the random head look), REL-15's sex change, two couples' celebrations
         # ... and the owner's supply audit of 2026-11-17 (scripts/supply_effects.py): EXPR-61's retired blade
         self.assertEqual(effects, {"appearance": 5, "sex_change": 1, "celebrate": 4, "supply": 1})
+        # The outcomes pass (#821): each "__fx" page is its "__text" twin's effects (above, kept on both halves:
+        # celebrate 3, appearance 3, sex_change 1) plus the lines in data/event_collection/outcome_effects/.
+        self.assertEqual(outcome_fx, {"tech": 31, "mood": 298, "skill": 12, "health_change": 13, "food": 5,
+                                      "celebrate": 3, "appearance": 3, "sex_change": 1})
 
 
 class FrozenCritic(unittest.TestCase):

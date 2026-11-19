@@ -2647,6 +2647,7 @@ class StockIntegrationTests(unittest.TestCase):
                 # Require Story / Cheat Upgrades, excluded above.
                 "vv1_more_island_events",
                 "vv1_isola_grand_event_collection",
+                "vv1_village_solidarity",
             }
         ]
         rendered, applied = render_patched_bytes(
@@ -4213,6 +4214,8 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_tech_gain",
             "vv2_skill_success",
             "vv2_age_speed",
+            # Village Solidarity (#804): companion only, needs Story / Cheat Upgrades (selected above).
+            "vv2_village_solidarity",
             }
             | {f"vv2_island_event_filter_f{n:02d}" for n in range(1, 29)},
         )
