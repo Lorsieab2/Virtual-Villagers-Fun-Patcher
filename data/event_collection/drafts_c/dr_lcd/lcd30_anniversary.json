@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Anniversary",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd30_anniversary",
+  "source": "draft_lcd",
+  "lines": [
+   414,
+   425
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L414",
+  "ledger": [
+   {
+    "src": "L415",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two elders)"
+   },
+   {
+    "src": "L421",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L421",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L425",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An old couple's fiftieth year together: renew their promise before the village, or sneak off for a quiet day.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 70
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 70,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   },
+   "relation": {
+    "spouse_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been together for fifty years this season. The village wants to throw them a celebration. (subject) would quite like that. (friend) would quite like to sneak off to the little beach where they first met and spend the day there, alone. What should they do?",
+   "src": "L417",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- the draft's notes: everything but the marked effects is story only",
+     "src": "L417"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Renew Their Promise",
+     "next": "o1",
+     "src": "L419"
+    },
+    {
+     "label": "Sneak Off Together",
+     "next": "o2",
+     "src": "L423"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They renew their promise in front of the whole village, and (subject) forgets half the words and (friend) finishes them. Everyone cries. The children want to know how anyone can be married for fifty years. (friend) says, mostly by being too stubborn to stop.",
+   "src": "L421",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L421"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They slip away before dawn and spend the day on the little beach, swimming, napping, and talking about the first time they met, which they remember differently. The village throws the party anyway, without them, and saves them some food.",
+   "src": "L425",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L425"
+    }
+   ]
+  }
+ }
+}

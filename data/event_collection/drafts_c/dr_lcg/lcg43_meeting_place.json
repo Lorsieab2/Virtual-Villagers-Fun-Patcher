@@ -1,0 +1,126 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Meeting Place for Everyone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg43_meeting_place",
+  "source": "draft_lcg",
+  "lines": [
+   596,
+   607
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L596",
+  "ledger": [
+   {
+    "src": "L597",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L603",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L603",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L607",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L607",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village is building a new gathering place: one big hut, or several small spaces for feasts, debates and quiet.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village is building a new gathering place. (subject) wants one great hut where everyone can be together. (friend) points out that the feasts are too loud for the debates, the debates too loud for the people who want to sit quietly, and that a few smaller spaces might suit everyone better. What should they build?",
+   "src": "L599",
+   "choices": [
+    {
+     "label": "One Great Hut",
+     "next": "o1",
+     "src": "L601"
+    },
+    {
+     "label": "Several Spaces",
+     "next": "o2",
+     "src": "L605"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The great hut is magnificent. Feasts, debates and quiet sitting all happen in it, at once, very loudly. The quiet people move outside to a bench under a tree, and before long that bench is the most popular spot in the village.",
+   "src": "L603",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L603"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They build a feast house, a talking circle and a quiet garden. Families start decorating each one with carvings of their own stories. The village is spread out, and everyone can find a place that suits them.",
+   "src": "L607",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L607"
+    }
+   ]
+  }
+ }
+}

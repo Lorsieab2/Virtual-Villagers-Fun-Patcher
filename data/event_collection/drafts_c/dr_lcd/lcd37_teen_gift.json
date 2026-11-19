@@ -1,0 +1,100 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Teen Gift",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd37_teen_gift",
+  "source": "draft_lcd",
+  "lines": [
+   512,
+   523
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two teens)"
+   },
+   {
+    "src": "L519",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L523",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A teen wants to give a gift to their sweetheart: make something, or find something special.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 2
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) wants to give (friend) something for the moon festival. (subject.He/she) could weave a bracelet, though (subject.his/her) weaving is famously bad. Or (subject.he/she) could search the beach for the perfect shell, which could take all week. What should (subject) do?",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Weave a Bracelet",
+     "next": "o1",
+     "src": "L517"
+    },
+    {
+     "label": "Find the Perfect Shell",
+     "next": "o2",
+     "src": "L521"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) weaves a bracelet. It unravels twice. The third one holds. (friend) puts it on at the festival and does not take it off for a month, even when it starts to smell of fish.",
+   "src": "L519"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) searches the beach every morning and finds a spiral shell that shines pink inside. (friend) holds it up to (friend.his/her) ear and says (friend.he/she) can hear the sea. (subject) says (subject.he/she) can hear it too. They sit and listen to it together.",
+   "src": "L523"
+  }
+ }
+}

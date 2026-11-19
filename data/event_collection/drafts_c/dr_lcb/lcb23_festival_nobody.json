@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival Nobody Planned",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb23_festival_nobody",
+  "source": "draft_lcb",
+  "lines": [
+   316,
+   327
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L316",
+  "ledger": [
+   {
+    "src": "L317",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L323",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L323",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L327",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L327",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A spontaneous beach party has become the best night of the year: make it a yearly festival, or keep it spontaneous.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Last year, on the hottest night of the dry season, someone dragged a cooking pot to the beach, someone else brought a drum, and before anyone knew it the whole village was dancing in the shallows until dawn. (subject) wants to make it a festival, the same night every year. (friend) thinks planning it will ruin it. What should they do?",
+   "src": "L319",
+   "choices": [
+    {
+     "label": "Make It a Yearly Festival",
+     "next": "o1",
+     "src": "L321"
+    },
+    {
+     "label": "Keep It Spontaneous",
+     "next": "o2",
+     "src": "L325"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The Night of the Warm Water becomes a festival. It is good, but it is not quite the same: people bring speeches. (friend) sneaks off with a drum halfway through and starts a second, smaller party further down the beach. Next year that one is the festival.",
+   "src": "L323",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L323"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Nobody plans anything. The dry season drags on. Then one night, without any warning, someone drags a pot down to the beach, and the drums start. The whole village is in the water within the hour. It is exactly as good as last time.",
+   "src": "L327",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L327"
+    }
+   ]
+  }
+ }
+}

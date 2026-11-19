@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stolen Design",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch05_stolen_design",
+  "source": "draft_lch",
+  "lines": [
+   64,
+   75
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L64",
+  "ledger": [
+   {
+    "src": "L65",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a carver and an adult)"
+   },
+   {
+    "src": "L71",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L71",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L75",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L75",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A merchant sells copies of a carver's distinctive design without asking: demand payment, or start marking every carving.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) carves turtles in a style nobody else on the island uses: a spiral on the back, a smile on the face. A merchant has been selling copies on other islands. (friend), who leads the village's carvers, thinks all the carvers should do something. What should they do?",
+   "src": "L67",
+   "choices": [
+    {
+     "label": "Demand Payment",
+     "next": "o1",
+     "src": "L69"
+    },
+    {
+     "label": "Mark Every Carving",
+     "next": "o2",
+     "src": "L73"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The carvers confront the merchant when (other.he/she) next visits. The merchant tries to laugh it off, then sees the crowd, and agrees to pay (subject) in good stone tools for every turtle sold. (subject) does not want the tools as much as the apology. (subject.He/she) gets both.",
+   "src": "L71",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L71"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The carvers agree that every piece made on Isola will carry the maker's mark. The merchant's copies have no marks, and before long, buyers on other islands ask for the marked ones.",
+   "src": "L75",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L75"
+    }
+   ]
+  }
+ }
+}

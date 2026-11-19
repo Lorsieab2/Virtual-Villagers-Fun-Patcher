@@ -1,0 +1,124 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Community's Gift",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj25_community_gift",
+  "source": "draft_lcj",
+  "lines": [
+   348,
+   359
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L348",
+  "ledger": [
+   {
+    "src": "L349",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L355",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L355",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L359",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L359",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A family facing hardship will not ask for help: organize gifts openly, or leave them quietly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend)'s family has had a terrible season: their canoe sank, their garden flooded and the grandmother is sick. They are too proud to ask for anything. (subject) wants to help. How should the village give?",
+   "src": "L351",
+   "choices": [
+    {
+     "label": "Organize Gifts Openly",
+     "next": "o1",
+     "src": "L353"
+    },
+    {
+     "label": "Leave Them Quietly",
+     "next": "o2",
+     "src": "L357"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) organizes the village, and every family brings something: fish, taro, a blanket, a song. (friend)'s family is overwhelmed and a little embarrassed. Then (friend) says that next year, when someone else needs it, (friend.his/her) family will be first at their door.",
+   "src": "L355",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L355"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Gifts appear at (friend)'s door every morning, from nobody. The family eats. Nobody mentions it. (friend) knows exactly who it is, and leaves a carved fish on (subject)'s step a month later.",
+   "src": "L359",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L359"
+    }
+   ]
+  }
+ }
+}

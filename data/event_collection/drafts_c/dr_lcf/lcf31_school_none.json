@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The School of None",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf31_school_none",
+  "source": "draft_lcf",
+  "lines": [
+   428,
+   439
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L435",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L439",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager belongs to no school of thought and is being pestered by all four: choose one, or stay free.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) does not lean toward any school of thought. (subject.He/she) just likes fishing. Lately, members of all four schools have been trying to recruit (subject.him/her), and (friend), (subject.his/her) friend, finds this very funny. What should (subject) do?",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "Pick a School",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "Stay Free",
+     "next": "o2",
+     "src": "L437"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) picks the Nature school, mostly because their meetings are held by the lagoon. (subject.He/she) attends twice and spends both meetings fishing off the rocks. The Nature school decides that counts.",
+   "src": "L435"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tells them all, politely, that (subject.he/she) belongs to the school of fishing. (friend) laughs so hard (friend.he/she) falls off a log. Before long, three more villagers say they belong to the school of fishing too.",
+   "src": "L439"
+  }
+ }
+}

@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shared Stores",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg02_shared_stores",
+  "source": "draft_lcg",
+  "lines": [
+   22,
+   33
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L22",
+  "ledger": [
+   {
+    "src": "L23",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L29",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L29",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L33",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L33",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Families are asked to give to a shared emergency store, but some have more to give than others: give equally, or give by means.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After last year's hungry season, (subject) wants every family to put food into a shared store for emergencies. (friend)'s family is large and barely has enough, while the fishing families have plenty. (friend) says equal shares are not fair shares. How should the store be filled?",
+   "src": "L25",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L25"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Everyone Gives the Same",
+     "next": "o1",
+     "src": "L27"
+    },
+    {
+     "label": "Each Gives What They Can",
+     "next": "o2",
+     "src": "L31"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Every family gives the same amount. (friend)'s family goes hungry for a week to manage it, and (friend) is quietly furious. When the bad season comes, the store saves everyone, (friend)'s family included. (friend) is glad of it, and still thinks the rule was wrong.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L29"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Each family gives by its means: the fishing families more, the large families less. Some of the fishing families grumble. The store is just as full. When the bad season comes, nobody asks who gave what.",
+   "src": "L33",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L33"
+    }
+   ]
+  }
+ }
+}

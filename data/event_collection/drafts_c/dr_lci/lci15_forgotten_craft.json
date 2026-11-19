@@ -1,0 +1,139 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forgotten Craft Returns",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci15_forgotten_craft",
+  "source": "draft_lci",
+  "lines": [
+   204,
+   215
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L204",
+  "ledger": [
+   {
+    "src": "L205",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a craftsperson and an elder)"
+   },
+   {
+    "src": "L211",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1); small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L211",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L215",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L215",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A family finds instructions for a lost bark-cloth craft: rebuild it by trying, or ask the elders what they remember.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "In an old storage pit, (subject) found a bundle of carved boards that show, step by step, how the village once made soft cloth from bark. The craft stopped in the old days, for reasons nobody talks about. (friend) remembers watching it as a tiny child. What should (subject) do?",
+   "src": "L207",
+   "choices": [
+    {
+     "label": "Rebuild It by Trying",
+     "next": "o1",
+     "src": "L209"
+    },
+    {
+     "label": "Ask the Elders First",
+     "next": "o2",
+     "src": "L213"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tries every step on the boards, over and over. The first cloth falls apart. The tenth holds. By the end of the season, there is bark cloth in the village again, and (friend) cries the first time (friend.he/she) touches it.",
+   "src": "L211",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L211"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L211"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) sits with (friend) and the other elders, who remember pieces: the beating sound, the soaking in the stream, the song that kept time. Together with the boards, it is enough. The craft comes back, with its song.",
+   "src": "L215",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L215"
+    }
+   ]
+  }
+ }
+}

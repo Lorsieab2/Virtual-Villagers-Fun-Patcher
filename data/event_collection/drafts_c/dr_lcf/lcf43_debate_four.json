@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Debate of the Four Schools",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf43_debate_four",
+  "source": "draft_lcf",
+  "lines": [
+   596,
+   607
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L596",
+  "ledger": [
+   {
+    "src": "L597",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks four adults)"
+   },
+   {
+    "src": "L603",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L607",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Four villagers from the four schools must agree on how to treat a sick reef: debate it out, or each try their own way.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third",
+   "fourth"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "fourth": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The northern reef is sick, and the village has asked four villagers to decide what to do: (subject) of the Nature school wants to close it to fishing; (friend) of Science wants to study it first; (third) of Spiritualism wants to hold a ceremony; and (fourth) of Magic wants to set a lavastone in the coral. What should they do?",
+   "src": "L599",
+   "choices": [
+    {
+     "label": "Debate It Out",
+     "next": "o1",
+     "src": "L601"
+    },
+    {
+     "label": "Each Their Own Way",
+     "next": "o2",
+     "src": "L605"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They debate for three days and agree on a little of everything: close the reef, count the fish, hold a ceremony, and keep the lavastone for later. The reef recovers slowly. All four say it was their part that worked.",
+   "src": "L603"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Each tries their own way on a different part of the reef. After a season, all four parts are recovering, at different speeds. Nobody can agree on what that means. They decide to keep arguing about it, which they all enjoy.",
+   "src": "L607"
+  }
+ }
+}

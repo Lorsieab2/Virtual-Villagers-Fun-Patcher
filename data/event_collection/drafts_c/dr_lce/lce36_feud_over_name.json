@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Feud Over a Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce36_feud_over_name",
+  "source": "draft_lce",
+  "lines": [
+   498,
+   509
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L498",
+  "ledger": [
+   {
+    "src": "L499",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L505",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L509",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two families both want to give their newborns the same honored name: share it, or let one family go first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The founder of the village was called Brightwater, and both (subject)'s family and (friend)'s family have a baby due this season, and both want to name it Brightwater. Both are descended from the founder, they say. The village is taking sides. What should happen?",
+   "src": "L501",
+   "choices": [
+    {
+     "label": "Share the Name",
+     "next": "o1",
+     "src": "L503"
+    },
+    {
+     "label": "One Family Goes First",
+     "next": "o2",
+     "src": "L507"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Both babies are called Brightwater. The village solves it the way villages do: one becomes Big Brightwater and one Little Brightwater, depending on which baby is louder. They grow up best friends.",
+   "src": "L505"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The first baby born gets the name. It is (subject)'s. (friend)'s family names theirs Brightwave instead, defiantly. For years the two families argue about which name is better. The two children could not care less.",
+   "src": "L509"
+  }
+ }
+}

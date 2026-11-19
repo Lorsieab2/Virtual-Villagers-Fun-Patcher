@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Right to Speak",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca21_right_speak",
+  "source": "draft_lca",
+  "lines": [
+   292,
+   303
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L292",
+  "ledger": [
+   {
+    "src": "L293",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L299",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L303",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A very quiet villager asks to speak at the gathering: give them the floor, or let them write it down instead.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) almost never speaks at the village gathering. Today (subject.he/she) has asked (friend), who leads the gathering, for a turn to speak, and (subject.he/she) is shaking. (friend) can see how hard this is. Some people at the gathering are already whispering. How should (friend) help?",
+   "src": "L295",
+   "choices": [
+    {
+     "label": "Give (subject) the Floor",
+     "next": "o1",
+     "src": "L297"
+    },
+    {
+     "label": "Offer Another Way",
+     "next": "o2",
+     "src": "L301"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) asks for silence and gets it. (subject) speaks, haltingly, about the path to the stream, which floods every rain and which the elders always forget to mention. When (subject.he/she) finishes, nobody whispers. The path gets fixed within the month.",
+   "src": "L299"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) suggests (subject) carve or draw what (subject.he/she) wants to say, and (friend) will hold it up for everyone. (subject) draws a map of the flooded path, with a very cross-looking fish swimming down the middle. Everyone understands immediately. The path gets fixed, and the fish drawing is kept.",
+   "src": "L303"
+  }
+ }
+}

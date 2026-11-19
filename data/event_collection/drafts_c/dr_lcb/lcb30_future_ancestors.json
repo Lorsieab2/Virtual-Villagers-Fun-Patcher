@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Future Ancestors",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb30_future_ancestors",
+  "source": "draft_lcb",
+  "lines": [
+   414,
+   425
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L414",
+  "ledger": [
+   {
+    "src": "L415",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child and an elder)"
+   },
+   {
+    "src": "L421",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L425",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L425",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Children wonder how the village will be remembered in a hundred years: bury a message for the future, or carve a story pole.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been asking (friend) what the village will be like in a hundred years. Will there still be fish? Will people still sing the moon song? Will they know who (subject) was? (friend) admits (friend.he/she) has no idea. But it gives (friend.him/her) an idea. What should they leave for the future?",
+   "src": "L417",
+   "choices": [
+    {
+     "label": "Bury a Message",
+     "next": "o1",
+     "src": "L419"
+    },
+    {
+     "label": "Carve a Story Pole",
+     "next": "o2",
+     "src": "L423"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The children each draw a picture of their lives on a piece of bark, and (friend) seals them in a clay jar and buries it under the meeting hut. (subject) draws a fish, a hut and a very large version of (subject.him/her)self. Somewhere in the future, someone will find it.",
+   "src": "L421"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) and the children carve a story pole, one picture for each child: (subject)'s is a gecko, for reasons (subject.he/she) will not explain. The pole stands by the beach. Visitors ask about it. The children explain every picture, at length.",
+   "src": "L425",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L425"
+    }
+   ]
+  }
+ }
+}

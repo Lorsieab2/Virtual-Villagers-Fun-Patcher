@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forgotten Melody",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb22_forgotten_melody",
+  "source": "draft_lcb",
+  "lines": [
+   302,
+   313
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L302",
+  "ledger": [
+   {
+    "src": "L303",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L309",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L309",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L313",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An elder remembers part of a song nobody else knows: help piece it together, or let them write a new ending.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has started humming a tune nobody in the village recognizes. It is a song (subject.his/her) grandmother sang, (subject.he/she) says, but (subject.he/she) only remembers the beginning. (friend) thinks the rest might still be out there in someone else's memory. What should they do?",
+   "src": "L305",
+   "choices": [
+    {
+     "label": "Piece It Together",
+     "next": "o1",
+     "src": "L307"
+    },
+    {
+     "label": "Write a New Ending",
+     "next": "o2",
+     "src": "L311"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) goes from elder to elder, humming the beginning. One remembers a line. Another remembers a chorus. A very old fisher remembers the ending, but not the middle. They piece most of it together. The middle stays a gap, and they hum through it. That is how the song is sung from then on.",
+   "src": "L309",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L309"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides the song should have an ending, even if it is a new one. (subject.He/she) writes one, about (subject.his/her) grandmother herself. The village learns the song. Nobody knows which part is old and which is new, and (subject) is not going to tell them.",
+   "src": "L313"
+  }
+ }
+}

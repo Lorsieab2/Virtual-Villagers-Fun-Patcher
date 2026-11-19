@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet After the Storm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci26_after_storm",
+  "source": "draft_lci",
+  "lines": [
+   358,
+   369
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L358",
+  "ledger": [
+   {
+    "src": "L359",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L365",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L369",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "After a disaster, some want to gather and others need to be alone: hold the gathering, or offer quiet help to those who want it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The storm took three huts and the oldest fig tree, and a family lost their grandfather. (subject) wants a gathering on the beach for everyone to be together. (friend) knows that the grandfather's family wants to be left alone. How should the village support each other?",
+   "src": "L361",
+   "choices": [
+    {
+     "label": "Hold the Gathering",
+     "next": "o1",
+     "src": "L363"
+    },
+    {
+     "label": "Quiet Help",
+     "next": "o2",
+     "src": "L367"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The gathering is held for anyone who wants it. Many come. The grandfather's family does not, and nobody goes looking for them. Someone leaves food at their door. That is all they wanted.",
+   "src": "L365",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L365"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village holds no gathering. Instead, everyone helps rebuild, quietly, and brings food, and fetches water. The grandfather's family sees it and says nothing, and it is enough.",
+   "src": "L369",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L369"
+    }
+   ]
+  }
+ }
+}

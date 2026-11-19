@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Warrior's Advice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc38_warrior_advice",
+  "source": "draft_lcc",
+  "lines": [
+   526,
+   537
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L526",
+  "ledger": [
+   {
+    "src": "L527",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a young adult)"
+   },
+   {
+    "src": "L533",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L533",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L537",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An old warrior offers to teach the young ones how they fought long ago: learn the old ways, or learn new ones.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 60
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) fought the raiders forty years ago, and has offered to teach the young warriors how it was done. (friend), who leads the young ones, has heard (subject)'s stories, and thinks half the old ways would get people killed today: the raiders now have longer spears and faster canoes. What should (friend) do?",
+   "src": "L529",
+   "choices": [
+    {
+     "label": "Learn the Old Ways",
+     "next": "o1",
+     "src": "L531"
+    },
+    {
+     "label": "Learn New Ways",
+     "next": "o2",
+     "src": "L535"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) brings the young warriors to (subject). Some of what (subject) teaches is out of date. Some of it is brilliant: how to read the wind for a landing, how to hide a canoe in the mangroves, how to keep your nerve. (friend) takes the good and quietly drops the rest. (subject) notices, and says nothing.",
+   "src": "L533",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L533"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) thanks (subject) and says the young warriors will work things out for themselves. (subject) is stung, and goes home without a word. Later, (friend) comes back with a question about reading the wind, and (subject) answers it, slowly, without making (friend.him/her) feel foolish.",
+   "src": "L537"
+  }
+ }
+}

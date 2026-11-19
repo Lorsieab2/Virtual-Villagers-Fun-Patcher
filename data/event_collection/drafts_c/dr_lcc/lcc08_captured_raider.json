@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Captured Raider",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc08_captured_raider",
+  "source": "draft_lcc",
+  "lines": [
+   106,
+   117
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L106",
+  "ledger": [
+   {
+    "src": "L107",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L113",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L113",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L117",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "After the raid, one raider is left behind, wounded: tend their wounds, or bind them and decide later.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The raiders fled in the night and left one of their own behind on the beach: a young raider with a wounded leg, glaring at everyone. (subject) wants to tend the wound and see what kind of person this is. (friend), whose garden was stripped, wants the raider bound and kept under guard until the village decides what to do. What should happen?",
+   "src": "L109",
+   "choices": [
+    {
+     "label": "Tend the Wound",
+     "next": "o1",
+     "src": "L111"
+    },
+    {
+     "label": "Bind and Guard Them",
+     "next": "o2",
+     "src": "L115"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) takes the raider to the healers, who clean and bind the leg. The raider does not say a word for three days. On the fourth, (other.he/she) says (other.his/her) name, and that (other.he/she) did not want to come on the raid. Whether that is true, nobody can tell yet.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L113"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The raider is bound and kept in the old storehouse, with food, water and a guard at the door. The healers tend the leg there. (friend) visits once, to look the raider in the eye, and comes back quieter than (friend.he/she) went. Nobody knows what to do next.",
+   "src": "L117",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L117"
+    }
+   ]
+  }
+ }
+}

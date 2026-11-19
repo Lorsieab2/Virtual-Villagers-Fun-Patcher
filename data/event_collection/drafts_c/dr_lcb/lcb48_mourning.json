@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mourning Gathering of Many Ways",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb48_mourning",
+  "source": "draft_lcb",
+  "lines": [
+   666,
+   677
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L666",
+  "ledger": [
+   {
+    "src": "L667",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L673",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L677",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A family who came from elsewhere wants silence, and the village wants songs: hold both, or follow the family's wish.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s family came to Isola from far away. In their custom, the dead are mourned in complete silence: no songs, no drums, no speeches. The village has always mourned with song. Now (subject)'s mother has died, and (friend), who leads the village's mourning, wants to know how to honor her. What should (friend) do?",
+   "src": "L669",
+   "choices": [
+    {
+     "label": "Follow the Family's Way",
+     "next": "o1",
+     "src": "L671"
+    },
+    {
+     "label": "Hold Both",
+     "next": "o2",
+     "src": "L675"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village mourns in silence. It is strange for everyone at first. But the silence is very full: people hold hands, bow their heads, and stand together for a long time. (subject) thanks (friend) afterwards with tears in (subject.his/her) eyes.",
+   "src": "L673"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) suggests a silent gathering for the family, and a song later, away from the graveside, for any villager who needs to sing. (subject) agrees. Both happen. The song drifts over from the beach while the family sits in silence, and neither interrupts the other.",
+   "src": "L677"
+  }
+ }
+}

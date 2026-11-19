@@ -1,0 +1,126 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Builders' Rhythm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca12_builders_rhythm",
+  "source": "draft_lca",
+  "lines": [
+   166,
+   177
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L166",
+  "ledger": [
+   {
+    "src": "L167",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L173",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L173",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L177",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L177",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The builders lift heavy timber to a chant, but one says the rhythm makes it harder: keep the old chant, or try a new one.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The builders are raising the roof beam of the new hut, and everyone heaves on the beat of the old lifting chant: hey, HAH, hey, HAH. (subject) has been leading it for years. (friend) says the HAH comes too early, and everyone is pulling against each other. (subject) says (friend) is pulling wrong. The beam is still on the ground. What should they do?",
+   "src": "L169",
+   "choices": [
+    {
+     "label": "Keep the Old Chant",
+     "next": "o1",
+     "src": "L171"
+    },
+    {
+     "label": "Try (friend)'s Rhythm",
+     "next": "o2",
+     "src": "L175"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They try the old chant again, all pulling harder. The beam rises, slips, and drops back down with a thump that shakes the ground. Nobody is hurt, but (subject) sits on it for a while, thinking. The next day (subject.he/she) moves the HAH a little later, without saying anything. The beam goes up first try.",
+   "src": "L173",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L173"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) leads a slower chant, with a long pause before the pull. It feels wrong for about three heaves. Then the beam swings up as if it weighs nothing. (subject) stares at it, then laughs and claps (friend) on the back. \"Fine,\" (subject.he/she) says. \"But I am keeping the HAH.\"",
+   "src": "L177",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L177"
+    }
+   ]
+  }
+ }
+}

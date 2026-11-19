@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Neighbor's Noise",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce38_neighbor_noise",
+  "source": "draft_lce",
+  "lines": [
+   526,
+   537
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L526",
+  "ledger": [
+   {
+    "src": "L527",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L533",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L537",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A neighbor drums late every night: complain to them, or ask the elders to set quiet hours.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has taken up drumming, and practices every night until very late. (subject), next door, has not slept properly in a month. (friend) is happy, and getting better, and has no idea. What should (subject) do?",
+   "src": "L529",
+   "choices": [
+    {
+     "label": "Talk to (friend)",
+     "next": "o1",
+     "src": "L531"
+    },
+    {
+     "label": "Ask the Elders",
+     "next": "o2",
+     "src": "L535"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) goes over, very tired, and asks. (friend) is horrified and apologizes. (friend.He/she) moves (friend.his/her) drumming to the beach. (subject) sleeps. Some nights, (subject.he/she) goes down to the beach to listen.",
+   "src": "L533"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) asks the elders to set quiet hours for the whole village. They do. (friend) finds out the rule was because of (friend.him/her) and is embarrassed and hurt that (subject) did not just ask. They are polite to each other for a long time.",
+   "src": "L537"
+  }
+ }
+}

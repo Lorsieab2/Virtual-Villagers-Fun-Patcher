@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Children's Secret Language",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj02_children",
+  "source": "draft_lcj",
+  "lines": [
+   22,
+   33
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L22",
+  "ledger": [
+   {
+    "src": "L23",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two children)"
+   },
+   {
+    "src": "L29",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L33",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L33",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The children have invented a secret language of words and signs: let them keep it, or ask them to teach it.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject), (friend) and the other children have invented a language: made-up words, finger signs and a whistle that means \"an adult is coming\". The adults are baffled. The researchers are fascinated. The parents are a little worried. What should happen?",
+   "src": "L25",
+   "choices": [
+    {
+     "label": "Let Them Keep It",
+     "next": "o1",
+     "src": "L27"
+    },
+    {
+     "label": "Ask Them to Teach It",
+     "next": "o2",
+     "src": "L31"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The adults leave it alone. The children's language grows. Years later, when they are grown, they still whistle to each other across the village, and their own children start learning it.",
+   "src": "L29"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The children agree to teach it, for a price: three days of no chores. The researchers learn it and write it down. The children are immediately bored of it, and invent a new one.",
+   "src": "L33",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L33"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Borrowed Net",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce22_borrowed_net",
+  "source": "draft_lce",
+  "lines": [
+   302,
+   313
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L302",
+  "ledger": [
+   {
+    "src": "L303",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L309",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L313",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L313",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A neighbor has had a borrowed net for a whole season and will not give it back: ask again, or make a new one.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) borrowed (subject)'s good fishing net at the start of the season. It is now the end of the season. (friend) still has it, uses it every day, and has started calling it \"my net\". (subject) has asked twice. What should (subject) do?",
+   "src": "L305",
+   "choices": [
+    {
+     "label": "Ask Once More, Firmly",
+     "next": "o1",
+     "src": "L307"
+    },
+    {
+     "label": "Make a New One",
+     "next": "o2",
+     "src": "L311"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) goes to (friend)'s hut and says, firmly, that (subject.he/she) needs the net back today. (friend) looks surprised, then embarrassed: (friend.he/she) had honestly forgotten whose it was. The net is returned with a basket of fish.",
+   "src": "L309"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) gives up and makes a new net. It takes a month. When (friend) sees it, (friend.he/she) realizes, and comes over with the old net, mortified. (subject) now has two nets. (subject.He/she) lends one to (friend).",
+   "src": "L313",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L313"
+    }
+   ]
+  }
+ }
+}

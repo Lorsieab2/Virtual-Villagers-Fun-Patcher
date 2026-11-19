@@ -1,0 +1,136 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Floating Garden",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci39_floating_garden",
+  "source": "draft_lci",
+  "lines": [
+   540,
+   551
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L540",
+  "ledger": [
+   {
+    "src": "L541",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two farmers)"
+   },
+   {
+    "src": "L547",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name1); small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L547",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L551",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L551",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Farmers want to grow plants on a floating raft in the sheltered lagoon: try it, or dig new water channels instead.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has an idea: a raft of woven reeds and mud, floating in the calm part of the lagoon, with plants growing on top. The roots would drink the lagoon water. (friend) thinks it is mad, and that better water channels to the old gardens would be more use. What should they try?",
+   "src": "L543",
+   "choices": [
+    {
+     "label": "Try the Floating Garden",
+     "next": "o1",
+     "src": "L545"
+    },
+    {
+     "label": "Dig Channels Instead",
+     "next": "o2",
+     "src": "L549"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The first raft sinks. The second floats, and the beans grow wonderfully. The third drifts out to sea in a storm with all its beans, and a crab sitting on top. They anchor the fourth.",
+   "src": "L547",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L547"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L547"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) leads the digging of new channels. The old gardens thrive. (subject) builds one little raft anyway, in secret, and grows herbs on it. They are the best herbs in the village.",
+   "src": "L551",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L551"
+    }
+   ]
+  }
+ }
+}

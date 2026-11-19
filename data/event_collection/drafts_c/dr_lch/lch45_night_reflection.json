@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night of Quiet Reflection",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch45_night_reflection",
+  "source": "draft_lch",
+  "lines": [
+   624,
+   635
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L624",
+  "ledger": [
+   {
+    "src": "L625",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L631",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L635",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village wants a night of quiet reflection, and one villager would rather sleep: welcome every way, or invite them anyway.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has proposed a night of quiet once a moon, when everyone can do whatever gives their life meaning: pray, sit by the sea, remember the dead, look at the stars. (friend) has said (friend.he/she) would rather just sleep. Some people are offended. What should (subject) do?",
+   "src": "L627",
+   "choices": [
+    {
+     "label": "Welcome Every Way",
+     "next": "o1",
+     "src": "L629"
+    },
+    {
+     "label": "Invite Them Anyway",
+     "next": "o2",
+     "src": "L633"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) says sleeping counts. The night of quiet is held. Some pray, some sing softly, some sit together, and (friend) sleeps soundly. Everyone agrees it is the most peaceful night of the moon.",
+   "src": "L631"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) asks (friend) to come and just sit. (friend) comes, and falls asleep on the beach, under the stars. (subject) puts a blanket over (friend.him/her) and leaves (friend.him/her) there. (friend) says it was the best sleep (friend.he/she) has ever had.",
+   "src": "L635"
+  }
+ }
+}

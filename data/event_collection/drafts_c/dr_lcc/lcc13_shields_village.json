@@ -1,0 +1,126 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shields of the Village",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc13_shields_village",
+  "source": "draft_lcc",
+  "lines": [
+   176,
+   187
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L183",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L183",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L187",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L187",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The warriors need better shields: use the canoe wood, or weave them from palm and bark.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The warriors' shields are old and cracked. (subject) wants to cut new ones from the wood set aside for the next canoe: hard, heavy, strong. (friend) says the fishers need that canoe, and shields of woven palm and bark are lighter and good enough. What should they do?",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Use the Canoe Wood",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Weave Them From Palm",
+     "next": "o2",
+     "src": "L185"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The shields are thick and heavy and could stop a falling coconut, which (subject) demonstrates. The fishers are grumpy about waiting another season for their canoe. The warriors are delighted with the shields and a little tired from carrying them.",
+   "src": "L183",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L183"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) teaches a dozen villagers to weave shields, layer after layer, soaked and dried hard. They are light and tough and the children love making small ones. The fishers get their canoe.",
+   "src": "L187",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L187"
+    }
+   ]
+  }
+ }
+}

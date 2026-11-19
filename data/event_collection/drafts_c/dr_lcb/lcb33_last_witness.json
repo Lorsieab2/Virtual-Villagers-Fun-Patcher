@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Witness",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb33_last_witness",
+  "source": "draft_lcb",
+  "lines": [
+   456,
+   467
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L456",
+  "ledger": [
+   {
+    "src": "L457",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two elders and a teen)"
+   },
+   {
+    "src": "L463",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name3)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L463",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L467",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two elders remember the night of the great flood very differently: record both versions, or ask them to agree.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(third) has been asked to learn the story of the great flood, so it is not lost when the elders are gone. But (subject) and (friend), the only two left who were there, remember it completely differently. (subject) says the water came at night; (friend) says it was noon. They are not even sure who saved whom. What should (third) do?",
+   "src": "L459",
+   "choices": [
+    {
+     "label": "Learn Both Versions",
+     "next": "o1",
+     "src": "L461"
+    },
+    {
+     "label": "Ask Them to Agree",
+     "next": "o2",
+     "src": "L465"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(third) learns both, word for word, and when (third.he/she) tells the story, (third.he/she) tells it twice: (subject)'s flood and (friend)'s flood. The children love it. They argue about which one is true, which is exactly what (subject) and (friend) have been doing for fifty years.",
+   "src": "L463",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "third",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L463"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(third) sits (subject) and (friend) down together and asks them to agree on one story. They argue for three days. The final version has the water come at sunset, which neither of them remembers, and they both sulk. (third) learns it anyway.",
+   "src": "L467"
+  }
+ }
+}

@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone That Chose",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf46_stone_chose",
+  "source": "draft_lcf",
+  "lines": [
+   638,
+   649
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L638",
+  "ledger": [
+   {
+    "src": "L639",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L645",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L649",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A lavastone glows only when one particular villager is near: give it to them, or keep it with the elders.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The elders' newest lavastone is dark and cold for everyone except (subject), a quiet net-mender. Whenever (subject) walks past, it glows. The elders cannot explain it. (friend) says the stone has chosen (subject). (subject) does not want to be chosen for anything. What should happen?",
+   "src": "L641",
+   "choices": [
+    {
+     "label": "Give It to (subject)",
+     "next": "o1",
+     "src": "L643"
+    },
+    {
+     "label": "Keep It With the Elders",
+     "next": "o2",
+     "src": "L647"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The elders give (subject) the stone. (subject) keeps it in a pouch and mends nets as before. The stone glows quietly. (subject) never uses it, and never explains why. Some people find that wise.",
+   "src": "L645"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) asks the elders to keep it. They do. Every time (subject.he/she) walks past their hut, it glows, and (subject.he/she) walks a little faster. Eventually, the elders move the stone to a hut (subject) never passes.",
+   "src": "L649"
+  }
+ }
+}

@@ -128,12 +128,24 @@ DRAFTS_C = {   # source id: (topic, line count, section, event prefix)
     "draft_his": ("History and Collective Memory", 614, "dr_his", "HIS"),
     "draft_lif": ("Pondering How Life Has Gone", 596, "dr_lif", "LIF"),
     # The owner's request of 2026-11-17 (The Tree of Life's cutting tools, soap and cloth; the "supply" effect,
-    # docs/event-collection/cie-v6-binary.md 32): every event "(VV4 only)".
+    # docs/event-collection/cie-v6-binary.md 38): every event "(VV4 only)".
     "draft_sup": ("Tree of Life Supplies", 180, "dr_sup", "SUP"),
-    # The owner's spec of 2026-11-16/17: traders (the "trade" effect and "has_supply", cie-v6-binary.md 33), built by
-    # scripts/drafts_c/gen_traders.py, and the village effects' showcase (cie-v6-binary.md 34-35).
+    # The owner's spec of 2026-11-16/17: traders (the "trade" effect and "has_supply", cie-v6-binary.md 39), built by
+    # scripts/drafts_c/gen_traders.py, and the village effects' showcase (cie-v6-binary.md 40-41).
     "draft_trd": ("Island Traders", 234, "dr_trd", "TRD"),
     "draft_vfx": ("Village Moments", 206, "dr_vfx", "VFX"),
+    # Living Culture (the owner's concepts of 2026-11-17, drafted 2026-11-18; owner review waived, each event passed
+    # the Isola rules and the 15-point review): "[Solidarity: ...]" tags are notes (gen_drafts_c.SOLIDARITY_RE).
+    "draft_lca": ("Living Culture I", 762, "dr_lca", "LCA"),
+    "draft_lcb": ("Living Culture II", 758, "dr_lcb", "LCB"),
+    "draft_lcc": ("Living Culture III", 758, "dr_lcc", "LCC"),
+    "draft_lcd": ("Living Culture IV", 758, "dr_lcd", "LCD"),
+    "draft_lce": ("Living Culture V", 758, "dr_lce", "LCE"),
+    "draft_lcf": ("Living Culture VI", 758, "dr_lcf", "LCF"),
+    "draft_lcg": ("Living Culture VII", 758, "dr_lcg", "LCG"),
+    "draft_lch": ("Living Culture VIII", 758, "dr_lch", "LCH"),
+    "draft_lci": ("Living Culture IX", 758, "dr_lci", "LCI"),
+    "draft_lcj": ("Living Culture X", 762, "dr_lcj", "LCJ"),
 }
 for _sid, (_topic, _n, _sec, _pre) in DRAFTS_C.items():
     SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / f"New Events - {_topic} (draft for owner).txt",

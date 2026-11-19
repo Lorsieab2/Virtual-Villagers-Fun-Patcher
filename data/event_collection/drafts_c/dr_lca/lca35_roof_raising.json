@@ -1,0 +1,107 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Roof-Raising Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca35_roof_raising",
+  "source": "draft_lca",
+  "lines": [
+   488,
+   499
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L488",
+  "ledger": [
+   {
+    "src": "L489",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L495",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L495",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L499",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The new meeting hut is finished: sing the roof-raising song, or hold off until it survives the first storm.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The new meeting hut is finished, the biggest the village has ever built. (subject) wants to sing the roof-raising song tonight, the one that says the roof will stand for a hundred years. (friend), who built the roof, is superstitious and says you should never sing that song until the roof has survived its first storm. What should they do?",
+   "src": "L491",
+   "choices": [
+    {
+     "label": "Sing It Tonight",
+     "next": "o1",
+     "src": "L493"
+    },
+    {
+     "label": "Wait for the First Storm",
+     "next": "o2",
+     "src": "L497"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They sing it that night, loud and proud. Three nights later, the first storm comes. The roof holds. (friend) checks it every hour all night anyway, and in the morning declares it officially a hundred-year roof.",
+   "src": "L495",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L495"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They wait. And wait. It does not rain for two months. The village holds its meetings in the new hut every night, singing nothing in particular. When the storm finally comes, the roof holds, and the roof-raising song is sung with great relief and very damp clothes.",
+   "src": "L499"
+  }
+ }
+}

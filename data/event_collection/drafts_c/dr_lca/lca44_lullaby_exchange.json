@@ -1,0 +1,136 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lullaby Exchange",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca44_lullaby_exchange",
+  "source": "draft_lca",
+  "lines": [
+   614,
+   625
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L614",
+  "ledger": [
+   {
+    "src": "L615",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L621",
+    "kind": "instruction",
+    "text": "[effect: small Parenting skill for (name1); small Parenting skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L621",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L625",
+    "kind": "instruction",
+    "text": "[effect: small Parenting skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L625",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two parents' babies will only sleep to each other's lullabies: swap songs, or teach each other.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) live next door to each other, and both have babies who will not sleep. Last night (subject) noticed (subject.his/her) baby went quiet the moment (friend) started singing next door, and (friend)'s baby went quiet when (subject) sang. Both of them are exhausted. What should they do?",
+   "src": "L617",
+   "choices": [
+    {
+     "label": "Swap Songs Every Night",
+     "next": "o1",
+     "src": "L619"
+    },
+    {
+     "label": "Teach Each Other the Songs",
+     "next": "o2",
+     "src": "L623"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Every night at sunset, (subject) and (friend) swap huts and sing each other's babies to sleep. It works perfectly. It is also, the neighbors point out, very strange. Neither parent cares. They are finally sleeping.",
+   "src": "L621",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L621"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L621"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They teach each other their lullabies. (subject)'s is about a fish who could not find the moon; (friend)'s is about a turtle who was very, very sleepy. The babies sleep. Soon half the parents in the village are singing about sleepy turtles.",
+   "src": "L625",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L625"
+    }
+   ]
+  }
+ }
+}

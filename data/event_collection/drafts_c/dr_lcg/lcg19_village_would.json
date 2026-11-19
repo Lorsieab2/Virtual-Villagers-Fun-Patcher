@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Village That Would Not Disappear",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg19_village_would",
+  "source": "draft_lcg",
+  "lines": [
+   260,
+   271
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L260",
+  "ledger": [
+   {
+    "src": "L261",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L267",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L271",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L271",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Visitors say the village would be richer if it gave up its old ways: explain why not, or take what is useful and keep the rest.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Visitors from a big island across the sea have told the village it is poor and backward, and that if it dropped its songs, its old gardens and its slow ways, it could be rich like them. (subject) is insulted. (friend) thinks some of the visitors' ideas, like their fishhooks, are actually very good. What should the village do?",
+   "src": "L263",
+   "choices": [
+    {
+     "label": "Explain Why Not",
+     "next": "o1",
+     "src": "L265"
+    },
+    {
+     "label": "Take What Is Useful",
+     "next": "o2",
+     "src": "L269"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells the visitors, at length, what the songs are for, why the gardens are planted that way, and why the village prefers slow. The visitors do not understand all of it. They leave a little less sure of themselves.",
+   "src": "L267"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks to learn how the fishhooks are made, and nothing else. The visitors are puzzled that the village wants the hooks but not the rest. The village is not puzzled at all. The hooks are very good.",
+   "src": "L271",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L271"
+    }
+   ]
+  }
+ }
+}

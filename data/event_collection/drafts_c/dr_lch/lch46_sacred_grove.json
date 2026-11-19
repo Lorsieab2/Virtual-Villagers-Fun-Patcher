@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sacred Grove's Future",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch46_sacred_grove",
+  "source": "draft_lch",
+  "lines": [
+   638,
+   649
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L638",
+  "ledger": [
+   {
+    "src": "L639",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L645",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L649",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Families with different beliefs all want the old grove protected, for different reasons: protect it together, or argue over why.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Some villagers want to cut the old grove for a new canoe house. (subject) wants it protected because spirits live there. (friend) wants it protected because the birds nest there and the soil holds the hill together. Their reasons are completely different. Their aim is the same. What should they do?",
+   "src": "L641",
+   "choices": [
+    {
+     "label": "Protect It Together",
+     "next": "o1",
+     "src": "L643"
+    },
+    {
+     "label": "Argue Over Why",
+     "next": "o2",
+     "src": "L647"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) stand together at the gathering, each giving their reasons. The village agrees: the grove stays. Afterwards they argue cheerfully about whose reason was better. The canoe house is built on the beach instead.",
+   "src": "L645"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They argue so much about whose reason is right that the gathering loses patience. The decision is delayed a month. The grove is still saved, in the end, by a vote. (subject) and (friend) are not on speaking terms for a week.",
+   "src": "L649"
+  }
+ }
+}

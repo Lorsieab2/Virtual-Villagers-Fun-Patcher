@@ -19,7 +19,7 @@ GROUP C ADDS (the owner and the drafts' own notes, 2026-11-15):
   is a named stranger (authoring-rules.md 15: Isolans are never cast).
 - Tree of Life Supplies (SUP, the owner's request of 2026-11-17): every heading is "(VV4 only)" (The Tree of Life only,
   collection_manifest.DRAFTS_C_VV4_TAG); an "[effect: the village gains / loses N cutting tools / bars of soap /
-  cloth bolts]" is the "supply" effect (cie-v6-binary.md 32), and one bracket may hold several effects ("; ").
+  cloth bolts]" is the "supply" effect (cie-v6-binary.md 38), and one bracket may hold several effects ("; ").
 - The owner's orders as group B: text verbatim; things need not exist in the game to appear in the text; a person
   named only by a role word is a cast villager shown by name (a ledger "sensitivity" entry each).
 
@@ -86,6 +86,41 @@ EFFECTS = {
 # DIV-27's "small skill gain for (name1)": the annotation's SKILL line names the skill (the draft names none)
 EFFECT_RE = re.compile(r"\s*\[effect: ([^\]]+)\]")
 OWN_GENERATOR = {"draft_trd": "scripts/drafts_c/gen_traders.py"}   # built by its own generator
+# Living Culture (LCA..): each ending's "[Solidarity: raise|lower|neutral]" tag (the owner, 2026-11-17: solidarity is a
+# planned village counter that only changes the odds of later events; no engine effect yet), cut as a note.
+SOLIDARITY_RE = re.compile(r"\s*\[Solidarity: (raise|lower|neutral)\]")
+# Living Culture's general effect words (the role is (name1)..(name4); Devotion falls back to the named skill outside
+# New Believers, the style guide's 8b)
+ROLE_WORD = {"1": "subject", "2": "friend", "3": "third", "4": "fourth"}
+SKILL_RE = re.compile(r"(small|moderate) (Farming|Building|Healing|Research|Parenting|Devotion)"
+                      r"(?: or (Farming|Building|Healing|Research|Parenting))? skill for \(name([1-4])\)")
+HEALTH_RE = re.compile(r"\(name([1-4])\) (gains health|loses a little health|loses health)")
+CELEBRATE_RE = re.compile(r"\(name([1-4])\) celebrates|everyone celebrates")
+
+
+def _general_effect(what: str) -> list[dict] | None:
+    m = SKILL_RE.fullmatch(what)
+    if m:
+        skills = [m.group(2)] + ([m.group(3)] if m.group(3) else [])
+        lo, hi = cc.SKILL_SIZES["small" if m.group(1) == "small" else "normal"]
+        return [{"do": "skill", "role": ROLE_WORD[m.group(4)], "skills": skills, "min": lo, "max": hi}]
+    m = HEALTH_RE.fullmatch(what)
+    if m:
+        role = ROLE_WORD[m.group(1)]
+        if m.group(2) == "gains health":
+            return _health(role, 1)
+        if m.group(2) == "loses a little health":
+            return _health(role, -1)
+        return [{"do": "health_change", "role": role, "min": -50, "max": -30}]
+    m = CELEBRATE_RE.fullmatch(what)
+    if m:
+        return [{"do": "celebrate", "who": ROLE_WORD[m.group(1)] if m.group(1) else "all"}]
+    for size in ("small", "normal"):
+        for kind in ("food", "tech"):
+            for sign, loss in (("gain", False), ("loss", True)):
+                if what == f"{size} {kind} {sign}" and not (size == "small" and kind == "food"):
+                    return [dict({"do": kind, "size": size, "scaled": True}, **({"loss": True} if loss else {}))]
+    return None
 
 
 # Tree of Life Supplies (draft_sup): "the village gains 2 cutting tools", "loses 1 bar of soap", "gains 1 cloth bolt"
@@ -103,7 +138,7 @@ def _supply(m: re.Match) -> dict:
             else {"do": "supply", "item": item, "min": -hi, "max": -lo})
 
 
-# Island Traders (draft_trd, cie-v6-binary.md 33): "trade 150 food for 400 tech points".
+# Island Traders (draft_trd, cie-v6-binary.md 39): "trade 150 food for 400 tech points".
 TRADE_RE = re.compile(r"trade (\d+) ([a-z ]+?) for (\d+) ([a-z ]+)")
 GOOD_WORDS = {"food": "food", "tech points": "tech", "berries": "berries", "coconuts": "coconuts", "fish": "fish",
               "collectible": "collectible", "collectibles": "collectible", "honey": "honey", "fruit": "fruit",
@@ -111,7 +146,7 @@ GOOD_WORDS = {"food": "food", "tech points": "tech", "berries": "berries", "coco
               "bars of soap": "soap"}
 
 
-# Village Moments (draft_vfx, cie-v6-binary.md 34-35): group behaviours, songs, the weather, the village.
+# Village Moments (draft_vfx, cie-v6-binary.md 40-41): group behaviours, songs, the weather, the village.
 GROUP_VERBS = {"sings": "song", "chants": "chant", "dances": "dance", "relaxes": "relax", "swims": "swim",
                "prays": "pray", "celebrates": "celebrate", "gives a speech": "speech"}
 VILLAGE_FX_RE = re.compile(
@@ -173,6 +208,9 @@ def effect_for(code: str, what: str, ann: dict) -> list[dict]:
                  "get": GOOD_WORDS[m.group(4)], "get_amount": int(m.group(3))}]
     if what in EFFECTS:
         return [dict(e) for e in EFFECTS[what]]
+    gen = _general_effect(what)
+    if gen is not None:
+        return gen
     if what == "small skill gain for (name1)":
         return [_skill("subject", ann["SKILL"].split(","))]
     raise SystemExit(f"{code}: no effect for {what!r}")
@@ -251,6 +289,11 @@ def build(ev: P.Event, ann: dict) -> tuple[dict, list[str], list[dict]]:
             fx = effect_for(ev.code, m.group(1), ann)
             ledger.append({"src": L(n), "kind": "instruction", "text": m.group(0).strip(),
                            "why": "the draft's effect, never shown: the outcome's effect"})
+            s = s[:m.start()] + s[m.end():]
+        m = SOLIDARITY_RE.search(s)
+        if m:
+            ledger.append({"src": L(n), "kind": "note", "text": m.group(0).strip(),
+                           "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"})
             s = s[:m.start()] + s[m.end():]
         if HISHERS[0] in s:
             fix = HISHERS_AT.get((sid, ev.code), HISHERS)
@@ -353,7 +396,7 @@ def build(ev: P.Event, ann: dict) -> tuple[dict, list[str], list[dict]]:
            "requirement": {"min_eligible": sum(1 for r in roles.values() if r["kind"] == "villager")},
            "roles": roles, "start": "setup", "nodes": nodes}
     if ann.get("NEED"):
-        # cie-v6-binary.md 33: offered only when the village has it (VFX-06's cloth bolt)
+        # cie-v6-binary.md 39: offered only when the village has it (VFX-06's cloth bolt)
         item, n = ann["NEED"].split("=")
         doc["requirement"]["if"] = {"has_supply": {"item": item, "min": int(n)}}
     if ann.get("WORD") == "chief":

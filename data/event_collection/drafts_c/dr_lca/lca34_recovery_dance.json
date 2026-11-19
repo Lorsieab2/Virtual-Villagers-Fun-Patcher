@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Recovery Dance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca34_recovery_dance",
+  "source": "draft_lca",
+  "lines": [
+   474,
+   485
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L474",
+  "ledger": [
+   {
+    "src": "L475",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child)"
+   },
+   {
+    "src": "L481",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L481",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L485",
+    "kind": "instruction",
+    "text": "[effect: (name2) gains health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L485",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A child has recovered from a long fever and wants a dance in their honor: hold the dance, or a quiet celebration.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) was sick with fever for most of the rainy season, and for a while the healers were very worried. Now (friend.he/she) is up and about again, thin and wobbly but grinning. (friend.He/she) has asked (subject) for a recovery dance, the kind with drums and everyone spinning. The healers say (friend.he/she) should take it easy. What should (subject) do?",
+   "src": "L477",
+   "choices": [
+    {
+     "label": "Hold the Dance",
+     "next": "o1",
+     "src": "L479"
+    },
+    {
+     "label": "A Quiet Celebration",
+     "next": "o2",
+     "src": "L483"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village holds the dance, and (friend) sits in the place of honor and claps along. (friend.He/she) dances for exactly one song before needing to sit down, and that one song is the best dance anyone has seen. (friend.He/she) falls asleep before the end, still smiling.",
+   "src": "L481",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L481"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) organizes something smaller: a few friends, a little drumming, and (friend)'s favorite food. (friend) is disappointed at first. But the next week, when (friend.he/she) is stronger, (friend.he/she) gets the big dance after all, and dances through the whole thing.",
+   "src": "L485",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 10,
+     "max": 30,
+     "src": "L485"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L485"
+    }
+   ]
+  }
+ }
+}

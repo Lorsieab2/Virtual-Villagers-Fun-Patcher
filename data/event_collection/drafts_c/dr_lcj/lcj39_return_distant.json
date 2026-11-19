@@ -1,0 +1,125 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Return From Distant Shores",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj39_return_distant",
+  "source": "draft_lcj",
+  "lines": [
+   544,
+   555
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L544",
+  "ledger": [
+   {
+    "src": "L545",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L551",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L551",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L555",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L555",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Travelers come home with new ideas that excite some and unsettle others: try the new ideas, or go slowly.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has come home after two years on a big island across the sea, full of new ideas: a different way of drying fish, a new kind of fishhook, and the custom of shaking hands. (friend) is uneasy: (subject) talks as if Isola's ways are old-fashioned. What should the village do?",
+   "src": "L547",
+   "choices": [
+    {
+     "label": "Try the New Ideas",
+     "next": "o1",
+     "src": "L549"
+    },
+    {
+     "label": "Go Slowly",
+     "next": "o2",
+     "src": "L553"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village tries the fish drying and the hooks. The hooks are excellent. The drying makes the fish taste of smoke, which half the village loves. The handshake is a disaster: everyone squeezes too hard.",
+   "src": "L551",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L551"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) suggests trying one idea at a time. The hooks first. They are excellent. By the time the village gets to the handshake, (subject) has settled back in and forgotten all about it.",
+   "src": "L555",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L555"
+    }
+   ]
+  }
+ }
+}

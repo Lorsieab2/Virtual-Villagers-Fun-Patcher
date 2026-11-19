@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Village Without Magic",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf41_village_without",
+  "source": "draft_lcf",
+  "lines": [
+   568,
+   579
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L568",
+  "ledger": [
+   {
+    "src": "L569",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L575",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L579",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L579",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager wants Isola to stop using lavastones and rely on its own hands: argue for it, or accept the village as it is.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) believes that whatever lavastones are, Isola should not depend on them: the village should grow, heal and build with its own hands, its own knowledge, its own patience. (friend) says turning down help when people are suffering is pride. Both have followers. What should (subject) do?",
+   "src": "L571",
+   "choices": [
+    {
+     "label": "Argue for It",
+     "next": "o1",
+     "src": "L573"
+    },
+    {
+     "label": "Accept the Village as It Is",
+     "next": "o2",
+     "src": "L577"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) speaks at the gathering. Many agree. Many do not. The village decides to use lavastones only when nothing else will do. It is a small change. (subject) calls it a beginning.",
+   "src": "L575"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) keeps (subject.his/her) beliefs and lives by them: (subject.he/she) never uses a stone. (subject.He/she) becomes the best ordinary healer the village has ever had. Some people say (subject.his/her) patience is its own kind of magic. (subject) does not argue.",
+   "src": "L579",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L579"
+    }
+   ]
+  }
+ }
+}

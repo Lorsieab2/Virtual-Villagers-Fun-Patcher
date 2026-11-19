@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fishing Ban and the Flood",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci36_fishing_ban",
+  "source": "draft_lci",
+  "lines": [
+   498,
+   509
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L498",
+  "ledger": [
+   {
+    "src": "L499",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a researcher and a fisher)"
+   },
+   {
+    "src": "L505",
+    "kind": "instruction",
+    "text": "[effect: small food loss; small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L505",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L509",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L509",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Researchers ask for no fishing in the breeding season, just as a flood ruins the gardens: keep the ban, or lift it for now.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has asked the village to stop fishing the lagoon for the breeding season. Then the river flooded, burying the lowland gardens in mud. (friend) says the village cannot give up the lagoon and the gardens at the same time. What should the village do?",
+   "src": "L501",
+   "choices": [
+    {
+     "label": "Keep the Ban",
+     "next": "o1",
+     "src": "L503"
+    },
+    {
+     "label": "Lift It for Now",
+     "next": "o2",
+     "src": "L507"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village keeps the ban and goes hungry for a month, sharing what little there is. The mud left by the flood turns out to be rich, and the new gardens grow fast. The lagoon is full of young fish by spring.",
+   "src": "L505",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L505"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L505"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village fishes the lagoon to get through the bad month. Nobody goes hungry. The next season, the catch is thin. (subject) asks for the ban again, and this time the village agrees.",
+   "src": "L509",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L509"
+    }
+   ]
+  }
+ }
+}

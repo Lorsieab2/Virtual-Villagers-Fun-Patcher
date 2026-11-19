@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Speech Nobody Heard",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca41_speech_nobody",
+  "source": "draft_lca",
+  "lines": [
+   572,
+   583
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L572",
+  "ledger": [
+   {
+    "src": "L573",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L579",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L583",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L583",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager gives an important speech on a very windy day and nobody hears a word: give it again, or pass it along hut by hut.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) worked for a week on (subject.his/her) speech about the new rules for the fish traps. Today (subject.he/she) gave it at the beach gathering, in a howling wind, and nobody heard a single word. Afterwards, three people congratulated (subject.him/her) on a lovely speech about fish. (friend) thinks this is very funny. What should (subject) do?",
+   "src": "L575",
+   "choices": [
+    {
+     "label": "Give It Again Tomorrow",
+     "next": "o1",
+     "src": "L577"
+    },
+    {
+     "label": "Pass It Along Hut by Hut",
+     "next": "o2",
+     "src": "L581"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) gives the speech again the next day, in the meeting hut, with the door shut. Everyone hears it this time. Halfway through, (subject) realizes the speech is much longer than (subject.he/she) remembered and nobody is enjoying it. The fish traps are fixed anyway.",
+   "src": "L579"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) offers to help, and the two of them walk from hut to hut, explaining the rules. By the twelfth hut, the speech has shrunk to two sentences and a drawing of a fish. Everyone understands it perfectly.",
+   "src": "L583",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L583"
+    }
+   ]
+  }
+ }
+}

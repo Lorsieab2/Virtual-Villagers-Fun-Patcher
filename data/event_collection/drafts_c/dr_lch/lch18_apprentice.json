@@ -1,0 +1,130 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice Who Questioned Everything",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch18_apprentice",
+  "source": "draft_lch",
+  "lines": [
+   246,
+   257
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L246",
+  "ledger": [
+   {
+    "src": "L247",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen and a builder)"
+   },
+   {
+    "src": "L253",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L253",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L257",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L257",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An apprentice asks why the builders still tie roofs the old slow way: try the new way, or explain the old one.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 35
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been watching the builders tie roof thatch, and has asked (friend) why they use the old slow knot when a faster one would do. (friend) has been tying it that way for twenty years and does not know why. What should (friend) do?",
+   "src": "L249",
+   "choices": [
+    {
+     "label": "Try the New Way",
+     "next": "o1",
+     "src": "L251"
+    },
+    {
+     "label": "Find Out Why",
+     "next": "o2",
+     "src": "L255"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They thatch one roof with the fast knot. It is done in half the time. The first big storm pulls it apart. (friend) remembers: the old knot holds in wind. (subject) is disappointed, then fascinated, and starts looking for a knot that is fast and strong.",
+   "src": "L253",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L253"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks the oldest builder, who explains: the slow knot holds in storms. (subject) asks why. Nobody knows. (subject) spends a month testing knots in the wind, and finds a knot that is nearly as strong and nearly as fast.",
+   "src": "L257",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L257"
+    }
+   ]
+  }
+ }
+}

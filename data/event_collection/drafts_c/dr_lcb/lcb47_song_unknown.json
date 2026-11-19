@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song for the Unknown Sailor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb47_song_unknown",
+  "source": "draft_lcb",
+  "lines": [
+   652,
+   663
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L652",
+  "ledger": [
+   {
+    "src": "L653",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L659",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L663",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The sea has washed up a stranger's body on the beach: bury them with the village's dead, or in a place of their own.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At dawn, (subject) found a body on the beach, a stranger from somewhere across the sea, with a carved bead necklace nobody recognizes. Nobody knows who (other.he/she) was. (friend) says the village should bury (other.him/her) in the graveyard like anyone else. (subject) wonders if (other.he/she) would want to be near the sea that brought (other.him/her). What should the village do?",
+   "src": "L655",
+   "choices": [
+    {
+     "label": "Bury the Stranger With Our Dead",
+     "next": "o1",
+     "src": "L657"
+    },
+    {
+     "label": "A Place by the Sea",
+     "next": "o2",
+     "src": "L661"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The stranger is buried in the graveyard with a song, like any villager. The bead necklace is hung on the marker. Every so often, someone leaves a flower there, and nobody knows who.",
+   "src": "L659"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village buries the stranger on the dune above the beach, facing the water. (subject) sings the song for those lost at sea. Whether anyone, somewhere, is still waiting for this person, nobody will ever know. (friend) carves a small canoe and leaves it on the grave.",
+   "src": "L663"
+  }
+ }
+}

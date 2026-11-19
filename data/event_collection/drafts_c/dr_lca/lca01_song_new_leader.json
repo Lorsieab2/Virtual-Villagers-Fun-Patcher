@@ -1,0 +1,150 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song of the New Leader",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca01_song_new_leader",
+  "source": "draft_lca",
+  "lines": [
+   8,
+   23
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L15",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L15",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L19",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L23",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L23",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village has a new leader: sing the old welcome song, write a new one, or give every family a verse.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village has chosen a new {@chief}, and tonight everyone will gather to welcome (other.him/her) with a song. The trouble is deciding which one. (subject) has sung the old welcome song for every {@chief} since (subject.he/she) was a child and does not see why anything should change. (friend) thinks a new {@chief} deserves new words, after the year the village has had. How should the village welcome its new {@chief}?",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Sing the Old Song",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Write New Words",
+     "next": "o2",
+     "src": "L17"
+    },
+    {
+     "label": "Every Family Gets a Verse",
+     "next": "o3",
+     "src": "L21"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village sings the old song, slow and deep, the way it has always been sung. Halfway through, (subject)'s voice wobbles and (subject.he/she) has to stop and wipe (subject.his/her) eyes, remembering every {@chief} (subject.he/she) has sung it for. The new {@chief} listens with (other.his/her) hand on (other.his/her) heart. Even (friend) admits it was the right song for tonight.",
+   "src": "L15",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L15"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) stays up two nights writing new words about the storms, the lean months and the people who got everyone through them. Some of the elders sing along. Some of them stand with their arms folded and sing the old words under their breath instead. The two songs clash horribly in the middle. The new {@chief} laughs and says (other.he/she) will take both.",
+   "src": "L19"
+  },
+  "o3": {
+   "name": "Outcome C",
+   "text": "Every household adds a verse. One is about fish. Three are about fish. One is mostly about a goat. By the time the last family finishes, the moon has moved halfway across the sky and the children are asleep in a heap. The new {@chief} stays awake for every single verse, and thanks each family by name.",
+   "src": "L23",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L23"
+    }
+   ]
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

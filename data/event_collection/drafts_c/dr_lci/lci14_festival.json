@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival Invented Yesterday",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci14_festival",
+  "source": "draft_lci",
+  "lines": [
+   190,
+   201
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L190",
+  "ledger": [
+   {
+    "src": "L191",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child and an elder)"
+   },
+   {
+    "src": "L197",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates; small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L197",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L201",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L201",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Children invent a new festival and insist it become a tradition: let it, or wait to see if it lasts.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and the other children have invented the Day of the Upside-Down Village: everyone does someone else's job, walks backwards to lunch, and the youngest child is {@chief} for a day. (subject) says it must happen every year from now on. (friend) says traditions are supposed to be old. What should the village do?",
+   "src": "L193",
+   "choices": [
+    {
+     "label": "Make It a Tradition",
+     "next": "o1",
+     "src": "L195"
+    },
+    {
+     "label": "Wait and See",
+     "next": "o2",
+     "src": "L199"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The Day of the Upside-Down Village is held every year. The youngest child is {@chief} for a day and bans vegetables. Everyone walks backwards to lunch. Before long, (friend) cannot remember a time without it.",
+   "src": "L197",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L197"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L197"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) says the village will hold it once and see. It is held, and loved, and held again the next year, and the next. By the fifth year, (friend) admits it has become old enough.",
+   "src": "L201",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L201"
+    }
+   ]
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

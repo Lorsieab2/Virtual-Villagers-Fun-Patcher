@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Results Belong to Everyone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch09_results_belong",
+  "source": "draft_lch",
+  "lines": [
+   120,
+   131
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L120",
+  "ledger": [
+   {
+    "src": "L121",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a researcher and a farmer)"
+   },
+   {
+    "src": "L127",
+    "kind": "instruction",
+    "text": "[effect: small tech gain; small Farming skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L127",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L131",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1); small Farming skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L131",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The researchers made a discovery but only explained it to each other: hold a public telling, or let farmers learn it by doing.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The researchers have found out that ash from the cooking fires makes the taro grow bigger. (subject) has explained it at great length to the other researchers. (friend), a farmer, only heard about it by accident, and wonders why nobody told the farmers. What should happen?",
+   "src": "L123",
+   "choices": [
+    {
+     "label": "Hold a Public Telling",
+     "next": "o1",
+     "src": "L125"
+    },
+    {
+     "label": "Learn It by Doing",
+     "next": "o2",
+     "src": "L129"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) explains it at the gathering, very badly at first, then better when (friend) starts asking questions. By the end, every farmer knows. The taro grows bigger. (subject) learns to explain things simply.",
+   "src": "L127",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L127"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L127"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) goes to the gardens and spreads ash with the farmers, showing as (subject.he/she) goes. It takes all season. The farmers teach (subject) a dozen things about soil in return.",
+   "src": "L131",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L131"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L131"
+    }
+   ]
+  }
+ }
+}

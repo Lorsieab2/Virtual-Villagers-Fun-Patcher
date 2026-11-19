@@ -1,0 +1,123 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief's Mistake",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce34_chief_mistake",
+  "source": "draft_lce",
+  "lines": [
+   470,
+   481
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L470",
+  "ledger": [
+   {
+    "src": "L471",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L477",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L481",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L481",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The leader's decision to plant in the wrong season ruined the crop: demand they step down, or help them fix it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The {@chief} insisted the village plant early this year, against the farmers' advice, and a late storm destroyed everything. (subject) is furious and wants the {@chief} to step down. (friend) points out that everyone makes mistakes, even chiefs. What should the village do?",
+   "src": "L473",
+   "choices": [
+    {
+     "label": "Ask the {@Chief} to Step Down",
+     "next": "o1",
+     "src": "L475"
+    },
+    {
+     "label": "Help Fix It",
+     "next": "o2",
+     "src": "L479"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) raises it at the gathering. The {@chief} listens, then stands and says (other.he/she) was wrong, and that the farmers should decide planting from now on. (other.He/she) does not step down. The village accepts this, narrowly.",
+   "src": "L477"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village replants together, {@chief} included, digging in the mud beside everyone else. It is a hungry season. The {@chief} never decides the planting again. (subject) is still angry, but helps.",
+   "src": "L481",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L481"
+    }
+   ]
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Song Without Words",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb14_song_without",
+  "source": "draft_lcb",
+  "lines": [
+   190,
+   201
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L190",
+  "ledger": [
+   {
+    "src": "L191",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L197",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L201",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A grieving villager cannot sing at the memorial: ask them to hum, or just let them stand quietly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the memorial for (subject)'s partner, the village sings the parting song. (subject) tries to sing and cannot. (subject.His/her) voice simply will not come. (friend), who is leading the song, can see (subject) shaking. What should (friend) do?",
+   "src": "L193",
+   "choices": [
+    {
+     "label": "Invite (subject) to Hum",
+     "next": "o1",
+     "src": "L195"
+    },
+    {
+     "label": "Let (subject) Simply Stand",
+     "next": "o2",
+     "src": "L199"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) leans over and whispers that humming counts. (subject) hums. It is barely audible, but it is there, under everyone else's voices, all the way to the end. Afterwards several people say they could hear it.",
+   "src": "L197"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) says nothing and keeps singing. (subject) stands in the circle, silent, holding the hand of the person beside (subject.him/her). That is how (subject.he/she) takes part. When the song ends, (subject.he/she) is still holding on.",
+   "src": "L201"
+  }
+ }
+}

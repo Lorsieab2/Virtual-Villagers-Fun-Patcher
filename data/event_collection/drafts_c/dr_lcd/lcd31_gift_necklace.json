@@ -1,0 +1,127 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gift of the Necklace",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd31_gift_necklace",
+  "source": "draft_lcd",
+  "lines": [
+   428,
+   439
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L435",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses a little health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L435",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L439",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L439",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager wants to give their love a necklace made of rare red shells from the far reef: dive for them, or trade for them.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) once mentioned that (friend.he/she) loved the rare red shells that only wash up on the far reef. (subject) has decided to make (friend.him/her) a necklace of them. The far reef is a long swim through rough water. A trader in the village has some red shells, for a price. What should (subject) do?",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "Dive for Them",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "Trade for Them",
+     "next": "o2",
+     "src": "L437"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) swims to the far reef and spends a whole day diving. (subject.He/she) comes back sunburned, scratched by coral and with eleven red shells. The necklace is lumpy and perfect. (friend) wears it every day, and scolds (subject) for the scratches.",
+   "src": "L435",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -10,
+     "src": "L435"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) trades a week's worth of fish for the shells. The necklace is beautiful. (friend) loves it. Later, (friend) finds out what it cost, and is so touched that (friend.he/she) goes fishing with (subject) every day for a week to make it up.",
+   "src": "L439",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L439"
+    }
+   ]
+  }
+ }
+}

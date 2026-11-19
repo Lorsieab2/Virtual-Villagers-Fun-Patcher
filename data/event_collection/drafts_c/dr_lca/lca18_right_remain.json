@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Right to Remain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca18_right_remain",
+  "source": "draft_lca",
+  "lines": [
+   250,
+   261
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L250",
+  "ledger": [
+   {
+    "src": "L251",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L257",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L261",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L261",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A powerful visitor says the village must leave its best fishing cove: stand on the beach together, or bargain.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A visitor has come from another island with a large canoe and a loud voice, and says the cove where the village fishes now belongs to (other.his/her) people, and the villagers must fish somewhere else. (subject) has fished that cove for fifty years, as did (subject.his/her) parents. (friend) is furious. What should the village do?",
+   "src": "L253",
+   "choices": [
+    {
+     "label": "Stand on the Beach Together",
+     "next": "o1",
+     "src": "L255"
+    },
+    {
+     "label": "Bargain With the Visitor",
+     "next": "o2",
+     "src": "L259"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The next morning, the whole village is standing on the beach of the cove, every man, woman and child, silent and still. The visitor looks at them for a long time. Then (other.he/she) gets back into (other.his/her) canoe and leaves. The cove stays the village's. (subject) does not speak for the rest of the day. (subject.He/she) just smiles.",
+   "src": "L257"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) negotiates. In the end, the visitor may fish the cove two days in every ten, and leaves a gift of fine rope. Some villagers think it was clever. Some think nobody should have to bargain for their own home. (subject) says nothing, but fishes the cove every one of the other eight days.",
+   "src": "L261",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L261"
+    }
+   ]
+  }
+ }
+}

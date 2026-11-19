@@ -254,9 +254,11 @@ class FrozenDraftsC(unittest.TestCase):
 
     def test_sha256_rows_and_files(self):
         data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
-        self.assertEqual(len(lib.DRAFTS_C), 11)
+        self.assertEqual(len([s for s in lib.DRAFTS_C if not s.startswith("draft_lc")]), 11)
         one_game: dict[int, set] = {}
         for sid, (topic, n, section, prefix) in lib.DRAFTS_C.items():
+            if sid.startswith("draft_lc"):
+                continue                       # Living Culture: class LivingCultureDrafts below
             with self.subTest(sid):
                 want = self.EVENTS.get(sid, 50)
                 self.assertEqual(lib.recorded_sha256(sid), lib.source_sha256(sid))
@@ -299,6 +301,39 @@ class FrozenDraftsC(unittest.TestCase):
                 found.add(doc["collection"]["id"])
                 self.assertEqual(supply_effects.missing(doc), [], p.name)
         self.assertEqual(found, set(supply_effects.SUPPLY))
+
+
+class LivingCultureDrafts(unittest.TestCase):
+    """Living Culture (the owner's concepts of 2026-11-17, drafted 2026-11-18; the owner waived review): group C files
+    "New Events - Living Culture <n> (draft for owner).txt", one series each, built by scripts/drafts_c/gen_drafts_c.py.
+    Every ending's "[Solidarity: raise|lower|neutral]" tag is a ledger note, never shown; every event logs its
+    15-point review in the annotation."""
+
+    def test_files_rows_and_tags(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        lc = {sid: v for sid, v in lib.DRAFTS_C.items() if sid.startswith("draft_lc")}
+        self.assertTrue(lc)
+        sys.path.insert(0, str(ROOT / "scripts" / "drafts_c"))
+        import drafts_c_parse as P
+        for sid, (topic, n, section, prefix) in lc.items():
+            with self.subTest(sid):
+                self.assertTrue(topic.startswith("Living Culture "))
+                self.assertEqual(lib.recorded_sha256(sid), lib.source_sha256(sid))
+                self.assertEqual(lib.SOURCES[sid][0].read_bytes().count(b"\n"), n)
+                self.assertEqual(data[sid]["uncovered_lines"], [])
+                self.assertEqual(data[sid]["overlaps"], [])
+                rows = [r for r in data["rows"] if r["source"] == sid and r["kind"] == "event"]
+                files = [p for p in cc.collection_files() if lib.DRAFTS_C_DIR / section in p.parents]
+                self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+                anns = P.read_annotations(sid)
+                for p in files:
+                    doc = json.loads(p.read_text(encoding="utf-8"))
+                    code = f"{prefix}-{p.stem[len(prefix):len(prefix) + 2]}"
+                    self.assertTrue(anns[code]["REVIEW"].startswith("15/15 pass"), code)
+                    for nd in doc["nodes"].values():
+                        self.assertNotIn("Solidarity", nd.get("text", ""), p.name)
+                    tags = [e for e in doc["collection"]["ledger"] if "Solidarity" in e.get("text", "")]
+                    self.assertTrue(all(e["kind"] == "note" for e in tags), p.name)
 
 
 class FrozenDraftsD(unittest.TestCase):

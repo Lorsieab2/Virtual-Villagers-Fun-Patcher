@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone That Crumbled",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf11_stone_crumbled",
+  "source": "draft_lcf",
+  "lines": [
+   148,
+   159
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L148",
+  "ledger": [
+   {
+    "src": "L149",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L155",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L155",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L159",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village's oldest lavastone has started to crack: use what power is left, or let it crumble in peace.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The great lavastone that the elders have kept for three generations has begun to crack, and its glow is fading. (subject) says the village should use the last of its power while it can: to heal, to grow, to wish. (friend) says it has done enough, and should be allowed to crumble in peace. What should the village do?",
+   "src": "L151",
+   "choices": [
+    {
+     "label": "Use What Is Left",
+     "next": "o1",
+     "src": "L153"
+    },
+    {
+     "label": "Let It Crumble",
+     "next": "o2",
+     "src": "L157"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The elders gather the sick and the tired and let each one hold the stone for a moment. Some feel better. Some feel nothing. One feels dizzy for a day. When the last villager lets go, the stone crumbles to warm dust. The dust is scattered on the gardens.",
+   "src": "L155",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L155"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The stone is laid on a flat rock above the sea, and the village sits with it through the night. By dawn it has crumbled to dust, glowing faintly, and the wind takes it out over the water. (friend) says it was like a farewell.",
+   "src": "L159"
+  }
+ }
+}

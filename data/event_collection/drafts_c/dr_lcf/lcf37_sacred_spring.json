@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sacred Spring",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf37_sacred_spring",
+  "source": "draft_lcf",
+  "lines": [
+   512,
+   523
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L519",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L519",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L523",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A spring some call sacred could water the new gardens: dig a channel, or leave it untouched.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Up in the hills there is a spring that (friend) and many others hold sacred: they go there to sit, think and pray. (subject) needs water for the new gardens, and the spring is the only source close enough. A channel would take half its water. What should the village do?",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Dig the Channel",
+     "next": "o1",
+     "src": "L517"
+    },
+    {
+     "label": "Leave It Untouched",
+     "next": "o2",
+     "src": "L521"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The channel is dug, carefully, taking only from the overflow. The gardens thrive. The spring is quieter. Some people stop going there to pray. (friend) still goes, and says it is not the same, and also that the gardens are beautiful.",
+   "src": "L519",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L519"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The spring is left alone. The new gardens are watered by carrying pots from the stream, a long and tiring walk. (subject) grumbles, then joins the carriers and starts to enjoy it. The spring stays as it is.",
+   "src": "L523"
+  }
+ }
+}

@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Before the Long Voyage",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca11_before_long",
+  "source": "draft_lca",
+  "lines": [
+   152,
+   163
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults and an elder)"
+   },
+   {
+    "src": "L159",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L159",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L163",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two explorers leave for a far shore at dawn: send them off with the village chant, or with a quiet farewell.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At dawn, (subject) and (friend) will paddle out beyond the reef to look for the far islands the old stories talk about. Nobody knows how long they will be gone. (third) says the whole village should chant them out, the way voyagers used to be chanted out. (subject) would rather slip away quietly, before (subject.he/she) loses (subject.his/her) nerve. How should they leave?",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Chant Them Out",
+     "next": "o1",
+     "src": "L157"
+    },
+    {
+     "label": "A Quiet Farewell",
+     "next": "o2",
+     "src": "L161"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The whole village lines the beach in the grey light, chanting, stamping, beating the sand with their palms. (subject) and (friend) paddle out through the noise, and it carries them all the way to the reef. Long after they are a dot on the water, (third) is still chanting.",
+   "src": "L159",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L159"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Only (third) comes down to the water. (third.He/she) presses a little bundle of dried fish into each of their hands and says, simply, come back. (subject) and (friend) push off into the mist. The village wakes to find them gone, and some people are hurt not to have said goodbye.",
+   "src": "L163"
+  }
+ }
+}

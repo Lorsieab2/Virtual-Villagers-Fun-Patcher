@@ -1,0 +1,127 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone Shard in the Foot",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf42_stone_shard_foot",
+  "source": "draft_lcf",
+  "lines": [
+   582,
+   593
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L582",
+  "ledger": [
+   {
+    "src": "L583",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer)"
+   },
+   {
+    "src": "L589",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses a little health; (name2) loses a little health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L589",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L593",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses a little health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L593",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager stepped on a lavastone shard on the beach: pull it out now, or wait for a master.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) stepped on something sharp on the beach and found a sliver of lavastone stuck in (subject.his/her) foot, glowing. (subject.His/her) leg is tingling up to the knee and (subject.he/she) feels light-headed. (friend), the healer, has never handled a lavastone. The village's master is a day's walk away. What should (friend) do?",
+   "src": "L585",
+   "choices": [
+    {
+     "label": "Pull It Out Now",
+     "next": "o1",
+     "src": "L587"
+    },
+    {
+     "label": "Wait for the Master",
+     "next": "o2",
+     "src": "L591"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) wraps (friend.his/her) hand in thick cloth and pulls. The shard comes out. (friend)'s arm goes numb for an hour. (subject) faints and wakes up with a foot that is perfectly healed and permanently warm. (subject.He/she) never has cold feet again.",
+   "src": "L589",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -10,
+     "src": "L589"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -10,
+     "src": "L589"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) keeps (subject) still and sends a runner. The master arrives at dawn, draws the shard out with a whispered breath and a flat stone. (subject) is dizzy for two days. The master keeps the shard.",
+   "src": "L593",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -10,
+     "src": "L593"
+    }
+   ]
+  }
+ }
+}

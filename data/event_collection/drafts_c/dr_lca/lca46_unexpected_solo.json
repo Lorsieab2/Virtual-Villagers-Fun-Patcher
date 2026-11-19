@@ -1,0 +1,106 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unexpected Solo",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca46_unexpected_solo",
+  "source": "draft_lca",
+  "lines": [
+   642,
+   653
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L642",
+  "ledger": [
+   {
+    "src": "L643",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L649",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L649",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L653",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A shy villager is caught singing beautifully alone in the forest: ask them to sing at the festival, or keep their secret.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) was gathering firewood when (friend.he/she) heard someone singing in the forest, the most beautiful voice (friend.he/she) had ever heard. It was (subject), who barely speaks at the gathering and has never sung where anyone could hear. (subject) saw (friend) and turned bright red. What should (friend) do?",
+   "src": "L645",
+   "choices": [
+    {
+     "label": "Ask (subject) to Sing at the Festival",
+     "next": "o1",
+     "src": "L647"
+    },
+    {
+     "label": "Keep (subject)'s Secret",
+     "next": "o2",
+     "src": "L651"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) asks, gently, if (subject) would sing at the festival. (subject) says no. Then, a month later, says maybe. At the festival, (subject.he/she) sings one short song with (subject.his/her) eyes shut. When (subject.he/she) opens them, the whole village is silent. Then they roar.",
+   "src": "L649",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L649"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) promises not to tell anyone, and does not. But every few days, (friend) finds a reason to gather firewood in that part of the forest, and sits on a log, and listens. (subject) knows. (subject.He/she) does not mind.",
+   "src": "L653"
+  }
+ }
+}

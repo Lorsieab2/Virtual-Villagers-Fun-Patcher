@@ -1,0 +1,130 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Words Our Children Deserve",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg18_words_our",
+  "source": "draft_lcg",
+  "lines": [
+   246,
+   257
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L246",
+  "ledger": [
+   {
+    "src": "L247",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L253",
+    "kind": "instruction",
+    "text": "[effect: small Parenting skill for (name1); small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L253",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L257",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L257",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Parents realize the children no longer know the old words: hold lessons, or let young musicians put the words in new songs.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) asked (subject.his/her) child to fetch the hoku-basket and got a blank stare. The children no longer know half the old words for everyday things. (subject) wants lessons. (friend), who plays the drums, says the children will learn faster if the old words are in new songs they actually want to sing. What should the village do?",
+   "src": "L249",
+   "choices": [
+    {
+     "label": "Hold Lessons",
+     "next": "o1",
+     "src": "L251"
+    },
+    {
+     "label": "Put Them in New Songs",
+     "next": "o2",
+     "src": "L255"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The elders hold lessons every evening. The children learn the words, slowly, and use them mostly to tease each other. But they use them.",
+   "src": "L253",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L253"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L253"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) writes new songs full of old words, fast and loud. The children sing them everywhere. Some elders complain that the songs are disrespectful. They also catch themselves humming them.",
+   "src": "L257",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L257"
+    }
+   ]
+  }
+ }
+}

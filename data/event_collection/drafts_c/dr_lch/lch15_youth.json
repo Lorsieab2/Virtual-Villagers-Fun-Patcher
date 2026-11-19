@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Youth Declaration",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch15_youth",
+  "source": "draft_lch",
+  "lines": [
+   204,
+   215
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L204",
+  "ledger": [
+   {
+    "src": "L205",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two teens)"
+   },
+   {
+    "src": "L211",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L215",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Teens write a speech about the island they want to inherit: ask for promises, or ask for one thing done now.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have written a declaration about the Isola they want to inherit: clean streams, full reefs, a say in the gathering, and fewer rules about bedtimes. They will read it at the full moon. The question is what to ask the adults for at the end. What should they ask?",
+   "src": "L207",
+   "choices": [
+    {
+     "label": "Ask for Promises",
+     "next": "o1",
+     "src": "L209"
+    },
+    {
+     "label": "Ask for One Thing Now",
+     "next": "o2",
+     "src": "L213"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The adults promise everything. Some promises are kept. Some are quietly forgotten. The teens write them all down and read the list out again a year later, to great embarrassment. Several more promises are kept after that.",
+   "src": "L211"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The teens ask for one thing, now: a seat at the gathering. The adults are caught off guard and agree. At the next gathering, (subject) takes the seat and starts with the stream.",
+   "src": "L215"
+  }
+ }
+}

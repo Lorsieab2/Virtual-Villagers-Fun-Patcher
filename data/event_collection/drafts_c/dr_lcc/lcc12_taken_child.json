@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Taken Child Returns",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc12_taken_child",
+  "source": "draft_lcc",
+  "lines": [
+   162,
+   173
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L162",
+  "ledger": [
+   {
+    "src": "L163",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L169",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L173",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A grown stranger arrives saying raiders took them from Isola as a child: welcome them home, or wait for proof.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A stranger has come ashore, a grown adult with Isola's way of speaking under an accent nobody knows. (other.He/she) says that raiders took (other.him/her) from this beach as a small child, long ago, and that (other.he/she) has finally found the way home. (subject) remembers a child who was lost that year. (friend) thinks it could be a trick. What should the village do?",
+   "src": "L165",
+   "choices": [
+    {
+     "label": "Welcome Them Home",
+     "next": "o1",
+     "src": "L167"
+    },
+    {
+     "label": "Wait for Proof",
+     "next": "o2",
+     "src": "L171"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) asks a single question about a song only that family sang, and the stranger sings it back, very quietly. (subject) holds (other.him/her) for a long time. The stranger does not talk about the years away, and nobody asks. A hut is built for (other.him/her) by the end of the month.",
+   "src": "L169"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks the stranger to stay at the edge of the village until they are sure. The stranger agrees, looking very tired. The proof comes slowly, in small things: a scar, a word, a way of tying knots. By the end of the season, everyone is sure. (friend) apologizes. The stranger says (other.he/she) understands.",
+   "src": "L173"
+  }
+ }
+}

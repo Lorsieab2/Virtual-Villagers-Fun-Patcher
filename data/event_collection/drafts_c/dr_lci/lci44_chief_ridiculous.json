@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief's Ridiculous Portrait",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci44_chief_ridiculous",
+  "source": "draft_lci",
+  "lines": [
+   610,
+   621
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L610",
+  "ledger": [
+   {
+    "src": "L611",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an artist)"
+   },
+   {
+    "src": "L617",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L617",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L621",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An artist paints a hilariously exaggerated portrait of the leader: show it, or paint over it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) has painted a portrait of the {@chief} on the meeting hut wall. The {@chief}'s nose is enormous, the {@chief} is riding a fish, and the fish looks worried. The village cannot stop laughing. The {@chief} has not seen it yet. What should (name1) do?",
+   "src": "L613",
+   "choices": [
+    {
+     "label": "Show the {@Chief}",
+     "next": "o1",
+     "src": "L615"
+    },
+    {
+     "label": "Paint Over It",
+     "next": "o2",
+     "src": "L619"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The {@chief} looks at it for a long time. The village holds its breath. Then the {@chief} bursts out laughing, has to sit down, and asks (name1) to add a hat. The painting stays for years.",
+   "src": "L617",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L617"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) panics and paints over it before the {@chief} sees. But everyone describes it to the {@chief} anyway, in great detail. The {@chief} asks (name1) to paint it again, please, with the fish looking even more worried.",
+   "src": "L621"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Long Engagement",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd47_long_engagement",
+  "source": "draft_lcd",
+  "lines": [
+   652,
+   663
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L652",
+  "ledger": [
+   {
+    "src": "L653",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L659",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates; (name2) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L659",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L663",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A couple has been engaged for three years and keeps putting the wedding off: set a date, or stop worrying about it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been engaged for three years. Every time they plan the wedding, something comes up: a storm, a sick relative, a very good fishing season. The village has started making jokes. (subject) is starting to wonder if they will ever get married. What should they do?",
+   "src": "L655",
+   "choices": [
+    {
+     "label": "Set a Date",
+     "next": "o1",
+     "src": "L657"
+    },
+    {
+     "label": "Stop Worrying",
+     "next": "o2",
+     "src": "L661"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) picks a day, carves it into the doorpost, and refuses to change it. A storm comes that day. They get married anyway, under the meeting hut roof, while the wind howls. They say it was the right day after all.",
+   "src": "L659",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L659"
+    },
+    {
+     "do": "celebrate",
+     "who": "friend",
+     "src": "L659"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) talk, and realize they are happy as they are. The wedding can come when it comes. The village keeps joking. (subject) and (friend) start joking back. They marry five years later, on a whim, on an ordinary afternoon.",
+   "src": "L663"
+  }
+ }
+}

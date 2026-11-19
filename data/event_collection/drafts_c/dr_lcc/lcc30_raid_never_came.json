@@ -1,0 +1,107 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Raid That Never Came",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc30_raid_never_came",
+  "source": "draft_lcc",
+  "lines": [
+   414,
+   425
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L414",
+  "ledger": [
+   {
+    "src": "L415",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L421",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L425",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L425",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A whole season of watches and drills, and the raiders never came: keep the watch, or go back to normal life.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For a whole season, the village has kept watch, drilled its warriors and stocked the caves. The raiders never came. (subject) thinks they have gone for good, and wants the village to go back to normal: fishing, farming, festivals. (friend) thinks that is exactly what the raiders are waiting for. What should the village do?",
+   "src": "L417",
+   "choices": [
+    {
+     "label": "Keep the Watch",
+     "next": "o1",
+     "src": "L419"
+    },
+    {
+     "label": "Back to Normal Life",
+     "next": "o2",
+     "src": "L423"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village keeps the watch, but lighter: one lookout instead of three, drills once a moon instead of every day. Life goes back to almost normal. Every so often, someone on watch sees a strange canoe on the horizon, and it always turns out to be nothing. So far.",
+   "src": "L421"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village stops the watch and holds the biggest festival anyone can remember. (friend) goes to the headland alone every evening anyway, and sits there until dark. Nobody tells (friend.him/her) to stop.",
+   "src": "L425",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L425"
+    }
+   ]
+  }
+ }
+}

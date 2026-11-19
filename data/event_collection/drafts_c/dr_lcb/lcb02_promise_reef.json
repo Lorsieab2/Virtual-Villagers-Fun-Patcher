@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Promise to the Reef",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb02_promise_reef",
+  "source": "draft_lcb",
+  "lines": [
+   22,
+   33
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L22",
+  "ledger": [
+   {
+    "src": "L23",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L29",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L29",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L33",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Part of the reef is dying: promise not to fish it for a season, or keep fishing it carefully.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been diving at the eastern reef, and something is wrong: the coral is pale and broken, and the young fish are gone. (subject.He/she) wants the village to promise not to fish there for a whole season. (friend)'s family fishes nowhere else, and (friend) has three children to feed. What should the village decide?",
+   "src": "L25",
+   "choices": [
+    {
+     "label": "Make the Promise",
+     "next": "o1",
+     "src": "L27"
+    },
+    {
+     "label": "Keep Fishing, Carefully",
+     "next": "o2",
+     "src": "L31"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village gathers on the beach and makes the reef promise: no nets, no spears, no hooks until the next rains. (friend)'s family is given fish from the other crews to make up the difference, which some of them resent. By the end of the season, (subject) swears the coral looks a little brighter. Nobody is sure.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L29"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village agrees to keep fishing the eastern reef, but only with hand lines, and only half the days. (friend) is relieved. (subject) is not satisfied, and keeps diving to check. The coral does not get worse. It does not get better either.",
+   "src": "L33"
+  }
+ }
+}

@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Map Drawn Without Us",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg20_map_drawn",
+  "source": "draft_lcg",
+  "lines": [
+   274,
+   285
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L274",
+  "ledger": [
+   {
+    "src": "L275",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a researcher and an elder)"
+   },
+   {
+    "src": "L281",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1); small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L281",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L285",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Visitors left a map of Isola with all the wrong names: make a map of the village's own, or tell the island's story aloud.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Visitors who passed through last year have sent back a map of Isola as a gift. The beaches have strange new names, the sacred spring is called \"Pool\", and the village itself is not on it. (subject) wants to make the village's own map. (friend) says the island's names have always lived in songs, not on bark. What should they do?",
+   "src": "L277",
+   "choices": [
+    {
+     "label": "Make Our Own Map",
+     "next": "o1",
+     "src": "L279"
+    },
+    {
+     "label": "Tell the Island Aloud",
+     "next": "o2",
+     "src": "L283"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) and the navigators make a map with every real name: Turtle's Back, the Weeping Rocks, Grandmother's Elbow. It takes months. The visitors' map is used to wrap fish.",
+   "src": "L281",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L281"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L281"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) holds a night of naming: every place, every story behind its name, told around the fire. The children try to remember them all. (subject) secretly writes them down anyway, for safekeeping.",
+   "src": "L285"
+  }
+ }
+}
