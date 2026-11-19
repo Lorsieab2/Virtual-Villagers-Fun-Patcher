@@ -89,6 +89,8 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Fix Vanilla Bugs (all five games): the games' own text fixes -- the owner's approved typos, and the Food Mastery
        tech's Level 2 line (The Tree of Life, New Believers). */
     "VVFP Text Fixes.dll",
+    /* Fix Vanilla Bugs (The Tree of Life): after The Frog Rescue the frogs leap all along the river's blue water. */
+    "VVFP VV4 Frogs.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

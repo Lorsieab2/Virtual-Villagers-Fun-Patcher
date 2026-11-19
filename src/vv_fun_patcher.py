@@ -13274,6 +13274,8 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Fix Vanilla Bugs (all five games): the games' own text fixes -- the owner's approved typos, and the Food Mastery
     # tech's Level 2 line (The Tree of Life, New Believers).
     "VVFP Text Fixes.dll",
+    # Fix Vanilla Bugs (The Tree of Life): after The Frog Rescue the frogs leap all along the river's blue water.
+    "VVFP VV4 Frogs.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

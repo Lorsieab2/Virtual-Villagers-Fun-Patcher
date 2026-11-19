@@ -520,13 +520,13 @@
     {
       "ids": ["vv4_fix_vanilla_bugs"],
       "guide": [
-        "Fixes a bug in the original game: a village with exactly 150 villagers can be saved and loaded again.",
-        "A village already damaged by that bug is repaired when it is loaded.",
+        "Fixes a bug in the original game: a village with exactly 150 villagers can be saved and loaded again, and one already damaged that way is repaired when loaded.",
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Unpausing at another speed gives the Fire Pit that speed's length. Nursery School lessons no longer always pick Building on a tie.",
         "Rain can no longer crash the game, and the Overview Map's water (rivers, waterfalls and their animations) lines up with its riverbeds.",
+        "After The Frog Rescue, frogs leap all along the river's blue water around the island, never on grass or the ladder, as often as in the original game.",
         "The 150-villager fix only matters with a bigger population mode or 256 Villagers. On by default."
       ]
     },
