@@ -11,7 +11,7 @@
     "vv4_builders_fix_huts"
   ],
   "behavior_changes": [
-    "Whenever the adult scheduler (or the catch-up worker's pick dispatch, 0x465827 returning to 0x46582C) asks the work dispatcher to start a job, for a villager whose selected job is Farming, Research, Healing or Building (Farming 0, Parenting 1, Healing 2, Research 3, Building 4), the dispatcher is first asked for that villager's own job; if that starts something the caller sees it started, and if there is nothing of theirs to do the caller's own request runs unchanged. Parenting is never put first. Research never displaces a Farming request.",
+    "Whenever the adult scheduler (or the catch-up worker's pick dispatch, 0x465827 returning to 0x46582C) asks the work dispatcher to start a job, for a villager whose selected job is Farming, Research, Healing or Building (Farming 0, Parenting 1, Healing 2, Research 3, Building 4), the dispatcher is first asked for that villager's own job; if that starts something the caller sees it started, and if there is nothing of theirs to do the caller's own request runs unchanged. Parenting is never put first, and a request for Parenting (the game's own embrace attempt) is never displaced: it runs unchanged. Research never displaces a Farming request.",
     "About three times in four, not always: the companion asks the decision's roll that Builders Fix Huts When Idle draws once per choice of the idle scheduler and once per run of the catch-up worker (VvfpFixHutsRoll, handed over through VvfpWorkFirstSetRoll, or looked up by module name in The Secret City); when it fails, the caller's own request runs alone, exactly as the stock game.",
     "Builders never start a project nobody was dropped on: a builder is put first only while the Building case offers no puzzle work it can start by itself: the stream (0x430FD0 on 0x4D8CF0 between 1 and 97) while The Stream (project 1) is unsolved, the piers (0x4396D0 on 0x4D86A8 below 2 and 0x421570 below 100), the rubble (0x4396D0 on 0x4D8720 at 0 and [0x4D8A8C] below 100). Its construction only continues projects above 0%.",
     "Only above skill 5 (the owner, 2026-11-18): a villager is never put first while their skill in that job is 5 or less, as every game's job picker never sends them (its own gate, cmp esi, 5).",
@@ -30,7 +30,7 @@
     {
       "source": "assets/work_first/VVFP Work First.dll",
       "destination": "VVFP Work First.dll",
-      "sha256": "9BB73952BF578E53139D161DA909DA79833839F670CB7A9CE75736399169DC5A"
+      "sha256": "CB54111312C2B034CCDE9B34E5C136C137665A343F37DB47382ADBAB95959637"
     }
   ],
   "patches": [],
