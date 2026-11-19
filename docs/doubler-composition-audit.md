@@ -90,14 +90,15 @@ Duplicate Collectibles tech-point gain is now doubled (the owner's scope).
   Pit bonus (`0x468AAB`). Its stubs push the stock return (`0x464578`,
   `0x468AB7`) and jump to `0x41D920`, so the writer sees the stock return and
   the fruit is doubled exactly like the stock call.
-- **VVFP VV4 Cloth Sacks.dll** (#794, not merged when this was written) pays
-  the sack's fruit by calling `0x41D920` from inside the DLL, so the return
-  address is the DLL's and the whitelist does not double it. Hook point for
-  that PR: before its `0x41D920` call, double the positive amount `n` once
-  when bit 1 of the ownership word `dword [0x4D6E10]` is set (VV4 keeps the
-  Food Doubler's ownership there; it is zero when Origins is not installed).
-  That doubles before Food Mastery, which differs from the wrapper's
-  after-mastery doubling by at most one food at Food Mastery level 2.
+- **VVFP VV4 Cloth Sacks.dll** (#794) does not call `0x41D920` itself. It
+  pays the sack through the cutting-tool harvest's own credit: it runs job
+  event 14 (`0x4644EE`) on the fruit, so the food writer is reached from the
+  stock call that returns at `0x464510` (cutting-tool berries), which is on
+  the VV4 whitelist above. The sack is therefore doubled exactly like a
+  cutting-tool harvest: once, after Food Mastery, and only when the Food
+  Doubler is owned. No separate hook is needed (#794's test
+  `test_the_sack_is_paid_from_the_cutting_tool_harvests_own_writer_call`
+  checks the return address is `0x464510`, called once).
 
 ## Food Mastery status by exact build
 
