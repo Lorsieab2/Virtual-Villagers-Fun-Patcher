@@ -264,7 +264,15 @@ enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, 
        CGC_HARMABLE = 9, CGC_SPECIAL_PRESENT = 10, CGC_MIN_POPULATION = 11, CGC_MIN_CHILDREN = 12,
        /* cie-v6-binary.md 8: a bound villager's facts, and a pool instance's draw */
        CGC_AGE = 13, CGC_SKILL_AT_LEAST = 14, CGC_HAS_LIVING_CHILD = 15, CGC_DREW = 16,
-       CGC_HAS_DEAD_RELATIVE = 17 };  /* cie-v6-binary.md 21a */
+       CGC_HAS_DEAD_RELATIVE = 17,    /* cie-v6-binary.md 21a */
+       CGC_IS_SPECIAL = 18 };         /* 35: the role's villager is the game's special one (the Golden Child,
+                                         The Secret City's Tribal Chief) */
+/* A role's byte 9 (cie-v6-binary.md 2): 1-3 the role MUST be that villager; 4 and 5 (35) the role PREFERS it: when
+   the Golden Child (4) or the Tribal Chief (5) may take the role, they are cast; else any villager the role takes. */
+enum { CG_SPECIAL_GOLDEN = 1, CG_SPECIAL_CHIEF = 2, CG_SPECIAL_NURSING = 3, CG_PREFER_GOLDEN = 4,
+       CG_PREFER_CHIEF = 5 };
+#define CG_POOL_DISTINCT 1u           /* a pool's flags: distinct (cie-v6-binary.md 4) */
+#define CG_POOL_LINKED 2u             /* ... 35: a linked pool draws the item number a linked pool drew first */
 enum { CG_ROLE_VILLAGER = 0, CG_ROLE_STRANGER = 1, CG_ROLE_ALIAS = 2,
        CG_ROLE_OTHER = 3 };            /* G2: the member of a two-member alias that the alias did not draw */
 #define CG_POOL_TRIBE (-2)            /* G5: {@tribe}, built in (no pool): the tribe's name at run time */
@@ -311,7 +319,9 @@ enum { CG_PH_NAME = 0, CG_PH_HE, CG_PH_HIS, CG_PH_HIM, CG_PH_MAN, CG_PH_AWARD, C
        /* role-sex words (cie-v6-binary.md 5) */
        CG_PH_MOTHER, CG_PH_FATHER, CG_PH_MOM, CG_PH_SISTER, CG_PH_AUNT, CG_PH_GIRL, CG_PH_LADY,
        /* the standalone possessive (the owner's files, 2026-11-16): "his" / "hers" */
-       CG_PH_HIS_HERS };
+       CG_PH_HIS_HERS,
+       /* 35: the chief's title "headman" / "headwoman" */
+       CG_PH_HEADMAN };
 enum { CG_EXPAND_AWARD = 0, CG_EXPAND_WORST = 1, CG_EXPAND_REAL = 2 };
 
 /* ---- The .cieg (src/vv_cie_graph.py THE BINARY .cieg) ----------------------------------------------------- */
@@ -604,8 +614,8 @@ static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph) 
     static const char *const WORDS[] = { "name", "he/she", "his/her", "him/her", "man/woman", "award", "award_unit",
                                          "himself/herself", "woman/man", "boy/girl", "son/daughter",
                                          "mother/father", "father/mother", "mom/dad", "sister/brother", "aunt/uncle",
-                                         "girl/boy", "lady/gentleman", "his/hers" };
-    int words = g->version >= 6 ? 19 : 7;
+                                         "girl/boy", "lady/gentleman", "his/hers", "headman/headwoman" };
+    int words = g->version >= 6 ? 20 : 7;
     int dot = -1;
     int i;
     int role = -1;
@@ -1015,7 +1025,8 @@ static int cg_pools_ok(const cg_graph *g) {
         const unsigned char *p = cg_pool_at(g, i);
         unsigned int first = cg_u16(p + 2), count = cg_u16(p + 4);
         if (!cg_str_ok(g, cg_u16(p), 0) || cg_s(g, cg_u16(p))[0] == '\0' || count < 1u
-            || first + count > (unsigned int)g->n_item || p[6] > 1u || p[7] != 0u
+            || first + count > (unsigned int)g->n_item || (p[6] & ~(CG_POOL_DISTINCT | CG_POOL_LINKED)) != 0u
+            || p[7] != 0u
             || !cg_str_ok(g, cg_u16(p + 8), 1) || cg_u16(p + 10) != 0u) {
             return cg_bad("a pool is not one this game can read");
         }
@@ -1226,7 +1237,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             /* Version 6: max age, the special villager, the skill requirement and its pick; an alias's members (other
                villager roles), and nothing else on an alias. */
             unsigned int members = cg_u16(r + 14);
-            if ((r[8] != 0 && (r[8] > 120u || r[8] < r[3])) || r[9] > 3u || !cg_str_ok(g, cg_u16(r + 10), 1)
+            if ((r[8] != 0 && (r[8] > 120u || r[8] < r[3])) || r[9] > CG_PREFER_CHIEF || !cg_str_ok(g, cg_u16(r + 10), 1)
                 || (r[13] & ~(CG_ROLE_SPEAKS | CG_ROLE_HEATHEN)) > 1u || r[12] > 100u) {
                 return cg_bad("a role's requirement is not one this game can read");
             }
@@ -1322,7 +1333,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             ok = g->version >= 6 && (int)a < g->n_role && cg_u16(c + 4) >= 1u && cg_u16(c + 4) <= 100u
                  && cg_str_ok(g, cg_u16(c + 6), 0);
             break;
-        case CGC_HAS_LIVING_CHILD: case CGC_HAS_DEAD_RELATIVE: ok = g->version >= 6 && (int)a < g->n_role; break;
+        case CGC_HAS_LIVING_CHILD: case CGC_HAS_DEAD_RELATIVE: case CGC_IS_SPECIAL:
+            ok = g->version >= 6 && (int)a < g->n_role;
+            break;
         case CGC_DREW:
             ok = g->version >= 6 && (int)a < g->n_pool && cg_u16(c + 4) >= 1u && cg_u16(c + 4) <= CG_MAX_INSTANCE
                  && cg_u16(c + 6) < cg_u16(cg_pool_at(g, (int)a) + 4);
@@ -1669,6 +1682,10 @@ typedef struct {
        carrier roles whose partner carries instead (28 / 29 CG_FX_PARTNER_MAY_CARRY, decided once at the cast,
        cg_partner_carry_decide: the two roles' villagers swapped, so every page names who carries). */
     unsigned int carry_swapped;
+    /* Run file version 6 (cie-v6-binary.md 35), after everything version 5 kept: each role's words' sex (cg.female)
+       just before display k's effects were made, restored with identity_at when a quit rewinds to that page (a
+       version 2-5 file is read with every display holding its cg.female). */
+    unsigned char female_at[CG_MAX_DISPLAYS][CG_MAX_ROLES];
 } cg_state;
 
 
@@ -1892,6 +1909,13 @@ static int cg_heathen(int game, const unsigned char *r) {
 static int cg_no_safeguards(int game);
 static int cg_ns_cast(int game);
 
+/* Record `r` is the game's special villager a role may prefer (35): the Golden Child in A New Home, the Tribal Chief
+   in The Secret City -- by the game's own kind, whatever No Safeguards says. */
+static int cg_special_kind(const ce_adapter *a, int game, const unsigned char *r) {
+    int kind = ce_role(a, r, NULL);
+    return (game == 1 && kind == STORY_KIND_GOLDEN_CHILD) || (game == 3 && kind == STORY_KIND_TRIBAL_CHIEF);
+}
+
 static int cg_special(const ce_adapter *a, int game, const unsigned char *r) {
     int kind = ce_role(a, r, NULL);
     if (cg_ns_cast(game)) {
@@ -2020,6 +2044,42 @@ static int cg_born_female(int game, const unsigned char *r, int index) {
     dll = GetModuleHandleA(VVFP_GP_DLL);
     born = dll != NULL ? (vvfp_gp_born_female_fn)(void *)GetProcAddress(dll, "VvfpBornFemale") : NULL;
     return born != NULL ? born(game, r) == 1 : vv_sex_born_female_by_log(game, r);
+}
+
+#ifdef VVFP_TEST
+/* The gender presentation as the test build's words see it (35): -1 the real one; else bit i set: record i is drawn
+   with the other sex's look. */
+static int test_graph_presented = -1;
+#endif
+
+/* 35: the villager in record `r` (index `index`) is drawn with the other sex's look ("VVFP Gender Presentation.dll";
+   without it, never). */
+static int cg_presented_other(int game, const unsigned char *r, int index) {
+    vvfp_gp_api api;
+#ifdef VVFP_TEST
+    if (test_graph_presented >= 0) {
+        return index >= 0 && index < 31 && (test_graph_presented & (1 << index)) != 0;
+    }
+#endif
+    (void)index;
+    return r != NULL && vvfp_gp_find(game, &api) && api.get(game, r) == 1;
+}
+
+static int cg_carrier_role(int role);
+
+/* 35: whether role `role`'s words (pronouns, role-sex words) are a woman's, for the villager in record `r`: the sex
+   the game records -- and for a carrier (a nursing_parent role, or one a baby_lost effect names) and a role that is
+   or prefers The Secret City's Tribal Chief (the chief's title "headman" / "headwoman"), the sex they are drawn as
+   with Gender Presentation (the owner, 2026-11-16: parent words follow Gender Presentation; without it, the recorded
+   sex). */
+static int cg_word_female(const ce_adapter *a, int game, int role, const unsigned char *r, int index) {
+    const unsigned char *spec = cg_role_at(&cg_g, role);
+    int female = ce_sex(a, r) == STORY_SEX_FEMALE;
+    if (cg_g.version >= 6 && (cg_carrier_role(role) || spec[9] == CG_SPECIAL_CHIEF || spec[9] == CG_PREFER_CHIEF)
+        && cg_presented_other(game, r, index)) {
+        female = !female;
+    }
+    return female;
 }
 
 /* Is `role` the one a presentation effect names (cie-v6-binary.md 31)?  Such a role never casts the Golden Child,
@@ -3131,12 +3191,26 @@ static int cg_bind(int game) {
             }
             n = m;
         }
+        if (cg_g.version >= 6 && (spec[9] == CG_PREFER_GOLDEN || spec[9] == CG_PREFER_CHIEF)) {
+            /* 35: the role prefers the Golden Child / the Tribal Chief: cast when they may take it (only one of
+               them lives, so no roll), else any villager the role takes. */
+            int m = 0;
+            for (i = 0; i < n; ++i) {
+                if (cg_special_kind(a, game, a->record(candidates[i]))
+                    && (game == 1) == (spec[9] == CG_PREFER_GOLDEN)) {
+                    candidates[m++] = candidates[i];
+                }
+            }
+            if (m > 0) {
+                n = m;
+            }
+        }
         pick = candidates[ce_random_below(a, n)];
         used[pick] = 1;
         cg_try[r] = pick;
         cg.record[r] = pick;
         cg.identity[r] = ce_identity(a, a->record(pick));
-        cg.female[r] = ce_sex(a, a->record(pick)) == STORY_SEX_FEMALE;
+        cg.female[r] = cg_word_female(a, game, r, a->record(pick), pick);
         ce_copy_name(cg.name[r], CG_NAME_BYTES, a->record(pick) + a->off_name, a->name_bytes);
         cg.bound |= 1u << r;
     }
@@ -3254,6 +3328,10 @@ static int cg_role_fact(const unsigned char *c, int game) {
     if (c[0] == CGC_SKILL_AT_LEAST) {
         return cg_skill_value(a, r, cg_s(&cg_g, cg_u16(c + 6))) >= (int)cg_u16(c + 4);
     }
+    if (c[0] == CGC_IS_SPECIAL) {
+        /* 35: the Golden Child (A New Home) or The Secret City's Tribal Chief, by the game's own kind */
+        return cg_special_kind(a, game, r);
+    }
     if (c[0] == CGC_HAS_DEAD_RELATIVE) {
         cg_kin_read(a, game);
         return cg_dead_relative(game, cg.record[cg_resolve_role(role)]);
@@ -3315,6 +3393,7 @@ static int cg_holds_cond(int i, int game, int depth) {
     case CGC_MIN_POPULATION: return cg_population(game, 0) >= (int)a;
     case CGC_MIN_CHILDREN: return cg_population(game, 1) >= (int)a;
     case CGC_AGE: case CGC_SKILL_AT_LEAST: case CGC_HAS_LIVING_CHILD: case CGC_HAS_DEAD_RELATIVE:
+    case CGC_IS_SPECIAL:
         return cg_role_fact(c, game);
     case CGC_DREW: {
         const cg_pick *pick = cg_find_pick((int)a, (int)cg_u16(c + 4));
@@ -3676,6 +3755,22 @@ static int cg_item_taken(int pool, int item) {
 
 static void cg_scan_pools(const ce_adapter *a, int game, const char *text, int depth);
 
+/* 35: the item number the first linked pool drawn so far (the path's picks, then the segment's) drew, or -1. */
+static int cg_linked_item(void) {
+    int i;
+    for (i = 0; i < cg.pick_count && i < CG_MAX_PICKS; ++i) {
+        if ((cg_pool_at(&cg_g, cg.picks[i].pool)[6] & CG_POOL_LINKED) && cg.picks[i].item != CG_NONE) {
+            return (int)cg.picks[i].item;
+        }
+    }
+    for (i = 0; cg_seg_pk != NULL && i < *cg_seg_pk_count; ++i) {
+        if ((cg_pool_at(&cg_g, cg_seg_pk[i].pool)[6] & CG_POOL_LINKED) && cg_seg_pk[i].item != CG_NONE) {
+            return (int)cg_seg_pk[i].item;
+        }
+    }
+    return -1;
+}
+
 /* G3: whether `text` is the text of an item drawn so far (the path and the segment) by an instance of a pool that
    `list` names (comma separated). */
 static int cg_pick_text_is(const cg_pick *k, const char *list, const char *text) {
@@ -3724,7 +3819,15 @@ static void cg_draw_instance(const ce_adapter *a, int game, int pool, int instan
     if (depth > CG_POOL_DEPTH || cg_find_pick(pool, instance) != NULL) {
         return;
     }
-    for (pass = 0; pass < 2 && n == 0; ++pass) {
+    if (p[6] & CG_POOL_LINKED) {
+        /* 35: the item number the first linked pool drawn on the run drew (the chief's one title on every page and
+           after a resume), with no roll and no condition asked again */
+        int linked = cg_linked_item();
+        if (linked >= 0 && linked < count) {
+            item = linked;
+        }
+    }
+    for (pass = item != (int)CG_NONE ? 2 : 0; pass < 2 && n == 0; ++pass) {
         total = 0;
         for (k = 0; k < count && n < 1024; ++k) {
             const unsigned char *it = cg_item_at(&cg_g, first + k);
@@ -3865,11 +3968,11 @@ static void cg_path_add(const cg_history *s, const cg_pick *picks, int count) {
 
 /* The pronouns, (male, female): he/she .. man/woman, then version 6's himself/herself, woman/man, boy/girl,
    son/daughter. */
-static const char *const CG_PRONOUNS[16][2] = {
+static const char *const CG_PRONOUNS[17][2] = {
     { "he", "she" }, { "his", "her" }, { "him", "her" }, { "man", "woman" },
     { "himself", "herself" }, { "man", "woman" }, { "boy", "girl" }, { "son", "daughter" },
     { "father", "mother" }, { "father", "mother" }, { "dad", "mom" }, { "brother", "sister" }, { "uncle", "aunt" },
-    { "boy", "girl" }, { "gentleman", "lady" }, { "his", "hers" } };
+    { "boy", "girl" }, { "gentleman", "lady" }, { "his", "hers" }, { "headman", "headwoman" } };
 
 static const char *const *cg_pronoun(int what) {
     return CG_PRONOUNS[what <= CG_PH_MAN ? what - CG_PH_HE : what - CG_PH_HIMSELF + 4];
@@ -4337,6 +4440,40 @@ static void cg_title_case(char *title) {
     }
 }
 
+/* 35: the words of a role a sex_change or presentation effect names follow the change on the pages after it.  The
+   pages are laid out (and their names filled) before the effects are made, so while cg_late_keep is set those words
+   are kept in the page between \1 and \2, and cg_late_fill puts them in as each page is shown: the role's words as
+   they were before the change on the page that makes it and the pages before, cg.female's after. */
+static int cg_late_keep;
+static unsigned int cg_late_mask;
+static int cg_late_was[CG_MAX_ROLES];
+static int cg_late_at[CG_MAX_ROLES];       /* 1 + the display that changed the role's words (0: none yet) */
+
+/* The roles whose words an effect of the graph may change: those a sex_change or presentation effect names (an
+   alias or other role: its members too). */
+static unsigned int cg_late_roles(void) {
+    unsigned int mask = 0;
+    int i;
+    for (i = 0; cg_g.d != NULL && cg_g.version >= 6 && i < cg_g.n_effect; ++i) {
+        const unsigned char *e = cg_effect_at(&cg_g, i);
+        if ((e[0] == CGE_SEX_CHANGE || e[0] == CGE_PRESENTATION) && e[1] < (unsigned int)cg_g.n_role) {
+            const unsigned char *spec = cg_role_at(&cg_g, e[1]);
+            unsigned int m = cg_u16(spec + 14);
+            mask |= 1u << e[1];
+            if (spec[0] == CG_ROLE_OTHER) {
+                int al;
+                for (al = 0; al < cg_g.n_role && m != (1u << al); ++al) {
+                }
+                m = al < cg_g.n_role ? cg_u16(cg_role_at(&cg_g, al) + 14) : 0u;
+            }
+            if (spec[0] >= CG_ROLE_ALIAS) {
+                mask |= m;
+            }
+        }
+    }
+    return mask;
+}
+
 static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_room, int award_kind, int award,
                         int depth) {
     static char cased[CG_POOL_DEPTH + 2][CG_RAW_BYTES];
@@ -4481,6 +4618,23 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
             continue;
         }
         role = ph.role >= 0 ? cg_resolve_role(ph.role) : -1;     /* an alias: its member drawn */
+        if (cg_late_keep && mode == CG_EXPAND_REAL && role >= 0 && role < CG_MAX_ROLES && ph.what != CG_PH_NAME
+            && ph.what != CG_PH_AWARD && ph.what != CG_PH_UNIT && ((cg_late_mask >> role) & 1u)) {
+            /* 35: a word of a role whose sex or presentation an effect changes: kept (between \1 and \2, out of
+               the glyph fallback's way) for the page's pass after its effects are made (cg_late_fill) */
+            const char *t;
+            if (o < cap - 1) {
+                out[o++] = '\x01';
+            }
+            for (t = s + 1; t < e && o < cap - 1; ++t) {
+                out[o++] = *t;
+            }
+            if (o < cap - 1) {
+                out[o++] = '\x02';
+            }
+            s = e + 1;
+            continue;
+        }
         if (ph.what == CG_PH_AWARD) {
             if (award_kind >= 0) {
                 wsprintfA(word, "%d", award);
@@ -4923,6 +5077,60 @@ static const char *cg_renames_fill(const char *text, int k) {
     return out;
 }
 
+/* 35: role `role`'s words are about to change on the display being made: the pages up to it keep the old ones. */
+static void cg_late_note(int role) {
+    /* The FIRST change on a display keeps the words the page began with: a sex_change and then a presentation on
+       the same page must not overwrite them with the in-between value (Codex, #787). */
+    if (role >= 0 && role < CG_MAX_ROLES && cg_late_at[role] != cg_display_now + 1) {
+        cg_late_was[role] = cg.female[role];
+        cg_late_at[role] = cg_display_now + 1;
+    }
+}
+
+/* 35: display `k`'s text with each kept word (\1 placeholder \2, cg_expand_in) put in: the role's words as they were
+   before a change made on display k or later, else as they are now. */
+static const char *cg_late_fill(const char *text, int k) {
+    static char out[CG_PAGE_BYTES];
+    const char *s;
+    int o = 0;
+    for (s = text; *s != '\0' && *s != '\x01'; ++s) {
+    }
+    if (*s == '\0') {
+        return text;
+    }
+    for (s = text; *s != '\0' && o < (int)sizeof out - 1;) {
+        const char *e = s + 1;
+        cg_ph ph;
+        if (*s != '\x01') {
+            out[o++] = *s++;
+            continue;
+        }
+        while (*e != '\0' && *e != '\x02') {
+            ++e;
+        }
+        if (*e == '\x02' && cg_parse_ph(&cg_g, s + 1, (int)(e - s - 1), &ph) && ph.role >= 0) {
+            int role = cg_resolve_role(ph.role), female, first = 1, from = o;
+            const char *put;
+            female = role >= 0 && role < CG_MAX_ROLES
+                     && (cg_late_at[role] > 0 && k < cg_late_at[role] ? cg_late_was[role] : cg.female[role]);
+            for (put = cg_pronoun(ph.what)[female ? 1 : 0]; *put != '\0' && o < (int)sizeof out - 1; ++put) {
+                char c = *put;
+                if (first && ph.capital && c >= 'a' && c <= 'z') {
+                    c = (char)(c - 'a' + 'A');
+                }
+                first = 0;
+                out[o++] = c;
+            }
+            if (ph.caps && o > from) {
+                CharUpperBuffA(out + from, (DWORD)(o - from));
+            }
+        }
+        s = *e == '\x02' ? e + 1 : e;
+    }
+    out[o] = '\0';
+    return out;
+}
+
 static void cg_display_title(int k, char *out, int cap);
 
 /* `out` (`cap` bytes) = a + b + c, cut at cap (wsprintfA stops at 1,024 characters: a long title or label is not). */
@@ -4943,7 +5151,7 @@ static const char *cg_display(int k) {
     if (k < 0 || k >= cg.display_count) {
         return "";
     }
-    text = cg_count_fill(cg_renames_fill(cg.displays + cg.display_off[k], k));
+    text = cg_count_fill(cg_late_fill(cg_renames_fill(cg.displays + cg.display_off[k], k), k));
     cg_display_title(k, title, (int)sizeof title);
     if (cg_title_rest[0] == '\0') {
         return text;
@@ -5412,6 +5620,9 @@ static int cg_presentation(int game, const unsigned char *record, int index, int
             test_graph_presentation_set[test_graph_presentations][0] = index;
             test_graph_presentation_set[test_graph_presentations++][1] = on;
         }
+        if (test_graph_presented >= 0 && index >= 0 && index < 31) {
+            test_graph_presented = on ? (test_graph_presented | (1 << index)) : (test_graph_presented & ~(1 << index));
+        }
         return 1;
     }
 #endif
@@ -5623,6 +5834,12 @@ static void cg_newest_reset(void) {
     cg_renamed_now[0] = '\0';
     cg_rename_count = 0;
     cg_count_last[0] = cg_count_last[1] = -1;
+    {
+        int r;
+        for (r = 0; r < CG_MAX_ROLES; ++r) {
+            cg_late_at[r] = 0;         /* 35: no role's words changed yet */
+        }
+    }
 }
 
 static void cg_newest_push(const ce_adapter *a, int index) {
@@ -6411,6 +6628,10 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
         }
         if (role >= 0) {
             cg.identity[role] = ce_identity(a, record);
+            /* 35: the role's words follow the new sex on the pages still to come (pages are laid out with the
+               longer word, so nothing moves) */
+            cg_late_note(role);
+            cg.female[role] = cg_word_female(a, game, role, record, index);
         }
         cg_extra_add(name, female ? "'s sex is now male." : "'s sex is now female.");
         return;
@@ -6421,6 +6642,10 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
         if (!cg_presentation(game, record, index, on)) {
             ce_refuse(r, CE_WHY_OTHER);
             return;
+        }
+        if (role >= 0) {
+            cg_late_note(role);
+            cg.female[role] = cg_word_female(a, game, role, record, index);   /* 35: a carrier's words follow it */
         }
         cg_extra_add(name, on ? " is now drawn with the other sex's look." : " is drawn with their own look again.");
         return;
@@ -7225,7 +7450,10 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
             } else if (p == 0 && k == 0 && after_question && !fresh) {
                 kind = CGD_RESULT;     /* G1: after five or more buttons, a page of its own (a notice) */
             }
+            cg_late_mask = cg_late_roles();
+            cg_late_keep = cg_late_mask != 0u;     /* 35: those roles' words filled as the page is shown */
             cg_expand(pages.buf + pages.off[k], real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
+            cg_late_keep = 0;
             d = cg_add_display(real, kind, cg_pops[p].effects);
             if (d < 0) {
                 cg.jobs_used = jobs;
@@ -7444,6 +7672,12 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
     cg_count_page_any[0] = cg_count_page_any[1] = 0;
     cg.gone_at[k] = cg.gone;
     memcpy(cg.identity_at[k], cg.identity, sizeof cg.identity);
+    {
+        int role;
+        for (role = 0; role < CG_MAX_ROLES; ++role) {
+            cg.female_at[k][role] = (unsigned char)(cg.female[role] != 0);   /* 35: the words before its effects */
+        }
+    }
     for (j = 0; j < cg.job_count[k]; ++j) {
         int i = cg.jobs[cg.job_first[k] + j];
         const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
@@ -8774,7 +9008,8 @@ static void cg_tick(int game) {
                                               version 6): answers five to seven, the pool picks, the aliases, each
                                               question's buttons, the origin and the cast; 5: the displays' words
                                               in CG_DISPLAY_BYTES (practically unlimited text), not 49,152; 6: the
-                                              partner-carry swaps (cg_state.carry_swapped) */
+                                              partner-carry swaps (cg_state.carry_swapped) and each display's words'
+                                              sex (female_at, cie-v6-binary.md 35) */
 /* Versions 2 to 4 kept CG_DISPLAY_BYTES_V4 bytes of displays: every field after them sits that much nearer. */
 #define CG_DISPLAY_GROWTH ((unsigned int)(CG_DISPLAY_BYTES - CG_DISPLAY_BYTES_V4))
 #define CG_ENTRY_GROWTH ((unsigned int)(CG_ENTRY_BYTES - CG_ENTRY_BYTES_V4))
@@ -8783,6 +9018,7 @@ static void cg_tick(int game) {
                                                                                            bytes */
 #define CG_FILE_V3_STATE ((unsigned int)offsetof(cg_state, seg_v6) - CG_FILE_GROWTH)     /* a version 3 file's */
 #define CG_FILE_V5_STATE ((unsigned int)offsetof(cg_state, carry_swapped))               /* a version 5 file's */
+
 #define CG_FILE_V4_STATE (CG_FILE_V5_STATE - CG_FILE_GROWTH)                             /* a version 4 file's */
 
 typedef struct {
@@ -8832,9 +9068,18 @@ static void cg_file_widen(cg_state *st) {
 
 /* A run read from an older file: what it lacks as a run of its own version had it (no alias drawn, every choice
    shown as its version shows them, the cast strict).  Version 4 holds them all (5 only widened the words; 6 added
-   carry_swapped, read 0 from an older file: nobody swapped). */
+   carry_swapped, read 0 from an older file: nobody swapped, and female_at). */
+
 static void cg_file_upgrade(cg_state *st) {
-    int r;
+    int r, k;
+    if (cg_head.version >= CG_FILE_VERSION) {
+        return;
+    }
+    for (k = 0; k < CG_MAX_DISPLAYS; ++k) {
+        for (r = 0; r < CG_MAX_ROLES; ++r) {
+            st->female_at[k][r] = (unsigned char)(st->female[r] != 0);   /* 35: before version 6 */
+        }
+    }
     if (cg_head.version >= 4u) {
         return;                        /* version 4's fields are there (a version 4 or 5 file: carry_swapped read 0) */
     }
@@ -8976,6 +9221,14 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
     cg_g = check;                      /* checked above: the same bytes, now in the run's own buffer */
     cg_g.d = cg_bytes;
     cg = cg_read_state;
+    {
+        /* 35: the word-change notes belong to the run that made them (process-wide, not saved): a run loaded from
+           a file starts with none, so another save slot's run never lends its words here (Codex, #787). */
+        int r;
+        for (r = 0; r < CG_MAX_ROLES; ++r) {
+            cg_late_at[r] = 0;
+        }
+    }
     cg_choose_title(game);             /* 18: the title variant in force, as when it was queued */
     cg_village = story_village_now(game);
     cg_display_armed = 0;
@@ -8999,6 +9252,12 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
             int qi;
             cg.gone = cg.gone_at[rewind];
             memcpy(cg.identity, cg.identity_at[rewind], sizeof cg.identity);
+            {
+                int r;
+                for (r = 0; r < CG_MAX_ROLES; ++r) {
+                    cg.female[r] = cg.female_at[rewind][r];   /* 35: the words as the page first read them */
+                }
+            }
             for (qi = 0; qi < cg.answers && cg.q_display[qi] < (again >= 0 ? again : rewind); ++qi) {
             }
             /* The entry continues from that page: its own lines are taken back, made again as it is shown (or,
@@ -9505,6 +9764,20 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphBornMale(int born_male) 
 /* A nursing effect's birth left out (`on` 1): the conception alone, which the emulator can run. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphNoDeliver(int on) {
     test_graph_no_deliver = on;
+}
+
+/* The word-change note of role `role` (35): 1 + the display that changed its words, 0 none (test build only). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphLateAt(int role) {
+    return role >= 0 && role < CG_MAX_ROLES ? cg_late_at[role] : -1;
+}
+
+/* The gender presentation the words see (35): `mask` -1 the real one, else bit i: record i drawn with the other
+   sex's look.  Returns the mask now (a presentation effect sets and clears its bit). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphPresented(int mask) {
+    if (mask != -2) {
+        test_graph_presented = mask;
+    }
+    return test_graph_presented;
 }
 
 /* "VVFP Gender Presentation.dll" as the test build sees it (29): `mode` -1 the real one, 0 none, 1 installed (and the

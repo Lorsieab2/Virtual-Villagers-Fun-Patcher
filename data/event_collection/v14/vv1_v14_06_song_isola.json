@@ -47,7 +47,7 @@
   "scene": {
    "name": "The Song of Isola",
    "src": "L7688-7691",
-   "text": "Sitting beneath a tree, the Golden Child hums a tune no one recognizes. By afternoon he has composed verses and a refrain. Other children join in, then the adults. The melody becomes a familiar accompaniment to work and play.",
+   "text": "Sitting beneath a tree, the Golden Child hums a tune no one recognizes. By afternoon (child.he/she) has composed verses and a refrain. Other children join in, then the adults. The melody becomes a familiar accompaniment to work and play.",
    "effects": [
     {
      "do": "tech",

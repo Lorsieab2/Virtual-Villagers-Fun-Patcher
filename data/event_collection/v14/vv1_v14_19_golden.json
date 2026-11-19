@@ -42,7 +42,7 @@
   "scene": {
    "name": "The Golden Child's History Lesson",
    "src": "L7779-7782",
-   "text": "An elder muddles the order of two events from the tribe's past. The Golden Child gently corrects the account and reenacts the story with clay figures. The elder checks the old records and admits the boy was right.",
+   "text": "An elder muddles the order of two events from the tribe's past. The Golden Child gently corrects the account and reenacts the story with clay figures. The elder checks the old records and admits the (child.boy/girl) was right.",
    "effects": [
     {
      "do": "tech",

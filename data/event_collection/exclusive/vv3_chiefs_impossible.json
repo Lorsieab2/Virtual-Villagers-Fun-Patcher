@@ -3,10 +3,14 @@
  "version": 6,
  "title": "The Chief's Impossible Question",
  "games": [
-  3
+  1,
+  2,
+  3,
+  4,
+  5
  ],
  "collection": {
-  "id": "vv3_chiefs_impossible_question",
+  "id": "vv3_chiefs_impossible",
   "source": "v28",
   "lines": [
    7893,
@@ -40,7 +44,7 @@
   "chief": {
    "kind": "villager",
    "min_age": 14,
-   "special": "tribal_chief"
+   "prefer": "tribal_chief"
   }
  },
  "start": "question",
@@ -49,7 +53,7 @@
    "type": "question",
    "name": "The Chief's Impossible Question",
    "src": "L7894",
-   "text": "The Tribal Chief asks the village's scholars to settle a dispute: what makes a decision wise when every choice has a cost?",
+   "text": "{@Tribal_chief} asks the village's scholars to settle a dispute: what makes a decision wise when every choice has a cost?",
    "choices": [
     {
      "label": "Invite representatives of different traditions to debate.",
@@ -57,7 +61,7 @@
      "src": "L7895"
     },
     {
-     "label": "Let the Chief decide alone.",
+     "label": "Let {@chief} decide alone.",
      "next": "set_b",
      "src": "L7899"
     }
@@ -90,11 +94,11 @@
   },
   "a3": {
    "src": "L7898",
-   "text": "The Chief listens to a healer's account of a difficult decision and announces that compassion must have a voice."
+   "text": "{@Chief} listens to a healer's account of a difficult decision and announces that compassion must have a voice."
   },
   "b1": {
    "src": "L7900",
-   "text": "The Chief makes a careful judgment and earns respect."
+   "text": "{@Chief} makes a careful judgment and earns respect."
   },
   "b2": {
    "src": "L7901",
@@ -102,7 +106,7 @@
   },
   "b3": {
    "src": "L7902",
-   "text": "The Chief admits uncertainty and calls for more evidence, impressing the researchers."
+   "text": "{@Chief} admits uncertainty and calls for more evidence, impressing the researchers."
   },
   "set_a": {
    "type": "branch",
@@ -132,5 +136,32 @@
     }
    ]
   }
- }
+ },
+ "words": {
+  "Tribal_chief": {
+   "3": "The Tribal Chief",
+   "*": "The leader"
+  },
+  "chief": {
+   "3": "the Chief",
+   "*": "the leader"
+  },
+  "Chief": {
+   "3": "The Chief",
+   "*": "The leader"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "The Leader's Impossible Question"
+  }
+ ]
 }

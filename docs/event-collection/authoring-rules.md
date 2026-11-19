@@ -73,7 +73,7 @@ The fidelity check compares each text with its source lines after applying, in o
 
 | File | Source | Example |
 |---|---|---|
-| `(role)`, `(Role)`, `(role.he/she)`, `(role.His/Her)` ... | any one source parenthesis group | `(Healer1)` for `(Healer1)`; `(patient)` for `(patient name)`; `(cook1)` for `(name1 or name2)` |
+| `(role)`, `(Role)`, `(role.he/she)`, `(role.His/Her)` ... | any one source parenthesis group; a pronoun or role-sex word also either of its own words written bare (the owner, 2026-11-16: the Golden Child's and a carrier's words follow the villager) | `(Healer1)` for `(Healer1)`; `(patient)` for `(patient name)`; `(cook1)` for `(name1 or name2)`; `(child.he/she)` for `he` |
 | `{P}`, `{P.2}` (pool) | one source parenthesis group, or the pool's own items as the source's bare `a/b/c` list | `{A.2}` for `(A, different)`; `{ING}` for `fish/mushrooms/.../a magical potion` |
 | `{a\|b\|c}` (inline pick) | the source list `(a/b/c)` or bare `a/b/c`, item for item | `{relieved\|frustrated\|anxious}` |
 | `{@chief}` (game word) | one of the word's values, or `Chief` / `the Chief` / `a Chief` / `Chiefs` | `{@Chief} refuses` for `The Chief refuses` |
@@ -234,6 +234,17 @@ A skill loss is the same range negative (`"min": -10, "max": -5`); it makes the 
 - **Special villagers** (Q17): the Golden Child (`"special": "golden_child"`, `"min_age": 0`), the VV3 Chief, a named
   nursing parent. Casting one with no token in the text is allowed (the cast is the requirement). Unnamed mentions
   ("A nursing mother nearby") stay text.
+- **The Golden Child** (the owner, 2026-11-16): an event that needs him or has him act, speak or be affected is A
+  New Home only and casts the real one (`"special": "golden_child"`); his words are the role's placeholders
+  (`(child.he/she)`, `(child.boy/girl)`: he may be born a girl, section 4's bare-word rule keeps the source). A line
+  where he acts in an all-games event shows only in A New Home and only while he is there (`special_present`, or an
+  optional `golden_child` role when the line names him). A passing mention may stay in any game.
+- **A carrier** (the owner, 2026-11-16): a `nursing_parent` role takes no `sex` (only villagers born female are cast
+  as carriers) and its words are the role's placeholders (`(mother.mother/father)`, `(mother.he/she)`): they follow
+  the villager's Gender Presentation, else the sex the game records (`collection_lib.carrier_words`).
+- **A chief role** (the owner, 2026-11-16): chief events run in every game; the chief's role has
+  `"prefer": "tribal_chief"` (The Secret City's robed Tribal Chief is cast when there, else any fitting villager;
+  cie-v6-binary.md 35).
 - **Protection** (the owner, 2026-11-14, V28; cie-v6-binary.md 7): `protected: "auto"` (the default) keeps nursing
   parents, the Golden Child and the VV3 Chief out of any role a harmful effect can reach. Only The Lost Children's
   totems are ALWAYS protected: where harming one of the others makes sense in the event (a nursing mother who loses
@@ -272,6 +283,11 @@ A skill loss is the same range negative (`"min": -10, "max": -5`); it makes the 
   singular VV3 value with a plural other. An event without VV3 has only `"*"`. A game word cannot sit inside an
   inline pick: make that list a named pool (`RULE`, `POWERS`). "Chief" in any text a non-VV3 game can show is an
   error.
+- **The chief's title is drawn per run** (the owner, 2026-11-16; cie-v6-binary.md 35): a chief word (`chief`,
+  `Chief`, `a_chief`, `tribal_chief` ...) shows one of "Chief", "leader", "elder", "headman" / "headwoman" (a
+  cast chief's presentation) or "council head" in every game, the same on every page of the run and after a
+  resume; the real Tribal Chief cast in the event's chief role is always the word's VV3 text. Write the words as
+  before: the compiler adds the other titles. Titles keep their `title_variants`.
 
 ## 11. Routing
 

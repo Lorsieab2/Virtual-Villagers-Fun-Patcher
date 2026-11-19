@@ -113,6 +113,12 @@
   "parent": {
    "kind": "stranger",
    "sex": "random"
+  },
+  "golden": {
+   "kind": "villager",
+   "optional": true,
+   "min_age": 0,
+   "special": "golden_child"
   }
  },
  "pools": {
@@ -447,7 +453,7 @@
     {
      "next": "g4",
      "if": {
-      "special_present": "golden_child"
+      "role": "golden"
      }
     }
    ]
@@ -488,7 +494,7 @@
   },
   "g4": {
    "src": "L2810-2812",
-   "text": "He responds through an existing supported nonverbal gesture. The class treats his contribution as meaningful without requiring speech.",
+   "text": "(golden.He/She) responds through an existing supported nonverbal gesture. The class treats (golden.his/her) contribution as meaningful without requiring speech.",
    "text_only": [
     {
      "src": "L2810-2811",

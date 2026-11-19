@@ -362,8 +362,10 @@ class FrozenAnthology(unittest.TestCase):
                 for e in nd.get("effects", []):
                     effects[e["do"]] = effects.get(e["do"], 0) + 1
             for r in doc["roles"].values():
-                if r.get("special") == "nursing_parent":     # a carrying or nursing parent: an adult woman
-                    self.assertEqual((r["sex"], r["min_age"] >= 18), ("female", True), p.name)
+                if r.get("special") == "nursing_parent":     # a carrying or nursing parent: an adult born female
+                    # (the engine casts only villagers born female; the owner, 2026-11-16: no "sex", the words follow
+                    # the villager -- collection_lib.carrier_words)
+                    self.assertEqual(("sex" in r, r["min_age"] >= 18), (False, True), p.name)
         # nothing harmful: hair dye (the random head look), REL-15's sex change, two couples' celebrations
         self.assertEqual(effects, {"appearance": 5, "sex_change": 1, "celebrate": 4})
 

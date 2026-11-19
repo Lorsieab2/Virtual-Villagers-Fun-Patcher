@@ -43,7 +43,6 @@
   "mother": {
    "kind": "villager",
    "min_age": 18,
-   "sex": "female",
    "special": "nursing_parent",
    "protected": "allow"
   }
@@ -53,7 +52,7 @@
   "premise": {
    "type": "question",
    "name": "The premise",
-   "text": "A nursing mother caring for an infant is asked to help during a village emergency.",
+   "text": "A nursing (mother.mother/father) caring for an infant is asked to help during a village emergency.",
    "src": "L5969",
    "choices": [
     {
@@ -67,7 +66,7 @@
      "src": "L5971"
     },
     {
-     "label": "Overextend herself and become ill.",
+     "label": "Overextend (mother.himself/herself) and become ill.",
      "next": "outcome_c",
      "src": "L5972"
     },

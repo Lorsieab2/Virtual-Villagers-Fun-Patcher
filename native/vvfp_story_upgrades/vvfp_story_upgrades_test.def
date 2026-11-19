@@ -153,6 +153,8 @@ EXPORTS
     VvfpStoryProbeGraphPresentation=_VvfpStoryProbeGraphPresentation@12
     VvfpStoryProbeGraphBornMale=_VvfpStoryProbeGraphBornMale@4
     VvfpStoryProbeGraphNoDeliver=_VvfpStoryProbeGraphNoDeliver@4
+    VvfpStoryProbeGraphPresented=_VvfpStoryProbeGraphPresented@4
+    VvfpStoryProbeGraphLateAt=_VvfpStoryProbeGraphLateAt@4
     VvfpStoryProbeGraphSexLast=_VvfpStoryProbeGraphSexLast@8
     VvfpStoryProbeGraphFileLayout=_VvfpStoryProbeGraphFileLayout@4
     VvfpStoryProbeCollectionStep=_VvfpStoryProbeCollectionStep@4

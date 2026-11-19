@@ -69,6 +69,10 @@ SERIES = ("v14_golden_child", "v17_contests", "v18_trials", "v20_crises")
 COMPANION_SERIES = ("cat_bodies", "cat_fins", "cat_foliage", "cat_flowers", "cat_magic_fish", "cat_magic_plants",
                     "cat_creatures")
 ALL = [1, 2, 3, 4, 5]
+# The owner (2026-11-16): chief events run in every game; their chief role prefers The Secret City's robed Tribal Chief
+# (cie-v6-binary.md 35).  The V17 sculpture contest stays The Secret City's shore's.
+CHIEF_GAMES = ALL
+CHIEF_EXCLUSIVE = ("The Child Who Claimed to Be Chief", "The Chief's Impossible Question")
 
 ROWS: list[dict] = []
 
@@ -178,7 +182,7 @@ R("vv2_veterinary_visitor", "The Veterinary Visitor", [2], 2865, 2918, "event", 
   {"A": 5, "(1)": 4, "(2)": 4, "(3)": 4}, ["skill:Healing"])
 R("vv2_hut_sharing_negotiation", "The Hut-Sharing Negotiation", [2], 2920, 2994, "event", "v6", "v6v8", 4,
   {"(1)": 3, "(2)": 4, "(3)": 4, "(4)": 4, "(5)": 5}, ["skill:Building"])
-R("vv3_chiefs_monumental_speech", "The Chief's Monumental Speech", [3], 2996, 3041, "event", "v6", "v6v8", 0,
+R("vv3_chiefs_monumental_speech", "The Chief's Monumental Speech", CHIEF_GAMES, 2996, 3041, "event", "v6", "v6v8", 0,
   {"A": 4, "B": 7})
 R("vv3_gardening_contest", "The Gardening Contest", [3], 3043, 3096, "event", "v6", "v6v8", 2,
   {"A": 6, "(1)": 4, "(2)": 4, "(3)": 5}, ["skill:Farming"])
@@ -229,7 +233,7 @@ R("vv2_experimental_remedy", "The Experimental Remedy", [2], 4733, 4794, "event"
   {"(1)": 4, "(2)": 4, "(3)": 3, "(4)": 3, "(5)": 4})
 R("vv2_stolen_spoon", "The Stolen Spoon", [2], 4796, 4872, "event", "v9", "v9", 4,
   {"(1)": 4, "(2)": 4, "(3)": 4, "(4)": 4, "(8)": 3})
-R("vv3_chief_and_the_pearl", "The Chief and the Pearl", [3], 4874, 4934, "event", "v9", "v9", 4,
+R("vv3_chief_and_the_pearl", "The Chief and the Pearl", CHIEF_GAMES, 4874, 4934, "event", "v9", "v9", 4,
   {"(1)": 4, "(2)": 4, "(3)": 4, "(4)": 4, "(5)": 3})
 R("vv3_duel_terrible_inventors", "The Duel of the Terrible Inventors", [3], 4936, 4973, "event", "v9", "v9", 2,
   {"(1)": 4, "(2)": 4, "(3)": 5})
@@ -318,7 +322,8 @@ _EXCL = [(2, "The Secret Behind the Waterfall", 7842, 7855), (2, "The Hospital's
          (5, "The Convert Who Missed Home", 8008, 8017), (5, "The Guardians' Disagreement", 8019, 8028)]
 for _g, _t, _a, _b in _EXCL:
     _slug = re.sub(r"[^a-z0-9]+", "_", _t.lower().replace("'", "")).strip("_")
-    R(short_id(f"vv{_g}_{_slug}"), _t, [_g], _a, _b, "event", "exclusive", "exclusive", 2, {},
+    R(short_id(f"vv{_g}_{_slug}"), _t, CHIEF_GAMES if _t in CHIEF_EXCLUSIVE else [_g], _a, _b, "event", "exclusive",
+      "exclusive", 2, {},
       ["tech", "food"] if _g in (3, 4, 5) else ["tech", "health_change"])
 R("bank_v17_framework", "V17 - The Five Shores Compete: framework and universal consequence pool", ALL, 8033, 8093,
   "notes", "v17", "v17", 4, {"U": (10, None)})   # notes: every contest shows its common choices (shared_lines)

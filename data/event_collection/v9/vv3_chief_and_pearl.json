@@ -3,10 +3,14 @@
  "version": 6,
  "title": "The Chief and the Pearl",
  "games": [
-  3
+  1,
+  2,
+  3,
+  4,
+  5
  ],
  "collection": {
-  "id": "vv3_chief_and_the_pearl",
+  "id": "vv3_chief_and_pearl",
   "source": "v28",
   "lines": [
    4874,
@@ -83,7 +87,7 @@
   "chief": {
    "kind": "villager",
    "min_age": 14,
-   "special": "tribal_chief"
+   "prefer": "tribal_chief"
   },
   "coda1": {
    "kind": "stranger",
@@ -122,7 +126,7 @@
    "type": "question",
    "name": "The Chief decides",
    "src": "L4884-4885",
-   "text": "The Chief stares at the three suspects. 'One pearl. Three confessions. I have a feeling this will be a very long day.'",
+   "text": "{@Chief} stares at the three suspects. 'One pearl. Three confessions. I have a feeling this will be a very long day.'",
    "choices": [
     {
      "label": "Separate the witnesses and verify their accounts.",
@@ -274,7 +278,7 @@
   },
   "m1": {
    "src": "L4905",
-   "text": "The builder feared the Chief would blame an apprentice.",
+   "text": "The builder feared {@chief} would blame an apprentice.",
    "children": [
     {
      "next": "false"
@@ -328,7 +332,7 @@
   },
   "c1": {
    "src": "L4911",
-   "text": "The Chief insists on evidence and dismisses unsupported claims.",
+   "text": "{@Chief} insists on evidence and dismisses unsupported claims.",
    "children": [
     {
      "next": "false"
@@ -346,7 +350,7 @@
   },
   "c3": {
    "src": "L4913-4914",
-   "text": "The scientist tries to introduce a chart of pearl trajectories. The Chief says, 'We are not putting a coconut on trial.'",
+   "text": "The scientist tries to introduce a chart of pearl trajectories. {@Chief} says, 'We are not putting a coconut on trial.'",
    "children": [
     {
      "next": "false"
@@ -355,7 +359,7 @@
   },
   "c4": {
    "src": "L4915",
-   "text": "The Chief calls a recess when two witnesses begin shouting.",
+   "text": "{@Chief} calls a recess when two witnesses begin shouting.",
    "children": [
     {
      "next": "false"
@@ -366,7 +370,7 @@
    "popup": "append",
    "join": "paragraph",
    "src": "L4918-4920",
-   "text": "The Chief explains that fear, love, and shame can make people accept blame for things they did not do. The confessions alone do not prove guilt. The villagers are cleared where evidence warrants it.",
+   "text": "{@Chief} explains that fear, love, and shame can make people accept blame for things they did not do. The confessions alone do not prove guilt. The villagers are cleared where evidence warrants it.",
    "children": [
     {
      "next": "false_set"
@@ -414,7 +418,7 @@
    "popup": "append",
    "join": "paragraph",
    "src": "L4923",
-   "text": "The scientist requests permission to keep the chart. The Chief sighs.",
+   "text": "The scientist requests permission to keep the chart. {@Chief} sighs.",
    "children": [
     {
      "next": "coda"
@@ -425,7 +429,7 @@
    "popup": "append",
    "join": "paragraph",
    "src": "L4926-4928",
-   "text": "The responsible adult returns the pearl, admits the specific act, and makes restitution. The Chief praises honesty without pretending it erases the original wrong.",
+   "text": "The responsible adult returns the pearl, admits the specific act, and makes restitution. {@Chief} praises honesty without pretending it erases the original wrong.",
    "children": [
     {
      "next": "coda"
@@ -436,7 +440,7 @@
    "popup": "append",
    "join": "paragraph",
    "src": "L4931-4932",
-   "text": "A fair hearing establishes deliberate theft or false testimony. The Chief orders proportionate restitution or community service.",
+   "text": "A fair hearing establishes deliberate theft or false testimony. {@Chief} orders proportionate restitution or community service.",
    "children": [
     {
      "next": "coda"
@@ -523,5 +527,28 @@
   "no_coda": {
    "type": "branch"
   }
- }
+ },
+ "words": {
+  "Chief": {
+   "3": "The Chief",
+   "*": "The leader"
+  },
+  "chief": {
+   "3": "the Chief",
+   "*": "the leader"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "The Leader and the Pearl"
+  }
+ ]
 }

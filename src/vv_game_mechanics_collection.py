@@ -247,6 +247,14 @@ def lines(game: int) -> list[tuple[str, bool]]:
          "on the screen).", True),
         (f"Who can be harmed: never a nursing mother or father, {PROTECTED[game]}, or anyone the game's own island "
          "events never pick. They may still take part in harmless roles (speaking, celebrating).", True),
+        # cie-v6-binary.md 35 (the owner, 2026-11-16)
+        ("An event's chief is called the Chief, the leader, the elder, the headman or headwoman, or the council head: "
+         "one title drawn each time, the same on every page (and after a reload)."
+         + (" The robed Tribal Chief takes a chief's part whenever they can, and is then always the Chief."
+            if game == 3 else ""), True),
+        ("A nursing parent's words (mother or father, he or she) follow how the villager is drawn with Gender "
+         "Presentation, else their recorded sex, and change on the next page after a sex change."
+         + (" The Golden Child's words follow the Golden Child's recorded sex." if game == 1 else ""), True),
     ]
     out.append((("Can kill a villager (a grave, cause \"Unknown causes\"): "
                  + ", ".join(kill) + ".") if kill else "No event in this game kills a villager.", True))

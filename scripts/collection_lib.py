@@ -427,6 +427,70 @@ def keep_proper_nouns(text: str) -> str:
     return text
 
 
+# ---- A carrier's words (the owner, 2026-11-16) ---------------------------------------------------------------------
+# A carrying or nursing parent's words follow the villager -- their Gender Presentation, else the sex the game records
+# (story_graph.inc cg_word_female) -- so the source's bare words for the one carrier of an event ("a nursing mother",
+# "she", "her", "herself") become that role's automatic words; the role takes no "sex" (only villagers born female are
+# cast as carriers: the engine checks it).  collection_check reads a pronoun placeholder as standing for either of its
+# own words written bare in the source.
+_CARRIER_WORD = re.compile(r"(?<![A-Za-z(./])(mother|she|She|her|Her|herself|Herself)(?![A-Za-z/)])")
+_CARRIER_OBJECT_NEXT = {"a", "into", "before", "right", "to"}     # "gives her a", "Invite her into", "to her before"
+
+
+def carrier_text(text: str, role: str) -> str:
+    """`text` with its bare words for carrier role `role` as that role's placeholders: "nursing mother" ->
+    "nursing (role.mother/father)", "she" -> "(role.he/she)", "herself" -> "(role.himself/herself)", "her" ->
+    "(role.him/her)" before a full stop or one of _CARRIER_OBJECT_NEXT, else "(role.his/her)"; capitals kept."""
+    out, pos = [], 0
+    for m in _CARRIER_WORD.finditer(text):
+        w = m.group(1)
+        if w == "mother":
+            if not re.search(r"nursing $", text[:m.start()]):
+                continue
+            pair = "mother/father"
+        elif w.lower() == "she":
+            pair = "he/she"
+        elif w.lower() == "herself":
+            pair = "himself/herself"
+        else:
+            nxt = re.match(r"\s*([A-Za-z]+)", text[m.end():])
+            obj = nxt is None or nxt.group(1).lower() in _CARRIER_OBJECT_NEXT or re.match(r"\s*[.,!?;:]", text[m.end():])
+            pair = "him/her" if obj else "his/her"
+        if w[0].isupper():
+            pair = "/".join(x.capitalize() for x in pair.split("/"))
+        out.append(text[pos:m.start()] + f"({role}.{pair})")
+        pos = m.end()
+    out.append(text[pos:])
+    return "".join(out)
+
+
+def carrier_words(doc: dict) -> dict:
+    """An event's one nursing_parent role without "sex", its bare words as its placeholders (carrier_text); changed in
+    place.  An event with two carriers is left as written."""
+    roles = [rid for rid, r in (doc.get("roles") or {}).items()
+             if isinstance(r, dict) and r.get("special") == "nursing_parent"]
+    for rid in roles:
+        doc["roles"][rid].pop("sex", None)
+    if len(roles) != 1:
+        return doc
+    role = roles[0]
+    for node in (doc.get("nodes") or {}).values():
+        if node.get("text"):
+            node["text"] = carrier_text(node["text"], role)
+        for v in node.get("variants") or []:
+            v["text"] = carrier_text(v["text"], role)
+        for c in node.get("choices") or []:
+            c["label"] = carrier_text(c["label"], role)
+    for pool in (doc.get("pools") or {}).values():
+        items = pool.get("items") or []
+        for i, it in enumerate(items):
+            if isinstance(it, dict):
+                it["text"] = carrier_text(it["text"], role)
+            else:
+                items[i] = carrier_text(it, role)
+    return doc
+
+
 def title_case_label(text: str) -> str:
     words = text.split(" ")
     idx = [i for i, w in enumerate(words) if re.search(r"[A-Za-z]", w)]

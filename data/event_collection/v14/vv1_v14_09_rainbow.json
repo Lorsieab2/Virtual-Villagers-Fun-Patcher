@@ -47,7 +47,7 @@
   "scene": {
    "name": "The Rainbow Maker",
    "src": "L7708-7711",
-   "text": "After a passing shower, the Golden Child points toward the sky. One rainbow appears, then a second, and then a faint third arch. The children race to see where the colors touch the earth. The adults disagree about whether he summoned the sight or simply knew when to look.",
+   "text": "After a passing shower, the Golden Child points toward the sky. One rainbow appears, then a second, and then a faint third arch. The children race to see where the colors touch the earth. The adults disagree about whether (child.he/she) summoned the sight or simply knew when to look.",
    "text_only": [
     {
      "src": "L7711-7712",

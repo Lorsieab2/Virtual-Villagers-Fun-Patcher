@@ -51,7 +51,7 @@ patches, **pools, items**, (relations), strings. The engine must use the offsets
 | 6 | `B` | age-gap role + 1 (0 none) |
 | 7 | `B` | age-gap years |
 | 8 | `B` | max_age years, 0 = none (the villager's age in whole years must be at most this) |
-| 9 | `B` | special: 0 none, 1 golden_child, 2 tribal_chief, 3 nursing_parent (the role MUST be that villager) |
+| 9 | `B` | special: 0 none, 1 golden_child, 2 tribal_chief, 3 nursing_parent (the role MUST be that villager); **4 prefer golden_child, 5 prefer tribal_chief** (section 35: taken when they may be cast) |
 | 10 | `H` | skill requirement: the skills' names, comma separated (`NONE` = no skill requirement) |
 | 12 | `B` | skill min (the villager's value in at least one listed skill the game has is at least this) |
 | 13 | `B` | pick: 0 random, 1 highest (keep only the villagers with the top value of the listed skills, then draw) |
@@ -102,7 +102,7 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
 
 ## 4. Pools and items
 
-- **Pool: 12 bytes (G3; was 8).** `H name string, H first item, H item count, B flags (1 = distinct), B 0,
+- **Pool: 12 bytes (G3; was 8).** `H name string, H first item, H item count, B flags (1 = distinct, **2 = linked**, section 35), B 0,
   H distinct_from (a string: the pool names, comma separated; NONE = none), H 0`.
 - `distinct_from` (G3): an instance of this pool never draws an item whose TEXT equals the text of an item already
   drawn on the run by any instance of a listed pool (see 6.3).
@@ -131,7 +131,7 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
   - v6 pronouns (male word, female word): `himself/herself`, `woman/man` (man, woman), `boy/girl`, `son/daughter`,
     each with an optional `role.` prefix and a capital form (`(Himself/Herself)`);
   - **role-sex words:** `mother/father`, `father/mother`, `mom/dad`, `sister/brother`, `aunt/uncle`, `girl/boy`,
-    `lady/gentleman` -- the word of the pair that matches the role's sex (a male role: father, father, dad, brother,
+    `lady/gentleman`, **`headman/headwoman`** (section 35) -- the word of the pair that matches the role's sex (a male role: father, father, dad, brother,
     uncle, boy, gentleman), with the optional `role.` prefix, the capital form and ALL CAPS, exactly as the pronouns
     (worst case: the longer word). E.g. The Lullaby's nursing parent: `(parent.mother/father)`. In the engine they
     are `CG_PH_MOTHER` .. `CG_PH_LADY`, after `CG_PH_SON`;
@@ -268,6 +268,7 @@ Preference (8) in v6 may be **random** (section 24): flags bit 8 set, string `NO
 | Op | cond | a | Holds when |
 |---|---|---|---|
 | 17 | has_dead_relative | role index | the role's villager is bound, not gone, and has lost a recorded parent or a co-parent (section 21a) |
+| 18 | is_special | role index | the role's villager is bound, not gone, and is A New Home's Golden Child or The Secret City's Tribal Chief (section 35) |
 
 | Op | cond | a | Holds when |
 |---|---|---|---|
@@ -1214,3 +1215,50 @@ generators): blf26_isolan_feast friend, blf27_songs_across friend, vv5_v17_cooki
 isolan, vv5_great_woodworking isoleader, vv5_potluck_dispute isolan, vv5_gift_or_insult visitor,
 vv5_multicultural_festival visitor (each a villager of 14 or more; none takes an effect).
 
+## 37. Preferred special villagers, the chief's title and words that follow the villager (the owner, 2026-11-16)
+
+**A role that prefers a special villager.** JSON (v6): a villager role's `"prefer": "golden_child"` or
+`"prefer": "tribal_chief"` (never with `special`). Binary: the role's byte 9 = **4** (prefer the Golden Child) or
+**5** (prefer the Tribal Chief); the loader refuses more than 5. Unlike `special` (1-3: the role MUST be that
+villager), the role is cast as usual -- every requirement, safety rule and the protected filter -- and then, among
+the villagers that may take it (the ones that keep the other roles fillable, after a `"pick": "highest"`), the
+Golden Child (A New Home) or The Secret City's Tribal Chief is taken when one of them is there (`cg_bind`; only one
+lives, so no roll); else any of them, by the usual draw. Allowed in every game (only A New Home has a Golden Child,
+only The Secret City a Tribal Chief). A protected role (section 7) keeps them out as before.
+
+**Cond op 18, `is_special`.** JSON `{"is_special": r}` (a role; on an alias, its member drawn): the role's villager
+is bound, not gone, and is the game's special villager (A New Home's Golden Child, The Secret City's Tribal Chief),
+by the game's own kind (`cg_special_kind`), whatever No Safeguards says. A run-time fact like `age` (section 8):
+`simulate` takes it from `facts` (`"is_special:<role>"`); never in a requirement or a choice's `if`.
+
+**The chief's title (linked pools).** A game word named `chief`, `Chief`, `a_chief`, `A_chief`,
+`chiefs_possessive`, `village_chief`, `tribal_chief` or `Tribal_chief` (or a label's title-case copy, `w_tc` /
+`w_tcN`) whose texts hold a chief or leader noun is the chief's title (`vv_cie_graph.CHIEF_WORDS`). `lower` writes
+its pool `@w` as:
+
+1. one item per distinct text with its games (`{"game": [...]}`, weight 1) -- the author's words, as every game
+   word; `lift` reads back only these;
+2. then, for each of those texts in the same order, the text with its noun replaced by each other title of
+   `CHIEF_TITLES` -- "chief", "leader", "elder", "headman" / "headwoman", "council head" -- with the same games
+   (`{"all": [{"game": [...]}, ...]}`, weight 1), plus `{"not": {"is_special": c}}` when the event has a chief role
+   `c` (a villager role whose `special` or `prefer` is `tribal_chief`). "elder" is left out when any text puts an
+   article before a chief word ("A {@chief}"); a noun after "a" in the word's own text takes "an" before "elder".
+   "headman" is only for a chief role: the role-sex word `(c.headman/headwoman)` (section 5's list, after `his/hers`:
+   `CG_PH_HEADMAN`). The title takes the noun's case: capitals for a capital noun alone or a label's word ("Council
+   Head"), a capital first letter when the noun opens the text, else lower case.
+
+Every title of a game is equally likely; with the real Tribal Chief cast in the chief role only the author's VV3
+word is eligible ("the Chief"). The pools have flags bit **2 (linked)**. **The draw** (section 6.3): an instance of a
+linked pool, when the run (the path's picks, then the segment's) already holds a pick of a linked pool with an item,
+takes that item NUMBER -- no roll, no condition asked again -- so every chief word of the run says the same title,
+and a resumed run (its picks are in the run's file) shows the same word. Otherwise it is drawn as any pool. Linked
+pools of one event hold the same games and titles in the same order (`lower` links them only then). The fit check
+measures the longest item as for every pool.
+
+**Words that follow the villager.** A role's words (pronouns and role-sex words, section 5) follow the sex the game
+records for the villager -- and, for a carrier (a `nursing_parent` role, or the role a `baby_lost` effect names) and
+a role that is or prefers the Tribal Chief, the sex they are DRAWN as with "VVFP Gender Presentation.dll" (section
+34: `VvfpGenderPresentationGet`; without the companion, the recorded sex): `story_graph.inc cg_word_female`. A
+`sex_change` (section 29) and a `presentation` effect (section 34) set the role's words again, so later pages follow
+the change (pages are laid out with the longer word). The Golden Child's words are his recorded sex (his presentation
+is never changed).

@@ -634,7 +634,7 @@ class ResumeAndFile(unittest.TestCase):
         growth = (words - words_v4) + (entry - entry_v4)
         self.assertEqual(struct.unpack_from("<I", file, 4)[0], 6, "written as version 6")
         self.assertEqual(v3, v3_end - growth)
-        self.assertLess(v4, whole - growth)   # version 6 added carry_swapped after version 5's state
+        self.assertLess(v4, whole - growth)   # version 6 added carry_swapped and female_at after version 5's state
         state = bytes(file[head:head + whole])
         # Versions 2 to 4 kept 49,152 bytes of displays' words and 8,192 of the log entry: the state as such a file
         # holds it.

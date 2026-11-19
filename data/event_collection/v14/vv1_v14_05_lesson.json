@@ -51,7 +51,7 @@
   "scene": {
    "name": "The Lesson Nobody Expected",
    "src": "L7681-7684",
-   "text": "An apprentice fails the same task again and again. The Golden Child breaks it into tiny steps, watches patiently, and cheers when the apprentice succeeds. The apprentice insists the boy did not do the work for (apprentice.him/her): he made it possible to learn.",
+   "text": "An apprentice fails the same task again and again. The Golden Child breaks it into tiny steps, watches patiently, and cheers when the apprentice succeeds. The apprentice insists the (child.boy/girl) did not do the work for (apprentice.him/her): (child.he/she) made it possible to learn.",
    "effects": [
     {
      "do": "skill",
