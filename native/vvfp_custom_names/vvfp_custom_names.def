@@ -1,0 +1,7 @@
+LIBRARY "VVFP Custom Names"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpCustomFirstName=_VvfpCustomFirstName@12
+    VvfpCustomLastNameCount=_VvfpCustomLastNameCount@0
+    VvfpCustomLastName=_VvfpCustomLastName@4
+    VvfpCustomNamesInstalled=_VvfpCustomNamesInstalled@0

@@ -367,6 +367,15 @@
       ]
     },
     {
+      "ids": ["vv1_custom_stuff", "vv2_custom_stuff", "vv3_custom_stuff", "vv4_custom_stuff", "vv5_custom_stuff"],
+      "guide": [
+        "On by default. Adds the first names and last names you made in Custom Stuff... (Tools tab) to the game's own.",
+        "Every name, the game's and yours, is equally likely for a new villager. The game's own names always stay.",
+        "Your last names join the list Villagers Have Last Names draws from: founders, the random rule and Heathens.",
+        "With no names of your own the game names villagers as before. Names already given stay if you remove it."
+      ]
+    },
+    {
       "ids": ["vv1_children_play", "vv2_children_play", "vv3_children_play", "vv4_children_play", "vv5_children_play"],
       "guide": [
         "On by default. Children play tag and build sandcastles on the beach, each 1 pick in 15 when a child picks something to play; the usual choices keep their odds.",
@@ -1581,6 +1590,16 @@
         "Pick the font, size, colour and zoom. Tick \"As the stock game shows it\" to see the unpatched game, or \"As Use Unicode Font draws it\" to see the typeface you chose in Unicode Font.",
         "Insert character... searches by name or code point and labels each character (game), (patcher-made), (drawn by Windows: the font) or (missing).",
         "Nothing in a game or a save is changed."
+      ]
+    },
+    "custom_stuff": {
+      "title": "Custom Stuff",
+      "guide": [
+        "Pick the game, then a tab: first names (male and female), last names, likes and dislikes.",
+        "Type one name or word per line, or Import... a .txt file. Check shows why a line is refused.",
+        "Save keeps your lists and copies them to the game's patched copies; they are used from the game's next start.",
+        "AI Help: copy the prompt into any AI chat, paste its answer back here, then Check and Save.",
+        "Your names need the Custom Stuff row (on by default). Likes and dislikes are kept but not shown in the games yet."
       ]
     },
     "translations": {

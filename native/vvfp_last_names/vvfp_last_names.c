@@ -690,17 +690,117 @@ static unsigned int random_below(unsigned int n) {
     return r % n;
 }
 
-/* "list": a last name of the game's own list, drawn at random among the ones
-   whose "<first> <last>" fits `room` (every one does in the stock games); ""
-   when none does. */
+/* CUSTOM STUFF (the owner, 2026-11-19: "custom stuff = additions that should
+   be treated like normal game additions, no special treatment").  When
+   "VVFP Custom Names.dll" is in the game (the loader starts it after this
+   companion), the player's own names join the game's:
+     * FIRST NAMES: right after the naming routine, before any last name is
+       added, VvfpCustomFirstName may give one of the player's first names for
+       the villager's sex instead of the game's pick -- every name, the game's
+       and the player's, equally likely (vvfp_custom_names.c);
+     * LAST NAMES: the player's last names are added to the game's list of 50
+       wherever this companion DRAWS a last name -- "Random last name from the
+       list" (drawn_last_name, and "village" with no names yet), New Believers'
+       four Heathen family names (heathen_families), and a new village's
+       founders (founder_last_name): every name of the list and the player's
+       equally likely.  A birth's last name comes from its parents by the rule,
+       as before; the family number's name stays the fallback.
+   Without the companion (or with empty lists) nothing here changes.  The
+   companion is found by its module name only (a file left in the folder that
+   this build does not ship is never loaded by the loader, so never found). */
+typedef int (__stdcall *custom_first_fn)(char *name, unsigned int room, int female);
+typedef int (__stdcall *custom_count_fn)(void);
+typedef const char *(__stdcall *custom_last_fn)(int index);
+#define CUSTOM_LAST_MAX 1000
+#define POOL_MAX (FAMILIES + CUSTOM_LAST_MAX)
+
+static custom_first_fn g_custom_first;
+static custom_count_fn g_custom_count;
+static custom_last_fn g_custom_last;
+static int g_custom_found;
+
+static void find_custom_names(void) {
+    HMODULE module;
+    if (g_custom_found) {
+        return;
+    }
+    module = GetModuleHandleA("VVFP Custom Names.dll");
+    if (module == NULL) {
+        return;                                     /* looked for again next time: it may start later */
+    }
+    g_custom_first = (custom_first_fn)(void *)GetProcAddress(module, "VvfpCustomFirstName");
+    g_custom_count = (custom_count_fn)(void *)GetProcAddress(module, "VvfpCustomLastNameCount");
+    g_custom_last = (custom_last_fn)(void *)GetProcAddress(module, "VvfpCustomLastName");
+    if (g_custom_count == NULL || g_custom_last == NULL) {
+        g_custom_count = NULL;
+        g_custom_last = NULL;
+    }
+    g_custom_found = 1;
+}
+
+/* The draw pool: the game's 50 (by family - 1), then the player's last names. */
+static int pool_size(void) {
+    int extra;
+    find_custom_names();
+    extra = g_custom_count != NULL ? g_custom_count() : 0;
+    if (extra < 0) {
+        extra = 0;
+    }
+    return FAMILIES + (extra < CUSTOM_LAST_MAX ? extra : CUSTOM_LAST_MAX);
+}
+
+static const char *pool_name(int i) {
+    const char *name;
+    if (i < FAMILIES) {
+        return g_last[i];
+    }
+    name = g_custom_last != NULL ? g_custom_last(i - FAMILIES) : NULL;
+    return name != NULL && strlen(name) <= LONGEST_LAST && strchr(name, ' ') == NULL ? name : "";
+}
+
+/* The villager's first name, drawn by the player's list too (see CUSTOM STUFF). */
+static void custom_first_name(char *name, unsigned int room, int female) {
+    find_custom_names();
+    if (g_custom_first != NULL) {
+        (void)g_custom_first(name, room, female);
+    }
+}
+
+/* "list": a last name of the game's own list (and the player's), drawn at
+   random among the ones whose "<first> <last>" fits `room` (every one does in
+   the stock games); "" when none does. */
 static const char *drawn_last_name(size_t first_len, unsigned int room) {
-    int fits[FAMILIES], count = 0, i;
-    for (i = 0; i < FAMILIES; ++i) {
-        if (g_last[i][0] != '\0' && first_len + 1 + strlen(g_last[i]) + 1 <= room) {
+    static int fits[POOL_MAX];
+    int count = 0, i, size = pool_size();
+    for (i = 0; i < size; ++i) {
+        const char *name = pool_name(i);
+        if (name[0] != '\0' && first_len + 1 + strlen(name) + 1 <= room) {
             fits[count++] = i;
         }
     }
-    return count == 0 ? "" : g_last[fits[random_below((unsigned int)count)]];
+    return count == 0 ? "" : pool_name(fits[random_below((unsigned int)count)]);
+}
+
+/* A new village's founder: the family's own name, or -- with the player's C
+   last names -- one of those with chance C / (50 + C), each equally likely,
+   so every name is 1 in (50 + C) as the family number is 1 in 50.  One that
+   would not fit leaves the family's. */
+static void founder_last_name(char *name, unsigned int room, int family) {
+    int size = pool_size();
+    unsigned int pick;
+    if (size > FAMILIES) {
+        pick = random_below((unsigned int)size);
+        if (pick >= FAMILIES) {
+            const char *last = pool_name((int)pick);
+            size_t have = strlen(name), add = strlen(last);
+            if (add > 0 && have + 1 + add + 1 <= room) {
+                name[have] = ' ';
+                memcpy(name + have + 1, last, add + 1);
+                return;
+            }
+        }
+    }
+    give_last_name(name, room, family);
 }
 
 /* The rule a birth uses (the owner, 2026-10-09 and 2026-10-31): one parent's
@@ -1677,7 +1777,8 @@ static void log_name_change(const unsigned char *record, const char *old_name) {
 static int heathen_families(int slot, const unsigned char *records, int slots) {
     char rule[8], add[HEATHEN_FAMILY_COUNT * (16 + 2 * LONGEST_LAST)], text[2 * LONGEST_LAST + 2];
     const char *line;
-    int free_names[FAMILIES], free_count = 0, i, k, chosen;
+    static int free_names[POOL_MAX];
+    int free_count = 0, i, k, chosen, pool;
     size_t used = 0;
     if (!read_record(slot, rule, sizeof rule)) {
         g_rule_file[0] = '\0';              /* no record of this village (yet): no lines of it */
@@ -1783,15 +1884,17 @@ static int heathen_families(int slot, const unsigned char *records, int slots) {
     g_used_count = 0;
     used_of_record();
     table_lasts(records, NB_STRIDE, slots, NB_ACTIVE, NB_NAME, NB_NAME_CAP, NULL, 0);   /* believers only */
+    pool = pool_size();                     /* the game's 50 and the player's (CUSTOM STUFF) */
     for (chosen = 0; chosen < 2 && g_family_count < HEATHEN_FAMILY_COUNT; ++chosen) {
         free_count = 0;
-        for (i = 0; i < FAMILIES; ++i) {
-            int taken = g_last[i][0] == '\0';
+        for (i = 0; i < pool; ++i) {
+            const char *name = pool_name(i);
+            int taken = name[0] == '\0';
             for (k = 0; k < g_family_count && !taken; ++k) {
-                taken = strcmp(g_family[k], g_last[i]) == 0;
+                taken = strcmp(g_family[k], name) == 0;
             }
             for (k = 0; chosen == 0 && k < g_used_count && !taken; ++k) {
-                taken = strcmp(g_used[k], g_last[i]) == 0;
+                taken = strcmp(g_used[k], name) == 0;
             }
             if (!taken) {
                 free_names[free_count++] = i;
@@ -1799,7 +1902,7 @@ static int heathen_families(int slot, const unsigned char *records, int slots) {
         }
         while (free_count > 0 && g_family_count < HEATHEN_FAMILY_COUNT) {
             int at = (int)random_below((unsigned int)free_count);
-            const char *last = g_last[free_names[at]];
+            const char *last = pool_name(free_names[at]);
             size_t n = utf8_of(last, text, sizeof text);
             memcpy(g_family[g_family_count++], last, strlen(last) + 1);
             free_names[at] = free_names[--free_count];
@@ -2230,20 +2333,68 @@ static int gets_a_last_name(const unsigned int *entry) {
     return 0;
 }
 
+/* A naming that gets a last name (gets_a_last_name) is a new village's
+   founder when its caller's slot -- one gets_a_last_name has already read --
+   is one of the seeding's or the founders' calls (WHICH NAMING GETS A LAST
+   NAME above); otherwise it is a birth. */
+static const unsigned int FOUNDERS_VV1[] = VV1_SEEDING;
+static const unsigned int FOUNDERS_VV2[] = VV2_SEEDING;
+static const unsigned int FOUNDERS_VV3[] = VV3_SEEDING;
+static const unsigned int FOUNDERS_VV4[] = { 0x43B929u, 0x420268u };
+static const unsigned int FOUNDERS_VV5[] = { 0x43E317u, 0x425D48u };
+static const struct {
+    unsigned int offset;
+    const unsigned int *values;
+    int count;
+} FOUNDER_SLOT[GAMES + 1] = {
+    { 0, NULL, 0 },
+    { 0x4Cu, FOUNDERS_VV1, sizeof FOUNDERS_VV1 / sizeof FOUNDERS_VV1[0] },
+    { 0x188u, FOUNDERS_VV2, sizeof FOUNDERS_VV2 / sizeof FOUNDERS_VV2[0] },
+    { 0x198u, FOUNDERS_VV3, sizeof FOUNDERS_VV3 / sizeof FOUNDERS_VV3[0] },
+    { 0x19Cu, FOUNDERS_VV4, sizeof FOUNDERS_VV4 / sizeof FOUNDERS_VV4[0] },
+    { 0x1A4u, FOUNDERS_VV5, sizeof FOUNDERS_VV5 / sizeof FOUNDERS_VV5[0] },
+};
+
+static int is_founder(const unsigned int *entry) {
+    int k;
+    if (entry[0] != NAMED[g_game][0].from) {
+        return 0;                                   /* a copy (twin, triplet): a birth */
+    }
+    for (k = 0; k < FOUNDER_SLOT[g_game].count; ++k) {
+        if (entry[FOUNDER_SLOT[g_game].offset / 4] == FOUNDER_SLOT[g_game].values[k]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /* VV1/VV2: after the routine, `out` holds the first name; the record is
-   array + index * stride. */
+   array + index * stride.  The sex: +0x350 (A New Home) / +0x538 (The Lost
+   Children), 2 for a woman -- the field the routine itself read. */
 static void __cdecl after_out(const unsigned int *entry, unsigned char *array, unsigned int index, char *out) {
     const struct game_site *s = &SITES[g_game];
+    unsigned char *record = array + index * s->stride;
+    custom_first_name(out, s->room, *(int *)(record + (g_game == 1 ? 0x350u : 0x538u)) == 2);
     if (gets_a_last_name(entry)) {
-        give_last_name(out, s->room, *(int *)(array + index * s->stride + s->family));
+        if (is_founder(entry)) {
+            founder_last_name(out, s->room, *(int *)(record + s->family));
+        } else {
+            give_last_name(out, s->room, *(int *)(record + s->family));
+        }
     }
 }
 
-/* VV3-VV5: the routine wrote the name and the family into the villager. */
+/* VV3-VV5: the routine wrote the name and the family into the villager; its
+   sex is at +4, 1 for a woman (the field the routine itself read). */
 static void __cdecl after_villager(const unsigned int *entry, unsigned char *villager) {
     const struct game_site *s = &SITES[g_game];
+    custom_first_name((char *)(villager + s->name), s->room, *(int *)(villager + 4) == 1);
     if (gets_a_last_name(entry)) {
-        give_last_name((char *)(villager + s->name), s->room, *(int *)(villager + s->family));
+        if (is_founder(entry)) {
+            founder_last_name((char *)(villager + s->name), s->room, *(int *)(villager + s->family));
+        } else {
+            give_last_name((char *)(villager + s->name), s->room, *(int *)(villager + s->family));
+        }
     } else if (is_heathen_naming(entry)) {
         heathen_named(villager);            /* New Believers: one of the village's four (HEATHENS) */
     }

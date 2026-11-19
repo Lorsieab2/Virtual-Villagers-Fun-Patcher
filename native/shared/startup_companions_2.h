@@ -77,6 +77,10 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Change Sex and Gender Presentation (all five games): a villager drawn with the other sex's heads and bodies,
        keeping the recorded sex; its row also offers Change Appearance's Change sex button. */
     "VVFP Gender Presentation.dll",
+    /* Custom Stuff (all five games): the player's own first and last names added to the game's.  Started after
+       "VVFP Last Names.dll" (the first word), whose naming wrapper calls it, and after the Unicode text
+       companions above, which it asks whether the game draws UTF-8. */
+    "VVFP Custom Names.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

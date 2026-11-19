@@ -1,0 +1,38 @@
+{
+  "id": "vv3_custom_stuff",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv3",
+  "name": "Custom Stuff: Your Own Names",
+  "description": "Adds your own first names and last names to the game's, made in the patcher's **Custom Stuff...** window (Tools tab). Your names are additions: the game's own names always stay, and every name is treated the same. **First names:** whenever the game names a new villager, your names for that sex are in the same pool as the game's own, every name equally likely (with 125 names of the game's and 20 of yours, each comes up 1 time in 145). **Last names:** your last names join the game's list of 50 wherever Villagers Have Last Names draws one -- a new village's founders, \"Random last name from the list\", and (New Believers) the Heathens' family names -- every name equally likely; children then take their parents' last names by your rule as always. A name is one word, at most 10 letters (first names) or 12 (last names), with no numbers-only Roman numerals and no %; the window checks every name and says why one is refused. **On by default:** with no names of your own the game names villagers exactly as before. **Needs no other patch for first names; your last names need Villagers Have Last Names.** **Works the same with every other patch and in every population mode.** Villagers who already have names keep them; a name is the text the game saves anyway, so it stays if this patch is later removed. **Not yet seen in a running game.** The companion is \"VVFP Custom Names.dll\", started by VVFP Startup.dll; your lists are copied to the game's \"Virtual Villagers Fun Patcher Files\\Custom Stuff\" folder, and saves are never written by it.",
+  "output_tag": "Custom Stuff",
+  "dependencies": [],
+  "behavior_changes": [
+    "After the naming routine 0x45C670 writes a first name drawn from S of the game's names (S the bound pushed at 0x45C677: 123, or 125 with Fix Vanilla Bugs, read at run time), the companion gives one of the player's C names for the villager's sex instead with chance C / (S + C), each equally likely, so every name is 1 in (S + C). Called by VVFP Last Names.dll's wrapper before it adds a last name; when the routine still holds its stock first instruction (Last Names not in the game) the companion detours it itself.",
+    "VVFP Last Names.dll adds the player's last names to its list of 50 wherever it draws: a founder's last name is one of the player's with chance C / (50 + C) (else the family's, as before), \"Random last name from the list\" and the village rule's fallback draw from all 50 + C, and New Believers' four Heathen family names are chosen among all 50 + C.",
+    "The player's lists: \"Virtual Villagers Fun Patcher Files\\Custom Stuff\\First Names - Male.txt\", \"First Names - Female.txt\" and \"Last Names.txt\" (UTF-8, one name per line), read once as the game opens; a name that is not one word, holds '%', a control byte or only Roman-numeral letters, or is longer than 10 (first) / 12 (last) bytes is skipped; one outside Windows-1252 only when the game draws UTF-8."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion's only site, when it needs one, is the naming routine's first instruction, verified first (with the roll's push); otherwise nothing is installed.",
+    "The game's own names, villagers who already have names, sexes, looks and families are unchanged; the save format is unchanged.",
+    "A birth's last name still comes from its parents by the Last Names rule; the family number's name stays the fallback."
+  ],
+  "evidence_status": "static exact-build verification of the naming routines, the first-name roll bound and the sex field each routine reads; the companion's draw tested on its own exports (tests/test_custom_stuff.py); runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/custom_names/VVFP Custom Names.dll",
+      "destination": "VVFP Custom Names.dll",
+      "sha256": "CE95658776527269158B57CD027B08332A159DE91A6AB1D06543027B23DD82D2"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x45C670",
+      "stock_bytes": "81EC24070000",
+      "routine": "the villager naming routine (only when VVFP Last Names.dll has not detoured it)",
+      "installed_by": "VVFP Custom Names.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

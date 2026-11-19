@@ -41,6 +41,7 @@ import vv_startup_questions
 import vv_tribe_rename
 import vv_translations
 import vv_translations_window
+import vv_custom_stuff_window
 import vv_vv2_totem_store
 import vv_vv2_totems
 import vv_genealogy
@@ -2089,6 +2090,11 @@ class App(tk.Tk):
             slot_links, "Game Text...", self._game_text_single
         ).pack(side="left", padx=(18, 0))
         self._help_button(slot_links, "game_text").pack(side="left", padx=(3, 0))
+        # Custom Stuff (the owner, 2026-11-19): the player's own names, last names, and likes and dislikes.
+        self._folder_link(
+            slot_links, "Custom Stuff...", self._custom_stuff_single
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(slot_links, "custom_stuff").pack(side="left", padx=(3, 0))
         box = ttk.LabelFrame(tab, text="Each of the five games (their folders on the All 5 Games tab)", padding=10)
         box.pack(fill="x", pady=(10, 0))
         # The save and log links get a grid of their own below: in one row
@@ -2276,6 +2282,10 @@ class App(tk.Tk):
     def _unicode_font_single(self) -> None:
         """Unicode Font for the game chosen on the One Game tab."""
         self._unicode_font_tool(self._single_build())
+
+    def _custom_stuff_single(self) -> None:
+        """Custom Stuff for the game chosen on the One Game tab (the window has a game picker for the other four)."""
+        vv_custom_stuff_window.open_custom_stuff(self, self._single_build())
 
     def _game_text_single(self) -> None:
         """Game Text for the game chosen on the One Game tab."""

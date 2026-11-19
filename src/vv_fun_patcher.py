@@ -344,6 +344,10 @@ CHILDREN_PLAY_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_children_play_featur
 # scripts/build_gender_presentation_feature.py.
 GENDER_PRESENTATION_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_gender_presentation_feature.json"
                                           for n in range(1, 6))
+# Custom Stuff: Your Own Names (all five games; the owner, 2026-11-19): the player's own first and last names added
+# to the game's; companion only, "VVFP Custom Names.dll", started by VVFP Startup.dll from its second word; the lists
+# are copied in after the build (_apply_custom_stuff); scripts/build_custom_stuff_features.py.
+CUSTOM_STUFF_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_custom_stuff_feature.json" for n in range(1, 6))
 # Island Events Scale With Population (like The Lost Children) and its alternative Island Events Scale With Stored
 # Food and Tech Points (A New Home, The Tree of Life, New Believers; the owner, 2026-11-12): companion only, "VVFP
 # Island Events Scale.dll", started by VVFP Startup.dll from its second word; the stored row also ships the flag
@@ -4232,7 +4236,7 @@ def _load_fun_patch_records(
                          + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS
                          + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS
                          + LOUDER_FLUTES_FEATURE_PATHS + CHILDREN_PLAY_FEATURE_PATHS
-                         + GENDER_PRESENTATION_FEATURE_PATHS
+                         + GENDER_PRESENTATION_FEATURE_PATHS + CUSTOM_STUFF_FEATURE_PATHS
                          + ISLAND_EVENTS_SCALE_FEATURE_PATHS
                          + SCROLLING_POPUPS_FEATURE_PATHS + MORE_ISLAND_EVENTS_FEATURE_PATHS
                          + EVENT_COLLECTION_FEATURE_PATHS):
@@ -12763,7 +12767,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "136D72FEB8B411FD8293D6DB07F163732F18E6F2161F29474553FCC3B9E0F2CC",
+    "sha256": "62334D7B65D06FA316193C32F00D45225B46B656F0E887395031186B321241E1",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12882,6 +12886,9 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Change Sex and Gender Presentation (all five games): a villager drawn with the other sex's heads and bodies,
     # keeping the recorded sex; its row also offers Change Appearance's "Change sex...".
     "VVFP Gender Presentation.dll",
+    # Custom Stuff (all five games): the player's own first and last names added to the game's (started after
+    # VVFP Last Names.dll, whose naming wrapper calls it; after the Unicode text companions, which it asks).
+    "VVFP Custom Names.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time
@@ -14037,8 +14044,25 @@ def apply_patch(
         if staging_folder.exists():
             _cleanup_owned_tree(staging_folder)
     _apply_remembered_translation(build, output_folder, fun_patches)
+    _apply_custom_stuff(build, output_folder, fun_patches)
     refresh_shell_icons(output)
     return output, log_path
+
+
+def _apply_custom_stuff(build: "Build", output_folder: Path, fun_patches: list) -> None:
+    """A build that ships "VVFP Custom Names.dll" gets the player's Custom Stuff lists for its game, checked
+    (src/vv_custom_stuff.py apply_library), in "Virtual Villagers Fun Patcher Files\\Custom Stuff".  A failure here
+    never fails the finished build: the game then names villagers as before, and the Custom Stuff window's Save
+    copies the lists again."""
+    ships = any(str(item.get("destination", "")).casefold() == "vvfp custom names.dll"
+                for feature in fun_patches for item in feature.raw.get("companion_files", []))
+    if not ships:
+        return
+    try:
+        import vv_custom_stuff
+        vv_custom_stuff.apply_library(int(str(build.id).removeprefix("vv")), output_folder)
+    except (OSError, ValueError):
+        pass
 
 
 def _apply_remembered_translation(build: "Build", output_folder: Path, fun_patches: list) -> None:
