@@ -138,8 +138,12 @@ def _clicks() -> list[Entry]:
             "tips at the bottom of the screen.\" while it is still waiting to be shown (tip 304); after that each "
             "click also plays a sound (67)"), C, subs=(
                 # 0x421B40 sets +0x284 to 0x402F70 + 5; 0x402F70 counts real-life seconds since the program started.
-                ("The message line's timer is set 5 real-life seconds ahead (real time, the same at every speed, "
-                 "paused too); that the line is cleared then is not traced.", U),
+                # The update 0x423D02..0x423D42: speed >= 999 (paused) calls 0x421B40(42) every update (string 42,
+                # "GAME PAUSED"); otherwise once the real clock passes +0x284 it sets the line to "" (0x45743C) and
+                # the timer to 0.
+                ("The message line clears itself 5 real-life seconds after it was set (real time, the same at every "
+                 "speed). While the game is paused the line shows \"GAME PAUSED\" instead, put back on every update.",
+                 C),
                 # rand(100) <= 10 in 0x424EF0: two effects of type 4 at 168, 514 and 193, 505.
                 ("Moving the mouse over the mask: each movement has an 11% chance of starting two of the game's "
                  "short screen effects beside it; what they look like is not confirmed.", C),
@@ -186,8 +190,10 @@ def _tips() -> list[Entry]:
             # the help question switches them off at 0x41ECB6; the tutorial's next step 0x41C9A0.
             "pop-ups -- which the game queues by number and shows one at a time; up to 10 wait, and a tip asked for "
             "with the queue full is kept for a later time"), C, subs=(
-                ("A new village switches the tutorial tips on; answering the help question \"Would you like HELP "
-                 "the first time?\" one way switches them off (which button does it is not observed).", U),
+                # 0x41EC8B: the click is the button whose id is +0x2B4, the one labelled string 77 "No" (0x41EF9B;
+                # "Yes" is string 76 on +0x2B0); 0x41ECAF..0x41ECC3 clears the arming byte of tips 0x105..0x137.
+                ("A new village switches the tutorial tips on; answering \"No\" to the help question \"Would you "
+                 "like HELP the first time?\" switches every tutorial tip off (tips 261 to 311).", C),
                 ("Each tutorial step's instruction is queued when the step before it is shown, while that step has "
                  "not been shown yet: the tutorial runs in order, each tip once a village.", C))),
         Entry(TIP, f"The {RANDOM_COUNT} random tips (the mask)", "every one, as the game words it:", C,

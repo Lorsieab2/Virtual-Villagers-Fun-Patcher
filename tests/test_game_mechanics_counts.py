@@ -141,8 +141,8 @@ class VillageCounts(unittest.TestCase):
         self.assertIn("Chiefs Robed: 2 (villagers robed Tribal Chief, each once for life; patcher only).", body)
         self.assertIn("Stews Found: 9 (", body)
         self.assertIn("Puzzles Solved: 0 out of 16 (puzzles solved).", body)
-        self.assertIn("Village Elders: not shown (only the patcher's log keeps it, and its log for this save has no "
-                      "such row).", body)
+        self.assertIn("Village Elders: not known: the game's save does not keep this count, only the patcher's "
+                      "Village Statistics log does, and its log for this save has no such row.", body)
         self.assertIn(log.name, body)
 
     def test_counts_read_from_the_save_or_logs_carry_no_label(self) -> None:

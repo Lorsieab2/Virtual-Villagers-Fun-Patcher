@@ -356,7 +356,7 @@ def warp_dates_note(village: "Village", group: str, what: str) -> "Fact | None":
     if village.general or not states or all(state is False for state in states):
         return None
     which = ("This game has the patcher's Time Warp" if any(state is True for state in states)
-             else "If this game has the patcher's Time Warp (whether it does could not be told)")
+             else f"If this game has the patcher's Time Warp (whether it does could not be told; {BROWSE_HINT})")
     # Each warp moves the clock on by moving the clock's start (its epoch) back (WARP_IDS above).
     return Fact(group, (
         f"{which}: {what} counted from the start of the save's clock, and each Time Warp (and each step of Choose "
@@ -772,12 +772,18 @@ def golden_lines(feature: str, per_hour: float, speed_value: int, rate_words: st
                      "of having seen at least one."), False, sub=True)]
 
 
+# What the player can do when the game's patch list could not be told (the owner, 2026-11-18: nothing withheld; a note
+# is kept only for what truly cannot be known, with what the player can do about it).
+BROWSE_HINT = "pick the game with Browse... on the Game Mechanics window to find out"
+UNTOLD = f"whether the game has it could not be told; {BROWSE_HINT}"
+
+
 def patch_words(village: "Village", feature: str, effect: str) -> str:
     """One sentence on a patch that changes a rule: whether it is in the game and what it does."""
     name = f"\"{feature_name(feature)}\""
     has = village.has(feature)
     if has is None:
-        return f"With the patcher's {name}: {effect} (whether the game has it could not be told)."
+        return f"With the patcher's {name}: {effect} ({UNTOLD})."
     return f"The patcher's {name} is {'in' if has else 'not in'} the game" + (f": {effect}." if has else ".")
 
 
@@ -787,7 +793,7 @@ def flat_pick_mastery(village: "Village", feature: str, has: bool | None, levels
     Mastery level 1 -> 2 -> 3 (`levels`); the stock pick comes first in the line.  "" when it is not in the game."""
     if has is False:
         return ""
-    where = "" if has else " (whether the game has it could not be told)"
+    where = "" if has else f" ({UNTOLD})"
     return (f" With \"{feature_name(feature)}\"{where}: a pick {levels(7)} on Fast, {levels(3)} on Normal, "
             f"{levels(2)} on Slow and {levels(4)} while catching up.")
 

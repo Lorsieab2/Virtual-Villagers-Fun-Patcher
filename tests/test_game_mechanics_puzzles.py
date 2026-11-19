@@ -222,7 +222,8 @@ class TimeWarpDates(Pages):
                 facts = self.page(game, fixture(f"vv{game}-huttest-1"), features=[])
                 self.assertNotIn("patcher's Time Warp", gm.render(facts))
                 unknown = gm.render(self.page(game, fixture(f"vv{game}-huttest-1")))
-                self.assertIn("If this game has the patcher's Time Warp (whether it does could not be told)", unknown)
+                self.assertIn("If this game has the patcher's Time Warp (whether it does could not be told; "
+                              + gm.BROWSE_HINT + ")", unknown)
 
     def test_the_origins_time_warp_only_with_its_patch(self) -> None:
         """The shared Time away line (A New Home to The Tree of Life): the warp's rule only with the patch in the
