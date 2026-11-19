@@ -173,6 +173,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_gender_presentation")
                   # More Frequent Island Events (the owner, 2026-11-15: on in Owner's Defaults only).
                   or p.endswith("_more_frequent_island_events")
+                  # Its option The Golden Child May Be Born Female (50:50) (the owner, 2026-11-16).
+                  or p == "vv1_golden_child_born_female"
                   # The island events' content controls (the owner, 2026-11-15): Content Notes on in Owner's
                   # Defaults only; the 28 content filters and No Safeguards for Island Events off everywhere.
                   or p.endswith("_island_event_content_notes")
@@ -182,8 +184,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
     def test_change_sex_and_gender_presentation_is_on_in_owners_defaults_only(self) -> None:
         """The owner (2026-11-15): every new option is ON in Owner's Defaults and OFF everywhere else -- the normal
         defaults and Select All leave Change Sex and Gender Presentation off in all five games."""
-        for game in range(1, 6):
-            patch_id = f"vv{game}_gender_presentation"
+        # ...and its option The Golden Child May Be Born Female (50:50) (A New Home; the owner, 2026-11-16).
+        for patch_id in [f"vv{game}_gender_presentation" for game in range(1, 6)] + ["vv1_golden_child_born_female"]:
             with self.subTest(patch_id):
                 self.assertIn(patch_id, fun_patch_ids())
                 self.assertFalse(default_fun_patch_selection(patch_id))
@@ -387,6 +389,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {f"vv{n}_gender_presentation" for n in range(1, 6)}
         # ...and More Frequent Island Events (the owner, 2026-11-15: on in Owner's Defaults, off everywhere else).
         held_back |= {f"vv{n}_more_frequent_island_events" for n in range(1, 6)}
+        held_back |= {"vv1_golden_child_born_female"}     # its option (the owner, 2026-11-16)
         # ...and the island events' content controls (the owner, 2026-11-15): Content Notes (on in Owner's Defaults
         # only), the 28 content filters and No Safeguards for Island Events (off everywhere).
         held_back |= {f"vv{n}_island_event_content_notes" for n in range(1, 6)}

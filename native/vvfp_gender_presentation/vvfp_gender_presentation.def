@@ -8,3 +8,4 @@ EXPORTS
     VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16
     VvfpConceptionGuardInstalled=_VvfpConceptionGuardInstalled@4
     VvfpBornFemale=_VvfpBornFemale@8
+    VvfpGoldenChildBornFemaleInstalled=_VvfpGoldenChildBornFemaleInstalled@4

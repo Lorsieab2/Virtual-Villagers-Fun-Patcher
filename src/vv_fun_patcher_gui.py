@@ -368,6 +368,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # More Frequent Island Events (all five games; the owner, 2026-11-15: new v1.35.97 patches are on in Owner's
     # Defaults, off everywhere else) -- off here and in Select All.
     + ["vv%d_more_frequent_island_events" % game for game in range(1, 6)]
+    # Its option The Golden Child May Be Born Female (50:50) (A New Home; the owner, 2026-11-16): "ON in Owner's
+    # Defaults, off elsewhere".
+    + ["vv1_golden_child_born_female"]
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -444,6 +447,7 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
     # More Frequent Island Events: on in Owner's Defaults only (the owner, 2026-11-15).
     + ["vv%d_more_frequent_island_events" % game for game in range(1, 6)]
+    + ["vv1_golden_child_born_female"]
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS

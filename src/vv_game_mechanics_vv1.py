@@ -582,7 +582,16 @@ def golden_child_facts(village: gm.Village, data: bytes, created: float, level: 
         if data[GARDEN_FLAG] != 0 and data[BUTTERFLIES_FLAG] == 0 and golden:
             add("The Garden is done and The Butterflies is not: drop him on the garden.", gm.SAVE)
     out.extend(gm.Fact(group, line, ok) for line, ok in GOLDEN_CHILD_LINES)
+    if village.has(GC_BORN_FEMALE) is True:
+        # The Golden Child May Be Born Female (50:50) (the owner, 2026-11-16): the creator's own roll is kept
+        # (vvfp_gender_presentation.c, 0x43C7FB).
+        out.append(gm.Fact(group, "A new Golden Child is a boy or a girl, 50:50 (the game's own roll for any newborn, "
+                                  "which the game would otherwise set aside for a boy), with a name to match; the "
+                                  "Golden Child is still drawn with the Golden Child's own look.", gm.CODE))
     return out
+
+
+GC_BORN_FEMALE = "vv1_golden_child_born_female"
 
 
 def _context(village: gm.Village, data: bytes, epoch: int, speed_value: int, level: list[int], bush: int,

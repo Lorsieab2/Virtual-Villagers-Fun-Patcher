@@ -135,6 +135,10 @@ PATCHER_READS: frozenset[str] = frozenset({
     # whose presence beside the companions tells "VVFP Island Events Scale.dll" to scale by the stored food and tech
     # points instead of the population (vvfp_island_events_scale.c).
     "VVFP Island Events Scale Stored.txt",
+    # A New Home's The Golden Child May Be Born Female (50:50): a flag file whose presence beside the companions tells
+    # "VVFP Gender Presentation.dll" to keep the sex the creator draws for a new Golden Child
+    # (vvfp_gender_presentation.c).
+    "VVFP Golden Child Born Female.txt",
 }) | frozenset(
     # The Unicode companions' bundled open fonts (assets/unicode_fonts), their licence texts and sources: loaded
     # privately by "VVFP Unicode Text.dll" / "VVFP Unicode Font.dll" from "Unicode Fonts\\" beside them.

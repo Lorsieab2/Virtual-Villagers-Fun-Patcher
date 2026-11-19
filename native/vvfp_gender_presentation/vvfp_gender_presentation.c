@@ -58,6 +58,7 @@
 #include "../shared/foreign_sidecar.h"
 #include "../shared/game_save_slot.h"
 #include "../shared/install_sites.h"
+#include "../shared/patcher_files.h"
 #include "../shared/vv3_villager_table.h"
 #include "../shared/vv4_villager_table.h"
 #include "../shared/vv5_villager_table.h"
@@ -580,6 +581,107 @@ static int gp_guard_fill(vvfp_site_write *w) {
     return 1;
 }
 
+/* ---- A NEW HOME: THE GOLDEN CHILD MAY BE BORN FEMALE --------------------------------------------------------
+
+   The owner (2026-11-16): "The Golden Child may be born female (50:50)", an option of this row (A New Home only; on
+   in Owner's Defaults): its file "VVFP Golden Child Born Female.txt" in the patcher's folder turns it on.
+
+   THE GAME.  Every Golden Child comes from the villager creator 0x43C350 with the family 0xC7 -- the puzzle's drop
+   (0x4242F3), a delivery whose family is his (0x42EF5A), Story / Cheat Upgrades' "The Golden Child" -- which first
+   draws the sex as for any newborn (the sex argument 0: rand(100) < 50 a boy, else a girl, 0x43C5F1; the name is
+   then drawn from that sex's list), and at the end forces the Golden Child's own values (0x43C7AF): skills, health,
+   head and body 0x13, and the sex field 1, a boy (`mov dword [esi+0x350], 1` at 0x43C7FB).  The option replaces
+   that one write with a call: the sex the creator drew is kept (50:50, the game's own roll, which the creator made
+   in any case -- no roll more), so the name fits it.  The Golden Child is still DRAWN a boy: the portrait and a
+   dialog's figure (the only draws that read the sex) are handed "male" for the Golden Child by this DLL's draws
+   (gp_drawn_sex, option 1), which is why the option is part of this row and installed only with the draws.
+
+   THE WORDS.  The game's "The Golden Child" popup (message 0x14A, queued just before the creator runs and shown
+   after it) says "No one can doubt or deny his powers!".  When a Golden Child is born a girl, the table entry of
+   that English message (0x489264, in the writable .data) is pointed at a copy saying "her powers"; when one is
+   born a boy, back at the game's own text.  An entry holding anything else (VVFP Translations.dll's) is never
+   touched.  The other languages' texts are the game's. */
+#define GC_FLAG "VVFP Golden Child Born Female.txt"
+#define GC_SITE 0x43C7FBu
+#define GC_TEXT_ENTRY 0x489264u
+#define GC_TEXT_STOCK 0x46F650u
+#define GC_TEXT_HIS "or deny his powers!"
+#define GC_TEXT_HER "or deny her powers!"
+static const unsigned char GC_FORCE_BOY[10] = { 0xC7, 0x86, 0x50, 0x03, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00 };
+static int g_gc_installed;
+static char g_gc_her[512];             /* the English message with "her powers" */
+
+static int gp_gc_shipped(void) {
+    wchar_t path[VVFP_PATCHER_FILES_PATH_CAP];
+    DWORD attributes;
+    if (vvfp_exe_relative_path_w(path, VVFP_PATCHER_FILES_PATH_CAP, VVFP_PATCHER_FILES_FOLDER, GC_FLAG) == 0) {
+        return 0;
+    }
+    attributes = GetFileAttributesW(path);
+    return attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY) == 0;
+}
+
+/* The Golden Child in `record` was just made (the creator's last write, which the call replaced): the popup's words
+   follow the sex the creator drew. */
+static void __cdecl gp_gc_born(const unsigned char *record) {
+    __try {
+        unsigned int *entry = (unsigned int *)(UINT_PTR)GC_TEXT_ENTRY;
+        int female = *(const int *)(record + LAYOUT[1].sex) == 2;
+        if (g_gc_her[0] == '\0') {
+            return;
+        }
+        if (female && *entry == GC_TEXT_STOCK) {
+            *entry = (unsigned int)(UINT_PTR)g_gc_her;
+        } else if (!female && *entry == (unsigned int)(UINT_PTR)g_gc_her) {
+            *entry = GC_TEXT_STOCK;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+/* In place of `mov dword [esi+0x350], 1` (the creator's record in esi): every register and the flags kept. */
+static __declspec(naked) void gp_gc_stub(void) {
+    __asm {
+        pushfd
+        pushad
+        push esi
+        call gp_gc_born
+        add esp, 4
+        popad
+        popfd
+        ret
+    }
+}
+
+/* The stock English message with "his powers" made "her powers", into g_gc_her (empty when it is not the stock). */
+static void gp_gc_text(void) {
+    const char *stock = (const char *)(UINT_PTR)GC_TEXT_STOCK;
+    const char *at;
+    int n;
+    g_gc_her[0] = '\0';
+    __try {
+        n = lstrlenA(stock);
+        at = strstr(stock, GC_TEXT_HIS);
+        if (n <= 0 || n >= (int)sizeof g_gc_her || at == NULL) {
+            return;
+        }
+        memcpy(g_gc_her, stock, (size_t)n + 1);
+        memcpy(g_gc_her + (at - stock), GC_TEXT_HER, sizeof GC_TEXT_HER - 1);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        g_gc_her[0] = '\0';
+    }
+}
+
+static void gp_gc_install(void) {
+    vvfp_site_write w;
+    if (g_game != 1 || !g_installed || !gp_gc_shipped()) {
+        return;                         /* the option is shipped, and the Golden Child is drawn a boy */
+    }
+    gp_gc_text();
+    vvfp_site_branch(&w, GC_SITE, 10, GC_FORCE_BOY, 0xE8, (const void *)gp_gc_stub);
+    g_gc_installed = vvfp_install_sites(&w, 1);
+}
+
 /* ---- exports ---------------------------------------------------------------------------------------------- */
 
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
@@ -599,6 +701,12 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     count += gp_guard_fill(&w[count]);
     /* One all-or-none install: the draws and the conception guard together. */
     g_installed = g_guard_installed = vvfp_install_sites(w, count);
+    gp_gc_install();                    /* A New Home: the Golden Child may be born female (its own site) */
+}
+
+/* 1 when "The Golden Child may be born female" is installed (A New Home), else 0. */
+int __stdcall VvfpGoldenChildBornFemaleInstalled(int game) {
+    return g_game == 1 && game == 1 && g_gc_installed;
 }
 
 int __stdcall VvfpConceptionGuardInstalled(int game) {
