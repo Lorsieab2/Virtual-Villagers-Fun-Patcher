@@ -93,6 +93,10 @@ CAPTION = DATA["captions"][0]
 CAPTION_SITE = 0x451CF6
 HARVEST_COPY = (0x451CF2, 0x451D05)
 PICK_COPY = (0x451C42, 0x451C55)
+# New Believers' lab equipment line: the ground click's format push and the Collections screen's two pushes.
+LAB = DATA["formats"][0]
+LAB_SITE = 0x443BB0
+COLLECTIONS_PUSHES = (0x43EBB2, 0x43EBF1)
 
 
 def fixes(game: int) -> list[dict]:
@@ -144,6 +148,20 @@ class TheData(unittest.TestCase):
             english = tr.game_english(4, STOCK[4], STOCK_SM[4])
             self.assertEqual(english[CAPTION["stock_stem"]], CAPTION["old"])
 
+    def test_the_lab_format_is_the_companions(self) -> None:
+        self.assertEqual(len(DATA["formats"]), 1)
+        self.assertEqual((LAB["game"], int(LAB["site"], 16), LAB["old"], LAB["new"]),
+                         (5, LAB_SITE, "%d%s12 %s", "%d%s24 %s"))
+        source = (ROOT / "native" / "vvfp_text_fixes" / "vvfp_text_fixes.c").read_text(encoding="utf-8")
+        self.assertIn(f'#define LAB_OLD "{LAB["old"]}"', source)
+        self.assertIn(f'LAB_NEW[] = "{LAB["new"]}"', source)
+        if HAVE_STOCK:
+            image = tr.ExeImage(STOCK[5].read_bytes())
+            self.assertEqual(image.cstring(int(LAB["literal"], 16)), LAB["old"].encode())
+            english = tr.game_english(5, STOCK[5], STOCK_SM[5])
+            for stem in LAB["words"]:
+                self.assertIn(stem, english)                     # the words are the game's own rows
+
     def test_the_companions_table_is_generated_from_the_data(self) -> None:
         done = subprocess.run([sys.executable, str(ROOT / "scripts" / "build_text_fixes_table.py"), "--check"],
                               cwd=ROOT, capture_output=True, text=True)
@@ -165,6 +183,8 @@ class TheRows(unittest.TestCase):
                 expected = [SITES[game][:2]] if game in SITES else []
                 if game == 4:
                     expected.append((CAPTION_SITE, "6A27508D86E41C0000"))
+                if game == 5:
+                    expected.append((LAB_SITE, "6850A34900"))
                 self.assertEqual(detours, expected)
                 self.assertIn(DLL_NAME, r["description"])
                 if game in (4, 5):
@@ -402,6 +422,59 @@ class TheCompanion(unittest.TestCase):
         for other in (b"Recolte des mures", old + b" ", b""):              # another patch's text is kept
             with self.subTest(other=other):
                 self.assertEqual(self.caption_after(p, *HARVEST_COPY, other), other)
+
+    # -- New Believers: the lab equipment line ------------------------------------------------------------------
+    def lab_line(self, p, count: int) -> bytes:
+        """Runs the ground click's own format step (0x443BAB: push the count / the buffer / the pushed format /
+        the game's sprintf 0x47C046) with the two words on the stack; returns the line it writes."""
+        of, words = p.alloc(16), p.alloc(64)
+        p.write(of, b" of \0")
+        p.write(words, b"pieces of lab equipment collected\0")
+        esp = p.alloc(0x400) + 0x200
+        p.put32(esp, of)
+        p.put32(esp + 4, words)
+        p.set_reg("esp", esp)
+        p.set_reg("eax", count)
+
+        def sprintf(proc):
+            # the C runtime's sprintf needs its thread data, which the emulation has not set up: the same
+            # formatting of the format the game pushed, with its %d / %s arguments (cdecl: the caller pops)
+            sp = proc.reg("esp")
+            out, fmt_va, n, s1, s2 = (proc.u32(sp + 4 * k) for k in range(1, 6))
+            text = self.cstring(proc, fmt_va).decode().replace("%d", str(n), 1)
+            text = text.replace("%s", self.cstring(proc, s1).decode(), 1)
+            text = text.replace("%s", self.cstring(proc, s2).decode(), 1)
+            proc.write(out, text.encode() + b"\0")
+            return len(text), 0
+
+        p.stubs[0x47C046] = sprintf
+        p.run(0x443BAB, 0x443BBB)
+        return self.cstring(p, esp + 0x14)
+
+    def test_the_lab_line_counts_out_of_24(self) -> None:
+        stock = self.process(5, install=False)
+        self.assertEqual(self.lab_line(stock, 13), b"13 of 12 pieces of lab equipment collected")
+        p = self.process(5)
+        self.assertEqual(p.export("VvfpTextFixesLabInstalled"), 1)
+        for n in (0, 13, 24):
+            self.assertEqual(self.lab_line(p, n), f"{n} of 24 pieces of lab equipment collected".encode())
+        # the Collections screen's own counts and the format in the game's data are unchanged
+        for at in COLLECTIONS_PUSHES:
+            self.assertEqual(p.read(at, 5), stock.read(at, 5))
+        self.assertEqual(self.cstring(p, int(LAB["literal"], 16)), LAB["old"].encode())
+        for game in (3, 4):
+            self.assertEqual(self.process(game).export("VvfpTextFixesLabInstalled"), 0)
+
+    def test_the_lab_line_installs_only_with_its_stock_bytes(self) -> None:
+        for at in (LAB_SITE - 5, LAB_SITE, LAB_SITE + 4, LAB_SITE + 6, 0x49A350 + 4):
+            with self.subTest(at=hex(at)):
+                data = bytearray(STOCK[5].read_bytes())
+                pe = pefile.PE(data=bytes(data), fast_load=True)
+                data[pe.get_offset_from_rva(at - 0x400000)] ^= 0x01
+                p = self.process(5, bytes(data))
+                self.assertEqual(p.export("VvfpTextFixesInstalled"), 0)       # all or none
+                self.assertEqual(p.export("VvfpTextFixesLabInstalled"), 0)
+                self.assertEqual(p.read(SITES[5][0], 5).hex().upper(), SITES[5][1])
 
     def test_the_caption_installs_only_with_its_stock_bytes(self) -> None:
         for game in (3, 5):

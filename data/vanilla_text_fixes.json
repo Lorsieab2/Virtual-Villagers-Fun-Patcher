@@ -1,5 +1,5 @@
 {
- "about": "Fix Vanilla Bugs: the games' own typos the owner approved (2026-11-17), fixed in memory by \"VVFP Text Fixes.dll\" (native/vvfp_text_fixes) as each game's string table is filled. A fix applies only when the text the game would show is exactly `old` (so Optional Text Changes, Guardians of Isola and translations are left alone); `new` replaces it whole. Only text players see in normal play is listed (`shown`: where, static evidence from the stock executables). scripts/build_text_fixes_table.py writes native/vvfp_text_fixes/tf_fixes.inc from this file; src/vv_translations.py gives `new` as the template's English when the companion is installed. `captions`: a text the game shares between two actions, changed only at one action's own copy (`site`), when the looked-up text is exactly `old` or the caption has a translation (its own template row `key`).",
+ "about": "Fix Vanilla Bugs: the games' own typos the owner approved (2026-11-17), fixed in memory by \"VVFP Text Fixes.dll\" (native/vvfp_text_fixes) as each game's string table is filled. A fix applies only when the text the game would show is exactly `old` (so Optional Text Changes, Guardians of Isola and translations are left alone); `new` replaces it whole. Only text players see in normal play is listed (`shown`: where, static evidence from the stock executables). scripts/build_text_fixes_table.py writes native/vvfp_text_fixes/tf_fixes.inc from this file; src/vv_translations.py gives `new` as the template's English when the companion is installed. `captions`: a text the game shares between two actions, changed only at one action's own copy (`site`), when the looked-up text is exactly `old` or the caption has a translation (its own template row `key`). `formats`: a format literal in the executable (`literal`) one push (`site`) uses; that push gets `new` when the literal is exactly `old`. Its words are the game's own string rows (`words`), translated as usual; the format holds no words of its own.",
  "fixes": [
   {
    "game": 1,
@@ -92,6 +92,21 @@
    "new": "Harvesting berries with a cutting tool",
    "reason": "the owner (2026-11-17): a villager harvesting blackberries with a cutting tool says so; picking keeps \"Harvesting blackberries\" (both share text 0x280, so only the harvest's own copy changes; the caption field holds 39 letters, so \"Harvesting blackberries with a cutting tool\", 43, is shortened)",
    "shown": "the villager's caption while harvesting with a cutting tool (action 0xBE, 0x451CE0: its copy of text 0x280 at 0x451CF6 into +0x1CE4)"
+  }
+ ],
+ "formats": [
+  {
+   "game": 5,
+   "site": "0x443BB0",
+   "literal": "0x49A350",
+   "old": "%d%s12 %s",
+   "new": "%d%s24 %s",
+   "words": [
+    "sm/eCollectionsOf",
+    "sm/eString_LabEquipment"
+   ],
+   "reason": "the owner (2026-11-18): the ground click at place 35 says \"<n> of 12 pieces of lab equipment collected\" while n counts all 24 pieces, so players read \"13 of 12\"; the Collections screen says \"of 24\"",
+   "shown": "the message-bar line of a ground click at map place 35 (0x443AC0: map type 0x23, sprintf at 0x443BB6 of the format pushed at 0x443BB0 with strings 1183 and 1184)"
   }
  ]
 }

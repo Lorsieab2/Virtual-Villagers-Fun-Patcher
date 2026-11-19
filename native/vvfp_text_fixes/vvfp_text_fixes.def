@@ -4,3 +4,4 @@ EXPORTS
     VvfpTextFixesInstalled=_VvfpTextFixesInstalled@0
     VvfpTextFixesApplied=_VvfpTextFixesApplied@0
     VvfpTextFixesCaptionInstalled=_VvfpTextFixesCaptionInstalled@0
+    VvfpTextFixesLabInstalled=_VvfpTextFixesLabInstalled@0
