@@ -70,7 +70,10 @@ MEANING = {
     "Tech Points Earned": "tech points earned",
     "People Cured": "villagers cured",
     "Mushrooms Found": "mushrooms picked",
-    "Highest Population": "the most villagers the village has had at once",
+    # The game's own high-water mark of its population counter (VV1 0x42F16C, VV2 0x43C0C5, VV3 0x428CB0, VV4
+    # 0x420603, VV5 0x4261B8), which adds the babies being carried (src/vv_game_mechanics_carried.py).
+    "Highest Population": "the most people the game's population count has reached at once, babies being carried "
+                          "included",
     "Village Elders": "villagers who ever held Master in 3 or more skills, each counted once",
     "Oldest Villager": "the oldest age a villager has reached, in villager years",
     "Island Events Seen": "island events",
