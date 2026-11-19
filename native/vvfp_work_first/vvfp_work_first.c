@@ -877,7 +877,7 @@ static int site_is_stock(const struct site *s) {
    (native/shared/install_sites.h). */
 __declspec(dllexport) int __stdcall VvfpWorkFirstInstall(int game_id) {
     vvfp_site_write w[MAX_SITES + 1];
-    int n = 0, i;
+    int n = 0, i, gate_stock = 0;
     if (game_id < 1 || game_id > 5) {
         return 0;
     }
@@ -893,15 +893,23 @@ __declspec(dllexport) int __stdcall VvfpWorkFirstInstall(int game_id) {
             return 0;
         }
     }
-    if (game_id == 1 && !vvfp_site_holds(VV1_PICKER_GATE, VV1_PICKER_GATE_STOCK, sizeof VV1_PICKER_GATE_STOCK)) {
-        return 0;
+    /* A New Home's picker gate: stock (cmp esi, 1; jle), or already cmp esi, 5
+       -- Birth Control (vv1_birth_control) raises the same floor to 5 and
+       routes the jle into its own page, which keeps the "above 5" rule; the
+       gate is then left as it is.  Anything else: install nothing. */
+    if (game_id == 1) {
+        gate_stock = vvfp_site_holds(VV1_PICKER_GATE, VV1_PICKER_GATE_STOCK, sizeof VV1_PICKER_GATE_STOCK);
+        if (!gate_stock && !vvfp_site_holds(VV1_PICKER_GATE, VV1_PICKER_GATE_ABOVE_5,
+                                            sizeof VV1_PICKER_GATE_ABOVE_5)) {
+            return 0;
+        }
     }
     for (i = 0; i < MAX_SITES && SITES[game_id][i].va != 0; ++i) {
         vvfp_site_branch(&w[n++], SITES[game_id][i].va, SITES[game_id][i].length, SITES[game_id][i].stock,
                          SITES[game_id][i].opcode ? SITES[game_id][i].opcode : 0xE9,
                          (const void *)SITES[game_id][i].stub);
     }
-    if (game_id == 1) {
+    if (game_id == 1 && gate_stock) {
         vvfp_site_bytes(&w[n++], VV1_PICKER_GATE, sizeof VV1_PICKER_GATE_ABOVE_5, VV1_PICKER_GATE_STOCK,
                         VV1_PICKER_GATE_ABOVE_5);
     }
