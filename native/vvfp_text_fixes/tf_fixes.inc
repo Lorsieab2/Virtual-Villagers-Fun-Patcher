@@ -125,6 +125,10 @@ static const tf_fix TF_FIXES[] = {
       "Two children have been constantly fighting over a pretty, round shell. {name} is sick of the bickeri"
       "ng and decides to intervene. The children will have to either be taught to share the shell, or they "
       "will have to decide who will keep it." },
+    /* sm/eEndGamePage3Line2: words left out of the ending: "thrive here" and "the ancient, mysterious tree" (the owner, 2026-11-19) */
+    { 4, "eEndGamePage3Line2", 0u,
+      "As your villagers continue to grow and thrive, they are drawn to the mysterious tree.\n",
+      "As your villagers continue to grow and thrive here, they are drawn to the ancient, mysterious tree.\n" },
     /* sm/eEventMysteriousStorytellerResultB: missing spaces after two full stops: "island.Others", "nature.They" */
     { 5, "eEventMysteriousStorytellerResultB", 0u,
       "The mysterious stranger gazes across his audience and announces, \"Fear not! It is only me, Biggles!"
@@ -157,4 +161,4 @@ static const tf_fix TF_FIXES[] = {
       "Your tribe gains 3000 tech points." },
 };
 /* every fixed text with its terminator: the size of the companion's own writable copies */
-#define TF_POOL_SIZE 3370u
+#define TF_POOL_SIZE 3471u

@@ -66,6 +66,14 @@
    "new": "Two children have been constantly fighting over a pretty, round shell. {name} is sick of the bickering and decides to intervene. The children will have to either be taught to share the shell, or they will have to decide who will keep it."
   },
   {
+   "game": 4,
+   "stem": "sm/eEndGamePage3Line2",
+   "reason": "words left out of the ending: \"thrive here\" and \"the ancient, mysterious tree\" (the owner, 2026-11-19)",
+   "shown": "the ending (end-game page 3, line 2), after the Tree of Life is healed",
+   "old": "As your villagers continue to grow and thrive, they are drawn to the mysterious tree.\n",
+   "new": "As your villagers continue to grow and thrive here, they are drawn to the ancient, mysterious tree.\n"
+  },
+  {
    "game": 5,
    "stem": "sm/eEventMysteriousStorytellerResultB",
    "reason": "missing spaces after two full stops: \"island.Others\", \"nature.They\"",
