@@ -478,6 +478,24 @@ static int c4_behave(int index, int behaviour) {
     return 1;
 }
 
+/* The work rush's busy state at the job's site (cie-v6-binary.md 36), as The Secret City's c3_behave_at: the job's
+   first walk step (type 3 in the 80 steps of 0x58 bytes at record +0; Harvesting blackberries 0x451C30 a point of the
+   bush area 0x20 from the map's own picker 0x46C660, Doing exercise the first point of the run, Researching a point of
+   the research area), then "Needs to sit down" queues its steps, its walk is taken out and the job's walk put first:
+   the villager sits down where the job is. */
+static int c4_behave_at(int index, int job, int behaviour) {
+    unsigned char *r = c4_record(index);
+    unsigned char w[0x58];
+    if (!ce_site_pick(&C4_ADAPTER, 4, index, job, w)) {
+        return c4_behave(index, behaviour);
+    }
+    if (!c4_behave(index, behaviour)) {
+        return 0;
+    }
+    ce_queue_at_site(r, 0x58, 80, 3, w);
+    return 1;
+}
+
 /* ---- Pregnancy: none, a different number of babies, the father --------- */
 
 /* "0 babies": the pregnancy +0x1C4C and its litter +0x1C50 cleared, then
@@ -923,7 +941,8 @@ static const ce_adapter C4_ADAPTER = {
     48, 11, 48, 11, 0, 39, c4_rand_below, NULL, NULL,
     C4_PROBE, (int)(sizeof C4_PROBE / sizeof C4_PROBE[0]),
     NULL, NULL, 0, c4_set_health,
-    c4_deliver
+    c4_deliver,
+    c4_behave_at
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

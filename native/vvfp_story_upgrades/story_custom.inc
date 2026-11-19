@@ -184,7 +184,143 @@ typedef struct {
        babies made, 0 when the parent was not nursing, -1 when the game did not deliver (nothing changed); *early
        = 1 when the nursing was cut short.  NULL = not offered. */
     int (*deliver)(int index, int *early);
+    /* The work rush (cie-v6-binary.md 36): behaviour `behaviour` done at the place behaviour `job` walks to first
+       (the job's own first walk step, its site), with no step of the job kept.  NULL = not offered. */
+    int (*behave_at)(int index, int job, int behaviour);
 } ce_adapter;
+
+/* While a work rush is applied: its job behaviour (-1 none).  Every other behaviour of that event is the busy
+   state, done at the job's site through behave_at. */
+static int ce_site_job = -1;
+
+/* A step queue `q` (`cap` steps of `size` bytes, type the first dword, 0 = the end) rebuilt for the work rush: every
+   walk step (type `walk`) taken out, the rest kept in order, and the walk `w` put first. */
+static void ce_queue_at_site(unsigned char *q, unsigned int size, int cap, int walk, const unsigned char *w) {
+    int i, n = 0, used = 0;
+    while (used < cap && *(const int *)(q + (unsigned int)used * size) != 0) {
+        ++used;
+    }
+    for (i = 0; i < used; ++i) {
+        if (*(const int *)(q + (unsigned int)i * size) != walk) {
+            if (n != i) {
+                memmove(q + (unsigned int)n * size, q + (unsigned int)i * size, size);
+            }
+            ++n;
+        }
+    }
+    if (n >= cap) {
+        n = cap - 1;
+    }
+    memmove(q + size, q, (unsigned int)n * size);
+    memcpy(q, w, size);
+    for (i = n + 1; i < used; ++i) {
+        memset(q + (unsigned int)i * size, 0, size);
+    }
+}
+
+/* The first walk step (type `walk`) of queue `q`, copied to `w`: 0 when there is none. */
+static int ce_queue_walk(const unsigned char *q, unsigned int size, int cap, int walk, unsigned char *w) {
+    int i;
+    for (i = 0; i < cap && *(const int *)(q + (unsigned int)i * size) != 0; ++i) {
+        if (*(const int *)(q + (unsigned int)i * size) == walk) {
+            memcpy(w, q + (unsigned int)i * size, size);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Each game's step queue in a villager record: where it is, a step's size, how many, the walk step's type and its
+   target's x and y (A New Home 0x4399F0 / 0x439470, The Lost Children 0x449B70 / 0x4492A0, The Secret City 0x460E30 /
+   0x460F70, The Tree of Life 0x468B20 / 0x468C60, New Believers' stop 0x473440; the walk adders 0x4611B0, 0x468FC0). */
+typedef struct {
+    unsigned int queue, size;
+    int cap, walk;
+    unsigned int x, y;
+} ce_queue_shape;
+static const ce_queue_shape CE_QUEUE[6] = {
+    { 0, 0, 0, 0, 0, 0 },
+    { 0x44, 0x18, 29, 3, 4, 8 }, { 0x4C, 0x18, 49, 3, 4, 8 }, { 0, 0x2C, 80, 3, 8, 0xC },
+    { 0, 0x58, 80, 3, 8, 0xC }, { 0, 0x58, 80, 4, 8, 0xC },
+};
+#define CE_STEP_MAX 0x58
+
+/* The work rush's sites taken so far (the workers' first, then each busy villager's): a spot is crowded when one of
+   them is within CE_SITE_ROOM pixels.  A crowded busy villager is given the nearest free spot among up to
+   CE_SITE_DRAWS of the job's own picks (its starter run again: the place it would give another worker); when every
+   pick is crowded (a job with one place) the first, as close as the game allows. */
+#define CE_SITE_MAX 256
+#define CE_SITE_ROOM 20
+#define CE_SITE_DRAWS 8
+static int ce_site_taken[CE_SITE_MAX][2];
+static int ce_site_count;
+
+static void ce_site_note(int x, int y) {
+    if (ce_site_count < CE_SITE_MAX) {
+        ce_site_taken[ce_site_count][0] = x;
+        ce_site_taken[ce_site_count][1] = y;
+        ++ce_site_count;
+    }
+}
+
+static int ce_site_crowded(int x, int y) {
+    int i;
+    for (i = 0; i < ce_site_count; ++i) {
+        int dx = x - ce_site_taken[i][0], dy = y - ce_site_taken[i][1];
+        if (dx * dx + dy * dy < CE_SITE_ROOM * CE_SITE_ROOM) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* A worker's site, noted once the job is started (its first walk). */
+static void ce_site_worker(const ce_adapter *a, int game, int index) {
+    const ce_queue_shape *s = &CE_QUEUE[game >= 1 && game <= 5 ? game : 0];
+    unsigned char w[CE_STEP_MAX];
+    unsigned char *r = a->record(index);
+    if (s->size != 0 && r != NULL && ce_queue_walk(r + s->queue, s->size, s->cap, s->walk, w)) {
+        ce_site_note(*(const int *)(w + s->x), *(const int *)(w + s->y));
+    }
+}
+
+/* The site of job `job` for busy villager `index`: the job's own first walk step copied to `w` (the job started by
+   the adapter's behave, its steps then replaced by the caller), 0 when the job walks nowhere (done where they stand). */
+static int ce_site_pick(const ce_adapter *a, int game, int index, int job, unsigned char *w) {
+    const ce_queue_shape *s = &CE_QUEUE[game >= 1 && game <= 5 ? game : 0];
+    unsigned char cand[CE_STEP_MAX];
+    int k, have = 0, fx = 0, fy = 0;
+    double best = -1.0;
+    for (k = 0; s->size != 0 && k < CE_SITE_DRAWS; ++k) {
+        unsigned char *r;
+        int x, y;
+        if (!a->behave(index, job) || (r = a->record(index)) == NULL
+            || !ce_queue_walk(r + s->queue, s->size, s->cap, s->walk, cand)) {
+            break;
+        }
+        x = *(const int *)(cand + s->x);
+        y = *(const int *)(cand + s->y);
+        if (k == 0) {
+            fx = x;
+            fy = y;
+            memcpy(w, cand, s->size);
+            have = 1;
+            if (!ce_site_crowded(x, y)) {
+                break;
+            }
+        } else if (!ce_site_crowded(x, y)) {
+            double d = (double)(x - fx) * (x - fx) + (double)(y - fy) * (y - fy);
+            if (best < 0.0 || d < best) {
+                best = d;
+                memcpy(w, cand, s->size);
+            }
+        }
+    }
+    if (have) {
+        ce_site_note(*(const int *)(w + s->x), *(const int *)(w + s->y));
+    }
+    return have;
+}
 
 static const ce_adapter *ce_adapter_for(int game);
 
@@ -1739,8 +1875,13 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             && !titles_set(e->game, c->index, c->title_op == CE_TITLE_SET ? c->title : NULL)) {
             ce_refuse(r, CE_WHY_TITLE);
         }
-        if ((a->caps & CAP_BEHAVIOUR) && c->behaviour != CE_KEEP && !a->behave(c->index, c->behaviour)) {
+        if ((a->caps & CAP_BEHAVIOUR) && c->behaviour != CE_KEEP
+            && !(ce_site_job >= 0 && c->behaviour != ce_site_job && a->behave_at != NULL
+                     ? a->behave_at(c->index, ce_site_job, c->behaviour)
+                     : a->behave(c->index, c->behaviour))) {
             ce_refuse_as(r, CE_WHY_BEHAVIOUR);
+        } else if (ce_site_job >= 0 && c->behaviour == ce_site_job) {
+            ce_site_worker(a, e->game, c->index);
         }
         if (c->health != CE_KEEP && c->health >= 1 && c->health <= CE_HEALTH_MAX && a->set_health != NULL) {
             a->set_health(c->index, c->health);

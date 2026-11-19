@@ -484,11 +484,15 @@ class WorkRushSpawnTempEffects(unittest.TestCase):
                         r.record(*rest)
 
                 r, _ = self.side.run_graph(game, g, setup, people=people)
+                # Cal and Dan: the job's own starter first (it picks the site; its steps are never run), then the
+                # busy state (here the starters are only recorded, so no walk is found and the busy state stays)
                 if game in DO_ACTION:
-                    started = sorted(c[1] for c in r.recorded.get(DO_ACTION[game], []))
-                    self.assertEqual(started, sorted([work, work, rest, rest]), "Adam and Bea work; Cal and Dan rest")
+                    started = [(c[0], c[1]) for c in r.recorded.get(DO_ACTION[game], [])]
+                    who = [r.v.record(i) for i in range(4)]
+                    self.assertEqual(started, [(who[0], work), (who[1], work), (who[2], work), (who[2], rest),
+                                               (who[3], work), (who[3], rest)], "Adam and Bea work; Cal and Dan rest")
                 else:
-                    self.assertEqual([c[1] for c in r.recorded.get(work[0], [])], [0, 1], "Adam and Bea work")
+                    self.assertEqual([c[1] for c in r.recorded.get(work[0], [])], [0, 1, 2, 3], "Adam and Bea work")
                     self.assertEqual([c[1] for c in r.recorded.get(rest[0], [])], [2, 3], "Cal and Dan rest")
 
     def test_a_parenting_rush_is_storytelling_or_nothing(self):

@@ -517,24 +517,33 @@ static int cg_job_ticked(int game, const unsigned char *r) {
     }
 }
 
-/* Record `r`'s highest skill (CG_WORK_SKILLS index), -1 when every skill is 0: the game's own order and ties.  A New
-   Home 0x43B520 and The Lost Children 0x44B4D0 read Parenting, Building, Healing, Farming, Research and keep the
-   earlier on a tie (`jle`), 0 when all are 0.  The later games: each skill in the record's order (Farming,
-   Parenting, Healing, Research, Building, Devotion), the earlier kept on a tie (their title routine is UNCONFIRMED:
-   the order of their job scorers). */
+/* Record `r`'s highest skill (CG_WORK_SKILLS index), -1 when every skill is 0: the skill the Village screen's Action
+   bar shows under "Skill" when no job is ticked (the owner, 2026-11-18: the highest number on the Details screen, a
+   tie the Action bar's own pick).  The Action bar's routine, each game: A New Home 0x43B520 (from 0x41FB34) and The
+   Lost Children 0x44B4D0 (from 0x429B75) read Parenting, Building, Healing, Farming, Research and keep the earlier on
+   a tie (`jle`), none when all are 0; The Secret City 0x462460 (from 0x468DDE) reads Farming, Parenting, Healing,
+   Research, Building, the earlier kept on a tie, none unless one is above 0; The Tree of Life 0x46AC20 (from
+   0x4402EA) and New Believers 0x4755C0 (from 0x442E8B; Devotion sixth) read the same order of float skills against
+   the best so far CUT TO A WHOLE NUMBER (_ftol): a skill wins when it is above that whole number, so 40.2 after 40.7
+   takes over (the best is 40), while 40.0 after 40.7 does not. */
 static int cg_highest_skill(const ce_adapter *a, int game, const unsigned char *r) {
     static const signed char OLD_ORDER[5] = { 4, 1, 3, 0, 2 };     /* CG_WORK_SKILLS in 0x43B520's reading order */
     static const signed char LATER_ORDER[6] = { 0, 4, 3, 2, 1, 5 };
     const signed char *order = game <= 2 ? OLD_ORDER : LATER_ORDER;
-    int n = game <= 2 ? 5 : (game == 5 ? 6 : 5), i, k, best = -1;
+    int n = game <= 2 ? 5 : (game == 5 ? 6 : 5), i, k, best = -1, best_whole = 0;
     double best_v = 0.0;
     for (i = 0; i < n; ++i) {
         for (k = 0; k < a->skill_count && k < CE_SKILLS; ++k) {
             if (lstrcmpiA(a->skill_names[k], CG_WORK_SKILLS[order[i]]) == 0) {
                 const unsigned char *at = r + a->off_skills + 4u * (unsigned int)k;
-                double v = a->skills_float ? (double)*(const float *)at : (double)*(const int *)at;
-                if (v > best_v) {
-                    best_v = v;
+                if (a->skills_float) {
+                    float v = *(const float *)at;
+                    if ((double)v > (double)best_whole) {
+                        best_whole = (int)v;
+                        best = order[i];
+                    }
+                } else if ((double)*(const int *)at > best_v) {
+                    best_v = (double)*(const int *)at;
                     best = order[i];
                 }
             }
@@ -559,11 +568,13 @@ static int cg_skill_worker(const ce_adapter *a, int game, const unsigned char *r
 }
 
 /* "group" kind "work:<Skill>": every listed adult who is that skill's worker does the game's own job action for it;
-   every other listed adult takes the busy state with no skill (VV3: "Working 'til he/she drops!").  Children are
+   every other listed adult takes the busy state with no skill (VV3: "Working 'til he/she drops!") at the job's own
+   site: the game's own job starter picks the place for each one (its first walk), as it does for each worker, and
+   the busy steps are done there (the adapters' behave_at; nothing of the job is run).  Children are
    left as they are; no worker is made of anyone.  Nothing in a game with no action for the skill. */
 static void cg_work_rush(const ce_adapter *a, int game, int skill, ce_result *r) {
     int work = cg_behaviour_by_words(a, CG_WORK[skill][game]), rest = cg_behaviour_by_words(a, CG_WORK_REST[game]);
-    int i;
+    int i, pass;
     ce_result one;
     if (work < 0) {
         return;
@@ -574,26 +585,32 @@ static void cg_work_rush(const ce_adapter *a, int game, int skill, ce_result *r)
     }
     memset(&cg_one, 0, sizeof cg_one);
     cg_one.game = game;
-    for (i = 0; i < a->record_count && i < CE_MAX_RECORDS && cg_one.change_count < CE_MAX_CHANGES; ++i) {
-        unsigned char *record = a->record(i);
-        int use;
-        ce_change *c;
-        if (record == NULL || !a->listed(record) || cg_heathen(game, record) || (game == 3 && record[0xE94] != 0)
-            || !cg_in_ages(a, record, CGA_ADULTS)) {
-            continue;
+    /* the workers first, so every worker's spot is taken before a busy villager's is picked (ce_site_pick) */
+    for (pass = 0; pass < 2; ++pass) {
+        for (i = 0; i < a->record_count && i < CE_MAX_RECORDS && cg_one.change_count < CE_MAX_CHANGES; ++i) {
+            unsigned char *record = a->record(i);
+            int use;
+            ce_change *c;
+            if (record == NULL || !a->listed(record) || cg_heathen(game, record)
+                || (game == 3 && record[0xE94] != 0) || !cg_in_ages(a, record, CGA_ADULTS)) {
+                continue;
+            }
+            use = cg_skill_worker(a, game, record, skill) ? work : rest;
+            if (use < 0 || (use == work) != (pass == 0)) {
+                continue;
+            }
+            c = &cg_one.changes[cg_one.change_count++];
+            ce_change_init(c);
+            c->index = i;
+            c->fingerprint = ce_identity(a, record);
+            c->behaviour = use;
         }
-        use = cg_skill_worker(a, game, record, skill) ? work : rest;
-        if (use < 0) {
-            continue;
-        }
-        c = &cg_one.changes[cg_one.change_count++];
-        ce_change_init(c);
-        c->index = i;
-        c->fingerprint = ce_identity(a, record);
-        c->behaviour = use;
     }
     if (cg_one.change_count > 0) {
+        ce_site_count = 0;
+        ce_site_job = work;             /* everyone else takes the busy state at the job's own site (behave_at) */
         ce_apply(a, &cg_one, &one);
+        ce_site_job = -1;
         cg_merge_result(r, &one);
     }
 }
