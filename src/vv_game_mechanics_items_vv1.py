@@ -566,8 +566,9 @@ ORIGINS = (
     )),
     Entry(PATCHER, "Origins: Tech Point Doubler and Food Point Doubler", (
         (_origins("Tech Point Doubler / Food Point Doubler", 500_000, "Tech screen's Upgrades", "each owned doubler "
-                  "doubles the tech points research gives, or the food farmers bring in; island events, crates, "
-                  "puzzle and story rewards and the Golden Child's gifts are not doubled. Owned, its row reads "
+                  "doubles the tech points research gives, or the food gathered from food sources (berries, crops, "
+                  "fish, crabs and mushrooms) and the Golden Child's +150 food; island events, crates, puzzle and "
+                  "story rewards, the milestone dialogs, purchases and cheats are not doubled. Owned, its row reads "
                   "Remove: removing it is free and refunds nothing."), C),
     )),
     Entry(PATCHER, "Origins: Full Heal / Cure All", (

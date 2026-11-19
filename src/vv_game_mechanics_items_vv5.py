@@ -530,13 +530,14 @@ ORIGINS_TECH = (
     ("Barrel of Babies", 75_000, "after the Tech screen closes, the game's Barrel O' Babies! event comes (up to 3 "
                                  "children). Refused, nothing spent, without room for 3 more villagers."),
     ("Tech Point Doubler", 500_000, "doubles every tech point research earns (the base, the lab gear bonus and the "
-                                    "fire's +1); island events and duplicate lab gear are not doubled. Removable for "
-                                    "free (no refund) and buyable again; not sold with 256 Villagers "
-                                    "(Experimental)."),
-    # The one food gain it lets through returns to 0x414970, the mushroom pickup that also counts Mushrooms Found.
-    ("Food Point Doubler", 500_000, "doubles the food of every mushroom picked up, after Food Mastery; noni picks, "
-                                    "crop harvests, fishing and island events are not doubled. Removable for free (no "
-                                    "refund) and buyable again; not sold with 256 Villagers (Experimental)."),
+                                    "fire's +1) and duplicate lab gear; island events, rewards, purchases and cheats "
+                                    "are not doubled. Removable for free (no refund) and buyable again; not sold with "
+                                    "256 Villagers (Experimental)."),
+    # The whitelist: noni, crops, lake fish, the mushroom pickup and the food jobs inherited from VV4.
+    ("Food Point Doubler", 500_000, "doubles the food gathered from food sources, after Food Mastery: noni picks, "
+                                    "crop harvests, lake fishing and mushrooms; island events, rewards, purchases and "
+                                    "cheats are not doubled. Removable for free (no refund) and buyable again; not "
+                                    "sold with 256 Villagers (Experimental)."),
     ("Full Heal / Cure All", 30_000, "every living believer is cured of sickness and set to 100 health; each cure "
                                      "counts in People Cured. Heathens are skipped."),
     ("Complete All Collections", 1_000_000, "marks all 48 collectibles found and earns the collection goals still "

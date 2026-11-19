@@ -494,12 +494,14 @@ def _patcher() -> list[Entry]:
                              "real-life seconds after the Tech screen closes; refused, with nothing taken, while the "
                              "village has no room for them (an unburied villager still takes a place).",
          UNCONFIRMED),
-        ("Tech Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: every positive tech-point gain "
-                               "the villagers earn is doubled; island events and duplicate collectibles are not.",
+        ("Tech Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: the tech points research "
+                               "earns are doubled (with the Lab Equipment bonus and the fire's extra point), and so "
+                               "are duplicate collectibles; island events, rewards, purchases and cheats are not.",
          UNCONFIRMED),
-        ("Food Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: every positive food gain is "
-                               "doubled after Food Mastery; island events and duplicate collectibles are not.",
-         UNCONFIRMED),
+        ("Food Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: the food gathered from food "
+                               "sources is doubled after Food Mastery (blackberry bushes, cutting-tool berries, "
+                               "yellow breadfruit, fish, golden fish, crabs and mushrooms); island events, rewards, "
+                               "purchases and cheats are not.", UNCONFIRMED),
         ("Full Heal / Cure All", f"{o}: {_tp(30_000)}: every sick villager is cured and every villager is restored "
                                  "to full health; nothing is taken when everyone is already healthy.", UNCONFIRMED),
         ("Complete All Collections", f"{vw}: {_tp(1_000_000)}: every collection piece is marked found; nothing is "

@@ -695,7 +695,7 @@ Researchers keep choosing the stock research action and earning tech points afte
 
 **Enable Origins Tech, Details, and Village-Wide Upgrades**
 
-Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp. The Tech screen's Food and Tech Point Doublers do not double Island Event, Duplicate Collectible or Golden Child tech gains. Bought island events don't change when the game's own island events come.
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp. The Tech Point Doubler doubles research tech points and the Food Point Doubler doubles food gathered from food sources (berries, crops, fish, crabs and mushrooms) and the Golden Child's +150 food; island events, rewards (puzzles, milestone dialogs), purchases and cheats are never doubled. Bought island events don't change when the game's own island events come.
 
 - Requires: vv1_enable_origins_exclusive_features
 - Patch ID: `vv1_origins_village_wide_upgrades`
@@ -980,7 +980,7 @@ Lets you empty the stew pot, as The Secret City and The Tree of Life let you emp
 
 **Enable Origins Tech, Details, and Village-Wide Upgrades**
 
-Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers, the Villager Details screen grants Youth, Full Mastery, Running, and Set Age to 18, and the Heathen mask cosmetics are included. The point doublers do not double Island Event, Duplicate Collectible or Gong of Wonder tech gains. Bought island events don't change when the game's own island events come.
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers, the Villager Details screen grants Youth, Full Mastery, Running, and Set Age to 18, and the Heathen mask cosmetics are included. The Tech Point Doubler doubles research tech points (with the fire's extra point) and duplicate collectibles; the Food Point Doubler doubles food gathered from food sources (coconuts, crops, fish, the big catch and mushrooms); island events, rewards (the Gong of Wonder, the Sack and Vial), purchases and cheats are never doubled. Bought island events don't change when the game's own island events come.
 
 - Requires: vv2_enable_origins_exclusive_features
 - Patch ID: `vv2_origins_village_wide_upgrades`
@@ -1205,7 +1205,7 @@ Every technology level on the Tech screen costs 2 to 10 times its normal price i
 
 **Enable Origins Tech, Details, and Village-Wide Upgrades**
 
-Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Food and Tech Point Doublers, Complete all Collections, Reset all Collections, and Equal Division of Labor with and without Parenting, all supplied by the base Origins feature rather than this optional payload. The point doublers do not double Island Event or Duplicate Collectible tech gains. Bought island events don't change when the game's own island events come.
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Food and Tech Point Doublers, Complete all Collections, Reset all Collections, and Equal Division of Labor with and without Parenting, all supplied by the base Origins feature rather than this optional payload. The Tech Point Doubler doubles research tech points (with the chief's, Magic's, the potion's and the fire's extra points) and duplicate collectibles; the Food Point Doubler doubles food gathered from food sources (fruit, honey, fish, crabs and mushrooms, with the chief's bonuses) and the chief's grant of food; island events, rewards, purchases and cheats are never doubled. Bought island events don't change when the game's own island events come.
 
 - Requires: vv3_enable_origins_exclusive_features
 - Patch ID: `vv3_origins_village_wide_upgrades`
@@ -1495,7 +1495,7 @@ Works with Super-Secret Golden Mushroom and the VV1 Mushroom/Collectible Duplica
 
 **Enable Origins Tech, Details, and Village-Wide Upgrades**
 
-Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers, Full Heal/Cure All, All Villagers are Exactly 18, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting, the Villager Details screen grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance, and the Heathen mask cosmetics are included. The point doublers do not double Island Event or Duplicate Collectible tech gains. Bought island events don't change when the game's own island events come.
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers, Full Heal/Cure All, All Villagers are Exactly 18, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting, the Villager Details screen grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance, and the Heathen mask cosmetics are included. The Tech Point Doubler doubles research tech points (with the Lab Equipment bonus and the fire's extra point) and duplicate collectibles; the Food Point Doubler doubles food gathered from food sources after Food Mastery (blackberry bushes, cutting-tool berries, yellow breadfruit, fish, golden fish, crabs and mushrooms); island events, rewards, purchases and cheats are never doubled. Bought island events don't change when the game's own island events come.
 
 - Requires: vv4_enable_origins_exclusive_features
 - Patch ID: `vv4_origins_village_wide_upgrades`
@@ -1685,7 +1685,7 @@ Villagers with positive Devotion skill can spontaneously use the stock Honoring 
 
 **Enable Origins Tech, Details, and Village-Wide Upgrades**
 
-Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, Full Heal/Cure All, All Villagers are Exactly 18, Complete and Reset All Collections, Equal Division of Labor with and without Parenting, and Change Appearance for All, the Villager Details screen grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance, and the Heathen mask cosmetics are included. The point doublers do not double Island Event or Duplicate Collectible tech gains. The Village-Wide Running, Full Mastery and Make Villagers Young Adults process only Believers and skip Heathens; Change Appearance for All changes every villager, Heathens included. Bought island events don't change when the game's own island events come.
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, Full Heal/Cure All, All Villagers are Exactly 18, Complete and Reset All Collections, Equal Division of Labor with and without Parenting, and Change Appearance for All, the Villager Details screen grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance, and the Heathen mask cosmetics are included. The Tech Point Doubler doubles research tech points (with the second collectible set's bonus and the fire's extra point) and duplicate collectibles; the Food Point Doubler doubles food gathered from food sources after Food Mastery (noni, crops, lake fish and mushrooms); island events, rewards, purchases and cheats are never doubled. The Village-Wide Running, Full Mastery and Make Villagers Young Adults process only Believers and skip Heathens; Change Appearance for All changes every villager, Heathens included. Bought island events don't change when the game's own island events come.
 
 - Requires: vv5_enable_origins_exclusive_features
 - Patch ID: `vv5_origins_village_wide_upgrades`
@@ -2206,6 +2206,14 @@ Both menus close with **Cancel** or the Esc key, and each shows
 Both Doublers are buyable in **all five games** at 500,000 tech points each. An
 owned one can be removed for zero cost with no refund, and bought again
 afterwards at full price.
+
+**What they double (the same rule in all five games).** The Tech Point Doubler
+doubles research-table work (with the research bonuses the game adds there,
+such as the fire's point) and collectible duplicates. The Food Point Doubler
+doubles only food gathered from a food source (bushes, crops, coconuts, fruit
+trees, honey, fish, crabs, noni, mushrooms). Island events, rewards, purchases
+and cheats are never doubled. Each game's list is in the Game Mechanics page
+and in docs/doubler-composition-audit.md.
 
 An earlier release briefly held new purchases in A New Home, The Secret City and
 The Tree of Life while their exact-build provenance was being checked. That hold
