@@ -59,7 +59,8 @@ ROOM = {"vv1": 0x1C, "vv2": 0x18, "vv3": 0x18, "vv4": 0x18, "vv5": 0x18}
 # The owner (2026-10-07): "All newly-spawned villagers from events will
 # default to no last name (because otherwise everyone will have the wrong
 # last name)".  A mother's delivery and a new village's founders are named
-# with a last name; nothing else.  A path is (the naming routine's return
+# with their family's last name; everyone else who arrives, a random one
+# (ARRIVALS, 2026-11-19).  A path is (the naming routine's return
 # address, {offset from the routine's entry esp: (a caller's return address,
 # the function that call calls)}) -- the stack each creator's call leaves
 # (native/vvfp_last_names, WHICH NAMING GETS A LAST NAME;
@@ -123,34 +124,82 @@ FOUNDERS = {
         "the seeding's balancing": (0x46863D, {0x15C: (0x46FB6F, 0x4681F0), 0x1A4: (0x425D48, 0x46FAD0)}),
     },
 }
-NO_LAST_NAME = {
+# The owner (2026-11-19): "would be nice if strangers/villagers without a last name spawned in with a last
+# name ... the last name for newcomers can be random. i don't care if they share last names with the village
+# or not".  Every other villager the game makes -- an island event's newcomer, a barrel's babies, a copy, the
+# Story / Cheat Upgrades' and Custom Island Events' villagers (a call from the patcher's own code: on no path
+# of the game's) -- arrives with a random last name of the game's list (native/vvfp_last_names, ARRIVALS).
+ARRIVALS = {
     "vv1": {
         "Barrel of Babies": (0x43C692, {0x4C: (0x428268, 0x43C350)}),
         "A Mysterious Crate": (0x43C692, {0x4C: (0x42C3F4, 0x43C350)}),
         "The Mysterious Face": (0x43C692, {0x4C: (0x41974F, 0x43C350)}),
-        "the startup scan's seeding (a load overwrites it)": (0x43C692, {0x4C: (0x41C50E, 0x43C350),
-                                                                         0x98: (0x41D26D, 0x41C000)}),
         "a delivery's return in the twin path's slot": (0x43C692, {0x3C: (0x42F026, 0x43C840)}),
     },
     "vv2": {
         "the event wrapper (Barrel of Babies, Old Friends, ...)": (0x44CD3B, {0x188: (0x44F5B0, 0x44C600)}),
-        "the startup scan's seeding": (0x44CD3B, {0x188: (0x4252F7, 0x44C600), 0x1D8: (0x42641D, 0x424C80)}),
+        "Old Friends": (0x44CD3B, {0x188: (0x44F5B0, 0x44C600), 0x1C4: (0x43446C, 0x44F580)}),
+        "The Savage Child": (0x44CD3B, {0x188: (0x44F5B0, 0x44C600), 0x1C4: (0x4209A9, 0x44F580)}),
+        "Barrel of Babies": (0x44CD3B, {0x188: (0x44F5B0, 0x44C600), 0x1C4: (0x434107, 0x44F580)}),
         "The Silver Mirror": (0x44D0BA, {0x3C: (0x4217FE, 0x44CEC0)}),
     },
     "vv3": {
         "the canoe and the barrels": (0x4565AD, {0x158: (0x45F1C9, 0x456120), 0x198: (0x45FF80, 0x45F0B0)}),
-        "the startup scan's seeding": (0x4565AD, {0x158: (0x45F1C9, 0x456120), 0x198: (0x428134, 0x45F0B0),
-                                                  0x1E0: (0x4285EA, 0x427F70)}),
+        "The Canoe from the Other Side": (0x4565AD, {0x158: (0x45F1C9, 0x456120), 0x198: (0x45FF80, 0x45F0B0),
+                                                     0x1D4: (0x414DB4, 0x45FF50)}),
         "The Crystal of Reflections": (0x4567D9, {0x18: (0x45F3A8, 0x4566E0)}),
+        "The Mysterious Vial (amber)": (0x4567D9, {0x18: (0x45F3A8, 0x4566E0), 0x24: (0x417840, 0x45F2D0)}),
     },
     "vv4": {
         "the canoe and the barrels": (0x45F338, {0x15C: (0x466302, 0x45EF10), 0x19C: (0x467D40, 0x466270)}),
-        "a ghost": (0x45F338, {0x15C: (0x4663E5, 0x45EF10)}),
+        "The Canoe from the Other Side": (0x45F338, {0x15C: (0x466302, 0x45EF10), 0x19C: (0x467D40, 0x466270),
+                                                     0x1D8: (0x4148D4, 0x467D10)}),
+        "Daredevil Barrel...of Babies!": (0x45F338, {0x15C: (0x466302, 0x45EF10), 0x19C: (0x467D40, 0x466270),
+                                                     0x1D8: (0x414DC5, 0x467D10)}),
+        "the developers' F7 command": (0x45F338, {0x15C: (0x466302, 0x45EF10), 0x19C: (0x467D40, 0x466270),
+                                                  0x1D8: (0x4408CA, 0x467D10)}),
     },
     "vv5": {
         "Barrel O' Babies and the other events": (0x46863D, {0x15C: (0x46FB6F, 0x4681F0),
                                                              0x1A4: (0x471E50, 0x46FAD0)}),
+        "Barrel O' Babies!": (0x46863D, {0x15C: (0x46FB6F, 0x4681F0), 0x1A4: (0x471E50, 0x46FAD0),
+                                         0x1E0: (0x415205, 0x471E20)}),
+        "Chutes Without Ladders": (0x46863D, {0x15C: (0x46FB6F, 0x4681F0), 0x1A4: (0x471E50, 0x46FAD0),
+                                              0x1E0: (0x415445, 0x471E20)}),
+        "News From Another Tribe": (0x46863D, {0x15C: (0x46FB6F, 0x4681F0), 0x1A4: (0x471E50, 0x46FAD0),
+                                               0x1E0: (0x415559, 0x471E20)}),
+    },
+}
+# The records the game makes and takes away again (cod_arrival_sites.inc's MARK_TEMPORARY): no last name.
+TEMPORARY = {
+    "vv1": {
+        "the startup scan's seeding (a load overwrites it)": (0x43C692, {0x4C: (0x41C50E, 0x43C350),
+                                                                         0x98: (0x41D26D, 0x41C000)}),
+        "the no-save-yet seeding": (0x43C692, {0x4C: (0x41C648, 0x43C350), 0x98: (0x41D23A, 0x41C000)}),
+    },
+    "vv2": {
+        "the startup scan's seeding": (0x44CD3B, {0x188: (0x4252F7, 0x44C600), 0x1D8: (0x42641D, 0x424C80)}),
+        "the no-save-yet seeding": (0x44CD3B, {0x188: (0x42545D, 0x44C600), 0x1D8: (0x4263F0, 0x424C80)}),
+        "The Strange Request's stranger": (0x44CD3B, {0x188: (0x44F5B0, 0x44C600), 0x1C4: (0x41F963, 0x44F580)}),
+    },
+    "vv3": {
+        "the startup scan's seeding": (0x4565AD, {0x158: (0x45F1C9, 0x456120), 0x198: (0x428134, 0x45F0B0),
+                                                  0x1E0: (0x4285EA, 0x427F70)}),
+        "the seeding before a load": (0x4565AD, {0x158: (0x45F1C9, 0x456120), 0x198: (0x4282E6, 0x45F0B0),
+                                                 0x1E0: (0x428428, 0x427F70)}),
+        "the no-save-yet seeding": (0x4565AD, {0x158: (0x45F1C9, 0x456120), 0x198: (0x428215, 0x45F0B0),
+                                               0x1E0: (0x4285BD, 0x427F70)}),
+    },
+    "vv4": {
+        "a ghost": (0x45F338, {0x15C: (0x4663E5, 0x45EF10)}),
+        "the adoption scene's stand-in father": (0x45F338, {0x15C: (0x466302, 0x45EF10), 0x19C: (0x467D40, 0x466270),
+                                                            0x1D8: (0x43B965, 0x467D10)}),
+    },
+    "vv5": {
         "Reanimate's stand-in": (0x46863D, {0x15C: (0x46FE5C, 0x4681F0)}),
+        "a founder candidate's stand-in father": (0x46863D, {0x15C: (0x46FB6F, 0x4681F0),
+                                                             0x1A4: (0x471E50, 0x46FAD0),
+                                                             0x1E0: (0x43E353, 0x471E20)}),
     },
 }
 # New Believers' Heathens (the owner, 2026-11-08): a random last name of their own from the game's list
@@ -317,7 +366,7 @@ class Game:
     def name(self, sex_female: bool, family: int, first_roll: int, family_roll: int | None = None,
              frame: tuple[int, dict[int, int]] | None = None) -> tuple[str, dict]:
         """The game's own routine names a new villager; returns the name.
-        frame: the stack a creator's call leaves (BIRTHS, FOUNDERS, NO_LAST_NAME); none
+        frame: the stack a creator's call leaves (BIRTHS, FOUNDERS, ARRIVALS, TEMPORARY); none
         is a call from nowhere the game makes one."""
         routine = SITES[self.game][0]
         sex = FEMALE[self.game] if sex_female else (1 if self.game in ("vv1", "vv2") else 0)
@@ -406,16 +455,43 @@ class NewVillagersGetTheirFamilysLastName(unittest.TestCase):
                     self.assertEqual(name, f"{male[4]} {last[8]}")
                     self.assertTrue(state["esp_ok"] and state["kept"])
 
-    def test_a_villager_an_event_brings_gets_no_last_name(self):
-        # The owner (2026-10-07): "All newly-spawned villagers from events
-        # will default to no last name (because otherwise everyone will have
-        # the wrong last name)" -- events, and the records the game makes and
-        # takes away again.
+    def test_a_villager_who_arrives_gets_a_random_last_name(self):
+        # The owner (2026-11-19): "would be nice if strangers/villagers without a last name spawned in with a
+        # last name ... the last name for newcomers can be random" -- not the family's: a fresh draw from the
+        # game's list each time, every name reachable.
         for game in EXE:
             last, male, _ = self.lists(game)
             g = Game(game)
             g.startup()
-            for what, path in [*NO_LAST_NAME[game].items(), ("a call from nowhere", None)]:
+            for what, path in [*ARRIVALS[game].items(), ("the patcher's own call (Story / Cheat Upgrades)", None)]:
+                with self.subTest(game=game, creation=what):
+                    frame = stack(path) if path is not None else None
+                    drawn = set()
+                    for _ in range(40):
+                        name, state = g.name(sex_female=False, family=9, first_roll=3, frame=frame)
+                        self.assertTrue(state["esp_ok"] and state["kept"])
+                        first, _, family = name.partition(" ")
+                        self.assertEqual(first, male[4])
+                        self.assertIn(family, last)
+                        drawn.add(family)
+                    self.assertGreater(len(drawn), 5, "a random draw, not the family's name")
+
+    def test_the_records_the_game_takes_away_again_get_no_last_name(self):
+        for game in EXE:
+            last, male, _ = self.lists(game)
+            g = Game(game)
+            g.startup()
+            for what, path in TEMPORARY[game].items():
+                with self.subTest(game=game, creation=what):
+                    name, state = g.name(sex_female=False, family=9, first_roll=3, frame=stack(path))
+                    self.assertEqual(name, male[4])
+                    self.assertTrue(state["esp_ok"] and state["kept"])
+
+    def test_without_the_patch_an_arrival_keeps_the_games_first_name(self):
+        for game in EXE:
+            _last, male, _ = self.lists(game)
+            g = Game(game)
+            for what, path in [*ARRIVALS[game].items(), ("a call from nowhere", None)]:
                 with self.subTest(game=game, creation=what):
                     frame = stack(path) if path is not None else None
                     name, state = g.name(sex_female=False, family=9, first_roll=3, frame=frame)
@@ -435,8 +511,8 @@ class NewVillagersGetTheirFamilysLastName(unittest.TestCase):
                 return (back + struct.unpack_from("<i", image, at + 1)[0]) & 0xFFFFFFFF
 
             heathen = [("a Heathen", HEATHEN)] if game == "vv5" else []
-            for what, (back, slots) in [*BIRTHS[game].items(), *FOUNDERS[game].items(), *NO_LAST_NAME[game].items(),
-                                        *heathen]:
+            for what, (back, slots) in [*BIRTHS[game].items(), *FOUNDERS[game].items(), *ARRIVALS[game].items(),
+                                        *TEMPORARY[game].items(), *heathen]:
                 with self.subTest(game=game, path=what):
                     self.assertEqual(target(back), SITES[game][0])
                     for value, callee in slots.values():

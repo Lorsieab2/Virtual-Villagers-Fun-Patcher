@@ -11,10 +11,12 @@
    newly-spawned villagers from events will default to no last name
    (because otherwise everyone will have the wrong last name)".  So a baby
    born in the village (a child of one of its mothers' deliveries) and a new
-   village's founders get one; a villager an island event brings, a cheat's
-   or the Origins page's villager, and every stand-in or ghost the game makes
-   and takes away again get none.  New Believers' Heathens (the owner,
-   2026-11-08) get a random last name of their own: see HEATHENS below.
+   village's founders get one; every stand-in or ghost the game makes and
+   takes away again gets none.  A villager an island event brings, a cheat's
+   or the Origins page's villager -- every other arrival -- gets a random one
+   of the list (the owner, 2026-11-19: see ARRIVALS below).  New Believers'
+   Heathens (the owner, 2026-11-08) get a random last name of their own: see
+   HEATHENS below.
 
    WHERE THE GAMES NAME A VILLAGER, read from the stock executables:
 
@@ -121,7 +123,8 @@
    unchanged and then, for a birth or a founder only, reads the villager's family and,
    for a family of 1 to 50, appends " " and that family's last name (the
    list's name number family - 1) to the name the routine just wrote --
-   only if the whole name fits where it is kept.  Every pairing of the
+   only if the whole name fits where it is kept; for an arrival (ARRIVALS),
+   " " and a last name of the list drawn at random.  Every pairing of the
    games' own lists fits with room to spare (the longest is 17 characters of
    23-27); the bound is kept because the lists are read from the executable
    at run time.  A family outside 1-50 (A New Home's Golden Child is family
@@ -225,6 +228,61 @@ static const struct named_path NAMED_VV5[] = {
 };
 static const struct named_path *const NAMED[GAMES + 1] = {
     NULL, NAMED_VV1, NAMED_VV2, NAMED_VV3, NAMED_VV4, NAMED_VV5,
+};
+
+/* ARRIVALS (the owner, 2026-11-19: "would be nice if strangers/villagers
+   without a last name spawned in with a last name ... the last name for
+   newcomers can be random. i don't care if they share last names with the
+   village or not").  Every other naming -- not a birth or a founder (NAMED),
+   not a Heathen (HEATHENS) and not one of the records below -- is a villager
+   arriving: an island event's newcomer, a barrel's babies, a canoe, Old
+   Friends, a copy (the Silver Mirror, the Crystal of Reflections, the amber
+   vial), the Origins purchase, the F7 command, and every villager the Story /
+   Cheat Upgrades and the Custom Island Events make (their calls come from
+   their own code, on no path of the game's).  The routine has just written a
+   one-word first name; the arrival gets " " and a last name drawn at random
+   from the game's list, every name that fits equally likely (drawn_last_name,
+   the draw "Random last name from the list" makes) -- shared with the village
+   or not.  A name the routine left with more than one word is kept as it is.
+   An event that writes a name of its own afterwards (a Custom Island Event's
+   named villager, The Lost Children's "Biggles") replaces this one, as it
+   replaced the game's first name.
+
+   The records the game makes and takes away again get none (the same
+   records as native/vvfp_cause_of_death/cod_arrival_sites.inc's
+   MARK_TEMPORARY, at the naming routine's entry: each offset there is the
+   creator hook's plus the pushes between that hook and the naming call): the
+   seeding the startup scan and the no-save-yet default make for a load to
+   overwrite (every game but The Tree of Life and New Believers), The Lost
+   Children's Strange Request stranger, The Tree of Life's ghosts and adoption
+   stand-in father, New Believers' founder candidate's stand-in father and
+   Reanimate's stand-in. */
+static const struct named_path TEMPORARY_VV1[] = {
+    { 0x43C692u, { { 0x4Cu, VV1_SEEDING }, { 0x98u, { 0x41D23Au, 0x41D26Du } } } },
+    { 0 },
+};
+static const struct named_path TEMPORARY_VV2[] = {
+    { 0x44CD3Bu, { { 0x188u, VV2_SEEDING }, { 0x1D8u, { 0x4263F0u, 0x42641Du } } } },
+    { 0x44CD3Bu, { { 0x188u, { 0x44F5B0u } }, { 0x1C4u, { 0x41F963u } } } },
+    { 0 },
+};
+static const struct named_path TEMPORARY_VV3[] = {
+    { 0x4565ADu, { { 0x158u, { 0x45F1C9u } }, { 0x198u, VV3_SEEDING },
+                   { 0x1E0u, { 0x428428u, 0x4285EAu, 0x4285BDu } } } },
+    { 0 },
+};
+static const struct named_path TEMPORARY_VV4[] = {
+    { 0x45F338u, { { 0x15Cu, { 0x4663E5u } } } },
+    { 0x45F338u, { { 0x15Cu, { 0x466302u } }, { 0x19Cu, { 0x467D40u } }, { 0x1D8u, { 0x43B965u } } } },
+    { 0 },
+};
+static const struct named_path TEMPORARY_VV5[] = {
+    { 0x46863Du, { { 0x15Cu, { 0x46FE5Cu } } } },
+    { 0x46863Du, { { 0x15Cu, { 0x46FB6Fu } }, { 0x1A4u, { 0x471E50u } }, { 0x1E0u, { 0x43E353u } } } },
+    { 0 },
+};
+static const struct named_path *const TEMPORARY[GAMES + 1] = {
+    NULL, TEMPORARY_VV1, TEMPORARY_VV2, TEMPORARY_VV3, TEMPORARY_VV4, TEMPORARY_VV5,
 };
 
 static int g_game;                                   /* the installed game */
@@ -2211,10 +2269,9 @@ static int one_of(unsigned int value, const unsigned int *values) {
 
 /* entry: the stack as the routine was entered, entry[0] its return
    address.  A slot is read only once the nearer ones have placed its frame. */
-static int gets_a_last_name(const unsigned int *entry) {
-    const struct named_path *p;
+static int on_a_path(const struct named_path *p, const unsigned int *entry) {
     int k;
-    for (p = NAMED[g_game]; p->from != 0; ++p) {
+    for (; p->from != 0; ++p) {
         if (entry[0] != p->from) {
             continue;
         }
@@ -2230,12 +2287,34 @@ static int gets_a_last_name(const unsigned int *entry) {
     return 0;
 }
 
+static int gets_a_last_name(const unsigned int *entry) {
+    return on_a_path(NAMED[g_game], entry);
+}
+
+/* ARRIVALS: " " and a random last name of the game's list, for a one-word
+   name that has room for it. */
+static void give_arrival_last_name(char *name, unsigned int room) {
+    size_t have = strlen(name);
+    const char *last;
+    if (have == 0 || strchr(name, ' ') != NULL) {
+        return;
+    }
+    last = drawn_last_name(have, room);
+    if (last[0] == '\0') {
+        return;
+    }
+    name[have] = ' ';
+    memcpy(name + have + 1, last, strlen(last) + 1);
+}
+
 /* VV1/VV2: after the routine, `out` holds the first name; the record is
    array + index * stride. */
 static void __cdecl after_out(const unsigned int *entry, unsigned char *array, unsigned int index, char *out) {
     const struct game_site *s = &SITES[g_game];
     if (gets_a_last_name(entry)) {
         give_last_name(out, s->room, *(int *)(array + index * s->stride + s->family));
+    } else if (!on_a_path(TEMPORARY[g_game], entry)) {
+        give_arrival_last_name(out, s->room);   /* ARRIVALS */
     }
 }
 
@@ -2246,6 +2325,8 @@ static void __cdecl after_villager(const unsigned int *entry, unsigned char *vil
         give_last_name((char *)(villager + s->name), s->room, *(int *)(villager + s->family));
     } else if (is_heathen_naming(entry)) {
         heathen_named(villager);            /* New Believers: one of the village's four (HEATHENS) */
+    } else if (!on_a_path(TEMPORARY[g_game], entry)) {
+        give_arrival_last_name((char *)(villager + s->name), s->room);   /* ARRIVALS */
     }
     families_flush_pending();               /* the four of a village whose slot is known now */
 }

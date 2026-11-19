@@ -7,9 +7,10 @@ reads.  The owner: new villagers get their family's last name (the family
 number 1-50 the game keeps on every villager, inherited from the mother);
 villagers who already have names keep them.  And (2026-10-07): "All
 newly-spawned villagers from events will default to no last name (because
-otherwise everyone will have the wrong last name)" -- the companion names
-only a delivery's children and a new village's founders (see the source for
-how it tells).
+otherwise everyone will have the wrong last name)" -- the companion gives
+the family's name only to a delivery's children and a new village's
+founders (see the source for how it tells).  And (2026-11-19): every other
+villager who arrives without a last name gets a random one of the list.
 
 Companion only ("VVFP Last Names.dll", native/vvfp_last_names): "VVFP
 Startup.dll" loads it as the game opens and its VvfpStartup detours the
@@ -122,12 +123,15 @@ def row(game: str, sha: str) -> dict:
         "draw from the game's list, every name equally likely, or a random one of the village's existing last "
         "names. A villager's own rule always beats the village's; when both parents have one and they "
         "disagree, a coin toss for each child picks whose. "
-        "Villagers who arrive "
-        "through an island event get no last name, because theirs would not be their family's. Only "
+        "A villager who arrives without a last name -- an island event's newcomer, a barrel's babies, a copy, "
+        "a Story / Cheat Upgrades' or Custom Island Event's villager -- gets a random one from the game's list "
+        "as they arrive, which may or may not be a name the village already has; one who arrives with a last "
+        "name keeps it. Only "
         "villagers named from now on get one: villagers who already have names keep them. The last "
         "name is part of the name the game stores, so it shows wherever the name does and stays in the save "
         "even if this patch is later removed."
-        + (" The Golden Child, whose family is not one of the 50, gets no last name." if game == "vv1" else "")
+        + (" The Golden Child, whose family is not one of the 50, gets no last name of his family; one the Story / "
+           "Cheat Upgrades bring arrives like any other villager." if game == "vv1" else "")
         + (HEATHENS_DESCRIPTION if game == "vv5" else "")
         + " **Needs no other patch.**"
     )
@@ -146,10 +150,17 @@ def row(game: str, sha: str) -> dict:
             "triplet) and a new village's founders are called \"<first name> <last name>\": the first name is "
             "the game's own pick, and the last name is name number <family - 1> of the game's unused third "
             f"list ({last_list:#X}), read from the running executable.",
-            "A villager the game creates any other way -- brought by an island event, a cheat or the Origins "
-            "page -- keeps the game's own first name only: the companion tells a birth or a founder by the "
-            "callers' return addresses on the stack, at fixed places.",
-            "A villager whose family is outside 1-50 gets no last name.",
+            "A villager the game creates any other way -- brought by an island event, a barrel, a copy, a cheat, "
+            "the Origins page, the Story / Cheat Upgrades or a Custom Island Event -- is called \"<first name> "
+            "<last name>\" with a last name drawn at random from the same list, every name that fits equally "
+            "likely (the draw \"Random last name from the list\" makes), shared with the village or not; a name "
+            "with more than one word is kept as it is, and a name an event writes afterwards replaces it. The "
+            "companion tells a birth, a founder or an arrival by the callers' return addresses on the stack, at "
+            "fixed places.",
+            "The records the game makes and takes away again get none: the seeding a load overwrites, The Lost "
+            "Children's Strange Request stranger, The Tree of Life's ghosts and adoption stand-in, New Believers' "
+            "founder candidate's stand-in and Reanimate's stand-in.",
+            "A baby or founder whose family is outside 1-50 gets no last name.",
             "At a birth, the rule recorded by Repair Saves & Logs decides the last name (VvfpRuleLastName2): the "
             "father's, the mother's, either at random (50:50), or -- a parent's own rule \"Random last name from "
             "the list\" -- a name drawn at random from the game's list, or -- \"Random from the existing Village "

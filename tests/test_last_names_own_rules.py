@@ -41,7 +41,8 @@ SDK_VERSION = "10.0.26100.0"
 # (Random from the existing Village Names, VvfpRuleLastName3's villager table).
 # ...and 6 a game for section 14 (a name seen at a birth stays ever used: the DLL adds "used" lines),
 # and 7 for section 15 (a sex change keeps the villager's own rule: VvfpVillagerSexChanged, the Sex Changes log).
-HARNESS_CHECKS = 4 * 4 * 5 + 8 + 1 + 2 + 3 + 10 + 5 * 5 + 5 * 9 + 3 + 5 * 9 + 5 * 2 + 5 * 8 + 5 * 8 + 5 * 6 + 7
+# ...and 3 a game for section 16 (a villager who arrives: a random last name of the list, or theirs kept).
+HARNESS_CHECKS = 4 * 4 * 5 + 8 + 1 + 2 + 3 + 10 + 5 * 5 + 5 * 9 + 3 + 5 * 9 + 5 * 2 + 5 * 8 + 5 * 8 + 5 * 6 + 7 + 5 * 3
 NOW = datetime(2026, 10, 9, 12, 0, 0)
 RULES = (None, "father", "mother", "random", "list", "village")
 
