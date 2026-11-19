@@ -5926,7 +5926,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Ana wakes up feeling odd.\nAna's hair changes color.\nAna now likes laundry.\nAna now dislikes work.\nAna learns more about Research.\nAna feels less sure of her Healing.\nBy noon it has passed.\nAna is in a good mood.\nThe village gains food."
+     "Ana wakes up feeling odd.\nAna's head changes.\nAna now likes laundry.\nAna now dislikes work.\nAna gains 8 Research skill.\nAna loses 8 Healing skill.\nBy noon it has passed.\nAna celebrates.\nThe village gains 40 food."
     ],
     "titles": [
      "The Odd Morning"
@@ -6085,7 +6085,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Bo wakes up feeling odd.\nBo's hair changes color.\nBo now likes dirt.\nBo now dislikes work.\nBo learns more about Farming.\nBo feels less sure of his Healing.\nBy noon it has passed.\nBo is in a good mood.\nThe village gains food."
+     "Bo wakes up feeling odd.\nBo's head changes.\nBo now likes dirt.\nBo now dislikes work.\nBo gains 10 Farming skill.\nBo loses 10 Healing skill.\nBy noon it has passed.\nBo celebrates.\nThe village gains 40 food."
     ],
     "titles": [
      "The Odd Morning"
@@ -6249,7 +6249,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Ana wakes up feeling odd.\nAna's hair changes color.\nAna now likes turnips.\nAna now dislikes work.\nAna learns more about Research.\nAna feels less sure of her Healing.\nBy noon it has passed.\nAna is in a good mood.\nThe village gains food."
+     "Ana wakes up feeling odd.\nAna's head changes.\nAna now likes turnips.\nAna now dislikes work.\nAna gains 5 Research skill.\nAna loses 5 Healing skill.\nBy noon it has passed.\nAna celebrates.\nThe village gains 40 food."
     ],
     "titles": [
      "The Odd Morning"
@@ -6413,7 +6413,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Bo wakes up feeling odd.\nBo's hair changes color.\nBo now likes turnips.\nBo now dislikes work.\nBo learns more about Farming.\nBo feels less sure of his Healing.\nBy noon it has passed.\nBo is in a good mood.\nThe village gains food."
+     "Bo wakes up feeling odd.\nBo's head changes.\nBo now likes turnips.\nBo now dislikes work.\nBo gains 7 Farming skill.\nBo loses 9 Healing skill.\nBy noon it has passed.\nBo celebrates.\nThe village gains 40 food."
     ],
     "titles": [
      "The Odd Morning"
@@ -6489,7 +6489,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Ana has been coughing for days.\nAna looks older and more worn.\nAna now dislikes running."
+     "Ana has been coughing for days.\nAna looks older.\nAna now dislikes running."
     ],
     "titles": [
      "The Long Cough"
@@ -6565,7 +6565,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Bo has been coughing for days.\nBo looks older and more worn.\nBo now dislikes running."
+     "Bo has been coughing for days.\nBo looks older.\nBo now dislikes running."
     ],
     "titles": [
      "The Long Cough"
@@ -6641,7 +6641,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Ana has been coughing for days.\nAna looks older and more worn.\nAna now dislikes running."
+     "Ana has been coughing for days.\nAna looks older.\nAna now dislikes running."
     ],
     "titles": [
      "The Long Cough"
@@ -6717,7 +6717,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Bo has been coughing for days.\nBo looks older and more worn.\nBo now dislikes running."
+     "Bo has been coughing for days.\nBo looks older.\nBo now dislikes running."
     ],
     "titles": [
      "The Long Cough"
@@ -6793,7 +6793,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Ana has been coughing for days.\nAna looks older and more worn.\nAna now dislikes running."
+     "Ana has been coughing for days.\nAna looks older.\nAna now dislikes running."
     ],
     "titles": [
      "The Long Cough"
@@ -6952,7 +6952,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Ana wakes up feeling odd.\nAna's hair changes color.\nAna now likes dancing.\nAna now dislikes work.\nAna learns more about Research.\nAna feels less sure of her Healing.\nBy noon it has passed.\nAna is in a good mood.\nThe village gains food."
+     "Ana wakes up feeling odd.\nAna's head changes.\nAna now likes dancing.\nAna now dislikes work.\nAna gains 9 Research skill.\nAna loses 7 Healing skill.\nBy noon it has passed.\nAna celebrates.\nThe village gains 40 food."
     ],
     "titles": [
      "The Odd Morning"

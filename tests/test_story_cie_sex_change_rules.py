@@ -118,7 +118,7 @@ class PresentationCompiler(unittest.TestCase):
 
     def test_its_automatic_line(self):
         e = {"do": "presentation", "role": "subject", "on": True}
-        self.assertEqual(cg.auto_line_options(e, 4), ["(subject.Name)'s look changes."])
+        self.assertEqual(cg.auto_line_options(e, 4), ["(subject.Name)'s gender presentation changes."])
 
 
 class PresentationEngine(unittest.TestCase):

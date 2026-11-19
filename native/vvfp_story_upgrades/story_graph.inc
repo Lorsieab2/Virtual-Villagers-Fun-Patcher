@@ -255,6 +255,7 @@ static const char *cg_pref_word;      /* a preference effect's word given here i
 enum { CG_REL_SPOUSE = 1, CG_REL_PARENT = 2, CG_REL_CHILD = 3, CG_REL_SIBLING = 4,
        /* gap C2: through a living villager in between */
        CG_REL_GRANDPARENT = 5, CG_REL_GRANDCHILD = 6, CG_REL_AUNT = 7, CG_REL_COUSIN = 8 };
+#define CG_LINE_OTHER 16u            /* a kill / vanish effect's flags: the result line's other wording (25, "line") */
 #define CG_PREF_RANDOM 8u             /* a preference effect's flags: a random like or dislike (cie-v6-binary.md 24) */
 #define CG_PREF_REMOVE 16u            /* ... the like or dislike is taken away (the named one, or with CG_PREF_RANDOM
                                          one the villager holds); held nowhere: nothing (the owner, 2026-11-15) */
@@ -1469,8 +1470,11 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 ok = a == 0 && b == 0 && str == CG_NONE;
                 break;
             case CGE_CHANGE_NAME:
-                /* the string: NONE (a random first name), or the fixed name to give (cg_fixed_name_ok) */
-                ok = a == 0 && b == 0 && (str == CG_NONE || cg_fixed_name_ok(cg_s(g, str)));
+                /* the string: NONE (a random first name), or the fixed name to give (cg_fixed_name_ok); or a:
+                   a named stranger role's index + 1, its drawn name (the owner, 2026-11-19) */
+                ok = b == 0 && ((a == 0 && (str == CG_NONE || cg_fixed_name_ok(cg_s(g, str))))
+                                || (a > 0 && a <= g->n_role && str == CG_NONE && cg_role_at(g, a - 1)[0] == 1
+                                    && (cg_role_at(g, a - 1)[1] & CG_STRANGER_NAMED)));
                 break;
             case CGE_CHANGE_AGE:
                 ok = str == CG_NONE && e[2] <= CG_AGE_ADD && cg_u16(e + 14) <= 120u   /* the cap, years (0 none) */
@@ -6165,7 +6169,8 @@ static int cg_rename_fixed(const ce_adapter *a, unsigned char *record, const cha
     return ce_write_name(record + a->off_name, a->name_bytes, full);
 }
 
-static int cg_rename_from_list(const ce_adapter *a, int game, unsigned char *record, int keep_last) {
+static int cg_pick_name(const ce_adapter *a, int game, const unsigned char *record, int keep_last, char *out,
+                        int cap) {
     char now[64], pick[64], full[96];
     const char *last = NULL, *list;
     int tries, n_last = 0;
@@ -6201,7 +6206,8 @@ static int cg_rename_from_list(const ce_adapter *a, int game, unsigned char *rec
             lstrcpynA(full, pick, (int)sizeof full);   /* the room the game holds: the first name alone */
         }
         if (lstrcmpiA(full, now) != 0) {
-            return ce_write_name(record + a->off_name, a->name_bytes, full);
+            lstrcpynA(out, full, cap);
+            return 1;
         }
     }
     return 0;
@@ -6235,17 +6241,49 @@ static void cg_carrier_line(const ce_adapter *a, const unsigned char *record, in
     cg_extra_add(who, what);
 }
 
+static int cg_rename_from_list(const ce_adapter *a, int game, unsigned char *record, int keep_last) {
+    char full[96];
+    return cg_pick_name(a, game, record, keep_last, full, (int)sizeof full)
+        && ce_write_name(record + a->off_name, a->name_bytes, full);
+}
+
+/* The result of a change_age or a random change_name drawn when its page is laid out (its result line), kept until
+   the effect is made, which then makes exactly that (never a second draw).  Cleared with each new event. */
+#define CG_PRE_MAX 16
+static struct { const unsigned char *e; int age; char name[96]; } cg_pre[CG_PRE_MAX];
+static int cg_pre_n;
+
+static int cg_pre_find(const unsigned char *e) {
+    int i;
+    for (i = 0; i < cg_pre_n; ++i) {
+        if (cg_pre[i].e == e) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static int cg_pre_slot(const unsigned char *e) {
+    int i = cg_pre_find(e);
+    if (i < 0 && cg_pre_n < CG_PRE_MAX) {
+        i = cg_pre_n++;
+        cg_pre[i].e = e;
+        cg_pre[i].age = -1;
+        cg_pre[i].name[0] = '\0';
+    }
+    return i;
+}
+
 /* Effect 34: the age (the game's age units, 20 a year) set or moved, with the processed age (the catch-up's cursor,
    ce_birth_layout's second field) moved with it, so the catch-up neither replays the years nor makes them up; a
    carrier's conception mark moves with it too (the delivery stays as far off).  Never below 0; A New Home's Golden
    Child stays five; a carrier is never made a child (nothing then). */
-static void cg_change_age(const ce_adapter *a, int game, const unsigned char *e, unsigned char *record) {
-    static const unsigned int PROCESSED[6] = { 0, 0x34Cu, 0x534u, 0xE74u, 0x1C3Cu, 0x1C3Cu };
+/* The age (age units) change_age makes this villager, -1 none (the rules below; its own draw). */
+static int cg_age_target(const ce_adapter *a, int game, const unsigned char *e, const unsigned char *record) {
     static const int SET[6][2] = { { 1, 13 }, { 14, 17 }, { 18, 18 }, { 20, 49 }, { 50, 50 }, { 55, 75 } };
-    int age = ce_age(a, record), target, years, delta, carrying;
-    int *processed, *nursing;
+    int age = ce_age(a, record), target, years;
     if (game < 1 || game > 5 || (game == 1 && ce_role(a, record, NULL) == STORY_KIND_GOLDEN_CHILD)) {
-        return;
+        return -1;
     }
     if (e[2] == CG_AGE_ADD) {
         int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
@@ -6265,10 +6303,21 @@ static void cg_change_age(const ce_adapter *a, int game, const unsigned char *e,
             target = age > cap ? age : cap;
         }
     }
-    carrying = *(const int *)(record + a->off_pregnant) != 0;
-    if (carrying && target < 14 * 20) {
-        return;                        /* a carrier is never made a child */
+    if (*(const int *)(record + a->off_pregnant) != 0 && target < 14 * 20) {
+        return -1;                     /* a carrier is never made a child */
     }
+    return target;
+}
+
+static void cg_change_age(const ce_adapter *a, int game, const unsigned char *e, unsigned char *record) {
+    static const unsigned int PROCESSED[6] = { 0, 0x34Cu, 0x534u, 0xE74u, 0x1C3Cu, 0x1C3Cu };
+    int age = ce_age(a, record), target, delta, carrying, k = cg_pre_find(e);
+    int *processed, *nursing;
+    target = k >= 0 && cg_pre[k].age >= 0 ? cg_pre[k].age : cg_age_target(a, game, e, record);
+    if (target < 0 || game < 1 || game > 5) {
+        return;
+    }
+    carrying = *(const int *)(record + a->off_pregnant) != 0;
     delta = target - age;
     processed = (int *)(record + PROCESSED[game]);
     nursing = (int *)(record + a->off_pregnant);
@@ -6454,8 +6503,11 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         const char *olds[1];
         unsigned int fixed = cg_u16(e + 12);
         lstrcpynA(was, (const char *)record + a->off_name, (int)sizeof was);
-        if (fixed != CG_NONE && cg_s(&cg_g, fixed)[0] != '\0' ? !cg_rename_fixed(a, record, cg_s(&cg_g, fixed))
-                                                              : !cg_rename_from_list(a, game, record, 1)) {
+        int k = cg_pre_find(e), of = (int)cg_u32(e + 4) - 1;
+        if (of >= 0 && of < cg_g.n_role ? cg.name[of][0] == '\0' || !cg_rename_fixed(a, record, cg.name[of])
+            : fixed != CG_NONE && cg_s(&cg_g, fixed)[0] != '\0' ? !cg_rename_fixed(a, record, cg_s(&cg_g, fixed))
+            : k >= 0 && cg_pre[k].name[0] != '\0' ? !ce_write_name(record + a->off_name, a->name_bytes, cg_pre[k].name)
+            : !cg_rename_from_list(a, game, record, 1)) {
             return;
         }
         recs[0] = record;
@@ -7140,51 +7192,63 @@ static int cg_group_in_question;       /* the first popup is shown in the answer
    the skill's name and <W> the preference word as the game lists them.  Pinned equal to src/vv_cie_graph.py
    AUTO_LINES by tests/test_cie_graph_v6.py. */
 static const char *const CG_AUTO_LINES[][2] = {
-    { "food+", "The village gains food." },
-    { "food-", "The village loses food." },
-    { "tech+", "The village gains tech points." },
-    { "tech-", "The village loses tech points." },
+    { "food+", "The village gains <N> food." },
+    { "food-", "The village loses <N> food." },
+    { "tech+", "The village gains <N> tech points." },
+    { "tech-", "The village loses <N> tech points." },
     { "kill", "<R> dies." },
-    { "vanish", "<R> disappears." },
+    { "kill_injuries", "<R> suffers fatal injuries." },
+    { "vanish", "<R> disappears from the village." },
+    { "vanish_leaves", "<R> leaves the village." },
     { "status", "<R> becomes a Heathen." },
-    { "health", "<R>'s health changes." },
+    { "health", "<R>'s health is now <N>." },
     { "like", "<R> now likes <W>." },
     { "dislike", "<R> now dislikes <W>." },
     { "unlike", "<R> no longer likes <W>." },
     { "undislike", "<R> no longer dislikes <W>." },
-    { "skill+", "<R> learns more about <S>." },
-    { "skill-", "<R> feels less sure of <P> <S>." },
-    { "sick", "<R> falls sick." },
-    { "celebrate_all", "The village celebrates." },
+    { "skill+", "<R> gains <N> <S> skill." },
+    { "skill-", "<R> loses <N> <S> skill." },
+    { "sick", "<R> becomes sick." },
+    { "celebrate_all", "Everyone celebrates." },
     { "celebrate", "<R> celebrates." },
-    { "mood+", "<R> is in a good mood." },
-    { "mood-", "<R> is in a bad mood." },
-    { "health_change+", "<R> feels better." },
-    { "health_change-", "<R> feels worse." },
+    { "mood+", "<R> celebrates." },
+    { "mood-", "<R> shakes <P> head." },
+    { "health_change+", "<R> gains <N> health." },
+    { "health_change-", "<R> loses <N> health." },
     { "set100", "<R> masters <S>." },
-    { "set0", "<R> forgets everything about <S>." },
-    { "set", "<R>'s <S> skill changes." },
-    { "damage", "Something in the village is damaged." },
-    { "hair", "<R>'s hair changes color." },
-    { "look", "<R>'s look changes." },
-    { "die_unrecovered", "<R> dies; the body is not recovered." },
+    { "set0", "<R> loses all <S> skill." },
+    { "set", "<R>'s <S> skill is now <N>." },
+    { "damage", "A building loses <N>% of its construction." },
+    { "head", "<R>'s head changes." },
+    { "clothes", "<R>'s clothes change." },
+    { "die_unrecovered", "<R> dies. The body is not recovered." },
     { "baby_lost", "<R>'s baby is lost." },
-    { "old_look", "<R> looks older and more worn." },
-    { "sex_change", "<R>'s sex changes." },
+    { "old_look", "<R> looks older." },
+    { "sex_male", "<R> is now male." },
+    { "sex_female", "<R> is now female." },
     { "cure", "<R> is cured." },
     { "young_look", "<R> looks younger." },
     { "repair", "The damaged buildings are being repaired." },
-    { "skill_best", "<R> gets better at what <P> does best." },
+    { "skill_best", "<R> gains <N> skill in what <P> does best." },
+    { "pregnant", "<R> is expecting a baby." },
+    { "nursing", "<R> is caring for a baby." },
+    { "clone", "A double of <R> appears." },
+    { "body_swap", "<R> and <Q> swap bodies." },
+    { "lose_name", "<R> forgets <P> name." },
+    { "change_name", "<R> is now called <W>." },
+    { "change_age", "<R> is now <N> years old." },
     { "faith", "<R> feels closer to the tribe." },
     { "join", "<R> joins the tribe." },
     { "apostasy", "<R> becomes a Heathen." },
-    { "presentation", "<R>'s look changes." },
+    { "presentation", "<R>'s gender presentation changes." },
 };
 
 /* Line `key` with the role's placeholders and the words put in, after a line break when `out` has text already. */
-static void cg_auto_add(char *out, int cap, const char *key, int role, const char *skill, const char *word) {
-    char line[256];
+static void cg_auto_add(char *out, int cap, const char *key, int role, const char *skill, const char *word,
+                        int number, int other) {
+    char line[256], digits[16];
     const char *t = NULL, *id = role >= 0 && role < cg_g.n_role ? cg_s(&cg_g, cg_u16(cg_role_at(&cg_g, role) + 4)) : "";
+    const char *oid = other >= 0 && other < cg_g.n_role ? cg_s(&cg_g, cg_u16(cg_role_at(&cg_g, other) + 4)) : "";
     int i, n = 0;
     for (i = 0; i < (int)(sizeof CG_AUTO_LINES / sizeof CG_AUTO_LINES[0]); ++i) {
         if (lstrcmpA(CG_AUTO_LINES[i][0], key) == 0) {
@@ -7197,8 +7261,12 @@ static void cg_auto_add(char *out, int cap, const char *key, int role, const cha
     for (; *t != '\0' && n < (int)sizeof line - 1; ++t) {
         const char *put = NULL, *tail = "";
         if (t[0] == '<' && t[1] != '\0' && t[2] == '>') {
-            put = t[1] == 'R' ? "(" : t[1] == 'P' ? "(" : t[1] == 'S' ? skill : t[1] == 'W' ? word : NULL;
-            tail = t[1] == 'R' ? ".Name)" : t[1] == 'P' ? ".his/her)" : "";
+            if (t[1] == 'N') {
+                wsprintfA(digits, "%d", number < 0 ? -number : number);   /* never signed: the verb says which */
+            }
+            put = t[1] == 'R' || t[1] == 'P' || t[1] == 'Q' ? "(" : t[1] == 'S' ? skill : t[1] == 'W' ? word
+                : t[1] == 'N' ? digits : NULL;
+            tail = t[1] == 'R' || t[1] == 'Q' ? ".Name)" : t[1] == 'P' ? ".his/her)" : "";
         }
         if (put == NULL) {
             line[n++] = *t;
@@ -7209,9 +7277,9 @@ static void cg_auto_add(char *out, int cap, const char *key, int role, const cha
         }
         lstrcpyA(line + n, put);
         n += lstrlenA(put);
-        if (t[1] == 'R' || t[1] == 'P') {
-            lstrcpyA(line + n, id);
-            n += lstrlenA(id);
+        if (t[1] == 'R' || t[1] == 'P' || t[1] == 'Q') {
+            lstrcpyA(line + n, t[1] == 'Q' ? oid : id);
+            n += lstrlenA(t[1] == 'Q' ? oid : id);
             lstrcpyA(line + n, tail);
             n += lstrlenA(tail);
         }
@@ -7246,40 +7314,95 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
         case CGE_FOOD: case CGE_TECH:
             if (!(e[2] & 2u) && va != 0) {
                 cg_auto_add(out, cap, e[0] == CGE_FOOD ? (va > 0 ? "food+" : "food-") : (va > 0 ? "tech+" : "tech-"),
-                            -1, "", "");
+                            -1, "", "", va, -1);
             }
             break;
         case CGE_PAY:
             if (award_kind >= 0 && award != 0) {
                 cg_auto_add(out, cap, award_kind == 0 ? (award > 0 ? "food+" : "food-") : (award > 0 ? "tech+" : "tech-"),
-                            -1, "", "");
+                            -1, "", "", award, -1);
             }
             break;
-        case CGE_KILL: cg_auto_add(out, cap, "kill", role, "", ""); break;
-        case CGE_VANISH: cg_auto_add(out, cap, "vanish", role, "", ""); break;
-        case CGE_STATUS: cg_auto_add(out, cap, "status", role, "", ""); break;
-        case CGE_HEALTH: cg_auto_add(out, cap, "health", role, "", ""); break;
-        case CGE_SICK: cg_auto_add(out, cap, "sick", role, "", ""); break;
-        case CGE_DIE_UNRECOVERED: cg_auto_add(out, cap, "die_unrecovered", role, "", ""); break;
-        case CGE_BABY_LOST: cg_auto_add(out, cap, "baby_lost", role, "", ""); break;
-        case CGE_OLD_LOOK: cg_auto_add(out, cap, "old_look", role, "", ""); break;
-        case CGE_YOUNG_LOOK: cg_auto_add(out, cap, "young_look", role, "", ""); break;
-        case CGE_CURE: cg_auto_add(out, cap, "cure", role, "", ""); break;
-        case CGE_FAITH: cg_auto_add(out, cap, "faith", role, "", ""); break;
-        case CGE_JOIN: cg_auto_add(out, cap, "join", role, "", ""); break;
-        case CGE_APOSTASY: cg_auto_add(out, cap, "apostasy", role, "", ""); break;
-        case CGE_REPAIR: cg_auto_add(out, cap, "repair", -1, "", ""); break;
-        case CGE_SEX_CHANGE: cg_auto_add(out, cap, "sex_change", role, "", ""); break;
-        case CGE_PRESENTATION: cg_auto_add(out, cap, "presentation", role, "", ""); break;
-        case CGE_DAMAGE: cg_auto_add(out, cap, "damage", -1, "", ""); break;
-        case CGE_CELEBRATE: cg_auto_add(out, cap, role < 0 ? "celebrate_all" : "celebrate", role, "", ""); break;
-        case CGE_MOOD: cg_auto_add(out, cap, lo > 0 ? "mood+" : "mood-", role, "", ""); break;
+        case CGE_KILL: cg_auto_add(out, cap, (e[2] & CG_LINE_OTHER) ? "kill_injuries" : "kill", role, "", "", 0, -1); break;
+        case CGE_VANISH:
+            cg_auto_add(out, cap, (e[2] & CG_LINE_OTHER) ? "vanish_leaves" : "vanish", role, "", "", 0, -1);
+            break;
+        case CGE_STATUS: cg_auto_add(out, cap, "status", role, "", "", 0, -1); break;
+        case CGE_HEALTH: cg_auto_add(out, cap, "health", role, "", "", va, -1); break;
+        case CGE_SICK: cg_auto_add(out, cap, "sick", role, "", "", 0, -1); break;
+        case CGE_DIE_UNRECOVERED: cg_auto_add(out, cap, "die_unrecovered", role, "", "", 0, -1); break;
+        case CGE_BABY_LOST: cg_auto_add(out, cap, "baby_lost", role, "", "", 0, -1); break;
+        case CGE_OLD_LOOK: cg_auto_add(out, cap, "old_look", role, "", "", 0, -1); break;
+        case CGE_YOUNG_LOOK: cg_auto_add(out, cap, "young_look", role, "", "", 0, -1); break;
+        case CGE_CURE: cg_auto_add(out, cap, "cure", role, "", "", 0, -1); break;
+        case CGE_FAITH: cg_auto_add(out, cap, "faith", role, "", "", 0, -1); break;
+        case CGE_JOIN: cg_auto_add(out, cap, "join", role, "", "", 0, -1); break;
+        case CGE_APOSTASY: cg_auto_add(out, cap, "apostasy", role, "", "", 0, -1); break;
+        case CGE_REPAIR: cg_auto_add(out, cap, "repair", -1, "", "", 0, -1); break;
+        case CGE_SEX_CHANGE: {
+            /* the sex it becomes: the other of the villager's now (the pages are laid out before the change) */
+            int who = a != NULL ? cg_resolve_role(e[1]) : -1;
+            const unsigned char *record = who >= 0 ? cg_villager(a, who) : NULL;
+            if (record != NULL) {
+                cg_auto_add(out, cap, ce_sex(a, record) == STORY_SEX_MALE ? "sex_female" : "sex_male", role, "", "",
+                            0, -1);
+            }
+            break;
+        }
+        case CGE_PREGNANT: cg_auto_add(out, cap, "pregnant", role, "", "", 0, -1); break;
+        case CGE_NURSING: cg_auto_add(out, cap, "nursing", role, "", "", 0, -1); break;
+        case CGE_CLONE: cg_auto_add(out, cap, "clone", role, "", "", 0, -1); break;
+        case CGE_LOSE_NAME: cg_auto_add(out, cap, "lose_name", role, "", "", 0, -1); break;
+        case CGE_BODY_SWAP: cg_auto_add(out, cap, "body_swap", role, "", "", 0, (int)cg_u32(e + 4)); break;
+        case CGE_CHANGE_NAME: case CGE_CHANGE_AGE: {
+            /* drawn now, made later exactly so (cg_pre) */
+            int who = a != NULL ? cg_resolve_role(e[1]) : -1, k;
+            const unsigned char *record = who >= 0 ? cg_villager(a, who) : NULL;
+            if (e[0] == CGE_CHANGE_NAME && (int)cg_u32(e + 4) > 0 && (int)cg_u32(e + 4) <= cg_g.n_role) {
+                char ph[48];           /* the stranger's drawn name, filled in with the page's names */
+                wsprintfA(ph, "(%s)", cg_s(&cg_g, cg_u16(cg_role_at(&cg_g, (int)cg_u32(e + 4) - 1) + 4)));
+                cg_auto_add(out, cap, "change_name", role, "", ph, 0, -1);
+                break;
+            }
+            if (e[0] == CGE_CHANGE_NAME && cg_u16(e + 12) != CG_NONE && cg_s(&cg_g, cg_u16(e + 12))[0] != '\0') {
+                cg_auto_add(out, cap, "change_name", role, "", cg_s(&cg_g, cg_u16(e + 12)), 0, -1);
+                break;
+            }
+            if (record == NULL || (k = cg_pre_slot(e)) < 0) {
+                break;
+            }
+            if (e[0] == CGE_CHANGE_NAME) {
+                if (cg_pre[k].name[0] != '\0'
+                    || cg_pick_name(a, game, record, 1, cg_pre[k].name, (int)sizeof cg_pre[k].name)) {
+                    cg_auto_add(out, cap, "change_name", role, "", cg_pre[k].name, 0, -1);
+                }
+            } else {
+                if (cg_pre[k].age < 0) {
+                    cg_pre[k].age = cg_age_target(a, game, e, record);
+                }
+                if (cg_pre[k].age >= 0) {
+                    cg_auto_add(out, cap, "change_age", role, "", "", cg_pre[k].age / 20, -1);
+                }
+            }
+            break;
+        }
+        case CGE_PRESENTATION: cg_auto_add(out, cap, "presentation", role, "", "", 0, -1); break;
+        case CGE_DAMAGE: cg_auto_add(out, cap, "damage", -1, "", "", va, -1); break;
+        case CGE_CELEBRATE: cg_auto_add(out, cap, role < 0 ? "celebrate_all" : "celebrate", role, "", "", 0, -1); break;
+        case CGE_MOOD: cg_auto_add(out, cap, lo > 0 ? "mood+" : "mood-", role, "", "", 0, -1); break;
         case CGE_HEALTH_CHANGE:
             if (va != 0) {
-                cg_auto_add(out, cap, va > 0 ? "health_change+" : "health_change-", role, "", "");
+                cg_auto_add(out, cap, va > 0 ? "health_change+" : "health_change-", role, "", "", va, -1);
             }
             break;
-        case CGE_APPEARANCE: cg_auto_add(out, cap, hi == CG_LOOK_KEEP ? "hair" : "look", role, "", ""); break;
+        case CGE_APPEARANCE:
+            if (lo != CG_LOOK_KEEP) {
+                cg_auto_add(out, cap, "head", role, "", "", 0, -1);
+            }
+            if (hi != CG_LOOK_KEEP) {
+                cg_auto_add(out, cap, "clothes", role, "", "", 0, -1);
+            }
+            break;
         case CGE_PREF:
             if (e[2] & CG_PREF_RANDOM) {
                 if (a == NULL || va < 0 || !ui_list_entry(a->pref_list, va, word, sizeof word)) {
@@ -7289,18 +7412,18 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
                 lstrcpynA(word, cg_s(&cg_g, cg_u16(e + 12)), sizeof word);
             }
             cg_auto_add(out, cap, (e[2] & CG_PREF_REMOVE) ? ((e[2] & 4u) ? "undislike" : "unlike")
-                                                        : ((e[2] & 4u) ? "dislike" : "like"), role, "", word);
+                                                        : ((e[2] & 4u) ? "dislike" : "like"), role, "", word, 0, -1);
             break;
         case CGE_SKILL:
             if (va == -2 && vb > 0) {
-                cg_auto_add(out, cap, "skill_best", role, "", "");
+                cg_auto_add(out, cap, "skill_best", role, "", "", vb, -1);
             } else if (skill != NULL && vb != 0) {
-                cg_auto_add(out, cap, vb > 0 ? "skill+" : "skill-", role, skill, "");
+                cg_auto_add(out, cap, vb > 0 ? "skill+" : "skill-", role, skill, "", vb, -1);
             }
             break;
         case CGE_SKILL_SET:
             if (skill != NULL) {
-                cg_auto_add(out, cap, vb == 100 ? "set100" : vb == 0 ? "set0" : "set", role, skill, "");
+                cg_auto_add(out, cap, vb == 100 ? "set100" : vb == 0 ? "set0" : "set", role, skill, "", vb, -1);
             }
             break;
         default:
@@ -7313,6 +7436,9 @@ static void cg_group(int game, const cg_history *h, int from) {
     static char text[CG_RAW_BYTES];
     int award_kind = -1, award = 0, fx, k, i, first_text = -1;
     unsigned short title = cg_title_before(h, from);
+    if (from == 0) {
+        cg_pre_n = 0;                  /* a new event: nothing drawn for it yet */
+    }
     cg_pop_count = 0;
     fx = cg_award_before(h, from, &award_kind, &award);
     cg_visit_path(from);

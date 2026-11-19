@@ -1835,8 +1835,8 @@ class EngineFollowups(unittest.TestCase):
                 self.assertIn(words.index("work"), r.v.prefs(0, "dislikes"))
                 self.assertIn("Ana now likes resting.", text)
                 self.assertIn("Ana now dislikes work.", text)
-                self.assertIn("Ana's hair changes color.", text)
-                self.assertIn("The village gains food.", text)
+                self.assertIn("Ana's head changes.", text)
+                self.assertRegex(text, r"The village gains [1-9][0-9]* food\.")
 
     def test_a_group_random_removal_takes_one_held_preference_each(self):
         # cie-v6-binary.md 24 on a group (role 254): a random like taken away is drawn from each member's own likes
@@ -1898,7 +1898,7 @@ class EngineFollowups(unittest.TestCase):
                     head0 = r.v.i32(1, r.v.L["head"])
                     text = " ".join(t for _kind, t, _labels in r.walk_through())   # as delivered, refusals too
                     self.assertEqual(r.state()["records"][0], 1)
-                    self.assertIn("Ana looks older and more worn.", text)
+                    self.assertIn("Ana looks older.", text)
                     self.assertIn("Ana now dislikes running.", text)
                     words = cg.GAMES[int(game[2])].preferences
                     self.assertIn(words.index("running"), r.v.prefs(1, "dislikes"))
@@ -1963,7 +1963,7 @@ class EngineFollowups(unittest.TestCase):
                     self.assertIsNone(r.queue6(compiled(SEX_GRAPH), strict=True, origin=2))
                     head0 = r.v.i32(1, r.v.L["head"])
                     text = " ".join(t for _kind, t, _labels in r.walk_through())
-                    self.assertIn("Ana's sex changes.", text)
+                    self.assertIn("Ana is now male.", text)
                     self.assertEqual(r.v.i32(1, r.v.L["head"]), head0, "the head row never changes")
                     words = cg.GAMES[int(game[2])].preferences
                     self.assertEqual(r.v.i32(1, off), male, "Ana's record is a man's now")
@@ -1989,6 +1989,73 @@ NEW_NAME_GRAPH = {
     "nodes": {"p": {"text": "(Name) asks to be called (Chosen). (chosen) it is.", "auto_text": True,
                     "effects": [{"do": "sex_change", "role": "subject"}]}},
 }
+AGE_NAME_GRAPH = {
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Long Sleep", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager", "min_age": 25, "sex": "female"}},
+    "start": "p",
+    "nodes": {"p": {"text": "(Name) wakes from a very long sleep.", "auto_text": True,
+                    "effects": [{"do": "change_age", "role": "subject", "years": [3, 5]},
+                                {"do": "change_name", "role": "subject"}]}},
+}
+
+
+if HAVE_EMULATOR:
+    class AgeAndNameLines(unittest.TestCase):
+        def test_the_line_says_the_age_and_name_the_effect_makes(self):
+            # The owner (2026-11-18): a line whenever an effect happens.  The age and a random name are drawn when
+            # the page is laid out (story_graph.inc cg_pre) and the effect then makes exactly that.
+            for game in GAME_IDS:
+                if not have_stock(game):
+                    continue
+                with self.subTest(game=game):
+                    r = V6(game, [(0, "m", 20, "Cy", 0, False), (1, "f", 30, "Ana", 0, False)])
+                    r.rolls([1] * 60)
+                    self.assertIsNone(r.queue6(compiled(AGE_NAME_GRAPH), strict=True, origin=2))
+                    text = " ".join(" ".join(t for _kind, t, _labels in r.walk_through()).split())
+                    age = r.v.i32(1, r.v.L["age"])
+                    self.assertIn(f"is now {age // 20} years old.", text)
+                    self.assertIn(age // 20, range(33, 36), "30 plus 3 to 5 years")
+                    name = r.p.cstring(r.v.record(1) + r.v.L["name"])
+                    self.assertNotEqual(name, "Ana")
+                    self.assertIn(f"is now called {name}.", text)
+
+
+CHOSEN_RENAME_GRAPH = {
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Name That Fits", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager", "min_age": 25, "sex": "female"},
+              "chosen": {"kind": "stranger", "new_name_for": "subject", "sex": "same", "last_name": "same"}},
+    "start": "p",
+    "nodes": {"p": {"text": "(Name) asks to be called (Chosen).", "auto_text": True,
+                    "effects": [{"do": "change_name", "role": "subject", "name_of": "chosen"}]}},
+}
+
+
+if HAVE_EMULATOR:
+    class ChosenRename(unittest.TestCase):
+        def test_the_villager_takes_the_chosen_name(self):
+            # The owner (2026-11-19): a REL event's chosen name is the name the villager is renamed to.
+            for game in GAME_IDS:
+                if not have_stock(game):
+                    continue
+                with self.subTest(game=game):
+                    r = V6(game, [(0, "m", 20, "Cy", 0, False), (1, "f", 30, "Ana", 0, False)])
+                    r.rolls([3] * 60)
+                    self.assertIsNone(r.queue6(compiled(CHOSEN_RENAME_GRAPH), strict=True, origin=2))
+                    text = " ".join(" ".join(t for _kind, t, _labels in r.walk_through()).split())
+                    name = r.p.cstring(r.v.record(1) + r.v.L["name"])
+                    self.assertNotEqual(name, "Ana")
+                    self.assertIn(f"asks to be called {name}.", text)
+                    self.assertIn(f"is now called {name}.", text)
+
+
+class ChosenRenameFormat(unittest.TestCase):
+    def test_round_trip(self):
+        g = cg.load(copy.deepcopy(CHOSEN_RENAME_GRAPH), True)
+        self.assertEqual(cg.decompile_graph(cg.compile_graph(g))["nodes"]["p"]["effects"][0]["name_of"], "chosen")
+        self.assertEqual(cg.auto_line_options(g["nodes"]["p"]["effects"][0], 3),
+                         ["(subject.Name) is now called (chosen)."])
+
+
 SEX_GRAPH = {
     "format": "vvfp-cie-graph", "version": 6, "title": "The Person They Have Always Been", "games": [1, 2, 3, 4, 5],
     "roles": {"subject": {"kind": "villager", "min_age": 25, "sex": "female"}},

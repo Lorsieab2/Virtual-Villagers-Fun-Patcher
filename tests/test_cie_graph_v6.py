@@ -1126,9 +1126,9 @@ class EngineFollowups(unittest.TestCase):
         free = [w for w in words if w not in ("ants", "crowds", "resting")]
         self.assertEqual(r["fx"][1], [words.index(free[2 % len(free)]), 0], "candidate k % count")
         self.assertEqual(r["popups"], [
-            "Ana wakes up feeling odd.\nAna's hair changes color.\nAna now likes " + free[2] + ".\n"
-            "Ana now dislikes work.\nAna learns more about Research.\nAna feels less sure of her Healing.\n"
-            "By noon it has passed.\nAna is in a good mood.\nThe village gains food."])
+            "Ana wakes up feeling odd.\nAna's head changes.\nAna now likes " + free[2] + ".\n"
+            "Ana now dislikes work.\nAna gains 5 Research skill.\nAna loses 5 Healing skill.\n"
+            "By noon it has passed.\nAna celebrates.\nThe village gains 40 food."])
 
     def test_the_fit_counts_the_widest_line(self):
         g = cg.load(copy.deepcopy(AUTO), True)
@@ -1141,7 +1141,7 @@ class EngineFollowups(unittest.TestCase):
                                                  game, None), f"(subject.Name) now likes {longest}.")
             h = cg.walk(g, cg.contexts(g, [gn])[0])
             self.assertIn(f"now likes {longest}.", h[0].popups[0].worst)
-            self.assertIn("W" * game.name_room + " feels less sure of", h[0].popups[0].worst)
+            self.assertIn("W" * game.name_room + " loses 10 Healing skill.", h[0].popups[0].worst)
         # A text that fits alone but not with its lines is refused (The Secret City's popup holds 1990 bytes
         # without Scrolling Popups; with it the length is practically unlimited, so the lines are counted against
         # the paged popup).
@@ -1193,7 +1193,7 @@ class EngineFollowups(unittest.TestCase):
         for n in range(1, 6):
             self.assertIn("running", cg.GAMES[n].preferences)
             r = cg.simulate(g, n, [], binding({"subject": {"name": "Ana", "sex": "f"}}))
-            self.assertEqual(r["popups"], ["Ana has been coughing for days.\nAna looks older and more worn.\n"
+            self.assertEqual(r["popups"], ["Ana has been coughing for days.\nAna looks older.\n"
                                            "Ana now dislikes running."])
         v5 = t.tiny()
         v5["nodes"][v5["start"]]["effects"] = [{"do": "old_look", "role": "subject"}]
@@ -1214,7 +1214,7 @@ class EngineFollowups(unittest.TestCase):
         r = cg.simulate(g, 3, [], binding({"subject": {"name": "Ana Bandele", "sex": "f"},
                                            "chosen": {"name": "Kalau Chinaka", "sex": "m"}}))
         self.assertEqual(r["popups"], ["Ana Bandele asks to be called Kalau Chinaka. Kalau Chinaka it is.\n"
-                                       "Ana Bandele's sex changes."])
+                                       "Ana Bandele is now male."])
         for game in range(1, 6):
             w = cg.worst_v6("(Chosen)", cg.lower(g), cg.GAMES[game], None)
             self.assertEqual(len(w), cg.stranger_name_room(game) + 1 + max(map(len, cg.last_names(game))))
@@ -1243,7 +1243,8 @@ class EngineFollowups(unittest.TestCase):
         blob = cg.compile_graph(g)
         o_eff = struct.unpack_from("<I", blob, 56)[0]
         self.assertEqual(struct.unpack_from("<BBBBiiHH", blob, o_eff), (22, 0, 0, 0, 0, 0, 0xFFFF, 0))
-        self.assertEqual(cg.AUTO_LINES["sex_change"], "<R>'s sex changes.")
+        self.assertEqual((cg.AUTO_LINES["sex_male"], cg.AUTO_LINES["sex_female"]),
+                         ("<R> is now male.", "<R> is now female."))
         v5 = t.tiny()
         v5["nodes"][v5["start"]]["effects"] = [{"do": "sex_change", "role": "subject"}]
         self.assertTrue(any("version 6" in p for p in t.problems_of(v5)))
