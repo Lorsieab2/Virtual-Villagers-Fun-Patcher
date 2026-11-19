@@ -240,6 +240,9 @@ enum { CG_AGE_CHILD = 0, CG_AGE_TEEN = 1, CG_AGE_18 = 2, CG_AGE_ADULT = 3, CG_AG
 #define CG_FX_PARTNER_MAY_CARRY 8u
 static int cg_partner_carries(const ce_adapter *a);   /* the setting's chance (below) */
 #define CG_TRAIT_MUTE 1u              /* 32: the story trait "mute" */
+#define CG_MUTE_WORD "talking"        /* the owner (2026-11-17): a villager who dislikes it is story-mute */
+static const char *cg_pref_word;      /* a preference effect's word given here instead of the graph's (the mute
+                                         trait's own dislike) */
 #define CG_ROLE_SPEAKS 0x80u          /* 32: a villager role's byte 13 bit: its words have them speak */
 #define CG_ROLE_HEATHEN 0x40u         /* ... bit 6: New Believers: the role is a Heathen's (an Isolan), cast as the game's
                                          own picker 0x471870 casts one with Heathens-only on and special roles off */
@@ -6444,7 +6447,7 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
         break;
     case CGE_PREF: {
         int random = (e[2] & CG_PREF_RANDOM) != 0;
-        int value = random ? va : cg_preference(a, cg_s(&cg_g, cg_u16(e + 12)));
+        int value = random ? va : cg_preference(a, cg_pref_word != NULL ? cg_pref_word : cg_s(&cg_g, cg_u16(e + 12)));
         int dislike = (e[2] & 4u) != 0;
         const int *list = (const int *)(record + (dislike ? a->off_dislikes : a->off_likes));
         int k, have = 0, free_slot = 0;
@@ -6604,6 +6607,18 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         index = -1;
         if (cg_target(a, e[1], &index) != NULL) {   /* a role, or a villager this event made */
             rs_set_trait(game, index, cg_u32(e + 4));
+            if ((cg_u32(e + 4) & CG_TRAIT_MUTE) && cg_preference(a, CG_MUTE_WORD) >= 0) {
+                /* The owner (2026-11-17): a mute villager also dislikes talking where the game has the word (The
+                   Lost Children .. New Believers), through the preference effect's own write (24). */
+                unsigned char pref[16];
+                memset(pref, 0, sizeof pref);
+                pref[0] = CGE_PREF;
+                pref[1] = e[1];
+                pref[2] = 4u;                  /* a dislike */
+                cg_pref_word = CG_MUTE_WORD;
+                cg_effect(a, game, pref, -1, 0, award_kind, award, r);
+                cg_pref_word = NULL;
+            }
         }
         return;
     case CGE_CELEBRATE:

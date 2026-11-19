@@ -964,6 +964,13 @@ in `data/event_collection/content_tags/<source>.json`.
 - **A speaking role:** byte 13 of a villager role (the skill pick, 0 or 1) carries bit 7 (`0x80`) when the event's
   words have that role speak (a quoted line attributed to them: `speaking_roles`, kept in the source's tag table as
   `"speaks"`). Such a role never takes a villager with the trait "mute" (`cg_eligible`).
+- **Dislikes talking = mute** (the owner, 2026-11-17): in a game whose like / dislike list has "talking" (The Lost
+  Children .. New Believers; A New Home has none), any villager who dislikes talking counts as mute, however they
+  came by it (`story_traits.inc` rs_has_trait). The "mute" trait effect also gives the villager that dislike there,
+  through the preference effect's own write (24); in A New Home it keeps the trait only.
+- **A sex change keeps the trait:** the file keys villagers by an identity that holds the sex, so the companion's
+  `VvfpVillagerSexChanged` carries the entry to the new identity (`rs_sex_changed`); a save from before a change finds
+  it through the Sex Changes log.
 
 ## 33. Count tokens: text that fits what the effects made (the owner, 2026-11-15)
 

@@ -372,10 +372,63 @@ static int rs_row_of_record(int game, const unsigned char *record) {
     return rs_handle[i];
 }
 
-/* Whether the villager in `record` has story trait `trait` (cie-v6-binary.md 32), whatever is ticked. */
+/* Whether the villager in `record` dislikes talking, in a game whose list has the word (The Lost Children .. New
+   Believers; A New Home has none): the owner (2026-11-17), "dislike talking if it exists = mute" -- however they
+   came by it (born with it, any game action, any event). */
+static int rs_dislikes_talking(int game, const unsigned char *record) {
+    const ce_adapter *a = ce_adapter_for(game);
+    const int *dislikes;
+    int k, word;
+    if (a == NULL || record == NULL || (word = cg_preference(a, CG_MUTE_WORD)) < 0) {
+        return 0;
+    }
+    dislikes = (const int *)(record + a->off_dislikes);
+    for (k = 0; k < a->pref_slots; ++k) {
+        if (dislikes[k] == word) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Whether the villager in `record` has story trait `trait` (cie-v6-binary.md 32), whatever is ticked: "mute" also
+   when they dislike talking (rs_dislikes_talking). */
 static int rs_has_trait(int game, const unsigned char *record, unsigned int trait) {
-    int row = rs_row_of_record(game, record);
+    int row;
+    if ((trait & CG_TRAIT_MUTE) && rs_dislikes_talking(game, record)) {
+        return 1;
+    }
+    row = rs_row_of_record(game, record);
     return row != 0 && (rs_traits[row - 1] & trait) != 0;
+}
+
+/* A villager's sex changed (native/shared/sex_change.h; VvfpVillagerSexChanged): the identity holds the sex, so the
+   villager's entry is carried to the identity they have now and the file written -- otherwise the next look would
+   take the record for someone else's and drop the trait.  1 when anything was carried. */
+static int rs_sex_changed(int game, const unsigned char *record, const unsigned char *before) {
+    int i, slots;
+    unsigned int was;
+    if (record == NULL || before == NULL || game != rs_game || !rs_have_roster) {
+        return 0;
+    }
+    slots = rs_slots();
+    for (i = 0; i < slots && rs_record(i) != record; ++i) {
+    }
+    if (i >= slots) {
+        return 0;
+    }
+    was = rs_identity(before);
+    if (rs_roster[i] != was) {
+        return 0;
+    }
+    rs_roster[i] = rs_identity(record);
+    rs_stable_ids[i] = rs_stable(record);
+    if (rs_handle[i] == 0) {
+        return 0;
+    }
+    rs_id[i] = rs_roster[i];
+    (void)rs_publish();
+    return 1;
 }
 
 /* A trait effect made for the villager in record `index`: they keep `trait` from now on (the file follows them). */

@@ -937,12 +937,17 @@ int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *co
 
 /* A villager's sex changed (native/shared/sex_change.h): the custom title's fingerprint holds no sex, so it stays
    theirs; the looks kept with it take the new sex now (titles_sex_changed). */
+static int rs_sex_changed(int game, const unsigned char *record, const unsigned char *before);  /* story_traits.inc */
+
 int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
-    (void)before;
+    int carried;
     if (ce_adapter_for(game) == NULL || record == NULL) {
         return 0;
     }
-    return titles_sex_changed(game, slot, (const unsigned char *)record);
+    carried = titles_sex_changed(game, slot, (const unsigned char *)record);
+    /* ...and the story traits (story_traits.inc), kept by an identity that holds the sex */
+    carried |= rs_sex_changed(game, (const unsigned char *)record, (const unsigned char *)before);
+    return carried;
 }
 
 #include "story_outcomes.inc"
