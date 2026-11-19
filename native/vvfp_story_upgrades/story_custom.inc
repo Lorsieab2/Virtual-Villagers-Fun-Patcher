@@ -213,7 +213,9 @@ static void ce_queue_at_site(unsigned char *q, unsigned int size, int cap, int w
     }
     memmove(q + size, q, (unsigned int)n * size);
     memcpy(q, w, size);
-    for (i = n + 1; i < used; ++i) {
+    /* cleared after the new last step: the end marker right after it -- also when no walk was taken out and the
+       queue grew one past its old end marker -- and every old step left behind */
+    for (i = n + 1; i < cap && (i < used || i == n + 1); ++i) {
         memset(q + (unsigned int)i * size, 0, size);
     }
 }
