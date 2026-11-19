@@ -313,7 +313,10 @@ static const struct jobs VV5_JOBS = { 0, 1, 2, 3, 4, 5 };
    would act. */
 static int own_first(const struct jobs *j, int selected, int requested, int skill_ok,
                      int building_ok, int devotion_ok, int farming_ok) {
-    if (selected < 0 || selected == requested || selected == j->parenting || !skill_ok) {
+    /* The game's own pick of Parenting (an embrace attempt) is never displaced
+       either: mating stays the game's and the Birth Control patches'. */
+    if (selected < 0 || selected == requested || selected == j->parenting || requested == j->parenting
+        || !skill_ok) {
         return -1;
     }
     if (selected == j->building) {
