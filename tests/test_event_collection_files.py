@@ -303,7 +303,10 @@ class FrozenDraftsD(unittest.TestCase):
                 for p in files:
                     doc = json.loads(p.read_text(encoding="utf-8"))
                     self.assertEqual(doc["games"], [1, 2, 3, 4, 5], p.name)
-                    self.assertFalse(any(nd.get("effects") for nd in doc["nodes"].values()), p.name)
+                    # No effects but the outcomes pass's (#821, scripts/outcome_effects.py), which are only on the
+                    # "__fx" half of each 50% split
+                    self.assertFalse(any(nd.get("effects") for nid, nd in doc["nodes"].items()
+                                         if not nid.endswith("__fx")), p.name)
                     for c in doc["nodes"]["setup"].get("choices", []):
                         self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
                     if sid in ("moments500", "draft_tim2"):
@@ -352,20 +355,26 @@ class FrozenAnthology(unittest.TestCase):
         files = [p for p in cc.collection_files() if lib.ANTHOLOGY_DIR in p.parents]
         self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
         effects = {}
+        outcome_fx = {}   # the outcomes pass (#821): the "__fx" half of each 50% split
         for p in files:
             doc = json.loads(p.read_text(encoding="utf-8"))
             self.assertEqual(doc["collection"]["label_case"], "title", p.name)
             for c in (c for nd in doc["nodes"].values() for c in nd.get("choices", [])):   # REL-04/26: two copies
                 self.assertEqual(c["label"], lib.title_case_label(c["label"].replace("{@Chief}", "Chief")).replace(
                     "Chief", "{@Chief}"), p.name)
-            for nd in doc["nodes"].values():
+            for nid, nd in doc["nodes"].items():
+                into = outcome_fx if nid.endswith("__fx") else effects
                 for e in nd.get("effects", []):
-                    effects[e["do"]] = effects.get(e["do"], 0) + 1
+                    into[e["do"]] = into.get(e["do"], 0) + 1
             for r in doc["roles"].values():
                 if r.get("special") == "nursing_parent":     # a carrying or nursing parent: an adult woman
                     self.assertEqual((r["sex"], r["min_age"] >= 18), ("female", True), p.name)
         # nothing harmful: hair dye (the random head look), REL-15's sex change, two couples' celebrations
         self.assertEqual(effects, {"appearance": 5, "sex_change": 1, "celebrate": 4})
+        # The outcomes pass (#821): each "__fx" page is its "__text" twin's effects (above, kept on both halves:
+        # celebrate 3, appearance 3, sex_change 1) plus the lines in data/event_collection/outcome_effects/.
+        self.assertEqual(outcome_fx, {"tech": 31, "mood": 298, "skill": 12, "health_change": 13, "food": 5,
+                                      "celebrate": 3, "appearance": 3, "sex_change": 1})
 
 
 class Manifest(unittest.TestCase):
