@@ -265,7 +265,7 @@ def _puzzles() -> list[Entry]:
             # only to that villager, the others 0x79 ("The robe does not fit").  Becoming chief clears it (0x45FBD7).
             (("Only one villager fits the robe, and the game never shows who: it draws one at random when the village is "
               "made -- every living villager who is not expecting or nursing is equally likely (one under 1 year old "
-              "would count three times) -- and draws again every 2 real-life seconds while nobody fitting is free (the "
+              "would count three times) -- and draws again every 2 real-life seconds (real time) while nobody fitting is free (the "
               "chosen one died, or is expecting or nursing) and there is no chief. Everyone else is told \"The robe "
               "does not fit\".", VERIFIED_C),
              # data/builds.json vv3_everyone_tries_on_robe: the 235-byte wrapper at .shr +0x100 runs the dropped villager
@@ -667,7 +667,7 @@ def _patcher() -> list[Entry]:
         # events' seven tail jumps (0x415EF1, 0x416983, 0x416BAB, 0x417A3A; 0x415D44, 0x41673E, 0x418452) go round
         # it; their direct calls (0x4158E3, 0x415928, 0x415A6A, 0x415AAB, ...) do not.  Reworked by PR #805.
         ("Island Event", f"{o}: {_tp(30_000)}: the game's island event chooser picks and runs an event 5 real-life "
-                         "seconds after it is bought, once the Tech screen is closed; a second one cannot be bought "
+                         "seconds (real time, the same at every speed) after it is bought, once the Tech screen is closed; a second one cannot be bought "
                          "while it waits. The game's own next island event keeps its time (the bought one does not "
                          "push it later).", VERIFIED_C),
         ("Barrel of Babies", f"{o}: {_tp(75_000)}: the game's barrel island event, \"Another One of Those "

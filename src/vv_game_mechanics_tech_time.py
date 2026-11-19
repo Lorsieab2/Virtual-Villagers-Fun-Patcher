@@ -554,26 +554,18 @@ def lines(ctx, everyone) -> list[gm.Fact]:
     if village.has(f"vv{game}_enable_origins_exclusive_features") is True:
         origins = f"With the patcher's \"{gm.feature_name(f'vv{game}_enable_origins_exclusive_features')}\" (in this game)"
         owned = doubler_owned(game, village.data)
-        if game in (3, 4):
-            # scripts/build_vv4_origins_feature.py tech_exclusions: 0x464E5D, 0x464E87 and 0x464EB0 are the returns
-            # of research's base pay, its Lab Equipment bonus and its fire bonus (the dispatcher 0x4642F0);
-            # scripts/build_vv3_origins_feature.py tech_increment passes every return inside the step routine
-            # 0x458DB0..0x45943F, where all of research's payments return.  Being reworked (PR #805).
-            add(origins + ": its Tech Point Doubler, in this version, does not double the points research earns (its "
-                "base pay and every bonus on it are passed through), so the times above stay the same with it"
-                + ("" if owned is None else
-                   "; this save owns one." if owned else "; this save does not own one.")
-                + ("" if owned is not None else "."), gm.CODE)
+        # v1.35.97 (PR #805, docs/doubler-composition-audit.md): every game's Tech Point Doubler doubles research's
+        # pay and its research-table bonuses (The Secret City's chief, Magic and potion points, The Tree of Life's Lab
+        # Equipment, the fire's point), so the times halve in all five games.
+        lead = (origins + ": an owned Tech Point Doubler doubles the tech points research earns, so every time "
+                "above halves")
+        if owned is None:
+            # Only a save that ends before the field (DOUBLER_TECH_AT) reaches here.
+            add(lead + "; whether this village owns one: this save ends before its field, and the Tech screen's "
+                "Upgrades list says \"Remove\" on its row when it does.", gm.CODE)
         else:
-            lead = (origins + ": an owned Tech Point Doubler doubles the tech points research earns, so every time "
-                    "above halves")
-            if owned is None:
-                # Only a save that ends before the field (DOUBLER_TECH_AT) reaches here.
-                add(lead + "; whether this village owns one: this save ends before its field, and the Tech screen's "
-                    "Upgrades list says \"Remove\" on its row when it does.", gm.CODE)
-            else:
-                add(lead + (": this save owns one, so each time above takes half as long as it says." if owned else
-                            ": this save does not own one."), gm.SAVE)
+            add(lead + (": this save owns one, so each time above takes half as long as it says." if owned else
+                        ": this save does not own one."), gm.SAVE)
     chosen = farmers_mod.game_module(game).FARMING_CHOSEN
     add(f"How it is worked out: points still needed ÷ (job turns x the share of turns that choose Research, "
         f"{chosen:.5f} x min(1, (Research + 40) ÷ 100), x the share that pass the Research test x the points a "

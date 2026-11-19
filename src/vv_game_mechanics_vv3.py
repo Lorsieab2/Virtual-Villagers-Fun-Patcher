@@ -673,7 +673,7 @@ CHANCE_LINES = (
     # every placed piece (0x42DB10, 0x42DC70).
     ("The tutorial's step \"Children can also contribute to village life...\" (tip 658) puts a common Coral piece "
      "at a fixed spot for the children to collect; like every collectible it is gone after 90 real-life seconds "
-     "unpicked.", True),
+     "unpicked (real time, the same at every speed).", True),
     # A live run of The Secret City, written down in the Game Mechanics audit of 2026-10-25 (commit 72b88737): a
     # village played for 30 minutes left no new save.  The code says otherwise (Autosave above); the owner,
     # 2026-10-27: "for cases where the code contradicts live observation write both cases down".

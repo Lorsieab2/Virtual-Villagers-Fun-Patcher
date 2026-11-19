@@ -557,7 +557,8 @@ def _patcher() -> list[Entry]:
                       "10 on Slow, so the villagers live 12, 6 or 3 years on Fast, Normal or Slow at once (Time "
                       "away); refused while paused.", gm.CLAMP),
         ("Island Event", f"{o}: {_tp(30_000)}: the game's own island event chooser picks and runs an event 5 "
-                         "real-life seconds after it is bought, once the Tech screen is closed; one at a time. Its "
+                         "real-life seconds (real time, the same at every speed) after it is bought, once the Tech screen is "
+                         "closed; one at a time. Its "
                          "awards are never doubled, and the game's own next island event keeps its time (the bought "
                          "one does not push it later).", VERIFIED_C),
         ("Barrel of Babies", f"{o}: {_tp(75_000)}: the game's barrel island event brings 3 children as soon as the "
