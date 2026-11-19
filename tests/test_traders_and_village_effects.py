@@ -174,6 +174,15 @@ class GameSide(unittest.TestCase):
                 r, _ = self.run_graph(game, g, lambda r: self.set_food_tech(r, 500, 10))
                 self.assertEqual(self.food_tech(r), (400, 40), "the first trade; the second is short: nothing")
 
+    def test_a_gain_never_takes_away_above_the_ceiling(self):
+        """Food or tech already above the engine's ceiling: a gain changes nothing (never a negative room)."""
+        if not have_stock("vv4"):
+            self.skipTest("no stock The Tree of Life")
+        g = pages([[{"do": "supply", "item": "food", "min": 10, "max": 10},
+                    {"do": "supply", "item": "tech", "min": 10, "max": 10}]], [4])
+        r, _ = self.run_graph("vv4", g, lambda r: self.set_food_tech(r, 0x7FFFFFFF, 0x7FFFFFFF))
+        self.assertEqual(self.food_tech(r), (0x7FFFFFFF, 0x7FFFFFFF))
+
     def test_has_supply_routes_the_walk(self):
         g = {"format": "vvfp-cie-graph", "version": 6, "title": "Market Day", "games": [4],
              "roles": {"subject": {"kind": "villager", "min_age": 14}}, "start": "s",

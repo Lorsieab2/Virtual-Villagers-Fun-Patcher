@@ -126,7 +126,7 @@ static int cg_good_have(const ce_adapter *a, int game, const cg_good_def *d, int
     case CGG_FOOD: case CGG_TECH:
         now = d->kind == CGG_FOOD ? a->food() : a->tech();
         now = now < 0 ? 0 : now;
-        *room = CE_MAX_AMOUNT - now;
+        *room = now < CE_MAX_AMOUNT ? CE_MAX_AMOUNT - now : 0;   /* never negative: a gain never takes away */
         return now;
     case CGG_VALUE:
         if (a->value_get == NULL || d->which >= a->value_count || !a->value_get(d->which, &now)) {
