@@ -635,7 +635,7 @@ after Start Over.
 
 **Birth Control**
 
-Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; the autonomous chooser uses the VV4/VV5 score floor and REQUIRES the parenting preference to be checked, rejecting an unchecked villager rather than applying the VV4/VV5 25% non-preference fallback; initiator males and older autonomous initiators retain no upper-age ceiling. Birth Control owns only its named ordinary-route checks; conception, pregnancy, delivery, direct event births, and pending delivery remain separate native paths, while automatic physical-capacity safety applies in every public mode.
+**While catching up (time away and Time Warp), a villager with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Children are never involved, and the partner search, the conception roll, the population limit and huts stay the game's own, so a try can still fail.** Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; the autonomous chooser uses the VV4/VV5 score floor and REQUIRES the parenting preference to be checked, rejecting an unchecked villager rather than applying the VV4/VV5 25% non-preference fallback; initiator males and older autonomous initiators retain no upper-age ceiling. Birth Control owns only its named ordinary-route checks; conception, pregnancy, delivery, direct event births, and pending delivery remain separate native paths, while automatic physical-capacity safety applies in every public mode.
 
 - Patch ID: `vv1_birth_control`
 
@@ -908,7 +908,7 @@ Popups get scrollbars when their text does not fit: a popup is never taller or w
 
 **Birth Control**
 
-Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the native chooser's score floor remains in force while its 25% non-preference fallback is removed so an unchecked preference is rejected outright, the two writer-reaching opcode-12 candidate scans reject candidates at internal age 1000 or greater, and the stock manual carrier/female-only gate rejects older carriers without adding a male upper-age gate. Birth Control owns only those two candidate scans; the conception roll, pregnancy writer, pregnancy, delivery, and automatic physical-capacity safety remain separate native/automatic paths in every public mode.
+**While catching up (time away and Time Warp), a villager with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Children are never involved, and the partner search, the conception roll, the population limit and huts stay the game's own, so a try can still fail.** Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the native chooser's score floor remains in force while its 25% non-preference fallback is removed so an unchecked preference is rejected outright, the two writer-reaching opcode-12 candidate scans reject candidates at internal age 1000 or greater, and the stock manual carrier/female-only gate rejects older carriers without adding a male upper-age gate. Birth Control owns only those two candidate scans; the conception roll, pregnancy writer, pregnancy, delivery, and automatic physical-capacity safety remain separate native/automatic paths in every public mode.
 
 - Patch ID: `vv2_birth_control`
 
@@ -1145,7 +1145,7 @@ Popups get scrollbars when their text does not fit: a popup is never taller or w
 
 **Birth Control**
 
-Requires BOTH parenting skill and the checked preference before a villager will initiate Embracing. The native chooser's score floor remains in force and the scanned candidate stays in the stock internal-age 360..999 range, but the 25% non-preference fallback is removed: a roll that admitted one unchecked villager in four is the reported leak. The initiating villager has no extra upper-age rejection. Birth Control owns only the five ordinary initiator checks; the native manual category-1 carrier gate, conception, pregnancy, and delivery remain separate, while automatic physical-capacity safety applies in every public mode.
+**While catching up (time away and Time Warp), a villager with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Children are never involved, and the partner search, the conception roll, the population limit and huts stay the game's own, so a try can still fail.** Requires BOTH parenting skill and the checked preference before a villager will initiate Embracing. The native chooser's score floor remains in force and the scanned candidate stays in the stock internal-age 360..999 range, but the 25% non-preference fallback is removed: a roll that admitted one unchecked villager in four is the reported leak. The initiating villager has no extra upper-age rejection. Birth Control owns only the five ordinary initiator checks; the native manual category-1 carrier gate, conception, pregnancy, and delivery remain separate, while automatic physical-capacity safety applies in every public mode.
 
 - Patch ID: `vv3_birth_control`
 
@@ -1602,9 +1602,15 @@ Every change an island event makes to a villager is written to a new log, the Is
 
 - Patch ID: `vv4_island_events`
 
+**Birth Control**
+
+**While catching up (time away and Time Warp), a villager with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Children are never involved, and the partner search, the conception roll, the population limit and huts stay the game's own, so a try can still fail.** That is all this patch changes: who may pair, the Parenting preference and live play are The Tree of Life's own, as before. Off by default; on in Owner's Defaults.
+
+- Patch ID: `vv4_birth_control`
+
 **Manual Drop-Breeding overrides Birth Control**
 
-**Needs no other patch: the 50-and-over refusal it lifts is The Tree of Life's own; this game has no Birth Control patch.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food, love-shack and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.
+**Needs no other patch: the 50-and-over refusal it lifts is The Tree of Life's own, which Birth Control does not change.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food, love-shack and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.
 
 - Patch ID: `vv4_manual_drop_breeding_overrides_birth_control`
 
@@ -1872,9 +1878,15 @@ Every change an island event makes to a villager is written to a new log, the Is
 
 - Patch ID: `vv5_island_events`
 
+**Birth Control**
+
+**While catching up (time away and Time Warp), a believer with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Children are never involved, and the partner search, the conception roll, the population limit and huts stay the game's own, so a try can still fail.** That is all this patch changes: who may pair, the Parenting preference and live play are New Believers' own, as before. Off by default; on in Owner's Defaults.
+
+- Patch ID: `vv5_birth_control`
+
 **Manual Drop-Breeding overrides Birth Control**
 
-**Needs no other patch: the 50-and-over refusal it lifts is New Believers' own; this game has no Birth Control patch.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food, love-shack and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.
+**Needs no other patch: the 50-and-over refusal it lifts is New Believers' own, which Birth Control does not change.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food, love-shack and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.
 
 - Patch ID: `vv5_manual_drop_breeding_overrides_birth_control`
 

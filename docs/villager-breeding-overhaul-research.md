@@ -169,6 +169,27 @@ interpretation. VV5 is also a native no-patch reference: its exact-build audit
 matches VV4's requested Birth Control/Breeding behavior (apart from the
 optional Manual Drop-Breeding exception above, when it is selected).
 
+### Catch-up babies (all five games, 2026-11-19)
+
+The owner: Parenting-ticked villagers should embrace and have babies during
+catch-up, "as part of birth control for all 5 games". Every game's catch-up
+job turn (A New Home `0x42E790`, The Lost Children `0x43B4D0`, The Secret City
+`0x45BF00`, The Tree of Life `0x465750`, New Believers `0x46E8E0`) takes the
+chooser's pick and, for the Children pick only, rolls RNG(100) <= 5 before the
+embrace (`cmp eax,5; jg` at `0x42E7EF`, `0x43B53C`, `0x45BF61`, `0x4657AE`,
+`0x46E93E`), so it tries on 6 job turns in 100 while every other pick goes on
+to its job. Live play has no such roll: there the Children pick goes straight
+to the work dispatcher. Each game's Birth Control row now raises the bound to
+99 (one guarded byte), so the pick always goes on to the embrace. The chooser,
+the partner search, the conception roll, the population limit, huts and live
+play are unchanged; children (under 280 age units) get no job turns at all.
+
+This is the only edit the new `vv4_birth_control` and `vv5_birth_control`
+rows make (off by default, on in Owner's Defaults). It supersedes the
+statement above that no VV4/VV5 Birth Control bytes are shipped: the historical
+VV4 candidate's age-gate edits stay rejected and unapplied, and apart from that
+one catch-up byte VV4 and VV5 remain the native reference.
+
 ### VV1 exact-build implementation
 
 The 581,632-byte VV1 build has no manual-pairing age ceiling. Exact-build audit

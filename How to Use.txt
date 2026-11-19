@@ -83,11 +83,15 @@ slots instead (see the 256 VILLAGERS (EXPERIMENTAL) section below).
    When Complete" (off by default, also in New Believers: the science
    collection adds to research only once it is complete) and/or "Enable Origins Tech,
    Details, and Village-Wide Upgrades" and/or the experimental "256 Villagers
-   (Experimental)". VV4 remains the untouched vanilla Breeding and Embracing
-   reference unless you check "Manual Drop-Breeding overrides Birth Control"
-   (step 8), which changes only the manual drop's 50-and-over refusal; the
-   historical Birth Control candidate is rejected/superseded and is not
-   offered or applied.
+   (Experimental)". "Manual Drop-Breeding overrides Birth Control" (step 8)
+   changes only the manual drop's 50-and-over refusal.
+   Also optional for The Tree of Life and New Believers, and off by default
+   (on in Owner's Defaults): "Birth Control". While the game is closed (and
+   during a Time Warp), a villager with Parenting ticked tries for a baby as
+   often as other villagers do their jobs, instead of on 6 job turns in 100.
+   The game's own chances, the population limit and huts still decide; live
+   play is unchanged. In A New Home, The Lost Children and The Secret City
+   their "Birth Control" does this too.
    Also optional for The Tree of Life and New Believers, and off by default:
    "Food Gains are Flat, like VV1-3 (Harder Games)". A blackberry pick (The
    Tree of Life) or a noni pick (New Believers) pays a flat 7, 3 or 2 food on
