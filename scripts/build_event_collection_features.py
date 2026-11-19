@@ -236,6 +236,15 @@ ANTHOLOGY_CREDIT_BLOCKS = (
 )
 SOURCE_LINE_WORDS["anthology"] = "Animals anthology source lines"
 
+# "(Name1)'s Harshest Critic" (data/event_collection/critic/, scripts/critic/): the owner's credit line (its own
+# one-line file, the owner's wording of 2026-11-17) and the event file's title line, verbatim.
+CRITIC = ROOT / "docs" / "more-island-events" / \
+    "(Name1)'s Harshest Critic - Expanded v3 (Unintended Victories + your ideas).txt"
+CRITIC_SHA256 = "A4445778C71F7E23C01C476258E6D002F785EF7D37D058E2B9D34F0018993149"
+CRITIC_CREDIT = ROOT / "docs" / "more-island-events" / "(Name1)'s Harshest Critic - Credit.txt"
+CRITIC_CREDIT_SHA256 = "563580232A116749CF546747D10A681307C92136C6616D0C4B1A5069D03D6084"
+SOURCE_LINE_WORDS["critic"] = "Harshest Critic source lines"
+
 
 def source_lines(path: Path = SOURCE, sha256: str = SOURCE_SHA256) -> list[str]:
     """A frozen source's lines, each with its own line ending, after checking its SHA-256."""
@@ -315,6 +324,9 @@ def compile_events(src: Path = DATA) -> list[dict]:
             "graph": g,
             "description": one_line(meta.get("description", "")),
             "description_variants": meta.get("description_variants") or [],
+            # the title the lists show (manifest.txt: Pick Island Event, the library, Game Mechanics) when it differs
+            # from the event's own popup title: one series' files told apart ("The Harshest Critic (1 of 6)")
+            "list_title": one_line(meta.get("list_title", "")),
             "lines": meta.get("lines"),
             "source": meta.get("source", "v28"),
             "section": meta.get("section", ""),
@@ -346,11 +358,11 @@ def description_with(e: dict, patches: tuple[str, ...]) -> str:
 
 
 def manifest_line(game: int, e: dict) -> str:
-    title = one_line(cie.event_title(e["graph"], game))
+    title = e.get("list_title") or one_line(cie.event_title(e["graph"], game))
     description = e["description"]
     extra = ["", ""]
     if game == 5:
-        alt_title = one_line(cie.event_title(e["graph"], game, (GUARDIANS,)))
+        alt_title = e.get("list_title") or one_line(cie.event_title(e["graph"], game, (GUARDIANS,)))
         alt_description = description_with(e, (GUARDIANS,))
         extra = [alt_title if alt_title != title else "", alt_description if alt_description != description else ""]
     return "\t".join([e["id"], title, ",".join(str(n) for n in e["games"]), str(e["weight"]), e["series"],
@@ -424,7 +436,10 @@ def credits_text(events: list[dict], lines: list[str] | None = None, living_on: 
     for name, path, digest, blocks in (("BEYOND THE HORIZON", HORIZON, HORIZON_SHA256, HORIZON_CREDIT_BLOCKS),
                                        ("ROLE MODELS AND GOOD EXAMPLES", ROLEMODELS, ROLEMODELS_SHA256,
                                         ROLEMODELS_CREDIT_BLOCKS), *drafts_a_credit_sources(), *drafts_b,
-            ("THE ANIMALS ANTHOLOGY'S NEWEST VOLUMES", ANTHOLOGY, ANTHOLOGY_SHA256, ANTHOLOGY_CREDIT_BLOCKS)):
+            ("THE ANIMALS ANTHOLOGY'S NEWEST VOLUMES", ANTHOLOGY, ANTHOLOGY_SHA256, ANTHOLOGY_CREDIT_BLOCKS),
+            ("(NAME1)'S HARSHEST CRITIC", CRITIC, CRITIC_SHA256, ((1, 1, "its title line"),)),
+            ("(NAME1)'S HARSHEST CRITIC, THE OWNER'S", CRITIC_CREDIT, CRITIC_CREDIT_SHA256,
+             ((1, 1, "the credit line"),))):
         src = [s.replace("\r\n", "\n") for s in source_lines(path, digest)]
         out += [f"{name}\n", "\n",
                 f"Source: {path.name} (SHA-256 {digest}). The texts below are copied from it verbatim.\n", "\n"]

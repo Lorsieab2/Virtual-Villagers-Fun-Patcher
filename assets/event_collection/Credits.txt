@@ -675,6 +675,22 @@ ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES
 Original creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).
 The Grand and Companion sections are separately marked and preserved verbatim.
 
+(NAME1)'S HARSHEST CRITIC
+
+Source: (Name1)'s Harshest Critic - Expanded v3 (Unintended Victories + your ideas).txt (SHA-256 A4445778C71F7E23C01C476258E6D002F785EF7D37D058E2B9D34F0018993149). The texts below are copied from it verbatim.
+
+(NAME1)'S HARSHEST CRITIC CREDIT: its title line (source lines 1-1)
+
+(NAME1)'S HARSHEST CRITIC (draft assembled from Lorsieab2's notes; for Lorsieab2 to rewrite)
+
+(NAME1)'S HARSHEST CRITIC, THE OWNER'S
+
+Source: (Name1)'s Harshest Critic - Credit.txt (SHA-256 563580232A116749CF546747D10A681307C92136C6616D0C4B1A5069D03D6084). The texts below are copied from it verbatim.
+
+(NAME1)'S HARSHEST CRITIC, THE OWNER'S CREDIT: the credit line (source lines 1-1)
+
+Created by Lorsieab2, Claude and ChatGPT.
+
 EACH EVENT'S CREDIT
 
 Three People, Three Answers (Advice and Decisions source lines 8-17): NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15) Asking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
@@ -2610,6 +2626,12 @@ The Secret of the Broken Bridge (companion source lines 6004-6011): Creative dir
 The Apprentice Who Surpassed the Master (companion source lines 6013-6020): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Concept and creative direction: Lorsieab2 Expansion writing: ChatGPT (OpenAI)
 The Job Nobody Wants (companion source lines 6022-6029): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Concept and creative direction: Lorsieab2 Expansion writing: ChatGPT (OpenAI)
 The Last Voyage (companion source lines 6031-6038): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Concept and creative direction: Lorsieab2 Expansion writing: ChatGPT (OpenAI)
+(Name1)'s Harshest Critic (Harshest Critic source lines 758-827): Created by Lorsieab2, Claude and ChatGPT.
+(Name1)'s Harshest Critic (Harshest Critic source lines 1294-1371): Created by Lorsieab2, Claude and ChatGPT.
+(Name1)'s Harshest Critic (Harshest Critic source lines 1374-1611): Created by Lorsieab2, Claude and ChatGPT.
+(Name1)'s Harshest Critic (Harshest Critic source lines 1785-1854): Created by Lorsieab2, Claude and ChatGPT.
+(Name1)'s Harshest Critic (Harshest Critic source lines 1857-2031): Created by Lorsieab2, Claude and ChatGPT.
+(Name1)'s Harshest Critic (Harshest Critic source lines 2034-2218): Created by Lorsieab2, Claude and ChatGPT.
 Count to Four, Count to Six (Healing, Psychology and Medicine source lines 8-17): NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15) Healers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
 The Tea That Tastes of Old Sandals (Healing, Psychology and Medicine source lines 20-29): NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15) Healers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
 The Itchy Poultice (Healing, Psychology and Medicine source lines 32-41): NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15) Healers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.

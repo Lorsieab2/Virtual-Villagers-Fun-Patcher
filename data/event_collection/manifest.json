@@ -833,6 +833,23 @@
   "uncovered_lines": [],
   "overlaps": []
  },
+ "critic": {
+  "source": "docs/more-island-events/(Name1)'s Harshest Critic - Expanded v3 (Unintended Victories + your ideas).txt",
+  "source_sha256": "a4445778c71f7e23c01c476258e6d002f785ef7d37d058e2b9d34f0018993149",
+  "counts": {
+   "rows": 12,
+   "events": 6,
+   "addons": 6,
+   "banks": 0,
+   "notes": 0,
+   "events_and_addons": 12,
+   "series": {
+    "hc_critic": 12
+   }
+  },
+  "uncovered_lines": [],
+  "overlaps": []
+ },
  "rows": [
   {
    "id": "notes_credit_ledger",
@@ -149814,6 +149831,450 @@
    "source": "anthology",
    "source_check": {
     "heading": "L32834: EVENT-FAUNA-024  -  A Child Protects the Nest",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hc_setup",
+   "title": "(Name1)'s Harshest Critic",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    1,
+    757
+   ],
+   "kind": "addon",
+   "section": "hc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1"
+    ],
+    "text": "Created by Lorsieab2, Claude and ChatGPT.",
+    "source": "critic_credit"
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hc_critic",
+   "source": "critic",
+   "source_check": {
+    "heading": "L1: (NAME1)'S HARSHEST CRITIC (draft assembled from Lorsieab2's notes; for Lorsieab2 to rewrite)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hc1_routes",
+   "title": "(Name1)'s Harshest Critic: Routes",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    758,
+    827
+   ],
+   "kind": "event",
+   "section": "hc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1"
+    ],
+    "text": "Created by Lorsieab2, Claude and ChatGPT.",
+    "source": "critic_credit"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hc_critic",
+   "source": "critic",
+   "source_check": {
+    "heading": "L758: ROUTES (your list; each choice draws one of these at random, equally likely)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hc_setup_devotion",
+   "title": "(Name1)'s Harshest Critic: Devotion-Specific Punishments",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    828,
+    861
+   ],
+   "kind": "addon",
+   "section": "hc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1"
+    ],
+    "text": "Created by Lorsieab2, Claude and ChatGPT.",
+    "source": "critic_credit"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hc_critic",
+   "source": "critic",
+   "source_check": {
+    "heading": "L828: [new] DEVOTION-SPECIFIC PUNISHMENTS (D; select only for Devotion):",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hc_mentor_reactions",
+   "title": "(Name1)'s Harshest Critic: The Mentor's Reaction",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    863,
+    1153
+   ],
+   "kind": "addon",
+   "section": "hc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1"
+    ],
+    "text": "Created by Lorsieab2, Claude and ChatGPT.",
+    "source": "critic_credit"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hc_critic",
+   "source": "critic",
+   "source_check": {
+    "heading": "L863: F: (the mentor's reaction: your lines; never real swear words)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hc_variant2",
+   "title": "(Name1)'s Harshest Critic: Variant 2: The Harshest Critic Is (Name1)",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    1155,
+    1206
+   ],
+   "kind": "addon",
+   "section": "hc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1"
+    ],
+    "text": "Created by Lorsieab2, Claude and ChatGPT.",
+    "source": "critic_credit"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hc_critic",
+   "source": "critic",
+   "source_check": {
+    "heading": "L1155: VARIANT 2: THE HARSHEST CRITIC IS (NAME1)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hc_named_master",
+   "title": "(Name1)'s Harshest Critic: Additional Mad-Lib Module",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    1209,
+    1292
+   ],
+   "kind": "addon",
+   "section": "hc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1"
+    ],
+    "text": "Created by Lorsieab2, Claude and ChatGPT.",
+    "source": "critic_credit"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hc_critic",
+   "source": "critic",
+   "source_check": {
+    "heading": "L1210: [new] ADDITIONAL MAD-LIB MODULE: (NAME2)'S (NUMBER) (THING / THINGS)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hc2_pleas",
+   "title": "(Name1)'s Harshest Critic: Additional Outcome Routes",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    1294,
+    1371
+   ],
+   "kind": "event",
+   "section": "hc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1"
+    ],
+    "text": "Created by Lorsieab2, Claude and ChatGPT.",
+    "source": "critic_credit"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hc_critic",
+   "source": "critic",
+   "source_check": {
+    "heading": "L1295: [new] ADDITIONAL OUTCOME ROUTES: BARGAINING, PLEADING, AND SECRET SECOND ATTEMPTS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hc3_disasters",
+   "title": "(Name1)'s Harshest Critic: Catastrophic Examination Disasters",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    1374,
+    1611
+   ],
+   "kind": "event",
+   "section": "hc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1"
+    ],
+    "text": "Created by Lorsieab2, Claude and ChatGPT.",
+    "source": "critic_credit"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hc_critic",
+   "source": "critic",
+   "source_check": {
+    "heading": "L1375: [new] CATASTROPHIC EXAMINATION DISASTERS  -  OPTIONAL ROUTE MODULE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hc_comic_pools",
+   "title": "(Name1)'s Harshest Critic: Expansion: The Big Bang",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    1614,
+    1782
+   ],
+   "kind": "addon",
+   "section": "hc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1"
+    ],
+    "text": "Created by Lorsieab2, Claude and ChatGPT.",
+    "source": "critic_credit"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hc_critic",
+   "source": "critic",
+   "source_check": {
+    "heading": "L1615: [new] EXPANSION: THE BIG BANG, THE WORST SMELL, AND THE WORST POSSIBLE NOISE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hc4_noises",
+   "title": "(Name1)'s Harshest Critic: Explosions, Noises, Odors, and Corpsing",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    1785,
+    1854
+   ],
+   "kind": "event",
+   "section": "hc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1"
+    ],
+    "text": "Created by Lorsieab2, Claude and ChatGPT.",
+    "source": "critic_credit"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hc_critic",
+   "source": "critic",
+   "source_check": {
+    "heading": "L1786: [new] ADDITIONAL ROUTES R58-R73: EXPLOSIONS, NOISES, ODORS, AND CORPSING",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hc5_victories",
+   "title": "(Name1)'s Harshest Critic: Unintended Victories",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    1857,
+    2031
+   ],
+   "kind": "event",
+   "section": "hc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1"
+    ],
+    "text": "Created by Lorsieab2, Claude and ChatGPT.",
+    "source": "critic_credit"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hc_critic",
+   "source": "critic",
+   "source_check": {
+    "heading": "L1858: [new] EXPANSION: UNINTENDED VICTORIES, ACCIDENTAL DISCOVERIES, AND PRIZES FOR THE WRONG REASON",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hc6_sabotage",
+   "title": "(Name1)'s Harshest Critic: The Sabotage Twist",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    2034,
+    2218
+   ],
+   "kind": "event",
+   "section": "hc",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1"
+    ],
+    "text": "Created by Lorsieab2, Claude and ChatGPT.",
+    "source": "critic_credit"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hc_critic",
+   "source": "critic",
+   "source_check": {
+    "heading": "L2035: [owner] EXPANSION: THE SABOTAGE TWIST (Lorsieab2's idea: someone sabotaged (name1)'s work!)",
     "title_found": true,
     "boundary": [],
     "choices": "verified"

@@ -82,13 +82,14 @@ SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11
     + tuple(v[2] for v in lib.DRAFTS_D.values()) \
     + tuple(lib.GO_SECTIONS) \
     + tuple(lib.ANTHOLOGY_SECTIONS) \
-    + (lib.MIE_SECTION,)             # More Island Events (mie/); the GO files (rewrites/, balance/); the drafts: set A, groups B-D (drafts_a/ .. drafts_d/); the Animals anthology
+    + (lib.MIE_SECTION, "hc")       # More Island Events (mie/); the GO files (rewrites/, balance/); the drafts: set A, groups B-D (drafts_a/ .. drafts_d/); the Animals anthology; the Harshest Critic
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity", "casting")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
                  "description_variants", "cast_only", "label_case",
                  "exact_amounts",   # the owner's own skill amounts (the GO files: "gains 20 to 30 Farming")
                  "mixer_only",      # only its mixer versions ship (More Island Events: its DLL runs the static)
-                 "approximations")  # where the format cannot say the owner's spec exactly (scripts/go_events/gen_mie.py)
+                 "approximations",  # where the format cannot say the owner's spec exactly (scripts/go_events/gen_mie.py)
+                 "list_title")      # the lists' title (the Harshest Critic's "(1 of 6)" .. "(6 of 6)")
 # i PICK: the Pick Island Event list's sentence (story_collection.inc sc_pick_fill; its box is 306 x 52 dialog
 # units in Segoe UI 9, about six lines, shared with "Not possible right now: ..."): two lines at most.
 DESCRIPTION_MAX = 130          # and under story_collection.inc sc_entry.description (160 bytes)
@@ -1649,7 +1650,7 @@ def collection_files() -> list[Path]:
                   + list(lib.DRAFTS_B_DIR.glob("*/*.json")) + list(lib.DRAFTS_C_DIR.glob("*/*.json"))
                   + list(lib.DRAFTS_D_DIR.glob("*/*.json")) + list(lib.ANTHOLOGY_DIR.glob("*/*.json"))
                   + [p for sid in lib.GO_SOURCES for p in (lib.COLLECTION_DIR / sid).glob("*/*.json")]
-                  + list(lib.MIE_DIR.glob("*/*.json")))
+                  + list(lib.MIE_DIR.glob("*/*.json")) + list(lib.CRITIC_DIR.glob("*/*.json")))
 
 
 def ledger_summary(doc: dict) -> list[str]:

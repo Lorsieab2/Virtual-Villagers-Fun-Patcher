@@ -175,3 +175,4 @@ docs/more-island-events/Isola[[:space:]]Grand[[:space:]]Event[[:space:]]Collecti
 # The owner's More Island Events file (frozen byte for byte; scripts/go_events/gen_mie.py, data/event_collection/MIE.sha256)
 /docs/more-island-events/Additional[[:space:]]Virtual[[:space:]]Villagers[[:space:]]Events[[:space:]]By[[:space:]]Lorsieab2.txt -text
 assets/gender_presentation/*.txt -text
+/docs/more-island-events/(Name1)'s[[:space:]]Harshest[[:space:]]Critic*.txt -text

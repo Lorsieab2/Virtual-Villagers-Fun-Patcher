@@ -7954,6 +7954,30 @@
    "harm": [],
    "section": "fwk"
   },
+  "hc1_routes": {
+   "harm": [],
+   "section": "hc"
+  },
+  "hc2_pleas": {
+   "harm": [],
+   "section": "hc"
+  },
+  "hc3_disasters": {
+   "harm": [],
+   "section": "hc"
+  },
+  "hc4_noises": {
+   "harm": [],
+   "section": "hc"
+  },
+  "hc5_victories": {
+   "harm": [],
+   "section": "hc"
+  },
+  "hc6_sabotage": {
+   "harm": [],
+   "section": "hc"
+  },
   "hea01_count_four_count": {
    "harm": [],
    "section": "dr_hea"

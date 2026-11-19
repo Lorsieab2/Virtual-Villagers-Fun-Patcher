@@ -514,3 +514,46 @@ The owner's More Island Events file (2026-11-16; scripts/go_events/gen_mie.py).
 |---|---|---|---|---|
 | mie L718 | `(fisherman/fisherwoman)` | `fisher(man/woman)` | The Playful Dolphins | the engine has no (fisherman/fisherwoman) word: fisher(man/woman) reads the same |
 <!-- end of MIE grammar fixes -->
+
+### (Name1)'s Harshest Critic (2026-11-17; source `critic`)
+
+The owner's route R1 says the student gets the privilege "(C-result)": the privilege drawn for the setup's "(C)", in a
+form for the result. The pools hold one form only (a phrase such as "getting promoted to head chef"), so the result
+reads it after a lead-in. Rows start with `critic`.
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| critic L762 | `(Name1) (C-result).` | `The reward: (C-result).` | hc1_routes | the privilege pool holds one form (a `-ing` phrase); "(Name1) getting promoted ..." is not a sentence |
+| critic L2063 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2068 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2071 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2074 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2077 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2080 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2083 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2086 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2089 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2092 | `(SA)` | `(SA).` | hc6_sabotage | what was sabotaged is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2068 | `(SC)` | `(SC).` | hc6_sabotage | the saboteur's reason is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2071 | `(SC)` | `(SC).` | hc6_sabotage | the saboteur's reason is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2074 | `(SC)` | `(SC).` | hc6_sabotage | the saboteur's reason is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2077 | `(SC)` | `(SC).` | hc6_sabotage | the saboteur's reason is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2080 | `(SC)` | `(SC).` | hc6_sabotage | the saboteur's reason is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2095 | `(SC)` | `(SC).` | hc6_sabotage | the saboteur's reason is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2203 | `(SP)` | `(SP).` | hc6_sabotage | the prank is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2206 | `(SP)` | `(SP).` | hc6_sabotage | the prank is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2209 | `(SP)` | `(SP).` | hc6_sabotage | the prank is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2212 | `(SP)` | `(SP).` | hc6_sabotage | the prank is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2215 | `(SP)` | `(SP).` | hc6_sabotage | the prank is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L2218 | `(SP)` | `(SP).` | hc6_sabotage | the prank is a fragment ("the salt has been swapped for sand"): a sentence of its own, its full stop after the slot |
+| critic L154 | `(a legendary figure / creature / myth)` | `(a legendary figure / a legendary creature / a legendary myth)` | every file (setup) | each alternative stands alone after "sculpt a statue of": "a statue of creature" lacked its article |
+| critic L157 | `(an important person / their relative)'s wedding` | `(an important person / (his/her) relative)'s wedding` | every file (setup) | "their" named nobody: the relative is the student's own (pronoun slot) |
+| critic L365 | `that the (chief / mentor / gods) weep,` | `that (the chief weeps / the mentor weeps / the gods weep),` | every file (setup) | subject-verb agreement: "the village leader weep" / "the mentor weep" |
+| critic L397 | `(his/her) parent` | `their parent` | every file (setup) | "(his/her)" pointed at the student, not the teenager the line is about |
+| critic L590 | `always wanted` | `has always wanted` | every file (setup) | tense with "since": "has always wanted" |
+| critic L591 | `always wanted` | `has always wanted` | every file (setup) | tense with "since": "has always wanted" |
+| critic L592 | `always wanted` | `has always wanted` | every file (setup) | tense with "since": "has always wanted" |
+| critic L715 | `The (crowd / audience / panel / whole village / council / judges) holds its breath.` | `(The crowd holds its breath. / The audience holds its breath. / The panel holds its breath. / The whole village holds its breath. / The council holds its breath. / The judges hold their breath.)` | every file (setup) | subject-verb agreement: "The judges holds its breath" (the owner's own example) |
+| critic L809 | `the privilege (C)` | `the privilege of (C)` | hc1_routes | a missing word: "the privilege of (C)" (C is an -ing phrase) |
+| critic L2036 | `a rival apprentice ((name2))` | `a rival apprentice, (name2),` | hc6_sabotage | the saboteur's name as an appositive: "catches a rival apprentice, Kai, in the act" |
+| critic L1014 | `not a (sigil / sacred symbol / holy passage / prayer / ancestral mark)` | `not (a sigil / a sacred symbol / a holy passage / a prayer / an ancestral mark)` | hc1_routes | a/an before a slot: "not a ancestral mark" |

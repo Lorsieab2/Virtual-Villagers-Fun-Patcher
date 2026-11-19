@@ -95,6 +95,8 @@ SECTIONS = (
     ("an_jus", "Anthology: Justice, Bullying, Consequences, Trauma, Recovery and Defense"),
     ("an_expr", "Anthology: Self-Expression, Art, Sport, Ecology, Governance and Belief"),
     ("an_fauna", "Anthology: Animals of Fur, Feathers, Scales, Claws and Hooves"),
+    # The owner's "(Name1)'s Harshest Critic" (data/event_collection/critic/hc/): one event in six files, one series
+    ("hc", "(Name1)'s Harshest Critic"),
     # The Living Event Engine (living.pak): one row per seed, a category's seeds sharing its title (one series).
     ("living_engine", "The Living Event Engine"),
 )

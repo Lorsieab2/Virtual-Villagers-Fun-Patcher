@@ -1911,6 +1911,13 @@ def sentence_case(text: str, item: bool = False, label: bool = False) -> str:
     pool's item (its start is not a sentence's start); `label`: a button's label (decided as a whole)."""
     if not isinstance(text, str) or not any(_is_upper(c) for c in text):
         return text
+    return _sentence_case(text, bool(item), bool(label))
+
+
+@lru_cache(maxsize=1 << 16)
+def _sentence_case(text: str, item: bool, label: bool) -> str:
+    """sentence_case's work, kept per text (a pure function of its arguments: a big event's walk asks for the same
+    pool items' worst cases on every history)."""
     units = _units(text)
     n = len(units)
     # The words: (first unit, last unit + 1, letters, has a lower-case letter).
