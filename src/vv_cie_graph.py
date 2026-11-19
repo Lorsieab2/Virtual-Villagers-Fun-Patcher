@@ -214,6 +214,13 @@ def scroll_caps() -> bool:
 def text_cap() -> int:
     """A node's text at most this many bytes (NODE_TEXT_MAX, or LONG_TEXT_MAX with scrolling)."""
     return LONG_TEXT_MAX if scroll_caps() else NODE_TEXT_MAX
+
+
+def cause_cap() -> int:
+    """A death's own cause words at most this many characters: CAUSE_BYTES, or LONG_LINE_BYTES with scrolling (the
+    owner, 2026-11-17: the grave's popup scrolls too; story_graph.inc cg_cause_bytes, "VVFP Cause of Death.dll" words
+    file version 2)."""
+    return LONG_LINE_BYTES if scroll_caps() else CAUSE_BYTES
 MAX_PAGES = 10                # pages a popup may take without scrolling (the shipped event's ADV_MAX_PAGES)
 MAX_POPUPS_PER_RUN = 6        # popups on one history, the question's included (version 1)
 MAX_POPUPS_PER_RUN_V2 = 16    # ... version 2 (questions anywhere): the companion keeps 96 pages a run
@@ -964,9 +971,11 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
         elif do in ("kill", "birth_then_die"):
             known.add("cause")
             cause = e.get("cause", "custom" if do == "kill" else "unknown")
-            if not isinstance(cause, str) or not cause or len(cause) > CAUSE_BYTES or not all(
+            cap = cause_cap()
+            if not isinstance(cause, str) or not cause or len(cause) > cap or not all(
                     text_char_ok(ch) and ch != "\n" for ch in cause):
-                problems.append(f"{where}: {do} cause is custom, unknown or up to {CAUSE_BYTES} allowed characters")
+                problems.append(f"{where}: {do} cause is custom, unknown or up to {cap} allowed characters"
+                                + _without_scrolling())
             out["cause"] = cause
         elif do == "status":
             known.add("status")

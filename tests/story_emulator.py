@@ -496,9 +496,11 @@ class Process:
     # ---- running -------------------------------------------------------
     def call(self, address: int, args: list[int] = (), *, ecx: int | None = None,
              regs: dict[str, int] | None = None, until: int = RETURN,
-             limit: int = 2_000_000) -> int:
+             limit: int = 40_000_000) -> int:
         """Call `address` with stdcall/cdecl stack `args` (and ECX for
-        thiscall); run until it returns to RETURN (or reaches `until`)."""
+        thiscall); run until it returns to RETURN (or reaches `until`).  The default step limit has room for
+        copying the Story companion's records whole (a question is ~1.9 MB since the simple editor's text grew,
+        2026-11-17)."""
         esp = STACK_TOP - 0x1000
         for value in reversed(list(args)):
             esp -= 4
@@ -515,7 +517,7 @@ class Process:
             raise EmulationError(f"stopped at 0x{self.reg('eip'):X}, not 0x{until:X}")
         return self.reg("eax")
 
-    def run(self, start: int, until: int, *, limit: int = 2_000_000) -> None:
+    def run(self, start: int, until: int, *, limit: int = 40_000_000) -> None:
         """Run from `start` (registers and stack as the test left them)."""
         self.mu.emu_start(start, until, count=limit)
         if self.reg("eip") != until:

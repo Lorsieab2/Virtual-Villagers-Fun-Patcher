@@ -244,6 +244,11 @@ static int cg_op_begun_take(int game);
 static int cg_op_rows(int game);
 static int cg_op_ok(int game, char *text, int size);
 static const char *cg_op_title(void);
+static int cg_scrolls(void);                /* "VVFP Scrolling Popups.dll" is installed */
+static void cg_op_begin_simple(int game);   /* ... and its host takes the popup (cg_op_begun_take) */
+/* The simple editor's own question run in ONE popup (story_custom.inc, with Scrolling Popups): the game it was asked
+   in, 0 none; its labels and title then come through cg_label / cg_op_title / cg_op_rows as a library event's do. */
+static int ce_op_simple;
 /* Defined with the question object (story_objects.inc), used by the presenter stubs below. */
 static int cs_multi;
 static void *cs_dialog;
@@ -1783,7 +1788,7 @@ __declspec(dllexport) const void *__stdcall VvfpStoryProbeObject(void) {
 
 /* The layout the tests pack choices in: sizeof ce_choice, sizeof
    ce_outcome, the offsets of .labels, .outcome_count and .outcomes,
-   CE_BUTTON_BYTES, CE_MAX_OUTCOMES, CE_MAX_CHANCE, CE_LABEL_DEFAULT_WIDTH,
+   a label field's bytes (CE_LABEL_STORE), CE_MAX_OUTCOMES, CE_MAX_CHANCE, CE_LABEL_DEFAULT_WIDTH,
    offsetof(ce_outcome, effects). */
 __declspec(dllexport) void __stdcall VvfpStoryProbeChoiceSizes(int *out) {
     out[0] = (int)sizeof(ce_choice);
@@ -1791,7 +1796,7 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeChoiceSizes(int *out) {
     out[2] = (int)offsetof(ce_choice, labels);
     out[3] = (int)offsetof(ce_choice, outcome_count);
     out[4] = (int)offsetof(ce_choice, outcomes);
-    out[5] = CE_BUTTON_BYTES;
+    out[5] = CE_LABEL_STORE;
     out[6] = CE_MAX_OUTCOMES;
     out[7] = CE_MAX_CHANCE;
     out[8] = CE_LABEL_DEFAULT_WIDTH;
@@ -1908,7 +1913,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeChoiceResolve(int game, int bu
     return ce_choice_resolve(game, button, text, size);
 }
 
-/* One popup (native/shared/one_popup.h): 	ext as the whole text shown, put into ield (ytes, NUL included) as
+/* One popup (native/shared/one_popup.h): text as the whole text shown, put into field (bytes, NUL included) as
    su_put_long puts it; returns the bytes the field holds (VvfpPopupWholeText then answers for them). */
 __declspec(dllexport) int __stdcall VvfpStoryProbeLongPut(const char *text, char *field, int bytes) {
     lstrcpynA(su_long_text, text, (int)sizeof su_long_text);

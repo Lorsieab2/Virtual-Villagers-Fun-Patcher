@@ -73,6 +73,28 @@ class LaterGravesSayTheWords(unittest.TestCase):
                     self.assertEqual(self.lookup(g, site, va, reg, w.entry(1), unknown), "Unknown causes",
                                      (game, hex(site)))
 
+    def test_long_words_whole_on_the_grave(self):
+        """The owner, 2026-11-17: with Scrolling Popups a death's own words are practically unlimited (4,095
+        characters); the grave's line gets them whole (the game's text control copies any length, VV3 0x40CED0, and
+        Scrolling Popups scrolls a tombstone line wider than its panel)."""
+        long_words = ("Fell from the Great Falls while chasing the golden heron across the wet stones " * 30)[:2400]
+        for game in ("vv3", "vv4", "vv5"):
+            if not tc.STOCK[game].is_file():
+                continue
+            with self.subTest(game=game):
+                g, w = tc.later(game)
+                p = g.p
+                words = p.alloc(4096)
+                p.write(words, long_words.encode() + b"\0")
+                unknown = p.alloc(32)
+                p.write(unknown, b"Unknown causes\0")
+                w.villager(3, "Killed", 640, 0, -1)
+                p.export("VvfpCauseKilledBy", g.no, 3, words)
+                g.tick()
+                w.bury(3)
+                site, va, reg = SITES[game][0]
+                self.assertEqual(self.lookup(g, site, va, reg, w.entry(0), unknown), long_words)
+
     def test_not_installed_the_games_own_call(self):
         for game in ("vv3", "vv4", "vv5"):
             if not tc.STOCK[game].is_file():
