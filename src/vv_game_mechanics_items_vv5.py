@@ -434,7 +434,9 @@ def _building_entries() -> list[Entry]:
             "its site appears at Learning 3. Built, a villager dropped on it with at least 3 of the six skills at 50 or "
             "more becomes the teacher, and every age unit the teacher's lesson raises every child's skills, Heathen "
             "children included: a lesson spread over all six skills gives each a fifth of the lesson, six fifths in "
-            "all; the rule is under Tech points and effects."),
+            "all; the rule is under Tech points and effects. A nursing mother dropped on it is refused (\"Nursing "
+            "mothers don't work while they are caring for an infant.\"), and a teacher who becomes a mother keeps "
+            "teaching (also under Tech points and effects)."),
          VERIFIED_C,
               ((f"{_feature('vv5_vv4_nursery_divisor_parity')}: a spread lesson gives each of the six skills a sixth, "
                 "exactly one lesson in all; lessons on the strongest skill are unchanged.", VERIFIED_C),)),
