@@ -1215,8 +1215,9 @@ class ManifestTests(unittest.TestCase):
         # executable byte -- its companion writes the trigger's three wait draws at run time; 82-86 the five
         # 0.1x-10x sliders (vv2_collectible_frequency, _food_gain, _tech_gain, _skill_success, _age_speed),
         # no executable byte -- each companion writes its sites at run time; 87 with Every Island Event Can Happen
-        # (vv2_every_island_event_can_happen), two technology tests and two raises re-encoded in place.
-        self.assertEqual(len(feature_ids), 87)
+        # (vv2_every_island_event_can_happen), two technology tests and two raises re-encoded in place; 88 with Village
+        # Solidarity (vv2_village_solidarity, #804), no executable byte -- its companion writes its sites at run time.
+        self.assertEqual(len(feature_ids), 88)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
