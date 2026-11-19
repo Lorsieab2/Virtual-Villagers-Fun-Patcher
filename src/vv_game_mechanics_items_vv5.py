@@ -283,9 +283,11 @@ def _power_entries() -> list[Entry]:
         "Blessings Day Celebration island event fills it to the cap. The cap is 5 x (believers + the babies they carry "
         "+ 2), raised by the Tribute Statue, Spirituality and the relics (their own entries), at most 1,000; a power "
         "can be cast whenever the Divine Energy is at least its cost (see God powers)."), VERIFIED_E,
-        # The set-up routine is at 0x425DA6.
-        (("Some code of the game's sets the cap to 50 and adds 50 Divine Energy; that this is the new village's start "
-          "was not traced.", UNCONFIRMED),))]
+        # The new village's builder 0x4259D0 (called from the new-village paths 0x4404D9 and 0x43E726; it makes the
+        # villagers and sets the tips' marks 0x44EC40) ends at 0x425DA6: the cap +0x17D60 = 50, then the adder
+        # 0x424F80(50).
+        (("A new village starts with a Divine Energy cap of 50 and 50 Divine Energy: the game's new-village set-up "
+          "sets both as its last step.", VERIFIED_C),))]
     for name, cost, _ in powers.TABLE:
         out.append(Entry(POWER, name, f"{cost:,} Divine Energy",
                          POWER_WORDS[name] + " Every number and its source: God powers.", VERIFIED_E))
@@ -311,7 +313,10 @@ def _puzzle_entries() -> list[Entry]:
             # The catch-up test 0x46C5B5.
             "while the game catches up time away, noni is picked only once this totem is down; in play noni is "
             "picked once the food bin is built."), VERIFIED_C,
-              (("How many dismantling actions it takes was not traced.", UNCONFIRMED),
+              # CFoodTotemPuzzle 0x439650 (work event, 0x46D87A): +1 at +8, solved at 12 (0x43966B); the status line
+              # "%d%% of the Hungry Totem dismantled" (string 605) shows count x 100 / 12 (0x43C0C0).
+              (("It takes 12 dismantling actions: each one that reaches its end adds 1, and the totem falls at 12. "
+                "The status line shows the share done (\"N% of the Hungry Totem dismantled\").", VERIFIED_C),
                # The solve time is kept by Advance 0x43AF80; the Puzzles screen's branch jumps 0x44917C -> 0x449075,
                # past 0x449073.
                ("The game keeps the time it was solved at, as for every puzzle, but in the normal game the Puzzles "
@@ -324,7 +329,9 @@ def _puzzle_entries() -> list[Entry]:
             "opens the lab: while catching up, research is done only once it is down; the second "
             "collectible set (the lab gear) can appear only from then on; The Pesky Critter island event becomes "
             "possible."), VERIFIED_C,
-              (("How many dismantling actions it takes was not traced.", UNCONFIRMED),)),
+              # CResearchTotemPuzzle 0x43C360: +1 at +8, solved at 12 (0x43C377).
+              (("It takes 12 dismantling actions: each one that reaches its end adds 1, and the totem falls at 12.",
+                VERIFIED_C),)),
         Entry(PUZZLE, "The Hydroponic Farm", "30 points, from the aqueduct repair", (
             "the farm's crops are refilled to 800 every 40 age units (2 hours, 4 hours or 6 hours 40 minutes of "
             "real-life play on Fast, Normal or Slow) and a harvest gives 10, 7 or 4 food (7 while catching up), before "
@@ -341,11 +348,23 @@ def _puzzle_entries() -> list[Entry]:
             "the dead are buried from then on: with a body waiting, an idle villager buries it 25% of the time, and "
             "one with Healing 50 or more 70% of the rest. The Earthquake adds 50 of the 1,000 restoring points it "
             "needs."), VERIFIED_C),
-        Entry(PUZZLE, "The Blocking Totem", "villagers dismantle it (\"Dismantling the Blocking Totem\")", (
-            "the game's tip says the mausoleum can then be dug out; the code that ties the two was not traced."),
-         UNCONFIRMED),
-        Entry(PUZZLE, "The Hollow Totem", "village children break it (\"Squeezing into the Hollow Totem\")", (
-            "the game's tip says the lake becomes the believers'; what changes in play was not traced."), UNCONFIRMED),
+        # CBuildingTotemPuzzle 0x4332A0 (work event, 0x46D9F5): +1 at +8, solved at 40 (0x4332B7).  The work
+        # dispatcher offers "Restoring the mausoleum" while catching up only with it solved (0x46C3FF..0x46C415); live
+        # it does not test it.
+        Entry(PUZZLE, "The Blocking Totem", "40 dismantling actions (\"Dismantling the Blocking Totem\")", (
+            "each action that reaches its end adds 1, and the totem falls at 40. Solved, villagers also restore the "
+            "mausoleum while the game catches up time away; in play they can restore it with the totem still "
+            "standing (the game's tip says the mausoleum can then be dug out safely)."), VERIFIED_C),
+        # CChildrensTotemPuzzle: the work event 0x46D17C sets the count of villagers in action 0x9F (0x4717A0) into
+        # 0x4335A0; at 6 a 5-second real-clock wait starts, and the update 0x4335D0 solves it when it is passed.
+        Entry(PUZZLE, "The Hollow Totem", "six village children squeezing into it at once (\"Squeezing into the "
+                                          "Hollow Totem\")", (
+            "when six children are squeezing into it at the same moment, it breaks 5 real-life seconds later "
+            "(real time)."), VERIFIED_C,
+              # The walk-map flag 0x478855 -> 0x478240(0x56, solved ? 0 : 1); its meaning was not read.
+              (("The game's tip says the lake becomes the believers'. In the code, solving it changes one flag of "
+                "one area of the island's walk map; what that flag does in play was not identified.",
+                UNCONFIRMED),)),
         Entry(PUZZLE, "The Heathen Builder", "a build-off with the Heathen Master Builder", (
             "the Master Builder joins the tribe (the game's tip); how the build-off is won and the Faith it sets were "
             "not traced."), UNCONFIRMED),
@@ -359,9 +378,14 @@ def _puzzle_entries() -> list[Entry]:
             # The strike's window 0x43A0C0; the healers' studying 0x46CD24.
             "villagers work on taking it down only during the 75 real-life seconds (real time) after each strike on "
             "it. Solved, healers with nobody to cure study medicine on their own."), VERIFIED_E),
+        # CRainbowTotemPuzzle 0x43BD70 (work event, 0x46D9E2): +1 at +0x4C, solved at 30 (0x43BD8B).
         Entry(PUZZLE, "The Rainbow Totem", "villagers put three dyes in the pools and dismantle it", (
-            "the game's tip says the warm springs become the villagers'; what changes in play was not traced."),
-         UNCONFIRMED),
+            "the dismantling takes 30 actions: each one that reaches its end adds 1, and the totem falls at 30."),
+         VERIFIED_C,
+              # The walk-map flag 0x478899 -> 0x478240(0x72, ...).
+              (("The game's tip says the warm springs become the villagers'. In the code, solving it changes one flag "
+                "of one area of the island's walk map; what that flag does in play was not identified.",
+                UNCONFIRMED),)),
         Entry(PUZZLE, "The Heathen Scientist", "a proof the Heathen Master Scientist examines", (
             "the Master Scientist joins the tribe (the game's tip); the steps and the Faith set were not traced."),
          UNCONFIRMED),
@@ -471,8 +495,11 @@ def _item_entries() -> list[Entry]:
             "35 food (52 at Food Mastery 2, 70 at 3), 8% of the mushrooms that appear."), VERIFIED_E,
               ((f"{_feature('vv5_super_secret_golden_mushroom')}: 1 in 1,000,000 random brown or red mushrooms is a "
                 "Golden Mushroom worth 100 food, counted as a mushroom.", VERIFIED_E),
+               # The row NOPs the reservation jne 0x413E5F of the drop hit-test 0x413E40; emulated on the stock and
+               # the rendered bytes in tests/test_everyone_collects.py; the pickup returns 1 after the item is gone
+               # and the award depends only on the carried id (that test's reading).
                (f"{_feature('vv5_everyone_collects_like_vv1')}: several children dropped on one mushroom or collectible "
-                "each pick it up, so it is counted and paid once for each.", UNCONFIRMED),
+                "each pick it up, so it is counted and paid once for each.", VERIFIED_C),
                # The release listener 0x4146B0: 0x4146E6 ja becomes jmp 0x414713, past the three place tests
                # (vv5_collectibles_stay_collected).
                (f"{_feature('vv5_collectibles_stay_collected')}: a mushroom, relic or lab gear piece a child has "
@@ -580,9 +607,10 @@ def _patcher_entries() -> list[Entry]:
         for name, price, effect in rows:
             subs = ()
             if name == "Barrel of Babies":
-                subs = (("Which of the game's two Barrel O' Babies! versions the purchase brings (the believers', slot "
-                         "26, or the Heathens') is not settled: the patch's notes name different event numbers.",
-                         UNCONFIRMED),)
+                # The selector body (scripts/build_vv5_origins_feature.py BARREL_SELECTOR_BODY_REPAIRED: mov esi, 26)
+                # picks event 26 of the event table 0x4DC850; tests/test_vv5_barrel_event_index.py re-derives it.
+                subs = (("The purchase brings the believers' Barrel O' Babies! (the game's event 26), not the "
+                         "Heathens' one.", VERIFIED_C),)
             unchanged = "" if name in NO_CHANGE_CHECK else " Nothing is spent when nothing would change."
             out.append(Entry(PATCHER, name, f"{price:,} tech points", (
                 f"{lead}: on {screen}: {effect}{unchanged}"), VERIFIED_C, subs))

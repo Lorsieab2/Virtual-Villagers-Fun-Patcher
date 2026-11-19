@@ -60,12 +60,13 @@ PINNED = (
     ("puzzle", "The Knowing Totem", "villagers dismantle it (\"Dismantling the Knowing Totem\")", C),
     ("puzzle", "The Hydroponic Farm", "30 points, from the aqueduct repair", E),
     ("puzzle", "The Buried Mausoleum", "villagers restore it (\"Restoring the mausoleum\")", C),
-    ("puzzle", "The Blocking Totem", "villagers dismantle it (\"Dismantling the Blocking Totem\")", U),
-    ("puzzle", "The Hollow Totem", "village children break it (\"Squeezing into the Hollow Totem\")", U),
+    ("puzzle", "The Blocking Totem", "40 dismantling actions (\"Dismantling the Blocking Totem\")", C),
+    ("puzzle", "The Hollow Totem", "six village children squeezing into it at once (\"Squeezing into the Hollow "
+                                   "Totem\")", C),
     ("puzzle", "The Heathen Builder", "a build-off with the Heathen Master Builder", U),
     ("puzzle", "The Lake", "2 points", E),
     ("puzzle", "The Pain Totem", "a Lightning Strike on it, then villagers take it down", E),
-    ("puzzle", "The Rainbow Totem", "villagers put three dyes in the pools and dismantle it", U),
+    ("puzzle", "The Rainbow Totem", "villagers put three dyes in the pools and dismantle it", C),
     ("puzzle", "The Heathen Scientist", "a proof the Heathen Master Scientist examines", U),
     ("puzzle", "The Tribute Statue", "three building stages", E),
     ("puzzle", "The Blind Totem", "villagers make and install a golden eye (panning, smelting, installing)", E),
@@ -117,9 +118,10 @@ PINNED = (
 # Every sub-line's label, by the entry it is under (the entries not named have none).
 PINNED_SUBS = {
     "Science level 2": (C, E), "Medicine level 2": (U,), "Learning level 1": (C,), "Learning level 3": (C,),
-    "Divine Energy": (U,), "The Hungry Totem": (U, C), "The Knowing Totem": (U,), "The Hydroponic Farm": (U,),
+    "Divine Energy": (C,), "The Hungry Totem": (C, C), "The Knowing Totem": (C,), "The Hydroponic Farm": (U,),
+    "The Hollow Totem": (U,), "The Rainbow Totem": (U,),
     "The Tribute Statue": (U, C), "The Heathen Chief": (U,), "The Nursery School": (C,), "The fire pit": (U,),
-    "Fixing a hut (the repair)": (C, C), "Red (rare) mushroom": (E, U, C, C), "Barrel of Babies": (U,),
+    "Fixing a hut (the repair)": (C, C), "Red (rare) mushroom": (E, C, C, C), "Barrel of Babies": (C,),
     "Story / Cheat Upgrades": (C,),
 }
 

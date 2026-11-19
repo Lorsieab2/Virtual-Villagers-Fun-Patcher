@@ -25,6 +25,9 @@ FAITH_LOSS = "vv5_faith_loss_doubled_gains_halved"
 NEW_HEATHENS = "vv5_new_heathens_get_heathen_faith"
 HEATHEN_NOTICE = "vv5_heathen_conversion_notice"
 KEEP_MASKS = "vv5_heathens_keep_masks_when_converted"
+# No game exe and no patch log was found for the save, so whether a patch is in the game cannot be read; the player
+# can name the game with the window's Browse... button.
+UNTOLD = gm.UNTOLD
 DRAWS = 32768
 
 
@@ -81,7 +84,7 @@ def lines(village: gm.Village) -> list[gm.Fact]:
         # Stock first, then the patch (scripts/build_apprentice_faith_puddles_features.py, FAITH_EDITS).  Shown
         # too when whether the game has it cannot be told (no exe or patch log found), as every other patch is.
         doubled = 1 - (1 - below(100, 60) / DRAWS) * (1 - below(100, 20) / DRAWS)
-        where = "in this game" if faith_loss else "whether the game has it could not be told"
+        where = "in this game" if faith_loss else UNTOLD
         add(f"With \"{gm.feature_name(FAITH_LOSS)}\" ({where}) every loss roll's chance is doubled and every "
             "gain roll's halved (each roll: the normal chance -> the patched one):")
         for text in (
@@ -111,7 +114,7 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             add(text, sub=True)
     new_heathens = village.has(NEW_HEATHENS)
     if new_heathens is not False:
-        where = "in this game" if new_heathens else "whether the game has it could not be told"
+        where = "in this game" if new_heathens else UNTOLD
         # The patch's hook at 0x467FDF, its cave 0x494F80: the orange and red mask bytes cleared (the role is
         # already 0), Faith -38 - rand(30).
         add(f"With \"{gm.feature_name(NEW_HEATHENS)}\" ({where}): a believer the Faith drift turns Heathen becomes "
@@ -120,7 +123,7 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "any blue Heathen to win them back. The Spa, The Cracked Mask and the Custom Island Event keep their -10.")
     notice = village.has(HEATHEN_NOTICE)
     if notice is not False:
-        where = "in this game" if notice else "whether the game has it could not be told"
+        where = "in this game" if notice else UNTOLD
         add(f"With \"{gm.feature_name(HEATHEN_NOTICE)}\" ({where}): a popup, \"The Breaking Point\", in the "
             "island-event window tells you when believers lose faith and leave. There is one popup for a whole "
             "catch-up, Time Warp or time skip. It is not an island event (the next one keeps its time; not counted, "
@@ -182,7 +185,7 @@ def lines(village: gm.Village) -> list[gm.Fact]:
     # whether it has it cannot be told, as every other patch is.
     keep_masks = village.has(KEEP_MASKS)
     if keep_masks is not False:
-        where = "in this game" if keep_masks else "whether the game has it could not be told"
+        where = "in this game" if keep_masks else UNTOLD
         # The join 0x4668B0, or The Defector's direct call 0x41699F; the mask the game drew is 0x4728C6's.
         add(f"With \"{gm.feature_name(KEEP_MASKS)}\" ({where}) a Heathen who joins the tribe (The Defector's "
             "included) keeps the mask the game drew on them (purple for the Heathen Doctor and the three Masters, the "
