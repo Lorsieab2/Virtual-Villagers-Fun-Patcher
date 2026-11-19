@@ -216,7 +216,7 @@ class StockOddsUntouched(unittest.TestCase):
             for m in re.finditer(r"cg_sol_(weights|factor|random_below)\(", text):
                 head = text.rfind("\nstatic ", 0, m.start())
                 func = re.match(r"\nstatic \w+ \*?(\w+)\(", text[head:head + 120]).group(1)
-                self.assertIn(func, {"cg_draw", "sc_choose_and_arm"}, f"{path.name}: {func}")
+                self.assertIn(func, {"cg_draw", "sc_choose_and_arm", "sc_draw_group"}, f"{path.name}: {func}")   # round 6 split the draw per group
         self.assertNotIn("VillageScore", (ROOT / "native" / "vvfp_island_events" / "vvfp_island_events.c")
                          .read_text(encoding="utf-8"))
 
@@ -257,9 +257,12 @@ class TheRows(unittest.TestCase):
 
     def test_started_from_the_second_word(self) -> None:
         import vv_fun_patcher as patcher
-        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_2[-1], scores.SOLIDARITY_DLL)
-        header = (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
-        self.assertIn('"VVFP Village Solidarity.dll",\n    /* APPEND ONLY', header)
+        # The v1.35.97 merge: the second word is full (32 of 32), so Village Solidarity is a third-word entry,
+        # started through "VVFP More Companions.dll" (the second word's last entry).
+        self.assertIn(scores.SOLIDARITY_DLL, patcher.STARTUP_LOADER_COMPANIONS_3)
+        self.assertNotIn(scores.SOLIDARITY_DLL, patcher.STARTUP_LOADER_COMPANIONS_2)
+        header = (ROOT / "native" / "shared" / "startup_companions_3.h").read_text(encoding="utf-8")
+        self.assertIn('"VVFP Village Solidarity.dll",', header)
 
     def test_the_strength_is_written_beside_the_companion(self) -> None:
         import vv_fun_patcher as patcher
@@ -406,7 +409,7 @@ if HAVE_EMULATOR:
             r.p.export("VvfpStoryProbeCollectionManifest", text, 0, 0b111)
             if solidarity is not None:
                 fake_solidarity(r.p, *solidarity, [], hook=False)
-            r.rolls(draw, 0, 0, 0)
+            r.rolls(0, draw, 0, 0)          # round 6: the first number draws the group (one here), the next the event
             trace = r.p.alloc(64 * 4)
             got = r.p.export("VvfpStoryProbeCollectionChoose", 4, trace, 64)
             self.assertTrue(got & 0x100)
@@ -442,7 +445,7 @@ if HAVE_EMULATOR:
                     r.p.write(text, MANIFEST.encode() + b"\0")
                     r.p.export("VvfpStoryProbeCollectionManifest", text, 0, 0b111)
                     fake_solidarity(r.p, 40000, 1000, [], hook=False)
-                    r.rolls(hi, lo, 0, 0)
+                    r.rolls(0, hi, lo, 0)       # round 6: the group first
                     trace = r.p.alloc(64 * 4)
                     got = r.p.export("VvfpStoryProbeCollectionChoose", 4, trace, 64)
                     self.assertEqual(r.p.u32(trace + 4 * ((got & 0xFF) - 1)) & 0xFFFF, entry)
@@ -465,7 +468,7 @@ if HAVE_EMULATOR:
                 r.p.export("VvfpStoryProbeCollectionManifest", text, 0, 0b111)
                 if solidarity:
                     fake_solidarity(r.p, 3000, 1000, [], hook=False)
-                r.rolls(*rolls, 0, 0)
+                r.rolls(0, *rolls, 0, 0)
                 trace = r.p.alloc(64 * 4)
                 got = r.p.export("VvfpStoryProbeCollectionChoose", 4, trace, 64)
                 return r.p.u32(trace + 4 * ((got & 0xFF) - 1)) & 0xFFFF

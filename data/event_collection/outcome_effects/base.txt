@@ -2166,7 +2166,7 @@ drafts_d/dr_tim/tim122_supper_friend.json | e4 | HAPPIER (subject) (50%) | "the 
 drafts_d/dr_tim/tim124_helping_carry.json | e4 | HAPPIER (subject) (50%) | "(Name1) feels relieved not to do everything alone" | {"do":"mood","role":"subject","mood":"good"}
 drafts_d/dr_tim/tim125_invitation.json | e3 | HAPPIER (subject) (50%) | "(Name1) feels relieved not to do everything alone" | {"do":"mood","role":"subject","mood":"good"}
 exclusive/vv2_hospitals_most_difficult.json | a1 | HAPPIER (patient) (50%) | "Patient listening restores trust" | {"do":"mood","role":"patient","mood":"good"}
-exclusive/vv3_child_who_claimed_to_be.json | a4 | HAPPIER (chief) (50%) | "much to the Chief's delight" | {"do":"mood","role":"chief","mood":"good"}
+exclusive/vv3_child_who_claimed.json | a4 | HAPPIER (chief) (50%) | "much to the Chief's delight" | {"do":"mood","role":"chief","mood":"good"}
 exclusive/vv4_the_great_water_argument.json | a3 | TECH GAIN normal (50%) | "A child combines the ideas and succeeds" | {"do":"tech","size":"normal","scaled":true}
 exclusive/vv5_feast_of_two_traditions.json | a2 | TECH GAIN normal (50%) | "an astonishingly strange dish that tastes unexpectedly wonderful" | {"do":"tech","size":"normal","scaled":true}
 exclusive/vv5_feast_of_two_traditions.json | a3 | FOOD LOSS normal (50%) | "their children have already eaten everything" | {"do":"food","size":"normal","loss":true,"scaled":true}

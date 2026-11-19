@@ -404,8 +404,9 @@
       "ids": ["vv4_cloth_sacks_for_yellow_fruit"],
       "guide": [
         "On by default. Needs the Clothing Hut finished and the Cooking Pit restored.",
-        "Drop an adult on the left side of the Clothing Hut, under its awning: they take one cloth bolt, make a sack, gather yellow fruit in it and bring 30 food to the food bin (before Food Mastery).",
-        "Works like the cutting tool on the blackberries: the cloth is used when they start, with no cloth they refuse, and Food Mastery multiplies the food. Only villagers you drop make sacks: farmers never do on their own.",
+        "Drop an adult on the left side of the Clothing Hut, under its awning: they use one cloth bolt to make a sack and bring 30 yellow fruit to the food bin.",
+        "Works like the cutting tool on the blackberries: the cloth is used when they start, with no cloth they refuse, and Food Mastery multiplies the food.",
+        "Only villagers you drop make sacks: farmers never do on their own.",
         "While the stew pot is making The Grand Feast and needs fruit, the sack goes into the stew instead and counts as its fruit (no food from that sack).",
         "With Yellow Fruit Trees are No Longer Unlimited, a sack takes its fruit from the tree (30, or what is left, even none); without it every sack holds 30. Not yet tested in play."
       ]
@@ -561,15 +562,14 @@
     {
       "ids": ["vv4_fix_vanilla_bugs"],
       "guide": [
-        "Fixes a bug in the original game: a village with exactly 150 villagers can be saved and loaded again, and one already damaged that way is repaired when loaded.",
+        "A village of exactly 150 villagers (a bigger population mode or 256 Villagers) can be saved and loaded again; one already damaged by that bug is repaired when loaded.",
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Unpausing at another speed gives the Fire Pit that speed's length. Nursery School lessons no longer always pick Building on a tie.",
         "Rain can no longer crash the game, and the Overview Map's water (rivers, waterfalls and their animations) lines up with its riverbeds.",
-        "After The Frog Rescue, frogs leap all along the river's blue water around the island, never on grass or the ladder, as often as in the original game.",
-        "A cutting tool is no longer used up on an empty blackberry bush: the villager refuses and keeps it (with Cloth Sacks, the same for a sack and an empty yellow fruit tree). Cutting-tool berries count for The Grand Feast.",
-        "The 150-villager fix only matters with a bigger population mode or 256 Villagers. On by default."
+        "After The Frog Rescue, frogs leap all along the river's blue water around the island, never on grass or the ladder, as often as in the original game. On by default.",
+        "No cutting tool is used up on an empty bush (with Cloth Sacks, no sack on an empty fruit tree). Cutting-tool berries count for The Grand Feast."
       ]
     },
     {
@@ -1265,8 +1265,8 @@
         "Rain can no longer crash the game: a raindrop of no length is drawn as a dot. An unfinished Nursery School says \"foundation\" until building starts.",
         "Nursery School lessons no longer nearly always go to Devotion (a tie is broken at random). The Last Heathen's hovel fits the map (art by Lorsieab2).",
         "The Puzzles screen shows how many hours The Hungry Totem took (it always said 0); a village that already solved it shows its real time too.",
-        "The Defector is always a Heathen of 14 or more, like the envoy in Outreach? (the original game could pick a Heathen child). Polishing the Tribute Statue now gives 1 Divine Energy each time, as the game's tip says (never above the cap); it still trains Building.",
-        "Nothing to click. On by default."
+        "The Defector is always a Heathen of 14 or more, like the envoy in Outreach? (the original game could pick a Heathen child).",
+        "Polishing the Tribute Statue now gives 1 Divine Energy each time, as the game's tip says (never above the cap); it still trains Building. Nothing to click. On by default."
       ]
     },
     {
@@ -1425,14 +1425,14 @@
     "select_all": {
       "title": "Select All Patches",
       "guide": [
-        "Ticks every patch for every game. Except 256 Villagers (Experimental), which you tick yourself,",
+        "Ticks every patch for every game (it does not change the population mode). Except 256 Villagers (Experimental), which you tick yourself,",
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
-        "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation",
-        "More Frequent Island Events, The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Birth Control in The Tree of Life and New Believers and the 0.1-10x sliders are not ticked either.",
-        "The island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either; it does not change the population mode."
+        "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation, More Frequent Island Events,",
+        "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Birth Control in The Tree of Life and New Believers,",
+        "the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
       ]
     },
     "default_patches": {
@@ -1440,12 +1440,13 @@
       "guide": [
         "All but: Learning Skills Never Fails, Manual Drop-Breeding, 256 Villagers, VV1 Mushroom/Collectible Duplication Cheat, Move the \"Playing in the dirt\" Spot,",
         "Super-Secret Golden Mushroom, Fruit Trees Take Turns Refilling, Use Unicode Font (overrides in-game fonts), Checked Skill Preferences are listed as Jobs on Graves,",
-        "Change Sex and Gender Presentation, Village Solidarity, 0.1-10x Tech Cost, 0.1-10x Sickness, Hungrier Villagers (0.1-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
-        "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full, More Frequent Island Events,",
-        "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited, The Golden Child May Be Born Female (50:50),",
-        "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups, More Island Events, Isola Grand Event Collection,",
-        "Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again, Birth Control in The Tree of Life and New Believers, the 0.1-10x sliders and the island event controls.",
-        "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
+        "Change Sex and Gender Presentation, Village Solidarity, 0.1-10x Tech Cost, 0.1-10x Sickness, Hungrier Villagers (0.1-10x Meals), Faith Loss is Doubled/Gains Halved,",
+        "Classic VV Difficulty, Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
+        "More Frequent Island Events, Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
+        "Up to 99 Cutting Tools/Soap/Cloth, The Golden Child May Be Born Female (50:50), Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped,",
+        "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
+        "Birth Control in The Tree of Life and New Believers, the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted,",
+        "Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
       ]
     },
     "owners_defaults": {
