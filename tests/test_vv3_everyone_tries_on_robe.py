@@ -264,17 +264,19 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # longer diverted and the dispatcher stub's protocol changed. Rendered from 3584eb2f2 and from this tree and
     # compared byte for byte: only the PE CheckSum (0x160..0x162), 0x5BF52..0x5BF56 (back to the stock cmp/jne) and
     # the fix-huts overlay's stubs (0xCBA0C, 0xCBA2A..0xCBAFE) differ, in every mode; same length.
+    # Re-pinned on the v1.35.97 integration branch for Birth Control's catch-up gate (#829, which itself says only
+    # 0x5BF63 and the PE CheckSum differ): a fresh render of the merged catalog.
     "stock": (
-        "329AE060859082B84090753947270DF4176949E6D718E2C0187EB7169C1F3490",
-        "5D6E0D00",
+        "05003C3C01BFA7CCE2CB57E0DB4E5A05663B1A2FAB3ED723F9ACB6DACDE8F44E",
+        "D9B40D00",
     ),
     "collection_progression": (
-        "54D9601D7E1BE387A6116C567143844AD6B805420C61D2DADE11A70E3DC63FA1",
-        "5D870D00",
+        "8CCF0A54289C8C508966D5B5F2BCD04D91E78FA86D22F98B460B23D5C5109B3E",
+        "D9CD0D00",
     ),
     "immediate_fixed": (
-        "7C916791D081C9FCC62A7AD6400F24C60C93BB17AC2AA97F61476CF50AF71CB4",
-        "5BC90D00",
+        "2CF886F8C319DF3515EC3BD91C123B7B3E92C9C0DE1D79414ACC95292FD929A6",
+        "D80F0D00",
     ),
     # Re-pinned for the hospital tables' Fix Vanilla Bugs bytes (052a1b81), which changed this
     # render on main without re-pinning it: the three digests above are main's own render at
