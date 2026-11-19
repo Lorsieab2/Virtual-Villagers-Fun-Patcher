@@ -295,10 +295,13 @@ class ChoicesAndQuestions(unittest.TestCase):
                 self.assertIn("walks to the old cliff", shown[0][1])
                 self.assertNotIn("finds many doors", shown[0][1])
                 self.assertEqual(shown[1][0], "question")
-                # The answer page's title is the choice picked (chosen-choice titles); its text below the title
-                # never starts with the label line.
-                self.assertFalse(any(s[1].split("\n", 1)[-1].lstrip().startswith("Open door number")
+                # The popups after a choice take its label as their title (the owner, 2026-11-16).  The first two
+                # games write the title as the text's first line (own_words), so the label is there as the TITLE;
+                # the label LINE Scrolling Popups puts at the start of the outcome is never there.
+                self.assertFalse(any(own_words(s[1], game).lstrip().startswith("Open door number")
                                      for s in shown[2:]), "no label line without Scrolling Popups")
+                if game in ("vv1", "vv2"):
+                    self.assertEqual(shown[2][1].partition("\n")[0], "Open door number 1", "the choice is the title")
 
 
 class ThePatchersMirror(unittest.TestCase):
