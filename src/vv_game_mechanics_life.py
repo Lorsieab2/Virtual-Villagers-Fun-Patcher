@@ -117,6 +117,7 @@ class Person:
     golden: bool = False                     # A New Home's Golden Child
     chief: bool = False                      # The Secret City's Tribal Chief
     skills: tuple[float, ...] = ()           # the game's skill order (vv_corrupt_skills.SKILL_NAMES); () unread
+    ticked: str | None = None                # the job ticked on the Details screen; None = none ticked or unread
 
     def skill(self, name: str, game: int) -> float | None:
         """This villager's `name` skill (Farming, Devotion, ...), or None when it was not read."""
@@ -173,10 +174,73 @@ def people(village: gm.Village) -> list[Person] | None:
                 p.heathen = data[at + VV5_FACTION] != 0
                 p.faith = _i32(data, at + VV5_FAITH)
             p.skills = _skills(village.game, data, at)
+            p.ticked = TICKED_JOBS[village.game].get(_i32(data, at + TICKED_AT[village.game]))
         except (struct.error, IndexError):
             continue
         out.append(p)
     return out
+
+
+# The job ticked on the Details screen: the dword right after the skills in the saved entry (from the name; the
+# Work First table in native/vvfp_work_first: A New Home record +0x3D0, The Tree of Life +0x1C70, New Believers
+# +0x1C74), with each game's job numbers.  Any other value reads as none ticked.
+TICKED_AT = {1: 0x60, 2: 0x294, 3: 0xEC, 4: 0xD4, 5: 0xD8}
+TICKED_JOBS = {
+    1: {1: "Farming", 2: "Parenting", 5: "Healing", 3: "Research", 4: "Building"},
+    2: {1: "Farming", 2: "Parenting", 3: "Healing", 4: "Research", 5: "Building"},
+    3: {0: "Farming", 1: "Parenting", 2: "Healing", 3: "Research", 4: "Building"},
+    4: {0: "Farming", 1: "Parenting", 2: "Healing", 3: "Research", 4: "Building"},
+    5: {0: "Farming", 1: "Parenting", 2: "Healing", 3: "Research", 4: "Building", 5: "Devotion"},
+}
+# A tie for the highest skill goes to the skill the Village screen's Action bar shows under "Skill" (the work rush's
+# rule, src/vv_game_mechanics_collection.py WORK_TIE): A New Home and The Lost Children the first of this order, The
+# Secret City the first of its own order; The Tree of Life and New Believers go through their order, a skill taking
+# over when it is above the best so far with that best's fraction dropped.
+TIE_ORDER = {1: ("Parenting", "Building", "Healing", "Farming", "Research"),
+             2: ("Parenting", "Building", "Healing", "Farming", "Research"),
+             3: ("Farming", "Parenting", "Healing", "Research", "Building"),
+             4: ("Farming", "Parenting", "Healing", "Research", "Building"),
+             5: ("Farming", "Parenting", "Healing", "Research", "Building", "Devotion")}
+PROFESSIONS = (("Farming", "farmers"), ("Parenting", "parents"), ("Healing", "healers"), ("Research", "researchers"),
+               ("Building", "builders"), ("Devotion", "devotees"))
+
+
+def highest_skill(p: "Person", game: int) -> str | None:
+    """The skill the Village screen's Action bar shows under "Skill" for this villager, or None when unread."""
+    import math
+    best_name, best = None, None
+    for name in TIE_ORDER[game]:
+        value = p.skill(name, game)
+        if value is None:
+            return None
+        if best is None:
+            best_name, best = name, value
+        elif game in (4, 5):
+            if value > math.floor(best):
+                best_name, best = name, value
+        elif value > best:
+            best_name, best = name, value
+    return best_name
+
+
+def profession_line(game: int, everyone: list["Person"]) -> str | None:
+    """How many adults (14 or more) follow each job: the job ticked, or with none ticked the highest skill (the
+    owner, 2026-11-19: "how many villagers are of each profession ... highest skill + checked preference")."""
+    adults = [p for p in tribe(everyone) if p.years >= 14]
+    counts: dict[str, list[int]] = {skill: [0, 0] for skill, _ in PROFESSIONS}
+    unread = 0
+    for p in adults:
+        job = p.ticked or highest_skill(p, game)
+        if job is None or job not in counts:
+            unread += 1
+            continue
+        counts[job][0] += 1
+        counts[job][1] += p.ticked is not None
+    parts = [f"{counts[skill][0]} {word if counts[skill][0] != 1 else word[:-1]} ({counts[skill][1]} ticked)"
+             for skill, word in PROFESSIONS if skill in TIE_ORDER[game]]
+    return (f"Professions of the {len(adults)} adult{'s' if len(adults) != 1 else ''} (14 or more; the job ticked, "
+            "else the highest skill): "
+            + ", ".join(parts) + (f"; {unread} not read" if unread else "") + ".")
 
 
 def _skills(game: int, data: bytes, at: int) -> tuple[float, ...]:
@@ -735,6 +799,10 @@ def vitals_lines(ctx: Context, everyone: list[Person] | None, soonest, event) ->
             f"{gm.when(ctx.created)}).", gm.SAVE)
     add(f"Time since save was last played: {gm.hours_days_years(away)} (real time; last saved {gm.when(ctx.last)}). "
         f"{gm.duration(counted)} of that would count if it were played now.", gm.SAVE)
+    if everyone is not None:
+        line = profession_line(ctx.game, everyone)
+        if line:
+            add(line, gm.SAVE)
 
     # 2. Food and its sources.
     add(f"Food in storage: {ctx.food:,}.", gm.SAVE)
