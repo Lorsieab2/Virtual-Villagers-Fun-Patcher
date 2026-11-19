@@ -1089,7 +1089,8 @@
      "scaled": true,
      "src": "L10320"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_b": {
    "type": "branch",
@@ -1187,7 +1188,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c7": {
    "type": "branch",
@@ -1271,7 +1273,8 @@
      "max": 20,
      "src": "L10345"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d3_sci": {
    "text": "A young learner improves the design; both are credited and gain relevant skill.",
@@ -1288,7 +1291,8 @@
      "max": 20,
      "src": "L10345"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d3_eng": {
    "text": "A young learner improves the design; both are credited and gain relevant skill.",
@@ -1305,7 +1309,8 @@
      "max": 20,
      "src": "L10345"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d3_trade": {
    "text": "A young learner improves the design; both are credited and gain relevant skill.",
@@ -1321,7 +1326,8 @@
      "max": 20,
      "src": "L10345"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d3_art": {
    "text": "A young learner improves the design; both are credited and gain relevant skill.",
@@ -1543,7 +1549,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_food__text": {
    "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
@@ -1569,7 +1576,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_sci__fx": {
    "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
@@ -1602,7 +1610,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_sci__text": {
    "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
@@ -1629,7 +1638,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_eng__fx": {
    "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
@@ -1662,7 +1672,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_eng__text": {
    "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
@@ -1689,7 +1700,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_trade__fx": {
    "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
@@ -1721,7 +1733,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_trade__text": {
    "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
@@ -1747,7 +1760,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_art__fx": {
    "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
@@ -1776,7 +1790,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_art__text": {
    "text": "The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
@@ -1799,7 +1814,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__fx": {
    "text": "The demonstration fails hilariously. (Inventor) is mocked, then receives an apology if later vindicated.",
@@ -1816,7 +1832,8 @@
      "mood": "bad",
      "src": "L10297-10298"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__text": {
    "text": "The demonstration fails hilariously. (Inventor) is mocked, then receives an apology if later vindicated.",
@@ -1852,7 +1869,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4_food__text": {
    "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
@@ -1873,7 +1891,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4_sci__fx": {
    "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
@@ -1901,7 +1920,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4_sci__text": {
    "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
@@ -1923,7 +1943,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4_eng__fx": {
    "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
@@ -1951,7 +1972,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4_eng__text": {
    "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
@@ -1973,7 +1995,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4_trade__fx": {
    "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
@@ -2000,7 +2023,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4_trade__text": {
    "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
@@ -2021,7 +2045,8 @@
     {
      "next": "react"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4_art__fx": {
    "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
@@ -2045,7 +2070,8 @@
      "scaled": true,
      "src": "L10301-10302"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4_art__text": {
    "text": "The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
@@ -2084,7 +2110,8 @@
      "mood": "good",
      "src": "L10309-10310"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "text": "The idea withstands scrutiny; (Inventor) is invited to become one of the island's leading scholars.",
@@ -2120,7 +2147,8 @@
      "mood": "bad",
      "src": "L10317-10318"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b5__text": {
    "text": "A careful experiment disproves the claim. (Inventor) is disappointed but gains knowledge from the attempt.",
@@ -2141,7 +2169,8 @@
      "max": 10,
      "src": "L10317-10318"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__fx": {
    "text": "A flaw is corrected; the invention becomes reliable or the discovery becomes reproducible.",
@@ -2158,7 +2187,8 @@
      "scaled": true,
      "src": "L10323-10324"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "text": "A flaw is corrected; the invention becomes reliable or the discovery becomes reproducible.",
@@ -2184,7 +2214,8 @@
      "mood": "bad",
      "src": "L10325-10326"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "text": "A brittle model cracks into countless pieces. The inventor survives, embarrassed and covered in fragments.",
@@ -2205,7 +2236,8 @@
      "scaled": true,
      "src": "L10336-10337"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c7__text": {
    "text": "The second version is less spectacular but more useful. (Inventor) learns the value of patient work.",
@@ -2226,7 +2258,8 @@
      "scaled": true,
      "src": "L10340-10341"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d1__text": {
    "text": "The invention quietly improves the lives of a few villagers before the rest learn of it.",
@@ -2247,7 +2280,8 @@
      "mood": "bad",
      "src": "L10348-10349"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d5__text": {
    "text": "The secret leaks and (Inventor) becomes famous despite desperately wishing to be left alone.",
@@ -2268,7 +2302,8 @@
      "scaled": true,
      "src": "L10354-10355"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "text": "The elders approve practical use, training, or preservation of the discovery in the village records.",

@@ -126,7 +126,8 @@
      "reason": "the equipment, not a structure: only the worker is hurt",
      "src": "L6254"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c3": {
    "name": "Answer C (3)",
@@ -137,7 +138,8 @@
      "do": "kill",
      "role": "worker",
      "cause": "unknown",
-     "src": "L6254"
+     "src": "L6254",
+     "line": "injuries"
     }
    ],
    "text_only": [
@@ -146,7 +148,8 @@
      "reason": "the equipment, not a structure: only the worker is hurt",
      "src": "L6254"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -179,7 +182,8 @@
      "scaled": true,
      "src": "L6250"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",
@@ -203,7 +207,8 @@
      "scaled": true,
      "src": "L6252"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",

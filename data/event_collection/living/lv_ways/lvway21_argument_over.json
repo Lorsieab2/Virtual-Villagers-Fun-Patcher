@@ -178,7 +178,8 @@
      "scaled": true,
      "src": "L23033"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",

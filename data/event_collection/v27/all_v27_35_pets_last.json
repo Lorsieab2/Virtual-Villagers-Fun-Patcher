@@ -118,7 +118,8 @@
      "mood": "bad",
      "src": "L10765"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Outcome B",

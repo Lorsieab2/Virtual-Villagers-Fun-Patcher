@@ -247,7 +247,8 @@
      "max": 10,
      "src": "L27683"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",
@@ -265,7 +266,8 @@
      "mood": "good",
      "src": "L27689"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d1__text": {
    "name": "Outcome D1",

@@ -99,7 +99,8 @@
      "max": -5,
      "src": "L146"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",

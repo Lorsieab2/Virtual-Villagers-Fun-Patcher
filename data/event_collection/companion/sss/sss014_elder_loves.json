@@ -119,7 +119,8 @@
      "mood": "good",
      "src": "L6206"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",

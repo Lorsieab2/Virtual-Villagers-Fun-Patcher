@@ -105,7 +105,8 @@
      "max": 10,
      "src": "L8566"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Answer C",
@@ -122,7 +123,8 @@
      "max": 10,
      "src": "L8568"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d": {
    "name": "Answer D",
@@ -140,7 +142,8 @@
      "mood": "good",
      "src": "L8564"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",

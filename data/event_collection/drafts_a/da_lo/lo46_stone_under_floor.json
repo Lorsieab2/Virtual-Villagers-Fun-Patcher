@@ -89,7 +89,8 @@
      "max": 15,
      "src": "L567"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",

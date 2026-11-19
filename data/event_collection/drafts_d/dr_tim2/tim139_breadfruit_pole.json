@@ -133,7 +133,8 @@
      "scaled": true,
      "src": "L101,L102"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",
@@ -151,7 +152,8 @@
      "scaled": true,
      "src": "L101,L105"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e4__text": {
    "name": "Ending 4",

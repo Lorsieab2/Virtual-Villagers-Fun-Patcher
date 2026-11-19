@@ -1,7 +1,8 @@
-Outcome effects - The Harshest Critic (#803, feat/97-harshest-critic)
+Outcome effects (50%) - The Harshest Critic (#803)
 Format: <event> | <outcome> | <effect> | "<words that justify it>"
+Each effect happens half the time when the outcome plays; the other half is the text only.
 
-WAITING FOR #803 (feat/97-harshest-critic) TO MERGE
+WAITING FOR #803 TO MERGE
 (Name1)'s Harshest Critic (hc1_routes) | r4 | UNHAPPY (subject) (50%) | "(Subject) stumbles and makes some embarrassing mistakes."
 (Name1)'s Harshest Critic (hc1_routes) | r5 | HAPPIER (subject) (50%) | "The onlookers can't help smiling"
 (Name1)'s Harshest Critic (hc1_routes) | r7f | UNHAPPY (subject) (50%) | "They get through it together, failing side by side."

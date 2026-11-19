@@ -201,7 +201,8 @@
      "scaled": true,
      "src": "L30199"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",
@@ -219,7 +220,8 @@
      "scaled": true,
      "src": "L30200"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "name": "Outcome C2",

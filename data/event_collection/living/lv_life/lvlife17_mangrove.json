@@ -169,7 +169,8 @@
      "mood": "bad",
      "src": "L20860"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "name": "Outcome C2",

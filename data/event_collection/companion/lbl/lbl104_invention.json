@@ -145,7 +145,8 @@
      "mood": "good",
      "src": "L5174"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome 1",
@@ -162,7 +163,8 @@
      "max": 10,
      "src": "L5170"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__fx": {
    "name": "Outcome 2",
@@ -185,7 +187,8 @@
      "scaled": true,
      "src": "L5175"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Outcome 2",
@@ -202,7 +205,8 @@
      "max": 10,
      "src": "L5170"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__fx": {
    "name": "Outcome 3",
@@ -225,7 +229,8 @@
      "mood": "good",
      "src": "L5176"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Outcome 3",
@@ -242,7 +247,8 @@
      "max": 10,
      "src": "L5170"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

@@ -80,7 +80,8 @@
      "max": 10,
      "src": "L10492"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -111,7 +112,8 @@
      "max": 10,
      "src": "L10494"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__fx": {
    "name": "Outcome B",
@@ -130,7 +132,8 @@
      "max": 10,
      "src": "L10493"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Outcome B",

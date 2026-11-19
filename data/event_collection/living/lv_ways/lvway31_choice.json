@@ -113,7 +113,8 @@
      "max": 10,
      "src": "L23187"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -159,7 +160,8 @@
      "max": -10,
      "src": "L23191"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -217,7 +219,8 @@
      "max": 15,
      "src": "L23190"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",

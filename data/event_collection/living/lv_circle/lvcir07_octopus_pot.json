@@ -104,7 +104,8 @@
      "max": 10,
      "src": "L21325"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -179,7 +180,8 @@
      "loss": true,
      "src": "L21332"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__fx": {
    "name": "Outcome B1",
@@ -192,7 +194,8 @@
      "mood": "good",
      "src": "L21328"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",
@@ -210,7 +213,8 @@
      "scaled": true,
      "src": "L21331"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",

@@ -173,7 +173,8 @@
      "scaled": true,
      "src": "L22"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2__text": {
    "name": "Outcome D2",

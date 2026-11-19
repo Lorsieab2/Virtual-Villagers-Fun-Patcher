@@ -152,7 +152,8 @@
      "mood": "good",
      "src": "L2011"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",
@@ -177,7 +178,8 @@
      "mood": "good",
      "src": "L2019"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Ending 3",
@@ -196,7 +198,8 @@
      "max": 15,
      "src": "L2023"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e4__text": {
    "name": "Ending 4",

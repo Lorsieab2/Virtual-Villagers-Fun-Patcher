@@ -104,7 +104,8 @@
      "max": 10,
      "src": "L20671"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -173,7 +174,8 @@
      "scaled": true,
      "src": "L20678"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "name": "Outcome C2",

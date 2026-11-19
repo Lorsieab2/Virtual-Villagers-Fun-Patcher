@@ -92,7 +92,8 @@
      "loss": true,
      "src": "L470"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "type": "branch",
@@ -130,7 +131,8 @@
      "mood": "good",
      "src": "L473"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",
@@ -144,7 +146,8 @@
      "loss": true,
      "src": "L473"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

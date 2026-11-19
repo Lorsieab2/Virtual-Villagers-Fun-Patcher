@@ -113,7 +113,8 @@
      "max": -10,
      "src": "L20444"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -142,7 +143,8 @@
      "max": 30,
      "src": "L20446"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -154,7 +156,8 @@
      "role": "patient",
      "src": "L20447"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -183,7 +186,8 @@
      "max": 10,
      "src": "L20449"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",
@@ -202,7 +206,8 @@
      "max": 15,
      "src": "L20443"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",

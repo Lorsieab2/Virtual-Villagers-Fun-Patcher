@@ -121,7 +121,8 @@
      "mood": "good",
      "src": "L542"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",

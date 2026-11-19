@@ -435,7 +435,8 @@
      "what": "crafting experience",
      "reason": "rule 8: no game has a Crafting skill"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "One villager trades an entire basket of food for a 'rare sacred pebble' that turns out to be ordinary stone.",
@@ -468,7 +469,8 @@
      "scaled": true,
      "src": "L9494"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b4": {
    "text": "A treasured family ornament vanishes amid the crowd. The search ends in recovery, an accusation, or an awkward discovery that its owner put it in the wrong basket.",
@@ -529,7 +531,8 @@
      "who": "all",
      "src": "L9503"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "Rain sweeps through the clearing. Potters rush to protect unfired work, while the weavers rescue their dyes and fibers. A hastily built shelter inspires a new communal structure.",
@@ -579,7 +582,8 @@
      "loss": true,
      "src": "L9513-9515"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_c": {
    "type": "branch",

@@ -187,7 +187,8 @@
      "scaled": true,
      "src": "L147"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -205,7 +206,8 @@
      "mood": "good",
      "src": "L154"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "name": "Outcome C2",
@@ -223,7 +225,8 @@
      "scaled": true,
      "src": "L156"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d1__text": {
    "name": "Outcome D1",

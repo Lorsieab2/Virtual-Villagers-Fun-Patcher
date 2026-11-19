@@ -98,7 +98,8 @@
      "mood": "good",
      "src": "L77"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",

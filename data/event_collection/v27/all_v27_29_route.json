@@ -104,7 +104,8 @@
      "scaled": true,
      "src": "L10716"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Outcome A",

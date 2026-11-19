@@ -486,7 +486,8 @@
      "mood": "good",
      "src": "L7219-7223"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_more__text": {
    "src": "L7219-7223",
@@ -502,7 +503,8 @@
      "mood": "good",
      "src": "L7231-7234"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3_more__text": {
    "src": "L7231-7234",
@@ -525,7 +527,8 @@
      "mood": "bad",
      "src": "L7267-7270"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c3_more__text": {
    "src": "L7267-7270",
@@ -548,7 +551,8 @@
      "scaled": true,
      "src": "L7272-7276"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d1_more__text": {
    "src": "L7272-7276",

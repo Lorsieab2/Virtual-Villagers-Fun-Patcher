@@ -479,7 +479,8 @@
      "max": 10,
      "src": "L2805"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "g2": {
    "src": "L2806-2807",
@@ -518,7 +519,8 @@
      "scaled": true,
      "src": "L2775"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "i1__text": {
    "src": "L2775",

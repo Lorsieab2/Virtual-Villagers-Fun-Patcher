@@ -169,7 +169,8 @@
     {
      "next": "pp"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_e": {
    "type": "branch",

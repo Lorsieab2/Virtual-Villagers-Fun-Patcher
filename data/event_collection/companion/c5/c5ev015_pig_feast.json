@@ -95,7 +95,8 @@
      "who": "all",
      "src": "L3428"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome A",

@@ -72,7 +72,8 @@
      "mood": "good",
      "src": "L7753-7755"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "scene__text": {
    "name": "The Little Healer",
@@ -86,7 +87,8 @@
      "max": 10,
      "src": "L7756"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

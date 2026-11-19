@@ -212,7 +212,8 @@
      "scaled": true,
      "src": "L32821"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",

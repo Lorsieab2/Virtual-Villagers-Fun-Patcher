@@ -138,7 +138,8 @@
      "scaled": true,
      "src": "L371"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Ending 2",
@@ -156,7 +157,8 @@
      "scaled": true,
      "src": "L375"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Ending 3",

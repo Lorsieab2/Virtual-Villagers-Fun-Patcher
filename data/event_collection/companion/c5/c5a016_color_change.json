@@ -126,7 +126,8 @@
      "max": 10,
      "src": "L428"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome 2",
@@ -156,7 +157,8 @@
      "scaled": true,
      "src": "L432"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o3__text": {
    "name": "Outcome 3",

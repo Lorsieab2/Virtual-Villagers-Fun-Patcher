@@ -154,7 +154,8 @@
      "scaled": true,
      "src": "L143"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome 1",

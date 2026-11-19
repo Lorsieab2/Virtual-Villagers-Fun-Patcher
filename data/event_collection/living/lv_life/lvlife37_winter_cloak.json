@@ -162,7 +162,8 @@
      "max": 10,
      "src": "L21116"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",
@@ -180,7 +181,8 @@
      "scaled": true,
      "src": "L21119"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",

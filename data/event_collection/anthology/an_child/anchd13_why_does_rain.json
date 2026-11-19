@@ -252,7 +252,8 @@
      "max": 10,
      "src": "L27755"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",

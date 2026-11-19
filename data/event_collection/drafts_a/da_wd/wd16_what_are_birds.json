@@ -88,7 +88,8 @@
      "mood": "good",
      "src": "L194"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",

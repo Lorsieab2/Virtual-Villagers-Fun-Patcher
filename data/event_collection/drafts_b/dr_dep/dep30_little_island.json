@@ -92,7 +92,8 @@
      "max": 15,
      "src": "L362"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",

@@ -262,7 +262,8 @@
      "mood": "good",
      "src": "L28169"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d1__text": {
    "name": "Outcome D1",

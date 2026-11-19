@@ -133,7 +133,8 @@
      "max": 15,
      "src": "L6848"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",
@@ -150,7 +151,8 @@
      "max": 10,
      "src": "L6848"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__fx": {
    "name": "Answer B",
@@ -164,7 +166,8 @@
      "max": 15,
      "src": "L6850"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",

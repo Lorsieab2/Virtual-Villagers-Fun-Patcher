@@ -103,7 +103,8 @@
      "mood": "good",
      "src": "L482"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",
@@ -128,7 +129,8 @@
      "mood": "good",
      "src": "L485"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",

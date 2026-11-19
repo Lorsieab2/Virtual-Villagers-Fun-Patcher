@@ -137,7 +137,8 @@
      "mood": "good",
      "src": "L4188"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome 1",

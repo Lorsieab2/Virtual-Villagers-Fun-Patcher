@@ -114,7 +114,8 @@
      "max": 10,
      "src": "L2713"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome 1",

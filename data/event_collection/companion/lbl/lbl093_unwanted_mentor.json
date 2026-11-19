@@ -129,7 +129,8 @@
      "mood": "good",
      "src": "L5029"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Outcome 3",

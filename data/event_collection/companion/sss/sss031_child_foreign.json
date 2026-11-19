@@ -101,7 +101,8 @@
      "mood": "good",
      "src": "L6388"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__text": {
    "name": "Answer C",

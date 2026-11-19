@@ -130,7 +130,8 @@
      "max": 10,
      "src": "L206,L207"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",

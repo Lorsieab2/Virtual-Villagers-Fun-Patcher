@@ -777,7 +777,8 @@
     {
      "next": "quiet"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "vil_rare": {
    "popup": "append",
@@ -815,7 +816,8 @@
     {
      "next": "quiet"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "iso": {
    "type": "branch",
@@ -861,7 +863,8 @@
     {
      "next": "quiet"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "iso_rare": {
    "popup": "append",
@@ -893,7 +896,8 @@
     {
      "next": "quiet"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "tro": {
    "type": "branch",
@@ -959,7 +963,8 @@
     {
      "next": "quiet"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "show": {
    "type": "branch",
@@ -1055,7 +1060,8 @@
      "max": 10,
      "src": "L2226-2236"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "exchange__text": {
    "src": "L2226-2236",
@@ -1087,7 +1093,8 @@
      "mood": "good",
      "src": "L2283-2285"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "v1__text": {
    "src": "L2283-2285",
@@ -1119,7 +1126,8 @@
      "mood": "good",
      "src": "L2289-2290"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "v3__text": {
    "src": "L2289-2290",
@@ -1153,7 +1161,8 @@
      "scaled": true,
      "src": "L2360-2368"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "show_end__text": {
    "name": "The shared showcase",

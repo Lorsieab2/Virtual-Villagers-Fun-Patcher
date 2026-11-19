@@ -220,7 +220,8 @@
      "mood": "good",
      "src": "L31113"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",

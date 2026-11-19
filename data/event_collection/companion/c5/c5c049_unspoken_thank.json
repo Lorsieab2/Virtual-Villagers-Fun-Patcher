@@ -99,7 +99,8 @@
      "mood": "good",
      "src": "L2635"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",

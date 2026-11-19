@@ -104,7 +104,8 @@
      "scaled": true,
      "src": "L2901"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome 1",

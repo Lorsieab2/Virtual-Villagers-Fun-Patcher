@@ -118,7 +118,8 @@
      "mood": "good",
      "src": "L302"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",
@@ -135,7 +136,8 @@
      "max": 10,
      "src": "L302"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__fx": {
    "name": "Outcome B",
@@ -158,7 +160,8 @@
      "mood": "good",
      "src": "L305"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",

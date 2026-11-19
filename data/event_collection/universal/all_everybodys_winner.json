@@ -700,7 +700,8 @@
      "what": "Learning experience",
      "reason": "rule 8: no game has a Learning skill; the source's alternative, Research, is given"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "rid_t": {
    "name": "The ending",
@@ -712,7 +713,8 @@
      "scaled": true,
      "src": "L1821"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "qu_r": {
    "name": "The ending",
@@ -735,7 +737,8 @@
      "what": "Learning experience",
      "reason": "rule 8: no game has a Learning skill; the source's alternative, Research, is given"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "qu_t": {
    "name": "The ending",
@@ -747,7 +750,8 @@
      "scaled": true,
      "src": "L1821"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "sa1__fx": {
    "src": "L1715-1716",
@@ -764,7 +768,8 @@
      "mood": "good",
      "src": "L1715-1716"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "sa1__text": {
    "src": "L1715-1716",
@@ -790,7 +795,8 @@
      "mood": "good",
      "src": "L1749-1750"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "mu1__text": {
    "src": "L1749-1750",

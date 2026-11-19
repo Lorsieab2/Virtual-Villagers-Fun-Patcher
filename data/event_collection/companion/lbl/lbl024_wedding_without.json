@@ -146,7 +146,8 @@
      "mood": "good",
      "src": "L4106"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome 1",

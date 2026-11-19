@@ -471,7 +471,8 @@
      "scaled": true,
      "src": "L5551-5552"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "t2__text": {
    "src": "L5551-5552",
@@ -497,7 +498,8 @@
      "mood": "bad",
      "src": "L5561-5562"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "w1__text": {
    "src": "L5561-5562",

@@ -249,7 +249,8 @@
      "mood": "good",
      "src": "L27390"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2__text": {
    "name": "Outcome D2",

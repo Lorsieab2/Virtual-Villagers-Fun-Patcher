@@ -111,7 +111,8 @@
      "mood": "good",
      "src": "L10742"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__text": {
    "name": "Outcome C",

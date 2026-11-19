@@ -142,7 +142,8 @@
      "scaled": true,
      "src": "L903"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome 1",

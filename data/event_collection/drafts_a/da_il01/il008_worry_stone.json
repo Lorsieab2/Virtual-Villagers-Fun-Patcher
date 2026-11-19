@@ -92,7 +92,8 @@
      "mood": "good",
      "src": "L104"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",

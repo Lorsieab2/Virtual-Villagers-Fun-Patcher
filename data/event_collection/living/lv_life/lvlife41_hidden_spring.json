@@ -94,7 +94,8 @@
      "loss": true,
      "src": "L21165"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -163,7 +164,8 @@
      "scaled": true,
      "src": "L21168"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",

@@ -111,7 +111,8 @@
      "mood": "good",
      "src": "L6636"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__text": {
    "name": "Answer C",

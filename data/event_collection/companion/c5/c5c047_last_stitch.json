@@ -113,7 +113,8 @@
      "max": 10,
      "src": "L2611"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",
@@ -135,7 +136,8 @@
      "mood": "good",
      "src": "L2612"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Ending 2",

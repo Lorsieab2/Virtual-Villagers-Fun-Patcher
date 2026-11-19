@@ -345,7 +345,8 @@
      "what": "exploration progress",
      "reason": "rule 8: no game has exploration progress"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4": {
    "type": "branch",
@@ -526,7 +527,8 @@
      "what": "Artistic skill",
      "reason": "rule 8: no game has an Artistic skill"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2": {
    "type": "branch",
@@ -910,7 +912,8 @@
      "mood": "good",
      "src": "L9585-9587"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4__text": {
    "text": "(Artist) paints a magnificent beach but places the waterfall on the wrong side. The judges praise the technique while the audience laughs at the geography.",
@@ -949,7 +952,8 @@
      "mood": "good",
      "src": "L9598-9600"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b4__text": {
    "text": "A portrait of a lonely villager prompts a warm conversation. The prize is modest, but both villagers gain friendship.",
@@ -982,7 +986,8 @@
      "mood": "bad",
      "src": "L9618-9620"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2__text": {
    "text": "The colors run together into a muddy smear. A judge politely describes it as \"energetic.\" (Artist) receives no prize and a little embarrassment.",

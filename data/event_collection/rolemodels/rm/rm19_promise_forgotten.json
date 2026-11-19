@@ -180,7 +180,8 @@
      "mood": "good",
      "src": "L41"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2__text": {
    "name": "Outcome B2",

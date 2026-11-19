@@ -113,7 +113,8 @@
      "max": 10,
      "src": "L6148"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -146,7 +147,8 @@
      "max": 15,
      "src": "L6150"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__text": {
    "name": "Answer C",

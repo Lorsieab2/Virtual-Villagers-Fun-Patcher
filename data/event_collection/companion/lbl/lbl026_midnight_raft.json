@@ -131,7 +131,8 @@
      "max": -10,
      "src": "L4137"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",
@@ -150,7 +151,8 @@
      "reason": "missing is not dead (L3784): the teen vanishes, no death and no grave",
      "src": "L4138"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__fx": {
    "name": "Outcome 1",
@@ -178,7 +180,8 @@
      "max": -5,
      "src": "L4136"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome 1",

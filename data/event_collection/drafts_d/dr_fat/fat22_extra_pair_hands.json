@@ -263,7 +263,8 @@
      "max": 10,
      "src": "L463"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -285,7 +286,8 @@
      "max": 10,
      "src": "L464"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__text": {
    "name": "Outcome A2",
@@ -307,7 +309,8 @@
      "max": 10,
      "src": "L469"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",

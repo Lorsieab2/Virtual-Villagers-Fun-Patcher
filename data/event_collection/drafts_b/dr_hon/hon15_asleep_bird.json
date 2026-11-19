@@ -123,7 +123,8 @@
      "max": 15,
      "src": "L182"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",
@@ -137,7 +138,8 @@
      "loss": true,
      "src": "L182"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__fx": {
    "name": "Outcome B",
@@ -157,7 +159,8 @@
      "mood": "good",
      "src": "L185"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",
@@ -171,7 +174,8 @@
      "loss": true,
      "src": "L185"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

@@ -116,7 +116,8 @@
      "mood": "good",
      "src": "L1236"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",

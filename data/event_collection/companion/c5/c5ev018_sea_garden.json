@@ -104,7 +104,8 @@
      "scaled": true,
      "src": "L3449"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome A",
@@ -136,7 +137,8 @@
      "scaled": true,
      "src": "L3450"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Outcome B",
@@ -155,7 +157,8 @@
      "max": 10,
      "src": "L3450"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

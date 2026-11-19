@@ -209,7 +209,8 @@
      "mood": "good",
      "src": "L29734"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",
@@ -227,7 +228,8 @@
      "mood": "good",
      "src": "L29737"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d1__text": {
    "name": "Outcome D1",

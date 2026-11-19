@@ -85,7 +85,8 @@
      "scaled": true,
      "src": "L482"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "type": "branch",
@@ -116,7 +117,8 @@
      "mood": "bad",
      "src": "L485"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",

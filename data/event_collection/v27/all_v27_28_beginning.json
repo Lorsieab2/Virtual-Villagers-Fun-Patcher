@@ -104,7 +104,8 @@
      "mood": "good",
      "src": "L10709"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Outcome B",

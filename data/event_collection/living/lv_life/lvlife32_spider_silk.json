@@ -151,7 +151,8 @@
      "scaled": true,
      "src": "L21048"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",

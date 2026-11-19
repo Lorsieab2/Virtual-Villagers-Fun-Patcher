@@ -107,7 +107,8 @@
      "max": -5,
      "src": "L134"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",
@@ -119,7 +120,8 @@
      "who": "subject",
      "src": "L134"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__fx": {
    "name": "Answer B",
@@ -132,7 +134,8 @@
      "mood": "good",
      "src": "L137"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",

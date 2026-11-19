@@ -102,7 +102,8 @@
      "mood": "bad",
      "src": "L218"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",

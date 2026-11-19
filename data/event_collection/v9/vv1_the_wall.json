@@ -713,7 +713,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "u_plain": {
    "name": "Unresolved",
@@ -751,7 +752,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "reconcile": {
    "type": "branch",
@@ -799,7 +801,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "r_plain": {
    "name": "Reconciliation",
@@ -837,7 +840,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "coda_r1": {
    "popup": "append",
@@ -1015,7 +1019,8 @@
      "mood": "bad",
      "src": "L4670-4671"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "s2__text": {
    "popup": "append",

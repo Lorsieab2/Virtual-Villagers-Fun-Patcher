@@ -181,7 +181,8 @@
      "max": -10,
      "src": "L20593"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__fx": {
    "name": "Outcome A1",
@@ -195,7 +196,8 @@
      "max": 15,
      "src": "L20586"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -213,7 +215,8 @@
      "mood": "bad",
      "src": "L20587"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__text": {
    "name": "Outcome A2",
@@ -232,7 +235,8 @@
      "max": 15,
      "src": "L20592"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",

@@ -91,7 +91,8 @@
      "preference": "herbs",
      "src": "L2696"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",

@@ -569,7 +569,8 @@
      "max": 10,
      "src": "L2487"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "g2__fx": {
    "popup": "append",
@@ -588,7 +589,8 @@
      "mood": "good",
      "src": "L2459-2460"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "g2__text": {
    "popup": "append",

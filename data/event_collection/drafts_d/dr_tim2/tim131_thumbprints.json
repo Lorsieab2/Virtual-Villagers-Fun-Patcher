@@ -136,7 +136,8 @@
      "max": 10,
      "src": "L45,L46"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",

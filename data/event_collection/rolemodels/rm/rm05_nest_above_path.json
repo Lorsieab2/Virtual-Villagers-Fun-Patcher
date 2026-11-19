@@ -180,7 +180,8 @@
      "scaled": true,
      "src": "L13"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",

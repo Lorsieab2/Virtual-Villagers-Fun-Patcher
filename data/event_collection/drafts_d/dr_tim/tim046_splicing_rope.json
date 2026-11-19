@@ -156,7 +156,8 @@
      "max": 10,
      "src": "L771"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",
@@ -184,7 +185,8 @@
      "mood": "good",
      "src": "L775"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Ending 2",
@@ -206,7 +208,8 @@
      "max": 10,
      "src": "L779"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Ending 3",
@@ -228,7 +231,8 @@
      "max": 10,
      "src": "L783"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e4__text": {
    "name": "Ending 4",

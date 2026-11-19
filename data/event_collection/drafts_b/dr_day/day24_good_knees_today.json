@@ -100,7 +100,8 @@
      "max": -5,
      "src": "L290"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",
@@ -112,7 +113,8 @@
      "who": "subject",
      "src": "L290"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

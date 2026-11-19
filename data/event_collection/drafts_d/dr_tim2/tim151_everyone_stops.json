@@ -126,7 +126,8 @@
      "mood": "good",
      "src": "L185,L189"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e4__text": {
    "name": "Ending 4",

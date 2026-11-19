@@ -343,7 +343,8 @@
      "max": 20,
      "src": "L6705"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4": {
    "type": "branch",
@@ -428,7 +429,8 @@
      "max": 20,
      "src": "L6761"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b6": {
    "name": "B6",
@@ -527,7 +529,8 @@
      "scaled": true,
      "src": "L6683-6687"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "A1",
@@ -545,7 +548,8 @@
      "max": 10,
      "src": "L6688"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4__fx": {
    "name": "A4",
@@ -558,7 +562,8 @@
      "mood": "good",
      "src": "L6708-6712"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4__text": {
    "name": "A4",
@@ -586,7 +591,8 @@
      "scaled": true,
      "src": "L6716-6720"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a5__text": {
    "name": "A5",
@@ -603,7 +609,8 @@
      "max": 20,
      "src": "L6721"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__fx": {
    "name": "C1",
@@ -627,7 +634,8 @@
      "scaled": true,
      "src": "L6772-6775"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "C1",
@@ -645,7 +653,8 @@
      "max": 10,
      "src": "L6776"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c3__fx": {
    "name": "C3",
@@ -675,7 +684,8 @@
      "mood": "good",
      "src": "L6787-6792"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c3__text": {
    "name": "C3",
@@ -693,7 +703,8 @@
      "max": 10,
      "src": "L6793"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c4__fx": {
    "name": "C4",
@@ -722,7 +733,8 @@
      "mood": "bad",
      "src": "L6796-6800"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c4__text": {
    "name": "C4",
@@ -739,7 +751,8 @@
      "max": 20,
      "src": "L6801"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

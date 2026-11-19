@@ -110,7 +110,8 @@
      "reason": "the adept collapses from exhaustion, not a structure",
      "src": "L22707"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -202,7 +203,8 @@
      "scaled": true,
      "src": "L22711"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2__text": {
    "name": "Outcome B2",

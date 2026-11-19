@@ -122,7 +122,8 @@
      "mood": "bad",
      "src": "L326"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",
@@ -136,7 +137,8 @@
      "loss": true,
      "src": "L326"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__fx": {
    "name": "Outcome B",
@@ -156,7 +158,8 @@
      "mood": "good",
      "src": "L329"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",
@@ -170,7 +173,8 @@
      "loss": true,
      "src": "L329"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

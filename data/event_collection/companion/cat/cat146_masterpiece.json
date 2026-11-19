@@ -116,7 +116,8 @@
      "scaled": true,
      "src": "L8852"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",

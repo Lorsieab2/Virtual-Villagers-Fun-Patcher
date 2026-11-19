@@ -89,7 +89,8 @@
      "max": 10,
      "src": "L8938"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -119,7 +120,8 @@
      "mood": "bad",
      "src": "L8940"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__text": {
    "name": "Answer C",

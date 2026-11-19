@@ -294,7 +294,8 @@
     {
      "next": "end"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "m2": {
    "src": "L2963-2965",
@@ -324,7 +325,8 @@
      "max": 10,
      "src": "L2966-2967"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "m4": {
    "src": "L2968-2969",
@@ -345,7 +347,8 @@
      "max": 10,
      "src": "L2968-2969"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "talk": {
    "type": "branch",
@@ -479,7 +482,8 @@
      "scaled": true,
      "src": "L2955-2956"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "n3__text": {
    "src": "L2955-2956",
@@ -514,7 +518,8 @@
      "mood": "good",
      "src": "L2982-2983"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "popup": "append",
@@ -534,7 +539,8 @@
      "scaled": true,
      "src": "L2984-2985"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "popup": "append",

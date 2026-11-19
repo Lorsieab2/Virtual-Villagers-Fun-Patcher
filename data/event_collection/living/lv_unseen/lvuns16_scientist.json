@@ -120,7 +120,8 @@
      "max": 10,
      "src": "L22381"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -157,7 +158,8 @@
      "role": "scientist",
      "src": "L22385"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

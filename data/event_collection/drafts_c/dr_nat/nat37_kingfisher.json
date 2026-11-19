@@ -110,7 +110,8 @@
      "mood": "good",
      "src": "L440"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",
@@ -132,7 +133,8 @@
      "max": 10,
      "src": "L443"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",

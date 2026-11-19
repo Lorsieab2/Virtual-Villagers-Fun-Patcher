@@ -154,7 +154,8 @@
      "scaled": true,
      "src": "L375"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",

@@ -130,7 +130,8 @@
      "mood": "good",
      "src": "L363"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",

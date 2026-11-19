@@ -756,7 +756,8 @@
      "max": -40,
      "src": "L1609-1610"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "death": {
    "type": "branch",
@@ -809,7 +810,8 @@
      "max": 20,
      "src": "L1656"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "after_research": {
    "popup": "append",
@@ -836,7 +838,8 @@
      "max": 10,
      "src": "L1656"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "after_tech": {
    "popup": "append",
@@ -849,7 +852,8 @@
      "scaled": true,
      "src": "L1657"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "pair1": {
    "type": "branch",
@@ -956,7 +960,8 @@
     {
      "next": "rewards"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "recovery__text": {
    "name": "Full recovery",
@@ -973,7 +978,8 @@
     {
      "next": "rewards"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "death__fx": {
    "name": "Death",
@@ -1003,7 +1009,8 @@
     {
      "next": "rewards"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "death__text": {
    "name": "Death",
@@ -1021,7 +1028,8 @@
     {
      "next": "rewards"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

@@ -171,7 +171,8 @@
      "mood": "bad",
      "src": "L21260"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -189,7 +190,8 @@
      "scaled": true,
      "src": "L21267"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "name": "Outcome C2",

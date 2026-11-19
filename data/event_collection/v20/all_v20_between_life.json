@@ -372,7 +372,8 @@
      "what": "lasting weakness and breathlessness",
      "reason": "rule 9: no lasting weakness state; the dislike of running is the game's own preference"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "text": "Consciousness returns just long enough for (Patient) to speak final words to a loved one, then (patient.he/she) dies.",
@@ -384,7 +385,8 @@
      "cause": "unknown",
      "src": "L9103"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4": {
    "text": "(Patient) dies despite the healers' efforts.",
@@ -396,7 +398,8 @@
      "cause": "unknown",
      "src": "L9104"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_a": {
    "type": "branch",
@@ -463,7 +466,8 @@
      "max": -10,
      "src": "L9111"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b4": {
    "text": "Flowers bloom, but (Patient) dies.",
@@ -475,7 +479,8 @@
      "cause": "unknown",
      "src": "L9113"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_b": {
    "type": "branch",
@@ -533,7 +538,8 @@
      "max": -10,
      "src": "L9120"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c4": {
    "text": "The ritual fails and (Patient) dies.",
@@ -545,7 +551,8 @@
      "cause": "unknown",
      "src": "L9122"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_c": {
    "type": "branch",
@@ -579,7 +586,8 @@
      "who": "all",
      "src": "L9126"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2": {
    "text": "(Patient) briefly awakens to give a blessing and then dies. The words enter the village's oral history.",
@@ -591,7 +599,8 @@
      "cause": "unknown",
      "src": "L9128"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d3": {
    "text": "The patient lies in a deathlike stillness until sunrise, then awakens.",
@@ -614,7 +623,8 @@
      "cause": "unknown",
      "src": "L9131"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_d": {
    "type": "branch",
@@ -670,7 +680,8 @@
      "max": -10,
      "src": "L9136"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "text": "The improvised effort buys time for a master healer to stabilize (Patient).",
@@ -693,7 +704,8 @@
      "cause": "unknown",
      "src": "L9140"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_e": {
    "type": "branch",
@@ -762,7 +774,8 @@
      "cause": "unknown",
      "src": "L9151"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "f5": {
    "text": "(Patient) survives and claims to recall dying, causing scholarly and spiritual controversy.",
@@ -840,7 +853,8 @@
      "what": "permanent limitations",
      "reason": "rule 9: no lasting limitation state"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "g3": {
    "text": "The patient enters suspended animation; days later (patient.he/she) awakens.",
@@ -863,7 +877,8 @@
      "cause": "unknown",
      "src": "L9163"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "g5": {
    "text": "(Patient) survives, but the healers cannot tell whether their intervention was responsible.",
@@ -943,7 +958,8 @@
      "max": 15,
      "src": "L9107-9108"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "text": "Flowers open around (Patient), whose breathing returns; (patient.he/she) recovers completely.",
@@ -960,7 +976,8 @@
      "max": 15,
      "src": "L9134-9135"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "text": "An apprentice improvises a rescue with available supplies and skilled guidance; (Patient) fully recovers.",
@@ -977,7 +994,8 @@
      "max": 15,
      "src": "L9149-9150"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "f3__text": {
    "text": "(Patient) recovers fully, but the healer who saved (patient.him/her) is accused of violating sacred laws.",
@@ -1000,7 +1018,8 @@
      "max": 15,
      "src": "L9157"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "g1__text": {
    "text": "(Patient) recovers fully.",
@@ -1012,7 +1031,8 @@
      "scaled": true,
      "src": "L9157"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_h__fx": {
    "text": "Careful treatment stabilizes (Patient); (patient.he/she) eventually recovers fully.",
@@ -1035,7 +1055,8 @@
      "max": 15,
      "src": "L9098-9099"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_h__text": {
    "text": "Careful treatment stabilizes (Patient); (patient.he/she) eventually recovers fully.",
@@ -1051,7 +1072,8 @@
      "max": 20,
      "src": "L9099"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_n__fx": {
    "text": "Careful treatment stabilizes (Patient); (patient.he/she) eventually recovers fully.",
@@ -1071,7 +1093,8 @@
      "max": 15,
      "src": "L9098-9099"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_n__text": {
    "text": "Careful treatment stabilizes (Patient); (patient.he/she) eventually recovers fully.",

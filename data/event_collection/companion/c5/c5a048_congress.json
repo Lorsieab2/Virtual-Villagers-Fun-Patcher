@@ -149,7 +149,8 @@
      "scaled": true,
      "src": "L1108"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome 1",
@@ -167,7 +168,8 @@
      "scaled": true,
      "src": "L1112"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o3__text": {
    "name": "Outcome 3",

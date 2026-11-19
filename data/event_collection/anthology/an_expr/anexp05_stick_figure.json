@@ -220,7 +220,8 @@
      "mood": "good",
      "src": "L31320"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2__text": {
    "name": "Outcome B2",

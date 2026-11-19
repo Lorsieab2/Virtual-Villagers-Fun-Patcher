@@ -142,7 +142,8 @@
      "scaled": true,
      "src": "L862"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o3__text": {
    "name": "Outcome 3",

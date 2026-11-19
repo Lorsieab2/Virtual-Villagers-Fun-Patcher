@@ -114,7 +114,8 @@
      "mood": "good",
      "src": "L344"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",
@@ -126,7 +127,8 @@
      "who": "friend",
      "src": "L344"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__fx": {
    "name": "Outcome B",
@@ -139,7 +141,8 @@
      "mood": "good",
      "src": "L347"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",

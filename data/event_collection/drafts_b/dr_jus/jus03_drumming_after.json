@@ -109,7 +109,8 @@
      "max": 15,
      "src": "L41"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",

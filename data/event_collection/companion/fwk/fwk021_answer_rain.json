@@ -206,7 +206,8 @@
      "mood": "good",
      "src": "L5641"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__text": {
    "name": "Answer C",

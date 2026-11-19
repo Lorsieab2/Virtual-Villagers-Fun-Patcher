@@ -151,7 +151,8 @@
      "who": "men2",
      "src": "L437"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "setup_f": {
    "type": "question",
@@ -198,7 +199,8 @@
      "who": "women2",
      "src": "L437"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1_m__fx": {
    "name": "Outcome A",
@@ -222,7 +224,8 @@
      "scaled": true,
      "src": "L434"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1_m__text": {
    "name": "Outcome A",
@@ -239,7 +242,8 @@
      "who": "men2",
      "src": "L434"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1_f__fx": {
    "name": "Outcome A",
@@ -263,7 +267,8 @@
      "scaled": true,
      "src": "L434"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1_f__text": {
    "name": "Outcome A",
@@ -280,7 +285,8 @@
      "who": "women2",
      "src": "L434"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

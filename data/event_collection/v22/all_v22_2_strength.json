@@ -463,7 +463,8 @@
      "what": "Physical skill",
      "reason": "rule 8: no game has a Physical skill"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c3": {
    "text": "The log sinks into soft sand. (Strongman) and a rival must work together to free it.",
@@ -528,7 +529,8 @@
      "what": "Physical skill",
      "reason": "rule 8: no game has a Physical skill"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2": {
    "type": "branch",
@@ -987,7 +989,8 @@
      "mood": "good",
      "src": "L9646-9648"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__text": {
    "text": "(Strongman) uses a huge woven carrier and wins. The judges argue whether cleverness counts. The elders decide either to honor the feat or to introduce a separate ingenuity prize.",
@@ -1013,7 +1016,8 @@
      "mood": "good",
      "src": "L9652-9653"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4__text": {
    "text": "A rival starts with more coconuts but drops them. (Strongman)'s slower, steadier effort wins the contest.",
@@ -1039,7 +1043,8 @@
      "mood": "bad",
      "src": "L9683-9685"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2__text": {
    "text": "The volunteer offers nonstop advice about posture and foot placement. (Strongman) finishes but is thoroughly embarrassed; the audience is delighted.",

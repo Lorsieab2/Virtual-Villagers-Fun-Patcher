@@ -151,7 +151,8 @@
      "head": "random",
      "src": "L108"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -199,7 +200,8 @@
      "mood": "good",
      "src": "L107"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -212,7 +214,8 @@
      "head": "random",
      "src": "L107"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__fx": {
    "name": "Outcome B1",
@@ -225,7 +228,8 @@
      "mood": "good",
      "src": "L110"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",

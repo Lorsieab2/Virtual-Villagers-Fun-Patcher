@@ -19,6 +19,7 @@ fails a file that lacks one (`check_outcome_effects`).  Nothing here changes any
 from __future__ import annotations
 
 import json
+import re
 import sys
 from functools import lru_cache
 from pathlib import Path
@@ -106,9 +107,51 @@ def split(doc: dict, nid: str) -> dict | None:
     return nodes[fx_id(nid)]
 
 
+# The owner (2026-11-18): "if an effect happens, it should say at the end of the event popup" -- always, on every
+# added event, old effects and new: each node with an effect shows the engine's result lines (cie-v6-binary.md 25,
+# "auto_text").  A death or a disappearance takes its other wording from the page's own words (the "line" key):
+# "<R> suffers fatal injuries." where the text tells of an accident or injury, "<R> leaves the village." where the
+# villager goes of their own accord.
+LEAVES = re.compile(r"\b(leaves?|left|leaving|depart\w*|goes? away|went away|sets? (?:out|off|sail)|set (?:out|off)"
+                    r"|sails? away|sailed away|walks? away|walked away|moves? away|chooses? to go|decides? to go"
+                    r"|goes? to live|says? goodbye|bids? farewell)\b", re.I)
+INJURIES = re.compile(r"\b(falls?|fell|fallen|injur\w*|wound\w*|accident\w*|crush\w*|struck|drown\w*|tumbl\w*"
+                      r"|slips?|slipped|collaps\w*|landslide|rockfall|broken|gored|mauled|burn(?:s|ed|t)?)\b", re.I)
+
+
+def _page_words(node: dict) -> str:
+    return " ".join([node.get("text") or ""] + [v.get("text") or "" for v in node.get("variants") or []])
+
+
+def wording(node: dict, e: dict) -> str | None:
+    """The other wording a kill / vanish on this page takes from the page's own words, or None."""
+    if e.get("do") == "kill" and INJURIES.search(_page_words(node)):
+        return "injuries"
+    if e.get("do") == "vanish" and LEAVES.search(_page_words(node)) and \
+            not re.search(r"\b(missing|lost|taken|swept|never found)\b", _page_words(node), re.I):
+        return "leaves"
+    return None
+
+
+def finish(doc: dict) -> dict:
+    """Every page with an effect shows its result lines; a kill / vanish gets the page's wording."""
+    for node in doc.get("nodes", {}).values():
+        effects = node.get("effects") or []
+        if not effects or node.get("type") in ("question", "branch"):
+            continue
+        node["auto_text"] = True
+        for e in effects:
+            w = wording(node, e)
+            if w:
+                e["line"] = w
+            else:
+                e.pop("line", None)
+    return doc
+
+
 def apply(doc: dict, path: Path) -> dict:
-    """Add each listed effect, at 50%, that its node does not hold yet (idempotent).  A missing node is left to the
-    check."""
+    """Add each listed effect, at 50%, that its node does not hold yet (idempotent), then finish the file.  A
+    missing node is left to the check."""
     for nid, e in wanted(doc, path):
         node = split(doc, nid)
         if node is None:
@@ -116,7 +159,11 @@ def apply(doc: dict, path: Path) -> dict:
         effects = node.setdefault("effects", [])
         if e not in effects:
             effects.append(e)
-    return doc
+    try:
+        rel(path)
+    except ValueError:
+        return doc
+    return finish(doc) if doc.get("format") == "vvfp-cie-graph" else doc
 
 
 def missing(doc: dict, path: Path) -> list[str]:
@@ -135,6 +182,14 @@ def missing(doc: dict, path: Path) -> list[str]:
                        "(python scripts/outcome_effects.py)")
         elif e in (plain.get("effects") or []):
             out.append(f"node {nid}: the text-only copy {text_id(nid)} holds the added effect")
+    try:
+        rel(path)
+    except ValueError:
+        return out                     # a file outside the collection (a test's own): its author's choice
+    if doc.get("format") == "vvfp-cie-graph" and \
+            json.dumps(finish(json.loads(json.dumps(doc))), sort_keys=True) != json.dumps(doc, sort_keys=True):
+        out.append("a page with an effect lacks its result lines (auto_text) or a death / leaving wording "
+                   "(python scripts/outcome_effects.py)")
     return out
 
 
@@ -143,10 +198,10 @@ def main() -> int:
     import collection_check as cc  # noqa: E402
     n = 0
     for f in sorted(table()):
-        p = COLLECTION_DIR / f
-        if not p.exists():
+        if not (COLLECTION_DIR / f).exists():
             print(f"MISSING {f}")
-            continue
+    for p in cc.collection_files():
+        f = rel(p)
         doc = json.loads(p.read_text(encoding="utf-8"))
         text = cc.canonical(apply(doc, p))
         if text != p.read_text(encoding="utf-8"):

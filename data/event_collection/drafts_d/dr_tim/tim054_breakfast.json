@@ -177,7 +177,8 @@
      "max": 10,
      "src": "L903"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",
@@ -205,7 +206,8 @@
      "max": 10,
      "src": "L907"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Ending 2",

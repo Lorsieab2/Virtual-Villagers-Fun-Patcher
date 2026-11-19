@@ -100,7 +100,8 @@
      "loss": true,
      "src": "L20814"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -146,7 +147,8 @@
      "loss": true,
      "src": "L20818"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -188,7 +190,8 @@
      "scaled": true,
      "src": "L20817"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",
@@ -207,7 +210,8 @@
      "scaled": true,
      "src": "L20821"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "name": "Outcome C2",

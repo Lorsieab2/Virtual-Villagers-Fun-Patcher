@@ -120,7 +120,8 @@
      "max": -10,
      "src": "L10926"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c_missing": {
    "name": "Outcome C: missing",
@@ -144,7 +145,8 @@
      "role": "diver",
      "src": "L10926"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c_fatal": {
    "name": "Outcome C: fatal",
@@ -163,9 +165,11 @@
      "do": "kill",
      "role": "diver",
      "cause": "unknown",
-     "src": "L10926"
+     "src": "L10926",
+     "line": "injuries"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -210,7 +214,8 @@
      "scaled": true,
      "src": "L10925"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Outcome B",
@@ -229,7 +234,8 @@
      "max": 10,
      "src": "L10925"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

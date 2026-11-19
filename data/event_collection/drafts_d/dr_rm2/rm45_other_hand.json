@@ -181,7 +181,8 @@
      "scaled": true,
      "src": "L78"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",

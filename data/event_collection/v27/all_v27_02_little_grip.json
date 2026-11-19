@@ -103,7 +103,8 @@
      "max": 10,
      "src": "L10502"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__fx": {
    "name": "Outcome B",
@@ -128,7 +129,8 @@
      "mood": "good",
      "src": "L10501"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Outcome B",
@@ -147,7 +149,8 @@
      "max": 10,
      "src": "L10501"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

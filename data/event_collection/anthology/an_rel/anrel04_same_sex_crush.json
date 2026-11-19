@@ -420,7 +420,8 @@
      "mood": "good",
      "src": "L27069"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2_m__text": {
    "name": "Outcome B2",
@@ -444,7 +445,8 @@
      "mood": "good",
      "src": "L27069"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2_f__text": {
    "name": "Outcome B2",

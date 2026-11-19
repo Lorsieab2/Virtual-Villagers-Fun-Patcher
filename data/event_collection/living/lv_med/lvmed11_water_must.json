@@ -133,7 +133,8 @@
      "role": "patient",
      "src": "L20356"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -162,7 +163,8 @@
      "max": 10,
      "src": "L20358"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "type": "branch",
@@ -188,7 +190,8 @@
      "max": 15,
      "src": "L20355"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",
@@ -206,7 +209,8 @@
      "scaled": true,
      "src": "L20359"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "name": "Outcome C2",

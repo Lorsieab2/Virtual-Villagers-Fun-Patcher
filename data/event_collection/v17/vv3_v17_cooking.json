@@ -173,7 +173,8 @@
     {
      "next": "u"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "src": "L8229-8230",
@@ -462,7 +463,8 @@
      "who": "all",
      "src": "L8227"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2__text": {
    "src": "L8227",

@@ -113,7 +113,8 @@
      "max": 10,
      "src": "L4763"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "name": "Outcome 2",
@@ -127,7 +128,8 @@
      "max": -10,
      "src": "L4764"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",
@@ -146,7 +148,8 @@
      "reason": "missing is not dead (L3784): the explorer vanishes, no death and no grave; the search is text",
      "src": "L4765"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

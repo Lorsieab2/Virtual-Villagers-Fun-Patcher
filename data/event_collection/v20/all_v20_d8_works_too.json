@@ -78,7 +78,8 @@
      "max": -10,
      "src": "L9050"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "text": "The village begins overusing it.",
@@ -150,7 +151,8 @@
      "scaled": true,
      "src": "L9052-9053"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "text": "The cause of the drowsiness is discovered.",
@@ -166,7 +168,8 @@
      "scaled": true,
      "src": "L9052-9053"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3__text": {
    "text": "A safer remedy is found.",

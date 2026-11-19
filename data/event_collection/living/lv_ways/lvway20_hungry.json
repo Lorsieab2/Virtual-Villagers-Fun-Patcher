@@ -106,7 +106,8 @@
      "loss": true,
      "src": "L23011"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "type": "branch",
@@ -171,7 +172,8 @@
      "who": "all",
      "src": "L23017"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",
@@ -204,7 +206,8 @@
      "scaled": true,
      "src": "L23020"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2": {
    "name": "Outcome D2",
@@ -218,7 +221,8 @@
      "loss": true,
      "src": "L23021"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__fx": {
    "name": "Outcome A2",
@@ -231,7 +235,8 @@
      "scaled": true,
      "src": "L23012"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__text": {
    "name": "Outcome A2",

@@ -90,7 +90,8 @@
      "max": 10,
      "src": "L8612"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -135,7 +136,8 @@
      "scaled": true,
      "src": "L8614"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",
@@ -152,7 +154,8 @@
      "max": 10,
      "src": "L8614"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

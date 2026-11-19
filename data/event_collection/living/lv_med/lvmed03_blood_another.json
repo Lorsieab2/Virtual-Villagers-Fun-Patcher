@@ -108,7 +108,8 @@
      "max": -10,
      "src": "L20248"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -142,7 +143,8 @@
      "max": 30,
      "src": "L20251"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -153,9 +155,11 @@
      "do": "kill",
      "role": "patient",
      "cause": "unknown",
-     "src": "L20252"
+     "src": "L20252",
+     "line": "injuries"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -184,7 +188,8 @@
      "max": 10,
      "src": "L20254"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "type": "branch",
@@ -209,7 +214,8 @@
      "scaled": true,
      "src": "L20255"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "name": "Outcome C2",

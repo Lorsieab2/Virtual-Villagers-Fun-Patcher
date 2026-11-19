@@ -94,7 +94,8 @@
      "max": 10,
      "src": "L8724"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d": {
    "type": "branch",
@@ -119,7 +120,8 @@
      "scaled": true,
      "src": "L8726"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d__text": {
    "name": "Answer D",

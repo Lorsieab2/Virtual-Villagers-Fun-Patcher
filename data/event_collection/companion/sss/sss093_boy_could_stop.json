@@ -88,7 +88,8 @@
      "max": 10,
      "src": "L7028"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Answer B",
@@ -105,7 +106,8 @@
      "max": 10,
      "src": "L7030"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Answer C",
@@ -122,7 +124,8 @@
      "max": 10,
      "src": "L7032"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

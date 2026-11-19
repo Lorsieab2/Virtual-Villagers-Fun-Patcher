@@ -130,7 +130,8 @@
      "max": 30,
      "src": "L20433"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -170,7 +171,8 @@
      "mood": "good",
      "src": "L20430"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",

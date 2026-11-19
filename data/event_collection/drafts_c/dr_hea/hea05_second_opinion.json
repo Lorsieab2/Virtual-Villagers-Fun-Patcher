@@ -126,7 +126,8 @@
      "max": 10,
      "src": "L65"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",

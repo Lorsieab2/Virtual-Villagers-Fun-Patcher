@@ -120,7 +120,8 @@
      "max": 10,
      "src": "L4643"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",

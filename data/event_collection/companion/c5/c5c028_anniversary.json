@@ -106,7 +106,8 @@
      "mood": "good",
      "src": "L2380"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Ending 2",

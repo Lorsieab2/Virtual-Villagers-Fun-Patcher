@@ -84,7 +84,8 @@
      "max": 10,
      "src": "L10524"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Outcome B",
@@ -103,7 +104,8 @@
      "max": 10,
      "src": "L10525"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -156,7 +158,8 @@
      "mood": "good",
      "src": "L10526"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__text": {
    "name": "Outcome C",
@@ -185,7 +188,8 @@
      "max": 10,
      "src": "L10526"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

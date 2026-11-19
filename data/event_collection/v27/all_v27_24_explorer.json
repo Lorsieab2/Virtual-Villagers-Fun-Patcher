@@ -100,7 +100,8 @@
      "max": -40,
      "src": "L10677"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Outcome C",
@@ -114,7 +115,8 @@
      "role": "explorer",
      "src": "L10678"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__fx": {
    "name": "Outcome A",
@@ -139,7 +141,8 @@
      "scaled": true,
      "src": "L10676"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Outcome A",
@@ -158,7 +161,8 @@
      "max": 10,
      "src": "L10676"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

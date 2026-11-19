@@ -115,7 +115,8 @@
      "scaled": true,
      "src": "L326"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",

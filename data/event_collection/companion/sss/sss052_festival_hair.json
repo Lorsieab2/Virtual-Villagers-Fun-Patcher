@@ -123,7 +123,8 @@
      "mood": "good",
      "src": "L6606"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__text": {
    "name": "Answer C",
@@ -136,7 +137,8 @@
      "head": "random",
      "src": "L6606"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

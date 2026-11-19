@@ -382,7 +382,8 @@
      "scaled": true,
      "src": "L8239-8242"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "contest__text": {
    "src": "L8239-8242",

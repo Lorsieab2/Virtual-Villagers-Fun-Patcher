@@ -180,7 +180,8 @@
      "head": "random",
      "src": "L27458"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -210,7 +211,8 @@
      "head": "random",
      "src": "L27461"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",
@@ -263,7 +265,8 @@
      "mood": "good",
      "src": "L27455"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -276,7 +279,8 @@
      "head": "random",
      "src": "L27455"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

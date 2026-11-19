@@ -135,7 +135,8 @@
      "mood": "good",
      "src": "L77"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",

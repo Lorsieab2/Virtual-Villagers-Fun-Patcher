@@ -95,7 +95,8 @@
      "who": "healer",
      "src": "L3045"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",
@@ -117,7 +118,8 @@
      "mood": "good",
      "src": "L3044"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome 1",
@@ -149,7 +151,8 @@
      "max": 15,
      "src": "L3042"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "setup__text": {
    "name": "The setup",

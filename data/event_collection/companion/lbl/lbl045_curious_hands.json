@@ -116,7 +116,8 @@
      "max": 10,
      "src": "L4387"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "type": "branch",
@@ -145,7 +146,8 @@
      "max": 10,
      "src": "L4389"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__fx": {
    "name": "Outcome 2",
@@ -174,7 +176,8 @@
      "mood": "good",
      "src": "L4388"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Outcome 2",
@@ -191,7 +194,8 @@
      "max": 10,
      "src": "L4388"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

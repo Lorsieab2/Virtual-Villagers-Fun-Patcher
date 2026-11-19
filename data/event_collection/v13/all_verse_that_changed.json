@@ -544,7 +544,8 @@
      "mood": "bad",
      "src": "L7425-7428"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3_more": {
    "type": "branch",
@@ -805,7 +806,8 @@
      "mood": "bad",
      "src": "L7399-7403"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2_more__text": {
    "src": "L7399-7403",
@@ -828,7 +830,8 @@
      "mood": "good",
      "src": "L7425-7428"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3_more__text": {
    "src": "L7425-7428",
@@ -851,7 +854,8 @@
      "scaled": true,
      "src": "L7446-7449"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c3_more__text": {
    "src": "L7446-7449",
@@ -867,7 +871,8 @@
      "scaled": true,
      "src": "L7465-7469"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d3_more__text": {
    "src": "L7465-7469",

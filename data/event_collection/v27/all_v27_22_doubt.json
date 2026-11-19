@@ -86,7 +86,8 @@
      "max": 10,
      "src": "L10660"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -121,7 +122,8 @@
      "max": 15,
      "src": "L10661"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Outcome B",

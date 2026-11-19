@@ -134,7 +134,8 @@
      "max": 15,
      "src": "L3224"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Outcome 2",

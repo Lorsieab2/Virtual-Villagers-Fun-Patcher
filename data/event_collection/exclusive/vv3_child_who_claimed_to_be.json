@@ -106,7 +106,8 @@
      "scaled": true,
      "src": "L7885"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "src": "L7886",
@@ -119,7 +120,8 @@
      "src": "L7886",
      "loss": true
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4": {
    "type": "branch",
@@ -186,7 +188,8 @@
      "mood": "good",
      "src": "L7887"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4__text": {
    "src": "L7887",

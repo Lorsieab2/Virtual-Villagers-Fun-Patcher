@@ -1,0 +1,40 @@
+Not applied: the graph is too big once split (more than 200,000 histories). For the owner's choice.
+original/vv2_cooking_contest.json | five1 | HAPPIER (cook1) (50%) | "they burst out laughing" | {"do":"mood","role":"cook1","mood":"good"}
+original/vv2_cooking_contest.json | five1 | HAPPIER (cook2) (50%) | "they burst out laughing" | {"do":"mood","role":"cook2","mood":"good"}
+original/vv2_cooking_contest.json | five2 | HAPPIER (cook1) (50%) | "a mischievous smile breaks out on their faces" | {"do":"mood","role":"cook1","mood":"good"}
+original/vv2_cooking_contest.json | five2 | HAPPIER (cook2) (50%) | "a mischievous smile breaks out on their faces" | {"do":"mood","role":"cook2","mood":"good"}
+original/vv2_cooking_contest.json | win1 | HAPPIER (cook1) (50%) | "is crowned Culinary Champion of Isola" | {"do":"mood","role":"cook1","mood":"good"}
+original/vv2_cooking_contest.json | win2 | HAPPIER (cook2) (50%) | "is crowned Culinary Champion of Isola" | {"do":"mood","role":"cook2","mood":"good"}
+original/vv2_cooking_contest.json | f14 | UNHAPPY (cook1) (50%) | "(Cook1) is mortified" | {"do":"mood","role":"cook1","mood":"bad"}
+original/vv2_cooking_contest.json | seven | UNHAPPY (cook1) (50%) | "this humiliating loss" | {"do":"mood","role":"cook1","mood":"bad"}
+original/vv2_cooking_contest.json | end_e | UNHAPPY (cook2) (50%) | "someone discovers that (cook1) has been tampering with (cook2)'s food" | {"do":"mood","role":"cook2","mood":"bad"}
+original/vv2_cooking_contest.json | end_f | UNHAPPY (cook1) (50%) | "The would-be saboteur" | {"do":"mood","role":"cook1","mood":"bad"}
+original/vv2_cooking_contest.json | eight1 | HAPPIER (cook1) (50%) | "they burst out laughing" | {"do":"mood","role":"cook1","mood":"good"}
+original/vv2_cooking_contest.json | eight1 | HAPPIER (cook2) (50%) | "they burst out laughing" | {"do":"mood","role":"cook2","mood":"good"}
+original/vv2_cooking_contest.json | eight2 | HAPPIER (cook1) (50%) | "a mischievous smile breaks out on their faces" | {"do":"mood","role":"cook1","mood":"good"}
+original/vv2_cooking_contest.json | eight2 | HAPPIER (cook2) (50%) | "a mischievous smile breaks out on their faces" | {"do":"mood","role":"cook2","mood":"good"}
+original/vv2_cooking_contest.json | inv1 | TECH GAIN small (50%) | "the contestants retrained in food safety" | {"do":"tech","size":"small","scaled":true}
+original/vv2_cooking_contest.json | inv3 | FOOD LOSS small (50%) | "The ingredients had spoiled in the heat" | {"do":"food","size":"small","loss":true,"scaled":true}
+original/vv2_cooking_contest.json | inv4 | TECH GAIN small (50%) | "The healers discover the mistake and explain why cleanliness matters" | {"do":"tech","size":"small","scaled":true}
+original/vv2_cooking_contest.json | a1_g | UNHAPPY (cook1) (50%) | "someone points an accusing finger at (cook1)" | {"do":"mood","role":"cook1","mood":"bad"}
+original/vv2_cooking_contest.json | a1_h | UNHAPPY (cook1) (50%) | "I wanted to win so badly. I didn't think about what I was doing. I'm sorry." | {"do":"mood","role":"cook1","mood":"bad"}
+original/vv2_cooking_contest.json | a1_17_1 | UNHAPPY (cook2) (50%) | "(Cook2) is still furious" | {"do":"mood","role":"cook2","mood":"bad"}
+original/vv2_cooking_contest.json | a1_27_4 | HAPPIER (cook1) (50%) | "they discover that they actually enjoy pushing each other to improve" | {"do":"mood","role":"cook1","mood":"good"}
+original/vv2_cooking_contest.json | a1_27_4 | HAPPIER (cook2) (50%) | "they discover that they actually enjoy pushing each other to improve" | {"do":"mood","role":"cook2","mood":"good"}
+original/vv2_cooking_contest.json | a2_24 | UNHAPPY (cook1) (50%) | "(Cook1) can no longer bear the guilt" | {"do":"mood","role":"cook1","mood":"bad"}
+original/vv2_cooking_contest.json | a2_28_1 | HAPPIER (cook1) (50%) | "(Cook1) wins by the narrowest margin imaginable" | {"do":"mood","role":"cook1","mood":"good"}
+original/vv2_cooking_contest.json | a2_28_1 | UNHAPPY (cook2) (50%) | "(Cook2) is devastated" | {"do":"mood","role":"cook2","mood":"bad"}
+original/vv2_cooking_contest.json | a2_28_2 | HAPPIER (cook2) (50%) | "(Cook2) wins decisively" | {"do":"mood","role":"cook2","mood":"good"}
+original/vv2_cooking_contest.json | a2_28_3 | HAPPIER (cook1) (50%) | "The judges declare a joint victory" | {"do":"mood","role":"cook1","mood":"good"}
+original/vv2_cooking_contest.json | a2_28_3 | HAPPIER (cook2) (50%) | "The judges declare a joint victory" | {"do":"mood","role":"cook2","mood":"good"}
+original/vv2_cooking_contest.json | a2_28_4 | TECH GAIN small (50%) | "The rivals have accidentally invented a new Isolan feast" | {"do":"tech","size":"small","scaled":true}
+original/vv2_cooking_contest.json | a2_28_5 | FOOD LOSS small (50%) | "a sudden downpour ruins both dishes" | {"do":"food","size":"small","loss":true,"scaled":true}
+original/vv2_cooking_contest.json | a2_28_6 | FOOD LOSS small (50%) | "smashing both plates" | {"do":"food","size":"small","loss":true,"scaled":true}
+original/vv2_cooking_contest.json | a2_31_2 | UNHAPPY (cook1) (50%) | "(Cook1) is disqualified" | {"do":"mood","role":"cook1","mood":"bad"}
+original/vv2_cooking_contest.json | a2_31_5 | UNHAPPY (cook1) (50%) | "The dish is completely inedible" | {"do":"mood","role":"cook1","mood":"bad"}
+original/vv2_cooking_contest.json | a2_31_6 | HAPPIER (cook1) (50%) | "They call off the rivalry and spend the afternoon cooking for their friends" | {"do":"mood","role":"cook1","mood":"good"}
+original/vv2_cooking_contest.json | a2_31_6 | HAPPIER (cook2) (50%) | "They call off the rivalry and spend the afternoon cooking for their friends" | {"do":"mood","role":"cook2","mood":"good"}
+original/vv2_cooking_contest.json | v13a_a1 | SKILL + Farming a little (cook1) (50%) | "privately explains exactly what went wrong and offers another lesson" | {"do":"skill","role":"cook1","skills":["Farming"],"min":5,"max":10}
+original/vv2_cooking_contest.json | v13a_a2 | HAPPIER (cook2) (50%) | "(cook2) wins the judge's praise" | {"do":"mood","role":"cook2","mood":"good"}
+original/vv2_cooking_contest.json | v13a_b5 | TECH GAIN small (50%) | "asks for the method to be recorded so it is not lost" | {"do":"tech","size":"small","scaled":true}
+original/vv2_cooking_contest.json | v13a_c1 | HAPPIER (cook1) (50%) | "(cook1)'s dish wins" | {"do":"mood","role":"cook1","mood":"good"}

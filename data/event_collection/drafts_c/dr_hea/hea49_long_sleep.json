@@ -85,7 +85,8 @@
      "max": 30,
      "src": "L593"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "type": "branch",
@@ -117,7 +118,8 @@
      "max": 15,
      "src": "L596"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",

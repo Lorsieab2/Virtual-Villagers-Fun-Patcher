@@ -130,7 +130,8 @@
      "max": -5,
      "src": "L29"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",

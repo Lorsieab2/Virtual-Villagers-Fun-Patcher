@@ -110,7 +110,8 @@
      "mood": "good",
      "src": "L2209"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",

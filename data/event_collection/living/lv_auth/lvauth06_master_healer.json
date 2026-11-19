@@ -121,7 +121,8 @@
      "max": 30,
      "src": "L23414"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -135,7 +136,8 @@
      "max": -10,
      "src": "L23415"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -219,7 +221,8 @@
      "reason": "the healers' skills working together: no skill changes",
      "src": "L23423"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2": {
    "name": "Outcome D2",
@@ -238,7 +241,8 @@
      "max": 15,
      "src": "L23417"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",

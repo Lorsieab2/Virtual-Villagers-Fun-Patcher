@@ -158,7 +158,8 @@
      "max": 10,
      "src": "L311,L312"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",
@@ -180,7 +181,8 @@
      "max": 10,
      "src": "L311,L313"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Ending 2",
@@ -202,7 +204,8 @@
      "max": 10,
      "src": "L311,L314"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Ending 3",
@@ -230,7 +233,8 @@
      "mood": "good",
      "src": "L311,L315"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e4__text": {
    "name": "Ending 4",

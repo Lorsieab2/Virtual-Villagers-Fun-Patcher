@@ -94,7 +94,8 @@
      "scaled": true,
      "src": "L7862"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1": {
    "src": "L7864",
@@ -107,7 +108,8 @@
      "max": 20,
      "src": "L7864"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "src": "L7865",
@@ -127,7 +129,8 @@
      "max": 20,
      "src": "L7865"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "src": "L7866",
@@ -178,7 +181,8 @@
      "mood": "good",
      "src": "L7860"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "src": "L7860",
@@ -191,7 +195,8 @@
      "max": 20,
      "src": "L7860"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

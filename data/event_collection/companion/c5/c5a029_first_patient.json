@@ -128,7 +128,8 @@
      "max": 10,
      "src": "L708"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "type": "branch",
@@ -169,7 +170,8 @@
      "max": 10,
      "src": "L710"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome 2",
@@ -191,7 +193,8 @@
      "max": 10,
      "src": "L712"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o3__text": {
    "name": "Outcome 3",

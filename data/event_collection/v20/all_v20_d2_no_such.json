@@ -91,7 +91,8 @@
      "cause": "unknown",
      "src": "L8976"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4": {
    "text": "The patient recovers, but evidence suggests the treatment was irrelevant.",
@@ -104,7 +105,8 @@
      "max": 30,
      "src": "L8977"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_a": {
    "type": "branch",
@@ -150,7 +152,8 @@
      "scaled": true,
      "src": "L8980"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "text": "The patient dies while the researchers are still deliberating.",
@@ -162,7 +165,8 @@
      "cause": "unknown",
      "src": "L8981"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b4": {
    "text": "The scholars demonstrate that the original proposal cannot work.",
@@ -212,7 +216,8 @@
      "scaled": true,
      "src": "L8974"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "text": "It works; the village celebrates a major medical discovery.",
@@ -230,7 +235,8 @@
      "max": 30,
      "src": "L8974"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__fx": {
    "text": "It relieves symptoms but does not cure the illness.",
@@ -243,7 +249,8 @@
      "max": 15,
      "src": "L8975"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__text": {
    "text": "It relieves symptoms but does not cure the illness.",
@@ -259,7 +266,8 @@
      "scaled": true,
      "src": "L8979"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "text": "A fatal flaw is discovered before anyone is harmed.",

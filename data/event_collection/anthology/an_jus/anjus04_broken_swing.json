@@ -216,7 +216,8 @@
      "max": -5,
      "src": "L30771"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",

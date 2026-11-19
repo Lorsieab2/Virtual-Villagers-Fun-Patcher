@@ -166,7 +166,8 @@
      "scaled": true,
      "src": "L1223"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",
@@ -184,7 +185,8 @@
      "mood": "good",
      "src": "L1231"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Ending 3",

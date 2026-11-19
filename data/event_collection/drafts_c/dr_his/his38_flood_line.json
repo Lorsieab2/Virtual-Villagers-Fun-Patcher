@@ -114,7 +114,8 @@
      "max": 10,
      "src": "L458"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",
@@ -136,7 +137,8 @@
      "max": 10,
      "src": "L461"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",

@@ -110,7 +110,8 @@
      "mood": "good",
      "src": "L2781"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Outcome 2",
@@ -132,7 +133,8 @@
      "scaled": true,
      "src": "L2782"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Outcome 3",

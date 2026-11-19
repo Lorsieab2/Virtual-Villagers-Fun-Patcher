@@ -559,7 +559,8 @@
      "max": 20,
      "src": "L6509"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a7": {
    "name": "A7",
@@ -637,7 +638,8 @@
      "max": 20,
      "src": "L6554"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b4": {
    "type": "branch",
@@ -740,7 +742,8 @@
      "max": 10,
      "src": "L6607"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c3": {
    "name": "C3",
@@ -763,7 +766,8 @@
      "max": 20,
      "src": "L6622"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c5": {
    "type": "branch",
@@ -846,7 +850,8 @@
      "scaled": true,
      "src": "L6458-6464"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "A1",
@@ -875,7 +880,8 @@
      "max": 10,
      "src": "L6465"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4__fx": {
    "name": "A4",
@@ -898,7 +904,8 @@
      "scaled": true,
      "src": "L6485-6490"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4__text": {
    "name": "A4",
@@ -915,7 +922,8 @@
      "max": 20,
      "src": "L6491"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__fx": {
    "name": "B1",
@@ -928,7 +936,8 @@
      "mood": "bad",
      "src": "L6532-6536"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "B1",
@@ -946,7 +955,8 @@
      "mood": "good",
      "src": "L6540-6544"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2__text": {
    "name": "B2",
@@ -964,7 +974,8 @@
      "mood": "bad",
      "src": "L6557-6562"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b4__text": {
    "name": "B4",
@@ -987,7 +998,8 @@
      "scaled": true,
      "src": "L6601-6606"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "name": "C2",
@@ -1020,7 +1032,8 @@
      "scaled": true,
      "src": "L6625-6629"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c5__text": {
    "name": "C5",
@@ -1037,7 +1050,8 @@
      "max": 20,
      "src": "L6630"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c6__fx": {
    "name": "C6",
@@ -1050,7 +1064,8 @@
      "mood": "bad",
      "src": "L6633-6638"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c6__text": {
    "name": "C6",
@@ -1096,7 +1111,8 @@
      "mood": "good",
      "src": "L6652-6658"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c8__text": {
    "name": "C8",
@@ -1125,7 +1141,8 @@
      "max": 20,
      "src": "L6659"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

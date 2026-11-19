@@ -221,7 +221,8 @@
      "mood": "good",
      "src": "L29714"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__text": {
    "name": "Outcome A2",

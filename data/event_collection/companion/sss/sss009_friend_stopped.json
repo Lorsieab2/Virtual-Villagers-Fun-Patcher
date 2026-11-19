@@ -118,7 +118,8 @@
      "mood": "good",
      "src": "L6158"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",
@@ -136,7 +137,8 @@
      "mood": "bad",
      "src": "L6160"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__text": {
    "name": "Answer C",

@@ -109,7 +109,8 @@
      "scaled": true,
      "src": "L6196"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",
@@ -127,7 +128,8 @@
      "scaled": true,
      "src": "L6198"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",

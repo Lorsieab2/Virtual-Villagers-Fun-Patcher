@@ -97,7 +97,8 @@
      "mood": "good",
      "src": "L110"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",

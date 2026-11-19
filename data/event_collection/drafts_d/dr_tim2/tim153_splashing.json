@@ -126,7 +126,8 @@
      "mood": "good",
      "src": "L199,L202"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Ending 3",

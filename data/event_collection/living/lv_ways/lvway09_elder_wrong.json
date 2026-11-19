@@ -191,7 +191,8 @@
      "role": "villager",
      "src": "L22845"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__fx": {
    "name": "Outcome A1",
@@ -204,7 +205,8 @@
      "mood": "bad",
      "src": "L22835"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -222,7 +224,8 @@
      "mood": "bad",
      "src": "L22836"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__text": {
    "name": "Outcome A2",

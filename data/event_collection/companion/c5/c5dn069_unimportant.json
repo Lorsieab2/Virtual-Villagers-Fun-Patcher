@@ -125,7 +125,8 @@
      "scaled": true,
      "src": "L3304"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome 1",
@@ -144,7 +145,8 @@
      "max": 10,
      "src": "L3304"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

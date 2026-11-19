@@ -94,7 +94,8 @@
      "mood": "good",
      "src": "L3442"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome A",
@@ -116,7 +117,8 @@
      "scaled": true,
      "src": "L3443"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Outcome B",

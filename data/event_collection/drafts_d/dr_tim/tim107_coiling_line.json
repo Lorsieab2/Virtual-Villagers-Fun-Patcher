@@ -156,7 +156,8 @@
      "max": 10,
      "src": "L1795"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",
@@ -184,7 +185,8 @@
      "scaled": true,
      "src": "L1799"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Ending 2",
@@ -206,7 +208,8 @@
      "max": 10,
      "src": "L1803"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Ending 3",
@@ -228,7 +231,8 @@
      "max": 10,
      "src": "L1807"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e4__text": {
    "name": "Ending 4",

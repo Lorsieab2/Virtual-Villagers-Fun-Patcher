@@ -105,7 +105,8 @@
      "cause": "unknown",
      "src": "L20301"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -134,7 +135,8 @@
      "max": 30,
      "src": "L20303"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -148,7 +150,8 @@
      "max": -40,
      "src": "L20304"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -177,7 +180,8 @@
      "max": 10,
      "src": "L20306"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "type": "branch",
@@ -202,7 +206,8 @@
      "scaled": true,
      "src": "L20307"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "name": "Outcome C2",

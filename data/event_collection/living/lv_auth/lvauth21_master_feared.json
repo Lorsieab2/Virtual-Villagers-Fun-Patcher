@@ -99,7 +99,8 @@
      "role": "craftsperson",
      "src": "L23655"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -192,7 +193,8 @@
      "mood": "bad",
      "src": "L23658"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2__text": {
    "name": "Outcome B2",
@@ -210,7 +212,8 @@
      "mood": "bad",
      "src": "L23664"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2__text": {
    "name": "Outcome D2",

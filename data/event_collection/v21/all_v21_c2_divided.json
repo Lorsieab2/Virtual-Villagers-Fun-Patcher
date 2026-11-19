@@ -211,7 +211,8 @@
      "what": "a distinguished artisan",
      "reason": "rule 7: reputations are told only"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4": {
    "text": "A sudden crack splits the figure at the unveiling. Some villagers fear an omen; others blame poor firing. A debate follows.",
@@ -419,7 +420,8 @@
      "mood": "good",
      "src": "L9450-9451"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3__text": {
    "text": "A quiet apprentice repairs its weak base and transforms the statue into a masterpiece. (Sculptor) shares the prize.",

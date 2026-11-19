@@ -66,7 +66,8 @@
      "max": 30,
      "src": "L8988"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "text": "Some improve, while others develop troubling complications.",
@@ -79,7 +80,8 @@
      "max": -10,
      "src": "L8989"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "type": "branch",
@@ -103,7 +105,8 @@
      "cause": "unknown",
      "src": "L8991"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_a": {
    "type": "branch",
@@ -138,7 +141,8 @@
      "max": 30,
      "src": "L8993"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "The illness spreads and the hospital is overwhelmed.",
@@ -214,7 +218,8 @@
      "scaled": true,
      "src": "L8990"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3__text": {
    "text": "No one improves, but the researchers learn about the illness.",
@@ -230,7 +235,8 @@
      "scaled": true,
      "src": "L8995"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3__text": {
    "text": "Another healer finds a more reliable approach.",
@@ -246,7 +252,8 @@
      "scaled": true,
      "src": "L8998"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "text": "A harmful ingredient is discovered.",

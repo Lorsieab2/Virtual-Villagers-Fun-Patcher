@@ -92,7 +92,8 @@
      "what": "dies",
      "reason": "the line lists all of this choice's outcomes; the death is another page's"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "text": "The patient dies.",
@@ -104,7 +105,8 @@
      "cause": "unknown",
      "src": "L9034"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "text": "Later findings prove the master's caution justified.",
@@ -150,7 +152,8 @@
      "max": -10,
      "src": "L9036"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "text": "The procedure is wisely halted when a previously unseen danger becomes apparent.",
@@ -185,7 +188,8 @@
      "max": -10,
      "src": "L9038-9039"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c3": {
    "text": "They hear a third solution from a quiet assistant.",

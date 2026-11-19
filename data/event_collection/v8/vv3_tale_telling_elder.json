@@ -234,7 +234,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "coda_c4": {
    "popup": "append",

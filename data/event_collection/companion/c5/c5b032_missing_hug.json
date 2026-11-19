@@ -99,7 +99,8 @@
      "max": 10,
      "src": "L1419"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__fx": {
    "name": "Ending 1",
@@ -125,7 +126,8 @@
      "max": -5,
      "src": "L1418"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",
@@ -144,7 +146,8 @@
      "max": 10,
      "src": "L1418"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

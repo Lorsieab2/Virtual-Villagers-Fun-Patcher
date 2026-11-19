@@ -171,7 +171,8 @@
      "scaled": true,
      "src": "L32036"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",

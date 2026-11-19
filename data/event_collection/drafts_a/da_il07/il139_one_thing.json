@@ -105,7 +105,8 @@
      "mood": "good",
      "src": "L230"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",
@@ -123,7 +124,8 @@
      "mood": "good",
      "src": "L233"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",

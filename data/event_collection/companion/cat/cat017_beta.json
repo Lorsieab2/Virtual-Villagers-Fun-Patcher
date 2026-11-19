@@ -135,7 +135,8 @@
      "scaled": true,
      "src": "L7304"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",
@@ -170,7 +171,8 @@
      "reason": "the fish is stressed, not a villager",
      "src": "L7306"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",
@@ -194,7 +196,8 @@
      "reason": "the fish is stressed, not a villager",
      "src": "L7306"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__fx": {
    "name": "Answer C",
@@ -224,7 +227,8 @@
      "reason": "an animal, not a villager",
      "src": "L7308"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__text": {
    "name": "Answer C",
@@ -248,7 +252,8 @@
      "reason": "an animal, not a villager",
      "src": "L7308"
     }
-   ]
+   ],
+   "auto_text": true
   }
  },
  "grammar_fixes": [

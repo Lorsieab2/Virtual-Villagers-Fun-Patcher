@@ -193,7 +193,8 @@
      "scaled": true,
      "src": "L28731"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -211,7 +212,8 @@
      "scaled": true,
      "src": "L28738"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "name": "Outcome C2",
@@ -228,7 +230,8 @@
      "who": "all",
      "src": "L28740"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d1__text": {
    "name": "Outcome D1",

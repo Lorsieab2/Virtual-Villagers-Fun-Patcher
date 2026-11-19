@@ -286,7 +286,8 @@
      "mood": "good",
      "src": "L2846-2847"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "popup": "append",
@@ -316,7 +317,8 @@
      "mood": "bad",
      "src": "L2852-2854"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o4__text": {
    "popup": "append",

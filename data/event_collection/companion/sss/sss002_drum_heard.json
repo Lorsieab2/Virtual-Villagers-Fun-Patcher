@@ -106,7 +106,8 @@
      "mood": "good",
      "src": "L6088"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",

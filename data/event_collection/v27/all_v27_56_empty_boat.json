@@ -101,7 +101,8 @@
      "role": "crew2",
      "src": "L10933"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Outcome C",
@@ -120,7 +121,8 @@
      "role": "crew2",
      "src": "L10934"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

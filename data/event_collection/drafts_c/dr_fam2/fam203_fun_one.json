@@ -126,7 +126,8 @@
      "max": 15,
      "src": "L38"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",
@@ -150,7 +151,8 @@
      "mood": "good",
      "src": "L41"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",

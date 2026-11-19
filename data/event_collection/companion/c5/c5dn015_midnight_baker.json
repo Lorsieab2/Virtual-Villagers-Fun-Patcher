@@ -111,7 +111,8 @@
      "mood": "good",
      "src": "L2800"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Outcome 3",

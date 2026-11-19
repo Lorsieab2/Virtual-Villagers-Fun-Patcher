@@ -195,7 +195,8 @@
      "mood": "good",
      "src": "L394"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "name": "Outcome C2",

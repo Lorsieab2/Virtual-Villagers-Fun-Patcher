@@ -284,7 +284,8 @@
      "mood": "good",
      "src": "L3208-3210"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4__text": {
    "src": "L3208-3210",
@@ -316,7 +317,8 @@
      "mood": "good",
      "src": "L3219-3220"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "f4__text": {
    "src": "L3219-3220",

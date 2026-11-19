@@ -95,7 +95,8 @@
      "max": 10,
      "src": "L8878"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Answer C",

@@ -100,7 +100,8 @@
      "scaled": true,
      "src": "L3407"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome A",

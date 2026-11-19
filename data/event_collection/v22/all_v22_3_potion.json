@@ -321,7 +321,8 @@
      "max": 20,
      "src": "L9720"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "text": "The mixture appears helpful in controlled demonstrations, but the judges insist on further study before calling it a cure.",
@@ -348,7 +349,8 @@
      "max": 20,
      "src": "L9723"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "text": "The potion smells wonderful and looks magnificent but performs no better than plain water in the agreed tests.",
@@ -369,7 +371,8 @@
      "max": 10,
      "src": "L9726"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4": {
    "text": "A judge notices an ingredient mix-up before anyone uses the preparation. The entry is disqualified; the healer gains a lesson in careful identification.",
@@ -390,7 +393,8 @@
      "max": 10,
      "src": "L9727-9729"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_a": {
    "type": "branch",
@@ -451,7 +455,8 @@
      "scaled": true,
      "src": "L9743"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_b": {
    "type": "branch",
@@ -494,7 +499,8 @@
      "max": 20,
      "src": "L9750"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "The color changes beautifully but to the wrong shade, or the fragrance fades too quickly.",
@@ -515,7 +521,8 @@
      "max": 10,
      "src": "L9752"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c3": {
    "text": "The mixture produces far more bubbles than intended. The judges struggle to keep straight faces.",
@@ -541,7 +548,8 @@
      "scaled": true,
      "src": "L9757"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_c": {
    "type": "branch",
@@ -598,7 +606,8 @@
      "max": 20,
      "src": "L9761"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2": {
    "text": "(Brewer) refuses to make unsupported claims. The judges commend the honesty",
@@ -662,7 +671,8 @@
      "scaled": true,
      "src": "L9772"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "text": "A rare comic magical mishap gives an adult judge harmless hiccups until sunset.",
@@ -731,7 +741,8 @@
      "what": "lose reputation",
      "reason": "rule 7: told only; this copy is the accepted correction"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e4_2": {
    "text": "The elders stop a reckless demonstration before anyone is harmed. (Brewer) may accept the correction and gain Research skill, or sulk and lose reputation.",
@@ -1046,7 +1057,8 @@
      "scaled": true,
      "src": "L9764-9766"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d3__text": {
    "text": "Two harmless demonstration samples are swapped; an apprentice notices before judging. The organizers improve their labeling system.",
@@ -1074,7 +1086,8 @@
      "scaled": true,
      "src": "L9957-9958"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "coda_v22_3__text": {
    "popup": "append",

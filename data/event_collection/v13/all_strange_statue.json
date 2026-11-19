@@ -391,7 +391,8 @@
      "mood": "good",
      "src": "L7315-7318"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__text": {
    "src": "L7315-7318",
@@ -407,7 +408,8 @@
      "mood": "good",
      "src": "L7320-7323"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3__text": {
    "src": "L7320-7323",

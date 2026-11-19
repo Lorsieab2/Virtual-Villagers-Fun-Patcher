@@ -108,7 +108,8 @@
      "max": 15,
      "src": "L6968"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",

@@ -142,7 +142,8 @@
      "scaled": true,
      "src": "L945"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome 2",

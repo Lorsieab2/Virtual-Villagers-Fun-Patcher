@@ -99,7 +99,8 @@
      "max": -10,
      "src": "L488"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -136,7 +137,8 @@
      "max": 15,
      "src": "L491"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",
@@ -154,7 +156,8 @@
      "max": 10,
      "src": "L491"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

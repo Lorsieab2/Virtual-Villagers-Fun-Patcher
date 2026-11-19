@@ -122,7 +122,8 @@
      "scaled": true,
      "src": "L8900"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",
@@ -139,7 +140,8 @@
      "max": 10,
      "src": "L8900"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__fx": {
    "name": "Answer C",
@@ -152,7 +154,8 @@
      "scaled": true,
      "src": "L8904"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__text": {
    "name": "Answer C",

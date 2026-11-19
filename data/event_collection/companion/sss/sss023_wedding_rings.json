@@ -111,7 +111,8 @@
      "mood": "good",
      "src": "L6300"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",

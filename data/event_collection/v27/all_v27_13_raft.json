@@ -112,7 +112,8 @@
      "role": "teen1",
      "src": "L10590"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__fx": {
    "name": "Outcome A",
@@ -133,7 +134,8 @@
      "mood": "bad",
      "src": "L10588"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Outcome A",

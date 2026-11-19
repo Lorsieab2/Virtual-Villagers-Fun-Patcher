@@ -125,7 +125,8 @@
      "scaled": true,
      "src": "L6106"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",
@@ -147,7 +148,8 @@
      "max": 10,
      "src": "L6108"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",
@@ -166,7 +168,8 @@
      "max": 15,
      "src": "L6110"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__text": {
    "name": "Answer C",

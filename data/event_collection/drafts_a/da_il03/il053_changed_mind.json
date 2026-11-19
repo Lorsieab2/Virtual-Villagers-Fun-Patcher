@@ -105,7 +105,8 @@
      "mood": "good",
      "src": "L152"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",
@@ -119,7 +120,8 @@
      "preference": "fruit",
      "src": "L152"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

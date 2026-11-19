@@ -173,7 +173,8 @@
      "mood": "good",
      "src": "L1963"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",
@@ -191,7 +192,8 @@
      "mood": "good",
      "src": "L1971"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Ending 3",
@@ -209,7 +211,8 @@
      "mood": "good",
      "src": "L1975"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e4__text": {
    "name": "Ending 4",

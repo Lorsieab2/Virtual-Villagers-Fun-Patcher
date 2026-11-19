@@ -101,7 +101,8 @@
      "scaled": true,
      "src": "L191"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",

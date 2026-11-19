@@ -199,7 +199,8 @@
      "mood": "good",
      "src": "L29080"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2__text": {
    "name": "Outcome B2",

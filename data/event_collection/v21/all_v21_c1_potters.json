@@ -251,7 +251,8 @@
      "what": "food",
      "reason": "narrative: farmers wash gathered food in the sieve"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "type": "branch",
@@ -418,7 +419,8 @@
      "what": "crafting-related",
      "reason": "rule 8: no game has a Crafting skill; the Tech reward is given"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "The judge condemns the shape, but a farmer demonstrates its remarkable usefulness. The judge apologizes publicly.",
@@ -789,7 +791,8 @@
      "what": "skill",
      "reason": "narrative: the judges praise the potter's skill; the tech points are the reward"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "text": "The pot holds water without leaking and is easy to carry. The judges praise (Potter)'s skill.",
@@ -813,7 +816,8 @@
      "what": "skill",
      "reason": "narrative: the judges praise the potter's skill; the tech points are the reward"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3__fx": {
    "text": "The unfired vessel slumps into a shapeless mound. (Potter) is mortified; an apprentice gently offers to help rebuild it.",
@@ -837,7 +841,8 @@
      "mood": "bad",
      "src": "L9387-9388"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3__text": {
    "text": "The unfired vessel slumps into a shapeless mound. (Potter) is mortified; an apprentice gently offers to help rebuild it.",
@@ -877,7 +882,8 @@
      "scaled": true,
      "src": "L9392-9394"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a5__text": {
    "text": "Nobody can explain the double spout until a healer discovers it is useful for measuring small amounts of water. (Potter) becomes an unexpectedly celebrated innovator.",
@@ -910,7 +916,8 @@
      "mood": "good",
      "src": "L9397-9399"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "text": "The carved figures are so expressive that an elder recognizes a long-dead relative. The crowd falls respectfully silent; (Potter) is awarded first place.",

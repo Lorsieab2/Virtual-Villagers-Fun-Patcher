@@ -97,7 +97,8 @@
      "max": 10,
      "src": "L22326"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -174,7 +175,8 @@
      "max": -5,
      "src": "L22330"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2__text": {
    "name": "Outcome B2",

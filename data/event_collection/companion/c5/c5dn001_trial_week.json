@@ -106,7 +106,8 @@
      "preference": "work",
      "src": "L2669"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",
@@ -141,7 +142,8 @@
      "mood": "good",
      "src": "L2668"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome 1",
@@ -163,7 +165,8 @@
      "max": 10,
      "src": "L2668"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

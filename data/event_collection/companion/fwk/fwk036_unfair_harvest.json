@@ -223,7 +223,8 @@
      "scaled": true,
      "src": "L5807"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d__text": {
    "name": "Answer D",

@@ -106,7 +106,8 @@
      "max": 10,
      "src": "L74"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",

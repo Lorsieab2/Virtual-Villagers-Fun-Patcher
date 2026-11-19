@@ -158,7 +158,8 @@
      "who": "all",
      "src": "L10108"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "Both apologize to anyone inconvenienced.",
@@ -198,7 +199,8 @@
      "mood": "good",
      "src": "L10103"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "text": "The entire village laughs at a brilliantly timed surprise.",
@@ -220,7 +222,8 @@
      "mood": "bad",
      "src": "L10104"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2__text": {
    "text": "The joke fails spectacularly and the pranksters are embarrassed.",
@@ -236,7 +239,8 @@
      "scaled": true,
      "src": "L10106"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b4__text": {
    "text": "An elaborate trick accidentally helps solve a practical problem.",

@@ -102,7 +102,8 @@
      "max": 10,
      "src": "L10636"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Outcome B",
@@ -117,7 +118,8 @@
      "size": "small",
      "src": "L10637"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Outcome C",
@@ -143,7 +145,8 @@
      "max": 10,
      "src": "L10638"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

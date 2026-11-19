@@ -126,7 +126,8 @@
      "mood": "good",
      "src": "L276,L278"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Ending 2",

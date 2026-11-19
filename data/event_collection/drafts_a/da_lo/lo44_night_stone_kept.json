@@ -101,7 +101,8 @@
      "max": -10,
      "src": "L543"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__fx": {
    "name": "Answer A",
@@ -120,7 +121,8 @@
      "mood": "good",
      "src": "L540"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",

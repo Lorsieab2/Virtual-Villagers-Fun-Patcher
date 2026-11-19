@@ -83,7 +83,8 @@
      "max": 10,
      "src": "L3414"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "type": "branch",
@@ -110,7 +111,8 @@
      "scaled": true,
      "src": "L3415"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Outcome B",
@@ -138,7 +140,8 @@
      "scaled": true,
      "src": "L3413"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "setup__text": {
    "name": "The setup",

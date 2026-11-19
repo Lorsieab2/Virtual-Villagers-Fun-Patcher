@@ -105,7 +105,8 @@
      "mood": "good",
      "src": "L3156"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome 1",

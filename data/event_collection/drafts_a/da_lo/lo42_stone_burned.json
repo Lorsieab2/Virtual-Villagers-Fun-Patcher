@@ -125,7 +125,8 @@
      "scaled": true,
      "src": "L513"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "type": "branch",
@@ -152,7 +153,8 @@
      "cause": "unknown",
      "src": "L515"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4": {
    "name": "Outcome A4",
@@ -241,7 +243,8 @@
      "mood": "bad",
      "src": "L514"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__text": {
    "name": "Outcome A2",
@@ -257,7 +260,8 @@
      "preference": "learning",
      "src": "L514"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2_anh__fx": {
    "name": "Outcome A2 (A New Home)",
@@ -279,7 +283,8 @@
      "mood": "bad",
      "src": "L514"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2_anh__text": {
    "name": "Outcome A2 (A New Home)",
@@ -312,7 +317,8 @@
      "scaled": true,
      "src": "L519"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",

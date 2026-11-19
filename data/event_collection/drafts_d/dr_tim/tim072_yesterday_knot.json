@@ -162,7 +162,8 @@
      "mood": "good",
      "src": "L1207"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",
@@ -190,7 +191,8 @@
      "scaled": true,
      "src": "L1211"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Ending 2",
@@ -218,7 +220,8 @@
      "mood": "good",
      "src": "L1215"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Ending 3",
@@ -246,7 +249,8 @@
      "mood": "good",
      "src": "L1219"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e4__text": {
    "name": "Ending 4",

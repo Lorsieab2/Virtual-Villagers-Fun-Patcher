@@ -100,7 +100,8 @@
      "who": "subject",
      "src": "L413"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__fx": {
    "name": "Outcome A",
@@ -113,7 +114,8 @@
      "mood": "good",
      "src": "L410"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",

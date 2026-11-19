@@ -643,7 +643,8 @@
      "who": "all",
      "src": "L8395-8396"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "src": "L8395-8396",
@@ -669,7 +670,8 @@
      "scaled": true,
      "src": "L8399-8400"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d1__text": {
    "src": "L8399-8400",

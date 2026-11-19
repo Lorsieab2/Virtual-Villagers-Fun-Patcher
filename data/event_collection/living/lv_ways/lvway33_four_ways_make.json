@@ -185,7 +185,8 @@
      "scaled": true,
      "src": "L23222"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",

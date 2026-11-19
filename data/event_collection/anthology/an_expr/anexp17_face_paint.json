@@ -231,7 +231,8 @@
      "mood": "good",
      "src": "L31518"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2__text": {
    "name": "Outcome D2",

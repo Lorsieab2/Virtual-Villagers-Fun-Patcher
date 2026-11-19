@@ -167,7 +167,8 @@
      "scaled": true,
      "src": "L10069"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "text": "An animal carried several coconuts into the undergrowth.",
@@ -183,7 +184,8 @@
      "scaled": true,
      "src": "L10070"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2__text": {
    "text": "A forgotten storage basket is discovered behind a hut.",

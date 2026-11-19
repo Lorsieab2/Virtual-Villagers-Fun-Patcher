@@ -138,7 +138,8 @@
      "reason": "an animal found dead; no villager dies",
      "src": "L7728"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__text": {
    "name": "Answer C",
@@ -162,7 +163,8 @@
      "reason": "an animal found dead; no villager dies",
      "src": "L7728"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d__fx": {
    "name": "Answer D",
@@ -192,7 +194,8 @@
      "reason": "an animal, not a villager",
      "src": "L7730"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d__text": {
    "name": "Answer D",
@@ -216,7 +219,8 @@
      "reason": "an animal, not a villager",
      "src": "L7730"
     }
-   ]
+   ],
+   "auto_text": true
   }
  },
  "grammar_fixes": [

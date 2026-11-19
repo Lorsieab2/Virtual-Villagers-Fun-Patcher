@@ -1,7 +1,8 @@
-Outcome effects - Island Traders, Village Moments and VV4 Supplies (#813 on #806, feat/97-traders-effects)
+Outcome effects (50%) - Island Traders, Village Moments, VV4 Supplies (#813 on #806)
 Format: <event> | <outcome> | <effect> | "<words that justify it>"
+Each effect happens half the time when the outcome plays; the other half is the text only.
 
-WAITING FOR #813 (feat/97-traders-effects) TO MERGE
+WAITING FOR #813 TO MERGE
 The Soap That Smelled of Flowers (sup02_soap_smelled) | o2 | HAPPIER (third) (50%) | "sniffs it, laughs"
 Bubbles in the Stream (sup03_bubbles_stream) | o1 | HAPPIER (subject) (50%) | "very pleased with themselves"
 Bubbles in the Stream (sup03_bubbles_stream) | o1 | HAPPIER (friend) (50%) | "very pleased with themselves"

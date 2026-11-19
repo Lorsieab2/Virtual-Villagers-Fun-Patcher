@@ -155,7 +155,8 @@
      "max": 10,
      "src": "L21384"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2__fx": {
    "name": "Outcome B2",
@@ -169,7 +170,8 @@
      "scaled": true,
      "src": "L21381"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2__text": {
    "name": "Outcome B2",

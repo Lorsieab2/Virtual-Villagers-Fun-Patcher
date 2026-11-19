@@ -103,7 +103,8 @@
      "role": "subject",
      "src": "L463"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -124,7 +125,8 @@
      "reason": "rule 8: no game has a fitting preference word for the jungle edge (the draft: only where the game has a fitting dislike)",
      "src": "L464"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a": {
    "type": "branch",
@@ -169,7 +171,8 @@
      "max": 15,
      "src": "L467"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",
@@ -205,7 +208,8 @@
      "role": "subject",
      "src": "L462"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",

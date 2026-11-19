@@ -336,7 +336,8 @@
      "scaled": true,
      "src": "L753"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "r5": {
    "popup": "append",
@@ -428,7 +429,8 @@
      "what": "restore crops or restore berries",
      "reason": "no effect restores crops or berries (rule 8); the source's first alternative, food, is given"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

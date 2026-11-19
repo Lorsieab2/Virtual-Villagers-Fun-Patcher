@@ -117,7 +117,8 @@
      "max": 10,
      "src": "L50"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",
@@ -152,7 +153,8 @@
      "max": 10,
      "src": "L53"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",

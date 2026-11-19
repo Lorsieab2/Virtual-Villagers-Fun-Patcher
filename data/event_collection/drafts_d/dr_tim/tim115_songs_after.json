@@ -131,7 +131,8 @@
      "mood": "good",
      "src": "L1931"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Ending 2",

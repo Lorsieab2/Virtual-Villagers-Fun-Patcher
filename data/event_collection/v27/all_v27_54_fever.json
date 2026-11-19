@@ -97,7 +97,8 @@
      "weight": 2,
      "rarity": "very_rare"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a": {
    "type": "branch",
@@ -125,7 +126,8 @@
      "max": -40,
      "src": "L10917"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Outcome C",
@@ -140,7 +142,8 @@
      "cause": "unknown",
      "src": "L10918"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__fx": {
    "name": "Outcome A",
@@ -163,7 +166,8 @@
      "max": 15,
      "src": "L10916"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Outcome A",

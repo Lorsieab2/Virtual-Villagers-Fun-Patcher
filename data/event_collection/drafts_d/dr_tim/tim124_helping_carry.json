@@ -159,7 +159,8 @@
      "mood": "good",
      "src": "L2091"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e4__text": {
    "name": "Ending 4",

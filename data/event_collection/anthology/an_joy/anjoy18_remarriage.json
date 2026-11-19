@@ -114,7 +114,8 @@
      "who": "partner2",
      "src": "L28941"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -211,7 +212,8 @@
      "mood": "good",
      "src": "L28944"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",

@@ -124,7 +124,8 @@
      "scaled": true,
      "src": "L22774"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -200,7 +201,8 @@
      "scaled": true,
      "src": "L22771"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -218,7 +220,8 @@
      "scaled": true,
      "src": "L22777"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",
@@ -236,7 +239,8 @@
      "scaled": true,
      "src": "L22780"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d1__text": {
    "name": "Outcome D1",

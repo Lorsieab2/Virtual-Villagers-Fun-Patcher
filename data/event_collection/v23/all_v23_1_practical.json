@@ -166,7 +166,8 @@
      "mood": "good",
      "src": "L9985"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "type": "branch",
@@ -235,7 +236,8 @@
      "scaled": true,
      "src": "L10000"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b4": {
    "text": "The illusion is too convincing. Villagers flee, then demand an apology and help restoring the interrupted work.",
@@ -308,7 +310,8 @@
      "mood": "good",
      "src": "L9986-9987"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__text": {
    "text": "An elder receives the prank by mistake and gives (Prankster) a long lecture. (Target) finds this hilarious.",

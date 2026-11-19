@@ -192,7 +192,8 @@
      "mood": "bad",
      "src": "L10091"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "text": "(Alarmist) grows increasingly embarrassed while explaining.",
@@ -208,7 +209,8 @@
      "scaled": true,
      "src": "L10093"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c4__text": {
    "text": "Something genuinely extraordinary is found.",

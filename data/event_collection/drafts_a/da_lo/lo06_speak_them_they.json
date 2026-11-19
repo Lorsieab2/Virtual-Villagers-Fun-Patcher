@@ -124,7 +124,8 @@
      "mood": "good",
      "src": "L75"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",

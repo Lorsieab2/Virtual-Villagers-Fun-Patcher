@@ -235,7 +235,8 @@
      "scaled": true,
      "src": "L29548"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -253,7 +254,8 @@
      "scaled": true,
      "src": "L29551"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",
@@ -271,7 +273,8 @@
      "scaled": true,
      "src": "L29554"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",
@@ -289,7 +292,8 @@
      "mood": "good",
      "src": "L29558"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2__text": {
    "name": "Outcome D2",

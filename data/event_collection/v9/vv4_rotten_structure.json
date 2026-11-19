@@ -123,7 +123,8 @@
     {
      "next": "dispute"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "dispute": {
    "type": "question",
@@ -407,7 +408,8 @@
      "mood": "bad",
      "src": "L5063-5064"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "wrongful__text": {
    "popup": "append",

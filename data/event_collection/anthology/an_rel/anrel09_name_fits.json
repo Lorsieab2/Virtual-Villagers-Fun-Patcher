@@ -235,7 +235,8 @@
      "who": "all",
      "src": "L27143"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",
@@ -253,7 +254,8 @@
      "mood": "good",
      "src": "L27146"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",

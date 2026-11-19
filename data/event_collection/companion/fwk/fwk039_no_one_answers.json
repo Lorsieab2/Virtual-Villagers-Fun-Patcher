@@ -186,7 +186,8 @@
      "mood": "good",
      "src": "L5838"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",

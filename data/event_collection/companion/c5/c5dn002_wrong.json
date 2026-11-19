@@ -110,7 +110,8 @@
      "mood": "good",
      "src": "L2677"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome 1",

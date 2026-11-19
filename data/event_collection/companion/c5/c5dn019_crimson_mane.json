@@ -136,7 +136,8 @@
      "mood": "good",
      "src": "L2840"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Outcome 3",

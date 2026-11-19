@@ -106,7 +106,8 @@
      "max": 10,
      "src": "L8434"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Answer C",
@@ -135,7 +136,8 @@
      "max": 10,
      "src": "L8438"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__fx": {
    "name": "Answer A",
@@ -158,7 +160,8 @@
      "scaled": true,
      "src": "L8432"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",
@@ -175,7 +178,8 @@
      "max": 10,
      "src": "L8432"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

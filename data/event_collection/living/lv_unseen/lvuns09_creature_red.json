@@ -158,7 +158,8 @@
      "mood": "bad",
      "src": "L22288"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__text": {
    "name": "Outcome A2",

@@ -102,7 +102,8 @@
      "max": -40,
      "src": "L20222"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -115,7 +116,8 @@
      "cause": "unknown",
      "src": "L20223"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -173,7 +175,8 @@
      "max": 10,
      "src": "L20228"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "type": "branch",
@@ -198,7 +201,8 @@
      "mood": "good",
      "src": "L20225"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",
@@ -226,7 +230,8 @@
      "scaled": true,
      "src": "L20229"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "name": "Outcome C2",
@@ -243,7 +248,8 @@
      "max": 10,
      "src": "L20229"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

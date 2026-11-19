@@ -212,7 +212,8 @@
      "mood": "good",
      "src": "L5586"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__text": {
    "name": "Answer C",

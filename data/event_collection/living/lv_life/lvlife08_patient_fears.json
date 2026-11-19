@@ -163,7 +163,8 @@
      "max": 15,
      "src": "L20742"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",

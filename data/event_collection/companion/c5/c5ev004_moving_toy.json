@@ -109,7 +109,8 @@
      "scaled": true,
      "src": "L3348"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Outcome B",
@@ -128,7 +129,8 @@
      "max": 10,
      "src": "L3348"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

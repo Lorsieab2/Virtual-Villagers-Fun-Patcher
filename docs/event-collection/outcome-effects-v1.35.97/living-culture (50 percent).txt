@@ -1,7 +1,8 @@
-Outcome effects - Living Culture (#811, feat/97-living-culture)
+Outcome effects (50%) - Living Culture (#811)
 Format: <event> | <outcome> | <effect> | "<words that justify it>"
+Each effect happens half the time when the outcome plays; the other half is the text only.
 
-WAITING FOR #811 (feat/97-living-culture) TO MERGE
+WAITING FOR #811 TO MERGE
 A Name Worth Singing (lca05_name_worth) | o1 | HAPPIER (subject) (50%) | "(subject.He/she) does not mind at all."
 A Name Worth Singing (lca05_name_worth) | o2 | HAPPIER (subject) (50%) | "(subject) looks very relieved."
 A Song for the Newborn (lca07_song_newborn) | o1 | HAPPIER (subject) (50%) | "smiling and half-asleep, and mouths thank you"
@@ -287,7 +288,16 @@ The Knowledge of the Reef Edge (lcj48_knowledge_reef) | o1 | HAPPIER (friend) (5
 The Gathering of Storytellers (lcj50_gathering) | o1 | HAPPIER (friend) (50%) | "(friend) understands everything and loves it."
 The Dowry Question (lce33_dowry_question) | o1 | DISLIKE + fish (subject) (50%) | "(subject) never wants to see a fish again."
 
-WAITING FOR #811 (feat/97-living-culture) AND #813 (feat/97-traders-effects) TO MERGE
+WAITING FOR #811 AND #774 TO MERGE
+The House of Many Hands (lcg42_house_many_hands) | o1 | HUTS REPAIRED (50%) | "By sunset, the hut is standing, bigger than before."
+The House of Many Hands (lcg42_house_many_hands) | o2 | HUTS REPAIRED (50%) | "(friend)'s family rebuilds with just a few friends."
+The Day of Many Hands (lch31_day_many_hands) | o1 | HUTS REPAIRED (50%) | "By sunset every hut has a roof."
+The Day of Many Hands (lch31_day_many_hands) | o2 | HUTS REPAIRED (50%) | "The village fixes the roofless huts first."
+The Quiet After the Storm (lci26_after_storm) | o2 | HUTS REPAIRED (50%) | "everyone helps rebuild, quietly"
+The Nest Beneath the Roof (lci30_nest_beneath) | o1 | HUTS REPAIRED (50%) | "The roof is fixed the next day."
+The Nest Beneath the Roof (lci30_nest_beneath) | o2 | HUTS REPAIRED (50%) | "The roof is fixed."
+
+WAITING FOR #811 AND #813 TO MERGE
 The Song of Welcome (lca02_song_welcome) | o1 | GROUP song (everyone) (50%) | "The whole village gathers on the beach and sings the welcome song."
 The Song for Those Who Never Returned (lcb11_song_those_never) | o1 | GROUP song (everyone) (50%) | "The village gathers at sunset and sings the old song for the lost"
 The Two Villages' Chorus (lcb24_two_villages) | o2 | GROUP song (everyone) (50%) | "The two villages sing back and forth across the fire, one song each, until dawn."
@@ -305,12 +315,3 @@ Good Luck on the Path (lca32_good_luck_path) | o1 | GROUP song (everyone) (50%) 
 The Song Before the Hard Choice (lca36_song_before_hard) | o1 | GROUP song (everyone) (50%) | "The village sings the choosing song"
 Thanks for the Harvest (lca38_thanks_harvest) | o2 | GROUP song (everyone) (50%) | "The village sings a short song of thanks"
 The Feast Before the Watch (lcc16_feast_before) | o2 | GROUP song (everyone) (50%) | "and everyone joins in"
-
-WAITING FOR #811 (feat/97-living-culture) AND #774 (feat/97-round6) TO MERGE
-The House of Many Hands (lcg42_house_many_hands) | o1 | HUTS REPAIRED (50%) | "By sunset, the hut is standing, bigger than before."
-The House of Many Hands (lcg42_house_many_hands) | o2 | HUTS REPAIRED (50%) | "(friend)'s family rebuilds with just a few friends."
-The Day of Many Hands (lch31_day_many_hands) | o1 | HUTS REPAIRED (50%) | "By sunset every hut has a roof."
-The Day of Many Hands (lch31_day_many_hands) | o2 | HUTS REPAIRED (50%) | "The village fixes the roofless huts first."
-The Quiet After the Storm (lci26_after_storm) | o2 | HUTS REPAIRED (50%) | "everyone helps rebuild, quietly"
-The Nest Beneath the Roof (lci30_nest_beneath) | o1 | HUTS REPAIRED (50%) | "The roof is fixed the next day."
-The Nest Beneath the Roof (lci30_nest_beneath) | o2 | HUTS REPAIRED (50%) | "The roof is fixed."

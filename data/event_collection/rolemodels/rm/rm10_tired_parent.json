@@ -188,7 +188,8 @@
      "max": 15,
      "src": "L23"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -207,7 +208,8 @@
      "max": 15,
      "src": "L23"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d1__text": {
    "name": "Outcome D1",

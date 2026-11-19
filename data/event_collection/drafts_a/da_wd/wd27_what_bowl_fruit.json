@@ -105,7 +105,8 @@
      "mood": "good",
      "src": "L329"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",

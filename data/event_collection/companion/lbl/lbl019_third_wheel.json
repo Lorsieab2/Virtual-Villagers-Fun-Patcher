@@ -138,7 +138,8 @@
      "mood": "good",
      "src": "L4042"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2__text": {
    "name": "Outcome 2",

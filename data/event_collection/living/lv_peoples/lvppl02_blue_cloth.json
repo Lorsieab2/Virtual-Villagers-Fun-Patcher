@@ -170,7 +170,8 @@
      "mood": "good",
      "src": "L21681"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -196,7 +197,8 @@
      "preference": "blue",
      "src": "L21687"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",

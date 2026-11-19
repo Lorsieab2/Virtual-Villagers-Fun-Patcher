@@ -122,7 +122,8 @@
      "who": "child",
      "src": "L22459"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",

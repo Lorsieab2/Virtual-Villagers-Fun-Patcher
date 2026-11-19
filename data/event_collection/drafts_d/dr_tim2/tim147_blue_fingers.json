@@ -133,7 +133,8 @@
      "mood": "good",
      "src": "L157,L158"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",
@@ -155,7 +156,8 @@
      "max": 10,
      "src": "L157,L161"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e4__text": {
    "name": "Ending 4",

@@ -166,7 +166,8 @@
      "max": 10,
      "src": "L20703"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",
@@ -192,7 +193,8 @@
      "max": 15,
      "src": "L20700"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",

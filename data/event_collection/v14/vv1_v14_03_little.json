@@ -56,7 +56,8 @@
      "what": "experience",
      "reason": "narrative: the elders' argument, not a skill gain"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

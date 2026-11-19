@@ -486,7 +486,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4_1": {
    "text": "(Child) begins asking everyone whether they are telling the truth. (Parent) must teach the difference between honesty and accusing people without reason.",
@@ -530,7 +531,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4": {
    "type": "branch",
@@ -592,7 +594,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "(Child) sits under an unripe fruit tree for hours, expecting the fruit to fall directly into (child.his/her) mouth. \"I'm being patient!\" (Parent) is speechless.",
@@ -629,7 +632,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b4_1": {
    "text": "(Parent) grows frustrated while teaching patience, then notices the irony and apologizes.",
@@ -673,7 +677,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b4": {
    "type": "branch",
@@ -730,7 +735,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "Asked to help organize coconuts, (Child) devises an elaborate inspection system and refuses to let anyone eat without approval. The village is amused and hungry.",
@@ -767,7 +773,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c4_1": {
    "text": "(Child) begins reorganizing other villagers' belongings without asking. (Parent) must explain that responsibility also means respecting others' choices.",
@@ -811,7 +818,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c4": {
    "type": "branch",
@@ -885,7 +893,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d4": {
    "text": "(Child) orders everyone to be nice and interrupts every disagreement. The villagers gently remind the child that kindness cannot be commanded.",
@@ -947,7 +956,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2_1": {
    "type": "branch",
@@ -1026,7 +1036,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3_3": {
    "text": "(Child) tries to water every plant at once and makes a muddy mess. (Parent) teaches moderation.",
@@ -1054,7 +1065,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "type": "branch",
@@ -1130,7 +1142,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "f2": {
    "text": "(Child) repeatedly requests extra fruit because (Parent) said \"never give up.\" The adult must clarify the difference between persistence and pestering.",
@@ -1200,7 +1213,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "f3": {
    "type": "branch",
@@ -1232,7 +1246,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_f": {
    "type": "branch",
@@ -1306,7 +1321,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "g4_1": {
    "text": "(Child) interprets \"think ahead\" as \"plan pranks more carefully.\" The parent is horrified when a trail of coconut shells leads to an elaborate harmless trick.",
@@ -1350,7 +1366,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "g4": {
    "type": "branch",
@@ -1452,7 +1469,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "text": "(Child) admits to accidentally spilling berries and helps clean up. (Parent) praises the honesty and explains that truth and kindness belong together.",
@@ -1480,7 +1498,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d1__fx": {
    "text": "(Child) notices a lonely child and invites (friend.him/her) to play. (Parent) is deeply moved.",
@@ -1514,7 +1533,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d1__text": {
    "text": "(Child) notices a lonely child and invites (friend.him/her) to play. (Parent) is deeply moved.",
@@ -1542,7 +1562,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2__fx": {
    "text": "(Child) gives away all the family's prepared snacks, including the portion meant for (Parent). The adult must explain thoughtful sharing and boundaries.",
@@ -1567,7 +1588,8 @@
      "scaled": true,
      "src": "L9856-9859"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2__text": {
    "text": "(Child) gives away all the family's prepared snacks, including the portion meant for (Parent). The adult must explain thoughtful sharing and boundaries.",
@@ -1607,7 +1629,8 @@
      "mood": "good",
      "src": "L9872-9875"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2_1__text": {
    "text": "Trying to \"care for every tree,\" (Child) gathers a mountain of fallen leaves and blocks the hut entrance. (Parent) laughs and helps sort them for compost.",
@@ -1657,7 +1680,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2_2__text": {
    "text": "Trying to \"care for every tree,\" (Child) gathers a mountain of fallen leaves and blocks the hut entrance. (Parent) laughs and helps sort them for compost.",
@@ -1685,7 +1709,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "g1__fx": {
    "text": "(Child) stops before a harmless prank and considers how a friend would feel. (Parent) is proud.",
@@ -1719,7 +1744,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "g1__text": {
    "text": "(Child) stops before a harmless prank and considers how a friend would feel. (Parent) is proud.",
@@ -1747,7 +1773,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

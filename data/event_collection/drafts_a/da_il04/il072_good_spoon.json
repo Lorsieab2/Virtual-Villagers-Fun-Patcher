@@ -92,7 +92,8 @@
      "mood": "good",
      "src": "L146"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",

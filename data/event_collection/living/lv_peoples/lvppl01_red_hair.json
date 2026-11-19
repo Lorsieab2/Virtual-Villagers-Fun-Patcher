@@ -141,7 +141,8 @@
      "head": "random",
      "src": "L21674"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",
@@ -155,7 +156,8 @@
      "max": -10,
      "src": "L21675"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__fx": {
    "name": "Outcome A1",
@@ -174,7 +176,8 @@
      "mood": "good",
      "src": "L21668"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -187,7 +190,8 @@
      "head": "random",
      "src": "L21668"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

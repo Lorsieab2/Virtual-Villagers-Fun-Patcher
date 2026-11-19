@@ -115,7 +115,8 @@
      "mood": "good",
      "src": "L230"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",

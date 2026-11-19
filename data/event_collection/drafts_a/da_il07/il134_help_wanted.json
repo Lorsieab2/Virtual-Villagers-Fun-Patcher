@@ -92,7 +92,8 @@
      "mood": "good",
      "src": "L170"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",

@@ -170,7 +170,8 @@
      "max": 15,
      "src": "L21204"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -189,7 +190,8 @@
      "max": 15,
      "src": "L21208"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2__text": {
    "name": "Outcome B2",

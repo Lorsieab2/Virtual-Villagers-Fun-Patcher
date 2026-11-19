@@ -121,7 +121,8 @@
      "reason": "a toddler and caregiver celebrate, not the village (rule 7)",
      "src": "L4335"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "name": "Outcome 2",
@@ -138,7 +139,8 @@
      "max": 10,
      "src": "L4336"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",
@@ -155,7 +157,8 @@
      "max": 10,
      "src": "L4337"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

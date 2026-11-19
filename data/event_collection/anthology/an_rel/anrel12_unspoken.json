@@ -249,7 +249,8 @@
      "mood": "good",
      "src": "L27188"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",
@@ -267,7 +268,8 @@
      "mood": "bad",
      "src": "L27189"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2__text": {
    "name": "Outcome B2",
@@ -285,7 +287,8 @@
      "mood": "good",
      "src": "L27191"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",

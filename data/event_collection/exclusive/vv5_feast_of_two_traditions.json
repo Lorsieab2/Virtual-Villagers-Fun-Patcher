@@ -88,7 +88,8 @@
      "who": "all",
      "src": "L7989"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "type": "branch",
@@ -129,7 +130,8 @@
      "src": "L7994",
      "loss": true
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "src": "L7995",
@@ -173,7 +175,8 @@
      "scaled": true,
      "src": "L7990"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__text": {
    "src": "L7990",
@@ -190,7 +193,8 @@
      "scaled": true,
      "src": "L7991"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3__text": {
    "src": "L7991",

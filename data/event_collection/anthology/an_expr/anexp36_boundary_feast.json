@@ -246,7 +246,8 @@
      "mood": "good",
      "src": "L31822"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2__text": {
    "name": "Outcome D2",

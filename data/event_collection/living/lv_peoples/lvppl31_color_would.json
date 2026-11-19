@@ -106,7 +106,8 @@
      "head": "random",
      "src": "L22072"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -170,7 +171,8 @@
      "mood": "good",
      "src": "L22074"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",

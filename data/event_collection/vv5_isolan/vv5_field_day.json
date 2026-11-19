@@ -439,7 +439,8 @@
      "max": 10,
      "src": "L2643"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "u1__fx": {
    "src": "L2608",
@@ -456,7 +457,8 @@
      "mood": "good",
      "src": "L2608"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "u1__text": {
    "src": "L2608",

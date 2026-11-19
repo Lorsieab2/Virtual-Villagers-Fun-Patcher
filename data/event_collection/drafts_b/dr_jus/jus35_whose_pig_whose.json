@@ -96,7 +96,8 @@
      "mood": "bad",
      "src": "L422"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",

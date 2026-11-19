@@ -168,7 +168,8 @@
      "mood": "good",
      "src": "L321"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -185,7 +186,8 @@
      "who": "all",
      "src": "L327"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",
@@ -204,7 +206,8 @@
      "scaled": true,
      "src": "L328"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "name": "Outcome C2",

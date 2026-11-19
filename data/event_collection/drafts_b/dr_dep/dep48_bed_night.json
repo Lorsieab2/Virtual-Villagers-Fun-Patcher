@@ -92,7 +92,8 @@
      "scaled": true,
      "src": "L581"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__fx": {
    "name": "Outcome A",
@@ -112,7 +113,8 @@
      "max": -5,
      "src": "L578"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",

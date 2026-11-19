@@ -130,7 +130,8 @@
      "max": 10,
      "src": "L59,L62"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Ending 3",

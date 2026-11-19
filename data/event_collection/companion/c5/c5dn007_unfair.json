@@ -125,7 +125,8 @@
      "mood": "good",
      "src": "L2722"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome 1",

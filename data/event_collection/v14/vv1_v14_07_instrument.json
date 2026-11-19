@@ -73,7 +73,8 @@
      "mood": "good",
      "src": "L7695-7698"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "scene__text": {
    "name": "The Instrument That Never Existed",
@@ -86,7 +87,8 @@
      "scaled": true,
      "src": "L7698"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

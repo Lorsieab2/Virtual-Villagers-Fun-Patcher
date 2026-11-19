@@ -89,7 +89,8 @@
      "scaled": true,
      "src": "L3502"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome A",

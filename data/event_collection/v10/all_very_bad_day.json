@@ -979,7 +979,8 @@
     {
      "next": "aftermath"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "x1__text": {
    "popup": "append",
@@ -997,7 +998,8 @@
     {
      "next": "aftermath"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "wd1__fx": {
    "popup": "append",
@@ -1016,7 +1018,8 @@
      "mood": "bad",
      "src": "L5466"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "wd1__text": {
    "popup": "append",

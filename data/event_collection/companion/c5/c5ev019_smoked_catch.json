@@ -75,7 +75,8 @@
      "scaled": true,
      "src": "L3456"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "name": "Outcome B",
@@ -91,7 +92,8 @@
      "loss": true,
      "src": "L3457"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

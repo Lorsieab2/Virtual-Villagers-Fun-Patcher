@@ -105,7 +105,8 @@
      "mood": "good",
      "src": "L212"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",
@@ -124,7 +125,8 @@
      "max": 15,
      "src": "L215"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",

@@ -83,7 +83,8 @@
      "who": "subject",
      "src": "L50"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "type": "branch",
@@ -108,7 +109,8 @@
      "mood": "good",
      "src": "L53"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",

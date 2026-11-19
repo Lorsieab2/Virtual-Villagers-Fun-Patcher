@@ -84,7 +84,8 @@
      "mood": "good",
      "src": "L7681-7684"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "scene__text": {
    "name": "The Lesson Nobody Expected",
@@ -104,7 +105,8 @@
      "max": 10,
      "src": "L7684"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

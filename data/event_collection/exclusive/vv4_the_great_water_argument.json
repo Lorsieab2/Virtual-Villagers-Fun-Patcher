@@ -68,7 +68,8 @@
      "what": "or a small tech reward",
      "reason": "food OR tech: the other page gives the tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1_2": {
    "src": "L7965",
@@ -87,7 +88,8 @@
      "what": "Gain food",
      "reason": "food OR tech: the other page gives the food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1": {
    "type": "branch",
@@ -166,7 +168,8 @@
      "scaled": true,
      "src": "L7967"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3__text": {
    "src": "L7967",

@@ -105,7 +105,8 @@
      "max": 10,
      "src": "L8542"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Answer C",
@@ -122,7 +123,8 @@
      "max": 10,
      "src": "L8544"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d": {
    "name": "Answer D",
@@ -140,7 +142,8 @@
      "mood": "good",
      "src": "L8540"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",

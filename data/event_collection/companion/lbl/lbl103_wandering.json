@@ -145,7 +145,8 @@
      "scaled": true,
      "src": "L5163"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Outcome 3",
@@ -162,7 +163,8 @@
      "max": 10,
      "src": "L5163"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

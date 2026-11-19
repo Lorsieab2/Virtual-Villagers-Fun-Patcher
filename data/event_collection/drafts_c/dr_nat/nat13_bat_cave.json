@@ -115,7 +115,8 @@
      "mood": "good",
      "src": "L158"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",
@@ -128,7 +129,8 @@
      "scaled": true,
      "src": "L158"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

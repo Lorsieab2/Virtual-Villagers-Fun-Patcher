@@ -140,7 +140,8 @@
      "loss": true,
      "src": "L23706"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -204,7 +205,8 @@
      "scaled": true,
      "src": "L23705"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",
@@ -222,7 +224,8 @@
      "scaled": true,
      "src": "L23711"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d1__text": {
    "name": "Outcome D1",

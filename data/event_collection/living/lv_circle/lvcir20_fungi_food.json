@@ -98,7 +98,8 @@
      "loss": true,
      "src": "L21494"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -110,7 +111,8 @@
      "role": "cook",
      "src": "L21495"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -164,7 +166,8 @@
      "scaled": true,
      "src": "L21500"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",
@@ -192,7 +195,8 @@
      "scaled": true,
      "src": "L21497"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",
@@ -209,7 +213,8 @@
      "max": 10,
      "src": "L21497"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

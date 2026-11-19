@@ -102,7 +102,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "text": "The judges accept a clever answer until a child finds a counterexample. The prize is withheld.",
@@ -135,7 +136,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1": {
    "text": "A quiet thinker demonstrates that the riddle cannot be answered without defining its terms.",
@@ -159,7 +161,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "The contestants argue until dusk, then agree that recognizing a genuine uncertainty is progress.",
@@ -183,7 +186,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "type": "branch",
@@ -459,7 +463,8 @@
      "scaled": true,
      "src": "L8690"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3__text": {
    "text": "One villager solves the paradox by eating the grain used to demonstrate it. The philosophers are furious; the farmers are delighted.",

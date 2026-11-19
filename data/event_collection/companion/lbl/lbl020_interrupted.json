@@ -139,7 +139,8 @@
      "mood": "good",
      "src": "L4054"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome 1",

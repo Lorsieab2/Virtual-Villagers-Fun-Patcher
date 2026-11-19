@@ -201,7 +201,8 @@
      "mood": "good",
      "src": "L30170"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d1__text": {
    "name": "Outcome D1",

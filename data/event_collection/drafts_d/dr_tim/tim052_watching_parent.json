@@ -138,7 +138,8 @@
      "mood": "good",
      "src": "L879"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3__text": {
    "name": "Ending 3",
@@ -156,7 +157,8 @@
      "mood": "good",
      "src": "L883"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e4__text": {
    "name": "Ending 4",

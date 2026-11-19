@@ -110,7 +110,8 @@
      "mood": "good",
      "src": "L218"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",
@@ -123,7 +124,8 @@
      "scaled": true,
      "src": "L218"
     }
-   ]
+   ],
+   "auto_text": true
   }
  },
  "grammar_fixes": [

@@ -107,7 +107,8 @@
      "max": 10,
      "src": "L290"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome A",
@@ -129,7 +130,8 @@
      "max": 10,
      "src": "L293"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2__text": {
    "name": "Outcome B",

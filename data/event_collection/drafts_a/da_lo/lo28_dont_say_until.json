@@ -117,7 +117,8 @@
      "reason": "a small thing collapses in the story (a tower of shells, a pile); no building is damaged",
      "src": "L342"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",
@@ -137,7 +138,8 @@
      "reason": "a small thing collapses in the story (a tower of shells, a pile); no building is damaged",
      "src": "L342"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

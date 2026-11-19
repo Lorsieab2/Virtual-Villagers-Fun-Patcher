@@ -318,7 +318,8 @@
      "role": "accused",
      "src": "L9273"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_b": {
    "type": "branch",
@@ -478,7 +479,8 @@
      "mood": "good",
      "src": "L9277-9278"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "text": "The accusation collapses; (Accused) receives public thanks for the discovery.",

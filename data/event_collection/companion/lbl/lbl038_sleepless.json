@@ -137,7 +137,8 @@
      "max": 10,
      "src": "L4297"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",
@@ -154,7 +155,8 @@
      "max": 10,
      "src": "L4298"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__fx": {
    "name": "Outcome 1",
@@ -178,7 +180,8 @@
      "max": 15,
      "src": "L4296"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome 1",
@@ -195,7 +198,8 @@
      "max": 10,
      "src": "L4296"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

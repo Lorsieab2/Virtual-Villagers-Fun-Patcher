@@ -67,7 +67,8 @@
      "scaled": true,
      "src": "L8022"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "src": "L8023",
@@ -92,7 +93,8 @@
      "src": "L8027",
      "loss": true
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "type": "branch",
@@ -144,7 +146,8 @@
      "scaled": true,
      "src": "L8028"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3__text": {
    "src": "L8028",

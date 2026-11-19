@@ -161,7 +161,8 @@
      "scaled": true,
      "src": "L623"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o1__text": {
    "name": "Outcome 1",
@@ -178,7 +179,8 @@
      "max": 10,
      "src": "L623"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o3__fx": {
    "name": "Outcome 3",
@@ -191,7 +193,8 @@
      "scaled": true,
      "src": "L627"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o3__text": {
    "name": "Outcome 3",

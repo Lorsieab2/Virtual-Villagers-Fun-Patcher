@@ -104,7 +104,8 @@
      "max": 10,
      "src": "L2540"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__fx": {
    "name": "Ending 1",
@@ -129,7 +130,8 @@
      "mood": "good",
      "src": "L2539"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",
@@ -148,7 +150,8 @@
      "max": 10,
      "src": "L2539"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

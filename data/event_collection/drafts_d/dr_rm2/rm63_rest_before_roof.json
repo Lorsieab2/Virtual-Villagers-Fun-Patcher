@@ -182,7 +182,8 @@
      "max": 15,
      "src": "L351"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d1__text": {
    "name": "Outcome D1",

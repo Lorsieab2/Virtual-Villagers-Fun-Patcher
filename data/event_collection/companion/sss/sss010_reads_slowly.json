@@ -87,7 +87,8 @@
      "max": 10,
      "src": "L6166"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -124,7 +125,8 @@
      "scaled": true,
      "src": "L6168"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",
@@ -142,7 +144,8 @@
      "scaled": true,
      "src": "L6170"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c__text": {
    "name": "Answer C",

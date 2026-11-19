@@ -208,7 +208,8 @@
      "mood": "good",
      "src": "L29479"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1__text": {
    "name": "Outcome C1",

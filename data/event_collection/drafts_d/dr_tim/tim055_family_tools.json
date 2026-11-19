@@ -160,7 +160,8 @@
      "mood": "good",
      "src": "L919"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Ending 1",

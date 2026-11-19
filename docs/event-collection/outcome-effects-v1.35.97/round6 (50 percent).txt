@@ -1,7 +1,8 @@
-Outcome effects - GO events and rewrites (#774, feat/97-round6)
+Outcome effects (50%) - GO events and rewrites (#774)
 Format: <event> | <outcome> | <effect> | "<words that justify it>"
+Each effect happens half the time when the outcome plays; the other half is the text only.
 
-WAITING FOR #774 (feat/97-round6) TO MERGE
+WAITING FOR #774 TO MERGE
 The Wrong Apprenticeship (c5dn002_wrong) | e2 | HAPPIER (teen) (50%) | "Try the family trade and unexpectedly enjoy it."
 The Silence After the Storm (lvuns23_silence_after) | a1 | HAPPIER (believer) (50%) | "The believer finds comfort in a story of endurance"
 The Undertow (b001_undertow) | c1o1 | UNHAPPY (friend) (50%) | "someone sits on the beach and watches the place past the reef"
@@ -1009,7 +1010,7 @@ The Elder's Gift of Years (s057_elder_gift_years) | c2o1 | ILLNESS CURED (friend
 The Elder's Gift of Years (s057_elder_gift_years) | c2o2 | ILLNESS CURED (friend) (50%) | "(friend)'s fever has dropped."
 The Isolan Healer (s070_isolan_healer) | c1o2 | ILLNESS CURED (friend) (50%) | "(friend) gets better slowly, over the following week."
 
-WAITING FOR #774 (feat/97-round6) AND #813 (feat/97-traders-effects) TO MERGE
+WAITING FOR #774 AND #813 TO MERGE
 The Festival of Lanterns (b036_festival_lanterns) | c1o1 | GROUP song (everyone) (50%) | "someone starts the old song, and everyone joins in"
 The Dance of Shared Hearts (b041_dance_shared) | c1o2 | GROUP dance (everyone) (50%) | "The dance goes on till dawn"
 The Festival Masks (b107_festival_masks) | c1o2 | GROUP dance (everyone) (50%) | "the whole village gets up to dance with them"

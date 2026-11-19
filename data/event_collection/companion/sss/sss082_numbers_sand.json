@@ -106,7 +106,8 @@
      "scaled": true,
      "src": "L6920"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b__text": {
    "name": "Answer B",

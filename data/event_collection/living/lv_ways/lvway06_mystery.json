@@ -147,7 +147,8 @@
      "loss": true,
      "src": "L22791"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -181,7 +182,8 @@
      "loss": true,
      "src": "L22794"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d": {
    "type": "branch",
@@ -210,7 +212,8 @@
      "loss": true,
      "src": "L22796"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2": {
    "name": "Outcome D2",
@@ -229,7 +232,8 @@
      "scaled": true,
      "src": "L22788"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2__text": {
    "name": "Outcome A2",
@@ -247,7 +251,8 @@
      "scaled": true,
      "src": "L22790"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",

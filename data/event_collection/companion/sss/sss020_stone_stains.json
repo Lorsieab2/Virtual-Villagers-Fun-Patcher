@@ -95,7 +95,8 @@
      "role": "worker",
      "src": "L6274"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__fx": {
    "name": "Answer A",
@@ -118,7 +119,8 @@
      "scaled": true,
      "src": "L6270"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a__text": {
    "name": "Answer A",
@@ -135,7 +137,8 @@
      "max": 10,
      "src": "L6270"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

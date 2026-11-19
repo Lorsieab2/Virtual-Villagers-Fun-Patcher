@@ -266,7 +266,8 @@
      "mood": "good",
      "src": "L104"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a1__text": {
    "name": "Outcome A1",
@@ -284,7 +285,8 @@
      "mood": "bad",
      "src": "L111"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "name": "Outcome C2",

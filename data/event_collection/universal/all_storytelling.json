@@ -1040,7 +1040,8 @@
      "scaled": true,
      "src": "L1988"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "v6": {
    "src": "L1989-1990",
@@ -1125,7 +1126,8 @@
     {
      "next": "end"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "end": {
    "name": "Quiet ending",
@@ -1160,7 +1162,8 @@
      "max": 20,
      "src": "L1978"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "v1_r": {
    "src": "L1977-1978",
@@ -1181,7 +1184,8 @@
      "max": 20,
      "src": "L1978"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "v2_5": {
    "type": "branch",
@@ -1236,7 +1240,8 @@
      "max": 10,
      "src": "L1983"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "v3_r": {
    "src": "L1982-1983",
@@ -1267,7 +1272,8 @@
      "max": 10,
      "src": "L1983"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "mean1__fx": {
    "popup": "append",
@@ -1300,7 +1306,8 @@
      "max": 10,
      "src": "L1907-1908"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "mean1__text": {
    "popup": "append",
@@ -1330,7 +1337,8 @@
      "scaled": true,
      "src": "L1931-1934"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "both5__text": {
    "popup": "append",
@@ -1358,7 +1366,8 @@
      "mood": "bad",
      "src": "L2009-2011"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "af2__text": {
    "src": "L2009-2011",
@@ -1400,7 +1409,8 @@
      "mood": "bad",
      "src": "L1979-1981"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "v2_5__text": {
    "src": "L1979-1981",
@@ -1421,7 +1431,8 @@
      "max": 20,
      "src": "L1981"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "v2_r__fx": {
    "src": "L1979-1981",
@@ -1454,7 +1465,8 @@
      "mood": "bad",
      "src": "L1979-1981"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "v2_r__text": {
    "src": "L1979-1981",
@@ -1475,7 +1487,8 @@
      "max": 20,
      "src": "L1981"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

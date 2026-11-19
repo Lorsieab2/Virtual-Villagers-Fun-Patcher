@@ -149,7 +149,8 @@
      "mood": "good",
      "src": "L3920"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e1__text": {
    "name": "Outcome 1",

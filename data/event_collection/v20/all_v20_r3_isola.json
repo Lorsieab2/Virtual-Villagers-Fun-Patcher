@@ -203,7 +203,8 @@
      "loss": true,
      "src": "L9293"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_a": {
    "type": "branch",
@@ -413,7 +414,8 @@
      "what": "empty the village stores",
      "reason": "a large food loss, never below zero"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "coda_p8": {
    "popup": "append",
@@ -508,7 +510,8 @@
      "scaled": true,
      "src": "L9296"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "text": "Explorers discover an old wreck with more impossible objects.",
@@ -534,7 +537,8 @@
      "scaled": true,
      "src": "L9303"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2__text": {
    "text": "A researcher records the discovery despite an order of silence.",

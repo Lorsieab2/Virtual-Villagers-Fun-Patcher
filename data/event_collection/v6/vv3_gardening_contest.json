@@ -206,7 +206,8 @@
     {
      "next": "ending"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "s2": {
    "text": "They argue over the path's exact shape, then compromise when the elder suggests a curved path with straight planting beds.",
@@ -325,7 +326,8 @@
      "scaled": true,
      "src": "L3080-3081"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "p1__text": {
    "text": "Both gardens flourish in different ways. The villagers learn which designs suit which purposes.",

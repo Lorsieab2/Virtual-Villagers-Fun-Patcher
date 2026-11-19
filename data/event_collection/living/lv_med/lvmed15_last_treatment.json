@@ -95,7 +95,8 @@
      "cause": "unknown",
      "src": "L20405"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -159,7 +160,8 @@
      "mood": "good",
      "src": "L20407"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1__text": {
    "name": "Outcome B1",
