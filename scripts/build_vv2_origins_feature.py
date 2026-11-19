@@ -345,34 +345,36 @@ def build_vv2_mask_stage2_output(source_bytes: bytes) -> bytes:
         module.build(output, src_exe=source)
         return output.read_bytes()
 
-# Exact caller-return addresses proven by the VV2 stock executable audit.  The
-# wrappers compare the immediate caller return address so Island Event, Gong,
-# and duplicate-collectible tech awards remain byte-for-byte native while
-# ordinary positive awards can still use the save-scoped doubler.
-TECH_DOUBLER_EXCLUDED_RETURNS = (
-    0x4205AC,
-    0x434351,
-    0x44EA32,
-    0x44ED52,
-    0x44F202,
-    0x463461,
-    0x46346D,
-    0x463479,
+# The owner's doubler scope (2026-11-17, the same rule in all five games):
+# FOOD is only food gathered from a food source; TECH is research-table work
+# (with the fire's point), collectible duplicates and collection effects on
+# tech gain.  Island events, rewards (the Sack/Vial, the Gong of Wonder),
+# purchases and cheats are never doubled.  The wrappers double only a call
+# whose immediate return address is one of these exact stock returns (a
+# whitelist): any other caller -- an event, a reward, a companion DLL -- stays
+# native.  The sliders of #799 retarget these calls without moving the return.
+TECH_DOUBLER_ELIGIBLE_RETURNS = (
+    0x46373C,  # research at Science 3
+    0x4637C5,  # research at the other Science levels
+    0x46380E,  # the fire's extra point
+    0x463461,  # a duplicate collectible
+    0x46346D,  # a duplicate collectible
+    0x463479,  # a duplicate collectible
 )
-FOOD_DOUBLER_EXCLUDED_RETURNS = (
-    0x420AE9,
-    0x433FC6,
-    0x44E9C3,
-    0x44EDB9,
-    0x44F0D9,
+FOOD_DOUBLER_ELIGIBLE_RETURNS = (
+    0x46319D,  # coconuts
+    0x46325E,  # crops
+    0x463317,  # fish
+    0x463369,  # the big catch
+    0x4633D2,  # mushroom
 )
 
 
-def caller_blacklist_asm(addresses: tuple[int, ...]) -> str:
+def caller_whitelist_asm(addresses: tuple[int, ...]) -> str:
     return "\n".join(
-        f"cmp dword ptr [esp + 4], 0x{address:X}\n            je apply"
+        f"cmp dword ptr [esp + 4], 0x{address:X}\n            je eligible"
         for address in addresses
-    )
+    ) + "\n            jmp apply\n        eligible:"
 
 
 # THE TRIBE-DELETE HOOK, owned here rather than by the parentage log.
@@ -1274,7 +1276,7 @@ def main() -> None:
             mov eax, dword ptr [esp + 8]
             test eax, eax
             jle apply
-            {caller_blacklist_asm(TECH_DOUBLER_EXCLUDED_RETURNS)}
+            {caller_whitelist_asm(TECH_DOUBLER_ELIGIBLE_RETURNS)}
             test dword ptr [ebx + 0x2EAE8], 1
             jz apply
             shl dword ptr [esp + 8], 1
@@ -1295,7 +1297,7 @@ def main() -> None:
             mov eax, dword ptr [esp + 8]
             test eax, eax
             jle apply
-            {caller_blacklist_asm(FOOD_DOUBLER_EXCLUDED_RETURNS)}
+            {caller_whitelist_asm(FOOD_DOUBLER_ELIGIBLE_RETURNS)}
             test dword ptr [ebx + 0x2EAE8], 2
             jz apply
             shl dword ptr [esp + 8], 1
@@ -2545,7 +2547,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x8B808", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features and Heathen Masks",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager. Equal Division of Labor (Includes Parenting / No Parenting, 1,000,000 tech points each) splits the village evenly across the jobs, with males and females balanced per job, and gives each villager the job whose skill they have made the most progress in while that job has room (then their next-best job); villagers with no progress, ties and anyone left over are placed at random in the remaining seats. Clear All Skill Preferences (500,000 tech points) unchecks every villager's skill preference (job checkmark) so each villager chooses their own work again, as in the stock game; skills are not changed. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each) sets each villager's skill preference to the skill they have the most progress in; the No Parenting version ignores Parenting, ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting), and villagers with no progress yet keep their preference. Also includes the Heathen mask mod: a cosmetic mask (Blue, Orange, Red, Purple, or Chief) can be given to any villager from the Change Appearance picker on the Villager Details screen, or to the whole village at once from the Change Appearance for All tech upgrade. Masks render on villagers in the village view and on the Details screen portrait, and persist across save and reload. The mask artwork ships inside the companion DLL and is written out automatically on first run, including migration of an exact obsolete bundled 320x440 atlas while preserving current/custom art.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers. The Tech Point Doubler doubles research tech points (with the fire's extra point) and duplicate collectibles; the Food Point Doubler doubles food gathered from food sources (coconuts, crops, fish, the big catch and mushrooms). Island events, the Gong of Wonder, the Sack and Vial, other rewards, purchases and cheats are never doubled. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager. Equal Division of Labor (Includes Parenting / No Parenting, 1,000,000 tech points each) splits the village evenly across the jobs, with males and females balanced per job, and gives each villager the job whose skill they have made the most progress in while that job has room (then their next-best job); villagers with no progress, ties and anyone left over are placed at random in the remaining seats. Clear All Skill Preferences (500,000 tech points) unchecks every villager's skill preference (job checkmark) so each villager chooses their own work again, as in the stock game; skills are not changed. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each) sets each villager's skill preference to the skill they have the most progress in; the No Parenting version ignores Parenting, ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting), and villagers with no progress yet keep their preference. Also includes the Heathen mask mod: a cosmetic mask (Blue, Orange, Red, Purple, or Chief) can be given to any villager from the Change Appearance picker on the Villager Details screen, or to the whole village at once from the Change Appearance for All tech upgrade. Masks render on villagers in the village view and on the Details screen portrait, and persist across save and reload. The mask artwork ships inside the companion DLL and is written out automatically on first run, including migration of an exact obsolete bundled 320x440 atlas while preserving current/custom art.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
@@ -2608,15 +2610,16 @@ def main() -> None:
             "duplicate_collectibles": {
                 "function": "0x463426",
                 "tech_returns": ["0x463461", "0x46346D", "0x463479"],
-                "behavior": "an already-completed collectible routes to the tech writer",
+                "behavior": "an already-completed collectible routes to the tech writer (doubled: in the owner's scope)",
             },
-            "tech_blacklist_returns": [
-                "0x4205AC", "0x434351", "0x44EA32", "0x44ED52", "0x44F202",
-                "0x463461", "0x46346D", "0x463479"
-            ],
-            "food_blacklist_returns": [
-                "0x420AE9", "0x433FC6", "0x44E9C3", "0x44EDB9", "0x44F0D9"
-            ],
+            "sack_and_vial_rewards": {
+                "function": "0x438160",
+                "tech_returns": ["0x4385E6", "0x438746", "0x4388A6", "0x438AA0", "0x438C80", "0x438E60"],
+                "food_returns": ["0x438298", "0x438376", "0x43844A"],
+                "behavior": "rewards: never doubled",
+            },
+            "tech_eligible_returns": [f"0x{va:X}" for va in TECH_DOUBLER_ELIGIBLE_RETURNS],
+            "food_eligible_returns": [f"0x{va:X}" for va in FOOD_DOUBLER_ELIGIBLE_RETURNS],
             "direct_call_inventory": {
                 "tech": [
                     "0x4205A7/0x4205AC", "0x43434C/0x434351", "0x4385E1/0x4385E6",
@@ -2635,17 +2638,21 @@ def main() -> None:
                 ],
                 "e9_tail_jumps_to_writers": 0,
             },
-            "hook_status": "GO: exact-build static provenance proof covers the positive writer callsites and excludes Island Event, Gong, and duplicate-collectible tech awards; runtime/player confirmation pending",
+            "hook_status": "GO: exact-build static whitelist of the gathered food sources, research (with the fire's point) and duplicate collectibles; Island Event, Gong, Sack/Vial and every other caller stay native; runtime/player confirmation pending",
         },
         "doubler_composition_contract": {
             "stacking": [
                 "positive earned tech deltas only",
                 "positive food-source deltas only",
             ],
+            "scope": {
+                "tech": ["research", "the fire's extra point", "duplicate collectibles"],
+                "food": ["coconuts", "crops", "fish", "the big catch", "mushrooms"],
+            },
             "exclusions": [
-                "Island Event tech-point gain",
-                "Gong of Wonder tech-point gain",
-                "Duplicate Collectibles tech-point gain",
+                "Island Event tech-point and food-point gain",
+                "Reward tech-point and food-point gain (Gong of Wonder, Sack/Vial)",
+                "Purchases and cheats",
             ],
             "food_mastery_status": "confirmed absent in exact-build audit: enumerated technology definitions, resource strings, direct writer calls, and food-source call chains; Farming gates/unlocks sources only; Herb Mastery is unrelated",
             "status": "GO: exact-build static provenance covers the certified positive delta boundaries; native writers still perform storage/statistics updates for the doubled amount; runtime/player confirmation pending",

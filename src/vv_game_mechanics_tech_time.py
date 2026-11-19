@@ -551,7 +551,7 @@ def lines(ctx, everyone) -> list[gm.Fact]:
     if village.has(f"vv{game}_enable_origins_exclusive_features") is True:
         add(f"With the patcher's \"{gm.feature_name(f'vv{game}_enable_origins_exclusive_features')}\" (in this "
             "game): an owned Tech Point Doubler doubles the tech points research earns, so every time above halves; "
-            "whether this save owns one is not read here.", False if game == 4 else gm.CODE)
+            "whether this save owns one is not read here.", gm.CODE)
     chosen = farmers_mod.game_module(game).FARMING_CHOSEN
     add(f"How it is worked out: points still needed ÷ (job turns x the share of turns that choose Research, "
         f"{chosen:.5f} x min(1, (Research + 40) ÷ 100), x the share that pass the Research test x the points a "

@@ -526,9 +526,11 @@ ORIGINS = (
                   "still takes a place)."), C),
     )),
     Entry(PATCHER, "Origins: Tech Point Doubler and Food Point Doubler", (
-        (_origins("Tech Point Doubler / Food Point Doubler", 500_000, "Tech screen's Upgrades", "doubles the tech "
-                  "points or food the village earns; island events, pieces of a collection found again and the "
-                  "Gong of Wonder are not doubled."), C),
+        (_origins("Tech Point Doubler / Food Point Doubler", 500_000, "Tech screen's Upgrades", "the Tech Point "
+                  "Doubler doubles the tech points research earns (with the fire's extra point) and pieces of a "
+                  "collection found again; the Food Point Doubler doubles the food gathered from food sources "
+                  "(coconuts, crops, fish, the big catch and mushrooms). Island events, the Gong of Wonder, the Sack "
+                  "and Vial, purchases and cheats are not doubled."), C),
     )),
     Entry(PATCHER, "Origins: Full Heal / Cure All", (
         (_origins("Full Heal / Cure All", 30_000, "Tech screen's Upgrades", "cures every sick villager and sets every "
