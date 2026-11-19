@@ -44,6 +44,7 @@ import vv_translations
 import vv_translations_window
 import vv_vv2_totem_store
 import vv_vv2_totems
+import vv_village_scores
 import vv_genealogy
 import vv_genealogy_window
 import vv_game_mechanics_window
@@ -89,6 +90,8 @@ from vv_fun_patcher import (
     set_island_frequency_multiplier,
     set_runtime_slider_multiplier,
     set_unicode_font_face,
+    set_village_solidarity_strength,
+    village_solidarity_strength,
     set_unicode_font_file,
     unicode_font_file,
     patch_requirement_text,
@@ -392,6 +395,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # 2026-11-17): off by default, on in Owner's Defaults, which ticks it like every default-off patch it does not
     # name.
     + ["vv%d_every_island_event_can_happen" % game for game in (1, 2, 3, 5)]
+    # Village Solidarity (all five games; the owner, 2026-11-17): off by default and in Select All, on in Owner's
+    # Defaults.
+    + ["vv%d_village_solidarity" % game for game in range(1, 6)]
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -473,6 +479,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + NEW_SLIDER_ROW_IDS
     # One-Time Collectibles Appear Again: likewise (the owner, 2026-11-17).
     + ONE_TIME_COLLECTIBLES_IDS
+    # Village Solidarity: on in Owner's Defaults only (the owner, 2026-11-17).
+    + ["vv%d_village_solidarity" % game for game in range(1, 6)]
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
@@ -553,6 +561,15 @@ def saved_multiplier(settings: dict, key: str, multipliers, default):
     value = settings.get(key, default) if isinstance(settings, dict) else None
     clamped = multipliers.clamp(value)
     return default if clamped is None else clamped
+
+
+def saved_solidarity_strength(settings: dict) -> int | float:
+    """Village Solidarity's strength the settings file keeps (0.1 to 10), else 1 (the normal strength)."""
+    value = settings.get("village_solidarity_strength") if isinstance(settings, dict) else None
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or vv_village_scores.strength_tenths(
+            round(float(value), 1)) is None:
+        return vv_village_scores.STRENGTH_DEFAULT
+    return vv_village_scores.strength_number(round(float(value), 1))
 
 
 def saved_tech_cost_multiplier(settings: dict):
@@ -1983,6 +2000,20 @@ class App(tk.Tk):
             variable = self.runtime_slider_vars[slider.key]
             variable.trace_add("write", lambda *_args, key=slider.key: self._runtime_slider_changed(key))
             self._runtime_slider_changed(slider.key)    # the saved number, loaded before the window was built
+        # Village Solidarity's slider: kept on the main settings row for now; TODO move it to the Difficulty
+        # Sliders page (the owner's v1.35.97 post-merge item).
+        # Village Solidarity's strength (the owner, 2026-11-17: the new sliders' range, 0.1x to 10x, 1x normal; only
+        # used with that row ticked).  Set in the patcher at once and written beside its companion at the next patch.
+        solidarity_group = ttk.Frame(fun_settings)
+        solidarity_group.pack(side="left", padx=(16, 0))
+        ttk.Label(solidarity_group, text="Village Solidarity strength:").pack(side="left", padx=(0, 4))
+        self.solidarity_var = tk.DoubleVar(value=float(vv_village_scores.STRENGTH_DEFAULT))
+        self.solidarity_scale = tk.Scale(
+            solidarity_group, variable=self.solidarity_var, orient="horizontal",
+            from_=vv_village_scores.STRENGTH_MIN_TENTHS / 10, to=vv_village_scores.STRENGTH_MAX_TENTHS / 10,
+            resolution=0.1, length=120, showvalue=True, command=lambda _value: self._solidarity_changed())
+        self.solidarity_scale.pack(side="left")
+        self._help_button(solidarity_group, "village_solidarity_strength").pack(side="left", padx=(2, 0))
         # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
         # when it no longer fits; the row asks only for its widest setting, so it never widens the page.
         vv_genealogy_window.flow_row(fun_settings, natural=False)
@@ -3250,6 +3281,8 @@ class App(tk.Tk):
             self.partner_carry_var.set(saved_partner_carry(data))
         for key, variable in getattr(self, "runtime_slider_vars", {}).items():
             variable.set(saved_runtime_slider_multiplier(data, key))
+        if hasattr(self, "solidarity_var"):
+            self.solidarity_var.set(float(set_village_solidarity_strength(saved_solidarity_strength(data))))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
             for build in self.builds:
@@ -3305,6 +3338,7 @@ class App(tk.Tk):
             "partner_carry_percent": (App._partner_carry(self) if hasattr(self, "partner_carry_var")
                                       else PARTNER_CARRY_DEFAULT),
             **{f"{slider.key}_multiplier": App._runtime_slider_number(self, slider.key) for slider in RUNTIME_SLIDERS},
+            "village_solidarity_strength": village_solidarity_strength(),
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
             "tree_window": self.tree_window,
@@ -3318,6 +3352,15 @@ class App(tk.Tk):
             },
         }
         SETTINGS.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+
+    def _solidarity_changed(self) -> None:
+        """The Village Solidarity slider: its number (0.1 to 10) for the next patch."""
+        try:
+            value = set_village_solidarity_strength(round(float(self.solidarity_var.get()), 1))
+        except Exception:  # noqa: BLE001 -- out of range: back to the normal strength
+            value = set_village_solidarity_strength(vv_village_scores.STRENGTH_DEFAULT)
+        self._save_settings()
+        return value
 
     def _partner_carry(self) -> int:
         """"A man may carry the baby by chance": the slider's percent, kept within 0 to 100."""

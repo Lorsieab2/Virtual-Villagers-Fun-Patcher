@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 import patcher_files
+import vv_village_scores
 from transparency import write_transparency_artifacts
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -508,6 +509,12 @@ GENDER_PRESENTATION_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_gender_present
 # VVFP Startup.dll from its second word; scripts/build_island_frequency_features.py.
 ISLAND_FREQUENCY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_more_frequent_island_events_feature.json" for n in range(1, 6))
+# Village Solidarity (all five games; on in Owner's Defaults only; the owner, 2026-11-17): the village's 0-100 score,
+# moved by the new events' tagged pages, changing only the odds of the patcher's own events; companion only, "VVFP
+# Village Solidarity.dll", started by VVFP Startup.dll from its second word, its strength (0.1x-10x) written beside it
+# (src/vv_village_scores.py); scripts/build_village_solidarity_feature.py.
+VILLAGE_SOLIDARITY_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_village_solidarity_feature.json"
+                                         for n in range(1, 6))
 # Island Events Scale With Population (like The Lost Children) and its alternative Island Events Scale With Stored
 # Food and Tech Points (A New Home, The Tree of Life, New Believers; the owner, 2026-11-12): companion only, "VVFP
 # Island Events Scale.dll", started by VVFP Startup.dll from its second word; the stored row also ships the flag
@@ -1256,7 +1263,7 @@ VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A406986
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 # The tribe-delete stub's companion, shipped from this record because it owns
 # the VV5 Origins companion list.
-VV5_TASK9_SAVE_RESET_SHA256 = "C07E2A06BDD8F67E5A6F17AC8B6888E217E8B42EA71AE68BBD599941240E70E6"
+VV5_TASK9_SAVE_RESET_SHA256 = "40F330FAE10137D8B2D276EA32B191B14F04BFEFE4FC0627E52FBABB4DAE7875"
 VV5_TASK9_SAVE_RESET_SIZE = 161792
 # Change Appearance's head look (native/vvfp_head_look), shipped from this record for the same reason.
 VV5_TASK9_HEAD_LOOK_SOURCE = "assets/head_look/VVFP Head Look.dll"
@@ -4405,6 +4412,7 @@ def _load_fun_patch_records(
                          + LOUDER_FLUTES_FEATURE_PATHS + CHILDREN_PLAY_FEATURE_PATHS
                          + GENDER_PRESENTATION_FEATURE_PATHS
                          + ISLAND_FREQUENCY_FEATURE_PATHS + RUNTIME_SLIDER_FEATURE_PATHS
+                         + VILLAGE_SOLIDARITY_FEATURE_PATHS
                          + ISLAND_EVENTS_SCALE_FEATURE_PATHS
                          + SCROLLING_POPUPS_FEATURE_PATHS + MORE_ISLAND_EVENTS_FEATURE_PATHS
                          + EVENT_COLLECTION_FEATURE_PATHS + ISLAND_EVENT_CONTENT_FEATURE_PATHS):
@@ -11188,6 +11196,7 @@ def _copy_companion_files(
     _write_island_frequency_choice(output_folder, fun_patches)
     _write_runtime_slider_choices(output_folder, fun_patches)
     _write_player_events(output_folder, fun_patches)
+    _write_village_solidarity_choice(output_folder, fun_patches)
     return copied
 
 
@@ -11462,6 +11471,41 @@ def _write_runtime_slider_choices(output_folder: Path, fun_patches: list[FunPatc
                 (dll.parent / slider.choice_file).write_text(
                     multiplier_text(_runtime_slider_values[slider.key]) + "\n", encoding="ascii", newline="\n")
 
+
+# Village Solidarity's strength (the row's slider; the owner, 2026-11-17: the new sliders' range, 0.1x to 10x, 1x the
+# normal strength): written beside "VVFP Village Solidarity.dll" as "VVFP Village Solidarity.txt" ("1", "0.5",
+# "2.5"), which the companion reads at start (missing or unreadable: 1x).  The window's slider and the command line's
+# --village-solidarity-strength set it.
+_village_solidarity_strength: int | float = vv_village_scores.STRENGTH_DEFAULT
+
+
+def set_village_solidarity_strength(value) -> int | float:
+    """Choose Village Solidarity's strength (0.1 to 10 in steps of 0.1) for the next patch."""
+    global _village_solidarity_strength
+    if vv_village_scores.strength_tenths(value) is None:
+        raise PatcherError(f"{vv_village_scores.SOLIDARITY_NAME}: the strength must be a number from 0.1 to 10 in "
+                           f"steps of 0.1, not {value!r}. Nothing was written.")
+    _village_solidarity_strength = vv_village_scores.strength_number(value)
+    return _village_solidarity_strength
+
+
+def village_solidarity_strength() -> int | float:
+    """Village Solidarity's strength now (set_village_solidarity_strength)."""
+    return _village_solidarity_strength
+
+
+def _write_village_solidarity_choice(output_folder: Path, fun_patches: list[FunPatch]) -> None:
+    for feature in fun_patches:
+        if not feature.id.endswith(vv_village_scores.SOLIDARITY_ROW_SUFFIX):
+            continue
+        for item in feature.raw.get("companion_files", []):
+            if item.get("destination") != vv_village_scores.SOLIDARITY_DLL:
+                continue
+            dll = patcher_files.long_path(output_folder / _safe_companion_destination(item["destination"]))
+            dll.parent.mkdir(parents=True, exist_ok=True)
+            (dll.parent / vv_village_scores.SOLIDARITY_CHOICE_FILE).write_text(
+                vv_village_scores.strength_text(_village_solidarity_strength) + "\n", encoding="ascii",
+                newline="\n")
 
 def _remove_unselected_companions(
     staging_folder: Path, build: Build, fun_patches: list[FunPatch]
@@ -13485,6 +13529,8 @@ STARTUP_LOADER_COMPANIONS_3 = (
     "VVFP Age Speed.dll",
     # Fix Vanilla Bugs (A New Home, The Lost Children): herb study Healing practice (second word full: moved here at the v1.35.97 merge)
     "VVFP Herb Study.dll",
+    # Village Solidarity (all five games): the village's 0-100 score (second word full: moved here at the v1.35.97 merge)
+    "VVFP Village Solidarity.dll",
 )
 MORE_COMPANIONS_DLL = "VVFP More Companions.dll"
 MORE_COMPANIONS_CHOICE_FILE = "VVFP More Companions.txt"
@@ -13969,6 +14015,8 @@ def _game_opened_relatives(
                 if _unicode_font_file is not None:
                     relatives.append(str(installed.parent / UNICODE_FONT_FILE_FOLDER
                                          / _font_file_name_for_companion(_unicode_font_file)))
+            if item.get("destination") == vv_village_scores.SOLIDARITY_DLL:
+                relatives.append(str(installed.parent / vv_village_scores.SOLIDARITY_CHOICE_FILE))
             if str(item.get("destination", "")).casefold() == "vvfp translations.dll":
                 relatives.append(str(Path(patcher_files.PATCHER_FILES_FOLDER) / "Translation" / "Translation.txt"))
     if relatives:
@@ -14830,6 +14878,11 @@ def _add_fun_patch_args(parser: argparse.ArgumentParser) -> None:
         help="optional game-specific patch; may be supplied more than once",
     )
     parser.add_argument(
+        "--village-solidarity-strength",
+        default=None,
+        help="Village Solidarity's strength, 0.1 to 10 in steps of 0.1 (default: 1, the normal strength)",
+    )
+    parser.add_argument(
         "--unicode-font",
         default=None,
         help="the typeface Use Unicode Font (overrides in-game fonts) draws with (default: Segoe UI)",
@@ -15003,6 +15056,8 @@ def main() -> int:
         for slider in RUNTIME_SLIDERS:
             if getattr(args, f"{slider.key}_multiplier", None) is not None:
                 set_runtime_slider_multiplier(slider.key, getattr(args, f"{slider.key}_multiplier"))
+        if getattr(args, "village_solidarity_strength", None) is not None:
+            set_village_solidarity_strength(args.village_solidarity_strength)
         if args.command == "identify":
             print(json.dumps(identify(args.exe).raw, indent=2))
         elif args.command == "dry-run":

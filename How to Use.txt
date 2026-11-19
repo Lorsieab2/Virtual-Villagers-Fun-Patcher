@@ -1556,6 +1556,27 @@ in the normal defaults and in Select All). Runs on the Origins-exclusive
 base, which the patcher installs automatically with it. Not yet seen in a
 running game.
 
+VILLAGE SOLIDARITY (ALL FIVE GAMES)
+
+Each village gets a Village Solidarity score from 0 to 100, starting at 50.
+The patcher's new island events can mark a page as raising it (songs and
+gatherings, fair resolutions, mutual aid, welcoming newcomers, happiness,
+trust, gratitude, hope), lowering it (unresolved conflicts, unfairness,
+broken promises, tension, distrust, fear) or leaving it (solemn remembrance,
+quiet reflection). Every raise and every lower moves it by 5. The score only
+changes odds: the higher it is, the more likely the new cooperative and
+celebration events and the cooperative endings; the lower it is, the more
+likely the new repair, peace and apology events and the tense endings. At
+the normal strength each point away from 50 adds 2% to the favoured event's
+or ending's own chance (double at 0 or 100); nothing is forced. The game's
+own island events, work, skills and health never change. The "Village
+Solidarity strength" slider sets the strength, 0.1x to 10x (1x is normal).
+The Tech screen shows "Village Solidarity: 62 / 100"; so does the Game
+Mechanics page. The score is kept in the save's own Village Scores file and
+every change in its Village Solidarity log; Start Over clears both. Needs
+Story / Cheat Upgrades. On in Owner's Defaults only (off in the normal
+defaults and in Select All). Not yet seen in a running game.
+
 THE PATCHER'S OWN FILES, AND HOW TO CLEAR THEM
 
 Everything this patcher writes for a village sits beside that village's save,

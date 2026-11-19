@@ -1,0 +1,42 @@
+{
+  "id": "vv3_village_solidarity",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv3",
+  "name": "Village Solidarity",
+  "description": "Gives each village a **Village Solidarity** score from 0 to 100, starting at 50. The patcher's new island events (the Isola Grand Event Collection, the Companion Anthology, More Island Events and your own Custom Island Events) can mark a page as raising, lowering or not changing it: songs and gatherings, fair resolutions, mutual aid, welcoming newcomers and feelings like happiness, trust, gratitude and hope raise it; unresolved conflicts, unfairness, broken promises and feelings like tension, distrust, resentment and fear lower it; solemn remembrance and quiet reflection leave it as it is. Every raise and every lower moves it by the same 5 points. **The score only changes odds:** the higher it is, the more likely the new cooperative and celebration events and the cooperative endings of a chance split; the lower it is, the more likely the new repair, peace and apology events and the tense endings (at the normal strength each point away from 50 adds 2% to the favoured event's or ending's own chance weight, so 0 or 100 doubles it; nothing is ever forced and nothing else is made less likely). It never changes work, helping, idling, skills or health, and the game's own island events and their chances never change. The slider sets the strength, 0.1x to 10x (1x is normal). The Tech screen shows \"Village Solidarity: 62 / 100\" in the game's own font; the Game Mechanics page shows it too. The score is kept outside the save, in the save's own Village Scores file, and every change is written to the save's Village Solidarity log; Start Over clears both. Without this patch the events' marks are only words in their files. **Needs Story / Cheat Upgrades (on by default), which runs the new events; ticking this ticks it.** **The score moves only when new events with marked pages happen: tick the Isola Grand Event Collection or More Island Events, or write your own Custom Island Events.** **Works the same in every population mode.** **On in Owner's Defaults; off in the normal defaults and in Select All.** The companion is \"VVFP Village Solidarity.dll\", started by VVFP Startup.dll; the save is never written.",
+  "output_tag": "Village Solidarity",
+  "dependencies": [
+    "vv3_story_cheat_upgrades"
+  ],
+  "behavior_changes": [
+    "The village's Village Solidarity score (0..100, 50 at the start) is kept in \"Virtual Villagers Fun Patcher\\Save <S>\\Data\\Village Scores\\Village Scores - Save <S>.txt\" (one line per score, written atomically: native/shared/sidecar_io.h); each change is appended to \"...Save <S>\\Logs\\Village Solidarity\\Village Solidarity Log.txt\" (append-only, rolling on at 512 KB; the same words in all five games). Start Over deletes the save's folder with both (native/shared/save_reset.c).",
+    "Story / Cheat Upgrades (native/vvfp_story_upgrades/story_graph.inc) asks the companion (VvfpVillageScoreTag) when a branching event reaches a page tagged \"solidarity\" (the .cieg node flags' bits 1-2: 1 raise, 2 lower, 3 neutral): raise +5, lower -5, neutral 0, clamped to 0..100.",
+    "At a weighted chance split, a branch whose next page is tagged \"raise\" (a cooperative ending) has its weight multiplied by the companion's factor for a high score, one tagged \"lower\" (a tense ending) by the factor for a low score (VvfpVillageScoreFactor, per mille: 1000 + 2 x the strength in tenths x the score's distance from 50 on that side, else 1000).",
+    "The rare collection draw after a natural island event (story_collection.inc) multiplies a collection event's draw weight the same way when its manifest marks it \"cooperative\" (a high score) or \"repair\" (a low score); every other candidate keeps its weight.",
+    "The Tech screen draw is spliced to show \"Village Solidarity: <score> / 100\" in the game's own font (translated through VVFP Translations.dll): native/vvfp_village_solidarity/counter_vv3.inc."
+  ],
+  "explicit_non_changes": [
+    "The game's own island events and their chances never change: the Story companion's rare roll is the only draw the factor touches, and it is never in place of a natural event.",
+    "Nothing changes work, helping, idling, skills, health, food or tech: real effects of an event stay exactly as the event gives them.",
+    "Nothing is written to the save or to a villager record; the Tech screen splices are made at run time only after every site holds its stock bytes, all or none."
+  ],
+  "evidence_status": "the score file, the moves, the clamp and the factor emulated in tests/test_village_solidarity.py; the story engine's tag and odds hooks emulated in the same file; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/village_solidarity/VVFP Village Solidarity.dll",
+      "destination": "VVFP Village Solidarity.dll",
+      "sha256": "C518ADB32019386C6882B7ACBDC0D571BC7F10B1BD0476DBBD4D5BF6BBB168C9"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x464C1D",
+      "stock_bytes": "5F5E83C424C3",
+      "routine": "the Tech screen draw 0x4649C0, its return",
+      "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

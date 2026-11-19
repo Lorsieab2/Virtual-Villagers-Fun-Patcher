@@ -19,6 +19,7 @@ import struct
 
 import vv_game_mechanics as gm
 import vv_game_mechanics_children_play as children_play
+import vv_game_mechanics_solidarity as solidarity
 import vv_game_mechanics_death as death
 import vv_game_mechanics_events as events
 import vv_game_mechanics_events_vv2 as catalog
@@ -421,6 +422,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # clock of real seconds": the clock 0x403200; the speed change and the pause: 0x43B5A0.
     fire = real(FIRE_END)
     for line, ok in children_play.lines(village):   # tag and sandcastles (vv_game_mechanics_children_play)
+        add("Other", line, ok)
+    for line, ok in solidarity.lines(village):      # Village Solidarity (vv_game_mechanics_solidarity)
         add("Other", line, ok)
     add("Other", ("The fire " + (f"burns until {gm.when(fire)}" if fire > village.now and not paused else
                                  ("was burning when it was saved" if paused and _i32(data, FIRE_END) > _i32(data, LAST_TICK)

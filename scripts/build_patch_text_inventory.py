@@ -46,6 +46,7 @@ PARTS = {
     "vvfp_vv3_both_factions": ("vvfp.factions", "VVFP VV3 Both Factions.dll"),
     "vvfp_vv4_fruit_supply": ("vvfp.fruit_supply", "VVFP VV4 Fruit Supply.dll"),
     "vvfp_vv2_empty_stew": ("vvfp.vv2_empty_stew", "VVFP VV2 Empty Stew.dll"),
+    "vvfp_village_solidarity": ("vvfp.village_solidarity", "VVFP Village Solidarity.dll"),
 }
 
 

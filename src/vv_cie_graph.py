@@ -1099,13 +1099,13 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
         elif "percent" in e:
             problems.append(f"{where}: only group sick takes a percent")
         if kind == "work":
-            # 36: the skill's workers work, everyone else is busy with no skill
+            # 42: the skill's workers work, everyone else is busy with no skill
             known.add("skill")
             if e.get("skill") not in WORK_SKILLS:
                 problems.append(f"{where}: group work takes a skill, one of {', '.join(WORK_SKILLS)}")
             out["skill"] = e.get("skill")
         if kind == "effect":
-            # 36: a temporary effect through the game's own setter
+            # 42: a temporary effect through the game's own setter
             known.add("effect")
             eff = e.get("effect")
             if eff in TEMP_WORDS_ONLY:
@@ -4316,7 +4316,7 @@ def _solidarity_from_flags(node: dict, flags: int) -> None:
         node["solidarity"] = {v: k for k, v in SOLIDARITY_CODES.items()}[code]
 
 
-_HEADER6 =struct.Struct("<4sHHIII HHH HHHHHHHH H IIIIIIII II HH HH HH")   # 18: + title variants first, count
+_HEADER6 = struct.Struct("<4sHHIII HHH HHHHHHHH H IIIIIIII II HH HH HH")   # 18: + title variants first, count
 _ROLE6 = struct.Struct("<BBBBHBB BBHBBH")
 _POOL = struct.Struct("<HHHBBHH")       # G3: + the distinct_from string, + 0
 _ITEM = struct.Struct("<HHHH")

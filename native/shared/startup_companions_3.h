@@ -27,6 +27,8 @@ static const char *const VVFP_STARTUP_COMPANIONS_3[] = {
     "VVFP Age Speed.dll",
     /* Fix Vanilla Bugs (A New Home, The Lost Children): herb study Healing practice (second word full: moved here at the v1.35.97 merge) */
     "VVFP Herb Study.dll",
+    /* Village Solidarity (all five games): the village's 0-100 score (second word full: moved here at the v1.35.97 merge) */
+    "VVFP Village Solidarity.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_3 \

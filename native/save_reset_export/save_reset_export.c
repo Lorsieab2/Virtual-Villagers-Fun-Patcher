@@ -308,6 +308,20 @@ static void notify_cause_of_death(int game, int slot) {
     }
 }
 
+/* Village Solidarity: the score it holds in memory for the slot being erased is dropped BEFORE the slot's folder
+ * (its Village Scores file with it) is deleted below, so the new village starts at 50 and the old score is never
+ * written back.  Only when already loaded. */
+static void notify_village_solidarity(int game, int slot) {
+    HMODULE solidarity = GetModuleHandleA("VVFP Village Solidarity.dll");
+    story_village_reset_fn reset;
+    if (solidarity == NULL) {
+        return;
+    }
+    reset = (story_village_reset_fn)(void *)GetProcAddress(solidarity, "VvfpVillageScoreReset");
+    if (reset != NULL) {
+        reset(game, slot);
+    }
+}
 /* The Origins companion: a Barrel of Babies or Island Event bought and not
  * delivered yet is held in the executable's own memory (A New Home 0x48D700,
  * The Lost Children 0x49C700, The Secret City 0x6E0050 / 0x6E0058, The Tree
@@ -360,6 +374,7 @@ __declspec(dllexport) int __stdcall ResetDeletedTribe(int game, int slot) {
     notify_story_upgrades(game, slot);
     notify_cause_of_death(game, slot);
     notify_origins(game, slot);
+    notify_village_solidarity(game, slot);
     /* The village in the slot's own save, which both hooks reach before the
      * game removes or overwrites it (see vv_saved_village_header). The
      * reserve is the reader's own "\\*<slot>.ldw" filter; it bounds each full

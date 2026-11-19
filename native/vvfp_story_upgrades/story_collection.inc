@@ -95,6 +95,7 @@ typedef struct {
     char series[48];
     char description[160];             /* the Pick Island Event list's sentence ("" = none: the generic line) */
     int weight;
+    int favour;                        /* Village Solidarity: 1 a cooperative event, 2 a repair event, 0 neither */
 } sc_entry;
 
 static sc_state sc;
@@ -612,6 +613,13 @@ static int sc_scan_group(int game, int g) {
         if (e->weight <= 0) {
             e->weight = 1;
         }
+        {
+            /* Village Solidarity (column 10): "cooperative" (and celebration) or "repair" (peace, apology). */
+            char kind[16];
+            sc_field_end(p, end, 9, kind, sizeof kind);
+            e->favour = lstrcmpA(kind, "cooperative") == 0 ? CG_SOL_FAVOUR_HIGH
+                      : lstrcmpA(kind, "repair") == 0 ? CG_SOL_FAVOUR_LOW : 0;
+        }
         ++sc_count;
     }
     return sc_count;
@@ -847,9 +855,9 @@ static int sc_draw_group(int game, int n_coll) {
         for (i = 0; i < sc_count && chosen < 0; ++i) {
             int w;
             if (sc_list[i].series[0] != '\0') {
-                w = head[i] == i && members_left[i] > 0 ? lv_series_weight(i) : 0;
+                w = sc_series_weight(i, head, members_left, series_sum, unit);
             } else {
-                w = left[i] ? sc_list[i].weight : 0;
+                w = left[i] ? sc_weight(i, factor, unit) : 0;
             }
             if (pick < w) {
                 chosen = i;
@@ -859,12 +867,24 @@ static int sc_draw_group(int game, int n_coll) {
         if (chosen < 0) {
             return 0;
         }
-        if (sc_list[chosen].series[0] != '\0') {
+        if (sc_list[chosen].series[0] != '\0' && unit == 1) {
             int series_pick = sc_rand(game, members_left[chosen]), m;
             for (m = chosen; m < sc_count; ++m) {
                 if (left[m] && head[m] == chosen && series_pick-- == 0) {
                     chosen = m;
                     break;
+                }
+            }
+        } else if (sc_list[chosen].series[0] != '\0') {
+            /* Village Solidarity: the member by its factor (all 1000: each as likely, as above). */
+            int series_pick = cg_sol_random_below(ce_adapter_for(game), series_sum[chosen]), m;
+            for (m = chosen; m < sc_count; ++m) {
+                if (left[m] && head[m] == chosen) {
+                    if (series_pick < factor[m]) {
+                        chosen = m;
+                        break;
+                    }
+                    series_pick -= factor[m];
                 }
             }
         }

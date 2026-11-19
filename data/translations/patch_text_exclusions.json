@@ -7,6 +7,11 @@
    "match": "^(?!Harvesting berries with a cutting tool$)"
   },
   {
+   "reason": "Village Solidarity: its scores file, its log lines and its harness stay English (the patcher reads them back; logs are never translated). Only the Tech screen counter is drawn in the game, and it has its own row.",
+   "files": ["native/vvfp_village_solidarity/*"],
+   "match": "^(?!Village Solidarity: %d / 100$)"
+  },
+  {
    "reason": "Log and export writers: the Births, Deaths, History, Arrived, Unaccounted and Statistics logs and the Family Tree / Statistics data the patcher's own tools read back. Logs and files stay in the game's English (src/vv_translations.py: never for logs or files the patcher writes) so the patcher can parse them and every language's logs match.",
    "files": ["native/parentage_export/*", "native/population_export/*", "native/statistics_export/*", "native/save_reset_export/*"]
   },

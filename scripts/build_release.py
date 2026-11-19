@@ -162,6 +162,8 @@ FILES = [
     "assets/tech_gain/VVFP Tech Gain.dll",
     "assets/skill_success/VVFP Skill Success.dll",
     "assets/age_speed/VVFP Age Speed.dll",
+    # Village Solidarity (all five games): the village's score, its odds factor and the Tech screen counter.
+    "assets/village_solidarity/VVFP Village Solidarity.dll",
     # Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
     # Believers): the companion and the stored row's flag file.
     "assets/island_events_scale/VVFP Island Events Scale.dll",
@@ -395,6 +397,11 @@ FILES = [
     "data/vv5_age_speed_feature.json",
     "data/no_safeguards_companion.json",
     "data/vv1_golden_child_born_female_feature.json",
+    "data/vv1_village_solidarity_feature.json",
+    "data/vv2_village_solidarity_feature.json",
+    "data/vv3_village_solidarity_feature.json",
+    "data/vv4_village_solidarity_feature.json",
+    "data/vv5_village_solidarity_feature.json",
     "data/vv1_island_events_scale_with_population_feature.json",
     "data/vv1_island_events_scale_with_stored_amounts_feature.json",
     "data/vv4_island_events_scale_with_population_feature.json",
@@ -778,6 +785,8 @@ FILES = [
     "src/vv_game_mechanics_ceremony.py",
     "src/vv_game_mechanics_children_play.py",
     "src/vv_game_mechanics_no_safeguards.py",
+    "src/vv_game_mechanics_solidarity.py",
+    "src/vv_village_scores.py",
     # Isola Grand Event Collection on the Game Mechanics pages, and its index of sections and deadly events.
     "src/vv_game_mechanics_collection.py",
     "data/event_collection_index.json",

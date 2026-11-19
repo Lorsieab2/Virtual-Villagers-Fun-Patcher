@@ -49,6 +49,7 @@ CONTROLS = {
     # The Difficulty Sliders page's button (the owner, 2026-11-18): every slider is on that page.
     "difficulty_sliders",
     "island_event_content_filters", "partner_carry_percent", "more_island_events_and_creator",  # the Island Events section's filters (the owner, 2026-11-15)
+    "village_solidarity_strength",
 }
 
 # Words a player never sees in the patcher or the game.
