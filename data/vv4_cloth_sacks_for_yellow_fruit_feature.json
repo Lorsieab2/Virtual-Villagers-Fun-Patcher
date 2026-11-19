@@ -1,0 +1,74 @@
+{
+  "id": "vv4_cloth_sacks_for_yellow_fruit",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Cloth Sacks for Yellow Fruit",
+  "description": "The Clothing Hut's extra cloth bolts get a use: sacks for the yellow fruit (the breadfruit of the Cooking Pit; nothing else). Drop an adult on the LEFT side of the finished Clothing Hut, under its awning, once the Cooking Pit is restored: the villager takes one cloth bolt, stands at the hut \"Making a sack out of cloth\" (the research look, without its sounds), carries the empty sack to the yellow fruit trees (\"Gathering food in cloth sack\"), shakes the fruit down into the sack, carries it to the Cooking Pit and cooks it as on any fruit trip, and carries the full sack to the food bin (\"Carrying fruit to the food bin\"): 30 food, before Food Mastery. It works like the cutting tool on the blackberries: the cloth bolt is used when the villager starts, whatever happens later (a failed Farming check or an interrupted trip loses it, as a cutting tool is lost); with no cloth the villager refuses (\"They need cloth for this!\"); the food is 1 for each fruit, at most 30, paid at the food bin, and Food Mastery multiplies it exactly as it multiplies a blackberry harvest (level 2: half as much again, level 3: doubled) -- no other technology or setting changes it. Like a blackberry harvest, a sack never goes into the stew and does not count toward The Grand Feast (the cutting-tool harvest's blackberries do not either). **With \"Yellow Fruit Trees are No Longer Unlimited\" ticked too, each sack takes its fruit from the tree when it reaches the food bin: 30, or what is left when fewer -- even none, as a cutting tool harvests a nearly bare bush (the cloth bolt is still used).** Without it the trees are the game's own unlimited ones and every sack holds 30. All four places at the Cooking Pit taken: the villager refuses as at the tree (\"There is no more room in the cooking pit!\") and no cloth is used; the villager's place at the pit is kept from the drop, so the pit cannot fill up while the sack is made. Only a villager you drop at the hut makes a sack: farmers who decide to farm by themselves never do, as they never harvest with a cutting tool. The sacks are drawn with Lorsieab2's art, the size of the game's other carried items: the empty sack, the sack of shaken fruit carried to the Cooking Pit and the sack of cooked fruit carried to the food bin, all three at one scale and standing on one line, so the sack itself is the same size in every state. Nothing is written to the save or anywhere else. **Needs no other patch.** **On by default (and in Owner's Defaults).** **Unverified in play: the effect has not been tested live.** The companion is \"VVFP VV4 Cloth Sacks.dll\", started by VVFP Startup.dll; if the DLL cannot be loaded, the stock game runs.",
+  "output_tag": "Cloth Sacks",
+  "dependencies": [],
+  "behavior_changes": [
+    "The model, the cutting tool on the blackberries (stock): the drop on map area 0x31 (0x46E7E0) refuses with action 0x1A and text 0x12F when no tool is on hand ([0x4D8618] = 0); otherwise one tool is used at once (0x4369F0(1) on 0x4D8614, 0x46E872) and the harvest starts (action 0xBE, 0x451CE0: the walk to the bushes, the cuts, the Farming check 0x469220(0), the berries carried, item 0x3E, the walk to the food bin, job event 14). Job event 14 (0x4644EE): n = the berries left, at most 30; the food writer 0x41D920(n), Food Mastery inside it; the berries -= n; fewer than 3 left: the villager's task cleared (+0x1C54); over 2,000 food: tip 0x2E5. No farmer the game sends ever harvests with a tool, and the harvest's item 0x3E is not one of the Grand Feast's (the stew pot's listener 0x42EA30 counts items 0, 0x37, 0x38 and 0x76..0x78 only, table 0x42EB4C).",
+    "The drop (0x46E460, before the stock dispatcher): an adult, not expecting, under the finished Clothing Hut's awning, the Cooking Pit restored: no cloth ([0x4D8ACC] = 0): action 0x1A with text 0x136 (\"They need cloth for this!\"); the fruit left is not checked (the tool does not check the berries); the pit's four spot locks (5..8 at 0x705148, 0x46D880) all taken: the task cleared and action 0x1A with text 0x13C (the tree's start 0x4343A0's own refusal); otherwise one cloth bolt is used (0x4369F0(1) on 0x4D8AC8, the cutting tools' own routine) and the sack trip is queued. With Fix Vanilla Bugs (vv4_fix_vanilla_bugs, its \"VVFP VV4 Empty Sources.dll\" loaded) and the limited tree at 0 fruit, after the cloth check: action 0x3F with text 0xA7, no cloth used.",
+    "The sack trip, with the game's own step builders: the fruit trip's pit-spot claim (its first step, type 0x2E, lock 5..8) copied to the front and run at once, so the spot is the villager's from the drop, as a stock trip claims its spot at once; a caption step (0x468CF0) \"Making a sack out of cloth\", the cloth carried (item 0x35), the Researching action's working-pose waits (0x469280(6) twice, step type 0x0A), not its sound steps (0x469CD0, step type 0x19, a sound at the villager), job event 0x75 (the empty sack shows), a caption step \"Gathering food in cloth sack\", then the game's own fruit trip (do-action 0x64, 0x4343A0: a free spot picked by rand and that spot's trip 0x65..0x68 built: the walk to the trees, the shaking, the Farming check, the fruit, the walk to the pit, the cooking). From that trip's last caption step (\"Carrying fruit to the food bin\", or \"Adding to the stew\" when the stew wanted the fruit, 0x4349A3) its steps are replaced by: the caption 0x240 (\"Carrying fruit to the food bin\"), job event 0x76 (the cooked sack shows), item 0x36 carried, the walk to the food bin (area 8), the trip's own 1-second wait and put-down, and job event 0x77: the sack's food. The trip's own job event 15 (3 food) is therefore never queued, and the stew is never given the sack.",
+    "Job event 0x77 is paid by the cutting-tool harvest's own credit, job event 14 (0x4644EE), called with the blackberry count [game + 0x170F8] set for the call to the fruit left (with vv4_yellow_fruit_trees_limited) or 1000 (the stock unlimited tree) and put back after it: it pays min(that, 30) from its stock food-writer call (return 0x464510; Food Mastery inside 0x41D920, and the Origins Food Doubler, which doubles writer calls by their stock return address (#805), act on it exactly once, as on a cutting-tool harvest), clears the villager's task below 3 and shows the 2,000-food tip; what it paid is then taken from the tree (VvfpYellowFruitTake of \"VVFP VV4 Fruit Supply.dll\").",
+    "The pictures: the carried item's draw (0x466770, its call of 0x44C640 at 0x4667B4; the fifth argument is the picture's alpha, 1.0, and the size the map's zoom) draws, for a villager whose queue still holds event 0x77: after event 0x75, item 0x35 -> Images\\vvfp_sack_empty.png and item 0x36 (trees to pit) -> Images\\vvfp_sack_yellow_fruit_raw.png; after event 0x76, item 0x36 (pit to bin) -> Images\\vvfp_sack_yellow_fruit.png; with the same alpha, centred on carrying.png's 40-pixel cell and standing 31 pixels down, where its fruit and berries end; built once by ldwImageGrid 0x40AB10 (name, 1, 1) after the PNG header says 8-bit RGBA of at most 40 x 40; a missing or wrong file: the game's own picture (the cloth, the yellow fruit).",
+    "The captions go through VVFP Translations.dll (rows vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_making.s0 and .caption_gathering.s0), at most 38 letters (the caption field takes 39)."
+  ],
+  "explicit_non_changes": [
+    "The Farming dispatcher 0x4639B0 is not touched: farmers the game sends never make a sack, as they never harvest with a cutting tool (the owner, 2026-11-17).",
+    "The cutting tool, the blackberries, picking, the fruit trips a player or the game starts at the tree, their 3 fruit and 3 food, the stew, the Cooking Pit bonus while catching up and the cloth's other uses (the fishing nets, new clothes on the rest of the hut) are the game's own.",
+    "Food Mastery is the only technology that changes a sack's food, inside the game's own food writer, as for a blackberry harvest; the difficulty and every other setting do not.",
+    "No executable byte is patched: the companion writes its 3 jumps and calls at run time, only after verifying every stock byte (and the stock code it relies on), all or none; a different build installs nothing.",
+    "Nothing is written to a save, a villager record's saved fields or a file. A queue the game keeps holds only the game's own steps and the job events 0x75..0x77, which the stock game ignores.",
+    "The game's pictures are never changed: the sacks are new files in Images, drawn only by the companion."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; emulated on the stock executable (the drop, the refusals, a whole trip to the food bin, the food with Food Mastery beside the stock cutting-tool harvest's, the limited tree's take, farmers never choosing it, the pictures' draw) in tests/test_vv4_cloth_sacks.py; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/cloth_sacks/VVFP VV4 Cloth Sacks.dll",
+      "destination": "VVFP VV4 Cloth Sacks.dll",
+      "sha256": "08E29A3BFFF7B12C333B2E36D6BF554D98BFCA6C82DB5A7E0C9C970528019F73"
+    },
+    {
+      "source": "assets/cloth_sacks/vvfp_sack_empty.png",
+      "destination": "Images/vvfp_sack_empty.png",
+      "sha256": "786EF36266DAB14784A5D868E28FB75D0C3CAB3B30494951C81159600F10CA47"
+    },
+    {
+      "source": "assets/cloth_sacks/vvfp_sack_yellow_fruit_raw.png",
+      "destination": "Images/vvfp_sack_yellow_fruit_raw.png",
+      "sha256": "CC4116DDB7CDDE83015D145B615891F42582D365D1ACB255F2295D8ACFC23698"
+    },
+    {
+      "source": "assets/cloth_sacks/vvfp_sack_yellow_fruit.png",
+      "destination": "Images/vvfp_sack_yellow_fruit.png",
+      "sha256": "6D8D7EE693645074D1E0B03D9FCDDAE2DF21B315C780F55C69409A4E8D4709EC"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x46E460",
+      "stock_bytes": "83EC08568B742410",
+      "written_bytes": "E9XXXXXXXX909090",
+      "routine": "the drop dispatcher 0x46E460 (a villager dropped: its place 0x45ED00, the map's area there 0x46C410, that area's handler): an adult (+0x1B8C >= 0x118), not expecting (+0x1C4C), under the finished Clothing Hut's awning (puzzle 0x16; the hut's place, its object 0x4D82D8 +0x28/+0x2C, plus x -26..70, and y 40..134 or any point the game itself hands to the hut there: its own drop area under the drop point, 0x46C410 = 0x12, built from the hut picture by 0x42FD20 -> 0x46CC50) with the Cooking Pit restored (puzzle 6) starts the sack trip, or gets a refusal; anything else goes on to the stock dispatcher",
+      "installed_by": "VVFP VV4 Cloth Sacks.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4642F0",
+      "stock_bytes": "8B44240483EC18",
+      "written_bytes": "E9XXXXXXXX9090",
+      "routine": "the job events 0x4642F0: events 0x75, 0x76 and 0x77 (the sack made, the sack full, the sack's food at the bin; above 74, which the game's own table sends to its end 0x464EB2) are the companion's; every other event goes on to the stock code",
+      "installed_by": "VVFP VV4 Cloth Sacks.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4667B4",
+      "stock_bytes": "E8875EFEFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the carried item's draw 0x466770, its call of the world draw 0x44C640: for a villager on a sack trip that carries the sack, the sack's picture (carried-item size, alpha 1.0 as passed) instead of carrying.png's cell, then the same call",
+      "installed_by": "VVFP VV4 Cloth Sacks.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

@@ -183,6 +183,15 @@ FILES = [
     "assets/vv2_empty_stew/VVFP VV2 Empty Stew.dll",
     # Adults Dropped on Mushrooms or Collectibles Are Confused (all five games): the companion.
     "assets/adult_confused/VVFP Adult Confused.dll",
+    # Cloth Sacks for Yellow Fruit (The Tree of Life): the companion and the three sack pictures (carried-item size).
+    "assets/cloth_sacks/VVFP VV4 Cloth Sacks.dll",
+    "assets/cloth_sacks/vvfp_sack_empty.png",
+    "assets/cloth_sacks/vvfp_sack_yellow_fruit_raw.png",
+    "assets/cloth_sacks/vvfp_sack_yellow_fruit.png",
+    # Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life): the companion.
+    "assets/supply_cap/VVFP VV4 Supply Cap.dll",
+    # Fix Vanilla Bugs (The Tree of Life): no tool harvest from an empty bush.
+    "assets/empty_sources/VVFP VV4 Empty Sources.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -402,6 +411,8 @@ FILES = [
     "data/vv3_village_solidarity_feature.json",
     "data/vv4_village_solidarity_feature.json",
     "data/vv5_village_solidarity_feature.json",
+    "data/vv4_cloth_sacks_for_yellow_fruit_feature.json",
+    "data/vv4_up_to_99_supplies_feature.json",
     "data/vv1_island_events_scale_with_population_feature.json",
     "data/vv1_island_events_scale_with_stored_amounts_feature.json",
     "data/vv4_island_events_scale_with_population_feature.json",

@@ -446,6 +446,19 @@ CASES = [
     Case("More Island Events", "assets/more_island_events/VVFP More Island Events.dll", (1, 2, 3, 4, 5),
          lambda g: [f"vv{g}_more_island_events"],
          lambda m, g: (m.export("VvfpStartup", g, 0), int(m.export("VvfpMoreIslandEventsInstalled") == g))[1]),
+    # Cloth Sacks for Yellow Fruit (The Tree of Life): the drop dispatcher's and the job events' entries, the
+    # Farming dispatcher's option test and the carried item's draw call.
+    Case("Cloth Sacks", "assets/cloth_sacks/VVFP VV4 Cloth Sacks.dll", (4,),
+         lambda g: [f"vv{g}_cloth_sacks_for_yellow_fruit"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpClothSacksInstalled"))[1]),
+    # Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life): the two caps, the use-up clamp, the two stack draws.
+    Case("Supply Cap", "assets/supply_cap/VVFP VV4 Supply Cap.dll", (4,),
+         lambda g: [f"vv{g}_up_to_99_supplies"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpSupplyCapInstalled"))[1]),
+    # Fix Vanilla Bugs (The Tree of Life): no tool harvest from an empty bush (the harvest's tool use).
+    Case("Empty Sources", "assets/empty_sources/VVFP VV4 Empty Sources.dll", (4,),
+         lambda g: [f"vv{g}_fix_vanilla_bugs"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpEmptySourcesInstalled"))[1]),
     # Popup When Believers Become Heathens (New Believers): the life tick's drift call and the drift's four
     # loss rolls' calls of rand.
     Case("Faith Notice", "assets/faith_notice/VVFP Faith Notice.dll", (5,),

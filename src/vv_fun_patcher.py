@@ -515,6 +515,16 @@ ISLAND_FREQUENCY_FEATURE_PATHS = tuple(
 # (src/vv_village_scores.py); scripts/build_village_solidarity_feature.py.
 VILLAGE_SOLIDARITY_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_village_solidarity_feature.json"
                                          for n in range(1, 6))
+# Cloth Sacks for Yellow Fruit (The Tree of Life; the owner, 2026-11-17; on by default since 2026-11-18): a
+# villager dropped under the Clothing Hut's awning makes a sack from a cloth bolt and brings 30 yellow fruit to the
+# food bin, like the cutting tool on the blackberries; companion only, "VVFP VV4 Cloth Sacks.dll", started by VVFP
+# Startup.dll from its second word;
+# scripts/build_vv4_cloth_sacks_features.py.
+CLOTH_SACKS_FEATURE_PATHS = (ROOT / "data" / "vv4_cloth_sacks_for_yellow_fruit_feature.json",
+                             # Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life; the owner, 2026-11-17; off by
+                             # default, on in Owner's Defaults): companion only, "VVFP VV4 Supply Cap.dll";
+                             # scripts/build_vv4_supply_cap_feature.py.
+                             ROOT / "data" / "vv4_up_to_99_supplies_feature.json")
 # Island Events Scale With Population (like The Lost Children) and its alternative Island Events Scale With Stored
 # Food and Tech Points (A New Home, The Tree of Life, New Believers; the owner, 2026-11-12): companion only, "VVFP
 # Island Events Scale.dll", started by VVFP Startup.dll from its second word; the stored row also ships the flag
@@ -4415,7 +4425,8 @@ def _load_fun_patch_records(
                          + VILLAGE_SOLIDARITY_FEATURE_PATHS
                          + ISLAND_EVENTS_SCALE_FEATURE_PATHS
                          + SCROLLING_POPUPS_FEATURE_PATHS + MORE_ISLAND_EVENTS_FEATURE_PATHS
-                         + EVENT_COLLECTION_FEATURE_PATHS + ISLAND_EVENT_CONTENT_FEATURE_PATHS):
+                         + EVENT_COLLECTION_FEATURE_PATHS + ISLAND_EVENT_CONTENT_FEATURE_PATHS
+                         + CLOTH_SACKS_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
@@ -13531,6 +13542,12 @@ STARTUP_LOADER_COMPANIONS_3 = (
     "VVFP Herb Study.dll",
     # Village Solidarity (all five games): the village's 0-100 score (second word full: moved here at the v1.35.97 merge)
     "VVFP Village Solidarity.dll",
+    # Cloth Sacks for Yellow Fruit (The Tree of Life) (second word full: moved here at the v1.35.97 merge)
+    "VVFP VV4 Cloth Sacks.dll",
+    # Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life) (second word full: moved here at the v1.35.97 merge)
+    "VVFP VV4 Supply Cap.dll",
+    # Fix Vanilla Bugs (The Tree of Life): no tool used on an empty source (second word full: moved here at the v1.35.97 merge)
+    "VVFP VV4 Empty Sources.dll",
 )
 MORE_COMPANIONS_DLL = "VVFP More Companions.dll"
 MORE_COMPANIONS_CHOICE_FILE = "VVFP More Companions.txt"

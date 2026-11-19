@@ -6,3 +6,5 @@ EXPORTS
     VvfpYellowFruitPartial
     VvfpYellowFruitEventDue
     VvfpYellowFruitAdd
+    VvfpYellowFruitLeft
+    VvfpYellowFruitTake

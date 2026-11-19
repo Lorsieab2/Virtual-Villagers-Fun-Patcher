@@ -1377,7 +1377,7 @@ int __stdcall VvfpYellowFruitRefill(void) {
 }
 
 /* An island event's "supply" / "trade" of yellow fruit (VVFP Story Upgrades.dll, story_graph_village.inc; the owner's
-   trader spec of 2026-11-16/17, cie-v6-binary.md 33): the tree's fruit changed by `delta`, kept within 0..1,000
+   trader spec of 2026-11-16/17, cie-v6-binary.md 42): the tree's fruit changed by `delta`, kept within 0..1,000
    (FS_FULL).  `delta` 0 only reads it.  Nothing is written here, as the refill: the file is written with the next
    save.  The count after, or -1 when the sites are not installed, no villager is alive or the village's file cannot be
    read yet (then nothing changes). */
@@ -1396,6 +1396,44 @@ int __stdcall VvfpYellowFruitAdd(int delta) {
         after = -1;
     }
     return after;
+}
+
+/* For "VVFP VV4 Cloth Sacks.dll" (Cloth Sacks for Yellow Fruit, which finds these by GetProcAddress and treats
+   the tree as the stock game's unlimited one without this companion): the fruit left on the tree for the village
+   on screen, or -1 when the tree is the stock game's here (the sites not installed, no one alive, or its file not
+   read yet: the same answers take() gives). */
+int __stdcall VvfpYellowFruitLeft(void) {
+    int left = -1;
+    if (!g_installed) {
+        return -1;
+    }
+    __try {
+        if (bind_village(0) && !g_pending) {
+            left = g_fruit;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        left = -1;
+    }
+    return left;
+}
+
+/* ... and a sack's fruit taken at the food bin, as the blackberry harvest takes its berries (job event 14,
+   0x4644EE: the berries, at most 30, down to 0): min(want, fruit left) taken and returned; -1 (nothing taken)
+   when the tree is the stock game's here. */
+int __stdcall VvfpYellowFruitTake(int want) {
+    int taken = -1;
+    if (!g_installed || want < 0) {
+        return -1;
+    }
+    __try {
+        if (bind_village(0) && !g_pending) {
+            taken = g_fruit < want ? g_fruit : want;
+            g_fruit -= taken;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        taken = -1;
+    }
+    return taken;
 }
 
 /* "Yellow Breadfruit Refills Partially Every Time" is shipped: its file is in the patcher's folder (THE PARTIAL

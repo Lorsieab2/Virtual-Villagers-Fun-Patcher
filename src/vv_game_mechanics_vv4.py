@@ -65,6 +65,19 @@ FRUIT_MAGIC = 0x46345656            # 'V' 'V' '4' 'F'
 PARTIAL = "vv4_yellow_fruit_refills_partially"
 FRUIT_PARTIAL_UNITS, FRUIT_PARTIAL_PER_10_UNITS = 30, 37
 FRUIT_PARTIAL_GAIN = FRUIT_PARTIAL_UNITS * FRUIT_PARTIAL_PER_10_UNITS // 10     # 111
+# Cloth Sacks for Yellow Fruit ("VVFP VV4 Cloth Sacks.dll", native/vvfp_vv4_cloth_sacks): a villager dropped under the
+# Clothing Hut's awning uses one cloth bolt (0x4369F0(1) on 0x4D8AC8, as the cutting tool's 0x46E872) and brings a
+# sack of yellow fruit to the food bin: its job event pays like the harvest's event 14 (0x4644EE), the fruit, at most
+# 30 (with the limited tree, what is left, even none), through 0x41D920 (Food Mastery).  Only a drop starts one: the
+# Farming dispatcher is never touched (farmers never harvest with a cutting tool either).
+CLOTH_SACKS = "vv4_cloth_sacks_for_yellow_fruit"
+# Up to 99 Cutting Tools/Soap/Cloth ("VVFP VV4 Supply Cap.dll"): the tools' and cloth's cap of 6 (0x43142F, 0x4368E2 and the
+# use-up's clamp 0x436A09) is 99; soap is never capped in the stock game.
+SUPPLY_CAP = "vv4_up_to_99_supplies"
+# Fix Vanilla Bugs' no tool harvest from an empty bush ("VVFP VV4 Empty Sources.dll"): the harvest's tool use 0x46E86F refuses at 0
+# berries (action 0x3F, text 0xA7); Cloth Sacks refuses an empty limited tree the same way when it is loaded.
+EMPTY_SOURCES = "vv4_fix_vanilla_bugs"
+SACK_FRUIT = 30
 
 # The recipes 0x42ECF0 (herbs 0x1F spicy, 0x20 sweet, 0x21 soapy, 0x22 pulpy vines) and what each stew does, the
 # stew's effect switch 0x41DEE0 (CPotion, vtable 0x48D5C4): 5 sends the villager "Burping up soap bubbles"
@@ -398,6 +411,23 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                            "necessary.\", and builders leave them alone), so the fishing nets, "
                                            "which need both, wait for them; piers already fixed and cloth the "
                                            "village already has still count"))
+    if village.has(CLOTH_SACKS) is not False:
+        add("Food sources", gm.patch_words(
+            village, CLOTH_SACKS, "an adult dropped under the Clothing Hut's awning (its left side) uses one cloth "
+                                  f"bolt to make a sack and brings {food(SACK_FRUIT)} food from the yellow fruit "
+                                  f"trees ({SACK_FRUIT} fruit before Food Mastery, as a blackberry harvest with a "
+                                  "cutting tool: with the limited trees, what is left when fewer, even none); with no "
+                                  "cloth the villager refuses; only villagers you drop make sacks, farmers never do on "
+                                  "their own" + mastery_words), gm.CODE)
+    if village.has(SUPPLY_CAP) is not False:
+        add("Food sources", gm.patch_words(village, SUPPLY_CAP, "up to 99 cutting tools and 99 cloth bolts can be "
+                                           "stored instead of 6 (still made 3 at a time; soap was never "
+                                           "limited)"), gm.CODE)
+    if village.has(EMPTY_SOURCES) is not False:
+        add("Food sources", gm.patch_words(village, EMPTY_SOURCES, "a villager dropped to harvest the "
+                                           "blackberries with a cutting tool refuses when the bush is empty "
+                                           "and keeps the tool (with Cloth Sacks, the same for a sack and an "
+                                           "empty yellow fruit tree)"), gm.CODE)
     fruit_patch = village.has(YELLOW_FRUIT)
     supply = fruit_supply(village) if fruit_patch is not False else None
     fruit_at = fruit_next_at = None

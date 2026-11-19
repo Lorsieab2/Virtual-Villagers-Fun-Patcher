@@ -29,6 +29,12 @@ static const char *const VVFP_STARTUP_COMPANIONS_3[] = {
     "VVFP Herb Study.dll",
     /* Village Solidarity (all five games): the village's 0-100 score (second word full: moved here at the v1.35.97 merge) */
     "VVFP Village Solidarity.dll",
+    /* Cloth Sacks for Yellow Fruit (The Tree of Life) (second word full: moved here at the v1.35.97 merge) */
+    "VVFP VV4 Cloth Sacks.dll",
+    /* Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life) (second word full: moved here at the v1.35.97 merge) */
+    "VVFP VV4 Supply Cap.dll",
+    /* Fix Vanilla Bugs (The Tree of Life): no tool used on an empty source (second word full: moved here at the v1.35.97 merge) */
+    "VVFP VV4 Empty Sources.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_3 \
