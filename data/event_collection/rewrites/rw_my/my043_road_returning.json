@@ -205,7 +205,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L12366"
+   "src": "L12366",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) walks a big circle and comes back to the tree. (subject.His/Her) cloth strip is there, tied to the branch. On the wrong side. (subject.He/She) tied it on the left. It's on the right. (subject) tries again, very carefully, tying the strip on the left and checking it twice. When (subject.he/she) comes back, it's on the right again. (subject) sits down at the foot of the tree and stays there until (subject.his/her) knees stop shaking.",
@@ -283,7 +284,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12389"
+   "src": "L12389",
+   "auto_text": true
   },
   "c4": {
    "text": "Forget the tree. (subject) listens for the sound of running water and heads for it, hoping the stream will lead (subject.him/her) home...",

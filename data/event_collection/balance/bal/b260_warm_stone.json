@@ -151,7 +151,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12140"
+   "src": "L12140",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The stone hums so loudly that the water in the spring trembles. Some weeks later, (midwife), the healer, presses an ear to the belly, listens, and laughs. \"You must have asked very nicely,\" (subject.he/she) says. {#babies:There is one baby, a big strong one|There are twins|There are triplets}. The couple build an extra room on the hut before {#babies:it is|they're|they're} born.",
@@ -189,7 +190,8 @@
      "partner": "friend",
      "partner_may_carry": true
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "No baby comes, not yet. Neither of them has ever liked being in the water, but the warm soak does them so much good that they go back every week, and before long they are paddling about in the lagoon as well, and then swimming out to the reef. \"We'll try the stone next time,\" (subject) says, every time, and they never quite do.",
@@ -207,7 +209,8 @@
      "dislike": "swimming"
     }
    ],
-   "src": "L12152"
+   "src": "L12152",
+   "auto_text": true
   },
   "c2": {
    "text": "They decide not to bother the stone, and slip into the hot spring instead. The water is so warm they nearly fall asleep, floating under the stars...",

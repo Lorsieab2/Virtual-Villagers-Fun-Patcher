@@ -135,7 +135,8 @@
      "loss": true,
      "src": "L21984"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",
@@ -149,7 +150,8 @@
      "loss": true,
      "src": "L21985"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

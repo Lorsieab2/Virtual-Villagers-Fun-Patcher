@@ -110,7 +110,8 @@
      "max": 30,
      "src": "L5330"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "name": "Outcome 2",
@@ -134,7 +135,8 @@
      "max": 30,
      "src": "L5330"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",
@@ -148,7 +150,8 @@
      "max": 30,
      "src": "L5330"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

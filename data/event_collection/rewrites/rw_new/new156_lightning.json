@@ -197,7 +197,8 @@
      "scaled": true
     }
    ],
-   "src": "L7521"
+   "src": "L7521",
+   "auto_text": true
   },
   "c1o2": {
    "text": "While everyone is busy with the mangoes, the storm's rain pours in through a corner of the storehouse that the thunder shook loose. A basket of stored food is ruined and has to be thrown out.",
@@ -209,7 +210,8 @@
      "loss": true
     }
    ],
-   "src": "L7523"
+   "src": "L7523",
+   "auto_text": true
   },
   "c1": {
    "text": "Keeping well clear of the leaning half, (name) and a few others creep around the edges, gathering the mangoes knocked loose by the blast...",
@@ -239,7 +241,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7530"
+   "src": "L7530",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) runs to the trail and starts turning people back, waving (his/her) arms and shouting...",
@@ -264,7 +267,8 @@
      "scaled": true
     }
    ],
-   "src": "L7535"
+   "src": "L7535",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The burn marks point in no clear direction, and the other lightning scars on the island don't seem to follow any pattern either. (Name) decides to wait for more evidence, though (he/she) hopes it doesn't come soon.",
@@ -298,7 +302,8 @@
      "loss": true
     }
    ],
-   "src": "L7544"
+   "src": "L7544",
+   "auto_text": true
   },
   "c4": {
    "text": "(Name) leads the workers in cutting away the dangerous half, and propping up what's left...",

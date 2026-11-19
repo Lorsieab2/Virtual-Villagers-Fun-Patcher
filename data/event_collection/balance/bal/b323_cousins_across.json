@@ -167,7 +167,8 @@
      "age": "child"
     }
    ],
-   "src": "L14965"
+   "src": "L14965",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) sends back a carved shell with the trader: a fish, which in the old way means \"come home.\" Then (he/she) waits, watching the south every morning...",
@@ -202,7 +203,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14971"
+   "src": "L14971",
+   "auto_text": true
   },
   "c2o2": {
    "text": "At the cousin's village, (name) learns that the family left a week ago, for another island, where they had heard there was work. Nobody knows which. (Name) leaves the carved shell with the village elder, in case they come back. Nine days home, empty-handed. (Name) watches the south every morning for a year.",

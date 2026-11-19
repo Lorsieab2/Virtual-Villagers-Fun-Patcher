@@ -206,7 +206,8 @@
      "scaled": true
     }
    ],
-   "src": "L9277"
+   "src": "L9277",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The tastings contradict each other from day to day: metal one day, sweet the next, metal again the day after, and \"sort of fishy\" the day after that. (subject) writes down the uncertainty honestly, which the diggers take as a victory and the cooks take as proof of everything.",
@@ -235,7 +236,8 @@
      "scaled": true
     }
    ],
-   "src": "L9284"
+   "src": "L9284",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Both jars look the same in the morning, and both explanations still fit what they've seen. More tasting is needed. (subject) sighs, and fetches two more jars.",
@@ -264,7 +266,8 @@
      "scaled": true
     }
    ],
-   "src": "L9291"
+   "src": "L9291",
+   "auto_text": true
   },
   "c3o2": {
    "text": "Everyone argues about whose tongue to trust. The cooks say theirs, obviously. The diggers say the cooks are biased. Someone suggests a child, because children are honest, and the child says both waters taste \"like water.\" Eventually everyone agrees to taste from the same cup, at the same time.",
@@ -297,7 +300,8 @@
      "max": 20
     }
    ],
-   "src": "L9298"
+   "src": "L9298",
+   "auto_text": true
   },
   "c4o2": {
    "text": "Watching (subject) work, (novice) notices that (subject.he/she) always tastes the old well first. Every single time. So the new well always tastes strange by comparison. The notes are revised, and (subject) is a little embarrassed, and quietly proud of (subject.his/her) pupil.",

@@ -138,7 +138,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14204"
+   "src": "L14204",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Nothing happens to (subject). But (child) puts the crown on (subject.his/her) own head afterwards, to see, and by the next morning nothing has happened to (subject.him/her) either, except that (subject.he/she) smells of honey for a week and is followed everywhere by bees. (subject) laughs until (subject.he/she) cries. \"Stories for children,\" (subject.he/she) says.",
@@ -166,7 +167,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14213"
+   "src": "L14213",
+   "auto_text": true
   },
   "c2o2": {
    "text": "In the morning the bowl is empty except for one blossom: (child)'s parent, (parent), came by in the night to fetch (child) home, smelled the flowers, and took the crown \"just to borrow it.\" (parent) turns up for breakfast looking twenty years younger in the face, and very sheepish.",
@@ -176,7 +178,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14216"
+   "src": "L14216",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) thanks (child) with a hug and puts the crown in a bowl of water on the windowsill, where the evening breeze carries the smell all through the hut...",

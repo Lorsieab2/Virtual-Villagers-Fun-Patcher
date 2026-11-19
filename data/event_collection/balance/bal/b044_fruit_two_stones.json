@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1994"
+   "src": "L1994",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The strange feeling lasts until morning, when (name) wakes up and finds (himself/herself) already sitting by the fire. Another (name), exactly alike in every way, is eating breakfast and looking just as puzzled. The newcomer takes the name (made1), and the two of them agree to take turns with the chores, which is more than most siblings ever manage.",
@@ -143,7 +144,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1997"
+   "src": "L1997",
+   "auto_text": true
   },
   "c1": {
    "text": "It's the sweetest fruit (name) has ever tasted, like honey and sunshine. (He/She) eats every scrap, licks (his/her) fingers, and then feels very, very strange, as if (he/she) is standing in two places at once...",
@@ -167,7 +169,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L2003"
+   "src": "L2003",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Two seedlings come up overnight, and by noon they've withered. But when (name) looks in the water bowl that evening, the face looking back is different, as if the tree took a little of (him/her) for its seedlings and gave back something new in exchange. The elders say that's fair. (Name) isn't sure, but (he/she) doesn't mind the new face.",
@@ -178,7 +181,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2006"
+   "src": "L2006",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) plants the two stones side by side in the soft earth by the old tree, waters them, and goes home. In the night, there's a sound from the garden like something breathing...",

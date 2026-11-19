@@ -173,7 +173,8 @@
      "max": 10
     }
    ],
-   "src": "L9227"
+   "src": "L9227",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) explains that no one ever said how much stone was needed. Ten stones? A hundred? A whole cliff? (subject.He/She) just finished a season of building with no rest, and was asked to start an endless job the next morning. (subject.He/She) was worn out, not lazy. When the builders actually count, it's forty stones. That sounds much more possible.",
@@ -228,7 +229,8 @@
      "max": 20
     }
    ],
-   "src": "L9241"
+   "src": "L9241",
+   "auto_text": true
   },
   "c3o2": {
    "text": "(mentor) listens, and then admits that (subject.he/she) once refused the very same job, years ago, after a hard season. \"Best thing I ever did. If I'd kept going, I'd have broken my back.\" (subject.He/She) claps (subject) on the shoulder. \"You're not soft. You're sensible.\" (subject) feels much better.",

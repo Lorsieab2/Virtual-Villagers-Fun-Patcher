@@ -130,10 +130,12 @@
     {
      "do": "kill",
      "cause": "unknown",
-     "role": "subject"
+     "role": "subject",
+     "line": "injuries"
     }
    ],
-   "src": "L4502"
+   "src": "L4502",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The village sits with (name) all night, talking quietly, holding (his/her) hands, telling stories. Some people cry. At dawn, (name) yawns, stretches, opens (his/her) eyes, and looks round at the whole village sitting there, red-eyed and exhausted, in a circle round (him/her). \"What,\" (he/she) says, \"is all the fuss about?\" Then (he/she) gets up, a little stiffly, and goes off to make breakfast. Nobody can quite believe it. Several people have to go and lie down.",
@@ -166,7 +168,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4514"
+   "src": "L4514",
+   "auto_text": true
   },
   "c2": {
    "text": "\"You need to rest,\" someone says gently, and they help (name) up, and walk (him/her) slowly to (his/her) hut, and lay (him/her) down on (his/her) mat with the blanket tucked round (him/her), and let (him/her) sleep...",

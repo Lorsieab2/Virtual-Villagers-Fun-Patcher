@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4803"
+   "src": "L4803",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) wakes, and the fever breaks. But (subject.he/she) wakes not knowing (subject.his/her) own name. The sleeping fever took that much with it, before the smoke drove it out. Everything else is there. The village tries saying the name to (subject.him/her) for days, and it never sticks. (subject.He/She) is \"?\" now, and quite cheerful about it.",
@@ -149,7 +150,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4806"
+   "src": "L4806",
+   "auto_text": true
   },
   "c1": {
    "text": "(healer) lights a pepper-leaf and holds the smoke under (subject)'s nose. (subject) coughs, and sneezes, and sits bolt upright, eyes streaming...",
@@ -177,7 +179,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4812"
+   "src": "L4812",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The sleep goes on, and on. (subject) wakes in the end, weeks later, weak and confused and thin, but alive. It takes (subject.him/her) the rest of the season to get back on (subject.his/her) feet. The fever is gone, and so is a whole season of (subject.his/her) life, and (subject.he/she) sometimes says (subject.he/she) remembers dreaming the entire time.",

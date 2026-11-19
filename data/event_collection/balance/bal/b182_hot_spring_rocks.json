@@ -138,7 +138,8 @@
      "role": "friend"
     }
    ],
-   "src": "L8447"
+   "src": "L8447",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The pool cures (friend) completely, and does something else as well. When (friend) climbs out, (subject.his/her) skin is smooth and bright and (subject.his/her) face looks years younger. (healer) is fascinated. Half the village goes up to the pool that week. It doesn't work on anyone else's face, only on the sick, which makes several people very cross.",
@@ -152,7 +153,8 @@
      "role": "friend"
     }
    ],
-   "src": "L8450"
+   "src": "L8450",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) and (healer) carry (friend) up to the rocks on a mat and lower (subject.him/her) into the milky water, very slowly. (friend) gasps at the heat, then sighs, a long, long sigh...",
@@ -180,7 +182,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8456"
+   "src": "L8456",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The pool is hotter at the bottom than at the top. (subject)'s feet touch a vent, and (subject.he/she) comes out of the water faster than (subject.he/she) has ever moved, with both feet scalded red. (healer) pours the cold water over them and says, very gently, that some springs are for looking at. (friend) gets better slowly, the ordinary way.",
@@ -192,7 +195,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8459"
+   "src": "L8459",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) decides to try it first. (subject.He/She) sits on the edge and lowers (subject.his/her) feet in, then (subject.his/her) legs, while (healer) watches with a gourd of cold water ready...",

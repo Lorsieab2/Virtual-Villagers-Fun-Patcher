@@ -173,7 +173,8 @@
      "max": 10
     }
    ],
-   "src": "L8981"
+   "src": "L8981",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) admits, after a while, that nobody ever told (subject.him/her) that resting was allowed. (subject.His/Her) family always worked from dawn till dark. Stopping feels wrong. Like being lazy. That's not laziness, (subject.he/she) is told firmly. It's the opposite. (subject) doesn't quite believe it, but (subject.he/she) sits down. For a minute.",
@@ -206,7 +207,8 @@
      "max": 20
     }
    ],
-   "src": "L8988"
+   "src": "L8988",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Halfway through the first handle, (mentor) puts down (subject.his/her) knife and admits (subject.he/she) never learned how to rest either. \"All these years, and I still don't know what to do with an afternoon.\" The two of them sit there in companionable silence, carving nothing in particular, which turns out to be quite restful after all.",

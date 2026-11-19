@@ -2193,7 +2193,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r29f": {
    "text": "The officials agree that the work needs improvement. (Subject) is disappointed, but at least the judgment no longer feels arbitrary.",
@@ -2329,7 +2330,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r34": {
    "text": "After the examiners leave, (subject) decides to fix one tiny imperfection. Then another. Then another. By the time (mentor) returns, the original work is almost unrecognizable. \"There is a difference,\" (mentor) says, \"between improving something and refusing to finish it.\"",
@@ -2418,7 +2420,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r38p": {
    "text": "(Subject) identifies a requirement that was never stated. The officials agree to judge the work against the original instructions, and it passes.",
@@ -2535,7 +2538,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "routes": {
    "type": "branch",

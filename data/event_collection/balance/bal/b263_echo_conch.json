@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12277"
+   "src": "L12277",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The sound folds into a person who looks just like (subject) but stands differently, and talks differently, and turns out to hate yams. \"It's not a perfect echo,\" (keeper) admits, writing notes. \"Close, though.\" The newcomer introduces (subject.himself/herself) as (made1), and starts picking fights with (subject) about the right way to cook fish.",
@@ -145,7 +146,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L12280"
+   "src": "L12280",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) puts the shell to (subject.his/her) lips and breathes into it, very softly. The conch sighs back, in (subject)'s own voice, and then the sound keeps going, getting louder, and starts to take a shape...",
@@ -170,7 +172,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12286"
+   "src": "L12286",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The conch cracks right down the middle with a bang, and the roar stops dead. (keeper) gets up, dusts (subject.himself/herself) off, and looks sadly at the two halves. \"A month,\" (subject.he/she) says. \"A whole month.\" (subject) feels terrible about it and helps (keeper) look for a new shell every day for a week.",

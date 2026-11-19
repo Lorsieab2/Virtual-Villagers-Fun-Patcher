@@ -231,7 +231,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10192"
+   "src": "L10192",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) grabs (friend) by the wrist. \"Come with me. Please. I need to know I'm not going mad.\" (friend) grumbles but comes along, and the two of them creep toward the trees...",
@@ -260,7 +261,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10197"
+   "src": "L10197",
+   "auto_text": true
   },
   "c3o2": {
    "text": "Everyone learns the first part easily. But nobody can agree on how it ends. Each person who heard (subject) hum it remembers the final notes differently, and when (subject) tries to sing it again, even (subject.he/she) gets it wrong. The village ends up with eleven different endings to the same song and argues about them for weeks.",

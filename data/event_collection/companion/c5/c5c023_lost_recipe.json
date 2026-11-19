@@ -68,11 +68,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "The taste is different but still comforting.",
-   "src": "L2317"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -80,6 +85,29 @@
    "join": "paragraph",
    "text": "A cousin remembers the missing ingredient.",
    "src": "L2318"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The taste is different but still comforting.",
+   "src": "L2317",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L2317"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The taste is different but still comforting.",
+   "src": "L2317"
   }
  }
 }

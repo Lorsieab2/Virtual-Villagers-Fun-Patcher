@@ -201,7 +201,8 @@
      "scaled": true
     }
    ],
-   "src": "L14180"
+   "src": "L14180",
+   "auto_text": true
   },
   "c1": {
    "text": "\"Come in, come in, quickly!\" (Name) dashes out into the rain, takes the old man's arm and hurries him under the communal roof, where the villagers make room for him by the fire...",
@@ -249,7 +250,8 @@
      "loss": true
     }
    ],
-   "src": "L14192"
+   "src": "L14192",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The storm blows through and passes without doing any real damage. A few days later, a trader comes through and mentions, in passing, that an old man with a lightning stick spent the storm in the next village down the coast. \"Lovely fellow. Fixed their roof, told them stories all night. They were sad to see him go.\" (Name) says nothing, but (he/she) feels quite small for the rest of the day.",

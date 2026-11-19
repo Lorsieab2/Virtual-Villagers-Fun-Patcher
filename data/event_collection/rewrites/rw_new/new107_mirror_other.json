@@ -176,7 +176,8 @@
      "scaled": true
     }
    ],
-   "src": "L5019"
+   "src": "L5019",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Halfway through, the stone clouds over like breath on a cold morning. When it clears, it shows only (subject)'s face as it is today, wrinkles and all. The young face never comes back. Neither does the feeling in (subject.his/her) knees. (subject.He/She) puts the stone down gently and goes for a walk, slowly.",
@@ -215,7 +216,8 @@
      "what": "\"celebrates\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "After a long while, (subject) blinks, sighs, and turns the stone face down on the ground. \"No,\" (subject.he/she) says. \"I've earned every one of my years. I'd like to keep them.\" (subject.His/Her) knees start aching again almost at once. (subject.He/She) does not seem to mind as much as everyone expected.",
@@ -244,7 +246,8 @@
      "scaled": true
     }
    ],
-   "src": "L5033"
+   "src": "L5033",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The stone is set on a high shelf, still wrapped, a thing to tell stories about rather than use. The next morning the bark cloth is empty and neatly folded. The stone is gone without a trace, and nobody, as far as anyone can tell, looks a day younger.",

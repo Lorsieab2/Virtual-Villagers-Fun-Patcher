@@ -132,7 +132,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L2357"
+   "src": "L2357",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The wave rolls back out. The beach is wet and empty, except for the necklace, lying in the sand where (name) dropped it. The fishers search the water all day, and all the next. The sea gave something back, and took something in exchange, and doesn't give (name) back. The necklace is hung in (his/her) hut, and nobody touches it.",
@@ -142,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2360"
+   "src": "L2360",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) snatches up the necklace and turns to run, but the wave is faster. It picks (him/her) up, rolls (him/her) over and over in green water, and drops (him/her) on the sand...",
@@ -166,7 +168,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L2366"
+   "src": "L2366",
+   "auto_text": true
   },
   "c2o2": {
    "text": "When (name) comes back down the beach, the necklace is still there, washed clean and shining. The wave has given it back and asked for nothing. (Name) wears it every day after that, and on calm days (he/she) watches the reef, half hoping and half afraid.",

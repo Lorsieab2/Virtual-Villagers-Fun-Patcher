@@ -143,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9771"
+   "src": "L9771",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The spell is strong, and (child) is very determined. When (subject) opens (subject.his/her) eyes, (subject.he/she) is twenty-five, and (subject.his/her) grandchild is looking at (subject.him/her) as if (subject.he/she) has done something terribly clever and terribly wrong at the same time. (subject) laughs until (subject.he/she) cries. \"You'll still have to call me Grand(subject.father/mother),\" (subject.he/she) says. \"No matter how odd it looks.\"",
@@ -158,7 +159,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9774"
+   "src": "L9774",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) closes (subject.his/her) eyes and lets the chanting wash over (subject.him/her). (child) scatters the dried flowers over (subject.his/her) head. They smell of summer, and they don't fall to the ground. They hang in the air, glowing...",
@@ -182,7 +184,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9780"
+   "src": "L9780",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(child) explains the spell, all of it, and (subject) listens to every word, and asks good questions. By the end (child) understands it much better than (subject.he/she) did, including all the ways it could have gone wrong. The storyteller takes (subject.him/her) on properly after that, and (child) gets very good at the little spells.",
@@ -195,7 +198,8 @@
      "best": true
     }
    ],
-   "src": "L9783"
+   "src": "L9783",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) takes (child)'s hands, very gently, and the chanting stops. \"Not today,\" (subject.he/she) says. \"I like being old. Tell me what the spell does instead...\"",

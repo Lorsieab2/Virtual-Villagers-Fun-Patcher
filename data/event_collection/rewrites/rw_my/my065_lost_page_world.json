@@ -197,7 +197,8 @@
      "scaled": true
     }
    ],
-   "src": "L13658"
+   "src": "L13658",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The directions lead to a grove of trees that (name) knows perfectly well: the village children play there every afternoon. It is a disappointing end to a treasure hunt. But (name) goes back that night to be sure, and stops at the edge. In the dark, the grove is wrong. The trees are in different places. The path bends the other way. A bird is singing that should not sing at night. (Name) backs away slowly, and the next morning, the grove is perfectly ordinary again.",
@@ -226,7 +227,8 @@
      "scaled": true
     }
    ],
-   "src": "L13665"
+   "src": "L13665",
+   "auto_text": true
   },
   "c2o2": {
    "text": "When (name) holds the copy next to the original, (he/she) frowns. The words are not quite the same. A path that bends left in the original bends right in the copy. A tree has become a stone. (Name) is absolutely certain (he/she) copied it exactly. (He/she) copies it again, more slowly. The second copy is different from both. (Name) decides to put the page down and go and do something sensible for a while, like gutting fish.",

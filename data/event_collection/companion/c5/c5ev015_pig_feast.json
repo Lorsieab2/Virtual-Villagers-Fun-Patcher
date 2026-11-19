@@ -66,16 +66,21 @@
   },
   "e1": {
    "name": "Outcome A",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Neighbors share roasted meat, roots and fruit.",
-   "src": "L3428",
    "effects": [
     {
      "do": "food",
      "size": "small",
      "scaled": true,
      "src": "L3428"
+    }
+   ],
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
     }
    ]
   },
@@ -85,6 +90,28 @@
    "join": "paragraph",
    "text": "A villager chooses a plant-based meal without argument.",
    "src": "L3429"
+  },
+  "e1__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Neighbors share roasted meat, roots and fruit.",
+   "src": "L3428",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L3428"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Neighbors share roasted meat, roots and fruit.",
+   "src": "L3428"
   }
  }
 }

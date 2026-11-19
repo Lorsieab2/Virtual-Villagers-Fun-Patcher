@@ -93,7 +93,8 @@
      "max": -1,
      "src": "L158"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -114,7 +115,8 @@
      "reason": "the word's everyday sense (a thing, a sound or a person out of sight for a moment); nobody leaves the village -- the draft's notes: everything but the marked effects is story only",
      "src": "L161"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

@@ -165,7 +165,8 @@
      "scaled": true
     }
    ],
-   "src": "L8540"
+   "src": "L8540",
+   "auto_text": true
   },
   "c1o2": {
    "text": "While (name) is cleaning the cloth, very gently, it tears, right across the bottom. Flakes of paint shower onto the floor. The old painter's brushwork is lost, and along with it, everything it could have taught. The eyes, thank goodness, survive. They seem to look at (name) a little reproachfully.",
@@ -177,7 +178,8 @@
      "loss": true
     }
    ],
-   "src": "L8542"
+   "src": "L8542",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) sits with the portrait for days, studying every flake of paint under a magnifying shell, trying to work out how it was made...",
@@ -202,7 +204,8 @@
      "scaled": true
     }
    ],
-   "src": "L8547"
+   "src": "L8547",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Nobody agrees on what the sitter looked like. One says the nose was big. One says it was small. One says that isn't the sitter at all, it's the painter's cousin. Nobody pretends to know, and the eyes look on, amused.",
@@ -231,7 +234,8 @@
      "scaled": true
     }
    ],
-   "src": "L8554"
+   "src": "L8554",
+   "auto_text": true
   },
   "c3o2": {
    "text": "(Name) picks up the brush. Puts it down. Picks it up again. And decides, in the end, that the portrait should stay unfinished, as the painter left it, and private. It goes back into the rafters, rolled up safe. Only the eyes were ever meant to be seen, (name) thinks.",

@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1449"
+   "src": "L1449",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) wears the mask all day, and by evening (he/she) is answering to the name scratched on the back. \"Azizi,\" (he/she) says, when someone calls (him/her) by (his/her) old name, quite firmly. When the mask comes off, the name stays on. (He/She) seems happier as Azizi, and the village gets used to it within a week.",
@@ -144,7 +145,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1452"
+   "src": "L1452",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) ties the mask on. It's warm, as if someone just took it off. Through the eye holes, the village looks a little brighter, a little sharper, as if (he/she) is seeing it with someone else's eyes...",
@@ -168,7 +170,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1458"
+   "src": "L1458",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Nothing happens. The mask hangs on the wall, beautiful and quiet, and gradually (name) stops noticing its eyes. Visitors admire it. Children are scared of it. Years later, (name) gives it to a young carver who wants to learn the old style, and it's carved again and again, a calm face with half-closed eyes, all over the village.",

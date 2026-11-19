@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3226"
+   "src": "L3226",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The remedy breaks the fever. But it's a hard, cruel thing to drink, and it takes a great deal out of (subject) to fight it off. (subject) gets better, slowly, over a whole season. But (subject.he/she) is never as strong as before. (subject.He/She) gets tired quickly now, and (subject.his/her) hands shake when (subject.he/she) lifts anything heavy, and there are deep lines on (subject.his/her) face that weren't there before. Work that used to be easy is hard, and then too hard. (subject) is alive, and the village is so glad of that. But (subject.he/she) comes to dread the work (subject.he/she) once did without thinking.",
@@ -156,7 +157,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3229"
+   "src": "L3229",
+   "auto_text": true
   },
   "c1": {
    "text": "(healer) spends a whole day making it, grinding roots and boiling bark and muttering over the pot. It's thick and black and smells like a swamp. (subject) drinks it, one bitter spoonful at a time, and then lies back, and the whole village waits...",
@@ -180,7 +182,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3235"
+   "src": "L3235",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) rests, and waits. And eventually, the fever goes. But it takes something with it. (subject) is left weak and tired, for good. (subject.His/her) face looks older, (subject.his/her) steps are slower, and (subject.his/her) mind, which used to be so quick, gets foggy and tired whenever (subject.he/she) tries to think hard about anything. Learning new things wears (subject.him/her) out completely. (subject) does what (subject.he/she) can, and is grateful, mostly, to be alive.",
@@ -201,7 +204,8 @@
      "next": "c2o2_c1"
     }
    ],
-   "src": "L3238"
+   "src": "L3238",
+   "auto_text": true
   },
   "c2": {
    "text": "The village decides not to risk it. They keep (subject) warm and quiet. They take turns sitting with (subject.him/her), day and night, holding (subject.his/her) hand, wiping (subject.his/her) face with cool cloths, and singing soft songs when (subject.he/she) can't sleep...",

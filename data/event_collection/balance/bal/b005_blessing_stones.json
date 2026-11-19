@@ -142,7 +142,8 @@
      "role": "subject"
     }
    ],
-   "src": "L221"
+   "src": "L221",
+   "auto_text": true
   },
   "c1o2": {
    "text": "A baby is expected. Then, as the weeks go by, (healer) listens to (subject)'s belly for a long time, and frowns, and listens again, and starts counting on (healer.his/her) fingers. \"{#babies:One, just the one, i was sure there were more|Two, you'll want a bigger sleeping mat|Three, you'll want a much bigger sleeping mat},\" (healer.he/she) says at last. (friend) has to sit down. The village starts building {#babies:a cradle|two cradles|three cradles}.",
@@ -155,7 +156,8 @@
      "role": "subject"
     }
    ],
-   "src": "L224"
+   "src": "L224",
+   "auto_text": true
   },
   "c1": {
    "text": "The tea tastes of grass and something sweet. The stones go under the mat. (subject) and (friend) lie awake for a long time that night, holding hands, feeling a little silly and a little hopeful...",
@@ -181,7 +183,8 @@
      "role": "subject"
     }
    ],
-   "src": "L230"
+   "src": "L230",
+   "auto_text": true
   },
   "c2o2": {
    "text": "No baby comes that season, or the next. Instead, (subject) and (friend) somehow become the couple every child in the village runs to: for a story, for a scraped knee, for a place to hide from chores. Their hut is never quiet. \"We'll see,\" (subject) says, when anyone asks, and means it. Their life is already full.",

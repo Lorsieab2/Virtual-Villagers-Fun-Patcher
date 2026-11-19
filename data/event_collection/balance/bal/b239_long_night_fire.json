@@ -153,7 +153,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11136"
+   "src": "L11136",
+   "auto_text": true
   },
   "c1o2": {
    "text": "In the dark, (subject) trips over a root and falls on the axe handle and cracks a rib. By the time (subject.he/she) limps back with the wood, the fire is out and everyone has gone to bed. Nobody blames (subject.him/her), but the elders say the skills won't take root this year. (subject) spends a week in the healers' hut.",
@@ -165,7 +166,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11139"
+   "src": "L11139",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) wraps up against the rain and goes into the dark jungle with an axe, feeling for dry branches under the big trees, while behind (subject.him/her) the fire sinks lower and lower...",
@@ -194,7 +196,8 @@
      }
     }
    ],
-   "src": "L11145"
+   "src": "L11145",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The thatch burns very bright, and a burning wisp flies up on the wind and lands on the roof of the research hut. It's put out in moments, but not before a season of notes has gone up. The long night still does its work: every villager learns something by dawn. The researchers learn the most, about where to keep their notes.",

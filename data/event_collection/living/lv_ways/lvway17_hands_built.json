@@ -136,9 +136,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The model reveals a weakness before construction.",
-   "src": "L22969"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -166,6 +173,25 @@
    "name": "Outcome D2",
    "text": "The builders argue over whose idea deserves credit.",
    "src": "L22973"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The model reveals a weakness before construction.",
+   "src": "L22969",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22969"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The model reveals a weakness before construction.",
+   "src": "L22969"
   }
  }
 }

@@ -142,7 +142,8 @@
      "role": "subject"
     }
    ],
-   "src": "L403"
+   "src": "L403",
+   "auto_text": true
   },
   "c1o2": {
    "text": "It lasts exactly one day. (subject) spends every moment of it. (subject.He/She) runs on the beach, swims out past the reef, dances at the fire until the drummers are too tired to drum, and kisses every baby in the village. (subject.He/She) goes to bed the happiest (subject.he/she) has been in years. In the morning (subject.he/she) wakes up an elder again, with (subject.his/her) creaking knees, bad back and (subject.his/her) grey hair, and lies there for a while, smiling at the roof. Then (subject.he/she) gets up slowly, complains about (subject.his/her) knees, and goes to (subject.his/her) stone. \"Worth it,\" (subject.he/she) tells anyone who asks.",
@@ -180,7 +181,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L412"
+   "src": "L412",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The healers look at each other, look at (subject), and admit they have no idea what to do. So, wisely, they do nothing. (subject) stays young, about forty, for good. At first (subject.he/she) is delighted. Then (subject.he/she) finds out that forty-year-old knees are just as tired by evening as old ones, only nobody gives (subject.him/her) a seat. (subject.He/She) complains about it constantly, and the sitting stone by the fire is still worn smooth in exactly (subject.his/her) shape, so (subject.he/she) sits on it anyway.",
@@ -191,7 +193,8 @@
      "role": "subject"
     }
    ],
-   "src": "L415"
+   "src": "L415",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) walks, very quickly and with no pain at all, to the healers' hut. \"Something has happened to me,\" (subject.he/she) says, \"and I'd like to know if it's going to un-happen.\" The healers stare at (subject.him/her) for a long time...",

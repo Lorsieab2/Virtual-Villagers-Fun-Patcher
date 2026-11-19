@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2312"
+   "src": "L2312",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) gets most of it up, and gets home, and seems fine. It's only later that week that (he/she) realises something is missing: (he/she) has been afraid of the dark all (his/her) life, and now (he/she) can't remember why. The healers say that's the fruit, and that it could have been much worse.",
@@ -144,7 +145,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2315"
+   "src": "L2315",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) sticks a finger down (his/her) throat and is very sick in the bushes. (He/She) sits back, shaky and sweating, and tries to remember (his/her) way home...",

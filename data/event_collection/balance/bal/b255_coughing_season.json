@@ -149,7 +149,8 @@
      }
     }
    ],
-   "src": "L11915"
+   "src": "L11915",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The steam works, but (subject) gets the stones too hot. (sick) comes out cured and the colour of a boiled crab. That night (subject.he/she) can't sleep for the itching, nor the night after, and somewhere in all that scratching (subject.he/she) loses all love for (subject.his/her) sleeping mat. \"I'll lie down,\" (subject.he/she) says, \"but I won't enjoy it.\"",
@@ -165,7 +166,8 @@
      "like": "resting"
     }
    ],
-   "src": "L11918"
+   "src": "L11918",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) and the other healers heat stones in the fire all morning and roll them into a little hut of woven leaves. They pour water on them, and the hut fills with thick white steam...",
@@ -196,7 +198,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11924"
+   "src": "L11924",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The salve gives (sick) a rash from (subject.his/her) neck to (subject.his/her) belly, on top of the cough. (subject) washes it off as quickly as (subject.he/she) can and goes back to the elders' way after all. The cough eases slowly over the following weeks. (sick) does not trust anything that smells like trees for a long time after that.",
@@ -208,7 +211,8 @@
      "max": -20
     }
    ],
-   "src": "L11927"
+   "src": "L11927",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) crushes a basket of eucalyptus leaves with a little coconut oil and rubs it onto (sick)'s chest and back. The smell is so strong it makes everyone's eyes water...",

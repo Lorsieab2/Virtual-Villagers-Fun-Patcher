@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9865"
+   "src": "L9865",
+   "auto_text": true
   },
   "c1o2": {
    "text": "One morning, near the end, (carver) makes the last fine cut on the prow, sits back on (subject.his/her) heels to look at it, and smiles, and doesn't get up again. (subject) finishes the canoe alone. The village launches it at sunset with (carver)'s name carved on the prow, and (subject) paddles it out first.",
@@ -157,7 +158,8 @@
      "cause": "unknown"
     }
    ],
-   "src": "L9868"
+   "src": "L9868",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) works beside (carver) every day, doing the heavy work while the old carver does the fine shaping, (subject.his/her) shaking hands somehow steady on the wood...",
@@ -191,7 +193,8 @@
      }
     }
    ],
-   "src": "L9874"
+   "src": "L9874",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Before the canoe is done, (carver) dies in (subject.his/her) sleep. The half-carved canoe sits on the beach for a long time. (subject) can't bring (subject.himself/herself) to touch it. In the end the village leaves it there, and the children play in it, and it becomes (carver)'s canoe, the one that never went to sea.",
@@ -202,7 +205,8 @@
      "cause": "unknown"
     }
    ],
-   "src": "L9877"
+   "src": "L9877",
+   "auto_text": true
   },
   "c2": {
    "text": "(carver) looks at (subject) for a long time. Then (subject.he/she) hands (subject.him/her) the adze. \"Then you'll carve it,\" (subject.he/she) says, \"and I'll shout.\" (subject.He/She) sits down on a log, and starts shouting...",

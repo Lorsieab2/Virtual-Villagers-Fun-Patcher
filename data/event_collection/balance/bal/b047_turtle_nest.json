@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2130"
+   "src": "L2130",
+   "auto_text": true
   },
   "c1o2": {
    "text": "A baby is expected. Then the healer listens again, and starts to laugh. {#babies:Only one after all, but a big, strong one|Twins|Triplets}. \"That turtle,\" says (friend), shaking (friend.his/her) head, \"laid a hundred eggs. I'm just glad she didn't give us all of them.\"",
@@ -152,7 +153,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2133"
+   "src": "L2133",
+   "auto_text": true
   },
   "c1": {
    "text": "They heave the log out of the way, and the turtle drags herself up past the tide line, digs her nest, and lays her eggs, while (subject) and (friend) sit in the sand holding hands and watching...",
@@ -182,7 +184,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2142"
+   "src": "L2142",
+   "auto_text": true
   },
   "c2": {
    "text": "They sit back in the shadow of the palms and watch. The turtle rests for a long time. Then, slowly, she finds her own way round the end of the log...",

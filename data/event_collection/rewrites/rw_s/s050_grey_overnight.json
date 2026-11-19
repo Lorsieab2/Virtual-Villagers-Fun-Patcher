@@ -134,7 +134,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2383"
+   "src": "L2383",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The healers give (him/her) a calming tea, the strongest they have, and send (him/her) home to rest and not think about the dream. A few days later (name)'s family notice something: the grey is fading. Slowly, like ash being washed off by the rain, the colour comes back into (his/her) hair, and the lines on (his/her) face soften. Not all the way, though. When it stops, (name) is left looking about five years older than (he/she) did before that night. (He/She) decides (he/she) can live with that, and sleeps with a light on for a while.",
@@ -148,7 +149,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2386"
+   "src": "L2386",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name)'s family help (him/her) across the village to the healers' hut, (him/her) leaning on their arms, while the whole village stares. The healers sit (him/her) down and look at (him/her) for a long time without saying anything...",
@@ -180,7 +182,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2392"
+   "src": "L2392",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) tries. (He/She) sits by the fire with (his/her) eyes closed for hours, but the dream won't come back. Not a single piece of it. In the end the elders give up and send (him/her) home. The grey stays. The lines stay. (Name) is about fifty now, as far as anyone can tell. But it suits (him/her), everyone says, and they really mean it: (he/she) looks distinguished and kind, and the children start coming to (him/her) with their troubles, the way they go to the elders.",
@@ -195,7 +198,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2395"
+   "src": "L2395",
+   "auto_text": true
   },
   "c2": {
    "text": "The elders say that a dream that strong is a message, and it can't be ignored. They sit (name) down by the fire and ask (him/her) to close (his/her) eyes and go back into it, slowly, piece by piece...",

@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3355"
+   "src": "L3355",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The cough goes, and so does (name)'s taste for anything from the sea. Every fish, every shellfish, every bowl of seaweed broth tastes faintly of octopus ink now. (He/She) eats taro and fruit and is perfectly healthy, and makes a face whenever the fishers come in with their catch.",
@@ -148,7 +149,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3358"
+   "src": "L3358",
+   "auto_text": true
   },
   "c1": {
    "text": "The oldest fisher dives three times and comes up with a bowl of black ink and a scowl. Mixed with honey it looks like tar, and tastes like the bottom of the sea...",
@@ -172,7 +174,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3364"
+   "src": "L3364",
+   "auto_text": true
   },
   "c2o2": {
    "text": "At the end of the month, the cough is a little better, but not gone. The healers sigh and start another month. (Name) sighs louder. Eventually, as the dry season comes, it just fades on its own, and nobody can say which remedy did it, if any.",

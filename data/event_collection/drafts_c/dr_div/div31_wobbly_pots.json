@@ -75,6 +75,42 @@
    "src": "L374"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) lets (friend) help with the rims, and they work out a way to do it together: (subject) shapes, (friend) steadies. The pots come out somewhere between (subject)'s old ones and the new wavy ones. They're good pots. (subject) misses doing it alone sometimes. (subject.He/she) also likes the company more than (subject.he/she) expected.",
+   "src": "L377",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L377"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L377"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) lets (friend) help with the rims, and they work out a way to do it together: (subject) shapes, (friend) steadies. The pots come out somewhere between (subject)'s old ones and the new wavy ones. They're good pots. (subject) misses doing it alone sometimes. (subject.He/she) also likes the company more than (subject.he/she) expected.",
    "src": "L377"

@@ -150,7 +150,8 @@
      }
     }
    ],
-   "src": "L15897"
+   "src": "L15897",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The paste smells wonderful and does nothing at all. By the time (subject) gives up on it, the sickness has gone too deep. It passes in the end, but it leaves (sick)'s hands with a tremor that never goes away, and (subject.his/her) patience with the healers is gone for good.",
@@ -171,7 +172,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15900"
+   "src": "L15900",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) grinds the three roots with the red ginger blossom into a sharp, sweet-smelling paste, and rubs it into (sick)'s hands and legs, morning and night...",
@@ -202,7 +204,8 @@
      "best": true
     }
    ],
-   "src": "L15906"
+   "src": "L15906",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The trumpet flower cures the shaking, but one petal was too many: (sick) sleeps for two days and wakes up weak and confused, and it takes a month to get (subject.his/her) strength back. The old healer is mortified. The recipe gets written down, with a note in large letters: ONE PETAL LESS.",
@@ -218,7 +221,8 @@
      "max": -20
     }
    ],
-   "src": "L15909"
+   "src": "L15909",
+   "auto_text": true
   },
   "c2": {
    "text": "The old healer measures out the trumpet flower with great care, one tiny petal at a time, and grinds it into the paste. (subject) watches nervously...",

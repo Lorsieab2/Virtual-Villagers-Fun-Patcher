@@ -143,7 +143,8 @@
      "next": "c1o1_c1"
     }
    ],
-   "src": "L4895"
+   "src": "L4895",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) gets every child out, coughing, singed, unhurt. The bucket chain stops the fire at the walls. The next week, the whole village rebuilds the children's hut, further from the cooking fires, with a wide door at each end. The children help, mostly by carrying things the wrong way.",
@@ -153,7 +154,8 @@
      "structures": "any"
     }
    ],
-   "src": "L4898"
+   "src": "L4898",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) pulls (his/her) wrap over (his/her) face and plunges into the smoke, feeling along the floor for small warm bodies...",
@@ -177,7 +179,8 @@
      "structures": "any"
     }
    ],
-   "src": "L4904"
+   "src": "L4904",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The children get out through the back, every one. (Name)'s hands are torn and bleeding from the wall, and the healers bind them for a month. When the bindings come off, the hands are fine. The children's parents bring (name) so much food that (he/she) can't eat it all, and gives most of it away.",

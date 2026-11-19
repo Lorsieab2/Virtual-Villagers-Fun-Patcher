@@ -2384,7 +2384,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "cd_none": {
    "type": "branch",
@@ -2808,7 +2809,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r11": {
    "text": "(Mentor) demands a change that would ruin the work. For once, (subject) explains (subject.his/her) reasoning instead of giving in. After an uncomfortable silence, (mentor) nods. The work stands, and so does (subject).",
@@ -2853,7 +2855,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r14": {
    "text": "The first attempt fails. Instead of hiding it, (subject) asks to try again with the remaining materials. (Mentor) allows one careful second attempt. This time, the work is sound, though the privilege of {PRIV} will have to wait.",
@@ -3015,7 +3018,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "routes": {
    "type": "branch",

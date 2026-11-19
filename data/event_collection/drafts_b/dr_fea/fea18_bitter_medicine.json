@@ -105,7 +105,8 @@
      "max": 30,
      "src": "L218"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",

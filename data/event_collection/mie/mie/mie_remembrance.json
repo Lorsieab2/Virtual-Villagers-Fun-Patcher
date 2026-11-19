@@ -83,7 +83,8 @@
      },
      "action": "Honoring the Dead"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "day2_1": {
    "text": "Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.",
@@ -96,7 +97,8 @@
      },
      "action": "Honoring the Dead (Day of Honor)"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "day2_2": {
    "text": "Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.",
@@ -109,7 +111,8 @@
      },
      "action": "Reflecting"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "day3_1": {
    "text": "Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.",
@@ -122,7 +125,8 @@
      },
      "action": "Honoring the Dead"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "day3_2": {
    "text": "Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.",
@@ -135,7 +139,8 @@
      },
      "action": "Reflecting"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "day4_1": {
    "text": "Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.",
@@ -148,7 +153,8 @@
      },
      "action": "Honoring the dead (Day of Honor)"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "day5_1": {
    "text": "Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.",
@@ -161,7 +167,8 @@
      },
      "action": "Honoring the dead [Day of Honor]"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "start": {
    "type": "branch",

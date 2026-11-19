@@ -142,7 +142,8 @@
      "structures": "any"
     }
    ],
-   "src": "L2176"
+   "src": "L2176",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They've nearly emptied it when a second stilt goes, without warning, and the granary comes down on its side with (subject) still inside. The village digs through the wreckage with bare hands. (subject) is gone by the time they reach (subject.him/her). They bury (subject.him/her) near the new granary, which is built on ironwood stilts, twice as many as before, and nobody ever goes in it again without checking every one.",
@@ -153,7 +154,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2179"
+   "src": "L2179",
+   "auto_text": true
   },
   "c1": {
    "text": "(builder) jams a log under the split stilt and leans on it with all (builder.his/her) weight. \"Go!\" (builder.he/she) shouts. \"Hand them down! Quickly!\" (subject) starts passing baskets out of the door as fast as (subject.he/she) can...",
@@ -195,7 +197,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "It turns out the scholars had been keeping their spare bark records under the granary floor, out of the rain. They aren't out of the rain anymore. They're under a granary. The scholars dig out what they can and spend a sad week drying soggy bark on every flat surface in the village.",
@@ -207,7 +210,8 @@
      "loss": true
     }
    ],
-   "src": "L2188"
+   "src": "L2188",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) drops everything and jumps from the door. Behind (subject.him/her), with a long, slow groan, the granary leans, and leans, and falls...",

@@ -70,14 +70,50 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Go,\" says (friend). \"Come back and show me.\" (subject) goes. (subject.He/she) comes back with sketches scratched on bark and a lot of strong opinions about curved roofs. Some of the ideas are wonderful. Some don't work at all here. They argue about them happily for weeks, and both learn something.",
-   "src": "L350"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"What's wrong with how we build?\" asks (friend). (subject) struggles to explain that nothing is wrong, (subject.he/she) just wants to see more. (friend) is quiet, then admits (friend.he/she) once wanted the same thing at that age and never went. \"Go,\" (friend.he/she) says. \"But come back and tell me everything.\" (subject) promises.",
    "src": "L353"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Go,\" says (friend). \"Come back and show me.\" (subject) goes. (subject.He/she) comes back with sketches scratched on bark and a lot of strong opinions about curved roofs. Some of the ideas are wonderful. Some don't work at all here. They argue about them happily for weeks, and both learn something.",
+   "src": "L350",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L350"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 30,
+     "max": 60,
+     "src": "L350"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Go,\" says (friend). \"Come back and show me.\" (subject) goes. (subject.He/she) comes back with sketches scratched on bark and a lot of strong opinions about curved roofs. Some of the ideas are wonderful. Some don't work at all here. They argue about them happily for weeks, and both learn something.",
+   "src": "L350"
   }
  }
 }

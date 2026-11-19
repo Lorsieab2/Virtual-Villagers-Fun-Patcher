@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4622"
+   "src": "L4622",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) carries the baby down the cliff path wrapped in (subject.his/her) shirt, and (friend), meeting them at the bottom, simply holds out (friend.his/her) arms. The great bird watches them all the way home before it flies off. They raise the baby together, and the child grows up loving high places and the sound of wings.",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4625"
+   "src": "L4625",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) peels the shell away, piece by piece, as gently as (subject.he/she) can. Inside, curled up and blinking at the light, is a baby, warm and wet and furious about the whole business...",
@@ -172,7 +174,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4631"
+   "src": "L4631",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The bird lifts the egg in its great feet and flies away out over the sea with it, towards some other island. (subject) watches until it's a white speck, and then nothing. On the way down, (subject.he/she) finds a single white feather on the path, and keeps it.",

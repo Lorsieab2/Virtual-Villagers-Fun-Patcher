@@ -121,7 +121,8 @@
      "max": 10,
      "src": "L338"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome 2",
@@ -135,7 +136,8 @@
      "loss": true,
      "src": "L340"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o3": {
    "name": "Outcome 3",

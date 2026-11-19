@@ -132,7 +132,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L4487"
+   "src": "L4487",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The figure on the bough is (name) as a child, humming the song (his/her) mother used to sing. It smiles, and reaches out, and touches (name)'s face, and is gone. In the morning (name)'s face is younger, smoother, closer to the child's. (He/She) hums that song all day without noticing.",
@@ -142,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4490"
+   "src": "L4490",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) climbs into the glowing branches. Near the top, sitting on a bough with (his/her) back to the trunk, humming, is someone who turns round...",
@@ -167,7 +169,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4496"
+   "src": "L4496",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) falls asleep for real, and in the morning there's nobody there, only a hollow in the grass beside (him/her), as if someone lay there and got up early. The tree is just a pale tree in the sunlight. (Name) goes back to the village and decides not to think about the hollow.",

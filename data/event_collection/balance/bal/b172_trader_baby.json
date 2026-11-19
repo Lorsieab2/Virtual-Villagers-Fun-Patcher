@@ -144,7 +144,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7972"
+   "src": "L7972",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The next morning, (trader) doesn't leave. Or the morning after. \"I'll just make sure (subject.he/she) is settled,\" (subject.he/she) says, every day. After a month (subject.he/she) sells the canoe. (subject) and (trader) raise the baby together, in a hut full of pots that never sold.",
@@ -160,7 +161,8 @@
      "age": "adult"
     }
    ],
-   "src": "L7975"
+   "src": "L7975",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) holds out (subject.his/her) arms. The trader unties the sling, slowly, and hands the baby over, and then stands with (subject.his/her) arms hanging empty, as if (subject.he/she) doesn't know what to do with them...",
@@ -185,7 +187,8 @@
      "role": "friend",
      "any_birth_sex": true
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) brings back three different people who would make good parents, one after another. The baby screams at every one of them, and reaches for (subject). By the third one, everyone is laughing, except the third one. \"I think (subject.he/she)'s decided,\" says (trader).",
@@ -196,7 +199,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7984"
+   "src": "L7984",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) feels the baby's hand in (subject.his/her) hair and is very tempted. But (subject.he/she) knows someone who has been hoping for a baby for years. \"Wait here,\" (subject.he/she) says, and runs...",

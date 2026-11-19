@@ -1606,6 +1606,7 @@ def check_file(path: Path, rows: dict | None = None) -> Report:
         check_guardians(doc, rep)
     for x in supply_effects.missing(doc):          # the owner's audit of 2026-11-17 (scripts/supply_effects.py)
         rep.add("e EFFECTS", f"{x}: the supply effect scripts/supply_effects.py lists is missing (--format adds it)")
+        check_outcome_effects(doc, path, rep)
     text = path.read_text(encoding="utf-8")
     if text != canonical(doc):
         rep.add("g ROUND", "the file is not in canonical form (python scripts/collection_check.py --format FILE)")
@@ -1628,6 +1629,24 @@ def fill_from_manifest(doc: dict, rows: dict) -> None:
 
 def canonical(doc: dict) -> str:
     return json.dumps(doc, indent=1, ensure_ascii=False) + "\n"
+
+
+def _outcome_effects():
+    here = str(Path(__file__).resolve().parent)
+    if here not in sys.path:
+        sys.path.insert(0, here)
+    import outcome_effects
+    return outcome_effects
+
+
+def with_outcome_effects(doc: dict, path: Path) -> dict:
+    """The owner's text-implied outcome effects (scripts/outcome_effects.py), added to a file as it is written."""
+    return _outcome_effects().apply(doc, path)
+
+
+def check_outcome_effects(doc: dict, path: Path, rep: Report) -> None:
+    for msg in _outcome_effects().missing(doc, path):
+        rep.add("e EFFECTS", msg)
 
 
 def check_shared_pools() -> list[str]:
@@ -1724,7 +1743,7 @@ def main(argv=None) -> int:
             doc = json.loads(p.read_text(encoding="utf-8"))
             fill_from_manifest(doc, rows)
             supply_effects.apply(doc)                  # the existing events' supply effects (the owner, 2026-11-17)
-            p.write_text(canonical(doc), encoding="utf-8", newline="\n")
+            p.write_text(canonical(with_outcome_effects(doc, p)), encoding="utf-8", newline="\n")
         rep = check_file(p, rows)
         status = "OK" if rep.ok else f"{len(rep.problems)} PROBLEMS"
         print(f"{rep.path}: {status}")

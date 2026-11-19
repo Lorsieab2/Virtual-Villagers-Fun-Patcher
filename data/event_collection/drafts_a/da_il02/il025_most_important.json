@@ -76,14 +76,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"It tastes terrible,\" (subject) announces. (friend) stares. \"That's your discovery?\" \"An important one,\" says (subject). \"Now we know not to put it in soup.\" (friend) admits this is useful information.",
-   "src": "L249"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) produces several pages of careful observations concerning the plant's appearance, growth, and unpleasant flavor. (friend) is impressed by the thoroughness. \"Are you going to publish this?\" \"Perhaps,\" says (subject). \"After I get the taste out of my mouth.\"",
    "src": "L253"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"It tastes terrible,\" (subject) announces. (friend) stares. \"That's your discovery?\" \"An important one,\" says (subject). \"Now we know not to put it in soup.\" (friend) admits this is useful information.",
+   "src": "L249",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L249"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"It tastes terrible,\" (subject) announces. (friend) stares. \"That's your discovery?\" \"An important one,\" says (subject). \"Now we know not to put it in soup.\" (friend) admits this is useful information.",
+   "src": "L249"
   }
  }
 }

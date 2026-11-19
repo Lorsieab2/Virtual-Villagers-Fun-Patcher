@@ -207,7 +207,8 @@
      "scaled": true
     }
    ],
-   "src": "L9689"
+   "src": "L9689",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Some holey stones float, and some sink, and some float for a while and then sink. (subject) frowns at the bucket and admits (subject.he/she) is not sure why. It's the first time anyone has seen (subject.him/her) stumped, and (subject.he/she) seems to enjoy it.",
@@ -236,7 +237,8 @@
      "scaled": true
     }
    ],
-   "src": "L9696"
+   "src": "L9696",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The ground powder sinks, but some of it floats on top for a while, which nobody can explain. Both air and a little volcano magic still seem possible, and more stones are needed. (subject) is delighted. (subject.He/She) was rooting for magic.",
@@ -265,7 +267,8 @@
      "scaled": true
     }
    ],
-   "src": "L9703"
+   "src": "L9703",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The group argues about how to test \"floats.\" In the bucket? In the sea? Does bobbing halfway count? They finally agree on the big water jar, filled to the brim. (subject) has already floated the stone in every container in the village anyway.",
@@ -298,7 +301,8 @@
      "max": 20
     }
    ],
-   "src": "L9710"
+   "src": "L9710",
+   "auto_text": true
   },
   "c4o2": {
    "text": "(novice) notices that some of the stones were still wet from the last test, so their holes were already full of water, and they sank because of that. The group revises its notes, and (subject) lays all the stones out in the sun to dry, in a very neat row.",

@@ -69,6 +69,51 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Not today,\" says (subject). \"I'm fine. I just need a day by myself.\" (friend) stops, nods, and changes direction without a word. Later, (subject) finds the basket on (subject.his/her) doorstep: food, and a bit of cloth with a drawing of a hand waving. (subject) smiles. Then (subject.he/she) goes back to being alone.",
+   "src": "L494",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L494"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L494"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Not today,\" says (subject). \"I'm fine. I just need a day by myself.\" (friend) stops, nods, and changes direction without a word. Later, (subject) finds the basket on (subject.his/her) doorstep: food, and a bit of cloth with a drawing of a hand waving. (subject) smiles. Then (subject.he/she) goes back to being alone.",
    "src": "L494",
@@ -80,7 +125,21 @@
     }
    ]
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) gets up and walks off before (friend) reaches (subject.him/her). (subject.He/she) goes to a quiet spot up the stream and stays there all day. Nobody finds (subject.him/her). It's exactly what (subject.he/she) needed. At dusk (subject.he/she) comes back, and is pleased to see people again, and (friend) waves, and (subject) waves back.",
+   "src": "L497",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L497"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) gets up and walks off before (friend) reaches (subject.him/her). (subject.He/she) goes to a quiet spot up the stream and stays there all day. Nobody finds (subject.him/her). It's exactly what (subject.he/she) needed. At dusk (subject.he/she) comes back, and is pleased to see people again, and (friend) waves, and (subject) waves back.",
    "src": "L497"

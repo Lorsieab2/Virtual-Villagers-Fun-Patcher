@@ -137,6 +137,32 @@
    "src": "L827"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), an elder, guides an apprentice through a difficult weaving pattern. (Name1) is proud when the hands finally remember the steps.",
+   "src": "L831",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L831"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1), an elder, guides an apprentice through a difficult weaving pattern. (Name1) is proud when the hands finally remember the steps.",
    "src": "L831"

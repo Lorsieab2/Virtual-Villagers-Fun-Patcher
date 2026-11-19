@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3083"
+   "src": "L3083",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The sun slides back, bright as ever. The birds start up again. (subject) and (friend) look down: each shadow is right where it should be. They sit down on the sand and laugh with relief, and then go and tell the children it was nothing to worry about, which is a lie, but a kind one.",
@@ -165,7 +166,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3092"
+   "src": "L3092",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The sun comes back. Their shadows are their own. But for weeks afterwards, both of them sleep with a lamp burning, and walk on the sunny side of the path, and check their shadows every time they step out of a doorway. It wears off, eventually.",

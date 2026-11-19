@@ -201,7 +201,8 @@
      "scaled": true
     }
    ],
-   "src": "L6824"
+   "src": "L6824",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) unfolds (his/her) arms with some effort, and offers the farmhand a ripe mango...",
@@ -226,7 +227,8 @@
      "scaled": true
     }
    ],
-   "src": "L6829"
+   "src": "L6829",
+   "auto_text": true
   },
   "c2o2": {
    "text": "When (name) asks about the curved stick, the farmhand smiles and taps (his/her) nose. Some of (his/her) home's farming secrets stay private, and nobody insists. (Name) spends the evening trying to carve a curved stick of (his/her) own. It breaks.",
@@ -254,7 +256,8 @@
      "age": "adult"
     }
    ],
-   "src": "L6836"
+   "src": "L6836",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The farmhand thanks them warmly, but (his/her) own fields are waiting back home, and they won't harvest themselves. (He/She) heads west in the morning, leaving (name) one curved digging stick as a gift.",
@@ -283,7 +286,8 @@
      "scaled": true
     }
    ],
-   "src": "L6843"
+   "src": "L6843",
+   "auto_text": true
   },
   "c4o2": {
    "text": "Halfway down the first row, the farmhand's curved stick cracks clean in two. (He/She) looks heartbroken. The villagers carve (him/her) a new curved digging stick from good hard wood, and (name) does most of the carving. The farmhand goes home with it, very pleased.",

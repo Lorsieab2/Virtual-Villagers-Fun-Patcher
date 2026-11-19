@@ -143,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2992"
+   "src": "L2992",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Three steps from (name), the boar swerves, crashes through the stakes and bolts back into the forest, squealing. It never comes back. (Name) stands there with (his/her) pots raised, shaking, then sits down very suddenly in the beans. The farmers find (him/her) there, still holding the pots, and carry (him/her) home like a hero.",
@@ -189,7 +190,8 @@
      "what": "\"flees\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "The boar gets bored by midnight and wanders off. (Name) climbs down at dawn, stiff and cold and covered in ant bites. (He/She) used to love running through the forest after tracks. After a night up a tree with a boar underneath, the thrill of running anywhere is gone. (He/She) leaves the boars to the fishers' dogs from then on.",
@@ -201,7 +203,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3004"
+   "src": "L3004",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) scrambles up the nearest tree just as the boar thunders past underneath. It circles the trunk, grunting, and settles down to wait...",

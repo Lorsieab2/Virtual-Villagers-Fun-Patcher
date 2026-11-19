@@ -134,7 +134,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4532"
+   "src": "L4532",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) has never been able to sit still. For the first few days (he/she) fidgets, and gets up, and sits down, and complains. But slowly, the sun and the quiet do their work, and (name) learns, at last, how to rest. \"I should have tried this sixty years ago,\" (he/she) says, and goes back to work a week later, but takes the afternoons off.",
@@ -146,7 +147,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4535"
+   "src": "L4535",
+   "auto_text": true
   },
   "c1": {
    "text": "The village brings (name) a soft mat and a cup of something warm, and leaves (him/her) alone on (his/her) doorstep in the sun...",
@@ -175,7 +177,8 @@
      }
     }
    ],
-   "src": "L4541"
+   "src": "L4541",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Teaching suits (name) so well that within a month (he/she) looks years younger. The tiredness goes out of (his/her) face, and the lines soften, and people keep saying (he/she) looks like (he/she) did twenty years ago. \"Stopping work,\" (name) says, \"is the best thing that ever happened to me.\"",
@@ -185,7 +188,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4544"
+   "src": "L4544",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Teach us,\" says one of the young ones. \"Just sit there and tell us what we're doing wrong.\" (Name)'s eyes light up...",

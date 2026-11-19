@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13849"
+   "src": "L13849",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The crocodile comes out of the water at (name)'s side and catches (his/her) arm. (Name) hits it on the nose with the water jar, as hard as (he/she) can, and it lets go. The healers save (his/her) life, but not the use of (his/her) arm. (Name) never goes near the river again, and from then on fetches (his/her) water from the hill spring, one-handed.",
@@ -154,7 +155,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13852"
+   "src": "L13852",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) creeps down to the water's edge, well upstream of the sandbank, and kneels to fill the water jar, keeping one eye on the crocodile. It isn't on the sandbank...",
@@ -180,7 +182,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13858"
+   "src": "L13858",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The hill spring turns out to be lovely: cool, quiet, shaded by ferns, and there are no crocodiles. (Name) finds the washing goes faster there, too. By the time the crocodile leaves the river mouth, half the village has started walking up to the spring instead. The river mouth goes quiet, and the crocodile, people say, seemed almost offended.",

@@ -138,7 +138,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15718"
+   "src": "L15718",
+   "auto_text": true
   },
   "c1o2": {
    "text": "When the shell lifts, there are two people under it. One is (subject). The other has (subject)'s face, but sits differently, talks differently, and immediately asks what's for lunch, which (subject) would never do. \"It's not perfect,\" (keeper) admits, scribbling notes. \"The outside doubles. The inside comes out different.\" The village names the newcomer (made1).",
@@ -148,7 +149,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L15721"
+   "src": "L15721",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) sits down cross-legged. (keeper) lowers a huge pink shell over (subject.him/her), and everything goes dark and smells of the sea...",
@@ -172,7 +174,8 @@
      "copy_of": "apprentice"
     }
    ],
-   "src": "L15727"
+   "src": "L15727",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) takes the basket, and (keeper), making the best of it, puts the shell over (subject)'s basket of yams. When (subject.he/she) lifts it, there are two baskets of yams. Then four. Then (keeper) can't stop. By evening the food store is full of yams and the spell-keeper has sworn never to touch the shell again. Your villagers gain (award) food.",
@@ -187,7 +190,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L15730"
+   "src": "L15730",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Not a chance,\" says (subject). (keeper) sighs and puts the big shell down on the mat. Then (subject.his/her) apprentice, (apprentice), wanders in, and sits down on it to rest...",

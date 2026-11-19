@@ -45,6 +45,38 @@
  "start": "scene",
  "nodes": {
   "scene": {
+   "type": "branch",
+   "name": "The Instrument That Never Existed",
+   "children": [
+    {
+     "next": "scene__fx"
+    },
+    {
+     "next": "scene__text"
+    }
+   ]
+  },
+  "scene__fx": {
+   "name": "The Instrument That Never Existed",
+   "src": "L7695-7698",
+   "text": "The boy binds hollow reeds, a gourd, shells and stretched fibers into an instrument no musician recognizes. Its strange voice makes an elder remember a half-forgotten lullaby. The boy is delighted by the sound, but even more delighted that the elder begins singing.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7698"
+    },
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L7695-7698"
+    }
+   ],
+   "auto_text": true
+  },
+  "scene__text": {
    "name": "The Instrument That Never Existed",
    "src": "L7695-7698",
    "text": "The (child.boy/girl) binds hollow reeds, a gourd, shells and stretched fibers into an instrument no musician recognizes. Its strange voice makes an elder remember a half-forgotten lullaby. The (child.boy/girl) is delighted by the sound, but even more delighted that the elder begins singing.",
@@ -55,7 +87,8 @@
      "scaled": true,
      "src": "L7698"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

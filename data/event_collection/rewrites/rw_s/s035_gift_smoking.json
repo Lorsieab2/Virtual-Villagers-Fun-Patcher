@@ -137,7 +137,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L1656"
+   "src": "L1656",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Halfway to the research hut, the tongs slip. The stone drops, and without thinking, (name) grabs for it with (his/her) bare hands. (He/She) screams and lets go, but too late: (his/her) palms are burned bright red and blistering. The healers plunge (his/her) hands into cold water and wrap them in soothing leaves, and (name) can't hold anything for weeks. The stone, rolled the rest of the way by somebody with more sense and a shovel, cools and cracks open into a few green crystals for the researchers. Your villagers gain (award) tech points.",
@@ -158,7 +159,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L1659"
+   "src": "L1659",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) fetches the long wooden tongs from the cooking fire, gets a grip on the glowing stone, and lifts it very, very carefully, holding it as far away from (his/her) body as (his/her) arms will go...",
@@ -191,7 +193,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L1668"
+   "src": "L1668",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) steps back, carefully, and puts a ring of stones around it so nobody treads on it by accident. Then (he/she) calls the others over. Everybody stands in a circle around it, at a respectful distance, and watches it glow...",

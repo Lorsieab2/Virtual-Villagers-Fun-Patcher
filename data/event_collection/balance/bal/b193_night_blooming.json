@@ -140,7 +140,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8968"
+   "src": "L8968",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They make it to dawn, just, with their eyes propped open and the stories getting stranger and stranger. As the last flower closes, (subject) falls asleep mid-sentence. A month later (subject) is pregnant. Neither of them can remember the end of the last story, and they spend years arguing about it.",
@@ -152,7 +153,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8971"
+   "src": "L8971",
+   "auto_text": true
   },
   "c1": {
    "text": "They lie on the blanket under the white flowers and tell each other every story they know: their grandparents' stories, the funny ones, the frightening ones, and some they make up as they go along...",
@@ -182,7 +184,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8980"
+   "src": "L8980",
+   "auto_text": true
   },
   "c2": {
    "text": "\"You sleep first,\" says (subject). \"I'll wake you at the half-moon.\" (friend) is asleep in moments. (subject) sits up alone among the white flowers, watching the stars wheel round...",

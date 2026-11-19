@@ -133,9 +133,11 @@
     {
      "do": "kill",
      "role": "subject",
-     "cause": "unknown"
+     "cause": "unknown",
+     "line": "injuries"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "summit": {
    "text": "For several hours, (subject.he/she) carefully scales the jagged rocks until (subject.he/she) can almost see over the edge of the falls. Just a little further... With one last stretch, (subject) climbs onto the final rock and stands in victory. From this height, (subject.he/she) can see over the entire village and jungle canopy. (subject.He/She) thinks (subject.he/she) can even see other settlements from up here! Behind (subject.him/her), (subject.he/she) hears the rushing of the falls echoing through a large cave mouth leading to somewhere unknown. Checking (subject.his/her) notes and doing some quick calculations, (subject.he/she) is almost certain the cave tunnel must lead somewhere close to the Southern Shore of Isola. (Subject) fervently writes down (subject.his/her) deductions and makes a detailed sketch of the area before making the careful descent back home. That day, (subject.he/she) presents (subject.his/her) findings to the others, who work together to perfect (subject.his/her) plan. Over several months they send an expedition team to the perilous peak, and confirm that (subject) was right about everything. They name (subject) a Distinguished Scientist, and recognize (subject.his/her) achievements in a grand ceremony. (subject) is certainly setting a name for (subject.himself/herself) throughout the entire scientific community! Your village gains (award) tech points.",
@@ -162,7 +164,8 @@
      "do": "celebrate",
      "who": "all"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "advice": {
    "text": "(subject) admits that (subject.his/her) plan still needs some refining. (subject.He/She) goes back to the drawing board to double-check it. After scrutinizing it thoroughly, even (subject.he/she) sees glaring flaws in its execution, and writes a report detailing all (subject.his/her) mistakes. The next day (subject.he/she) consults (subject.his/her) senior colleagues to help (subject.him/her) work out the kinks in (subject.his/her) plan, and over time (subject) learns many things from their strict guidance. It turns out (subject.he/she) had much to learn, but was too blinded by ambition to notice their shortcomings. (Subject) promises to be more humble and learn from (subject.his/her) elders before stubbornly taking matters into (subject.his/her) own hands.",
@@ -177,7 +180,8 @@
      "min": 10,
      "max": 20
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

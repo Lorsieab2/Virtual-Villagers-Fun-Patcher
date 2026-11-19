@@ -328,7 +328,8 @@
     {
      "next": "leave"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "adv3": {
    "text": "The naturalists believe that the factions are in imbalance, and that the natural forces that keep Isola healthy have been disrupted. \"The natural cycle of rebirth and renewal is fading,\" (advisor3) says. \"Soon enough, all of Isola will perish if nothing is done. We must figure out what is destroying it and stop it.\" Chief (leader) thanks the naturalists for their wise counsel, and makes (leader.his/her) decree.",
@@ -370,7 +371,8 @@
     {
      "next": "leave"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "adv4": {
    "text": "The scientists and healers believe that some organic phenomenon is causing the animals and plants to wither and die. \"Perhaps they are being poisoned,\" (advisor4) says. \"Or, something in their environment is adversely affecting their health. Whatever it is, we must do some in-depth experimentation to get to the bottom of this disaster.\" Chief (leader) thanks the scientists and healers for their wise counsel, and makes (leader.his/her) decree.",

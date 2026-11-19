@@ -121,7 +121,8 @@
      "max": 10,
      "src": "L4547"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "name": "Outcome 2",

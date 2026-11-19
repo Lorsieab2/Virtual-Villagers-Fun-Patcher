@@ -207,7 +207,8 @@
      "scaled": true
     }
    ],
-   "src": "L9571"
+   "src": "L9571",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Storms and wind scatter the line of sticks, and some get used as firewood by someone who didn't know. (subject) records honestly that (subject.he/she) can't be sure of anything. Then (subject.he/she) starts again, with heavier sticks.",
@@ -236,7 +237,8 @@
      "scaled": true
     }
    ],
-   "src": "L9578"
+   "src": "L9578",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Both the moon and the wind still seem to matter, pulling the sticks in different directions. More sticks are needed. The other fishers groan.",
@@ -265,7 +267,8 @@
      "scaled": true
     }
    ],
-   "src": "L9585"
+   "src": "L9585",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The fishers argue about what \"touching the rock\" means. The bottom of the sun? The middle? When it first goes behind? They finally agree on the very top edge of the rock. The arguing takes longer than planting the sticks.",
@@ -298,7 +301,8 @@
      "max": 20
     }
    ],
-   "src": "L9592"
+   "src": "L9592",
+   "auto_text": true
   },
   "c4o2": {
    "text": "(novice) notices that two of the sticks were planted at the wrong time, on cloudy days when nobody could see the sun touch the rock. They were guesses. The group revises its notes, and marks the cloudy-day sticks with a ring of shells.",

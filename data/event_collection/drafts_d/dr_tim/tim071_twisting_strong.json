@@ -99,19 +99,91 @@
    "src": "L1191"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "Two villagers twist plant fibers into a sturdy rope. The finished knot holds, much to everyone's relief.",
-   "src": "L1195"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "Two villagers twist plant fibers into a sturdy rope. Someone remembers a different method and demonstrates it.",
-   "src": "L1199"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "Two villagers twist plant fibers into a sturdy rope. The task is surprisingly soothing once a rhythm develops.",
    "src": "L1203"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "Two villagers twist plant fibers into a sturdy rope. The finished knot holds, much to everyone's relief.",
+   "src": "L1195",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L1195"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1195"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "Two villagers twist plant fibers into a sturdy rope. The finished knot holds, much to everyone's relief.",
+   "src": "L1195"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "Two villagers twist plant fibers into a sturdy rope. Someone remembers a different method and demonstrates it.",
+   "src": "L1199",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L1199"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1199"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "Two villagers twist plant fibers into a sturdy rope. Someone remembers a different method and demonstrates it.",
+   "src": "L1199"
   }
  }
 }

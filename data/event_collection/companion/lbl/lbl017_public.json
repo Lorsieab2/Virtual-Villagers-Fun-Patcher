@@ -97,9 +97,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "They laugh along and invent a signature move.",
-   "src": "L4015"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -110,6 +117,25 @@
    "name": "Outcome 3",
    "text": "A quiet friend performs beside them in solidarity.",
    "src": "L4017"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "They laugh along and invent a signature move.",
+   "src": "L4015",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "dancer",
+     "mood": "good",
+     "src": "L4015"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "They laugh along and invent a signature move.",
+   "src": "L4015"
   }
  }
 }

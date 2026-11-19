@@ -85,6 +85,40 @@
    "src": "L10837"
   },
   "c": {
+   "type": "branch",
+   "name": "Outcome C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A genuine shared interest brings them closer.",
+   "src": "L10838",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "suitor",
+     "mood": "good",
+     "src": "L10838"
+    },
+    {
+     "do": "mood",
+     "role": "interest",
+     "mood": "good",
+     "src": "L10838"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
    "name": "Outcome C",
    "popup": "append",
    "join": "paragraph",

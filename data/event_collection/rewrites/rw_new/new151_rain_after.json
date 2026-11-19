@@ -204,7 +204,8 @@
      "what": "\"collapses\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "Water gets in under the mats anyway, running in rivulets down the inside walls. By the time anyone notices, a basket of dried fish at the back is soaked through and swimming. It has to be thrown out. After weeks of praying for rain, nobody quite knows how to feel about this.",
@@ -216,7 +217,8 @@
      "loss": true
     }
    ],
-   "src": "L7232"
+   "src": "L7232",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) shouts for help, and a team of soaked villagers races to drag palm mats over the storehouse roof, while others run for the fields...",
@@ -246,7 +248,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7239"
+   "src": "L7239",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) runs through the village, splashing through puddles, checking that everyone is safe and dry...",
@@ -271,7 +274,8 @@
      "scaled": true
     }
    ],
-   "src": "L7244"
+   "src": "L7244",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The sticks in different fields disagree completely: one flat field flooded, another didn't; one terrace soaked it up, another ran with mud. The farmers decide to wait for the next rain before guessing at anything. (Name) is very wet and has learned nothing, but (he/she) doesn't seem to mind.",
@@ -305,7 +309,8 @@
      "loss": true
     }
    ],
-   "src": "L7253"
+   "src": "L7253",
+   "auto_text": true
   },
   "c4": {
    "text": "(Name) gathers every pair of hands that isn't busy, and they set to work on the leaking roofs with fresh thatch and sap, in the pouring rain...",

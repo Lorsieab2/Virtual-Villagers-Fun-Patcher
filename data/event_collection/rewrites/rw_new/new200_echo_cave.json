@@ -205,7 +205,8 @@
      "scaled": true
     }
    ],
-   "src": "L9809"
+   "src": "L9809",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The counts change every time someone shifts their feet, or turns their head, or breathes too loudly. (subject) records the uncertainty honestly. (friend) keeps whispering \"it's offended\" every time the second echo comes back.",
@@ -234,7 +235,8 @@
      "scaled": true
     }
    ],
-   "src": "L9816"
+   "src": "L9816",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The cave turns out to be strangely shaped, and both explanations still fit: the right wall IS farther, and there MIGHT be a tunnel, behind some rocks. More shouting is needed. (subject) and (friend) do a lot more shouting.",
@@ -263,7 +265,8 @@
      "scaled": true
     }
    ],
-   "src": "L9823"
+   "src": "L9823",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The explorers argue about how loud to shout for a fair test. Quietly? Normally? As loud as possible? They finally agree on \"very.\" The next day, (subject) shouts \"very\" loudly into the cave. \"VERY,\" says the left wall. A long pause. \"...very,\" says the right.",
@@ -296,7 +299,8 @@
      "max": 20
     }
    ],
-   "src": "L9830"
+   "src": "L9830",
+   "auto_text": true
   },
   "c4o2": {
    "text": "(novice) notices that during one count the tide was in, filling the bottom of the cave with water, and during the other it was out. Water changes how sound bounces. The group revises its notes, and starts recording the tide alongside every clap.",

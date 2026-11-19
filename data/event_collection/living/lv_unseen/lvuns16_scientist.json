@@ -94,7 +94,8 @@
      "scaled": true,
      "src": "L22378"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -128,7 +129,8 @@
      "max": 10,
      "src": "L22381"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -165,7 +167,8 @@
      "role": "scientist",
      "src": "L22385"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

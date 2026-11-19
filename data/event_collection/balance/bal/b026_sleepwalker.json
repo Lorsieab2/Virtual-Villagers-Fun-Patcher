@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1175"
+   "src": "L1175",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) wakes, and gasps, and steps the wrong way. (friend) grabs for (subject.him/her) and catches only the edge of (subject.his/her) sleeping wrap. The village brings (subject) home from the rocks at first light. (friend) is not to blame; everyone tells (friend.him/her) so, again and again, and in time (friend.he/she) almost believes it. The village builds a low stone wall along the headland, and every child is taught why it's there.",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1178"
+   "src": "L1178",
+   "auto_text": true
   },
   "c1": {
    "text": "(friend) creeps close, takes (subject)'s arm, and says (subject.his/her) name, loud and clear. (subject) jerks awake, sees the drop below (subject.his/her) feet, and gasps...",
@@ -174,7 +176,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1184"
+   "src": "L1184",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) gets home safely. But when (friend) tells (subject.him/her) the next morning where (subject.he/she) was standing, (subject) goes white. From then on, (subject.he/she) can't bear to lie down for long, in case (subject.he/she) wanders. (subject.He/She) sleeps sitting up, and badly, and never naps again. (friend) hangs a string of shells across the doorway that rattles if anyone goes out, and the walking stops.",
@@ -186,7 +189,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1187"
+   "src": "L1187",
+   "auto_text": true
   },
   "c2": {
    "text": "(friend) takes (subject)'s hand very gently. \"Come on,\" (friend.he/she) whispers. \"Time to go home.\" (subject) turns, still asleep, and follows, step by careful step...",

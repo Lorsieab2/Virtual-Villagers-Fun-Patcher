@@ -78,14 +78,41 @@
    "src": "L6858"
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "Rest periods make their contributions more sustainable.",
-   "src": "L6860"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
    "text": "Trust suffers; a coworker later realizes the judgment was unfair.",
    "src": "L6862"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "Rest periods make their contributions more sustainable.",
+   "src": "L6860",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "worker",
+     "min": 15,
+     "max": 30,
+     "src": "L6860"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "Rest periods make their contributions more sustainable.",
+   "src": "L6860"
   }
  }
 }

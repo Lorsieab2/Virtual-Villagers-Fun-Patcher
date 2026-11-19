@@ -104,7 +104,8 @@
      "loss": true,
      "src": "L603"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -118,7 +119,8 @@
      "loss": true,
      "src": "L607"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

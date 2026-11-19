@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14785"
+   "src": "L14785",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(He/She) lands face-first in the soft mud of the bank with a tremendous splat. Nothing is hurt but (his/her) pride. (He/She) gets up, plastered from head to toe, and finds the shrimp (he/she) was reaching for sitting on (his/her) nose. (He/She) takes it home in triumph.",
@@ -171,7 +172,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14794"
+   "src": "L14794",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The rock holds. (Name) stays perfectly still for so long that the shrimp forget (he/she) is there, and walk right into the net, a dozen at a time. (Name) comes home with a full basket and a new respect for keeping still, which turns out to help with nearly everything (he/she) does.",
@@ -184,7 +186,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14797"
+   "src": "L14797",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) freezes, arms out, perfectly still. The rock wobbles. Water roars past. Slowly, very slowly, the rock settles...",

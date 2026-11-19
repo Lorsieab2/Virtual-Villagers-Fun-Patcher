@@ -436,13 +436,14 @@
    ]
   },
   "g2": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L2459-2460",
-   "text": "The Isolan organizer admits (isolan.he/she) was hoping the hosts would decide. Both organizers burst out laughing.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "end"
+     "next": "g2__fx"
+    },
+    {
+     "next": "g2__text"
     }
    ]
   },
@@ -568,6 +569,38 @@
      "min": 5,
      "max": 10,
      "src": "L2487"
+    }
+   ],
+   "auto_text": true
+  },
+  "g2__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2459-2460",
+   "text": "The Isolan organizer admits (isolan.he/she) was hoping the hosts would decide. Both organizers burst out laughing.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "organizer",
+     "mood": "good",
+     "src": "L2459-2460"
+    }
+   ],
+   "auto_text": true
+  },
+  "g2__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2459-2460",
+   "text": "The Isolan organizer admits (isolan.he/she) was hoping the hosts would decide. Both organizers burst out laughing.",
+   "children": [
+    {
+     "next": "end"
     }
    ]
   }

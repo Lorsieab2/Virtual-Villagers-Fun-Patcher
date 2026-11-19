@@ -106,7 +106,8 @@
      "scaled": true,
      "src": "L8015"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "src": "L8016",
@@ -122,7 +123,8 @@
      "scaled": true,
      "src": "L8017"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_a": {
    "type": "branch",

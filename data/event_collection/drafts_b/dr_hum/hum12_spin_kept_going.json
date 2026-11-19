@@ -81,11 +81,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) commits completely. (subject.He/she) spins all the way to the edge of the dancing ground, comes to a stop facing a palm tree, bows to it deeply, and walks back as though everything went exactly to plan. The village applauds. For weeks afterward the children practice \"the (subject) spin,\" and every one of them ends it with a bow to a tree.",
+   "src": "L146",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L146"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) commits completely. (subject.He/she) spins all the way to the edge of the dancing ground, comes to a stop facing a palm tree, bows to it deeply, and walks back as though everything went exactly to plan. The village applauds. For weeks afterward the children practice \"the (subject) spin,\" and every one of them ends it with a bow to a tree.",
    "src": "L146"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) grabs the first thing within reach, which happens to be (friend), who also starts spinning. They both sit down hard in the soft sand, too dizzy to stand, and laugh until (drummer), the drummer, has to stop playing. Everybody dances in a slightly wobbly way for the rest of the night, in their honor.",
+   "src": "L149",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L149"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L149"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) grabs the first thing within reach, which happens to be (friend), who also starts spinning. They both sit down hard in the soft sand, too dizzy to stand, and laugh until (drummer), the drummer, has to stop playing. Everybody dances in a slightly wobbly way for the rest of the night, in their honor.",
    "src": "L149"

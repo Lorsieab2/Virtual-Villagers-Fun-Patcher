@@ -132,7 +132,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L13939"
+   "src": "L13939",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They talk all night by the fire. In the morning, both of them are gone, along with the trader's canoe. A note scratched on a flat stone by (name)'s door says only: \"Gone to see what (he/she) has seen.\" Nobody hears from (name) again, though traders passing through sometimes mention two people with the same face, paddling together far to the south.",
@@ -142,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13942"
+   "src": "L13942",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) holds out (his/her) hand. The trader takes it. Their hands are exactly the same size. The whole village lets out its breath at once...",
@@ -175,7 +177,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13948"
+   "src": "L13948",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The trader paddles away without looking back. (Name) watches from the beach until the canoe is a speck. For a long time after, whenever a new canoe comes in, (name) finds (himself/herself) checking the face of the person in it. None of them ever wears (his/her) face again.",

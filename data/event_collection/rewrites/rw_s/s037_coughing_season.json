@@ -148,7 +148,8 @@
      }
     }
    ],
-   "src": "L1753"
+   "src": "L1753",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The healers try. But crowding everyone together in one long line turns out to be the worst idea anyone has had all year. For every villager they cure, two more catch it from the people waiting in line. By the end of the week three of them are properly sick, burning with fever and too weak to get up, and the healers have to keep them in the hospital while everyone else is sent home to cough in peace.",
@@ -160,7 +161,8 @@
      }
     }
    ],
-   "src": "L1756"
+   "src": "L1756",
+   "auto_text": true
   },
   "c1": {
    "text": "The healers set up mats all round the hospital, boil every pot of herbs they have, and line up the whole coughing, sneezing, sniffling village outside the door, one at a time...",
@@ -199,7 +201,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1765"
+   "src": "L1765",
+   "auto_text": true
   },
   "c2": {
    "text": "\"It's just a cough,\" say the elders. \"We've all had coughs. It'll pass.\" So everyone keeps working, keeps sneezing, keeps coughing, and waits...",

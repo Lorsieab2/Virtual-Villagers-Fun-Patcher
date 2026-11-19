@@ -99,7 +99,8 @@
      "max": -1,
      "src": "L86"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -113,7 +114,8 @@
      "max": -1,
      "src": "L89"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

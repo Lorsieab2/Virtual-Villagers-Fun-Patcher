@@ -80,14 +80,20 @@
      "max": 10,
      "src": "L10492"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
+   "type": "branch",
    "name": "Outcome B",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "A father discovers the baby likes a slower rhythm and plays it softly.",
-   "src": "L10493"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Outcome C",
@@ -106,7 +112,35 @@
      "max": 10,
      "src": "L10494"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "b__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A father discovers the baby likes a slower rhythm and plays it softly.",
+   "src": "L10493",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L10493"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A father discovers the baby likes a slower rhythm and plays it softly.",
+   "src": "L10493"
   }
  }
 }

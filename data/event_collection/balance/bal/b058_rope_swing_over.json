@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2629"
+   "src": "L2629",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The rope holds, just, but on the swing back (name) misjudges it and hits the tree trunk head first. (He/She) drops onto the soft moss at the edge, out cold. When (he/she) wakes, (he/she) knows (his/her) friends and the gorge and the way home. Not (his/her) name. It never comes back. The village calls (him/her) \"?\", and (he/she) never goes near the swing again.",
@@ -143,7 +144,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2632"
+   "src": "L2632",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) runs, and jumps, and the gorge opens up beneath (him/her), wide and green and roaring. At the top of the swing, (he/she) hears a soft creak from the branch...",
@@ -178,7 +180,8 @@
      "next": "c2o1_c1"
     }
    ],
-   "src": "L2638"
+   "src": "L2638",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They take the old rope down, and the builders come to look, and are horrified, and build a new swing properly: a thick plaited rope, a sound branch, and a soft landing place cleared at the edge. Soon everybody is swinging over the gorge, elders included, screaming with joy. The old rope is hung up in the meeting hut as a warning.",
@@ -191,7 +194,8 @@
      }
     }
    ],
-   "src": "L2641"
+   "src": "L2641",
+   "auto_text": true
   },
   "c2": {
    "text": "\"The rope's going,\" (name) says, and lets go of it. The others groan and mock, and then one of them looks at the frayed part, and stops mocking...",

@@ -106,7 +106,8 @@
      "role": "wearer",
      "src": "L23783"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -143,9 +144,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The dyers find a useful application away from skin.",
-   "src": "L23788"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -170,6 +178,51 @@
    "src": "L23791"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The dyers find a useful application away from skin.",
+   "src": "L23788",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23788"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The dyers find a useful application away from skin.",
+   "src": "L23788"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "The apprentice mourns the loss of a promising discovery.",
+   "src": "L23792",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "novice",
+     "mood": "bad",
+     "src": "L23792"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "The apprentice mourns the loss of a promising discovery.",
    "src": "L23792",
@@ -181,7 +234,8 @@
      "loss": true,
      "src": "L23792"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

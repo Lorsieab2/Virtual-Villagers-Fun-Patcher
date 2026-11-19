@@ -101,7 +101,8 @@
      "who": "all",
      "src": "L159"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",

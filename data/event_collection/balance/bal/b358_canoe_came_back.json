@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16523"
+   "src": "L16523",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The other paddler reaches out and takes (name)'s hand, and for a moment the whole world tilts, sky and sea swapping places. When it rights itself, only one canoe comes back to the beach. The person in it has (name)'s face, (name)'s laugh and (name)'s every habit, but answers only to (made1), and sometimes stares out past the reef at the glass-flat sea as if looking for someone.",
@@ -146,7 +147,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16526"
+   "src": "L16526",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) waits. The other canoe drifts closer and closer, until it bumps gently against (his/hers). The other paddler looks up...",
@@ -174,7 +176,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16535"
+   "src": "L16535",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) digs in and paddles as hard as (he/she) can. The other canoe keeps pace, stroke for stroke, until the edge of the calm...",

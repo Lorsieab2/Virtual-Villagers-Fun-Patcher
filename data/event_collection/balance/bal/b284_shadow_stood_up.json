@@ -132,7 +132,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L13225"
+   "src": "L13225",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) holds on until the sun moves a little past noon, and the shadow gives up and slumps back to the ground, sulking. For the rest of the day it follows (him/her) a fraction of a moment late. By morning it has settled down, but (name) never quite trusts it again, and always checks it at midday.",
@@ -160,7 +161,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13234"
+   "src": "L13234",
+   "auto_text": true
   },
   "c2o2": {
    "text": "It fills in until it looks just like (name), and then it opens its mouth and says, in (name)'s voice, \"I'm going for a swim,\" and walks off towards the beach. It doesn't come back to the gardens. It joins the village under the name (made1), has completely different ideas about everything, and argues with (name) about almost all of them.",
@@ -170,7 +172,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L13237"
+   "src": "L13237",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) steps back and lets it go. The shadow peels off the ground and stands up in front of (him/her), flat and dark, and then it begins to fill in...",

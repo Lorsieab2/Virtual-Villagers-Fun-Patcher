@@ -153,14 +153,40 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "His practical help earns appreciation.",
-   "src": "L22876"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "An elder struggles to separate duty from belief.",
    "src": "L22877"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "His practical help earns appreciation.",
+   "src": "L22876",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "son",
+     "mood": "good",
+     "src": "L22876"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "His practical help earns appreciation.",
+   "src": "L22876"
   }
  }
 }

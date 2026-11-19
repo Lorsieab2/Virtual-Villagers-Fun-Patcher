@@ -70,6 +70,38 @@
    "src": "L414"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"Maybe it's both,\" says (friend) eventually. \"Maybe something can be a rock and sacred at the same time.\" (subject) thinks about it, and finds (subject.he/she) doesn't mind that idea at all. They don't settle anything. They agree to keep meeting every few days to argue about it some more, which both of them, secretly, enjoy very much.",
+   "src": "L417",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L417"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L417"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"Maybe it's both,\" says (friend) eventually. \"Maybe something can be a rock and sacred at the same time.\" (subject) thinks about it, and finds (subject.he/she) doesn't mind that idea at all. They don't settle anything. They agree to keep meeting every few days to argue about it some more, which both of them, secretly, enjoy very much.",
    "src": "L417"

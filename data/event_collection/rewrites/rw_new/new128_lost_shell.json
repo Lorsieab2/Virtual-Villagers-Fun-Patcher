@@ -196,7 +196,8 @@
      "max": 10
     }
    ],
-   "src": "L6022"
+   "src": "L6022",
+   "auto_text": true
   },
   "c2o2": {
    "text": "At the edge of the path, (subject) asks if (subject.he/she) can follow the tracks alone now, like a real tracker. (adult) agrees, and waits by the path. Some time later, (subject) returns triumphantly with an armful of shells and a very indignant crab, which (subject.he/she) is persuaded to put back.",
@@ -225,7 +226,8 @@
      "scaled": true
     }
    ],
-   "src": "L6029"
+   "src": "L6029",
+   "auto_text": true
   },
   "c3o2": {
    "text": "(subject) waits up half the night, but the crabs refuse to show themselves. Eventually (subject.he/she) falls asleep watching, and in the morning the shells are still there. \"They KNEW I was watching,\" (subject.he/she) says. \"I'll catch them tomorrow.\"",

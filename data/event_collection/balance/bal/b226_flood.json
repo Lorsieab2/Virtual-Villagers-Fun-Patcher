@@ -152,7 +152,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10525"
+   "src": "L10525",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) gets (elder) out, both of them soaked and coughing, and carries (subject.him/her) up the hill. By the time they get there, half the food store has gone under. Nobody says a word to (subject) about it. (elder) says plenty, all of it to everyone else, about what (subject) did.",
@@ -202,7 +203,8 @@
      "max": -20
     }
    ],
-   "src": "L10534"
+   "src": "L10534",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The stores are saved. When (builder) and the others get down to the last hut, the river has taken it, and (elder) with it. They find (subject.him/her) when the water goes down. The village rebuilds every hut on high posts, and digs a ditch to send the stream round the village, and carves (elder)'s name on the first post.",
@@ -217,7 +219,8 @@
      "cause": "unknown"
     }
    ],
-   "src": "L10537"
+   "src": "L10537",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) shouts to (elder) that help is coming, and runs up the hill to the stores, where the whole village is passing baskets hand to hand out of the water...",

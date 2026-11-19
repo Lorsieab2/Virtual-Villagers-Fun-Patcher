@@ -148,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14295"
+   "src": "L14295",
+   "auto_text": true
   },
   "c1o2": {
    "text": "At the end of the month, (subject) is pregnant with one baby, and gives the moon shell back to the sea, as the stories say she should, with a thank-you. (friend) rows her out to the reef to do it. They watch the white shell sink slowly into the blue until they can't see it any more.",
@@ -160,7 +161,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14298"
+   "src": "L14298",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) ties the cord around her neck. The shell is cool against her skin, and for the whole month it never once gets warm, even in the midday sun...",
@@ -186,7 +188,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14304"
+   "src": "L14304",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Nothing happens for (subject). But (neighbour), who lives next door and has walked past that doorway every day for a month, is suddenly pregnant, and not a little surprised. (subject) and (friend) decide that's a fine use for a moon shell, and give it to (neighbour) to keep for the baby.",
@@ -196,7 +199,8 @@
      "do": "pregnant",
      "role": "neighbour"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) hangs the moon shell in the doorway, where it turns slowly in the breeze and catches the light every evening...",

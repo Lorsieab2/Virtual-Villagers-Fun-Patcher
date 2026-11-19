@@ -144,7 +144,8 @@
      "age": "child"
     }
    ],
-   "src": "L12095"
+   "src": "L12095",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(friend) finds (subject) at the bottom of a steep slope, where (subject.he/she) must have slipped in the afternoon. (subject.He/She) is already gone. (friend) twists an ankle carrying (subject.him/her) back, and arrives at the village long after midnight. The village buries (subject) the next day, with (subject.his/her) basket of sticks beside the grave. Everyone says (subject.he/she) would have liked that.",
@@ -158,10 +159,12 @@
     {
      "do": "kill",
      "cause": "unknown",
-     "role": "subject"
+     "role": "subject",
+     "line": "injuries"
     }
    ],
-   "src": "L12098"
+   "src": "L12098",
+   "auto_text": true
   },
   "c1": {
    "text": "(friend) grabs a torch and goes, calling (subject)'s name into the trees. The jungle swallows the sound. Somewhere ahead, a branch cracks...",
@@ -188,7 +191,8 @@
      }
     }
    ],
-   "src": "L12104"
+   "src": "L12104",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They search for three days and find nothing but one sandal near the stream. The jungle is very big and very old. (friend) keeps the fire at the edge of the jungle burning for a month, just in case. Then, one evening, (subject.he/she) lets it go out, and the village puts (subject)'s basket of sticks on the meeting-hut step, where it stays.",
@@ -198,7 +202,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12107"
+   "src": "L12107",
+   "auto_text": true
   },
   "c2": {
    "text": "It's too dangerous in the dark, and everyone knows it. (friend) lights a fire at the edge of the jungle and keeps it burning all night so (subject) can see it. At first light, ten people go in together...",

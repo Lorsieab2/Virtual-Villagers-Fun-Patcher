@@ -210,7 +210,8 @@
      "scaled": true
     }
    ],
-   "src": "L15395"
+   "src": "L15395",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(botanist) examines the fruit for a very long time, consults three books and an elder, and finally shakes (subject.his/her) head. \"I have no idea what this is,\" (subject.he/she) admits. \"It could be the most delicious thing on the island, or it could kill us all. I'm not willing to find out.\" The basket is set aside. Over the next week, the fruits slowly wrinkle and dry up, and the whole village sighs every time they walk past.",
@@ -238,7 +239,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15402"
+   "src": "L15402",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) chews. (subject.His/her) eyes go wide. \"Oh,\" (subject.he/she) says. \"Oh, that's good.\" The flesh is pink and sweet, with a hint of spice, and the crowd falls on the basket like starving gulls. The children beg for more. (subject) has never tasted anything like it, and from that day on (subject.he/she) cannot get enough fruit of any kind, and becomes a familiar sight at every fruit tree on the island, hoping for anything half as good.",
@@ -249,7 +251,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15404"
+   "src": "L15404",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Fine,\" (subject) says, with the air of a hero going into battle. (subject.He/she) cuts a tiny sliver of the fruit, holds it up to the crowd, and pops it in (subject.his/her) mouth. Everyone holds their breath...",

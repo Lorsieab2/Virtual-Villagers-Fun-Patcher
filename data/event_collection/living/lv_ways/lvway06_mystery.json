@@ -97,9 +97,16 @@
    "src": "L22787"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "Humid weather defeats the familiar method.",
-   "src": "L22788"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -118,14 +125,21 @@
   },
   "b1": {
    "name": "Outcome B1",
-   "text": "The trial reveals which storage method works best.",
-   "src": "L22790",
    "effects": [
     {
      "do": "tech",
      "size": "small",
      "scaled": true,
      "src": "L22790"
+    }
+   ],
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
     }
    ]
   },
@@ -141,7 +155,8 @@
      "loss": true,
      "src": "L22791"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -175,7 +190,8 @@
      "loss": true,
      "src": "L22794"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d": {
    "type": "branch",
@@ -204,12 +220,52 @@
      "loss": true,
      "src": "L22796"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The charm fails to reach the dampest sacks.",
    "src": "L22797"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "Humid weather defeats the familiar method.",
+   "src": "L22788",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L22788"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "Humid weather defeats the familiar method.",
+   "src": "L22788"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The trial reveals which storage method works best.",
+   "src": "L22790",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22790"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The trial reveals which storage method works best.",
+   "src": "L22790"
   }
  }
 }

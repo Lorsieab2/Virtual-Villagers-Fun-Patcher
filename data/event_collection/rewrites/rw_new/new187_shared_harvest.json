@@ -179,7 +179,8 @@
      "max": 10
     }
    ],
-   "src": "L9079"
+   "src": "L9079",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) points out that no one ever actually said which team did what. Half the planters watered. Half the waterers planted. The fight came from muddled instructions, not from anyone slacking or anyone deserving more. Everyone looks at each other. \"So... who gets the first bowl?\" someone asks. \"Whoever gets there first,\" says (subject).",
@@ -234,7 +235,8 @@
      "max": 20
     }
    ],
-   "src": "L9093"
+   "src": "L9093",
+   "auto_text": true
   },
   "c3o2": {
    "text": "(builder) looks at the channel, then sighs. \"My first channel,\" (subject.he/she) admits, \"watered the {@chief}'s hut instead of the field. Flooded it. With the {@chief} inside, asleep.\" Everyone laughs so hard that the argument is forgotten, at least until dinner.",

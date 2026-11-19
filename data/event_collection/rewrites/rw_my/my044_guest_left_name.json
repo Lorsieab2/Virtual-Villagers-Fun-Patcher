@@ -277,7 +277,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L12446"
+   "src": "L12446",
+   "auto_text": true
   },
   "c4o2": {
    "text": "Everywhere (subject) looks, there are repairs. The basins, the jars, the steps down to the spring, all fixed, and fixed well. It's sound work. Good work. But the builders who look at it with (subject) shake their heads. \"This is a week of work,\" they say. \"Maybe two.\" The visitor was only here for one day.",

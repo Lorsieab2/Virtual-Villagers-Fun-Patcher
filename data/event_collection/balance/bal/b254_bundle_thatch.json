@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11870"
+   "src": "L11870",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The cracked rafter snaps. (Name) comes down through the half-finished roof and lands hard on the floor of the hall, and (his/her) back is never the same. (He/She) walks bent after that, slowly, and climbing anything is out of the question. The other builders finish the roof the next day, very quietly, and they replace every cracked rafter in the village by the end of the month.",
@@ -160,7 +161,8 @@
      "next": "c1o2_c2"
     }
    ],
-   "src": "L11873"
+   "src": "L11873",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) climbs to the very top, straddles the ridgepole, and starts tying the last bundle on in the dusk. The cracked rafter creaks under (him/her)...",
@@ -195,7 +197,8 @@
      }
     }
    ],
-   "src": "L11879"
+   "src": "L11879",
+   "auto_text": true
   },
   "c2o2": {
    "text": "It rains all night, and in the morning the meeting hall has a puddle in the middle of the floor the size of a small pond. The children are delighted and sail leaf boats in it. The elders hold their meeting standing up. (Name) finishes the roof by midday, and nobody says a word about it, which is somehow worse.",

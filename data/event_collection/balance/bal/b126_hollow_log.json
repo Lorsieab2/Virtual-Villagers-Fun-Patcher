@@ -139,7 +139,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) comes out the far end into the green light. Behind (him/her), out of the log, steps another (name). {#made:Then nothing more|Then, a moment later, another}. \"Sorry,\" says the third one. \"I was behind you.\" {#made:The copy has|They both have} (name)'s face and nothing else of (name) at all. {#made:The copy takes the name (made1), and doesn't agree with (name) about anything either|They take the names (made1) and (made2), and they don't agree with each other about anything either}. The village gets used to it, eventually.",
@@ -153,7 +154,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L5775"
+   "src": "L5775",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) ducks inside. It smells of moss and wet bark and something like a cooking fire a long way off. Halfway through, in the dark, (he/she) bumps shoulders with someone coming the other way, who says \"Sorry,\" in exactly (his/her) voice...",
@@ -177,7 +179,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5781"
+   "src": "L5781",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The footsteps come to the very end of the log and stop. \"Your turn,\" says (name)'s own voice from the dark. (Name) never comes home. The gatherers find (his/her) basket on the root that evening, still half full, and footprints going into the log and none coming out. They shout into the log for a long time. The echo shouts back, but it never sounds quite right. The children don't dare each other anymore.",
@@ -187,7 +190,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5784"
+   "src": "L5784",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) steps back from the log, very slowly, and sits down on a root to watch. For a long time nothing happens. A bird lands on the log and walks along it. Then, deep inside, there is a rustle, and then footsteps...",

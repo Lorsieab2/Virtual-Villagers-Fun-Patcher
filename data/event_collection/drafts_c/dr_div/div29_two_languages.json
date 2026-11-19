@@ -70,14 +70,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) catches (friend)'s eye and slowly shows (friend.him/her) the sign for \"fish,\" then \"please,\" then \"more.\" (friend) copies. The whole family cheers silently, which mostly involves waving. By the end of the meal (friend) can ask for fish, say thank you, and say \"that's disgusting,\" which the youngest child taught (friend.him/her) when no one was looking.",
-   "src": "L350"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) eats and watches. Hands fly back and forth. Faces do a lot of the talking. (friend.He/she) understands more than (friend.he/she) expected: that the smallest child has been in trouble, that (subject) thinks the stew is too salty, that somebody just made a joke about somebody else's hat. On the way home (friend.he/she) practices the hat joke on (friend.his/her) own fingers.",
    "src": "L353"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) catches (friend)'s eye and slowly shows (friend.him/her) the sign for \"fish,\" then \"please,\" then \"more.\" (friend) copies. The whole family cheers silently, which mostly involves waving. By the end of the meal (friend) can ask for fish, say thank you, and say \"that's disgusting,\" which the youngest child taught (friend.him/her) when no one was looking.",
+   "src": "L350",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L350"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) catches (friend)'s eye and slowly shows (friend.him/her) the sign for \"fish,\" then \"please,\" then \"more.\" (friend) copies. The whole family cheers silently, which mostly involves waving. By the end of the meal (friend) can ask for fish, say thank you, and say \"that's disgusting,\" which the youngest child taught (friend.him/her) when no one was looking.",
+   "src": "L350"
   }
  }
 }

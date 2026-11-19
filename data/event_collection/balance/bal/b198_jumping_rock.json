@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9204"
+   "src": "L9204",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) hits the water hard and bangs (subject.his/her) head on the bottom. (subject.His/her) friends haul (subject.him/her) out, dazed and spluttering, with a lump on (subject.his/her) head like an egg. (subject.He/She) knows everyone, and the river, and the way home. What (subject.he/she) doesn't know is (subject.his/her) own name. It never comes back. The village calls (subject.him/her) \"?\", and the children call it the \"?\" ledge from then on.",
@@ -146,7 +147,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9207"
+   "src": "L9207",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) takes three steps back, runs, and leaps off the ledge into the air. For a long moment (subject.he/she) is flying, the wind screaming past (subject.his/her) ears, the pool getting bigger and bigger...",
@@ -173,7 +175,8 @@
      }
     }
    ],
-   "src": "L9213"
+   "src": "L9213",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(friend) laughs at (subject.him/her) and jumps. (friend) lands badly, half in the shallows. The healers save (friend), but (friend.his/her) back is never right again, and (friend.he/she) walks bent and slow. (subject) visits every day. Neither of them ever goes near the jumping rock again.",
@@ -194,7 +197,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9216"
+   "src": "L9216",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) looks down at the pool, and the rocks, and then at (subject.his/her) friends. \"No,\" (subject.he/she) says. \"That's too high.\" (subject.He/She) starts to climb down. Behind (subject.him/her), the others go quiet...",

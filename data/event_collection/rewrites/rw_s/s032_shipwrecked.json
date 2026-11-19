@@ -176,7 +176,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1": {
    "text": "Three canoes go out at once. The fishers paddle hard through the swell, lash the wreck to their own boats with rope, and tow it in, while the whole village gathers on the sand with blankets, shouting encouragement...",
@@ -205,7 +206,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L1521"
+   "src": "L1521",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They wave from the boat, and eat, and then, to everyone's surprise, they start paddling. Not out to sea: straight for the shore, as hard as they can, wrecked float and all. They wash up on the beach in a tangle of rope and wet cloth. \"We could smell the cooking,\" the child explains, very seriously, as the villagers help them out. The teenager, it turns out, had only been helping them out at sea, and swims off round the point to (his/her) own people. {#made:Only the adult can stay; the village has no room for more|The adult and the child stay}.",
@@ -219,7 +221,8 @@
      "age": "child"
     }
    ],
-   "src": "L1524"
+   "src": "L1524",
+   "auto_text": true
   },
   "c2": {
    "text": "The reef is rough and the swell is high. Instead of risking more canoes, the fishers paddle out just far enough to throw a bundle of food and a gourd of water across to the wreck. The adult catches them, clumsily, and holds them up with a tired wave...",

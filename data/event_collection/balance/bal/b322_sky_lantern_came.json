@@ -147,7 +147,8 @@
      "next": "c1o1_c2"
     }
    ],
-   "src": "L14918"
+   "src": "L14918",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) smothers the lantern with the wet mat before the flames can spread, and only one roof is scorched. The builders come the next morning to fix it, and while they're up there, they look at all the old dry thatch on the huts by the cooking fire, and decide to re-thatch the lot with the fire-resistant palm the elders used to use. Every builder learns the old way of laying it.",
@@ -168,7 +169,8 @@
      }
     }
    ],
-   "src": "L14921"
+   "src": "L14921",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) soaks a sleeping mat in the water jar, scrambles up the side of the nearest hut and onto the smouldering roof...",
@@ -203,7 +205,8 @@
      }
     }
    ],
-   "src": "L14927"
+   "src": "L14927",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The water comes, the fire goes out, and nothing worse is lost than the ends of a few roofs. In the morning, (name) finds the burnt frame of (his/her) lantern on the ground, and remembers (his/her) wish: that the village would do something together for once. \"Not like this,\" (he/she) mutters. But (he/she) has to admit, it counts.",

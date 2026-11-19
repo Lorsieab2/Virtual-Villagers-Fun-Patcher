@@ -106,7 +106,8 @@
      "head": "random",
      "src": "L5096"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "name": "Outcome 2",
@@ -131,7 +132,8 @@
      "head": "random",
      "src": "L5098"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

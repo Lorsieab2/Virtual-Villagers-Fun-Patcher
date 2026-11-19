@@ -69,7 +69,8 @@
      "age": "adult",
      "src": "L3685"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "name": "Outcome B",
@@ -83,7 +84,8 @@
      "age": "adult",
      "src": "L3686"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

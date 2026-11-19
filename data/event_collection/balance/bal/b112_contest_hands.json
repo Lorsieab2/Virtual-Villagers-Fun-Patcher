@@ -137,7 +137,8 @@
      }
     }
    ],
-   "src": "L5074"
+   "src": "L5074",
+   "auto_text": true
   },
   "c1o2": {
    "text": "It goes well until the prizes. Then the losing cooks sulk, and the losing carvers sulk, and the losing fishers say the winning fish was \"lucky.\" By evening half the village isn't speaking to the other half. It takes a week of shared meals to fix, and nobody suggests a contest again for a long time.",
@@ -170,7 +171,8 @@
      }
     }
    ],
-   "src": "L5083"
+   "src": "L5083",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Nobody learns all that much, because everybody spends most of the time talking. But the boredom is gone, and the snappishness too, and by the end of the week the whole village is in a better mood than it's been all season.",
@@ -183,7 +185,8 @@
      }
     }
    ],
-   "src": "L5086"
+   "src": "L5086",
+   "auto_text": true
   },
   "c2": {
    "text": "No judges. No prizes. Everyone sets up in the clearing and shows what they do, and anyone who wants to can sit down and learn...",

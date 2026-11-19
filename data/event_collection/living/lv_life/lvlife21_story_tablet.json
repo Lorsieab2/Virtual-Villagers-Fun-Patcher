@@ -97,9 +97,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The tablet preserves instructions, though the writer misses an important nuance.",
-   "src": "L20905"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -116,7 +123,8 @@
      "max": 10,
      "src": "L20906"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -150,7 +158,8 @@
      "loss": true,
      "src": "L20909"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -170,6 +179,51 @@
    "src": "L20911"
   },
   "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The tablet preserves instructions, though the writer misses an important nuance.",
+   "src": "L20905",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20905"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The tablet preserves instructions, though the writer misses an important nuance.",
+   "src": "L20905"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The extra work slows teaching but catches a long-standing mistake.",
+   "src": "L20912",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20912"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "The extra work slows teaching but catches a long-standing mistake.",
    "src": "L20912"

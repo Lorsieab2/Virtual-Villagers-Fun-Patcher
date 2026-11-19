@@ -149,7 +149,8 @@
      }
     }
    ],
-   "src": "L12866"
+   "src": "L12866",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) brings back the bark, and (sick) is well again in two days. But by then (subject) is shaking too. The bark doesn't work as well a second time, the healers say, or maybe (subject) got too many bites. (subject.He/She) dies within the week. (sick) plants a fever tree beside (subject.his/her) grave, on the dry side of the swamp, where anyone can reach it.",
@@ -164,7 +165,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12869"
+   "src": "L12869",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) wraps (subject.himself/herself) in cloth from head to foot, smears mud on every bit of skin left over, and wades into the swamp. The mosquitoes find (subject.him/her) anyway...",
@@ -188,7 +190,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12875"
+   "src": "L12875",
+   "auto_text": true
   },
   "c2o2": {
    "text": "On the third night, (sick) goes quiet, and then still. (subject) sits with (subject.him/her) until morning. The village buries (sick) on the hill, away from the swamp. That season, the healers cut a path through the reeds to the fever trees, so that next time nobody has to choose.",
@@ -199,7 +202,8 @@
      "cause": "unknown"
     }
    ],
-   "src": "L12878"
+   "src": "L12878",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) stays. (subject.He/She) brings bucket after bucket of cool river water and lays wet cloths on (sick)'s head, day and night, and doesn't sleep...",

@@ -776,7 +776,8 @@
      "what": "Tech",
      "reason": "the source gives \"food or Tech\": this branch gives the food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "quiet_tech": {
    "name": "Quiet ending",
@@ -822,7 +823,8 @@
      "what": "food",
      "reason": "the source gives \"food or Tech\": this branch gives the Tech"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

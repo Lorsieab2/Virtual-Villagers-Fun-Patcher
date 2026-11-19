@@ -210,7 +210,8 @@
      "what": "\"vanished\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "They start counting storms, and then get stuck: (subject) can't remember which great storm came first, the one that took the fishing huts or the one that flooded the gardens. (subject.He/She) asks the other elders to help put the years in order, and soon the whole elders' circle is shouting about storms. They never settle it.",

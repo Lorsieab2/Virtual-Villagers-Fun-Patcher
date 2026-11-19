@@ -169,7 +169,8 @@
      "scaled": true
     }
    ],
-   "src": "L5066"
+   "src": "L5066",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Halfway through the copying, the song stops. Not at the usual place: in the middle. (subject) waits until the stars fade. It does not return, that night or ever. (subject.He/She) is left with half a song scratched on a board and a strange feeling of having interrupted someone.",
@@ -198,7 +199,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5073"
+   "src": "L5073",
+   "auto_text": true
   },
   "c2o2": {
    "text": "At the last moment, (subject) closes (subject.his/her) mouth. It does not feel like (subject.his/her) song to finish. The melody stops one note short, as always, and drifts away. The hut is left to its humming, and (subject) learns to hum something else. Mostly.",
@@ -231,7 +233,8 @@
      "scaled": true
     }
    ],
-   "src": "L5082"
+   "src": "L5082",
+   "auto_text": true
   },
   "c3": {
    "text": "(elder) stops what (subject.he/she) is doing when (subject) hums the tune. \"Where did you hear that?\" (subject.He/She) sits down heavily. \"There was a singer who lived in that hut, when I was a child...\"",

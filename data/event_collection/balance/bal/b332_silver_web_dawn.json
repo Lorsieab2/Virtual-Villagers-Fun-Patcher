@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15361"
+   "src": "L15361",
+   "auto_text": true
   },
   "c1o2": {
    "text": "That night, the spider spins her web again. In the morning, someone is standing in the middle of the path, untangling (himself/herself) from silver threads: someone with (name)'s face, made by the spider from the bit of (name) she caught. (He/She) has none of (name)'s habits and all of the spider's patience. The village names (him/her) (made1).",
@@ -142,7 +143,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L15364"
+   "src": "L15364",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) claws at (his/her) face, spluttering, tearing the silver threads away in handfuls. Above (him/her), the spider scuttles to the edge of the ruined web...",
@@ -166,7 +168,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15370"
+   "src": "L15370",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The spider watches the whole time, and when (name) has finished, she drops down on a single thread right in front of (his/her) nose, looks at (him/her), and goes back up. That afternoon, (name)'s hands are steadier and (his/her) work finer than ever. The children say the spider has taught (him/her) patience. (Name) says it was just a spider, and goes the long way round from then on.",
@@ -179,7 +182,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15373"
+   "src": "L15373",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) stands perfectly still and lifts the threads away one at a time, apologising to the spider under (his/her) breath. It takes a very long time...",

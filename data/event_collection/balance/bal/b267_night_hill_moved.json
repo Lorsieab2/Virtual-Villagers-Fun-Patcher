@@ -147,7 +147,8 @@
      "next": "c1o1_c2"
     }
    ],
-   "src": "L12457"
+   "src": "L12457",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) gets the doorway clear and pushes (friend) out through it. Then the second slide comes. The village digs all night, and finds (subject) at dawn, still in the doorway, where (subject.he/she) had been holding the rafter up. (friend) sits by the grave every evening for a month. The village sets a stone by the new path with (subject)'s handprint pressed into it in clay.",
@@ -158,7 +159,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12460"
+   "src": "L12460",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) throws (subject.himself/herself) at the mud with (subject.his/her) bare hands, scooping it away from the doorway. It's heavy and cold and keeps sliding back...",
@@ -193,7 +195,8 @@
      }
     }
    ],
-   "src": "L12466"
+   "src": "L12466",
+   "auto_text": true
   },
   "c2o2": {
    "text": "By the time help comes, (friend) has dug (subject.himself/herself) out through the back wall and is sitting on the roof, plastered in mud from head to foot, waving. The village spends the next week rebuilding, and cuts a new path to the gardens around the side of the hill. Somebody plants a row of bamboo along it to hold the soil.",
@@ -203,7 +206,8 @@
      "structures": "any"
     }
    ],
-   "src": "L12469"
+   "src": "L12469",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Hold on!\" (subject) shouts, and runs, pounding on doors and yelling. Within minutes the whole village is out in the rain with sticks, baskets and bare hands...",

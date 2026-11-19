@@ -141,7 +141,8 @@
      "structures": "any"
     }
    ],
-   "src": "L4216"
+   "src": "L4216",
+   "auto_text": true
   },
   "c1o2": {
    "text": "By the eighth roof, (subject) is cold to the bone, and the rain has gone from wonderful to miserable. By the twelfth, (subject.he/she) never wants to feel another drop. The roofs get fixed, but (subject) spends the rest of the season indoors whenever it rains, wrapped in a blanket. \"I've had enough rain,\" (subject.he/she) says, \"for the rest of my life.\"",
@@ -181,7 +182,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "There aren't enough buckets in the village. By the time the rain stops, the food store has been dripping for hours, and a good deal of it is soggy. The roofs get patched the next day, and (builder) says nothing about it, quite pointedly.",

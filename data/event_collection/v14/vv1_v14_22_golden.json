@@ -81,7 +81,8 @@
      "what": "farming-skill reward",
      "reason": "the other half of food OR farming skill: the farming page gives it"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "farming": {
    "name": "A farming reward",
@@ -105,7 +106,8 @@
      "what": "food reward",
      "reason": "the other half of food OR farming skill: the food page gives it"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

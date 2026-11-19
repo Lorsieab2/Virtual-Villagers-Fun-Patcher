@@ -196,7 +196,8 @@
      "max": 10
     }
    ],
-   "src": "L5832"
+   "src": "L5832",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) asks shyly if (subject.he/she) can do the marking alone. \"I want to be sure it's really true. Not just because you helped.\" (teacher) understands completely, and waits further up the beach every morning, pretending to look for shells.",
@@ -225,7 +226,8 @@
      "scaled": true
     }
    ],
-   "src": "L5839"
+   "src": "L5839",
+   "auto_text": true
   },
   "c3o2": {
    "text": "On the fifth night, a storm wipes every mark off the beach. The class stands looking at the smooth, wet sand in dismay. (subject) is the first to pick up a stick. \"We'll just start again tomorrow,\" (subject.he/she) says, and this time, (subject.he/she) says it loud enough for everyone to hear.",

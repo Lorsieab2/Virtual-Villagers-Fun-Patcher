@@ -140,7 +140,8 @@
      "age": "child"
     }
    ],
-   "src": "L1312"
+   "src": "L1312",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The second canoe holds two adults and a baby, wrapped so tightly against the ash that only the baby's furious face shows. Once the healer has washed them all and the baby has been fed, everyone sleeps for a day and a night. When they wake, they ask where they can help. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}. The other canoe paddles on to family on another island.",
@@ -159,7 +160,8 @@
      "child_of_newest": true
     }
    ],
-   "src": "L1315"
+   "src": "L1315",
+   "auto_text": true
   },
   "c1": {
    "text": "The healer comes down the beach at a run with a basket of water gourds and clean cloths, and starts washing the ash out of the newcomers' eyes before anyone has even said hello...",
@@ -185,7 +187,8 @@
      "loss": true
     }
    ],
-   "src": "L1321"
+   "src": "L1321",
+   "auto_text": true
   },
   "c2o2": {
    "text": "\"Stay,\" says the head cook, filling the bowls for the third time. \"Stay until you're fat again, then decide.\" By the time they're fat again, one of the families has decided: two adults and their baby, who can't imagine getting back in a canoe. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}. The other family paddles on south with the village's blessing.",
@@ -204,7 +207,8 @@
      "child_of_newest": true
     }
    ],
-   "src": "L1324"
+   "src": "L1324",
+   "auto_text": true
   },
   "c2": {
    "text": "The head cook takes one look at the grey, hollow faces and starts filling bowls. \"Talk later,\" the cook says. \"Eat first...\"",

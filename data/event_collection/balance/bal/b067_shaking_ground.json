@@ -142,7 +142,8 @@
      "structures": "any"
     }
    ],
-   "src": "L3037"
+   "src": "L3037",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The elder gets out. (subject) doesn't. The second shake comes just as (subject.he/she) pushes the elder through the doorway, and the roof comes down. The village digs (subject.him/her) out, but too late. They bury (subject) on the hill above the village, and the elder sits by the grave every evening, and tells anyone who'll listen exactly what (subject) did.",
@@ -153,7 +154,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3040"
+   "src": "L3040",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) ducks under the sagging doorway into the dusty dark. The voice is coming from under a fallen shelf. (subject) heaves at it...",
@@ -177,7 +179,8 @@
      "structures": "any"
     }
    ],
-   "src": "L3046"
+   "src": "L3046",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They're wedging the last post when the second shake comes. The elder is pulled out safe, but a beam swings down and catches (subject) across the back. (subject.He/She) heals slowly, and never lifts anything heavy again, and can't bear the creak of a roof beam overhead. (subject.He/She) spends a lot of time sitting outside in the sun after that, and nobody minds.",
@@ -198,7 +201,8 @@
      "next": "c2o2_c1"
     }
    ],
-   "src": "L3049"
+   "src": "L3049",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) shouts through the wall, \"Hold on! We're coming!\" and runs for (builder), who comes at once with three builders and an armful of posts...",

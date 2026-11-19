@@ -102,7 +102,8 @@
      "who": "all",
      "src": "L253"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -116,7 +117,8 @@
      "loss": true,
      "src": "L257"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

@@ -129,15 +129,14 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(villager) likes the result and wears it proudly.",
-   "src": "L107",
-   "effects": [
+   "children": [
     {
-     "do": "appearance",
-     "role": "villager",
-     "head": "random",
-     "src": "L107"
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
     }
    ]
   },
@@ -152,7 +151,8 @@
      "head": "random",
      "src": "L108"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -167,14 +167,74 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(villager) feels more comfortable with their usual appearance.",
-   "src": "L110"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
    "text": "(friend) says both colors suited (villager) equally well.",
    "src": "L111"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(villager) likes the result and wears it proudly.",
+   "src": "L107",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
+     "src": "L107"
+    },
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L107"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(villager) likes the result and wears it proudly.",
+   "src": "L107",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
+     "src": "L107"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(villager) feels more comfortable with their usual appearance.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L110"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(villager) feels more comfortable with their usual appearance.",
+   "src": "L110"
   }
  }
 }

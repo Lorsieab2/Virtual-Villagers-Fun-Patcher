@@ -223,7 +223,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10893"
+   "src": "L10893",
+   "auto_text": true
   },
   "c1": {
    "text": "On the stillest afternoon of the season, with the whole village watching from a safe distance, (subject) lifts the little lid...",
@@ -281,7 +282,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10905"
+   "src": "L10905",
+   "auto_text": true
   },
   "c3o2": {
    "text": "(friend) looks at it all day and finally hands it back, frowning. \"The lid is sealed tight,\" (friend.he/she) says. \"No crack, no hole, nothing for air to get in or out. It's one solid piece of wood.\" The box hums softly in (subject)'s hands, as if amused.",

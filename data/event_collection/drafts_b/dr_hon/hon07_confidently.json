@@ -69,11 +69,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) runs. (subject.He/she) finds (friend) halfway up the wrong slope, puzzled, holding a basket of perfectly good mushrooms. \"There aren't any flowers up here.\" \"No. I said left. I meant right.\" (friend) looks at the mushrooms. \"Well, I found these.\" They go to the right place together and come home with both.",
+   "src": "L86",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L86"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) runs. (subject.He/she) finds (friend) halfway up the wrong slope, puzzled, holding a basket of perfectly good mushrooms. \"There aren't any flowers up here.\" \"No. I said left. I meant right.\" (friend) looks at the mushrooms. \"Well, I found these.\" They go to the right place together and come home with both.",
    "src": "L86"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) comes home late and tired, with an empty basket. (subject) apologizes before (friend.he/she) can say a word. (friend) is annoyed; it was a long walk for nothing. \"Next time, say if you're not sure.\" \"I was sure,\" says (subject). \"That was the problem.\" (friend) almost smiles. Almost. The next day they go together.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L89"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) comes home late and tired, with an empty basket. (subject) apologizes before (friend.he/she) can say a word. (friend) is annoyed; it was a long walk for nothing. \"Next time, say if you're not sure.\" \"I was sure,\" says (subject). \"That was the problem.\" (friend) almost smiles. Almost. The next day they go together.",
    "src": "L89"

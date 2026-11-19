@@ -154,7 +154,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1": {
    "text": "\"I came here to cook,\" (subject) says, a lot louder than (subject.he/she) meant to. The whole cooking area goes quiet. Someone drops a ladle. (cook) looks up from the fire...",
@@ -180,7 +181,8 @@
      "role": "subject"
     }
    ],
-   "src": "L458"
+   "src": "L458",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) peels. The next day (subject.he/she) peels again. (cook) never says a word, good or bad. A month later, (subject) finally asks, and (cook) looks genuinely surprised. \"Oh,\" (cook.he/she) says. \"I forgot you liked cooking. You're so good at peeling.\" (subject) is stunned that (subject.he/she) spent a month being too good at the wrong job.",

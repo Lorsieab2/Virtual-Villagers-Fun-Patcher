@@ -65,14 +65,48 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"I was resting,\" (subject) admits. \"So was I,\" says (friend). \"I was coming to rest here, actually. It's the best shade.\" They look at each other, then at the shade. They sit down together, and nobody sorts anything for quite a while. When they go back to work, they both feel a lot better for it.",
-   "src": "L26"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) sorts the basket with great energy. (friend) inspects a tree with great interest. They do this for some time, both clearly waiting for the other to leave. Eventually (friend) says, \"This is a very good tree,\" and sits down under it. (subject) gives up and sits down too. Neither of them mentions the pretending.",
    "src": "L29"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"I was resting,\" (subject) admits. \"So was I,\" says (friend). \"I was coming to rest here, actually. It's the best shade.\" They look at each other, then at the shade. They sit down together, and nobody sorts anything for quite a while. When they go back to work, they both feel a lot better for it.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 30,
+     "max": 50,
+     "src": "L26"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 30,
+     "max": 50,
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"I was resting,\" (subject) admits. \"So was I,\" says (friend). \"I was coming to rest here, actually. It's the best shade.\" They look at each other, then at the shade. They sit down together, and nobody sorts anything for quite a while. When they go back to work, they both feel a lot better for it.",
+   "src": "L26"
   }
  }
 }

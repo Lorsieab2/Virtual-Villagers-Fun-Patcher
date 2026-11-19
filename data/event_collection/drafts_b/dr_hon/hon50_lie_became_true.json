@@ -69,14 +69,41 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) practices all night, out by the far rocks where nobody can hear. By morning (subject.his/her) hands ache and (subject.he/she) knows the rhythm by heart. At the feast (subject.he/she) plays well. \"All that practice paid off,\" says (friend). (subject) agrees. It is, by now, technically true.",
-   "src": "L602"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) finds (friend) that afternoon. \"I said I'd practiced. I hadn't.\" (friend) frowns. \"The feast's tomorrow.\" \"I know. Will you help me?\" (friend) sighs, then sits down beside (subject.him/her) with a second drum. They practice until dark. At the feast, they play together. After that, (friend) never asks whether (subject.he/she) has practiced; (friend.he/she) just turns up with the second drum.",
    "src": "L605"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) practices all night, out by the far rocks where nobody can hear. By morning (subject.his/her) hands ache and (subject.he/she) knows the rhythm by heart. At the feast (subject.he/she) plays well. \"All that practice paid off,\" says (friend). (subject) agrees. It is, by now, technically true.",
+   "src": "L602",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L602"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) practices all night, out by the far rocks where nobody can hear. By morning (subject.his/her) hands ache and (subject.he/she) knows the rhythm by heart. At the feast (subject.he/she) plays well. \"All that practice paid off,\" says (friend). (subject) agrees. It is, by now, technically true.",
+   "src": "L602"
   }
  }
 }

@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Was it the last one?\" \"It was a cake that was in the basket.\" \"Was there any other cake in the basket?\" \"...Not after I ate it.\" (friend) shakes (friend.his/her) head and laughs in spite of (friend.him/her)self. \"That's the most honest lie I've ever heard.\" (subject) bakes the next batch.",
-   "src": "L230"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"...It was the last one,\" (subject) admits. \"I'm sorry. It was looking at me.\" (friend) sighs. \"I was saving it.\" \"I know. That's why it was looking at me.\" (friend) makes (subject.him/her) promise to save the last one next time. (subject) does, and has to look at it all day.",
    "src": "L233"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Was it the last one?\" \"It was a cake that was in the basket.\" \"Was there any other cake in the basket?\" \"...Not after I ate it.\" (friend) shakes (friend.his/her) head and laughs in spite of (friend.him/her)self. \"That's the most honest lie I've ever heard.\" (subject) bakes the next batch.",
+   "src": "L230",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L230"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Was it the last one?\" \"It was a cake that was in the basket.\" \"Was there any other cake in the basket?\" \"...Not after I ate it.\" (friend) shakes (friend.his/her) head and laughs in spite of (friend.him/her)self. \"That's the most honest lie I've ever heard.\" (subject) bakes the next batch.",
+   "src": "L230"
   }
  }
 }

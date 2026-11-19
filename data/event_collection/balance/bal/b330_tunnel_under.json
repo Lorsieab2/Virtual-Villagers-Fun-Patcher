@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15274"
+   "src": "L15274",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) shoots out of the far end into bright sunlight, gasping, scraped and laughing. (He/She) has done it. But something in the tunnel has changed (him/her): (his/her) face, when the others see it, is somehow different, sharper and more weathered, as if the rock rubbed some of its own shape into (him/her). (Name) doesn't mind at all. (He/She) is the first person ever to swim the tunnel.",
@@ -143,7 +144,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15277"
+   "src": "L15277",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) takes three deep breaths and dives into the dark. The tunnel is narrow and cold, and the water pulls (him/her) along faster than (he/she) can swim...",
@@ -167,7 +169,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15283"
+   "src": "L15283",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Whatever shouted back, (name) waits too long listening for it. The tide turns, the water comes roaring back into the tunnel, and (name) has to scramble up the rocks to keep from being pulled in. (He/She) gets home soaked and shaken. (Name), who used to love the sea more than anyone, finds the water has lost its pull on (him/her). (He/She) still swims, but only when (he/she) has to.",
@@ -179,7 +182,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15286"
+   "src": "L15286",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) cups (his/her) hands and shouts into the tunnel. The sound rolls away into the dark. For a long moment, nothing. Then, very faintly, something shouts back...",

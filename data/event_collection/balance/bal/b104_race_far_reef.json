@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4714"
+   "src": "L4714",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Far out, the stranger stops, and turns, and tips their hat to (subject), and laughs. \"You'll do,\" they say, and paddle away into the sun. (subject) turns for home and comes in long after the race is over, exhausted, and with a strange new sureness in (subject.his/her) arms and (subject.his/her) work that never leaves (subject.him/her).",
@@ -148,7 +149,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4717"
+   "src": "L4717",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) swings (subject.his/her) canoe after the carved one, out past the reef, into the long blue swells, paddling harder than (subject.he/she) has ever paddled...",
@@ -176,7 +178,8 @@
      "role": "another_paddler_aged_16_or_older"
     }
    ],
-   "src": "L4726"
+   "src": "L4726",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) shakes (subject.his/her) head and swings for home. Behind (subject.him/her), the stranger laughs, and the carved canoe heads out to sea...",

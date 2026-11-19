@@ -135,7 +135,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L3410"
+   "src": "L3410",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The blossoms are too delicate. As soon as they're picked, they start to wilt, turning brown and limp in the baskets, losing their colour and their smell in minutes. By lunchtime the baskets are full of nothing but soggy brown petals. The villagers look up guiltily at the Tree. The Tree, still covered in flowers, doesn't seem to mind. The cooks tip the baskets out under it, and the petals sink into the roots.",
@@ -168,7 +169,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L3419"
+   "src": "L3419",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The researchers set up a little camp under the Tree and watch the blossoms every hour of the day and night for a week. They count the bees. They measure the petals. They notice that the blossoms open at sunrise and close at sunset, all at once, every single one, as if someone had told them to. They notice that the Tree is warm to the touch all week. They learn something new about the Tree of Life, something nobody knew before, and write it all down in a very long and very excited scroll. Your villagers gain (award) tech points.",
@@ -183,7 +185,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L3422"
+   "src": "L3422",
+   "auto_text": true
   },
   "c2": {
    "text": "The elders say that something this rare should be left alone. So nobody picks a single blossom. They let them be. The village just stops and looks at them, every morning and every evening, for as long as they last...",

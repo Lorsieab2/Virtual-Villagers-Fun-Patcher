@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9630"
+   "src": "L9630",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The huge shape is a whale, glowing all over with the tiny lights, and it rolls once, slowly, between them and the open sea, and blows a fountain of blue sparks into the air. Then it sinks away. (subject) and (friend) swim back to shore together without a word and sit on the sand till dawn, shaking and grinning.",
@@ -164,7 +165,8 @@
      "role": "friend"
     }
    ],
-   "src": "L9639"
+   "src": "L9639",
+   "auto_text": true
   },
   "c2o2": {
    "text": "After a long moment the sparks start up again, coming back, slowly, then faster. (friend) staggers out of the water, gasping, and says something big went past underneath (friend.him/her) like a hill moving. They don't swim at night again for a long time. When they do, they stay in the shallows.",

@@ -142,7 +142,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "{#made:One more (subject) climbs out of one pond, warm and cheerful|Two more (subject)s climb out, one from each pond: one warm and cheerful, one cold and cross}. They have (subject)'s face and their own ideas about everything, and they start arguing with each other before they've stopped dripping. (friend) has to walk all {#made:two|three} home. {#made:The newcomer takes the name (made1)|The newcomers take the names (made1) and (made2)}.",
@@ -156,7 +157,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L9727"
+   "src": "L9727",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) dives into the warm pond, swims across, climbs over the ridge at the far end, and slides into the cold one, gasping, and swims back. As (subject.he/she) climbs out, (friend) stops grinning...",
@@ -182,7 +184,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9733"
+   "src": "L9733",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(friend), laughing, slips off the ridge into the warm pond, splashes across, and comes up in the cold one, spluttering. And climbing out of the warm one is another (friend), looking very cross. \"That's not fair,\" says (friend). \"It was YOUR dare.\" The newcomer takes the name (made1), and the two of them never agree about anything.",
@@ -192,7 +195,8 @@
      "copy_of": "friend"
     }
    ],
-   "src": "L9736"
+   "src": "L9736",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) sits on the ridge beside (friend) and dangles one foot in each pond, one warm, one cold. It is very strange. (subject.His/her) feet seem to be arguing with each other...",

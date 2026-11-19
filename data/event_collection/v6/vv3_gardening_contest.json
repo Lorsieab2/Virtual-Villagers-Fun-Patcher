@@ -206,7 +206,8 @@
     {
      "next": "ending"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "s2": {
    "text": "They argue over the path's exact shape, then compromise when the elder suggests a curved path with straight planting beds.",
@@ -254,11 +255,14 @@
    ]
   },
   "p1": {
-   "text": "Both gardens flourish in different ways. The villagers learn which designs suit which purposes.",
-   "src": "L3080-3081",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "ending"
+     "next": "p1__fx"
+    },
+    {
+     "next": "p1__text"
     }
    ],
    "effects": [
@@ -308,6 +312,39 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{END}"
+  },
+  "p1__fx": {
+   "text": "Both gardens flourish in different ways. The villagers learn which designs suit which purposes.",
+   "src": "L3080-3081",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L3080-3081"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L3080-3081"
+    }
+   ],
+   "auto_text": true
+  },
+  "p1__text": {
+   "text": "Both gardens flourish in different ways. The villagers learn which designs suit which purposes.",
+   "src": "L3080-3081",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
   }
  }
 }

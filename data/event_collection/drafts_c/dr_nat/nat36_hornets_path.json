@@ -92,7 +92,8 @@
      "max": -1,
      "src": "L428"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",

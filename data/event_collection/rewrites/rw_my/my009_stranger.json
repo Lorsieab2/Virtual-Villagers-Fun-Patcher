@@ -205,7 +205,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10362"
+   "src": "L10362",
+   "auto_text": true
   },
   "c1": {
    "text": "\"Well, since you seem to know where I'm going,\" (name) says slowly, \"is there a better way?\" The traveler taps the staff thoughtfully against a stone...",
@@ -255,7 +256,8 @@
      "age": "adult"
     }
    ],
-   "src": "L10376"
+   "src": "L10376",
+   "auto_text": true
   },
   "c3": {
    "text": "\"If we're going the same way, we may as well walk together,\" (name) says. The traveler seems pleased, and they set off side by side...",
@@ -285,7 +287,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10383"
+   "src": "L10383",
+   "auto_text": true
   },
   "c4": {
    "text": "(Name) doesn't like being predicted. Just to be stubborn, (he/she) turns on (his/her) heel and takes the right-hand path instead...",

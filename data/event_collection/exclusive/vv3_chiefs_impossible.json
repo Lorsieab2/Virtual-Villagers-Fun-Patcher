@@ -77,7 +77,8 @@
      "scaled": true,
      "src": "L7896"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "src": "L7897",
@@ -90,7 +91,8 @@
      "src": "L7897",
      "loss": true
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "src": "L7898",

@@ -143,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9487"
+   "src": "L9487",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The cures settle in (subject)'s head in good order, as if someone had tidied them. (subject.He/She) gets up, and goes to the healers, and tells them everything. By the end of the week every sick villager is well. The scroll, when (subject) goes back for it, is blank. (researcher) says it was meant to be read once.",
@@ -155,7 +156,8 @@
      }
     }
    ],
-   "src": "L9490"
+   "src": "L9490",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) reads. The writing crawls across the bark into (subject.his/her) eyes and into (subject.his/her) head, cure after cure, more than (subject.he/she) can hold, and the hut goes dark round the edges...",
@@ -190,7 +192,8 @@
      }
     }
    ],
-   "src": "L9496"
+   "src": "L9496",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The next morning the box is empty and the red cord is lying on the floor beside it. Nobody admits to anything. (friend) gets better slowly, on (subject.his/her) own. (subject) keeps an eye on everyone in the village for a month, looking for anyone who suddenly knows too many cures. Nobody does.",

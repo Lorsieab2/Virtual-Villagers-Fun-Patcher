@@ -294,11 +294,14 @@
    ]
   },
   "i1": {
-   "src": "L2775",
-   "text": "The children make observations and discover a useful pattern.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "good"
+     "next": "i1__fx"
+    },
+    {
+     "next": "i1__text"
     }
    ]
   },
@@ -482,7 +485,8 @@
      "max": 10,
      "src": "L2805"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "g2": {
    "src": "L2806-2807",
@@ -505,6 +509,33 @@
   },
   "rails": {
    "text": "{RAILS}"
+  },
+  "i1__fx": {
+   "src": "L2775",
+   "text": "The children make observations and discover a useful pattern.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L2775"
+    }
+   ],
+   "auto_text": true
+  },
+  "i1__text": {
+   "src": "L2775",
+   "text": "The children make observations and discover a useful pattern.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ]
   }
  }
 }

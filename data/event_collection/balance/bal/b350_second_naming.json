@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16169"
+   "src": "L16169",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The elders give (subject) a fine old name, (made1), from the time of the first people, and (subject) takes it proudly. Then everyone else in the village wants one too. The naming ceremony goes on for three nights, with people shouting out what they've done to deserve a name. It's the best three nights the village has had in years.",
@@ -152,7 +153,8 @@
      }
     }
    ],
-   "src": "L16172"
+   "src": "L16172",
+   "auto_text": true
   },
   "c1": {
    "text": "The elders put their heads together and whisper for a long time. Then (elder) stands up, clears (subject.his/her) throat, and announces it...",
@@ -176,7 +178,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16178"
+   "src": "L16178",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) thinks so long that the fire burns low. At last (subject.he/she) says, \"I'll keep the one I have. It's done all right by me.\" The elders laugh, and the children are disappointed, but (elder) says it's the wisest answer anyone's given in years, and the custom is brought back anyway.",

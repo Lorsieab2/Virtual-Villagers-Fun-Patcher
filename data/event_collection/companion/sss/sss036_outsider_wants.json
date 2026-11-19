@@ -77,7 +77,8 @@
      "age": "adult",
      "src": "L6434"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Answer B",
@@ -89,7 +90,8 @@
      "age": "adult",
      "src": "L6436"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Answer C",

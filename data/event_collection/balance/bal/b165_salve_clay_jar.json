@@ -145,7 +145,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "The salve cures the rash and the fever by morning. It also gets onto (friend)'s face somehow, in the night, and by morning (friend)'s face is as smooth as a child's, without a single line. \"Never had a wrinkle,\" (healer) remembers, and looks at the jar with great interest. The jar goes on the highest shelf.",
@@ -159,7 +160,8 @@
      "role": "friend"
     }
    ],
-   "src": "L7638"
+   "src": "L7638",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) breaks the wax and rubs a little of the salve on (friend)'s rash. (friend) hisses. It's cold, and then very warm, and then it starts to tingle...",
@@ -194,7 +196,8 @@
      }
     }
    ],
-   "src": "L7644"
+   "src": "L7644",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The salve has gone bad. (subject)'s hand comes up in red blisters, and then (subject.his/her) whole arm, and (subject.he/she) spends a week in bed beside (friend), both of them scratching. \"Forty years,\" (healer) says, sadly. \"I should have known.\" (friend) gets better slowly, on (subject.his/her) own, and so does (subject).",
@@ -206,7 +209,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7647"
+   "src": "L7647",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) dabs a little on the back of (subject.his/her) own hand, just to see. It's cold, then warm, then it tingles all the way up (subject.his/her) arm...",

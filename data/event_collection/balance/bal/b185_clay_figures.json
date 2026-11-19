@@ -138,7 +138,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8591"
+   "src": "L8591",
+   "auto_text": true
   },
   "c1o2": {
    "text": "In the morning, there is someone by the river who looks like (name), more or less, the way a child's drawing looks like a person. Then (he/she) washes the clay off in the river, and the face is (name)'s exactly. Inside, though, (he/she) is someone else entirely, with different likes and different dislikes, and a fondness for pigs. \"You made me in a hurry,\" (he/she) says. (He/She) takes the name (made1).",
@@ -155,7 +156,8 @@
      "what": "\"dislikes\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) tells (himself/herself) not to be silly, and goes home. In the night, (he/she) dreams of being small and hard and warm, lying in the sun by the river...",
@@ -185,7 +187,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8603"
+   "src": "L8603",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) picks up the clay (name), which is still damp, and squashes it back into a ball. It is warm, warmer than the sun should have made it. (Name) feels a sharp pang, as if (he/she) has stubbed a toe somewhere inside (himself/herself)...",

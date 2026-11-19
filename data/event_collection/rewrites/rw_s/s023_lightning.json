@@ -148,7 +148,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L1074"
+   "src": "L1074",
+   "auto_text": true
   },
   "c1o2": {
    "text": "It turns out the fascinating thing is that the roof is gone. Entirely. The researcher points up at the open sky with a delighted look, and everyone looks up, and then down at the floor, where the roof has landed, still burning, on top of the shelf where the notes were kept. Nobody wants to be the one to point that out. By the time the fire is out, the notes are ash. The researcher stops being excited quite suddenly.",

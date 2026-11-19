@@ -136,7 +136,8 @@
      "age": "adult"
     }
    ],
-   "src": "L14429"
+   "src": "L14429",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The rope is caught, but the current is so strong that it drags (name) off the bank and into the water. (He/She) hangs on, half-drowned, until the raft grounds itself on the sandbar. On it are a (man/woman), a teenager and a small child. The teenager jumps into the water and pulls (name) out. They all sit on the sandbar, coughing, and laugh about it later. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The family stays}.",
@@ -160,7 +161,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14432"
+   "src": "L14432",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) coils the rope, swings it twice, and throws as hard as (he/she) can as the raft spins past...",
@@ -188,7 +190,8 @@
      "age": "adult"
     }
    ],
-   "src": "L14438"
+   "src": "L14438",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The raft spins past just out of reach of the pole and is carried out through the river mouth into the surf. (Name) watches it bob away along the coast. The next day a fisher from up the coast sends word: a raft came ashore at their beach, and everyone on it is safe. (Name) is relieved, and a little sorry it wasn't (his/her) beach.",

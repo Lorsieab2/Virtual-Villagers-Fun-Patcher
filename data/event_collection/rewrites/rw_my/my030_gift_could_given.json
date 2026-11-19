@@ -254,7 +254,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11613"
+   "src": "L11613",
+   "auto_text": true
   },
   "c3o2": {
    "text": "Nobody recognizes it. Not the carvers, not the weavers, not even the very oldest villagers, who have seen just about every kind of necklace there is. The seeds are from no tree on Isola. The shell is from no beach anyone knows. (subject) puts it back around (subject.his/her) neck with a shrug, and a shiver.",

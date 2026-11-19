@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L37"
+   "src": "L37",
+   "auto_text": true
   },
   "c1o2": {
    "text": "It works, slowly. (subject) crawls up onto the sand a long way down the beach, coughing up half the lagoon, and lies there until (friend) comes jogging over with a gourd of water and a face like thunder. \"Twice,\" (friend) says. \"I told you twice.\" (subject) still goes into the water after that, but only to wash, and only up to the knees. The joy of it is gone. When the children race out to the reef, (subject.he/she) watches from the shore and counts them all back in.",
@@ -148,7 +149,8 @@
      "role": "subject"
     }
    ],
-   "src": "L40"
+   "src": "L40",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) stops fighting the pull and turns sideways, swimming along the beach instead of towards it, the way the old fishers always said. (subject.His/Her) arms burn. A wave slaps (subject.him/her) in the face, and then another...",
@@ -175,7 +177,8 @@
      "best": true
     }
    ],
-   "src": "L46"
+   "src": "L46",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(friend) hears, and is in the canoe in moments, paddling harder than (friend.he/she) has ever paddled. But the current is faster than any canoe. By the time (friend) reaches the place where (subject) was, the water is empty and smooth. The fishers find (subject) the next morning, washed against the far rocks, and carry (subject.him/her) home wrapped in a sail. The village buries (subject.him/her) above the beach, facing the reef. (friend) mends nets alone for a long time after that, and nobody tries to talk (friend.him/her) out of it.",
@@ -186,7 +189,8 @@
      "role": "subject"
     }
    ],
-   "src": "L49"
+   "src": "L49",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) throws an arm up and yells (friend)'s name as loud as (subject.his/her) aching lungs will let (subject.him/her). The wind takes most of it. On the beach, (friend) stops mending, and lifts (friend.his/her) head...",

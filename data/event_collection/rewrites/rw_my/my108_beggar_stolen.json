@@ -197,7 +197,8 @@
      "scaled": true
     }
    ],
-   "src": "L16149"
+   "src": "L16149",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The beggar, it turns out, is tremendous company. Over the long dim afternoon, (he/she) tells the family a story about the time (he/she) got lost in a storm with a goat, a canoe and a very surprised fisherman, and it is so funny that (name)'s family are crying with laughter by the end. The light comes back the next morning, and the beggar goes on (his/her) way. The story does not. It is retold at every gathering for years, and it gets funnier every time.",
@@ -226,7 +227,8 @@
      "scaled": true
     }
    ],
-   "src": "L16156"
+   "src": "L16156",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The beggar warms up, eats a little, and falls into a deep, peaceful sleep by the fire, snoring gently. (He/she) does not stir all night. At dawn, the sun comes up perfectly bright and ordinary, and the beggar wakes, stretches, thanks (name) very kindly, and departs down the road. Nothing strange happens. It is, (name) reflects, a very pleasant way to spend a gloomy afternoon.",
@@ -278,7 +280,8 @@
      "loss": true
     }
    ],
-   "src": "L16170"
+   "src": "L16170",
+   "auto_text": true
   },
   "c4o2": {
    "text": "The next morning, the sky is clear and blue, the sun is bright, and the birds are singing. No curse follows. Nothing at all happens, except that (name) hears later that the beggar spent the night in the next village, telling everyone a very funny story about a goat. (Name) feels rather small, and rather sorry to have missed the story.",

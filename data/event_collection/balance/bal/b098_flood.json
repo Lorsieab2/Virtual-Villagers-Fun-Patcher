@@ -135,7 +135,8 @@
      "structures": "any"
     }
    ],
-   "src": "L4441"
+   "src": "L4441",
+   "auto_text": true
   },
   "c1o2": {
    "text": "A great log comes down the flood and hits the wall, and the wall bursts. (subject) is in the gap when it goes, and the brown water takes (subject.him/her). The others hold onto each other and the posts and are saved. They search the river, and the shore, and the sea beyond the river mouth, for days. They never find (subject). The new bank, when they build it, carries (subject.his/her) name.",
@@ -145,7 +146,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4444"
+   "src": "L4444",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) hauls logs with (builder) and a dozen others, waist-deep in brown water, wedging them into a line across the flow...",
@@ -180,7 +182,8 @@
      }
     }
    ],
-   "src": "L4450"
+   "src": "L4450",
+   "auto_text": true
   },
   "c2o2": {
    "text": "On the last trip down, for an elder's carving box, (subject) slips in the deepening water and is pulled under by the current between the huts. The others reach (subject.him/her) too late. When the flood goes down, the village buries (subject) on the hill where (subject.he/she) carried everything, and the elder keeps the carving box by the grave.",
@@ -188,10 +191,12 @@
     {
      "do": "kill",
      "cause": "unknown",
-     "role": "subject"
+     "role": "subject",
+     "line": "injuries"
     }
    ],
-   "src": "L4453"
+   "src": "L4453",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) carries baskets, mats, children and an outraged pig up the hill, trip after trip, while the water rises behind...",

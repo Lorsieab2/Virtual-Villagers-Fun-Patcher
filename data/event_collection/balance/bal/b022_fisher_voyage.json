@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L994"
+   "src": "L994",
+   "auto_text": true
   },
   "c1o2": {
    "text": "At sunset the sail comes back, low in the water, and (name) steers it in with a fish in the bottom so big that it takes four people to lift it. (He/She) is soaked, sunburnt and grinning like a child. \"There's a current out there,\" (he/she) says, \"that nobody's fished in a hundred years.\" The next morning (his/her) hands still shake. (He/She) goes out anyway, and the young fishers follow.",
@@ -145,7 +146,8 @@
      "role": "subject"
     }
    ],
-   "src": "L997"
+   "src": "L997",
+   "auto_text": true
   },
   "c1": {
    "text": "The young fishers help (name) push the canoe out through the surf. (He/She) raises the sail, waves once without turning round, and heads straight out towards the sunrise...",
@@ -169,7 +171,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1003"
+   "src": "L1003",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) stays, and teaches, and finds to (his/her) own surprise that (he/she) likes it. (Name) never had much patience for children, but watching the young ones learn, (he/she) finds (he/she) loves telling them stories. \"Too old to be cross,\" (he/she) says. \"Takes too much energy.\" The young fishers bring (him/her) the first fish of every catch.",

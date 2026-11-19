@@ -148,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9251"
+   "src": "L9251",
+   "auto_text": true
   },
   "c1o2": {
    "text": "In the morning, nothing has happened, except that (subject) wakes up wearing a perfect copy of the {@chief}'s clothes, feathers and all. (subject.He/She) didn't own any clothes like that last night. The {@chief} laughs so hard (subject.he/she) has to sit down, and says (subject) can keep them. Nobody can tell where they came from. (elder) says the moon has a sense of humour.",
@@ -159,7 +160,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9254"
+   "src": "L9254",
+   "auto_text": true
   },
   "c1": {
    "text": "\"It's only a saying,\" says (subject), and the {@chief} laughs too, tiredly. (elder) shakes (subject.his/her) head and goes back to the fire, muttering. That night the full moon comes up huge and white over the sea...",
@@ -184,7 +186,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9260"
+   "src": "L9260",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The moon comes up and nothing happens. But the {@chief} sits with (subject) by the fire long into the night, and talks about how tired (subject.he/she) is. In the morning, (subject) takes half the {@chief}'s small jobs off (subject.his/her) hands without being asked: the pigs, the roof, the arguments about the roof. The {@chief} has a much better day.",

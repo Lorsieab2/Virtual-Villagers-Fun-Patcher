@@ -499,31 +499,14 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "A1",
-   "src": "L6458-6464",
-   "text": "The villagers gather expecting disaster. Instead, the little contraption works beautifully. The bridge holds a basket of stones; the leaf roof keeps a bench dry; or the wooden mechanism performs its humble task without breaking. (Friend) checks the result twice. \"Well,\" (friend.he/she) says, \"I owe you an apology.\" (Subject) folds (subject.his/her) arms. \"I shall accept it in the form of more materials.\" The village agrees to improve the design before using it for anything important.",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "subject",
-     "skills": [
-      "Building",
-      "Research"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L6465"
+     "next": "a1__fx"
     },
     {
-     "do": "skill",
-     "role": "friend",
-     "skills": [
-      "Building",
-      "Research"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L6465"
+     "next": "a1__text"
     }
    ]
   },
@@ -545,25 +528,14 @@
    ]
   },
   "a4": {
+   "type": "branch",
    "name": "A4",
-   "src": "L6485-6490",
-   "text": "The invention fails magnificently. While trying to repair it, however, (Friend) notices that a particular knot holds far more weight than the others. The builders test the knot, improve it, and teach it to the village. (Subject) claims credit for the discovery. (Friend) points out that the original machine was supposed to teach fish to climb trees. \"And yet,\" (Subject) replies, \"look how far science has come.\"",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "friend",
-     "skills": [
-      "Building"
-     ],
-     "min": 10,
-     "max": 20,
-     "src": "L6491"
+     "next": "a4__fx"
     },
     {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L6485-6490"
+     "next": "a4__text"
     }
    ]
   },
@@ -587,7 +559,8 @@
      "max": 20,
      "src": "L6509"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a7": {
    "name": "A7",
@@ -627,14 +600,28 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "B1",
-   "src": "L6532-6536",
-   "text": "The villagers vote overwhelmingly against the invention. (Subject) is stunned. \"You have rejected the future!\" (subject.he/she) cries. An elder points out that the future may return with a better design. (Subject) vows to do just that, but only after giving a long speech about how history will remember this injustice. Nobody stays for the entire speech."
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
+   "type": "branch",
    "name": "B2",
-   "src": "L6540-6544",
-   "text": "Every adult votes against the invention. Every child votes for it. The children win by a single vote after an elderly villager changes (elder.his/her) mind, saying that a frog-shaped rain catcher would brighten the village. (Subject) is delighted. (Friend) insists that the first version be small, cheap, and harmless. It becomes the most beloved useless object in Isola."
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "b3": {
    "name": "B3",
@@ -651,12 +638,20 @@
      "max": 20,
      "src": "L6554"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b4": {
+   "type": "branch",
    "name": "B4",
-   "src": "L6557-6562",
-   "text": "(Subject) wins the vote by a suspicious margin. Investigation reveals that (subject.he/she) has submitted several ballots under the names of (subject.his/her) inventions. \"THE GREAT RAIN CATCHER IS A STAKEHOLDER!\" (subject.he/she) protests. The council voids the extra ballots and orders a fair vote. (Subject) accepts the ruling with the dignity of someone who has been caught very publicly cheating at something extremely silly."
+   "children": [
+    {
+     "next": "b4__fx"
+    },
+    {
+     "next": "b4__text"
+    }
+   ]
   },
   "b5": {
    "name": "B5",
@@ -709,12 +704,14 @@
    "text": "\"To make work easier,\" says (Subject). (Friend) asks whose work. (Subject) looks at the drawing. \"Mine, obviously.\" It turns out the contraption would save (Subject) ten steps each morning while requiring two other villagers to operate it all day. The council declines the proposal. (Subject) complains that nobody appreciates efficiency."
   },
   "c2": {
+   "type": "branch",
    "name": "C2",
-   "src": "L6601-6606",
-   "text": "(Subject) explains the problem clearly, demonstrates a simple model, and shows exactly how much labor the invention might save. (Friend), prepared for nonsense, is startled. \"Why didn't you say all that at the start?\"",
    "children": [
     {
-     "next": "c2_2"
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
     }
    ]
   },
@@ -745,7 +742,8 @@
      "max": 10,
      "src": "L6607"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c3": {
    "name": "C3",
@@ -768,29 +766,32 @@
      "max": 20,
      "src": "L6622"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c5": {
+   "type": "branch",
    "name": "C5",
-   "src": "L6625-6629",
-   "text": "(Subject) stares at the drawings for a long time. \"I don't know,\" (subject.he/she) finally says. The admission surprises everyone, including (Subject). Instead of laughing, (Friend) asks which part of the idea first seemed interesting. Together they identify a smaller question worth testing. (Subject) goes home with fewer grand plans and one genuinely good one.",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "subject",
-     "skills": [
-      "Research"
-     ],
-     "min": 10,
-     "max": 20,
-     "src": "L6630"
+     "next": "c5__fx"
+    },
+    {
+     "next": "c5__text"
     }
    ]
   },
   "c6": {
+   "type": "branch",
    "name": "C6",
-   "src": "L6633-6638",
-   "text": "The crowd bursts into laughter as (Subject) explains the device. (Subject) does not laugh. \"I worked on this for months,\" (subject.he/she) says quietly. The room grows uncomfortable. (Friend) apologizes for the ridicule, then explains the actual flaws in the design. (Subject) listens, still hurt, but asks for help improving it. The invention may never work. The apology still matters."
+   "children": [
+    {
+     "next": "c6__fx"
+    },
+    {
+     "next": "c6__text"
+    }
+   ]
   },
   "c7": {
    "name": "C7",
@@ -805,6 +806,333 @@
    ]
   },
   "c8": {
+   "type": "branch",
+   "name": "C8",
+   "children": [
+    {
+     "next": "c8__fx"
+    },
+    {
+     "next": "c8__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "A1",
+   "src": "L6458-6464",
+   "text": "The villagers gather expecting disaster. Instead, the little contraption works beautifully. The bridge holds a basket of stones; the leaf roof keeps a bench dry; or the wooden mechanism performs its humble task without breaking. (Friend) checks the result twice. \"Well,\" (friend.he/she) says, \"I owe you an apology.\" (Subject) folds (subject.his/her) arms. \"I shall accept it in the form of more materials.\" The village agrees to improve the design before using it for anything important.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6465"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6465"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6458-6464"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "A1",
+   "src": "L6458-6464",
+   "text": "The villagers gather expecting disaster. Instead, the little contraption works beautifully. The bridge holds a basket of stones; the leaf roof keeps a bench dry; or the wooden mechanism performs its humble task without breaking. (Friend) checks the result twice. \"Well,\" (friend.he/she) says, \"I owe you an apology.\" (Subject) folds (subject.his/her) arms. \"I shall accept it in the form of more materials.\" The village agrees to improve the design before using it for anything important.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6465"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6465"
+    }
+   ],
+   "auto_text": true
+  },
+  "a4__fx": {
+   "name": "A4",
+   "src": "L6485-6490",
+   "text": "The invention fails magnificently. While trying to repair it, however, (Friend) notices that a particular knot holds far more weight than the others. The builders test the knot, improve it, and teach it to the village. (Subject) claims credit for the discovery. (Friend) points out that the original machine was supposed to teach fish to climb trees. \"And yet,\" (Subject) replies, \"look how far science has come.\"",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L6491"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6485-6490"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6485-6490"
+    }
+   ],
+   "auto_text": true
+  },
+  "a4__text": {
+   "name": "A4",
+   "src": "L6485-6490",
+   "text": "The invention fails magnificently. While trying to repair it, however, (Friend) notices that a particular knot holds far more weight than the others. The builders test the knot, improve it, and teach it to the village. (Subject) claims credit for the discovery. (Friend) points out that the original machine was supposed to teach fish to climb trees. \"And yet,\" (Subject) replies, \"look how far science has come.\"",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L6491"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6485-6490"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__fx": {
+   "name": "B1",
+   "src": "L6532-6536",
+   "text": "The villagers vote overwhelmingly against the invention. (Subject) is stunned. \"You have rejected the future!\" (subject.he/she) cries. An elder points out that the future may return with a better design. (Subject) vows to do just that, but only after giving a long speech about how history will remember this injustice. Nobody stays for the entire speech.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L6532-6536"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "B1",
+   "src": "L6532-6536",
+   "text": "The villagers vote overwhelmingly against the invention. (Subject) is stunned. \"You have rejected the future!\" (subject.he/she) cries. An elder points out that the future may return with a better design. (Subject) vows to do just that, but only after giving a long speech about how history will remember this injustice. Nobody stays for the entire speech."
+  },
+  "b2__fx": {
+   "name": "B2",
+   "src": "L6540-6544",
+   "text": "Every adult votes against the invention. Every child votes for it. The children win by a single vote after an elderly villager changes (elder.his/her) mind, saying that a frog-shaped rain catcher would brighten the village. (Subject) is delighted. (Friend) insists that the first version be small, cheap, and harmless. It becomes the most beloved useless object in Isola.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L6540-6544"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "B2",
+   "src": "L6540-6544",
+   "text": "Every adult votes against the invention. Every child votes for it. The children win by a single vote after an elderly villager changes (elder.his/her) mind, saying that a frog-shaped rain catcher would brighten the village. (Subject) is delighted. (Friend) insists that the first version be small, cheap, and harmless. It becomes the most beloved useless object in Isola."
+  },
+  "b4__fx": {
+   "name": "B4",
+   "src": "L6557-6562",
+   "text": "(Subject) wins the vote by a suspicious margin. Investigation reveals that (subject.he/she) has submitted several ballots under the names of (subject.his/her) inventions. \"THE GREAT RAIN CATCHER IS A STAKEHOLDER!\" (subject.he/she) protests. The council voids the extra ballots and orders a fair vote. (Subject) accepts the ruling with the dignity of someone who has been caught very publicly cheating at something extremely silly.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L6557-6562"
+    }
+   ],
+   "auto_text": true
+  },
+  "b4__text": {
+   "name": "B4",
+   "src": "L6557-6562",
+   "text": "(Subject) wins the vote by a suspicious margin. Investigation reveals that (subject.he/she) has submitted several ballots under the names of (subject.his/her) inventions. \"THE GREAT RAIN CATCHER IS A STAKEHOLDER!\" (subject.he/she) protests. The council voids the extra ballots and orders a fair vote. (Subject) accepts the ruling with the dignity of someone who has been caught very publicly cheating at something extremely silly."
+  },
+  "c2__fx": {
+   "name": "C2",
+   "src": "L6601-6606",
+   "text": "(Subject) explains the problem clearly, demonstrates a simple model, and shows exactly how much labor the invention might save. (Friend), prepared for nonsense, is startled. \"Why didn't you say all that at the start?\"",
+   "children": [
+    {
+     "next": "c2_2"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6601-6606"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "C2",
+   "src": "L6601-6606",
+   "text": "(Subject) explains the problem clearly, demonstrates a simple model, and shows exactly how much labor the invention might save. (Friend), prepared for nonsense, is startled. \"Why didn't you say all that at the start?\"",
+   "children": [
+    {
+     "next": "c2_2"
+    }
+   ]
+  },
+  "c5__fx": {
+   "name": "C5",
+   "src": "L6625-6629",
+   "text": "(Subject) stares at the drawings for a long time. \"I don't know,\" (subject.he/she) finally says. The admission surprises everyone, including (Subject). Instead of laughing, (Friend) asks which part of the idea first seemed interesting. Together they identify a smaller question worth testing. (Subject) goes home with fewer grand plans and one genuinely good one.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L6630"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6625-6629"
+    }
+   ],
+   "auto_text": true
+  },
+  "c5__text": {
+   "name": "C5",
+   "src": "L6625-6629",
+   "text": "(Subject) stares at the drawings for a long time. \"I don't know,\" (subject.he/she) finally says. The admission surprises everyone, including (Subject). Instead of laughing, (Friend) asks which part of the idea first seemed interesting. Together they identify a smaller question worth testing. (Subject) goes home with fewer grand plans and one genuinely good one.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L6630"
+    }
+   ],
+   "auto_text": true
+  },
+  "c6__fx": {
+   "name": "C6",
+   "src": "L6633-6638",
+   "text": "The crowd bursts into laughter as (Subject) explains the device. (Subject) does not laugh. \"I worked on this for months,\" (subject.he/she) says quietly. The room grows uncomfortable. (Friend) apologizes for the ridicule, then explains the actual flaws in the design. (Subject) listens, still hurt, but asks for help improving it. The invention may never work. The apology still matters.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L6633-6638"
+    }
+   ],
+   "auto_text": true
+  },
+  "c6__text": {
+   "name": "C6",
+   "src": "L6633-6638",
+   "text": "The crowd bursts into laughter as (Subject) explains the device. (Subject) does not laugh. \"I worked on this for months,\" (subject.he/she) says quietly. The room grows uncomfortable. (Friend) apologizes for the ridicule, then explains the actual flaws in the design. (Subject) listens, still hurt, but asks for help improving it. The invention may never work. The apology still matters."
+  },
+  "c8__fx": {
+   "name": "C8",
+   "src": "L6652-6658",
+   "text": "(Subject) admits that the machine is impossible as drawn. \"But what if we used the same arrangement of vines to lift a heavy stone?\" asks (Friend). The builders try it. To everyone's surprise, the arrangement works. The original invention is abandoned, and a useful lifting frame takes its place. (Subject) watches the first stone rise and grins. \"I told you my ridiculous ideas might work.\" \"One part of one idea,\" (Friend) corrects. \"I SHALL TAKE IT!\" replies (Subject).",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building",
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L6659"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building",
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L6659"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6652-6658"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L6652-6658"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6652-6658"
+    }
+   ],
+   "auto_text": true
+  },
+  "c8__text": {
    "name": "C8",
    "src": "L6652-6658",
    "text": "(Subject) admits that the machine is impossible as drawn. \"But what if we used the same arrangement of vines to lift a heavy stone?\" asks (Friend). The builders try it. To everyone's surprise, the arrangement works. The original invention is abandoned, and a useful lifting frame takes its place. (Subject) watches the first stone rise and grins. \"I told you my ridiculous ideas might work.\" \"One part of one idea,\" (Friend) corrects. \"I SHALL TAKE IT!\" replies (Subject).",
@@ -837,7 +1165,8 @@
      "scaled": true,
      "src": "L6652-6658"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

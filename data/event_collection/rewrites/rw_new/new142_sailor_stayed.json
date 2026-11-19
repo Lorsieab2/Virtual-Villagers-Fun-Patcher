@@ -201,7 +201,8 @@
      "scaled": true
     }
    ],
-   "src": "L6708"
+   "src": "L6708",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) just shifts over on the log and passes the sailor another bowl...",
@@ -226,7 +227,8 @@
      "scaled": true
     }
    ],
-   "src": "L6713"
+   "src": "L6713",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The sailor's face closes up. (He/She) doesn't want to talk about why (he/she) is leaving the crew, and says so, politely but firmly. Nobody pushes. (Name) changes the subject to stew, which is always safe.",
@@ -254,7 +256,8 @@
      "age": "adult"
     }
    ],
-   "src": "L6720"
+   "src": "L6720",
+   "auto_text": true
   },
   "c3o2": {
    "text": "After a long night of thinking, the sailor comes to (name) in the morning, looking sad but certain. (His/Her) crew still needs (him/her). (He/She) goes back with the next boat, but promises to visit, and asks (name) to save (him/her) some stew.",
@@ -283,7 +286,8 @@
      "scaled": true
     }
    ],
-   "src": "L6727"
+   "src": "L6727",
+   "auto_text": true
   },
   "c4o2": {
    "text": "After half a morning of digging, it's clear the sailor's heart is out at sea. The villagers mend (his/her) torn sail instead, and send (him/her) back to (his/her) crew with a bundle of fruit and an open invitation. (He/She) waves until (he/she) is out of sight.",

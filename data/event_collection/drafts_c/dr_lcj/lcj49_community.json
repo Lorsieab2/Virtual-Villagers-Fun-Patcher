@@ -115,7 +115,8 @@
      "who": "all",
      "src": "L691"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -139,7 +140,8 @@
      "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- the draft's notes: everything but the marked effects is story only",
      "src": "L695"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

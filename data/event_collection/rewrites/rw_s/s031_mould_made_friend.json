@@ -139,7 +139,8 @@
      "what": "\"dislikes\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "The copy reaches out and shakes (his/her) hand, firmly, warmly, and smiles (name)'s exact smile. Then, still smiling, it crumbles. Not horribly: softly, gently, like a sandcastle in the sun, into a small pile of very clean, very fine, pale dust on the mat. The mushrooms are gone too. (Name) sits and looks at the pile for a long time. Then (he/she) gets up and, at long last, takes the mat down to the river and washes it.",
@@ -168,7 +169,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1473"
+   "src": "L1473",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The sun dries the mat, and the copy dries with it, paler and paler, thinner and thinner, like mist burning off a morning field, until there's nothing on the fence but the mat. (Name) is oddly sad about it, which (he/she) did not expect. (He/She) spends the next week rebuilding the whole back wall of (his/her) hut so the damp can never get in again: new posts, new thatch, a raised floor. (He/She) finds, to (his/her) surprise, that (he/she) really likes working with wood, and the hut has never been so dry.",

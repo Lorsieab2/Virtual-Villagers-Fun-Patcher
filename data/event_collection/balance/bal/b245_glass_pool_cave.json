@@ -140,7 +140,8 @@
      "what": "\"dislike\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "Only one steps out. It has (name)'s face, (name)'s hair and (name)'s walk, but when (name) offers it a bit of coconut, it wrinkles its nose. It likes different food, different work, and different people. It follows (name) home, introduces itself as (made1), and moves into the empty hut by the river. Some evenings it goes back to the cave and sits by the pool for a while.",
@@ -157,7 +158,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) reaches out one finger and touches the surface. It isn't cold. It isn't wet, either. It feels like touching someone else's hand...",
@@ -185,7 +187,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11472"
+   "src": "L11472",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) doesn't move (his/her) eyes from the pool, and takes one careful step back, then another. The second reflection doesn't follow. It just keeps leaning, watching...",

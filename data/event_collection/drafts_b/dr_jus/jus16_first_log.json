@@ -74,6 +74,36 @@
    "src": "L194"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They agree to toss a shell: white side up for (subject), dark side for (friend). It lands dark side up. (subject) is disappointed and goes off to find another log. (subject.He/she) finds a smaller one. Later, (friend) offers to help carve it, since (friend.he/she) has the tools out anyway. Two canoes are built side by side that season.",
+   "src": "L197",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L197"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "They agree to toss a shell: white side up for (subject), dark side for (friend). It lands dark side up. (subject) is disappointed and goes off to find another log. (subject.He/she) finds a smaller one. Later, (friend) offers to help carve it, since (friend.he/she) has the tools out anyway. Two canoes are built side by side that season.",
    "src": "L197"

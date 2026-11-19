@@ -138,7 +138,8 @@
      "sex": "female"
     }
    ],
-   "src": "L2045"
+   "src": "L2045",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The healers do everything they know. They sit with the mother night and day. But the fever is too deep, and she has come too far, and on the third night, without ever waking, she slips away. The village buries her on the hill above the beach, looking out to sea, and lays shells on the grave, though nobody ever learns her name. (Name) stands there with the baby in (his/her) arms through the whole ceremony. Afterwards, (he/she) doesn't hand the baby to anyone. (He/She) takes (him/her) home, and raises (him/her) as (his/her) own.",
@@ -149,7 +150,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2048"
+   "src": "L2048",
+   "auto_text": true
   },
   "c1": {
    "text": "The healers carry the mother to the hospital. (Name) carries the baby home and sits up all night with (him/her), rocking, walking, singing every song (he/she) knows, while the healers come and go with cool water and bitter tea and worried faces...",
@@ -174,7 +176,8 @@
      "sex": "female"
     }
    ],
-   "src": "L2054"
+   "src": "L2054",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The baby will not be held by anyone but (name). Not the nursing mothers, not the healers, not the elders, not the gentlest grandmother in the village. The moment anyone else takes (him/her), the baby screams the roof off. The moment (name) takes (him/her) back, silence, and a very satisfied look. After an hour of this, (name) gives in. \"Fine,\" (he/she) says to the baby. \"Fine. You win.\" The baby goes to sleep on (his/her) shoulder, and that, it turns out, is that.",
@@ -185,7 +188,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2057"
+   "src": "L2057",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) knows nothing about babies. (He/She) hurries up the beach to the village, holding the baby out in front of (him/her) like a very fragile, very loud pot, calling for anyone who's nursing a little one of their own...",

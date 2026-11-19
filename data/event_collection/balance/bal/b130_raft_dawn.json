@@ -143,7 +143,8 @@
      "age": "child"
     }
    ],
-   "src": "L5962"
+   "src": "L5962",
+   "auto_text": true
   },
   "c1o2": {
    "text": "On the raft there's only a baby, tucked into a fold of sail and screaming with rage, and a shirt tied to a stick. Whoever made the raft is gone. (subject) brings the baby home tucked inside (subject.his/her) shirt. Nobody else can stop it crying. When (subject) holds it, it stops. That settles it. (subject) gets very little sleep for a very long time.",
@@ -154,7 +155,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5965"
+   "src": "L5965",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) splashes out and throws (subject.himself/herself) into the canoe. They paddle so hard their arms burn, out through the gap in the reef, where the waves stand up tall and green and slam down again...",
@@ -187,17 +189,20 @@
      "child_of_newest": true
     }
    ],
-   "src": "L5971"
+   "src": "L5971",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The village gets the raft people safely ashore, two adults, cold and frightened. But (fisher)'s canoe is gone. Someone saw it go round the point, and then the rocks, and then nothing. They search the coast for days. They find a paddle, and nothing else. The raft people go home when the weather clears, and they leave behind a carving of a canoe for (fisher)'s hut.",
    "effects": [
     {
      "do": "vanish",
-     "role": "fisher"
+     "role": "fisher",
+     "line": "leaves"
     }
    ],
-   "src": "L5974"
+   "src": "L5974",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) runs up the beach shouting, and the whole village comes pouring down to the shore with canoes and ropes and paddles, while (fisher) goes out alone...",

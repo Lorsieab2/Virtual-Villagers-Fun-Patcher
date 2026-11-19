@@ -61,14 +61,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(name1) decides the flower can stay. It grows taller. Another one appears next to it. By the end of the season, (name1)'s roof has a small yellow garden on top, and bees visit it, and children point at it. (name1) is extremely proud of a garden (he/she) did absolutely nothing to plant.",
-   "src": "L122"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(name1) climbs up and carefully digs it out with a little bit of thatch, and plants it by the door. It droops for a day, then perks up. (name1) waters it every morning. (He/She) likes having it where (he/she) can see it. Sometimes, though, (he/she) glances up at the roof, just to check another hasn't started.",
    "src": "L125"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) decides the flower can stay. It grows taller. Another one appears next to it. By the end of the season, (name1)'s roof has a small yellow garden on top, and bees visit it, and children point at it. (name1) is extremely proud of a garden (he/she) did absolutely nothing to plant.",
+   "src": "L122",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L122"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) decides the flower can stay. It grows taller. Another one appears next to it. By the end of the season, (name1)'s roof has a small yellow garden on top, and bees visit it, and children point at it. (name1) is extremely proud of a garden (he/she) did absolutely nothing to plant.",
+   "src": "L122"
   }
  }
 }

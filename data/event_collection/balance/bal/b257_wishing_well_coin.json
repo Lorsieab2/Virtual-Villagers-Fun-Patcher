@@ -140,7 +140,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12006"
+   "src": "L12006",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The well breathes in. (Name) feels the warmth go out of (his/her) hands, the spring go out of (his/her) knees. When (he/she) gets home, (his/her) hair is greyer and (his/her) face is lined. \"I must have said it backwards,\" (name) says, sitting down heavily. (His/her) grandmother, (he/she) remembers, always did say the well had a sense of humour.",
@@ -159,7 +160,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12009"
+   "src": "L12009",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) climbs back out, stands at the edge, and drops the coin. It falls a long way for such a shallow well. Somewhere far below, (he/she) hears a splash, though the well has been dry for years...",

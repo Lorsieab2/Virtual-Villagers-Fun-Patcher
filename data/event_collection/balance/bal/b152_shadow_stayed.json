@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7017"
+   "src": "L7017",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The shadow stands up and fills in, but only on the outside. It looks exactly like (subject). It doesn't think like (subject.him/her) at all. It has spent its whole life lying on the ground watching (subject) do things, and it has strong opinions about all of them. It takes the name (made1), and picks all the jobs (subject) never does, and does them very well, out of spite.",
@@ -145,7 +146,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L7020"
+   "src": "L7020",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) walks over to the shadow and stands on its feet, as if to stick it back on. It doesn't stick. It slides out from under (subject.him/her), sits up, and looks at (subject.him/her)...",
@@ -171,7 +173,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7026"
+   "src": "L7026",
+   "auto_text": true
   },
   "c2o2": {
    "text": "At sunset the shadow gets up, looks at (subject), and walks off into the jungle. (subject) has no shadow for three days. Then, one morning, it comes back, looking pleased with itself and smelling faintly of the sea. (subject) never finds out where it went.",

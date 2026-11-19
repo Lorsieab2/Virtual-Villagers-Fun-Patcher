@@ -108,7 +108,8 @@
      "who": "all",
      "src": "L351"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -125,7 +126,8 @@
      "max": 10,
      "src": "L355"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

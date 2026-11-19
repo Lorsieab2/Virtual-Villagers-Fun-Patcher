@@ -151,7 +151,8 @@
      }
     }
    ],
-   "src": "L10807"
+   "src": "L10807",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The rain stops before they reach the last huts. Three of the sickest are cured. The others are not. And (subject), who has been running about in the rain carrying people, catches a chill of (subject.his/her) own by evening. (healer) says the spirit must have had somewhere else to be.",
@@ -167,7 +168,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10810"
+   "src": "L10810",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) and the other healers run from hut to hut, carrying out anyone who can't walk on mats and on their backs, and laying them in the open, faces to the sky...",
@@ -193,7 +195,8 @@
      }
     }
    ],
-   "src": "L10816"
+   "src": "L10816",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The first cup works, and (friend), the sickest, sits up and asks for food. By the second cup, the mint smell has gone, and the rain is only rain. The healers argue for a week about why, and become so muddled that they forget some of what they used to be sure about.",
@@ -221,7 +224,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) puts out every pot, bowl and gourd in the village, and the rain fills them, and then it stops. (subject) carries the first pot to the sickest hut...",

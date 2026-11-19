@@ -99,9 +99,16 @@
    "src": "L1443"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(Name1) considers joining a conversation already in progress. The conversation is ordinary, which is exactly what feels comforting.",
-   "src": "L1447"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -112,6 +119,25 @@
    "name": "Ending 4",
    "text": "(Name1) considers joining a conversation already in progress. (Name1) enjoys the company and also looks forward to time alone.",
    "src": "L1455"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1) considers joining a conversation already in progress. The conversation is ordinary, which is exactly what feels comforting.",
+   "src": "L1447",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1447"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1) considers joining a conversation already in progress. The conversation is ordinary, which is exactly what feels comforting.",
+   "src": "L1447"
   }
  }
 }

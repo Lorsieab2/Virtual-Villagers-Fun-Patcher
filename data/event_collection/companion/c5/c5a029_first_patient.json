@@ -128,9 +128,52 @@
      "max": 10,
      "src": "L708"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome 2",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "o3__fx"
+    },
+    {
+     "next": "o3__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome 2",
+   "text": "The apprentice asks for help and learns the value of caution.",
+   "src": "L710",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Healing"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L710"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome 2",
    "text": "The apprentice asks for help and learns the value of caution.",
    "src": "L710",
@@ -145,9 +188,28 @@
      "max": 10,
      "src": "L710"
     }
-   ]
+   ],
+   "auto_text": true
   },
-  "o3": {
+  "o3__fx": {
+   "name": "Outcome 3",
+   "text": "The patient teaches the apprentice an unexpected lesson in listening.",
+   "src": "L712",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Healing"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L712"
+    }
+   ],
+   "auto_text": true
+  },
+  "o3__text": {
    "name": "Outcome 3",
    "text": "The patient teaches the apprentice an unexpected lesson in listening.",
    "src": "L712",
@@ -162,7 +224,8 @@
      "max": 10,
      "src": "L712"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

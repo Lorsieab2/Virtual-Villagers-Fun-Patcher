@@ -143,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11088"
+   "src": "L11088",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The next morning, there's a basket under the flowering tree with a baby in it, and nobody in the village knows whose. (elder) looks at the three-shell string, and at the baby, and says, \"Well, that's one.\" (subject) and (friend) take the baby home. They wait, a little nervously, for the other two.",
@@ -155,7 +156,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11091"
+   "src": "L11091",
+   "auto_text": true
   },
   "c1": {
    "text": "\"Three,\" says (friend), before (subject) can stop (subject.him/her). The village roars with laughter. (elder) ties the three-shell string round both their wrists, and it rattles...",
@@ -181,7 +183,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11097"
+   "src": "L11097",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Before the next rains, (subject) is pregnant, and the healers tell them to expect {#babies:a baby|twins|triplets}. \"{#babies:Just as the string said|The island can't count|The island has a sense of humour},\" says (elder), when (subject.he/she) has stopped laughing. (subject) looks at the one-shell string on (subject.his/her) wrist for a long time.",
@@ -194,7 +197,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11100"
+   "src": "L11100",
+   "auto_text": true
   },
   "c2": {
    "text": "\"One,\" says (subject), firmly. \"One is plenty to start with.\" (elder) ties the one-shell string round their wrists, looking slightly disappointed...",

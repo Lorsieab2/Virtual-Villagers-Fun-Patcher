@@ -138,7 +138,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13314"
+   "src": "L13314",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The rocks catch (name)'s leg just as (he/she) reaches the edge of the slide. It takes four people an hour to dig (him/her) out. The healers do what they can, but the leg never bends properly again, and (name) walks with a stick from then on. (He/She) never goes back to the quarry, and the cooks make do with the old grinding stone.",
@@ -159,7 +160,8 @@
      "next": "c1o2_c2"
     }
    ],
-   "src": "L13317"
+   "src": "L13317",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) drops (his/her) tools and runs. Behind (him/her), the roar of the falling rock grows louder and louder...",
@@ -184,7 +186,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13323"
+   "src": "L13323",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The overhang holds. The rocks pile up on every side, but (name) is left in a little pocket of space under the cliff, covered in dust, coughing, completely unhurt. It takes the village half a day to dig (him/her) out. (He/She) comes out holding the grinding stone, which is also unhurt. \"I finished it,\" (he/she) says. \"In the dark.\"",

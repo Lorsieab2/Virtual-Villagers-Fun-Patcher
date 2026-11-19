@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15585"
+   "src": "L15585",
+   "auto_text": true
   },
   "c1o2": {
    "text": "A young (man/woman) opens the door, holding a baby, frightened. (His/Her) partner is lying on a mat, feverish. They ran away from a village on the far coast after a quarrel, and got lost, and found this hut. (Name) gives them the yams, and the next morning brings help. The partner recovers, and {#made:one of them moves into the village, which has no room for more|the little family moves into the village}, where nobody asks about the quarrel.",
@@ -147,7 +148,8 @@
      "age": "adult"
     }
    ],
-   "src": "L15588"
+   "src": "L15588",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) pushes through the vines and knocks. The crying stops. The door creaks open on its own...",
@@ -179,7 +181,8 @@
      "structures": "any"
     }
    ],
-   "src": "L15594"
+   "src": "L15594",
+   "auto_text": true
   },
   "c2o2": {
    "text": "By the time they arrive, the smoke has stopped and the hut is empty, cold and dark, with dead leaves on the floor that look as if they've lain there for years. The elders look at (name) strangely. \"It was crying,\" (name) says. \"I heard it.\" The elders believe (him/her). That's what worries them.",

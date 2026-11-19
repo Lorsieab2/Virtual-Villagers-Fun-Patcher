@@ -267,7 +267,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11738"
+   "src": "L11738",
+   "auto_text": true
   },
   "c4o2": {
    "text": "The visitor's smile fades a little. \"A good answer,\" (he/she) says. \"But in this story, the hero must choose alone.\" And with that, the visitor wishes everyone good night. In the morning, only a hollow in the sand where the visitor sat remains, still faintly warm. Nobody saw the visitor leave.",

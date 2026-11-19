@@ -75,6 +75,32 @@
    "src": "L350"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) guesses it's a hat. Then a bag. Then a very small boat. (friend) finally tells (subject.him/her). (subject) screams and drops the stick. Then (subject.he/she) laughs so hard (subject.he/she) has to sit down in the sand. They bury it together, well away from the water, and (subject) tells every single child in the village by sunset.",
+   "src": "L353",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L353"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) guesses it's a hat. Then a bag. Then a very small boat. (friend) finally tells (subject.him/her). (subject) screams and drops the stick. Then (subject.he/she) laughs so hard (subject.he/she) has to sit down in the sand. They bury it together, well away from the water, and (subject) tells every single child in the village by sunset.",
    "src": "L353"

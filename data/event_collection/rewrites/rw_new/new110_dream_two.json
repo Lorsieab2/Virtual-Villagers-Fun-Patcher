@@ -172,7 +172,8 @@
      "scaled": true
     }
    ],
-   "src": "L5162"
+   "src": "L5162",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The dreams stop the next night. By the time the researcher sits down with them, the details have already started to fade, the way dreams do. Was the jar cracked on the left or the right? Neither of them is sure anymore. The matter is dropped, but (subject) and (friend) keep giving each other odd, thoughtful looks.",
@@ -201,7 +202,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5169"
+   "src": "L5169",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Halfway through the night, (friend) sits up, grabs (subject.his/her) mat, and walks out. \"I'm not risking it.\" A moment later (subject) follows, going the other way. Neither of them sleeps a wink, but both wake up in their own bodies, and the village lets the dream stay a dream.",
@@ -234,7 +236,8 @@
      "scaled": true
     }
    ],
-   "src": "L5178"
+   "src": "L5178",
+   "auto_text": true
   },
   "c3": {
    "text": "(elder), who reads dreams for anyone who brings (subject.him/her) a fish, listens to both of them very gravely, chewing on the fish...",

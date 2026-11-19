@@ -176,7 +176,8 @@
      "scaled": true
     }
    ],
-   "src": "L8394"
+   "src": "L8394",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) tries, and tries. And as (subject.he/she) tries, (friend) sees it happen: a thin thread of light rises out of (subject)'s mouth, like breath on a cold morning, and sinks into the shell disc. The charm goes cool. The name is gone, for good: the charm has taken it, and with it every memory of it, from (subject) and from everyone else. Whenever anyone tries to say it, or write it, only \"?\" comes out. (subject.He/She) is still (subject.himself/herself) in every other way, and the village makes very sure (subject.he/she) knows it.",
@@ -190,7 +191,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8396"
+   "src": "L8396",
+   "auto_text": true
   },
   "c1": {
    "text": "(friend) grabs bark and charcoal. \"Say it. Whatever's left. Say it, and I'll write it down.\" (subject) screws up (subject.his/her) face, concentrating...",
@@ -215,7 +217,8 @@
      "scaled": true
     }
    ],
-   "src": "L8401"
+   "src": "L8401",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The friends tell stories, and say (subject.his/her) name a hundred times, and then start disagreeing about where the charm came from: a shipwreck, a spirit, a joke. Nobody pretends to know. The name comes back to (subject) by morning on its own, and nobody can say if the circle helped.",
@@ -244,7 +247,8 @@
      "scaled": true
     }
    ],
-   "src": "L8408"
+   "src": "L8408",
+   "auto_text": true
   },
   "c3o2": {
    "text": "(subject)'s name returns, by itself, by evening. But (subject.he/she) decides some memories of that morning, and of what (subject.he/she) felt when the name wasn't there, should stay private. The charm is thrown back into the sea. (subject) never talks about it again.",

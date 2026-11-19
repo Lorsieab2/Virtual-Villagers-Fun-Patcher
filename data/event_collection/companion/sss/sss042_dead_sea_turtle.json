@@ -100,7 +100,8 @@
      "reason": "the dead turtle's; no villager is hurt",
      "src": "L6498"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Answer B",

@@ -168,7 +168,8 @@
      "scaled": true
     }
    ],
-   "src": "L8443"
+   "src": "L8443",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Someone remembers that Grandmother used to scratch little marks on the wall beside her cooking spot. They run to look, and find the wall freshly scrubbed clean by a well-meaning cousin, \"to tidy up.\" The marks were the recipe. That part of it is lost, and the cousin is very, very sorry.",
@@ -180,7 +181,8 @@
      "loss": true
     }
    ],
-   "src": "L8445"
+   "src": "L8445",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) gathers the whole family together, and asks everyone to say everything they remember about watching Grandmother cook...",
@@ -205,7 +207,8 @@
      "scaled": true
     }
    ],
-   "src": "L8450"
+   "src": "L8450",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Her old friends disagree about the recipe. One says honey. One says no honey, never honey. One says it was the leaves, and another says it was the love, which doesn't help at all. Nobody pretends to be sure, and the fifth pudding tastes like slightly sweeter sand.",
@@ -234,7 +237,8 @@
      "scaled": true
     }
    ],
-   "src": "L8457"
+   "src": "L8457",
+   "auto_text": true
   },
   "c3o2": {
    "text": "As the board fills up, (subject) realizes some of Grandmother's secrets should stay secret, kept in the family, the way she would have wanted. (subject.He/She) leaves the pudding off the board. Some things should only be learned standing beside someone at the fire.",

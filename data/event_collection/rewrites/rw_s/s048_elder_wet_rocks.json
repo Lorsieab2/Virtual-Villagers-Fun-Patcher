@@ -146,7 +146,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L2287"
+   "src": "L2287",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) slips anyway. It happens so fast that nobody could have been quick enough, (friend) least of all: one moment (subject.he/she) is standing on the rock, and the next (subject.he/she) is lying in the rock pool below with (subject.his/her) hip twisted under (subject.him/her), white-faced, and not making a sound. (friend) runs for help. The healers carry (subject) home on a board. (subject.He/She) is laid up for a long time, and when (subject.he/she) is finally up again (subject.he/she) walks with a stick, slowly, and never goes down to the rocks at the point again. Some mornings (subject.he/she) sits on the cliff above and watches the young ones do it, and tells them they're doing it wrong.",
@@ -167,7 +168,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2290"
+   "src": "L2290",
+   "auto_text": true
   },
   "c1": {
    "text": "A young villager, (friend), grabs a basket and jogs after (subject), calling that (friend.he/she) has nothing better to do and could use the company. (subject) snorts. \"Company,\" (subject.he/she) says. \"Is that what they're calling it.\" But (subject.he/she) doesn't send (friend) back...",
@@ -196,7 +198,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L2296"
+   "src": "L2296",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Halfway through the morning, (subject) slips on the seaweed and twists (subject.his/her) ankle badly in a crack between two rocks. (subject.He/She) can't stand on it, and the waves are coming in, so (subject.he/she) drags (subject.himself/herself) up onto the highest rock and sits there, in the spray, all through the high tide, wet and cold and furious, until it goes out again and (subject.he/she) can crawl home across the bare rocks. (subject.He/She) staggers into the village just before dark. The healers bind the ankle. (subject) refuses to discuss it.",
@@ -208,7 +211,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2299"
+   "src": "L2299",
+   "auto_text": true
   },
   "c2": {
    "text": "The village decides that (subject) has been doing this for sixty years, and knows the rocks better than any of them, and would never forgive them for fussing. So they let (subject.him/her) go. Several people find reasons to keep glancing towards the point all morning...",

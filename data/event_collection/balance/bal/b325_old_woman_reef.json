@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15052"
+   "src": "L15052",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The Grandmother must have liked the necklace very much. (Name) walks home five years younger, quicker, lighter, with the face (he/she) had five years ago. (He/She) goes out to the reef at every low tide after that with a new gift, and waves, and the Grandmother, people say, looks pleased to see (him/her).",
@@ -150,7 +151,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15055"
+   "src": "L15055",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) unwinds (his/her) best shell necklace and lays it in a hollow of the rock, at the Grandmother's feet. The tide sighs on the reef...",
@@ -174,7 +176,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15061"
+   "src": "L15061",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The tide comes in faster than any tide should, and (name) is still halfway across the reef. The fishers see (him/her) from the beach and paddle out, but the water is already over the rocks. They bring (name) home the next morning. On the next low tide, someone leaves a shell necklace at the Grandmother's feet, and nobody says anything rude to her again.",
@@ -185,7 +188,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15064"
+   "src": "L15064",
+   "auto_text": true
   },
   "c2": {
    "text": "\"You're a rock,\" says (name). \"You don't take anything. People get old on their own.\" (He/She) turns to go. The tide turns at the same moment...",

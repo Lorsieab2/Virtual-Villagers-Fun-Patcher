@@ -140,7 +140,8 @@
      "role": "subject"
     }
    ],
-   "src": "L164"
+   "src": "L164",
+   "auto_text": true
   },
   "c1": {
    "text": "The healers have never heard of anything like it. The elders say lightning took them, so lightning must give them back. That evening (subject) and (friend) sit back to back on the sand between the two palms, under a sky that is, very annoyingly, clear...",
@@ -172,7 +173,8 @@
      "role": "subject"
     }
    ],
-   "src": "L170"
+   "src": "L170",
+   "auto_text": true
   },
   "c2o2": {
    "text": "By midday they can't stand it. (subject) keeps tripping over (friend)'s feet and (friend) keeps eating (subject)'s lunch \"because this stomach is always hungry.\" They march to the healers together and demand that something be done. The healers mix up something thick, grey and bubbling and make them drink every drop. It tastes like a swamp. It smells worse. But in the time it takes to stop gagging, each of them is back behind their own eyes. Neither of them can taste anything for a week, and from then on neither of them will go near the healers' hut unless they're carried.",
@@ -188,7 +190,8 @@
      "dislike": "medicine"
     }
    ],
-   "src": "L173"
+   "src": "L173",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Well,\" says (friend), in (subject)'s voice. \"We can't go anywhere like this. Could be worse. I've always wondered what you actually do all day.\" (subject) looks down at (friend)'s hands, and has to admit (subject.he/she) has wondered the same...",

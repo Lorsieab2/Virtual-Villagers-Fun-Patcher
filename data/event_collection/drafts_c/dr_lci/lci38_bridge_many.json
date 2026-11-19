@@ -120,7 +120,8 @@
      "reason": "a small thing breaks in the story; no building is damaged -- the draft's notes: everything but the marked effects is story only",
      "src": "L533"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -137,7 +138,8 @@
      "max": 10,
      "src": "L537"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

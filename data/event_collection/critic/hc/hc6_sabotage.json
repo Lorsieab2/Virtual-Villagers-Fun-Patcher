@@ -2551,7 +2551,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r100": {
    "text": "{SA}. {SB} A child points out that the official has {p2077_0} all over (official.his/her) hands. {SCO}. The other officials are scandalized. The task is judged again, fairly, and (subject) does much better the second time.",
@@ -2574,7 +2575,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r101": {
    "text": "{SA}. {SB} The clues point in a direction (subject) didn't expect: at (subject.himself/herself). {SCS}. (Subject) confesses to (mentor), red-faced. (Mentor) is quiet for a long time, then sits down beside (subject.him/her). \"Being afraid of failing is not the same as failing. Do it again. Properly. I'll be here.\"",
@@ -2592,7 +2594,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r102": {
    "text": "{SA}. {SB} Every villager has an alibi, the parrot refuses to say anything else, and the only footprints lead into the sea. The work is redone and passes. To this day, nobody knows who did it, though everyone has a theory.",
@@ -2807,7 +2810,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r104": {
    "text": "{SA}. {SB} Everyone blames the village goat. The goat looks guilty, as goats always do. (Subject) knows the goat is innocent and says so. The real saboteur, hearing this, confesses on the spot, too ashamed to let a goat take the blame.",
@@ -2825,7 +2829,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r105": {
    "text": "{SA}. It turns out two different people sabotaged the work on the same night, each without knowing about the other, and the second sabotage accidentally undid the first. The work is exactly as (subject) left it. The two saboteurs are made to apologize, then to clean the fish-gutting pit together.",
@@ -2848,7 +2853,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r106mp": {
    "text": "With the damage stopped in time, (subject) finishes the work, and the judges reward (subject.him/her) for keeping calm.",
@@ -3020,7 +3026,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r108": {
    "text": "{SPC}. (Subject) sets a trap of (subject.his/her) own: a line of shells that rattle if anyone walks past at night. Just before dawn, the shells rattle. It is (prankster), holding a fresh batch of candles. (Prankster) bows. \"You got me.\"",
@@ -3071,7 +3078,8 @@
      "src": "L2212",
      "alt": "the candles that won't go out keep the ceremony lit through the rain"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "r110k": {
    "text": "{SPK0}. Just as (subject)'s task is about to fail, the prank turns out to be exactly what was needed: the extra coconuts feed the judges. (Mentor) narrows (mentor.his/her) eyes at the crowd. Somebody in it is trying very hard not to laugh.",
@@ -3100,7 +3108,8 @@
      "src": "L2212",
      "alt": "the extra coconuts feed the judges"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "r110t": {
    "text": "{SPT0}. Just as (subject)'s task is about to fail, the prank turns out to be exactly what was needed: the tied-together tools stop one from falling into the sea. (Mentor) narrows (mentor.his/her) eyes at the crowd. Somebody in it is trying very hard not to laugh.",
@@ -3129,7 +3138,8 @@
      "src": "L2212",
      "alt": "the tied-together tools stop one from falling into the sea"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "r110": {
    "type": "branch",
@@ -3166,7 +3176,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r112": {
    "text": "{SPC}. (Subject) decides that two can play this game. By the end of the week, half the village is pranking the other half, the candles are still relighting themselves, and nobody can remember who started it. The task is finished three days late. It is very good.",
@@ -3189,7 +3200,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "routes": {
    "type": "branch",

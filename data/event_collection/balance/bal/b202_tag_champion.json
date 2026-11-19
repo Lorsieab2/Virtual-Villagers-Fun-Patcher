@@ -138,7 +138,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9393"
+   "src": "L9393",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) rolls, bounces up and keeps running, and nobody catches (subject.him/her) all day. (child) gives up, sits down on the spirit-stone, and sulks. The stone stops humming. It was, perhaps, only a story.",
@@ -167,7 +168,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9402"
+   "src": "L9402",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Nothing happens. The stone is just a stone. But (subject) has scared (subject.himself/herself) badly, and the game doesn't feel the same after that. (subject.He/She) starts tagging along with (subject.his/her) parents to work instead, asking questions, and the other children finally get a turn at winning.",
@@ -179,7 +181,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9405"
+   "src": "L9405",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) runs straight at the stone and slaps it with both hands. \"Only a story!\" (subject.he/she) shouts. The humming stops, all at once. The jungle goes very quiet...",

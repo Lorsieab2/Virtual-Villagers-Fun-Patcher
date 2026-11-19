@@ -150,7 +150,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11508"
+   "src": "L11508",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) takes the vine in both hands, closes (subject.his/her) eyes, and runs off the edge. For one long moment (subject.he/she) is flying...",
@@ -185,7 +186,8 @@
      "next": "c2o1_c1"
     }
    ],
-   "src": "L11514"
+   "src": "L11514",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The teenagers swing until dark and nothing happens to any of them. (subject) sits on a rock and watches, and doesn't feel bad about it at all. Being scared, (subject.he/she) decides, is just a sensible feeling with a bad reputation. (subject.He/She) goes home and has a very nice nap.",

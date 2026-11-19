@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L130"
+   "src": "L130",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) gets the baby home, and the baby screams for an hour straight, and (subject) panics. Then (friend) comes in, and (healer) comes in, and somebody's grandmother comes in with a sling and a pot of mashed fruit, and suddenly there are six people in the hut, all with opinions. By nightfall the baby is fed, clean and fast asleep on (subject)'s chest. \"We'll take turns,\" says (friend). And they do.",
@@ -150,7 +151,8 @@
      "role": "subject"
     }
    ],
-   "src": "L133"
+   "src": "L133",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) tucks the basket against (subject.his/her) chest and wades back through the roots, talking to the baby the whole way about crabs, and mud, and how they're nearly home...",
@@ -183,7 +185,8 @@
      "child_of_newest": true
     }
    ],
-   "src": "L139"
+   "src": "L139",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Nobody comes. When the stars come out, (subject) carries the baby back to the village, where the elders and the healers take over. Within a week, a couple who have been hoping for a child for years have taken the baby in, and (subject) is the baby's favourite visitor. (subject.He/She) never quite stops watching the channel, though.",

@@ -137,6 +137,32 @@
    "src": "L1583"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), a builder, pauses to admire work completed over several days. (Name1) is proud of the progress nobody else can see.",
+   "src": "L1587",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1587"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1), a builder, pauses to admire work completed over several days. (Name1) is proud of the progress nobody else can see.",
    "src": "L1587"

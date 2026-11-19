@@ -138,7 +138,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6251"
+   "src": "L6251",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) grabs, misses, and the bird flutters off the roof, {#made:turning into a perfect (name) in mid-air before it lands|splitting into two in mid-air, each half turning into a perfect (name) before it lands}. Now there are {#made:two|three} of (name) standing outside one hut, looking at each other in horror and then, slowly, starting to laugh in exactly the same way. {#made:The copy takes the name (made1), and they argue|The two copies take the names (made1) and (made2), and argue} for a week about who gets the hut.",
@@ -149,7 +150,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6254"
+   "src": "L6254",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) climbs onto the roof very slowly, making soft cooing noises. The bird watches (him/her) with its gold eyes and makes exactly the same noises back, in exactly the same voice...",
@@ -180,7 +182,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "All afternoon, the bird sits on the roof and sings in (name)'s voice. It sings every song (name) knows, all the wrong notes in all the right places. By evening the whole village has heard what (name) sounds like singing, and some of them have been very honest about it. (Name) never sings again, and hardly says a word to anyone, in case the bird is listening. The bird flies off at dusk, and a few days later the jungle starts to sing in (name)'s voice too.",

@@ -104,7 +104,8 @@
      "max": 10,
      "src": "L6478"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Answer B",

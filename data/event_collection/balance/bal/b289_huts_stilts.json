@@ -152,7 +152,8 @@
      }
     }
    ],
-   "src": "L13447"
+   "src": "L13447",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The stilts go up, and the huts are dry. But it took every axe and adze in the village, and every pair of hands, and while everyone was cutting ironwood in the hills, the gardens went untended for a month. Half the crop rotted in the ground.",
@@ -193,7 +194,8 @@
      "structures": "any"
     }
    ],
-   "src": "L13456"
+   "src": "L13456",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The very next tide washes the clay right out of the gaps and soaks everything again. (chief) comes to find (subject), standing in the wet doorway of a hut. \"Stilts,\" (subject.he/she) says. \"Fine.\" (subject) gets to build them after all, and does a very good job of it.",
@@ -206,7 +208,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13459"
+   "src": "L13459",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Patch it is,\" says (subject), a little disappointed. The builders replace the rotten doorposts and stuff the gaps with clay...",

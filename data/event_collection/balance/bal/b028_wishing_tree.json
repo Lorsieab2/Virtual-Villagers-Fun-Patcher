@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1266"
+   "src": "L1266",
+   "auto_text": true
   },
   "c1o2": {
    "text": "A baby is expected, and then the healer listens a while longer and smiles. {#babies:Just the one, and a strong one|Twins|Triplets}. (friend) laughs until (friend.he/she) cries. \"Eleven,\" (friend.he/she) keeps saying, faintly. \"The couple who planted it had eleven.\" The village starts on {#babies:a cradle|two cradles|three cradles} that same week.",
@@ -152,7 +153,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1269"
+   "src": "L1269",
+   "auto_text": true
   },
   "c1": {
    "text": "They kneel in the roots together and tie the little fish on with three knots, the way the elders said. A breeze moves through the tree, and every token on it sways and clicks like a hundred tiny wooden bells...",
@@ -177,7 +179,8 @@
      "any_birth_sex": true
     }
    ],
-   "src": "L1275"
+   "src": "L1275",
+   "auto_text": true
   },
   "c2o2": {
    "text": "No baby comes that year. They tie a new token the next winter, and the one after. Meanwhile, (subject) and (friend) look after their friends' children, and teach the little ones to weave fish tokens of their own. \"We'll see,\" (subject) says. They are patient, and they are happy, and the tree waits with them.",

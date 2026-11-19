@@ -365,7 +365,8 @@
     {
      "next": "end"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "show": {
    "src": "L2544-2545",

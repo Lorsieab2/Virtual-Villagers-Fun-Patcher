@@ -98,7 +98,8 @@
      "scaled": true,
      "src": "L22931"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -161,7 +162,8 @@
      "max": 10,
      "src": "L22937"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",

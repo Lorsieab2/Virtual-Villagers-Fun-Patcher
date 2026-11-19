@@ -73,9 +73,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "The cook salvages it with other ingredients; a new recipe emerges.",
-   "src": "L6712"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -83,6 +90,55 @@
    "src": "L6714"
   },
   "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The cook salvages it with other ingredients; a new recipe emerges.",
+   "src": "L6712",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6712"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "The cook salvages it with other ingredients; a new recipe emerges.",
+   "src": "L6712"
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "The cook feels embarrassed, then learns to test small batches first.",
+   "src": "L6716",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "cook",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L6716"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
    "name": "Answer C",
    "text": "The cook feels embarrassed, then learns to test small batches first.",
    "src": "L6716"

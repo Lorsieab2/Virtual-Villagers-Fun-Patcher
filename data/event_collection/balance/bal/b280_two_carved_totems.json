@@ -141,7 +141,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13046"
+   "src": "L13046",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They swap, and then, just as the crowd starts screaming, they swap back. Both of them sit down on the path, dizzy. Neither one is the same afterwards. For one horrible moment each of them was reaching for a fallen fruit with hands that weren't theirs, and from then on neither of them can stand picking fruit or berries at all. The posts look, people say, a little smug.",
@@ -175,7 +176,8 @@
      "role": "subject",
      "with": "friend"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) feels a little ashamed of nearly treating the posts like a joke, and spends the next week repainting them in red and white, slowly and carefully, the way the elders say they used to look. (subject.He/She) is much better at the work by the end than at the start. The posts look very fine. Nobody touches them.",
@@ -188,7 +190,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13058"
+   "src": "L13058",
+   "auto_text": true
   },
   "c2": {
    "text": "(friend) takes (subject.his/her) hand off the post. \"Leave it,\" (subject.he/she) says. \"Just in case.\" (subject) shrugs. They walk away. That night, two little children sneak out to the posts...",

@@ -108,7 +108,8 @@
      "preference": "resting",
      "src": "L4535"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",

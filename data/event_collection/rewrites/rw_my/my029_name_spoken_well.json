@@ -227,7 +227,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11547"
+   "src": "L11547",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The lamp sinks down and down. Then, just before it reaches the water, the flame gutters and goes out, as if someone had blown on it. The whisper doesn't come again. (subject) pulls up the rope very, very quickly and decides to fetch water from the river for a while.",

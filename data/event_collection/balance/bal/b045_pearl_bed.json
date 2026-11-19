@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2039"
+   "src": "L2039",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) comes up with the pearl in (his/her) fist, grinning so wide (he/she) nearly swallows the sea. It's as big as an egg and shines like the moon. The scholars spend a month studying how it grew, and (name) is a better diver than ever, sure of (his/her) breath and (his/her) body. Your villagers gain (award) tech points.",
@@ -155,7 +156,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L2042"
+   "src": "L2042",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) takes three long breaths and goes down, into the cold, down past where the light turns green, then grey...",
@@ -190,7 +192,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2048"
+   "src": "L2048",
+   "auto_text": true
   },
   "c2o2": {
    "text": "By morning the ringing has gone, and (name) dives again, rested. The clam has closed. The pearl is still in there, presumably, and will be for another hundred years. (Name) comes up laughing anyway. \"It'll keep,\" (he/she) says.",

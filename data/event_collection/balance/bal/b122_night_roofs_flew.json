@@ -158,7 +158,8 @@
      }
     }
    ],
-   "src": "L5582"
+   "src": "L5582",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The huts are almost finished when an old roof beam, cracked in the night, gives way under (subject)'s feet. (subject.He/She) falls hard, and the beam falls on top of (subject.him/her). The healers do what they can. (subject)'s leg heals, but crooked, and (subject.he/she) will walk with a stick from now on. The last roofs are finished by (builder), who climbs down afterwards and sits beside (subject) for a long time without saying anything. Then (subject.he/she) says, \"Your knots were better than mine.\" (subject) can't bear the creak of a roof frame after that, or the smell of fresh-cut thatch.",
@@ -183,7 +184,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L5585"
+   "src": "L5585",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) climbs onto the nearest bare roof frame and shouts until everyone is listening. Children are sent for fronds, the strongest villagers to the grove with knives, and everyone else is handed a coil of rope and told to hold on to it and not let go...",
@@ -214,7 +216,8 @@
      }
     }
    ],
-   "src": "L5591"
+   "src": "L5591",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The wind was not tidy. The thatch is in shreds, hanging from every branch, and most of it is too torn to use. It takes four days to cut new fronds and roof the huts again, and in the meantime it rains twice, onto everyone's beds and into the food store. \"Should have rebuilt on the first day,\" says (builder), to nobody in particular.",

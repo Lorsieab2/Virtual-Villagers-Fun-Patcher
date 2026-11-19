@@ -74,6 +74,33 @@
    "src": "L206"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The elders remind (subject) of the rule and ask (subject.him/her) to fetch fresh water for everyone downstream for the day, since it was (subject.his/her) suds. (subject) carries water back and forth all day, and by evening understands the rule with every part of (subject.his/her) aching arms. (subject.He/she) never washes upstream again.",
+   "src": "L209",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L209"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "The elders remind (subject) of the rule and ask (subject.him/her) to fetch fresh water for everyone downstream for the day, since it was (subject.his/her) suds. (subject) carries water back and forth all day, and by evening understands the rule with every part of (subject.his/her) aching arms. (subject.He/she) never washes upstream again.",
    "src": "L209"

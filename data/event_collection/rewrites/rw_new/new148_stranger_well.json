@@ -201,7 +201,8 @@
      "scaled": true
     }
    ],
-   "src": "L7057"
+   "src": "L7057",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) doesn't ask again. (He/She) just fills the stranger's water skin to the top, and points to a patch of shade...",
@@ -226,7 +227,8 @@
      "scaled": true
     }
    ],
-   "src": "L7062"
+   "src": "L7062",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The stranger still won't say where (he/she) came from, and doesn't say much about the road either. No one insists. Some things, (name) decides, are not anyone else's business.",
@@ -254,7 +256,8 @@
      "age": "adult"
     }
    ],
-   "src": "L7069"
+   "src": "L7069",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The stranger thanks the village sincerely, and moves on before nightfall, walking quickly down the beach, away from the trees. (Name) watches until (he/she) is out of sight, and finds (himself/herself) hoping, very much, that the stranger gets wherever (he/she) is going.",
@@ -283,7 +286,8 @@
      "scaled": true
     }
    ],
-   "src": "L7076"
+   "src": "L7076",
+   "auto_text": true
   },
   "c4o2": {
    "text": "The villagers notice the stranger's water skin leaks badly, which explains the three bowls. They patch it with sap and send (him/her) onward with it full, and a bundle of food besides.",

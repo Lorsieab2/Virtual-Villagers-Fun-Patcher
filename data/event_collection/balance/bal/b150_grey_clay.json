@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6921"
+   "src": "L6921",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The clay works too well. (subject) wakes up with white hair, deep lines, and a face so old that small children cry when they see it. The older villagers listen to (subject.him/her) now. They also keep offering (subject.him/her) a stick, and a seat, and the warm spot by the fire. (subject) finds (subject.he/she) doesn't feel like leaping about at the dances any more. \"I look like I'd break,\" (subject.he/she) says sadly.",
@@ -154,7 +155,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L6924"
+   "src": "L6924",
+   "auto_text": true
   },
   "c1": {
    "text": "That night (subject) sneaks into the healers' hut, smears the cold clay all through (subject.his/her) hair and over (subject.his/her) cheeks, and lies down to sleep, stiff and itchy and very determined...",
@@ -181,7 +183,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6930"
+   "src": "L6930",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject)'s way turns out to be slower. Much slower. (elder) watches for an hour, then gets up and shows (subject.him/her) why the old way is the old way, patiently, step by step. (subject) is embarrassed. Then (subject.he/she) is interested. By the end of the day (subject.he/she) has stopped resenting the older villagers, and they've started asking (subject.his/her) opinion anyway.",
@@ -193,7 +196,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6933"
+   "src": "L6933",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) puts the clay back. If they won't listen, (subject.he/she) will show them. (subject.He/She) picks the job (subject.he/she) knows best, and spends the whole next day doing it (subject.his/her) own way, in plain sight...",

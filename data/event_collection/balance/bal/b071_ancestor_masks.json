@@ -141,7 +141,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3219"
+   "src": "L3219",
+   "auto_text": true
   },
   "c1o2": {
    "text": "When the mask comes off, (name)'s face is younger, not older. The elders are puzzled, then delighted. \"It lent you its years,\" says the eldest, \"and you gave them back with interest.\" Nobody quite knows what that means, but (name) looks wonderful.",
@@ -151,7 +152,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3222"
+   "src": "L3222",
+   "auto_text": true
   },
   "c1": {
    "text": "The old mask is heavy, and smells of smoke and wood oil. Behind it, (name) feels (his/her) back bend and (his/her) steps slow, and (he/she) dances the old dance the way the old ones did...",
@@ -179,7 +181,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3228"
+   "src": "L3228",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The mask comes off, and (name) is (himself/herself), just very hot and very happy. The children make (him/her) do the running dance again, and again, until (he/she) begs for mercy. The masks are wrapped up and put away for another generation.",

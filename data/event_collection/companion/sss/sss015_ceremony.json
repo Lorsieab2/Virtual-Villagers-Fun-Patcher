@@ -80,14 +80,40 @@
    "src": "L6216"
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "People organize by preferred movements rather than gender; rehearsals are chaotic but joyful.",
-   "src": "L6218"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
    "text": "The dancer performs a solo interlude while others retain familiar steps.",
    "src": "L6220"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "People organize by preferred movements rather than gender; rehearsals are chaotic but joyful.",
+   "src": "L6218",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "dancer",
+     "mood": "good",
+     "src": "L6218"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "People organize by preferred movements rather than gender; rehearsals are chaotic but joyful.",
+   "src": "L6218"
   }
  }
 }

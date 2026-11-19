@@ -207,7 +207,8 @@
      "scaled": true
     }
    ],
-   "src": "L14062"
+   "src": "L14062",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Inside, rolled tight in oiled skin, is a map: the coastline of Isola, drawn in fine brown lines, with a dotted route snaking around it and little marks for reefs, currents and safe landing beaches. Some of the beaches no one in the village has ever heard of. The fishers and researchers pore over it for days, and soon canoes are using the old route to reach fishing grounds they never knew existed.",
@@ -218,7 +219,8 @@
      "scaled": true
     }
    ],
-   "src": "L14064"
+   "src": "L14064",
+   "auto_text": true
   },
   "c1": {
    "text": "Two suns, (subject) reasons, must mean something about sunrise. So (subject.he/she) waits until dawn, sets the jar facing the first light, and as the sun breaks over the hills, lifts the lid...",

@@ -140,7 +140,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2624"
+   "src": "L2624",
+   "auto_text": true
   },
   "c1": {
    "text": "The two of them, in each other's bodies, kneel down in front of the embers together. \"We're sorry,\" says (subject), in (friend)'s voice. \"We'll take turns,\" says (friend), in (subject)'s. \"Fairly.\" They put a fresh log on, together. The fire crackles, thinking about it...",
@@ -169,7 +170,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2633"
+   "src": "L2633",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Fine,\" says (subject), in the wrong voice. \"Let it go out, then.\" \"Fine,\" says (friend). \"See if I care.\" They both fold their arms. And the fire, very slowly, dies down to embers, and to ash...",

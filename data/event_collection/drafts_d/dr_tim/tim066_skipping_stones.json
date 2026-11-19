@@ -94,9 +94,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1) practices skipping flat pebbles across calm water. The first attempt fails spectacularly, provoking laughter.",
-   "src": "L1107"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -112,6 +119,25 @@
    "name": "Ending 4",
    "text": "(Name1) practices skipping flat pebbles across calm water. The game ends only when the tide reaches their feet.",
    "src": "L1119"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1) practices skipping flat pebbles across calm water. The first attempt fails spectacularly, provoking laughter.",
+   "src": "L1107",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1107"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1) practices skipping flat pebbles across calm water. The first attempt fails spectacularly, provoking laughter.",
+   "src": "L1107"
   }
  }
 }

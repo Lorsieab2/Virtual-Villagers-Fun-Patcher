@@ -196,7 +196,8 @@
      "max": 10
     }
    ],
-   "src": "L5784"
+   "src": "L5784",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) listens carefully, wets (subject.his/her) hands, and then asks if (subject.he/she) can please decide what to do with the fish on (subject.his/her) own. (adult) steps back a few paces and waits. After a long think, (subject) lets the fish go, then immediately casts the line again.",
@@ -225,7 +226,8 @@
      "scaled": true
     }
    ],
-   "src": "L5791"
+   "src": "L5791",
+   "auto_text": true
   },
   "c3o2": {
    "text": "While (subject) is busy watching the reef, the fish makes a heroic leap from (subject.his/her) hands and vanishes into the water. (subject) stares after it, open-mouthed. Then (subject.he/she) grins. \"That's okay. I know where they live now. I'm coming back tomorrow.\"",

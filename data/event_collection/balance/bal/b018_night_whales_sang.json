@@ -135,7 +135,8 @@
      }
     }
    ],
-   "src": "L812"
+   "src": "L812",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The song goes on all night. In the morning everyone goes to work tired, but something has changed. The builders build straighter, the fishers fish better, the cooks put just the right pinch in the pot, as if the slow, deep rhythm of the song had got into their hands. \"It's in our bones now,\" the oldest fisher says. Nobody argues.",
@@ -150,7 +151,8 @@
      }
     }
    ],
-   "src": "L815"
+   "src": "L815",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) runs hut to hut, shaking people awake, and soon the whole village is on the beach in its sleeping wraps, babies and elders and all, standing silent in the moonlight...",
@@ -176,7 +178,8 @@
      "role": "subject"
     }
    ],
-   "src": "L821"
+   "src": "L821",
+   "auto_text": true
   },
   "c2o2": {
    "text": "In the morning, everybody asks what the noise was. \"Whales,\" says (name). \"Singing.\" Nobody believes (him/her). (He/She) doesn't mind. It's (his/hers), the whole long night of it, and on bad days (he/she) goes down to the beach and closes (his/her) eyes and can hear it still.",

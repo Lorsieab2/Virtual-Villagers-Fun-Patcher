@@ -142,7 +142,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L452"
+   "src": "L452",
+   "auto_text": true
   },
   "c1o2": {
    "text": "It works, right up until the leaves of the hat tickle (his/her) nose. (Name) tries to hold it in as long as possible. Until (he/she) can't. \"Ah... ahh... AHCHOO!\" Every bee in the log takes it personally. (Name) comes home very, very quickly, without honey, without the hat, and with stings in places (he/she) would rather not talk about. The healers pull the stingers out one at a time, counting out loud, and stop counting at thirty. (Name) never goes gathering in the woods again if (he/she) can help it.",
@@ -159,7 +160,8 @@
      "role": "subject"
     }
    ],
-   "src": "L455"
+   "src": "L455",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) freezes. Then, slowly, so slowly it hurts, (he/she) starts drawing (his/her) hand out of the log, honeycomb and all. The humming gets louder. A bee lands on (his/her) nose and walks across it, considering (him/her) with its stinger...",
@@ -192,7 +194,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L464"
+   "src": "L464",
+   "auto_text": true
   },
   "c2": {
    "text": "No honey is worth some nasty stings. (Name) flings the hat at the bees and runs for (his/her) life, crashing through the bushes towards the stream with a roaring golden cloud right behind (him/her)...",

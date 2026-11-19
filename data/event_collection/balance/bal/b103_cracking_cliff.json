@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4668"
+   "src": "L4668",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The wedges hold long enough for the families to get out, and then a chunk of the edge breaks off under (subject)'s feet. (subject.He/She) falls only a short way, but (subject.his/her) back is badly hurt. (subject.He/She) heals slowly, and walks with a stick after that, and won't go higher than a roof ever again. The families from the eastern huts take turns bringing (subject.him/her) meals for a year.",
@@ -157,7 +158,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L4671"
+   "src": "L4671",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) climbs up with (builder) and starts hammering logs into the crack with a stone. The cliff groans under them...",
@@ -181,7 +183,8 @@
      "structures": "any"
     }
    ],
-   "src": "L4677"
+   "src": "L4677",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The cliff doesn't fall. It groans for a week, and patters, and then stops. The builders go up and wedge it properly, at their leisure, while the families sleep elsewhere. Some people say (subject) panicked. The builders, who've seen the crack up close, tell them to be quiet.",

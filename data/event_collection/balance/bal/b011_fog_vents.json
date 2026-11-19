@@ -132,7 +132,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L495"
+   "src": "L495",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The voice calls again from deeper in the fog, and (name), confused, follows it. \"Wait,\" (he/she) shouts. \"Wait!\" The footsteps go further. When the fog lifts at noon, there's a bundle of firewood at the edge of the valley, neatly tied, and two sets of footprints leading towards the vents, side by side. The village searches every gully for days. Neither of them is ever seen again.",
@@ -142,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L498"
+   "src": "L498",
+   "auto_text": true
   },
   "c1": {
    "text": "\"Who's there?\" (name) calls. From the fog, in (his/her) own voice, something answers: \"Who's there?\"...",
@@ -166,7 +168,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L504"
+   "src": "L504",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) reaches the first huts, and turns, and there's nobody there. Only the fog, rolling back up the valley like a tide going out. Whatever was walking beside (him/her) has stayed behind, or was never there. (Name) sits by the fire for a long time that night, and jumps every time (he/she) hears (his/her) own footsteps.",

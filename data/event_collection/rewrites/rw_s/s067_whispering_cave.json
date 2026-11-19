@@ -137,7 +137,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L3181"
+   "src": "L3181",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) goes in, following the voice, deeper and deeper, until the light from the mouth is a tiny grey dot behind (him/her), and then is gone. (Name) does not come out. When (he/she) hasn't come home by dark, the searchers go up to the cave with torches and call (his/her) name into the dark. Nothing answers. They go in as far as they dare and find nothing but cold stone and roots. That night, for the first time anyone can remember, the cave stops whispering. It hasn't whispered since.",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3184"
+   "src": "L3184",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) pushes the roots aside. They're cold and damp against (his/her) arms. The whisper grows a little louder, and a little closer, and (name) follows it into the dark, one hand on the wall...",
@@ -172,7 +174,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3190"
+   "src": "L3190",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) tells the researchers about it the moment (he/she) gets home. They're fascinated, and a little frightened, and the next day four of them go up to the cave together with torches and ropes and a lot of nervous jokes. They don't hear any whispering at all. But a little way inside, behind a fall of rocks, they find a small, dry, hidden store: clay jars, sealed with wax, full of very, very old dried fruit. It's still good. Somebody, a long time ago, kept it safe here. Your villagers gain (award) food.",
@@ -187,7 +190,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L3193"
+   "src": "L3193",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) stands there at the mouth for a long time, (his/her) heart thumping, with the voice saying (his/her) name over and over. Then (he/she) turns away, and makes (himself/herself) walk home without looking back...",

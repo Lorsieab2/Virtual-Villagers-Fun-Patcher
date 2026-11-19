@@ -226,7 +226,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10544"
+   "src": "L10544",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(friend) holds the disc up confidently, ready to explain. Then (friend.he/she) goes very quiet. Whatever (friend.he/she) sees in it, (friend.he/she) doesn't say. After a long moment, (friend.he/she) wraps it carefully in cloth and puts it in a basket at the back of the research hut. \"Some things,\" (friend.he/she) says, \"are better studied later.\" (friend.He/She) never does.",

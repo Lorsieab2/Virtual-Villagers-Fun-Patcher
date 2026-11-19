@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3716"
+   "src": "L3716",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(friend) is asleep when they come in, and wakes to a baby being put in (friend.his/her) arms. \"What,\" says (friend), and then the baby grabs (friend.his/her) nose, and that's the end of the argument. They raise the baby together, and nobody ever comes looking.",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3719"
+   "src": "L3719",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) carries the baby home tucked inside (subject.his/her) wrap. By the time (subject.he/she) gets there, half the village is following, asking questions (subject.he/she) can't answer...",
@@ -172,7 +174,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3725"
+   "src": "L3725",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The healers keep the baby in the healers' hut until a family can be found, and in a week, a couple who have been hoping for a child take the baby in. (subject) visits often. The baby always reaches for (subject.his/her) finger.",

@@ -153,7 +153,8 @@
      }
     }
    ],
-   "src": "L15943"
+   "src": "L15943",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Three days before the games, (runner), pushed too hard for too long, feels something tear at the back of (subject.his/her) leg. The healers do what they can, but it never heals right. The village loses the running and two other events, and hosts the feast. The hill village is kind about it. (subject) isn't kind to (subject.himself/herself) for a long time.",
@@ -174,7 +175,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15946"
+   "src": "L15946",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) picks the fastest runner, the best climber, the strongest swimmer and the canoe crew, and works them from dawn to dusk for a month...",
@@ -203,7 +205,8 @@
      }
     }
    ],
-   "src": "L15952"
+   "src": "L15952",
+   "auto_text": true
   },
   "c2o2": {
    "text": "At the end of the month, the best swimmer turns out to be (champion), who has never been good at anything much and has never once been picked for anything. (subject.He/She) wins the swimming by a whole length. The village loses the other three events and hosts the feast, and nobody cares, because (champion) is so happy (subject.he/she) can't stop crying.",
@@ -216,7 +219,8 @@
      "best": true
     }
    ],
-   "src": "L15955"
+   "src": "L15955",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) announces that every villager who wants to can practise, and every evening for a month the beach is full of people racing, climbing palms and splashing in the shallows...",

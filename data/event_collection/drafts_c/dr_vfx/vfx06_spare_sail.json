@@ -93,7 +93,8 @@
      "max": -1,
      "src": "L74"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",

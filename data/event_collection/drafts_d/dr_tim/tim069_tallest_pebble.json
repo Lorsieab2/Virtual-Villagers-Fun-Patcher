@@ -104,14 +104,40 @@
    "src": "L1159"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "Two villagers compete to build the tallest balanced pebble stack. The first attempt fails spectacularly, provoking laughter.",
-   "src": "L1163"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "Two villagers compete to build the tallest balanced pebble stack. (Name1) becomes far more competitive than intended.",
    "src": "L1167"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "Two villagers compete to build the tallest balanced pebble stack. The first attempt fails spectacularly, provoking laughter.",
+   "src": "L1163",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1163"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "Two villagers compete to build the tallest balanced pebble stack. The first attempt fails spectacularly, provoking laughter.",
+   "src": "L1163"
   }
  }
 }

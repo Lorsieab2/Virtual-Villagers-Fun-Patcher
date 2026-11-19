@@ -173,7 +173,8 @@
      "max": 10
     }
    ],
-   "src": "L9177"
+   "src": "L9177",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) explains, tiredly, that nobody warned (subject.him/her) how hard day sleeping would be. (subject.He/She) thought it would be easy. (subject.He/She) is struggling, not slacking, and (subject.he/she) would really appreciate it if people stopped asking why (subject.he/she) yawns so much. The village, a little guiltily, agrees to keep the noise down near (subject.his/her) hut.",
@@ -228,7 +229,8 @@
      "max": 20
     }
    ],
-   "src": "L9191"
+   "src": "L9191",
+   "auto_text": true
   },
   "c3o2": {
    "text": "(mentor) laughs. \"Sleep? I never slept well in the day. Not once in twenty years. I just got used to being tired.\" This is not the answer (subject) was hoping for. But somehow, knowing it's not just (subject.him/her), makes it a little easier to bear.",

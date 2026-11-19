@@ -138,7 +138,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10995"
+   "src": "L10995",
+   "auto_text": true
   },
   "c1o2": {
    "text": "{#made:Two heads|Three heads} come up out of the pool. The pool has never done that before. {#made:Two|Three} identical (name)s sit on the mangrove roots, dripping, staring at each other, and then {#made:both|all three}, at once, say, \"Well, this is going to be complicated.\" {#made:The new one takes the name (made1), and they bring home twice the crabs|The two new ones take the names (made1) and (made2), and bring home three times the crabs}.",
@@ -149,7 +150,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10998"
+   "src": "L10998",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) lets go. The water is cold, and so dark (he/she) can't see (his/her) own hands. (He/She) kicks up towards the light, and feels someone else kicking beside (him/her)...",
@@ -184,7 +186,8 @@
      "what": "\"dislikes\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) hangs on with both hands and shouts until (his/her) throat hurts. The branch bends lower, and lower, and (his/her) toes touch the black water...",

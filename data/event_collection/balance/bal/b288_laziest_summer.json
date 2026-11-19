@@ -134,7 +134,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13403"
+   "src": "L13403",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The goat does not want to be milked. It kicks the bucket over, kicks (name), and finally sits on (him/her). By the time (name) gets out from under it, (he/she) has made up (his/her) mind about work for good: it is a trap, and the goat is in on it. \"I got up once,\" (he/she) says darkly, climbing back into the hammock. \"Look where it got me.\"",
@@ -145,7 +146,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13406"
+   "src": "L13406",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) groans, swings (his/her) legs out of the hammock and starts on the pile. The baskets first, then the spear, then the goat, which turns out to need milking...",
@@ -171,7 +173,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13412"
+   "src": "L13412",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The goat starts chewing on the hammock rope. (Name) doesn't notice until the rope gives way and (he/she) lands on (his/her) back in the dust with a thump that knocks the breath out of (him/her). After that, (he/she) can't relax in a hammock, or on a mat, or anywhere at all, without listening for chewing.",
@@ -183,7 +186,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13415"
+   "src": "L13415",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) rolls over to face the other way. The goat walks around the hammock and looks at (him/her) from the other side...",

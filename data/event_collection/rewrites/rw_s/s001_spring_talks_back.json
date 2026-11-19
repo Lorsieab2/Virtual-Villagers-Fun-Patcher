@@ -147,7 +147,8 @@
      "next": "c1o1_c1"
     }
    ],
-   "src": "L16"
+   "src": "L16",
+   "auto_text": true
   },
   "c1o2": {
    "text": "\"Not swimming, that's for sure,\" says the spring, and gurgles with laughter. \"I've seen you paddle. You swim like a coconut with ambitions.\" It goes on for some time about (name)'s kicking, (his/her) splashing, and one particular afternoon at the lagoon that (name) had hoped nobody remembered. (Name) gets up, red to the ears, and stomps off down the hill without drinking a drop. From that day on, (he/she) can't stand the sound of running water, and nobody can talk (him/her) into so much as wading.",
@@ -158,7 +159,8 @@
      "role": "subject"
     }
    ],
-   "src": "L19"
+   "src": "L19",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) clears (his/her) own throat, feeling very silly. \"What am I meant to be good at?\" (he/she) asks. The spring bubbles thoughtfully for a long moment, the way a person drums their fingers on a table...",

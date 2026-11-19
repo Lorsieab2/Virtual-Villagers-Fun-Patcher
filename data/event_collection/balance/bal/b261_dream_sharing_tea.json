@@ -142,7 +142,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12185"
+   "src": "L12185",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They sleep through the whole day and the whole night, and wake up the next morning, stiff, starving and laughing. In the dream they went fishing together in calm, warm water, and the cold, the wet nets and the smell of fish guts that both of them have always hated seemed very small. They go and mend the spear together after breakfast, and then they go fishing, and don't mind it at all.",
@@ -160,7 +161,8 @@
      "dislike": "fish"
     }
    ],
-   "src": "L12188"
+   "src": "L12188",
+   "auto_text": true
   },
   "c1": {
    "text": "They drink, grimacing, and lie down on mats side by side. Within moments both of them are asleep, and dreaming the same dream: a beach, a broken spear, and each other...",
@@ -185,7 +187,8 @@
      "with": "assistant"
     }
    ],
-   "src": "L12194"
+   "src": "L12194",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The two healers fall asleep on the floor and snore so loudly that the whole village can hear it. They wake up in the evening, in their own bodies, with no memory of any dream. (subject) and (friend), who have been laughing at them all afternoon, have forgotten what they were arguing about.",

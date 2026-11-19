@@ -141,7 +141,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4307"
+   "src": "L4307",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The sand rushes back, and (name) feels it in (his/her) face: a tightness, then a lightness. In the water bowl, (his/her) face is years younger, though (his/her) knees still creak exactly as before. The scholars want to try it on themselves. The elders forbid it. The scholars try anyway, at night, and nothing happens to any of them, which annoys them very much.",
@@ -151,7 +152,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4310"
+   "src": "L4310",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) flips the shell. The sand stops, hangs in the air inside the spiral, and then begins to fall the other way, faster...",
@@ -175,7 +177,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4316"
+   "src": "L4316",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The sand runs, and runs, and nothing happens. The scholars study it for a month and decide the sand moves with the tides, not with time. They're quite disappointed. (Name) keeps it on (his/her) shelf, where it runs back and forth with the sea.",

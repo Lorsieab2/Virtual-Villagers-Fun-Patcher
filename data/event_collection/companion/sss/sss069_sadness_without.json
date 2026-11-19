@@ -100,7 +100,8 @@
      "remove": true,
      "src": "L6788"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Answer B",
@@ -125,7 +126,8 @@
      "remove": true,
      "src": "L6790"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Answer C",
@@ -157,7 +159,8 @@
      "reason": "the healer checks; nobody is found hurt or ill",
      "src": "L6792"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

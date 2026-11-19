@@ -135,21 +135,25 @@
      "role": "friend"
     }
    ],
-   "src": "L7396"
+   "src": "L7396",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They walk on together, round the bend, and they don't come back. The gardeners find their baskets that evening, set down neatly side by side on the old path between two trees, the usual distance apart. The village looks for days. On still mornings, anyone who walks to the far gardens early enough can sometimes hear singing off to the left, and sometimes there are two voices with it.",
    "effects": [
     {
      "do": "vanish",
-     "role": "subject"
+     "role": "subject",
+     "line": "leaves"
     },
     {
      "do": "vanish",
-     "role": "friend"
+     "role": "friend",
+     "line": "leaves"
     }
    ],
-   "src": "L7399"
+   "src": "L7399",
+   "auto_text": true
   },
   "c1": {
    "text": "They step onto the white stones together. They're warm under their feet, like stones that have been in the sun all day, though the sun has only just come up. The singing gets louder as they walk, and the trees close in overhead...",
@@ -177,7 +181,8 @@
      "role": "friend"
     }
    ],
-   "src": "L7408"
+   "src": "L7408",
+   "auto_text": true
   },
   "c2": {
    "text": "\"No,\" says (subject), firmly, and takes (friend)'s arm. \"Gardens.\" They walk on, not looking left. The singing follows them for a while, and then, slowly, stops...",

@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16213"
+   "src": "L16213",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The branch snaps. (subject) falls with the bundle clutched to (subject.his/her) chest, twisting in the air to land on (subject.his/her) back so the baby lands on top. The baby is fine. (subject) is not, for a while. (subject.He/She) raises the child with a sore back and a stiff neck, and never once regrets it.",
@@ -153,7 +154,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16216"
+   "src": "L16216",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) climbs, hugging the trunk, then edges out along the thin branch, which bends lower and lower under (subject.his/her) weight...",
@@ -179,7 +181,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16222"
+   "src": "L16222",
+   "auto_text": true
   },
   "c2o2": {
    "text": "When they get the ladder up, the bundle is just leaves, rolled around a fat green caterpillar that wriggled its way in. (subject) is very embarrassed. But the tree, it seems, appreciates the visit: that season it bears more breadfruit than anyone has ever seen. Your villagers gain (award) food.",
@@ -194,7 +197,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L16225"
+   "src": "L16225",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) runs to the village shouting for a ladder. By the time (subject.he/she) comes back with two builders and a bamboo ladder, (subject.his/her) partner, (partner), is already standing under the tree...",

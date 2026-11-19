@@ -201,7 +201,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L12307"
+   "src": "L12307",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The lid lifts, and out drifts a cloud of tiny glowing insects, hundreds of them, rising slowly into the evening air like sparks from a fire. They don't bite. They don't sting. They just float up, and up, and scatter among the treetops, twinkling, until the whole forest edge looks like it's full of stars. The children are speechless. The box is empty.",
@@ -233,7 +234,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12316"
+   "src": "L12316",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Last light, first light, who cares? Let's just open it,\" (name) says impatiently, and cracks the seal in the full blaze of midday...",

@@ -149,7 +149,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9535"
+   "src": "L9535",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) wins, by a hand, as the sun touches the sea. The next village pays up with the paddle and a feast's worth of food. And (subject), the next morning, walks to the cooking fire. Then walks to the gardens. \"I think I ran it all out,\" (subject.he/she) says, surprised. Your villagers gain (award) food.",
@@ -170,7 +171,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L9538"
+   "src": "L9538",
+   "auto_text": true
   },
   "c1": {
    "text": "The two runners set off from the beach at dawn, side by side, with both villages cheering. By noon they are halfway round, and (subject)'s knee is clicking with every step...",
@@ -197,7 +199,8 @@
      }
     }
    ],
-   "src": "L9544"
+   "src": "L9544",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(friend) loses, gracefully. But (subject) rests the knee for a month, as (healer) says, and it stops clicking. Next year, (subject) races the other village's runner and wins. \"Should have rested it last year,\" says (healer), smugly.",

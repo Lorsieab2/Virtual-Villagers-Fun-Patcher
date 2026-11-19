@@ -160,7 +160,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) climbs onto the store roof to hold a mat in place, and a gust tears the mat away, and (subject.he/she) slips and falls to the ground hard. The food is saved, but (subject)'s hip never heals right. (subject.He/She) walks with a stick ever after, and won't climb anything higher than a doorstep. (builder) builds (subject.him/her) a seat by the food store, and (subject) keeps the store's count from there, better than anyone ever has.",
@@ -188,7 +189,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) runs for the food store with a sleeping mat over (subject.his/her) head, and the ice drums on it like a hundred fists...",
@@ -226,7 +228,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject)'s things are saved. The food store isn't. The roof gives way under the ice, and by the time it stops, half the baskets are full of icy water. (builder) doesn't say anything. (subject.He/She) doesn't need to. (subject) helps dry what's left, and feels it for a long time.",

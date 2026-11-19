@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L644"
+   "src": "L644",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The song leads (name) a long way, over roots and stones (he/she) can't see, down a slope, through wet ferns that soak (him/her) to the waist. Then, all at once, it stops. The fog is thinner here. (Name) is standing in a sheltered grove (he/she) has never seen before, full of trees so heavy with ripe fruit that the branches touch the ground. There is nobody there. Nobody at all. (He/She) gathers all (he/she) can carry, and finds (his/her) way home by the smell of the village's cooking fires. Nobody can ever find the grove again, though (name) tries every misty morning. Your villagers gain (award) food.",
@@ -154,7 +155,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L647"
+   "src": "L647",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) steps out into the fog. It closes behind (him/her) like a curtain. (He/She) walks towards the singing, one hand out in front, and the singing moves too, always a little ahead, never any closer...",
@@ -181,7 +183,8 @@
      }
     }
    ],
-   "src": "L653"
+   "src": "L653",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The singing stops as soon as (name) starts humming, as if someone has been caught out. The fog lies there, silent and empty. (Name) stands in the doorway until dawn, waiting for it to start again. It never does. (He/She) can't sleep for wondering what the song was, and who was singing it, and why (he/she) almost knew it, and (he/she) is grumpy with everybody for a whole week. When the fog lifts, the village is exactly as it was. Nobody else heard a thing.",

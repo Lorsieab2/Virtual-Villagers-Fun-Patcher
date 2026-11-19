@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1085"
+   "src": "L1085",
+   "auto_text": true
   },
   "c1o2": {
    "text": "When (name) climbs out, (his/her) face looks the way it did years ago, smooth and bright, as though (he/she) has slept for a month. The next day, there's a queue at the hot spring. The day after that, there's a second queue of people who came out looking older and are cross about it. The elders decide the spring should only be used on special occasions.",
@@ -142,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1088"
+   "src": "L1088",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) sinks into the cloudy water up to (his/her) chin and groans. The heat goes straight into (his/her) bones. The steam is so thick (he/she) can't see the rocks at the edge...",
@@ -166,7 +168,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1094"
+   "src": "L1094",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) has had a cough for weeks. Sitting in the steam, it loosens, and (he/she) coughs up something unpleasant into the bushes and then sits back, breathing freely for the first time in a long while. The healers come up the next day with baskets, and start bottling the water, and arguing about how much.",
@@ -176,7 +179,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1097"
+   "src": "L1097",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) sits on the black rock and lowers (his/her) feet into the water. It's like being hugged by the ground. A cool breeze blows the steam into (his/her) face...",

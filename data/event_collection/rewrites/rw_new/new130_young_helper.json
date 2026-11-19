@@ -196,7 +196,8 @@
      "max": 10
     }
    ],
-   "src": "L6117"
+   "src": "L6117",
+   "auto_text": true
   },
   "c2o2": {
    "text": "After a few steps, (subject) asks (adult) to please put it down, because (subject.he/she) wants to finish alone. (adult) does, and hovers close by, just in case. The log reaches the hut at sunset. Every builder cheers. (subject) collapses on the grass and sleeps right there.",
@@ -232,7 +233,8 @@
      "scaled": true
     }
    ],
-   "src": "L6124"
+   "src": "L6124",
+   "auto_text": true
   },
   "c3o2": {
    "text": "(subject) tries the sticks, but they all roll out sideways, and the log won't budge an inch more. At last (subject.he/she) gives up, flops down on the log, and declares, \"I'm going to move it tomorrow.\" (subject.He/She) says it with such confidence that the builders decide to leave the log exactly where it is.",

@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11961"
+   "src": "L11961",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The traveller takes the knot, and then unpicks one of the old ones from the cloak and presses it into (subject)'s hand. \"Fair's fair,\" (subject.he/she) says. When (subject) wakes up the next morning, (subject.his/her) old name is gone, and a new one is sitting in (subject.his/her) mouth as if it had always been there: (made1). Everyone in the village calls (subject.him/her) by it without thinking. Nobody remembers it ever being different.",
@@ -145,7 +146,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11964"
+   "src": "L11964",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) takes the string, says (subject.his/her) own name out loud, and ties a knot. The traveller smiles for the first time. The knot tightens on its own...",
@@ -169,7 +171,8 @@
      "role": "friend"
     }
    ],
-   "src": "L11970"
+   "src": "L11970",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The traveller looks at (subject) a long time, and then sighs, as if (subject.he/she) is used to this. \"One day,\" (subject.he/she) says, and walks back down the beach. In the morning there is a single knot of grey string lying on (subject)'s doorstep. (subject) throws it in the fire, and it burns with a sound like somebody whispering.",

@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2901"
+   "src": "L2901",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(friend) takes one look and starts clearing a space by the fire. By nightfall there's a sleeping basket, a stack of clean cloths and three neighbours offering advice. Nobody comes for the baby. The two of them take turns through the long nights, and in the mornings the baby wakes up laughing, which makes everything worth it.",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2904"
+   "src": "L2904",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) wraps the baby in the soft cloth from the chest and carries the little one up the beach. The baby grips (subject.his/her) finger hard, as if to make sure (subject.he/she) doesn't put the baby down...",
@@ -172,7 +174,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2910"
+   "src": "L2910",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They find no one. But a few weeks later, a canoe comes from a village two islands away, asking after a family lost in the storm. The baby has an aunt there, who cries when she sees the little one, and takes the baby home. (subject) waves them off from the beach, and is glad, and is sad, both at once.",

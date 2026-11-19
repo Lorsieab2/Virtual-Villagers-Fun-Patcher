@@ -103,14 +103,21 @@
   },
   "b1": {
    "name": "Outcome B1",
-   "text": "The cloth performs well, and the weavers learn a new technique.",
-   "src": "L21116",
    "effects": [
     {
      "do": "tech",
      "size": "small",
      "scaled": true,
      "src": "L21116"
+    }
+   ],
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
     }
    ]
   },
@@ -133,8 +140,6 @@
   },
   "c1": {
    "name": "Outcome C1",
-   "text": "The weavers gain knowledge from another land.",
-   "src": "L21119",
    "effects": [
     {
      "do": "tech",
@@ -142,12 +147,63 @@
      "scaled": true,
      "src": "L21119"
     }
+   ],
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
    ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The traveler admits that the first attempt is imperfect.",
    "src": "L21120"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The cloth performs well, and the weavers learn a new technique.",
+   "src": "L21116",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "weaver",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L21116"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The cloth performs well, and the weavers learn a new technique.",
+   "src": "L21116"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The weavers gain knowledge from another land.",
+   "src": "L21119",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L21119"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The weavers gain knowledge from another land.",
+   "src": "L21119"
   }
  }
 }

@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5211"
+   "src": "L5211",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) staggers into the cave last, soaked and bruised, with a goat under each arm. The storm rages all night. In the morning, half the village is flattened, but everyone, and every goat, is alive. They rebuild together over the next weeks, and the goats wander through the work getting in everyone's way.",
@@ -149,7 +150,8 @@
      "structures": "any"
     }
    ],
-   "src": "L5214"
+   "src": "L5214",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) runs down to the shore, waist-deep in surging water, and wrestles the pen gate open. The goats explode out of it and run for the hill...",
@@ -184,7 +186,8 @@
      }
     }
    ],
-   "src": "L5220"
+   "src": "L5220",
+   "auto_text": true
   },
   "c2o2": {
    "text": "In the morning, the goats are gone, and much of the food store with them. The huts can be rebuilt; the food can't be got back. It is a hungry season. (Name) feels bad about the goats for a long time, though everyone tells (him/her) not to.",

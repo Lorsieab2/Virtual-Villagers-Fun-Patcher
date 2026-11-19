@@ -196,7 +196,8 @@
      "max": 10
     }
    ],
-   "src": "L5690"
+   "src": "L5690",
+   "auto_text": true
   },
   "c2o2": {
    "text": "After about three marks, (subject) asks politely if (subject.he/she) can please do the counting alone. So (adult) sits close by and pretends to be very busy whittling a stick, while sneaking glances at the board. (subject) counts everything twice, gets the same answer both times, and is extremely pleased with (subject.himself/herself).",
@@ -225,7 +226,8 @@
      "scaled": true
     }
    ],
-   "src": "L5697"
+   "src": "L5697",
+   "auto_text": true
   },
   "c3o2": {
    "text": "On day five, a bird lands on the ledge and eats the banana. The whole banana. (subject) stands there with (subject.his/her) board, looking at the empty spot. For a moment everyone thinks (subject.he/she) might cry. Then (subject.he/she) sets the board down firmly and says, \"Tomorrow I'm doing a new row. And a bird net.\"",

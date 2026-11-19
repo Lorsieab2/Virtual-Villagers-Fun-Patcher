@@ -137,7 +137,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7540"
+   "src": "L7540",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They both dream of being each other, and wake up, thankfully, as themselves. Mostly. (subject)'s face has kept a little of (friend)'s youth: smooth cheeks, bright eyes, not a line on it. \"You stole my face,\" says (friend), outraged. \"Only the outside,\" says (subject), delighted. \"You can keep the knees.\"",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7543"
+   "src": "L7543",
+   "auto_text": true
   },
   "c1": {
    "text": "The hammock is just big enough for two, if they lie head to foot. It sways. The grass smells of hay and something sweet. Within moments, to their own surprise, they are both asleep...",
@@ -173,7 +175,8 @@
      "remove": true
     }
    ],
-   "src": "L7549"
+   "src": "L7549",
+   "auto_text": true
   },
   "c2o2": {
    "text": "In the morning the hammock is empty and swaying gently, though there is no wind. (friend) is gone. There are no footprints in the sand. (subject) sits by the hammock all day, waiting. At sunset, very faintly, (subject) hears (friend)'s voice laughing somewhere, as if from inside a dream, and the hammock untwists itself from the palms and blows away down the beach.",
@@ -183,7 +186,8 @@
      "role": "friend"
     }
    ],
-   "src": "L7552"
+   "src": "L7552",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) looks at the hammock, looks at (friend), and laughs. \"I'm too old for dares,\" (subject.he/she) says. (friend) climbs in alone, looking very pleased with (friend.himself/herself), and falls asleep almost at once...",

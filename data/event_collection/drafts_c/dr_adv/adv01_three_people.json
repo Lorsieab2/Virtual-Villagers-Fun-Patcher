@@ -98,11 +98,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) asks (villager2), a fourth person, who says, \"Do whatever makes you happy.\" (subject) groans. \"That's the least useful one yet!\" On the walk home, though, (subject.he/she) notices (subject.he/she) was disappointed every time someone said \"don't move.\" So (subject.he/she) moves. There are a lot of mosquitoes. There's also fresh water every morning. (subject.He/she) is happy, and itchy.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L14"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) asks (villager2), a fourth person, who says, \"Do whatever makes you happy.\" (subject) groans. \"That's the least useful one yet!\" On the walk home, though, (subject.he/she) notices (subject.he/she) was disappointed every time someone said \"don't move.\" So (subject.he/she) moves. There are a lot of mosquitoes. There's also fresh water every morning. (subject.He/she) is happy, and itchy.",
    "src": "L14"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) sits by (subject.his/her) hut until sunset, thinking. In the end (subject.he/she) stays put. Not because anyone told (subject.him/her) to. (subject.He/she) just likes the view of the sea from here too much. Nobody asks (subject.him/her) about it again, which is a relief, because (subject.he/she) couldn't explain it if they did.",
+   "src": "L17",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L17"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) sits by (subject.his/her) hut until sunset, thinking. In the end (subject.he/she) stays put. Not because anyone told (subject.him/her) to. (subject.He/she) just likes the view of the sea from here too much. Nobody asks (subject.him/her) about it again, which is a relief, because (subject.he/she) couldn't explain it if they did.",
    "src": "L17"

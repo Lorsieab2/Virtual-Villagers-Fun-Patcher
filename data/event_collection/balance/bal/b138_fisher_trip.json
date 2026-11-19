@@ -148,7 +148,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L6346"
+   "src": "L6346",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They find the shoal. (fisher) watches it for a long time, smiling, with (subject.his/her) hand trailing in the water. Then (subject.he/she) leans back against the side of the canoe, closes (subject.his/her) eyes, and doesn't open them again. (subject) paddles home very slowly. The village buries (fisher) on the headland, looking out at the far rocks, and every year after, when the silverfish come in, someone goes out to watch them.",
@@ -159,7 +160,8 @@
      "cause": "unknown"
     }
    ],
-   "src": "L6349"
+   "src": "L6349",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) climbs into the front of the canoe and takes the paddle. (fisher) sits in the back, steering with one hand and pointing with the other, calling out the names of rocks nobody has used in years...",
@@ -180,7 +182,8 @@
    "effects": [
     {
      "do": "vanish",
-     "role": "fisher"
+     "role": "fisher",
+     "line": "leaves"
     }
    ],
    "src": "L6355",
@@ -190,7 +193,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "(fisher) gives in, and is so cross about it that (subject.he/she) sits by the fire that night and tells every fisher in the village exactly what they've been doing wrong for the last ten years. It takes all night. The younger fishers listen, at first politely and then with their mouths open. By the end of the season they are catching more fish than they have in years. (fisher) says nothing about it, very smugly.",
@@ -207,7 +211,8 @@
      }
     }
    ],
-   "src": "L6358"
+   "src": "L6358",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) sits down on the edge of the canoe so it can't move. \"You can't see,\" (subject.he/she) says. \"You'll go straight onto the rocks.\" (fisher) glares at (subject.him/her), then at the sea, then back at (subject.him/her)...",

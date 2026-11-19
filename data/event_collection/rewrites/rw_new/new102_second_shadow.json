@@ -201,7 +201,8 @@
      "scaled": true
     }
    ],
-   "src": "L4773"
+   "src": "L4773",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Halfway through the count, the sun slips into the sea, and the second shadow goes down with it like someone sinking into deep water. (subject) waits a long time on the darkening sand. It does not come back up. (subject.He/She) is surprised to find (subject.he/she) is a little sad about that.",
@@ -229,7 +230,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4780"
+   "src": "L4780",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The shadow rises halfway, a dark shape the size of a person, and (subject) loses (subject.his/her) nerve completely. \"No. No, sorry, I changed my mind!\" (subject.He/She) steps out of the sunset, and the shape slumps back down onto the sand. No one argues with (subject.him/her). The shadow just goes on being late, every evening, for about a week, and then stops.",
@@ -262,7 +264,8 @@
      "scaled": true
     }
    ],
-   "src": "L4789"
+   "src": "L4789",
+   "auto_text": true
   },
   "c3": {
    "text": "(elder) hears the whole thing with (subject.his/her) eyes closed, nodding slowly. \"Shadows that ran off to be people. Yes. I know that one...\"",

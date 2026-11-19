@@ -122,9 +122,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1) takes the long way home to enjoy the quiet. (Name1) feels happy without knowing why.",
-   "src": "L1963"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -132,11 +139,82 @@
    "src": "L1967"
   },
   "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1) takes the long way home to enjoy the quiet. (Name1) feels happy without knowing why.",
+   "src": "L1963",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1963"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1) takes the long way home to enjoy the quiet. (Name1) feels happy without knowing why.",
+   "src": "L1963"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1) takes the long way home to enjoy the quiet. The silence feels comforting rather than lonely today.",
+   "src": "L1971",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1971"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
    "name": "Ending 3",
    "text": "(Name1) takes the long way home to enjoy the quiet. The silence feels comforting rather than lonely today.",
    "src": "L1971"
   },
-  "e4": {
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1) takes the long way home to enjoy the quiet. (Name1) wishes the peaceful moment could last a little longer.",
+   "src": "L1975",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1975"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1) takes the long way home to enjoy the quiet. (Name1) wishes the peaceful moment could last a little longer.",
    "src": "L1975"

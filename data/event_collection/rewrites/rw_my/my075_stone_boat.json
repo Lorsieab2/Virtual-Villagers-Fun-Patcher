@@ -200,7 +200,8 @@
      "scaled": true
     }
    ],
-   "src": "L14236"
+   "src": "L14236",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They set the boat in the stream, and instead of drifting down with the water, it turns, all by itself, and glides upstream in a perfectly straight line, against the current. Everyone falls silent. It goes about ten paces, slows, and then sinks, all at once, as if someone had tugged it gently from below. They search the streambed for hours. They never find it. The researchers write a very short report and do not talk about it much.",
@@ -229,7 +230,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14243"
+   "src": "L14243",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) wears it for a few weeks, and then one ordinary afternoon, hauling firewood, (subject.he/she) reaches up and it is gone. The cord has snapped. (subject.He/she) retraces every step and searches the whole path on hands and knees. It is never found. (subject) is surprised by how sad (subject.he/she) feels about losing a stone the size of (subject.his/her) hand. (subject.He/she) still reaches for it sometimes, out of habit.",

@@ -76,14 +76,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"What is it?\" asks (subject). (friend) is quiet a moment. \"I don't know,\" (friend.he/she) says. \"I've seen it before, and sometimes it goes away on its own and sometimes it doesn't, and I don't know why. I'm sorry. I won't pretend.\" (subject) is surprised to find (subject.he/she) feels better. \"At least you believe me,\" (subject.he/she) says. \"Of course I believe you,\" says (friend). \"It's happening to you.\"",
-   "src": "L209"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"What should I do when it happens?\" asks (subject). \"Sit down wherever you are,\" says (friend). \"Don't climb anything for a while. Tell me every time it happens, so I can look for a pattern.\" (subject) keeps a tally on a stick. The spells come less often after a few weeks. Neither of them ever finds out why. (subject) keeps the stick, just in case.",
    "src": "L212"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"What is it?\" asks (subject). (friend) is quiet a moment. \"I don't know,\" (friend.he/she) says. \"I've seen it before, and sometimes it goes away on its own and sometimes it doesn't, and I don't know why. I'm sorry. I won't pretend.\" (subject) is surprised to find (subject.he/she) feels better. \"At least you believe me,\" (subject.he/she) says. \"Of course I believe you,\" says (friend). \"It's happening to you.\"",
+   "src": "L209",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L209"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"What is it?\" asks (subject). (friend) is quiet a moment. \"I don't know,\" (friend.he/she) says. \"I've seen it before, and sometimes it goes away on its own and sometimes it doesn't, and I don't know why. I'm sorry. I won't pretend.\" (subject) is surprised to find (subject.he/she) feels better. \"At least you believe me,\" (subject.he/she) says. \"Of course I believe you,\" says (friend). \"It's happening to you.\"",
+   "src": "L209"
   }
  }
 }

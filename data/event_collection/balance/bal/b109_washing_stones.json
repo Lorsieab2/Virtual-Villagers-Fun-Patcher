@@ -137,7 +137,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4940"
+   "src": "L4940",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) washes until the very last wrap, and hangs it up, and stands back, and looks at the whole village's washing flapping in the sun. It's the most satisfying thing (subject.he/she) has ever seen. The next day the village takes it in turns, and (subject) only does (subject.his/her) share, and is a little disappointed.",
@@ -167,7 +168,8 @@
      "dislike": "laundry"
     }
    ],
-   "src": "L4949"
+   "src": "L4949",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) turns out to be very good with nets, much to everyone's surprise, including (subject.his/her) own. The careful, patient hands that washed a thousand wraps make perfect knots. Swapping jobs once in a while, it turns out, makes (subject.him/her) better at everything.",
@@ -180,7 +182,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4952"
+   "src": "L4952",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) hands over the washing and sits down with the nets. The friend scrubs, and grumbles, and scrubs...",

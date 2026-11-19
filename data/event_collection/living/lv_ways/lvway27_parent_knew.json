@@ -100,7 +100,8 @@
      "max": 10,
      "src": "L23123"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -124,14 +125,21 @@
   },
   "b1": {
    "name": "Outcome B1",
-   "text": "The villager returns with valuable knowledge.",
-   "src": "L23126",
    "effects": [
     {
      "do": "tech",
      "size": "small",
      "scaled": true,
      "src": "L23126"
+    }
+   ],
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
     }
    ]
   },
@@ -147,7 +155,8 @@
      "max": -10,
      "src": "L23127"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -184,14 +193,59 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "Training builds confidence and trust.",
-   "src": "L23132"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The mentor decides the villager is not yet ready.",
    "src": "L23133"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The villager returns with valuable knowledge.",
+   "src": "L23126",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23126"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The villager returns with valuable knowledge.",
+   "src": "L23126"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "Training builds confidence and trust.",
+   "src": "L23132",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L23132"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "Training builds confidence and trust.",
+   "src": "L23132"
   }
  }
 }

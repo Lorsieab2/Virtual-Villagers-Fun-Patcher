@@ -69,11 +69,71 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "When (subject) is ready, (friend) offers an arm, and (subject) takes it. They walk home slowly. (subject) sleeps for the rest of the afternoon. In the evening (subject.he/she) is out at the fire again, a bit quiet, eating a large dinner. \"Thanks,\" (subject.he/she) says to (friend). \"You did that well.\" (friend) shrugs, but (friend.he/she) looks pleased.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L182"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L182"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "When (subject) is ready, (friend) offers an arm, and (subject) takes it. They walk home slowly. (subject) sleeps for the rest of the afternoon. In the evening (subject.he/she) is out at the fire again, a bit quiet, eating a large dinner. \"Thanks,\" (subject.he/she) says to (friend). \"You did that well.\" (friend) shrugs, but (friend.he/she) looks pleased.",
    "src": "L182"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't want to move yet. (friend) fetches water and a mat, puts up a palm frond for shade, and goes back to weeding nearby, close enough to hear. After a long rest, (subject) sits up. \"Did I squash the beans?\" (subject.He/she) did, a few. \"They'll grow back,\" says (friend). \"So will I,\" says (subject), and gets back to work the next day.",
+   "src": "L185",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "loss": true,
+     "scaled": true,
+     "src": "L185"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) doesn't want to move yet. (friend) fetches water and a mat, puts up a palm frond for shade, and goes back to weeding nearby, close enough to hear. After a long rest, (subject) sits up. \"Did I squash the beans?\" (subject.He/she) did, a few. \"They'll grow back,\" says (friend). \"So will I,\" says (subject), and gets back to work the next day.",
    "src": "L185"

@@ -74,6 +74,32 @@
    "src": "L302"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) tells the whole story and enjoys every bit of it. (friend) says nothing. The next morning there's another whale, and (friend) is already standing on the beach before dawn, with (friend.his/her) mouth open, ready. (subject), arriving late, finds (friend.him/her) there. \"Fair,\" says (subject).",
+   "src": "L305",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L305"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) tells the whole story and enjoys every bit of it. (friend) says nothing. The next morning there's another whale, and (friend) is already standing on the beach before dawn, with (friend.his/her) mouth open, ready. (subject), arriving late, finds (friend.him/her) there. \"Fair,\" says (subject).",
    "src": "L305"

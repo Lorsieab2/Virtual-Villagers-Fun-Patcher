@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) asks, very casually, whether (subject.he/she) might borrow the bowl \"just for one evening.\" (friend) hands it over gladly. (subject) eats (subject.his/her) dinner from it, perfectly happy, and gives it back. It becomes a habit: the bowl spends one evening a week at (subject)'s hut. (friend) doesn't mind at all.",
-   "src": "L374"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) decides to carve (subject.him/her)self a bowl just like it. It takes weeks, and it isn't quite the same. But when (friend) sees it, (friend.he/she) says, \"Oh, now we match!\" That turns out to be nicer than having the original. Mostly.",
    "src": "L377"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) asks, very casually, whether (subject.he/she) might borrow the bowl \"just for one evening.\" (friend) hands it over gladly. (subject) eats (subject.his/her) dinner from it, perfectly happy, and gives it back. It becomes a habit: the bowl spends one evening a week at (subject)'s hut. (friend) doesn't mind at all.",
+   "src": "L374",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L374"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) asks, very casually, whether (subject.he/she) might borrow the bowl \"just for one evening.\" (friend) hands it over gladly. (subject) eats (subject.his/her) dinner from it, perfectly happy, and gives it back. It becomes a habit: the bowl spends one evening a week at (subject)'s hut. (friend) doesn't mind at all.",
+   "src": "L374"
   }
  }
 }

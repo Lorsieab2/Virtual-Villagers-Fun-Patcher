@@ -199,7 +199,8 @@
      "age": "adult"
     }
    ],
-   "src": "L13015"
+   "src": "L13015",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The traveler sits by the fire and dries off, smiling but saying very little, and (subject) dozes off. When (subject.he/she) wakes at sunrise, the traveler is gone. The parcel sits by the fire, untied. Inside, wrapped neatly in leaves, is a generous bundle of dried fish, salted and smoked. A thank-you, apparently, for opening the door. Your villagers gain (award) food.",
@@ -214,7 +215,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L13017"
+   "src": "L13017",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) pulls the door open. \"Come in, come in, before you drown!\" The traveler stumbles gratefully inside and huddles by the embers...",
@@ -243,7 +245,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L13022"
+   "src": "L13022",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Inside the parcel is a wooden mask, split down the middle, and a note in shaky charcoal letters: \"I am sorry. Please forgive me.\" Nothing else. No name. No explanation. (subject) opens the door to ask the traveler what it means, but the traveler is gone, and the rain has washed away any footprints. (subject) keeps the mask, and the note, and wonders who was sorry, and for what.",

@@ -172,7 +172,8 @@
      "scaled": true
     }
    ],
-   "src": "L4725"
+   "src": "L4725",
+   "auto_text": true
   },
   "c1o2": {
    "text": "...but by the time (subject.he/she) has the charcoal sharpened, a breeze wrinkles the water. The older face breaks into a hundred wobbling pieces and never comes back together. The spring is just a spring again. (subject) sits there for a long while holding a blank piece of bark, feeling oddly as if (subject.he/she) missed an appointment.",
@@ -201,7 +202,8 @@
      "head": "random"
     }
    ],
-   "src": "L4732"
+   "src": "L4732",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Just as (friend) bends over the spring, (subject.he/she) remembers an urgent net that needs mending. So does everyone else, all at once. The crowd melts away into the trees with remarkable speed. Nobody is pushed to look, nobody is teased for running, and the spring is left alone to reflect the sky.",
@@ -234,7 +236,8 @@
      "scaled": true
     }
    ],
-   "src": "L4741"
+   "src": "L4741",
+   "auto_text": true
   },
   "c3": {
    "text": "(elder) listens to the whole story without interrupting, then laughs a creaky laugh. \"Ah. That spring. My grandmother used to talk about a pool that remembers forward...\"",

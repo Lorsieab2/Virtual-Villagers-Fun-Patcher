@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15990"
+   "src": "L15990",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They swim together for hours, far out in the blue, and the dolphin brings (name) back to the reef at sunset. (Name) staggers up the beach, exhausted and glowing, and when the others see (him/her) in the firelight, (his/her) face is young and bright, as if the sea has washed years off it. (His/her) age is the same. The dolphin whistles once from the lagoon and is gone.",
@@ -142,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15993"
+   "src": "L15993",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) wades in and swims after the dolphin, out over the lagoon, past the reef, into the deep blue water. The dolphin circles (him/her), whistling happily...",
@@ -168,7 +170,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15999"
+   "src": "L15999",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The dolphin disappears for an hour, and then comes back and herds a huge shoal of fish right into the shallows, where the whole village wades in with baskets and scoops them out. It whistles once, as if to say \"that's for staying,\" and swims off. It comes back every season, and every season it brings the fish. Your villagers gain (award) food.",
@@ -190,7 +193,8 @@
      "what": "\"disappears\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) sits down on the sand. The dolphin swims out and back, out and back, whistling more and more sadly...",

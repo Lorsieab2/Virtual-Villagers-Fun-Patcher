@@ -150,7 +150,8 @@
      "role": "friend"
     }
    ],
-   "src": "L10430"
+   "src": "L10430",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The fish jar, it turns out, is not medicine at all. It's the dye the weavers use for the {@chief}'s robe. (friend)'s cough gets better on its own over the week, but (friend) is bright blue from head to foot, and stays that way for a season. \"That's for cloth,\" says (healer), weakly, from (subject.his/her) mat.",
@@ -161,7 +162,8 @@
      "body": "random"
     }
    ],
-   "src": "L10433"
+   "src": "L10433",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) mixes the blue powder from the fish jar with water and gives it to (friend), who drinks it, and makes a face like someone eating a lemon, and lies back...",
@@ -185,7 +187,8 @@
      "role": "friend"
     }
    ],
-   "src": "L10439"
+   "src": "L10439",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The bird jar works, but it isn't the healers'. It belongs to the researchers, who have been grinding a rare blue stone for a year to study it, and (subject) has just used the last of it. (friend) is cured. The researchers' year of work is gone.",

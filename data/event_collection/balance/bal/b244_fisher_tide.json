@@ -138,7 +138,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11414"
+   "src": "L11414",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The canoe never comes back. The fishers search the coast for three days and find nothing, not a paddle, not a splinter. Some people say the swell took (subject.him/her). The elders say (subject) knew exactly where (subject.he/she) was going, and that a fisher that old has earned the right to choose. (young) carves (subject.his/her) name into the post where the canoe used to be tied.",
@@ -148,7 +149,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11417"
+   "src": "L11417",
+   "auto_text": true
   },
   "c1": {
    "text": "\"Not today,\" says (subject), and pushes off. (young) watches the little canoe climb the swells, drop, climb again, until it rounds the point...",
@@ -184,7 +186,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11423"
+   "src": "L11423",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The swell turns them back before they reach the point. Instead they sit on the beach, and (subject) tells (young) every fishing story (subject.he/she) knows, all afternoon. Other people drift over to listen, and then more. By evening half the village is sitting in the sand, laughing at the story of the shark that stole (subject)'s hat. Nobody catches a single fish.",
@@ -197,7 +200,8 @@
      }
     }
    ],
-   "src": "L11426"
+   "src": "L11426",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) jerks (subject.his/her) head at the canoe. \"In. Sit still. Don't talk.\" (young) scrambles in, and they paddle out together into the swell...",

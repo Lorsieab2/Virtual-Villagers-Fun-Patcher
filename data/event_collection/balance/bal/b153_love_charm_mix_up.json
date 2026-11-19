@@ -144,7 +144,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7063"
+   "src": "L7063",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They wake up in each other's bodies, and, stranger still, each liking the thing the other always loved best. (subject) is suddenly mad about (friend)'s favourite pastime, and (friend) about (subject)'s, which, since they are now in each other's bodies, works out very neatly. \"It's almost as if nothing happened,\" says (friend) in (subject)'s voice. \"Except everything did.\"",
@@ -155,7 +156,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7066"
+   "src": "L7066",
+   "auto_text": true
   },
   "c1": {
    "text": "They put the little bags round their necks, feeling silly, and go to sleep in their own huts. The herbs smell of mint and burnt hair. In the night, both of them dream of walking down to the stream with a heavy pot...",
@@ -187,7 +189,8 @@
      "remove": true
     }
    ],
-   "src": "L7072"
+   "src": "L7072",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They give the charms back to (apprentice), who, rather than waste them, puts both on (subject.himself/herself) to see what happens. Nothing happens, except that the two charms seem to argue with each other, and (apprentice) spends the night feeling pulled in two directions and wakes up with a very bad headache and a nosebleed. The healers take the scroll away.",
@@ -199,7 +202,8 @@
      "max": -20
     }
    ],
-   "src": "L7075"
+   "src": "L7075",
+   "auto_text": true
   },
   "c2": {
    "text": "\"We'll sort it out ourselves,\" says (subject). (friend) agrees, for once. They sit down by the fire with a pile of shells to make a rota, which immediately starts a new argument about how many shells a day is worth...",

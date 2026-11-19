@@ -141,6 +141,6 @@ def write_and_check(docs: list[tuple[str, str, dict]]) -> int:
     for section, eid, doc in docs:
         p = lib.COMPANION_DIR / section / f"{eid}.json"
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(cc.canonical(lib.carrier_words(fta.apply(doc))), encoding="utf-8", newline="\n")   # the owner, 2026-11-16
+        p.write_text(cc.canonical(cc.with_outcome_effects(lib.carrier_words(fta.apply(doc)), p)), encoding="utf-8", newline="\n")   # the owner, 2026-11-16
         paths.append(str(p))
     return subprocess.call([sys.executable, str(ROOT / "scripts" / "collection_check.py"), "--format", *paths])

@@ -138,7 +138,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15141"
+   "src": "L15141",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The lashing gives way, and the top of the tower folds over. (Name) falls with it. The healers work all night. (Name)'s legs are badly broken and never fully heal. The festival goes quiet. The next year, the fruit is hung from the meeting hut's roof instead, and (name) is given the honour of watching it from the best seat.",
@@ -159,7 +160,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L15144"
+   "src": "L15144",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) keeps going, hand over hand, the fruit tied to (his/her) waist. The tower sways more with every rung...",
@@ -183,7 +185,8 @@
      "structures": "any"
     }
    ],
-   "src": "L15150"
+   "src": "L15150",
+   "auto_text": true
   },
   "c2o2": {
    "text": "By the time the tower is fixed, the sun has set and the moment has passed. The festival goes on, but somebody makes a joke about (name) being scared of heights, and then everybody makes it. (Name) laughs along. Later, (he/she) finds that (he/she) no longer enjoys being in the middle of a crowd the way (he/she) used to, and keeps to the edges at festivals after that.",
@@ -195,7 +198,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15153"
+   "src": "L15153",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) climbs back down, carefully. The crowd mutters. The builders swarm up the tower to check the lashings...",

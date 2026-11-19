@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8305"
+   "src": "L8305",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The juice stings, then burns, then itches like fire. By evening (subject)'s face is red and swollen and covered in tiny blisters. The healers cover it in cool mud and tell (subject.him/her), not kindly, that \"unpredictable\" was the polite word. It heals in a week. (subject) looks exactly the same age as before, only pinker.",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8308"
+   "src": "L8308",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) crushes a handful of fronds and rubs them over (subject.his/her) cheeks and forehead. The juice stings, and smells green and sharp, and (subject.his/her) skin starts to feel tight, like it's drawing in...",
@@ -171,7 +173,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8314"
+   "src": "L8314",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The frond lands on the edge of the fire and (healer) snatches it out before it can catch. The healers store the bundle in a clay jar, far from any flame, and spend a month carefully testing tiny bits of it on their own hands. They learn a great deal from it, mostly about how careful a healer has to be.",
@@ -188,7 +191,8 @@
      }
     }
    ],
-   "src": "L8317"
+   "src": "L8317",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) carries the bundle home, careful not to crush it, and drops it on the healers' table. While (subject.he/she) is explaining, a frond slips off the table and lands in the healers' cooking fire...",

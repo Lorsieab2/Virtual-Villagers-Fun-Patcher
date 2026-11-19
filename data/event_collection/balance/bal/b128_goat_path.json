@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5868"
+   "src": "L5868",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) slips, grabs, and lands on a lower ledge with a crack that (subject.he/she) feels in (subject.his/her) teeth. (subject.His/her) head hit the rock. The gatherers haul (subject.him/her) up with a rope, dazed and smiling. (subject.He/She) knows them all. (subject.He/She) knows the way home and the names of all the goats. But when (healer) asks (subject.him/her) what (subject.his/her) own name is, (subject.he/she) frowns and says, \"I was hoping you'd tell me.\" It never comes back, and the village calls (subject.him/her) \"?\".",
@@ -149,7 +150,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5871"
+   "src": "L5871",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) puts (subject.his/her) back to the cliff and shuffles out along the ledge, one foot, then the other. The wind pulls at (subject.his/her) clothes. Far below, the waves boom on the rocks. Halfway along, the ledge crumbles a little under (subject.his/her) heel...",
@@ -184,7 +186,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5877"
+   "src": "L5877",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The long way is long, and hot, and full of mosquitoes. But halfway along, (subject) finds old (elder) sitting on a log, resting, and walks the rest of the way with (subject.him/her). (elder) talks the whole time about how (subject.he/she) used to do (subject)'s job, back when (subject.he/she) was young, and all the tricks (subject.he/she) learned. By the time they arrive, (subject) has learned more about (subject.his/her) own work than in the last five years.",
@@ -197,7 +200,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5880"
+   "src": "L5880",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) looks at the goat. The goat looks at (subject). \"Not today,\" says (subject), and sets off the long way round through the jungle, at a jog, to make up the time...",

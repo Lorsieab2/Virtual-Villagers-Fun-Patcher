@@ -100,7 +100,8 @@
      "max": 30,
      "src": "L9045"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "It fails.",
@@ -113,7 +114,8 @@
      "max": -10,
      "src": "L9045"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "text": "An apprentice finds evidence that contradicts both diagnoses.",

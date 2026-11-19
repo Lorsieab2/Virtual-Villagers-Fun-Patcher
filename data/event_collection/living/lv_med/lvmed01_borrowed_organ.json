@@ -102,7 +102,8 @@
      "max": -40,
      "src": "L20222"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -115,7 +116,8 @@
      "cause": "unknown",
      "src": "L20223"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -130,9 +132,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The patient lives several more peaceful weeks with family.",
-   "src": "L20225"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -166,9 +175,65 @@
      "max": 10,
      "src": "L20228"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The patient lives several more peaceful weeks with family.",
+   "src": "L20225",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "patient",
+     "mood": "good",
+     "src": "L20225"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The patient lives several more peaceful weeks with family.",
+   "src": "L20225"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The research yields a useful wound-care insight but no safe transplant.",
+   "src": "L20229",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20229"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20229"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "The research yields a useful wound-care insight but no safe transplant.",
    "src": "L20229",
@@ -189,7 +254,8 @@
      "scaled": true,
      "src": "L20229"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

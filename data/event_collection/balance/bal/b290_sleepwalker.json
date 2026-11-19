@@ -138,7 +138,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13492"
+   "src": "L13492",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) wakes with a scream and stumbles backwards over the edge of the doorstep, onto the rocks below the hut. (subject.He/She) cracks (subject.his/her) hip badly. It never heals right, and (subject.he/she) walks with a hitch from then on. Worse, (subject.he/she) can't sleep without a light now, and lies awake listening for the song.",
@@ -159,7 +160,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13495"
+   "src": "L13495",
+   "auto_text": true
   },
   "c1": {
    "text": "(friend) grabs (subject)'s shoulders and shakes (subject.him/her), calling (subject.his/her) name. (subject)'s eyes stay empty for a long moment...",
@@ -183,7 +185,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13501"
+   "src": "L13501",
+   "auto_text": true
   },
   "c2o2": {
    "text": "At the edge of the cliff, (subject) stops, turns around and walks straight back home, still asleep, and lies down on (subject.his/her) mat as if nothing has happened. (friend) follows every night for a month, and every night it's the same. Then one night (subject) simply doesn't get up. (friend) sleeps through the night for the first time in weeks, and wakes up still worried.",

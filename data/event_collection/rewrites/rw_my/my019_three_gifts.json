@@ -210,7 +210,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10950"
+   "src": "L10950",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The top of the sack is lovely clean grain. But when (subject) digs a hand in deeper, it comes out grey and clumped, smelling of damp earth. The whole sack is spoiled underneath. Worse, (subject) tipped it straight into the storehouse bin before checking, and now the bad grain has to be picked out of the good. By the time (subject) goes looking for the wanderer, the wanderer is long gone.",
@@ -259,7 +260,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10957"
+   "src": "L10957",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) studies the book every night by firelight, and every morning (subject.he/she) is sure (subject.he/she) remembers what the symbols said. But each morning (subject.he/she) remembers them differently. The researchers have the same problem. No two people can agree on what a single page means, and after a while the arguments get so heated that the book is put away in a basket for everyone's sake.",

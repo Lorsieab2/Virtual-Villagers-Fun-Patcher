@@ -140,7 +140,8 @@
      }
     }
    ],
-   "src": "L766"
+   "src": "L766",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They search all night. They search the next day, and the next, and every day for a month. They find a sandal by a stream, and a little pile of red feathers, and nothing else. The jungle doesn't give (subject) back. The village never stops looking, not really. For years afterwards, whenever anyone goes into the trees, they call (subject.his/her) name once, just in case, and listen.",
@@ -150,7 +151,8 @@
      "role": "subject"
     }
    ],
-   "src": "L769"
+   "src": "L769",
+   "auto_text": true
   },
   "c1": {
    "text": "The villagers go into the trees in a long line, an arm's length apart, calling and calling, banging pots, shaking rattles, until the whole jungle rings with (subject)'s name...",
@@ -174,7 +176,8 @@
      "role": "subject"
     }
    ],
-   "src": "L775"
+   "src": "L775",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The parrot flies in a big circle and lands on the roof of (subject)'s own hut. Inside, curled up on the sleeping mat, fast asleep, is (subject), who got bored chasing it hours ago and walked home the back way and went to bed. The whole village has been searching the jungle for a child who was asleep at home. Nobody can stop laughing, mostly from relief.",
@@ -187,7 +190,8 @@
      }
     }
    ],
-   "src": "L778"
+   "src": "L778",
+   "auto_text": true
   },
   "c2": {
    "text": "At sunset the red parrot comes back to its tree, right on time. When it flies off, (friend) and a few others follow it, crashing through the undergrowth, trying not to lose sight of the flash of red...",

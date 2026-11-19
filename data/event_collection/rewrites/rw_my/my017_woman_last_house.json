@@ -208,7 +208,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10834"
+   "src": "L10834",
+   "auto_text": true
   },
   "c1": {
    "text": "Gathering every scrap of courage (subject.he/she) has, (subject) walks over. \"You must be cold,\" (subject.he/she) says. \"Would you like to come in and sit by a fire?\"...",

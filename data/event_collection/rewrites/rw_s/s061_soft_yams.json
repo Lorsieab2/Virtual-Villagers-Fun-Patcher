@@ -201,7 +201,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L2919"
+   "src": "L2919",
+   "auto_text": true
   },
   "c2o2": {
    "text": "\"How do we know which ones are still good?\" somebody asks. (Name) says (he/she) knows exactly how, picks up one of the soft ones that doesn't look too bad, and takes a bite before anyone can stop (him/her). (He/She) chews thoughtfully. \"Seems all right,\" (he/she) says. By the evening (he/she) is very, very sick, and stays that way for a week in the healers' hut, and everything in the store is thrown out after all.",

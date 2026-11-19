@@ -226,7 +226,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11370"
+   "src": "L11370",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Inside, they find a broken chair lying on its side, exactly where the empty seat would have been. And in the dust on the floor are fresh footprints, bare and small, leading from the chair to the back wall. They stop there. There's no door in the back wall. The group walks home very quickly and nobody sleeps much that night.",

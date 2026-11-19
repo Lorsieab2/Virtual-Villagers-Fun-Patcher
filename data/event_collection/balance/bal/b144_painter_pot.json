@@ -144,7 +144,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6636"
+   "src": "L6636",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The painted face climbs out of the stone, looks (subject) up and down, and says, \"I don't like your clothes.\" It has (subject)'s face, and nothing else of (subject)'s: different likes, different dislikes, a different laugh. (painter) admits (subject.he/she) got bored halfway through and painted the inside \"from imagination.\" The copy takes the name (made1), and moves in with the painter's other mistakes, which is to say, into the village.",
@@ -161,7 +162,8 @@
      "what": "\"dislikes\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) sits on a rock in the sun while (painter) paints, humming, glancing up and down. The colours on the stone glisten. As the face takes shape, (subject) starts to feel very odd, as if (subject.he/she) is being looked at from two directions...",
@@ -186,7 +188,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6645"
+   "src": "L6645",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(painter) paints (subject)'s face, then the faces of half the village, then all the canoes, then the {@chief}'s door. By the end of the week (subject.he/she) has run out of paint and doesn't want to leave. \"I like it here,\" (subject.he/she) says. \"People sit still.\" (subject.He/She) stays, and the village is a great deal more colourful from then on.",
@@ -196,7 +199,8 @@
      "age": "adult"
     }
    ],
-   "src": "L6648"
+   "src": "L6648",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Paint ME,\" says (subject). \"On my face. Not on a stone.\" (painter) looks at (subject.him/her), thinks about it, and then dips the brush...",

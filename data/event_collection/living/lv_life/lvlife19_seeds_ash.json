@@ -99,7 +99,8 @@
      "loss": true,
      "src": "L20880"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",

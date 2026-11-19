@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15496"
+   "src": "L15496",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The crab goes still in (name)'s hands, and then crumbles into pale sand that blows up into (his/her) face. (Name) sneezes three times. In the morning, (his/her) face is different: not younger, not older, just someone else's, a face someone on this island lost long ago. The elders look at (him/her) for a long time and one of them starts to cry, and won't say why.",
@@ -150,7 +151,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15499"
+   "src": "L15499",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) lunges and catches the crab in both hands. It's cold, colder than the night, and it nips (his/her) thumb hard...",
@@ -178,7 +180,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15508"
+   "src": "L15508",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) steps carefully around the crab, and another, and another. The whole beach seems to shift around (him/her), clicking softly...",

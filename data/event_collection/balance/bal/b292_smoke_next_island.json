@@ -136,7 +136,8 @@
      "age": "adult"
     }
    ],
-   "src": "L13581"
+   "src": "L13581",
+   "auto_text": true
   },
   "c1o2": {
    "text": "On the other island, (name) finds a (man/woman), a teenager and a small child sheltering in the last hut {#made:standing, though the village has room for only one of them|standing, though the village has room for only two of them|standing}. They load everything they have left into the canoe: one cooking pot, one blanket and a pet chicken. The canoe sits so low in the water on the way back that the teenager bails the whole way. The chicken lays an egg in (name)'s lap.",
@@ -154,7 +155,8 @@
      "age": "child"
     }
    ],
-   "src": "L13584"
+   "src": "L13584",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) loads the canoe with water, dried fish and blankets, and paddles out into the chop. Halfway across, the wind turns against (him/her)...",
@@ -182,7 +184,8 @@
      "age": "adult"
     }
    ],
-   "src": "L13590"
+   "src": "L13590",
+   "auto_text": true
   },
   "c2o2": {
    "text": "No one answers. Days later, a trader passing through says the families on the little island all left together for the big islands to the south, before the fire. The smoke was just the dry grass burning itself out. (Name) is relieved, and a little disappointed, and keeps the fire pit on the point swept clean, just in case.",

@@ -148,7 +148,8 @@
     {
      "do": "pay_award"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "slap": {
    "text": "Ouch! (subject) is blinded by the slap of a large fluke in (subject.his/her) face. (subject.He/She) must have gotten too close to one of them and accidentally gotten hit by their tail flipper. (subject) holds (subject.his/her) nose to prevent any more red coming out. Luckily, (subject) is not too far from the surface, but if (subject.he/she) had been any deeper... (subject.he/she) shudders to think about what might happen. (subject.He/She) surfaces, leaves the beach, and heads off to the doctors for some medical treatment.",
@@ -161,7 +162,8 @@
      "min": -50,
      "max": -30
     }
-   ]
+   ],
+   "auto_text": true
   },
   "hang": {
    "text": "(subject) doubts that it's a good idea to follow the dolphins. They clearly seem to be busy doing something important, and (subject.he/she) is second-guessing whether they're playing anyway. (subject) resolves to stick to the shallows and gather shellfish and seaweed on the nearby rocks. Your village gains (award) food.",
@@ -176,7 +178,8 @@
     {
      "do": "pay_award"
     }
-   ]
+   ],
+   "auto_text": true
   }
  },
  "grammar_fixes": [

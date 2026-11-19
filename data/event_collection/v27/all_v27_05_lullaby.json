@@ -84,7 +84,8 @@
      "max": 10,
      "src": "L10524"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Outcome B",
@@ -103,9 +104,64 @@
      "max": 10,
      "src": "L10525"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
+   "type": "branch",
+   "name": "Outcome C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They combine both methods and laugh when the baby prefers silence.",
+   "src": "L10526",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10526"
+    },
+    {
+     "do": "skill",
+     "role": "carer",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10526"
+    },
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L10526"
+    },
+    {
+     "do": "mood",
+     "role": "carer",
+     "mood": "good",
+     "src": "L10526"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
    "name": "Outcome C",
    "popup": "append",
    "join": "paragraph",
@@ -132,7 +188,8 @@
      "max": 10,
      "src": "L10526"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

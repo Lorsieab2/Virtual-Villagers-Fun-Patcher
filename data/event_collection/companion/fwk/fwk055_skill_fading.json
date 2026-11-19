@@ -81,7 +81,8 @@
   "outcome_c": {
    "name": "Ending (C)",
    "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
-   "src": "L5992"
+   "src": "L5992",
+   "auto_text": true
   },
   "outcome": {
    "name": "Ending",

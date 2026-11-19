@@ -168,7 +168,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) dips one finger into the comb and licks it. It's sweet. Then it's bitter. Then it's nothing at all, as if (subject.his/her) tongue has gone to sleep...",
@@ -197,7 +198,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L9072"
+   "src": "L9072",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) tells everyone about the dark honey, as a warning. (friend) hears only the word \"honey,\" goes straight to the swamp, and eats a whole handful of comb. By the next morning (friend) doesn't care about food at all, and the cooks are deeply offended. (subject) feels terrible about it for a week.",

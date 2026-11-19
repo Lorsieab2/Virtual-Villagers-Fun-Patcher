@@ -131,7 +131,8 @@
      "structures": "any"
     }
    ],
-   "src": "L2494"
+   "src": "L2494",
+   "auto_text": true
   },
   "c1o2": {
    "text": "While the smoke does its work, the builders sit on the beach and argue about posts, and joints, and how to keep termites out for good. When they go back up, they don't just patch, they rebuild: raised stones under every post, gaps the termites can't cross. Every builder in the village comes out of it better at the job.",
@@ -152,7 +153,8 @@
      }
     }
    ],
-   "src": "L2497"
+   "src": "L2497",
+   "auto_text": true
   },
   "c1": {
    "text": "The whole village carries its sleeping mats down to the beach, and (name) lights the bitter-leaf fires. The smoke is yellow, and smells like burnt hair and rotten fruit...",
@@ -176,7 +178,8 @@
      "structures": "any"
     }
    ],
-   "src": "L2503"
+   "src": "L2503",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Two weeks of carrying ironwood is too much for (name). By the end of it, every post is replaced and the village is safe, but (name) is so sick of posts, hauling, knocking and wood that (he/she) hands the job over to the next best builder and takes up fishing. \"I've built enough,\" (he/she) says. \"Let someone else knock on things.\"",

@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1903"
+   "src": "L1903",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The coconuts land exactly where (name)'s head was a moment ago, with a sound like a drum. (Name) lies in the grass, very still, looking at the dent in the ground. Then (he/she) gets up, collects the coconuts, and carries them home. (He/She) naps in (his/her) hut from now on. The palm keeps the best shade in the village to itself.",
@@ -160,7 +161,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1912"
+   "src": "L1912",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) catches it, staggers, and somehow keeps (his/her) feet. It's the kind of thing that makes a person feel they can do anything, and for a while, (name) does: (he/she) throws (himself/herself) into (his/her) work with a new confidence that lasts all season and gets (him/her) better at it than ever.",
@@ -173,7 +175,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1915"
+   "src": "L1915",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) leaps up, arms out, like a fisher waiting for a thrown net. The bunch comes down faster than (he/she) expected...",

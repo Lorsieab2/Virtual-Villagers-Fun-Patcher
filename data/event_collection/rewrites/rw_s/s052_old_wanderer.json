@@ -137,7 +137,8 @@
      "age": "elder"
     }
    ],
-   "src": "L2479"
+   "src": "L2479",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The wanderer settles in, and on the very first morning goes for a slow walk round the gardens with (his/her) stick, stopping to look at every plant. Then (he/she) starts talking. \"This one wants more shade. That one is planted too deep. This weed, here, the one you keep pulling up, is good to eat if you boil it twice.\" It turns out the old traveller knows a great deal about plants, more than anyone on the island, gathered on every path (he/she) ever walked. The farmers follow (him/her) around with their mouths open, and the researchers write it all down. Your villagers gain (award) tech points.",
@@ -156,7 +157,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L2482"
+   "src": "L2482",
+   "auto_text": true
   },
   "c1": {
    "text": "The elders look at each other, and then at the old traveller, and nod. There's an empty hut at the edge of the village, with a good view of the sea. The children carry (his/her) bag. The builders patch the roof. Someone brings a mat...",
@@ -193,7 +195,8 @@
      "age": "elder"
     }
    ],
-   "src": "L2491"
+   "src": "L2491",
+   "auto_text": true
   },
   "c2": {
    "text": "The village is kind, but cautious. They bring the old traveller a big bowl of stew, a cup of water and a fresh pair of sandals, and sit with (him/her) while (he/she) eats, and wait to see what (he/she) does next...",

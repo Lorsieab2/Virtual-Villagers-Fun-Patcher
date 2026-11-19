@@ -146,7 +146,8 @@
      }
     }
    ],
-   "src": "L15629"
+   "src": "L15629",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The fifth storm hits that night and tears off half the patches. The builders go out again in the morning, and again the day after. By the end of the month, every hut is mended for good, but (subject) has patched so many roofs in the rain that (subject.he/she) never wants to see a bundle of thatch again. \"Somebody else,\" (subject.he/she) says, \"can do it next year.\"",
@@ -161,7 +162,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L15632"
+   "src": "L15632",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) splits the builders into pairs and sends them to every hut in the village, patching and propping and tying...",
@@ -192,7 +194,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15638"
+   "src": "L15638",
+   "auto_text": true
   },
   "c2o2": {
    "text": "With three families in some huts, the nights are cramped and noisy. But the crowding turns into something else: stories late into the night, children sleeping in heaps, neighbours who'd never had much to say to each other talking until dawn. When the huts are mended, people are almost sorry to go home.",
@@ -209,7 +212,8 @@
      }
     }
    ],
-   "src": "L15641"
+   "src": "L15641",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) picks the six worst huts and the builders work on them one at a time, slowly, properly, while everyone else squeezes in with neighbours...",

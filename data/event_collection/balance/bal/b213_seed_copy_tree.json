@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9912"
+   "src": "L9912",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The tree hears \"what you love most,\" and decides that what (friend) loves most is (subject). In the morning, there is a second (subject) standing by the door, exactly the same, holding a silver leaf and looking embarrassed. \"I think it got confused,\" the second one says. She takes the name (made1). (friend) is very kind about it, and very confused.",
@@ -149,7 +150,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9915"
+   "src": "L9915",
+   "auto_text": true
   },
   "c1": {
    "text": "They kneel by the sapling together, and (subject) whispers to it, feeling silly. The humming changes. The silver leaves turn, all at once, as if listening...",
@@ -175,7 +177,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9921"
+   "src": "L9921",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The fruit drops, and splits, and inside are three more seeds, and they grow into three more saplings, and those grow fruit, and by the end of the week the space by their door is a small silver orchard, humming loudly, full of fruit that tastes of nothing in particular. It's good food, if a little dull. Your villagers gain (award) food.",
@@ -190,7 +193,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L9924"
+   "src": "L9924",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Let's just see,\" says (friend). They sit down by the humming sapling and wait. It grows a little while they watch, and a single round fruit appears on it, silver and heavy...",

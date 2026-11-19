@@ -111,6 +111,32 @@
    ]
   },
   "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(mother.He/She) joins a brief evening song circle and feels like (mother.himself/herself) again.",
+   "src": "L30497",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "mother",
+     "mood": "good",
+     "src": "L30497"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
    "name": "Outcome A1",
    "text": "(mother.He/She) joins a brief evening song circle and feels like (mother.himself/herself) again.",
    "src": "L30497"

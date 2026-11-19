@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7159"
+   "src": "L7159",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The comb remembers all of her. By the end of the week, (subject)'s hair has gone as white as sea foam, and (subject.his/her) face has the soft, crinkled look of (subject.his/her) grandmother's in her last years. (subject) looks in the water, and sees her looking back, and cries a little, and laughs. \"Well,\" (subject.he/she) says, \"I always said she was the beautiful one.\"",
@@ -146,7 +147,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7162"
+   "src": "L7162",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) wears the comb all day. Everyone who passes says it looks lovely. A few of the old people stop and stare, as if seeing someone they used to know...",
@@ -171,7 +173,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7168"
+   "src": "L7168",
+   "auto_text": true
   },
   "c2o2": {
    "text": "In the dream, (subject.his/her) grandmother tells (subject.him/her) the story of the comb: who carved it, the boy who gave it to her, the storm they were caught in. In the morning (subject) goes and tells it to the elders, who remember the boy, and the storm, and tell it back to (subject.him/her) with all the parts (subject.his/her) grandmother left out.",

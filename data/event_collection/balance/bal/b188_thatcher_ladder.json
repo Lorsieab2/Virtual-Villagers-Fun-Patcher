@@ -162,7 +162,8 @@
      "next": "c1o1_c1"
     }
    ],
-   "src": "L8732"
+   "src": "L8732",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The ladder creaks and groans and holds. (subject) fixes the {@chief}'s roof, then the next, then the next, carrying the old ladder from hut to hut and climbing it very, very carefully. By the time the rains come, every roof in the village is tight. The old ladder is retired with honours and hung on the wall of the store.",
@@ -172,7 +173,8 @@
      "structures": "any"
     }
    ],
-   "src": "L8735"
+   "src": "L8735",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) props the old ladder against the {@chief}'s roof and climbs, very carefully, not leaning. At the top, the whole thing gives a long, low creak, like an old man getting out of bed...",
@@ -207,7 +209,8 @@
      }
     }
    ],
-   "src": "L8741"
+   "src": "L8741",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The ladder takes three days instead of one. The rains come two days early. The {@chief}'s roof leaks all over the {@chief}, and the store's roof leaks all over the food. \"At least it's a very good ladder,\" says (builder), with water dripping off (subject.his/her) nose.",

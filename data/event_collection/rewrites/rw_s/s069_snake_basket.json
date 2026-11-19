@@ -143,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3275"
+   "src": "L3275",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) doesn't think. (He/She) yanks (his/her) arm out of the basket as hard and as fast as (he/she) can, staggering backwards across the storehouse, and yams go flying everywhere...",
@@ -178,7 +179,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3284"
+   "src": "L3284",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) remembers what the elders say about snakes: they only bite if they're frightened. So (he/she) doesn't move. Not a finger. (He/She) stands there, arm deep in the basket, barely breathing, while the snake decides what to do...",

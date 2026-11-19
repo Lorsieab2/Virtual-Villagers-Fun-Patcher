@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16389"
+   "src": "L16389",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The other voice walks out of the mist right behind (subject): someone with (subject)'s face, (subject)'s voice, and none of (subject)'s memories, made of everything the mist took from people over the years. It takes the name (made1), and seems content to have a face at last. It never goes near the valley again.",
@@ -145,7 +146,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L16392"
+   "src": "L16392",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) walks into the mist, saying (subject.his/her) own name out loud with every step. The mist swallows the sound. Halfway across, (subject.he/she) hears someone else saying (subject.his/her) name too, in (subject.his/her) own voice...",
@@ -169,7 +171,8 @@
      "role": "friend"
     }
    ],
-   "src": "L16398"
+   "src": "L16398",
+   "auto_text": true
   },
   "c2o2": {
    "text": "It's a long, hot walk over the ridge, and by the time (subject) gets to the far gardens, everyone else has already done half the work. But (subject) arrives with (subject.his/her) name, face and self all exactly where (subject.he/she) left them, and decides that's worth a morning. The mist burns off by noon, the way it always does.",

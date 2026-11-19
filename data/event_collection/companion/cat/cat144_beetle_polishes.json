@@ -84,12 +84,20 @@
      "max": 10,
      "src": "L8828"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "The method is slow but does not require capturing beetles.",
-   "src": "L8830"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
@@ -106,12 +114,32 @@
      "max": 10,
      "src": "L8832"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d": {
    "name": "Answer D",
    "text": "More work is required, but the rare population is left alone.",
    "src": "L8834"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The method is slow but does not require capturing beetles.",
+   "src": "L8830",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8830"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "The method is slow but does not require capturing beetles.",
+   "src": "L8830"
   }
  }
 }

@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5165"
+   "src": "L5165",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The bad year goes soft and far away, like something that happened to someone else. And (subject) finds (subject.he/she) wants a new name to go with it. (elder) suggests one, an ordinary one, and (subject) takes it, and walks home feeling lighter than (subject.he/she) has in a year.",
@@ -146,7 +147,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5168"
+   "src": "L5168",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) thinks of the bad year, as hard as (subject.he/she) can, and ties the last knot. The shells click. Something in (subject.his/her) head goes quiet...",

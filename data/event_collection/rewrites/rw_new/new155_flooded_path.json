@@ -197,7 +197,8 @@
      "scaled": true
     }
    ],
-   "src": "L7462"
+   "src": "L7462",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Halfway across, someone stumbles on a hidden root, and a basket tips into the brown water. By the time they fish it out, its food is soaked in mud and ruined, and has to be thrown out. Everyone else holds their baskets a lot higher after that.",
@@ -209,7 +210,8 @@
      "loss": true
     }
    ],
-   "src": "L7464"
+   "src": "L7464",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) and a team of workers hoist the harvest baskets onto their shoulders and wade into the brown water...",
@@ -239,7 +241,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7471"
+   "src": "L7471",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) wades back and forth across the flood, making sure everyone on both sides is accounted for...",
@@ -264,7 +267,8 @@
      "scaled": true
     }
    ],
-   "src": "L7476"
+   "src": "L7476",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The marks left on the trees disagree: higher here, lower there, and one mark seems to have been made by a child at the wrong height entirely. The villagers decide to wait for more evidence before changing anything.",
@@ -298,7 +302,8 @@
      "loss": true
     }
    ],
-   "src": "L7485"
+   "src": "L7485",
+   "auto_text": true
   },
   "c4": {
    "text": "(Name) organizes a crew to haul big, flat stones from the stream bed and lay a raised crossing across the flood...",

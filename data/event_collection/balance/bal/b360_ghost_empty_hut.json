@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16612"
+   "src": "L16612",
+   "auto_text": true
   },
   "c1o2": {
    "text": "In the dark, (name) finds the problem at once: a cracked ridgepole, sagging in the middle, creaking in the wind with a sound exactly like humming. (He/She) fetches the builders in the morning anyway, and while they are mending the empty hut, they find three more with cracked ridgepoles, and mend those too. Nobody hears the humming again.",
@@ -143,7 +144,8 @@
      "structures": "any"
     }
    ],
-   "src": "L16615"
+   "src": "L16615",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) pushes the sagging door open. Inside it is dark and smells of old thatch. The humming stops. Something brushes past (his/her) face, cool as a breath...",
@@ -175,7 +177,8 @@
      "age": "adult"
     }
    ],
-   "src": "L16621"
+   "src": "L16621",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The humming is a pair of nesting doves in the rafters, who have been cooing to each other all year. The builders mend the hut around them, carefully, leaving the nest where it is. The doves stay. The hut stays empty. But nobody calls it haunted any more, and the children go and listen to the doves on the way home.",

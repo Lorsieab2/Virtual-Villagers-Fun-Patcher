@@ -161,7 +161,8 @@
      }
     }
    ],
-   "src": "L10336"
+   "src": "L10336",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The family stays a week, singing every night by the fire, and then sails on. But the old man stays behind. \"I've found it,\" he says. \"The rest of them can keep looking.\" He sits by the cooking fire every evening and teaches the children songs nobody has heard before, and they sing them back.",
@@ -178,7 +179,8 @@
      }
     }
    ],
-   "src": "L10339"
+   "src": "L10339",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) doesn't know the words. (He/She) sings the chorus anyway, badly, as loud as (he/she) can. Behind (him/her), one by one, the whole village joins in...",
@@ -215,7 +217,8 @@
      "child_of_newest": true
     }
    ],
-   "src": "L10348"
+   "src": "L10348",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) runs to fetch the {@chief}, who comes down the beach and makes a long, polite speech of welcome. The family listen politely. The old man looks a little disappointed...",

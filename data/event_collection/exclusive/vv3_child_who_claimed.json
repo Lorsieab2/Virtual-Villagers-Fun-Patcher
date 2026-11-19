@@ -110,7 +110,8 @@
      "scaled": true,
      "src": "L7885"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "src": "L7886",
@@ -123,9 +124,35 @@
      "src": "L7886",
      "loss": true
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a4__fx"
+    },
+    {
+     "next": "a4__text"
+    }
+   ]
+  },
+  "a4__fx": {
+   "src": "L7887",
+   "text": "Two quarrelling adults are ordered to share their tools. The solution works, much to {@chief}'s delight and the adults' embarrassment.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "chief",
+     "mood": "good",
+     "src": "L7887"
+    }
+   ],
+   "auto_text": true
+  },
+  "a4__text": {
    "src": "L7887",
    "text": "Two quarrelling adults are ordered to share their tools. The solution works, much to {@chief}'s delight and the adults' embarrassment."
   },

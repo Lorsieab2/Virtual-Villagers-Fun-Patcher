@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13358"
+   "src": "L13358",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The fever breaks. (subject) climbs out of the river, looks at the stars, and says a name out loud. It isn't (subject.his/her) name. But (subject.he/she) answers to it from then on, and the old one sounds strange and wrong to (subject.him/her) whenever anybody tries it. (healer) writes it down: (made1), the name the white fever left behind.",
@@ -153,7 +154,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13361"
+   "src": "L13361",
+   "auto_text": true
   },
   "c1": {
    "text": "(healer) and two strong helpers carry (subject) down to the river at midnight and lower (subject.him/her) into the black water. (subject) gasps, shudders, and goes rigid...",
@@ -184,7 +186,8 @@
      "best": true
     }
    ],
-   "src": "L13367"
+   "src": "L13367",
+   "auto_text": true
   },
   "c2o2": {
    "text": "On the fifth night, the fever climbs higher than (healer) has ever seen, and (subject) stops muttering. (healer) sits with (subject.him/her) until dawn, holding (subject.his/her) hand. The village buries (subject) the next day. (healer) does not speak for a week, and when (subject.he/she) does, it is to ask the elders to teach (subject.him/her) everything they know about the white fever.",
@@ -195,7 +198,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13370"
+   "src": "L13370",
+   "auto_text": true
   },
   "c2": {
    "text": "(healer) settles in for a long week. Tea every hour, cool cloths, quiet voices. (subject) burns and mutters and sleeps...",

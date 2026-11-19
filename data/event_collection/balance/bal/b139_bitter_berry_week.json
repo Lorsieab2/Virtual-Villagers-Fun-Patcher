@@ -165,7 +165,8 @@
      }
     }
    ],
-   "src": "L6397"
+   "src": "L6397",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) gets the strongest villagers together with digging sticks, and they work their way along every path, pulling the yellow bushes up by the roots and piling them on the fire. The smoke smells sweet and sour at the same time...",
@@ -203,7 +204,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "The berry tastes like everything (subject) dislikes, all at once. It also burns through (subject)'s chest like a hot drink, and the cough (subject.he/she) has had for a month is suddenly gone. Unfortunately, (subject.he/she) can't stand lying in the shade any more. \"Worth it,\" (subject) says, getting up for the third time that afternoon, unable to sit still.",
@@ -218,7 +220,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6406"
+   "src": "L6406",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) picks one fat yellow berry and eats it, while (healer) watches with (subject.his/her) arms folded. It tastes like nothing. Then it tastes like everything (subject) has ever disliked, all at once...",

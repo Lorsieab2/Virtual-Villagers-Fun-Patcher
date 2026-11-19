@@ -151,7 +151,8 @@
      }
     }
    ],
-   "src": "L11690"
+   "src": "L11690",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject)'s work is very good. Unfortunately, so is everyone else's. Seeing (subject) up all night has got the whole village working hard, and (chief) can't choose between the top three. In the end (subject.he/she) gives each of them one feather from the headband. (subject) isn't one of them, but (subject.he/she) has never seen the village work so well, and is quietly proud of that.",
@@ -166,7 +167,8 @@
      }
     }
    ],
-   "src": "L11693"
+   "src": "L11693",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) works all night by the firelight, doing the thing (subject.he/she) knows best, slowly and carefully, the way (subject.he/she) has always wanted to and never had the time...",
@@ -204,7 +206,8 @@
      "next": "c2o1_c2"
     }
    ],
-   "src": "L11699"
+   "src": "L11699",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) decides to build a little tower out of driftwood, because how hard can it be? Very hard, it turns out. It falls down four times, the last time on (subject.his/her) foot, in front of the whole village. (subject) limps home, and the pleasure (subject.he/she) used to take in building things is gone, along with some of the skin on (subject.his/her) toes.",

@@ -189,7 +189,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L1223"
+   "src": "L1223",
+   "auto_text": true
   },
   "c1": {
    "text": "The Chief has spoken. The next morning, the village sets off to its new jobs with great reluctance, and the sound of a lot of people asking \"which end do I hold?\"...",
@@ -227,7 +228,8 @@
      ]
     }
    ],
-   "src": "L1232"
+   "src": "L1232",
+   "auto_text": true
   },
   "c2": {
    "text": "The village elders take Chief (subject) aside after breakfast and explain, very kindly and very carefully, that the harvest is nearly due, the fences need mending, and perhaps this wonderful idea could wait for a quieter time...",

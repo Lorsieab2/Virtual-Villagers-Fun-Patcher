@@ -197,7 +197,8 @@
      "scaled": true
     }
    ],
-   "src": "L13426"
+   "src": "L13426",
+   "auto_text": true
   },
   "c1o2": {
    "text": "...a long, slow sigh, rising up through the stones, the kind a person makes when they roll over in a deep sleep. (Name) lies very still. The sigh fades. Nothing else happens. After a long time, (he/she) gets up, brushes the grass from (his/her) clothes, and tiptoes back to the village, though there is no one around to hear (him/her) tiptoe. From then on, (name) walks around the hill instead of over it. Just in case.",
@@ -226,7 +227,8 @@
      "scaled": true
     }
    ],
-   "src": "L13433"
+   "src": "L13433",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) is waist-deep in the pit when the side of it slumps without warning. Heavy, warm soil pours in around (his/her) legs and pins (him/her) fast. \"Help! Get me out!\" (Name)'s friends dig frantically with their bare hands, hauling (him/her) free just as more earth slides down, and carry (him/her) to the healers with bruised, aching legs. As they leave, someone glances back at the hill. The collapsed pit has filled in so neatly that it looks as though no one ever dug there at all.",
@@ -245,7 +247,8 @@
      "what": "\"collapsed\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "\"If something's down there, there's only one way to find out,\" (name) says, and the next morning (he/she) and a couple of curious friends start digging a small pit into the side of the hill. The soil is soft and warm and comes away easily. A little too easily...",

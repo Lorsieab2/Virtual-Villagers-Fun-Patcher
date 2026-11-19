@@ -2072,7 +2072,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r45": {
    "text": "{K} {L} {M} (Subject) tries to explain that the result was at least memorable. 'Memorable is not the same as correct,' (mentor) replies. The examination ends in failure, and the village gains a story it will not soon forget.",
@@ -2106,7 +2107,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "v2_subjects": {
    "popup": "append",
@@ -2322,7 +2324,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r54": {
    "text": "{K} (Mentor) turns such a spectacular shade of red that (subject) forgets the disaster and asks if (mentor) is feeling well. The unexpected concern stops the scolding. After a moment, (mentor) sighs and helps (subject) understand the mistake.",
@@ -2356,7 +2359,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "rw_subjectl_farm": {
    "type": "branch",
@@ -2604,7 +2608,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "routes": {
    "type": "branch",

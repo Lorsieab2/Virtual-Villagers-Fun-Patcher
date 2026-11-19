@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1039"
+   "src": "L1039",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The drumming fades. They stand there with their hands on the rock, and feel the anger just drain out of them, like water from a cracked pot. \"I don't even like that fishing spot,\" says (subject). \"I never wanted the pot,\" says (friend). They both start laughing and can't stop. Neither of them has ever been one for idle chat, but they sit by the rock and talk until dark.",
@@ -170,7 +171,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1048"
+   "src": "L1048",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The quarrel goes on. Eventually, the whole village gets so tired of it that the cooks give (subject) a new pot and the fishers give (friend) a new fishing spot. Neither of them is happy. They have nothing to argue about. They take up arguing about the weather instead.",

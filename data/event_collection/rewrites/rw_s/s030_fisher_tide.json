@@ -151,10 +151,12 @@
     {
      "do": "kill",
      "cause": "unknown",
-     "role": "subject"
+     "role": "subject",
+     "line": "injuries"
     }
    ],
-   "src": "L1415"
+   "src": "L1415",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They catch nothing at all. Not a single fish, all morning, which (subject) says has only happened to (subject.him/her) three times in sixty years. So instead they talk. (subject) tells (friend) about (subject.his/her) mother, and the storm the year (subject.he/she) was born, and the person (subject.he/she) loved and lost, and the heron's mother, and the heron's grandmother. (friend) comes home empty-handed, knowing a great deal more about (subject), and about patience, and about how to sit quietly with someone. (friend) agrees that this was the real catch, and the little ones in the village notice that (friend) is suddenly much better at listening.",
@@ -169,7 +171,8 @@
      ]
     }
    ],
-   "src": "L1418"
+   "src": "L1418",
+   "auto_text": true
   },
   "c1": {
    "text": "(friend) pulls on a wrap and follows (subject) down to the rock in the grey dawn. They sit side by side in the cold, (subject) in (subject.his/her) worn dip, (friend) on the bare stone beside (subject.him/her), and cast their lines out into the water...",
@@ -198,7 +201,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L1424"
+   "src": "L1424",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(friend) works in the fields all day, and can't stop thinking about it. About the two rods. About the way (subject) said \"another time.\" The next morning (friend) gets up before dawn without being asked, and goes down to the rock. (subject) is already there in (subject.his/her) dip, with the heron beside (subject.him/her). The second rod is lying ready on the stone. (subject) doesn't say anything. (subject.He/She) just moves over a little. They fish together every morning after that, and (friend) finds (friend.he/she) loves it. Your villagers gain (award) food.",
@@ -218,7 +222,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L1427"
+   "src": "L1427",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Not today,\" says (friend), rubbing (friend.his/her) eyes. \"I've got the fields. Maybe another time?\" (subject) nods, slowly. \"Another time,\" (subject.he/she) agrees, and walks off alone down the path towards the sea, the two rods still over (subject.his/her) shoulder...",

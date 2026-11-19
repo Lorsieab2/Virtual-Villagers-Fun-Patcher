@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16257"
+   "src": "L16257",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The water is cold, colder than the night, and when (name) comes up, (his/her) face feels stiff. By torchlight, it's lined and grey at the brows. (His/her) age is the same. \"I was facing it!\" (name) protests. The elders shrug. \"Sometimes,\" says the eldest, \"the moon is just in a mood.\"",
@@ -142,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16260"
+   "src": "L16260",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) turns slowly in the water until the full moon is right in front of (him/her), huge and white. (He/She) takes a breath and ducks under...",
@@ -166,7 +168,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16266"
+   "src": "L16266",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) was facing the moon all along, without knowing it: the moon had climbed round while (he/she) dithered. (He/She) comes up with a young, bright face, and has no idea why. \"Luck,\" say the elders. \"Pure luck.\" (Name) tells everyone it was skill.",
@@ -183,7 +186,8 @@
      "what": "\"skill\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) decides not to risk turning the wrong way, and ducks under right where (he/she) stands, with the moon somewhere behind (him/her)...",

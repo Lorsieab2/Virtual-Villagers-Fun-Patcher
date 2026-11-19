@@ -153,7 +153,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16079"
+   "src": "L16079",
+   "auto_text": true
   },
   "c1o2": {
    "text": "In the morning, (subject)'s face has a long new line down it, and several more besides, but (subject.his/her) body is as young as yesterday. \"I gave you the line, not the years,\" (elder) says, looking pleased. \"You're lucky. My grandmother gave me hers and the knees with it.\" The fishing grounds are exactly where (subject.he/she) said.",
@@ -172,7 +173,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16082"
+   "src": "L16082",
+   "auto_text": true
   },
   "c1": {
    "text": "(elder) puts (subject.his/her) thumb on (subject)'s forehead and draws it slowly down, the way a person draws in the sand. It feels warm, then heavy...",
@@ -210,7 +212,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16091"
+   "src": "L16091",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Thank you,\" says (subject), \"but I'd like to earn my own lines.\" (elder) laughs, a dry laugh like leaves, and pats (subject.his/her) hand...",

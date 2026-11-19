@@ -140,7 +140,8 @@
      "best": true
     }
    ],
-   "src": "L1812"
+   "src": "L1812",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) is such a good teacher, it turns out, that by noon other young people have drifted over to listen, and by afternoon there's a crowd. Three of them go home with their heads full and their hands itching to try. (young), who started all this, is sulking at the back. \"I was here first,\" (young.he/she) says.",
@@ -155,7 +156,8 @@
      }
     }
    ],
-   "src": "L1815"
+   "src": "L1815",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) starts at the beginning, the way (subject.he/she) was taught: slowly, carefully, every step explained twice. (young) yawns. Then, despite (subject.himself/herself), (young.he/she) starts to watch...",

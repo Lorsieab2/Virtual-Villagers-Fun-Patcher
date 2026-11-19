@@ -107,9 +107,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The partners delight in a design uniquely their own.",
-   "src": "L21090"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -137,6 +144,31 @@
    "name": "Outcome C2",
    "text": "The new sashes become so popular that the weavers struggle to keep up.",
    "src": "L21094"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The partners delight in a design uniquely their own.",
+   "src": "L21090",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L21090"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L21090"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The partners delight in a design uniquely their own.",
+   "src": "L21090"
   }
  }
 }

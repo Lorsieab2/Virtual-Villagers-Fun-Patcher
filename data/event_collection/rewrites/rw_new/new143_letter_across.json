@@ -201,7 +201,8 @@
      "scaled": true
     }
    ],
-   "src": "L6766"
+   "src": "L6766",
+   "auto_text": true
   },
   "c1": {
    "text": "Before (he/she) can even think about opening the letter, (name) takes the courier by the arm and leads (him/her) up to the fire...",
@@ -226,7 +227,8 @@
      "scaled": true
     }
    ],
-   "src": "L6771"
+   "src": "L6771",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) asks whether the courier knows anything about the writer's life now. The courier shakes (his/her) head firmly. \"That's for the letter to tell, not me.\" No one insists. (Name) finally unrolls it, and goes very quiet for a long time.",
@@ -254,7 +256,8 @@
      "age": "adult"
     }
    ],
-   "src": "L6778"
+   "src": "L6778",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The courier smiles, but pats the bag at (his/her) side. It's full of letters, for people all over the sea. (He/She) thanks the village and sails on to the next landing in the morning, waving from the back of the next passing boat.",
@@ -283,7 +286,8 @@
      "scaled": true
     }
    ],
-   "src": "L6785"
+   "src": "L6785",
+   "auto_text": true
   },
   "c4o2": {
    "text": "The courier's satchel has a long tear along the bottom, and (he/she) has been losing letters through it for weeks without noticing. The villagers stitch it up with strong fibre and send (him/her) off with (name)'s reply tucked safely inside, along with a stern warning to check (his/her) bag more often.",

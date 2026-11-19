@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12774"
+   "src": "L12774",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Later in the season, (subject) is pregnant, and the healers, listening carefully, announce {#babies:a single strong heartbeat|twins|triplets}. (friend) goes pale, then very pleased, then pale again. \"I'll need more fibre,\" (subject.he/she) says, and goes off to weave {#babies:a tiny hammock|two tiny hammocks|three tiny hammocks} for underneath the big one.",
@@ -152,7 +153,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12777"
+   "src": "L12777",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) climbs in, (friend) climbs in after her, and the hammock swings out over the sand, creaking happily. The loose knot holds. They lie there listening to the lagoon...",
@@ -184,7 +186,8 @@
      "next": "c2o1_c2"
     }
    ],
-   "src": "L12783"
+   "src": "L12783",
+   "auto_text": true
   },
   "c2o2": {
    "text": "While they're arguing about the knot, a crowd of children discover the fallen hammock and claim it. By the time (friend) has retied it, there are nine children in it, swinging and shrieking. It never really becomes (subject) and (friend)'s hammock. But it is, everyone agrees, the most popular thing (friend) has ever made.",

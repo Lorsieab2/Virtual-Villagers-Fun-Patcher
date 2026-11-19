@@ -150,7 +150,8 @@
      "what": "\"collapses\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) gets the cloth off the loom and out through the door a heartbeat before the roof comes down. Singed eyebrows, a cough, and a very cross healer. The bucket chain stops the fire at the next hut. Over the next week the village rebuilds both huts, and a new loom, and puts the weaving hut a good long way from the cooking fire this time.",
@@ -160,7 +161,8 @@
      "structures": "any"
     }
    ],
-   "src": "L1133"
+   "src": "L1133",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) wraps a wet mat round (his/her) arms and ducks inside, into the heat and the roar. (He/She) can't see. (He/She) feels for the loom...",
@@ -195,7 +197,8 @@
      }
     }
    ],
-   "src": "L1139"
+   "src": "L1139",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They stop the fire at the next hut. But the next hut was where the village's scholars kept their notes on plants and stars, and the water from the bucket chain soaked what the fire didn't burn. (Name) and the scholars sit together in the ashes the next morning, salvaging what they can. \"At least we're all here,\" says (name). The scholars nod, and keep salvaging.",
@@ -207,7 +210,8 @@
      "loss": true
     }
    ],
-   "src": "L1142"
+   "src": "L1142",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) turns away from the door, and it is the hardest thing (he/she) has ever done. (He/She) grabs a bucket and runs for the next roof, where the thatch has just started to smoke...",

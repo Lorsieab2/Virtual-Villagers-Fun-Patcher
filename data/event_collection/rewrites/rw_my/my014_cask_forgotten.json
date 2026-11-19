@@ -222,7 +222,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10662"
+   "src": "L10662",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Halfway through the cask, (friend), an elder sitting nearby, cries out and grabs (subject)'s arm. \"Say that one again.\" (subject) does. (friend) bursts into tears. It's the name of an uncle who sailed off before the elder was born and never came back, a name the elder's mother used to whisper at night. (friend) keeps the token on a cord around (friend.his/her) neck from then on.",
@@ -284,7 +285,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10676"
+   "src": "L10676",
+   "auto_text": true
   },
   "c4o2": {
    "text": "The tokens are stored carefully in a dry corner of the research hut, but the script on them won't give up its secrets. The researchers can read (subject)'s token and a handful of others, but the rest stay a mystery. \"One day,\" they say, every time someone asks. \"One day.\"",

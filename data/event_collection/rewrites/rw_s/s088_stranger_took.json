@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4142"
+   "src": "L4142",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) runs after the stranger, down the path, round the bend, through the palms, shouting \"Hey! HEY! You!\" because that's all (he/she) can shout. The patchwork cloak is always just disappearing round the next corner...",
@@ -160,7 +161,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4148"
+   "src": "L4148",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) lets it go. The village gathers at the fire to help (him/her) choose a new one, but every name they try slides out of everyone's heads by morning, as if the stranger's shell is still drinking them up. After the fifth try, the elders give up. (He/She) is \"?\" from then on, through no choice of (his/her) own, and to everyone's surprise, (he/she) makes peace with it. \"At least nobody can take this one,\" (he/she) says, when people ask. (He/She) becomes rather well known for it. Visitors ask about (him/her). Children are told firmly never to say their names into a stranger's shell.",
@@ -170,7 +172,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4151"
+   "src": "L4151",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) stands in the middle of the path, watching the patchwork cloak disappear round the bend. (He/She) could run. But somehow (he/she) doesn't. \"Well,\" (he/she) says. \"I suppose (he/she) needed it more than I did.\"...",

@@ -140,7 +140,8 @@
      "structures": "any"
     }
    ],
-   "src": "L13893"
+   "src": "L13893",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Halfway through, two of the old posts crack, and then a third. The old hut can't be rebuilt as it was. (builder) quietly finishes the job with new wood, and the neighbouring huts are made good. (subject) is so disappointed that building loses all its pleasure for (subject.him/her). \"It's just wood now,\" (subject.he/she) says.",
@@ -155,7 +156,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L13896"
+   "src": "L13896",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) and (builder) sort through the wreckage, setting aside every old post that's still sound. The elders come to help, telling stories about every one...",
@@ -179,7 +181,8 @@
      "structures": "any"
     }
    ],
-   "src": "L13902"
+   "src": "L13902",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Clearing the old floor, the builders find a stone box buried beneath it, full of carved tablets in the old people's marks: how they found the island, which plants they ate, which they didn't, and why. The scroll-keepers are beside themselves. The huts get built eventually. Your villagers gain (award) tech points.",
@@ -194,7 +197,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L13905"
+   "src": "L13905",
+   "auto_text": true
   },
   "c2": {
    "text": "The village clears the old hut away, carefully, and (builder) marks out three new huts in the dirt with a stick...",

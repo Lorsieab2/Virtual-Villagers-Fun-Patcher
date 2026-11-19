@@ -134,7 +134,8 @@
      "role": "subject"
     }
    ],
-   "src": "L978"
+   "src": "L978",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) reaches the village and checks (his/her) reflection in a water jar. (He/She) is eighteen. Just eighteen, fresh-faced and bright-eyed, every grey hair gone. For one glorious afternoon (he/she) is delighted. (He/She) runs everywhere. (He/She) climbs things. Then, at dinner, (he/she) suddenly remembers how embarrassing being eighteen actually was: the awkwardness, the bad decisions, the haircut. (He/She) goes quite pale. \"Well,\" (he/she) says. \"This time I'll do it properly.\"",
@@ -145,7 +146,8 @@
      "role": "subject"
     }
    ],
-   "src": "L981"
+   "src": "L981",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) grabs (his/her) things, holds (his/her) trousers up with one hand, and pelts down the hill towards the village as fast as (his/her) new, springy legs will carry (him/her)...",
@@ -170,7 +172,8 @@
      "role": "subject"
     }
    ],
-   "src": "L987"
+   "src": "L987",
+   "auto_text": true
   },
   "c2o2": {
    "text": "This time, the water stays perfectly clear. No silt. No swirls. (Name) stands there up to (his/her) chin and nothing happens at all, except that (he/she) gets cold. Downstream, (he/she) can just see the first grey cloud drifting away over the stones, carrying the few years that came off on the first dip. They've gone for good. (Name) climbs out, wrings out (his/her) hair, and walks home looking about five years younger than (he/she) did this morning, which (he/she) decides is plenty.",
@@ -184,7 +187,8 @@
      "role": "subject"
     }
    ],
-   "src": "L990"
+   "src": "L990",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) looks down at (his/her) smooth hands, then back at the cool blue water. If one dip did all this, what could another do? (He/She) takes a deep breath and wades back in, all the way up to (his/her) chin...",

@@ -227,7 +227,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11195"
+   "src": "L11195",
+   "auto_text": true
   },
   "c2": {
    "text": "\"You've come a long way. Sit, eat with us,\" (name) says. The traveler accepts, delighted, and joins the villagers around the cooking fire...",

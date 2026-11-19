@@ -146,7 +146,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10478"
+   "src": "L10478",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) fishes so hard (subject.he/she) doesn't notice the coral, or the sun, or the fact that (subject.he/she) hasn't drunk anything all morning. Just before noon (subject.he/she) faints in the shallows, and (fisher) carries (subject.him/her) out. (subject) still wins. (subject.He/She) spends the next three days in the healers' hut, which is the longest (subject.he/she) has gone without working in (subject.his/her) life.",
@@ -158,7 +159,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10481"
+   "src": "L10481",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) wades out and fishes the way (subject.he/she) does everything: hard, fast, and without stopping for a moment. Fish after fish goes into the basket. The crowd starts to cheer...",
@@ -184,7 +186,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10487"
+   "src": "L10487",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Standing still and watching, (subject) sees what nobody else sees: a fish as big as a child, sleeping under a ledge of rock. (subject.He/She) spears it with one throw. One fish, and it outweighs everyone else's basket put together. (subject) wins, without trying, and realises (subject.he/she) has been trying too hard at everything. Your villagers gain (award) food.",
@@ -205,7 +208,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10490"
+   "src": "L10490",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) wades out slowly, and stands in the warm water, and watches the little fish nibbling at (subject.his/her) toes, and, for once, doesn't think about work at all...",

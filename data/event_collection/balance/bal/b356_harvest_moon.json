@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16434"
+   "src": "L16434",
+   "auto_text": true
   },
   "c1o2": {
    "text": "As the sun comes up and they finally stop, a traveller who has been watching from the edge of the firelight comes forward with a baby in (subject.his/her) arms. \"I can't care for (subject.him/her),\" the traveller says quietly. \"I've been looking for a village where people love each other this much.\" The traveller leaves the baby with them and walks away down the beach.",
@@ -150,7 +151,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16437"
+   "src": "L16437",
+   "auto_text": true
   },
   "c1": {
    "text": "They dance on, slower and slower, holding each other up, while the drummers swap places three times and the village cheers them on...",
@@ -176,7 +178,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16443"
+   "src": "L16443",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The saying doesn't hold. No baby comes before the next harvest. But (subject) and (friend) don't mind. They dance again the next year, and stop at midnight again, and decide that the dancing was the point. \"Next year,\" says (friend), \"we'll go to dawn.\" They never do.",

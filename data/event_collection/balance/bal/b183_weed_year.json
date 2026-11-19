@@ -156,7 +156,8 @@
      }
     }
    ],
-   "src": "L8495"
+   "src": "L8495",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The walls are rebuilt by the end of the week, and the vine is back by the end of the next one, curling up through the floors. In the end (builder) sets the posts on flat stones, which the vine can't get through, and it gives up and goes off to climb the trees instead. The huts stand. The trees are very purple.",
@@ -166,7 +167,8 @@
      "structures": "any"
     }
    ],
-   "src": "L8498"
+   "src": "L8498",
+   "auto_text": true
   },
   "c1": {
    "text": "The whole village spends a day pulling vine off the walls in long, tearing strips. It comes away with whole handfuls of thatch. Then the builders start on the walls...",
@@ -199,7 +201,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L8504"
+   "src": "L8504",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The roots are fine to eat. The sap is not fine to touch. Three of the diggers come up in a terrible itching rash all over their arms by evening, and spend a week with their arms in buckets of seawater. The cooking hut stays fallen down while everyone argues about whose fault it was.",
@@ -211,7 +214,8 @@
      }
     }
    ],
-   "src": "L8507"
+   "src": "L8507",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) sides with (farmer). The farmers dig all round the huts, very carefully, and pull up the roots: long, pale, knobbly things like fat fingers...",

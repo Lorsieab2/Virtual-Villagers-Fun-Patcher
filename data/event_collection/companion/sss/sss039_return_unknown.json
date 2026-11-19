@@ -69,14 +69,21 @@
   },
   "a": {
    "name": "Answer A",
-   "text": "Craftspeople learn a new knot, but cannot identify the builder.",
-   "src": "L6464",
    "effects": [
     {
      "do": "tech",
      "size": "small",
      "scaled": true,
      "src": "L6464"
+    }
+   ],
+   "type": "branch",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
     }
    ]
   },
@@ -89,6 +96,25 @@
    "name": "Answer C",
    "text": "Some find the gesture hopeful; others call it wasteful.",
    "src": "L6468"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "Craftspeople learn a new knot, but cannot identify the builder.",
+   "src": "L6464",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6464"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "Craftspeople learn a new knot, but cannot identify the builder.",
+   "src": "L6464"
   }
  }
 }

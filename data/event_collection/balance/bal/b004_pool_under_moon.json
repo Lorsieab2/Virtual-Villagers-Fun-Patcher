@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L176"
+   "src": "L176",
+   "auto_text": true
   },
   "c1o2": {
    "text": "A single figure rises out of the pool, (name) exactly, down to the last eyelash. It looks at (name), (name) looks at it, and they both say \"Oh no,\" at the same moment, in the same voice. The friends at the bottom of the hill scream when two of (name) come walking down. The newcomer takes the name (made1), moves into the empty hut by the woodpile, and the two of them finish each other's sentences so often it drives the rest of the village mad.",
@@ -143,7 +144,8 @@
      "role": "subject"
     }
    ],
-   "src": "L179"
+   "src": "L179",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) dips one finger in. The water is warm, warmer than skin. The milky light gathers around (his/her) finger and climbs up (his/her) hand like a glove...",
@@ -167,7 +169,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L185"
+   "src": "L185",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The ripples settle. The milky light fades out of the water, slowly, like a lamp being turned down, and the pool is just a pool, dark and deep and cold. (Name) waits a long time. Nothing happens. (He/She) walks down to (his/her) friends and tells them it was nothing. Then (he/she) never goes up the hill again, and changes the subject whenever anyone asks why.",

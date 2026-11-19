@@ -120,9 +120,16 @@
    "src": "L30209"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "(child) is proud, but the adults explain that animal behavior is a clue, not a guaranteed forecast.",
-   "src": "L30210"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -189,6 +196,25 @@
    "name": "Outcome D2",
    "text": "The group learns that different crabs respond differently, complicating their first theory.",
    "src": "L30219"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "(child) is proud, but the adults explain that animal behavior is a clue, not a guaranteed forecast.",
+   "src": "L30210",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L30210"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "(child) is proud, but the adults explain that animal behavior is a clue, not a guaranteed forecast.",
+   "src": "L30210"
   }
  }
 }

@@ -134,7 +134,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16345"
+   "src": "L16345",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The water tastes of stone, and then, very faintly, of honey. On the walk home, (name) finds (himself/herself) humming. The next morning (he/she) gets up and goes to work without the usual groan, and the morning after, and finds the work isn't the weight it used to be. \"The left one,\" (he/she) tells everyone. \"Remember. The left one's sweet.\"",
@@ -146,7 +147,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16348"
+   "src": "L16348",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) kneels at the left spring, cups (his/her) hands, and drinks deeply. The water is cold and tastes of stone...",
@@ -172,7 +174,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16354"
+   "src": "L16354",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The water is sweet all the way down, and (name) remembers exactly which spring it was. On the way home, (he/she) passes the meeting hut, where a noisy crowd is gathered for the evening, and instead of slipping past as usual, (he/she) goes in and sits down in the middle of it all. (He/She) used to hate crowds. Now, it seems, (he/she) doesn't.",
@@ -184,7 +187,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16357"
+   "src": "L16357",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) kneels at the right spring, cups (his/her) hands, and drinks. The water is warm and tastes faintly of flowers...",

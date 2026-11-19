@@ -143,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L834"
+   "src": "L834",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The pig's way works so well that (name) starts following the pig around. Everywhere it roots, (name) watches. Where it digs, (name) plants. Which plants it eats and which it leaves alone, (name) writes down. It is a very undignified season. People talk. But by harvest time (name)'s fields are the best on the island, heavy and green and overflowing, and (he/she) is, without any argument, the best farmer in the village. At the harvest feast (name) saves the best scraps from (his/her) plate and leaves them, quietly, under a certain bush.",
@@ -157,7 +158,8 @@
      "role": "subject"
     }
    ],
-   "src": "L837"
+   "src": "L837",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) looks at the pig. The pig does not look at (name). With great dignity, (name) kneels down, digs (his/her) fingers into the loose soil the way the pig's snout went in, and plants the seeds...",
@@ -191,7 +193,8 @@
      "role": "subject"
     }
    ],
-   "src": "L843"
+   "src": "L843",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The pig leaves, deeply offended. It walks straight across the field, straight through the village, straight into the vegetable store, and eats a whole basket of the village's best roots on its way out, slowly, looking at (name) the entire time. Nobody manages to stop it. Nobody really tries. It's a very big pig.",

@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "The council asks (subject) why. (subject.He/she) says the rule is old and the reef is full of fish. The council doesn't agree. It asks (subject) to give the catch to the whole village rather than keep it, and to stay away from the reef at the next spawning moon. Some villagers think that's too harsh, others too soft. The rule stands.",
-   "src": "L158"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) waits for (subject.him/her) on the beach. \"You know the rule.\" \"I know. I thought one night wouldn't matter.\" \"That's what everyone would think.\" (subject) looks at the net for a long time. Then (subject.he/she) wades back into the water and lets the smallest fish go. It isn't all of them. It's something.",
    "src": "L161"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The council asks (subject) why. (subject.He/she) says the rule is old and the reef is full of fish. The council doesn't agree. It asks (subject) to give the catch to the whole village rather than keep it, and to stay away from the reef at the next spawning moon. Some villagers think that's too harsh, others too soft. The rule stands.",
+   "src": "L158",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "src": "L158"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The council asks (subject) why. (subject.He/she) says the rule is old and the reef is full of fish. The council doesn't agree. It asks (subject) to give the catch to the whole village rather than keep it, and to stay away from the reef at the next spawning moon. Some villagers think that's too harsh, others too soft. The rule stands.",
+   "src": "L158"
   }
  }
 }

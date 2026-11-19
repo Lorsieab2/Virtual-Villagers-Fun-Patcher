@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3989"
+   "src": "L3989",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) hits the water clean, goes deep, and comes up whooping into the spray. (His/Her) friends cheer. It is, everyone agrees, the best jump of the year. (Name) does it once more, for luck, and then decides that's enough for one lifetime.",
@@ -158,10 +159,12 @@
     {
      "do": "kill",
      "cause": "unknown",
-     "role": "subject"
+     "role": "subject",
+     "line": "injuries"
     }
    ],
-   "src": "L3998"
+   "src": "L3998",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) slides down the rocks and lands in the shallows with a crack. (His/Her) leg is broken in two places, and it heals short and stiff. (He/She) walks with a crutch, and won't go near the pool again. (His/Her) friends visit every day while it mends, still a little ashamed of the jeering, and bring (him/her) the best fruit from the falls.",
@@ -182,7 +185,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4001"
+   "src": "L4001",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) shakes (his/her) head and starts climbing back down the slick rocks, ignoring the jeers. Halfway down, (his/her) foot slides on the wet stone...",

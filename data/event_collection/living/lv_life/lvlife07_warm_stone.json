@@ -77,9 +77,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The ache eases, but the healer warns against stones hot enough to burn.",
-   "src": "L20723"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -102,9 +109,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The villager becomes more comfortable over several days.",
-   "src": "L20726"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -118,7 +132,8 @@
      "max": -10,
      "src": "L20727"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -133,14 +148,81 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "Rest helps, though stiffness remains.",
-   "src": "L20729"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The villager feels no improvement and asks to try a different approach.",
    "src": "L20730"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The ache eases, but the healer warns against stones hot enough to burn.",
+   "src": "L20723",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20723"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The ache eases, but the healer warns against stones hot enough to burn.",
+   "src": "L20723"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The villager becomes more comfortable over several days.",
+   "src": "L20726",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20726"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The villager becomes more comfortable over several days.",
+   "src": "L20726"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "Rest helps, though stiffness remains.",
+   "src": "L20729",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20729"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "Rest helps, though stiffness remains.",
+   "src": "L20729"
   }
  }
 }

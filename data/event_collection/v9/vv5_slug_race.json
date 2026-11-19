@@ -286,11 +286,14 @@
    ]
   },
   "r1": {
-   "src": "L5116",
-   "text": "The village slug wins. Both teams cheer.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "ridiculous"
+     "next": "r1__fx"
+    },
+    {
+     "next": "r1__text"
     }
    ]
   },
@@ -478,6 +481,33 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "r1__fx": {
+   "src": "L5116",
+   "text": "The village slug wins. Both teams cheer.",
+   "children": [
+    {
+     "next": "ridiculous"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L5116"
+    }
+   ],
+   "auto_text": true
+  },
+  "r1__text": {
+   "src": "L5116",
+   "text": "The village slug wins. Both teams cheer.",
+   "children": [
+    {
+     "next": "ridiculous"
+    }
+   ]
   }
  }
 }

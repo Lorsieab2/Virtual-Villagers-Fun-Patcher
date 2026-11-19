@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2448"
+   "src": "L2448",
+   "auto_text": true
   },
   "c1o2": {
    "text": "There are so many suggestions that in the end they write them all on leaves and put them in a bowl, and (subject) pulls one out without looking. It's an ordinary sort of name. \"That'll do,\" says (subject). By the end of the month (subject.he/she) can't imagine being called anything else.",
@@ -145,7 +146,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2451"
+   "src": "L2451",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) stands up in the meeting and says (subject.he/she) will change. Everyone looks relieved, and then everyone starts suggesting names at once...",
@@ -171,7 +173,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2457"
+   "src": "L2457",
+   "auto_text": true
   },
   "c2o2": {
    "text": "It doesn't work. The village can't remember which one is the tall one, and (friend) gets a goat (subject.he/she) didn't ask for. In the end, both of them just learn to check, every time. \"Which one?\" they ask, whenever anyone calls their name. It becomes a sort of village joke.",

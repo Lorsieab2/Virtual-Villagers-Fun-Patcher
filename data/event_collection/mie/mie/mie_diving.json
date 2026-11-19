@@ -195,7 +195,8 @@
     {
      "do": "pay_award"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "buoy": {
    "text": "It's a chewed-up buoy, which to (subject), is some heavy striped ball. Whatever it is, it certainly has no use now. (subject) lets go of the mysterious heavy ball and swims up to the surface. Maybe next time (subject.he/she) will find something worthwhile.",
@@ -218,7 +219,8 @@
     {
      "do": "pay_award"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "tank": {
    "text": "POP! Before (subject) can react, one of (subject.his/her) makeshift air tanks pops like a balloon. (subject.He/She) stares wide-eyed in horror as the air rises to the surface in a large bubble before exploding in a deafening blast. (subject) forgets (subject.his/her) training and starts clawing through the water like a drowning animal.",
@@ -259,7 +261,8 @@
      "what": "\"experience\", \"death\"",
      "reason": "the word in the owner's story; what changes in the game is the outcome's own effects (the owner's spec beside it), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "sinks": {
    "text": "After some agonizingly long minutes, (subject) struggles harder and harder to make it to the surface. (subject.His/Her) body becomes weaker and more painful with every stroke and (subject.his/her) lungs are ready to burst. The sunlight starts becoming fainter as (subject) begins sinking towards the briny blue depths...\n(subject)'s last thoughts before inhaling water are of (subject.his/her) family, and the foolish dreams (subject.he/she) once had of taming the great, blue ocean...",
@@ -298,7 +301,8 @@
      "role": "subject",
      "cause": "unknown"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "lost": {
    "text": "Several days pass, and (subject)'s body is never found. (subject)'s friends, family and the entire village gather to remember (subject) and mourn the loss of a great sea explorer.",
@@ -310,7 +314,8 @@
      "do": "vanish",
      "role": "subject"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "rescued": {
    "text": "\"Thank goodness, (subject.he/she)'s alive!\" (subject) coughs hard, bringing up water. \"Wh-where am I?!\" (subject.he/she) sputters. (Subject) opens (subject.his/her) eyes to see the faces of many doctors, friends, as well as (subject.his/her) family huddled over (subject.him/her). (doctor), the head Doctor, says, \"We found you unconscious here on the shore. We performed lifesaving measures until you started moving again.\" (subject) sits up to see worried loved ones crying in distress, and is moved with pity. (subject.He/She) goes to hug them and thanks everyone for saving (subject.his/her) life.\nOnce (subject.he/she) has sufficiently recovered from (subject.his/her) near-death experience, (subject.he/she) makes a silent, solemn vow to the majestic Ocean. In (subject.his/her) heart, (subject.he/she) apologizes for almost throwing (subject.his/her) life away for the sake of some tempting treasure, and promises never to take Them for granted again. (subject) devotes (subject.himself/herself) to the healing arts in gratitude towards those who saved (subject.him/her) that day.",
@@ -334,7 +339,8 @@
      "what": "\"death\"",
      "reason": "the word in the owner's story; what changes in the game is the outcome's own effects (the owner's spec beside it), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "better": {
    "text": "(subject) knows that diving can be dangerous, and the sea can be both generous and cruel. Gambling with the ocean's patience could spell death, and (subject) has a family waiting back home. (subject) hangs up (subject.his/her) diving equipment to be a gentle (subject.father/mother) to (subject.his/her) spouse and children.",
@@ -356,7 +362,8 @@
      "what": "\"death\"",
      "reason": "the word in the owner's story; what changes in the game is the outcome's own effects (the owner's spec beside it), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

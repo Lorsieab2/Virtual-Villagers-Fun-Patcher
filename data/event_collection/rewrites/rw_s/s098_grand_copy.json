@@ -152,7 +152,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4592"
+   "src": "L4592",
+   "auto_text": true
   },
   "c1o2": {
    "text": "There's a flash of light. A great puff of thick grey smoke. Everyone coughs and splutters and waves their arms, and when the smoke finally clears, (name) is still standing alone in the circle, blinking. And the magician is gone. Completely gone, shell cloak and all. So is a very large basket of food from the store, and somebody's good knife, and the {@chief}'s other sandal. The village stands in the empty circle for a long time. Then someone starts laughing, and can't stop.",
@@ -193,7 +194,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4604"
+   "src": "L4604",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) looks at the magician's slow smile, and at the circle in the sand, and suddenly gets cold feet. \"Actually,\" (he/she) says, \"I think I'll let one of the children have a go.\" (He/She) steps back into the crowd. The magician's smile flickers...",

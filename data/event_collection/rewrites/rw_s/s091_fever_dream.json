@@ -137,7 +137,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L4276"
+   "src": "L4276",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The researchers listen very politely, nodding, all the way through: the lizard, the crown, the upward rain, the door in the sea, the number, all of it. They hold their charcoal very still over the bark. When (name) finally finishes, they thank (him/her) warmly, tell (him/her) to get some rest, and leave. They haven't written down a single word. (Name) is sure, for the rest of (his/her) life, that it all meant something.",
@@ -165,7 +166,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4285"
+   "src": "L4285",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) rests. The fever breaks, and doesn't come back. But it was too high for too long, and it has taken a great deal out of (him/her) on its way out. (Name) is left weak, for good. (He/She) tires after the shortest walk. (His/her) hair has gone grey at the front, and (his/her) face looks years older. And (his/her) mind, which the fever burned so hot, gets tired and foggy whenever (he/she) tries to learn anything new. The healers say (he/she) is lucky to be alive. On good days, (name) agrees.",
@@ -186,7 +188,8 @@
      "next": "c2o2_c1"
     }
    ],
-   "src": "L4288"
+   "src": "L4288",
+   "auto_text": true
   },
   "c2": {
    "text": "The healers won't hear of anything else. They lay (name) back down, cover (him/her) with a blanket, give (him/her) a cup of honey tea, and sit with (him/her) while (he/she) sleeps, and sleeps...",

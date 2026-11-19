@@ -142,7 +142,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L1319"
+   "src": "L1319",
+   "auto_text": true
   },
   "c1o2": {
    "text": "By the time (name) finds a stick of charcoal and a scrap of bark that isn't already written on, most of it has gone, the way dreams go: one moment it's all there, and the next there's just a feeling. (He/She) sits in the research hut with the empty bark in front of (him/her), close to tears. All that's left is one thing, which stays with (him/her), very clear and very strong: an opinion about soil. Where it's good, where it's tired, what it needs. It turns out to be a very useful opinion, and the farmers are delighted with it.",
@@ -157,7 +158,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1322"
+   "src": "L1322",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) leaps up and runs for the research hut, holding (his/her) head with both hands as if it might spill. Everything is fading already, like a dream does, and (he/she) has to get it down before it's gone...",
@@ -186,7 +188,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L1328"
+   "src": "L1328",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The Tree seems pleased. A single drop of its dark, old sap gathers on the bark above (name)'s head, swells, and falls, right onto (his/her) lips. It tastes of earth and rain and time. With it, it seems, comes a little of the Tree's own age. (Name) wakes the next morning with silver threads in (his/her) hair and lines at the corners of (his/her) eyes, ten years older than (he/she) went to sleep. And with a great calm in (his/her) heart, and a steadiness in (his/her) hands at (his/her) work, that (he/she) never had before.",
@@ -207,7 +210,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1331"
+   "src": "L1331",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) doesn't move. (He/She) turns round, very slowly, presses both hands flat against the warm bark and bows (his/her) head. \"Thank you,\" (he/she) says. The whole Tree seems to shiver, from the roots to the topmost leaves...",

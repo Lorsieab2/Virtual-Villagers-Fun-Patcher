@@ -86,7 +86,8 @@
      "who": "all",
      "src": "L134"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -100,7 +101,8 @@
      "percent": 15,
      "src": "L137"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

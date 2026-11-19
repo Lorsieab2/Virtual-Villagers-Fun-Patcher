@@ -138,7 +138,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14341"
+   "src": "L14341",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The bridge breaks under (name) with the far side almost in reach. (He/She) falls, hits the slope, and slides down into the ferns at the bottom of the ravine. It takes the whole afternoon to bring (him/her) up on a stretcher. (His/her) legs never work properly again, and (he/she) never goes near the far gardens after that. The builders build the new bridge in a week, out of guilt.",
@@ -159,7 +160,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L14344"
+   "src": "L14344",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) runs, the bridge swinging wildly under (his/her) feet, seedlings flying out of the basket into the ravine. The ticks come faster and faster...",
@@ -185,7 +187,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14350"
+   "src": "L14350",
+   "auto_text": true
   },
   "c2o2": {
    "text": "A builder on the near side sees what's happening and throws (name) a rope. (Name) ties it around (his/her) waist with shaking hands, and the builder hauls (him/her) back to safety as the old bridge sags and twists. The new bridge goes up that week. (Name) is the first to cross it, very slowly, holding both ropes.",

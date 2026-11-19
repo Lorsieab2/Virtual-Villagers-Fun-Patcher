@@ -196,9 +196,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "He enjoys the afternoon and learns how much work caregiving takes.",
-   "src": "L194"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -218,14 +225,69 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "He finds comfort in naming what matters to him.",
-   "src": "L197"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "He realizes some hopes have changed since he was younger.",
    "src": "L198"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "He enjoys the afternoon and learns how much work caregiving takes.",
+   "src": "L194",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L194"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L194"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "He enjoys the afternoon and learns how much work caregiving takes.",
+   "src": "L194"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "He finds comfort in naming what matters to him.",
+   "src": "L197",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L197"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "He finds comfort in naming what matters to him.",
+   "src": "L197"
   }
  }
 }

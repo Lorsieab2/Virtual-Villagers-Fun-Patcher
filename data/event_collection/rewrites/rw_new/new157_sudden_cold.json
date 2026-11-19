@@ -197,7 +197,8 @@
      "scaled": true
     }
    ],
-   "src": "L7579"
+   "src": "L7579",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The roots are saved, but the cold damp has crept into the storehouse. A basket of stored fruit has gone soft and brown and rotten, and is thrown out.",
@@ -209,7 +210,8 @@
      "loss": true
     }
    ],
-   "src": "L7581"
+   "src": "L7581",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) rounds up anyone with a digging stick and warm enough hands, and they head out into the cold fields...",
@@ -239,7 +241,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7588"
+   "src": "L7588",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) goes from hut to hut in the frosty dark, checking on everyone, especially the elders and the babies...",
@@ -264,7 +267,8 @@
      "scaled": true
     }
    ],
-   "src": "L7593"
+   "src": "L7593",
+   "auto_text": true
   },
   "c3o2": {
    "text": "Nobody can agree which nights were the coldest. Everyone was too busy shivering to keep proper track. The villagers decide to wait for more evidence. Ideally, they all add, much later.",
@@ -298,7 +302,8 @@
      "loss": true
     }
    ],
-   "src": "L7602"
+   "src": "L7602",
+   "auto_text": true
   },
   "c4": {
    "text": "(Name) gathers the weavers, and they set to work on thick new mats and blankets for every family...",

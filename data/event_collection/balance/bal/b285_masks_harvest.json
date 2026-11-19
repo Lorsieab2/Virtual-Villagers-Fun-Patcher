@@ -137,7 +137,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13269"
+   "src": "L13269",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject)'s mask comes off clean. (dancer)'s doesn't come off at all until long after moonrise, and when it finally does, (dancer) has a completely different face. (subject.His/Her) own mother needs a moment to recognise (subject.him/her). (dancer), looking at (subject.himself/herself) in the water, decides (subject.he/she) likes it better than the old one.",
@@ -148,7 +149,8 @@
      "head": "random"
     }
    ],
-   "src": "L13272"
+   "src": "L13272",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) stops in the middle of the dance and pulls at the mask. It doesn't want to come. It clings to (subject.his/her) cheeks, warm as skin. (subject.He/She) pulls harder...",
@@ -172,7 +174,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13278"
+   "src": "L13278",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The mask is the face of the youngest spirit, the one who runs along the reef at dawn, and when (subject) takes it off, (subject.his/her) face is young and bright and smooth, though (subject.his/her) age is the same. The elders shake their heads and say the young spirit always was a show-off. (subject) is in no hurry to change back.",
@@ -182,7 +185,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13281"
+   "src": "L13281",
+   "auto_text": true
   },
   "c2": {
    "text": "The drums are too good to stop. (subject) dances on under the rising moon, and the mask gets warmer and warmer against (subject.his/her) face...",

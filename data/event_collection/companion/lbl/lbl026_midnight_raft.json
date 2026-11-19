@@ -108,9 +108,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "They return at dawn, exhausted and grounded.",
-   "src": "L4136"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -124,7 +131,8 @@
      "max": -10,
      "src": "L4137"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",
@@ -143,7 +151,42 @@
      "reason": "missing is not dead (L3784): the teen vanishes, no death and no grave",
      "src": "L4138"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "They return at dawn, exhausted and grounded.",
+   "src": "L4136",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "teen1",
+     "min": -30,
+     "max": -15,
+     "src": "L4136"
+    },
+    {
+     "do": "health_change",
+     "role": "teen2",
+     "min": -30,
+     "max": -15,
+     "src": "L4136"
+    },
+    {
+     "do": "health_change",
+     "role": "teen3",
+     "min": -30,
+     "max": -15,
+     "src": "L4136"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "They return at dawn, exhausted and grounded.",
+   "src": "L4136"
   }
  }
 }

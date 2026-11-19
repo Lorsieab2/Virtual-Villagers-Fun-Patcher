@@ -238,7 +238,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10249"
+   "src": "L10249",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The carvers come back puzzled. There are no tool marks on it anywhere, not a single scrape, as if the face had grown that way. And the wood doesn't match any tree on this part of the island. \"Maybe it's very, very old,\" someone suggests. Nobody has a better idea. The mask goes on a shelf in the research hut, where it smiles all day and weeps all night.",

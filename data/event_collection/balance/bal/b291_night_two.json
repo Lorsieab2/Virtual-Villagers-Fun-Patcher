@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13536"
+   "src": "L13536",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) is soon pregnant, and the healers, feeling her belly, count {#babies:one very strong kicker|two sets of kicks|three sets of kicks}. \"The False Dawn always did like company,\" says the oldest healer. (friend) sits down on the floor of the healers' hut and stays there for some time.",
@@ -152,7 +153,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13539"
+   "src": "L13539",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) shakes (friend) gently. (subject.He/She) grumbles, then sees the glow and sits up. They wrap themselves in one blanket and sit in the doorway, watching the strange light...",
@@ -178,7 +180,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13545"
+   "src": "L13545",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The light fades and the real dawn comes up, pink and ordinary. (subject) goes back inside and slips under the blanket. \"Where were you?\" (friend) mumbles. \"Watching the False Dawn.\" \"Mm,\" says (friend), and goes back to sleep. Later, at breakfast, (subject.he/she) is very annoyed that (subject.he/she) missed it.",

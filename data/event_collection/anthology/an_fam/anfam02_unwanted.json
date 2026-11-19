@@ -229,9 +229,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "(child) selects a simple alternative and eats contentedly.",
-   "src": "L28324"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -256,6 +263,51 @@
    "src": "L28327"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(child) selects a simple alternative and eats contentedly.",
+   "src": "L28324",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L28324"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(child) selects a simple alternative and eats contentedly.",
+   "src": "L28324"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "(cook) admits the recipe was an experiment and laughs.",
+   "src": "L28328",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook",
+     "mood": "good",
+     "src": "L28328"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "(cook) admits the recipe was an experiment and laughs.",
    "src": "L28328"

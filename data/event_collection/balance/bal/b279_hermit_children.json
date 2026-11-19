@@ -140,7 +140,8 @@
      "age": "adult"
     }
    ],
-   "src": "L13001"
+   "src": "L13001",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The canoe brings one of (hermit)'s children, now grown, and two grandchildren: a gangly teenager and a small child who won't let go of (subject.his/her) parent's leg. The teenager takes one look at the island and declares that it is \"much better than the last one.\" {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}. (hermit) teaches the teenager to dry fish, and they don't talk much, which suits them both.",
@@ -158,7 +159,8 @@
      "age": "child"
     }
    ],
-   "src": "L13004"
+   "src": "L13004",
+   "auto_text": true
   },
   "c1": {
    "text": "\"They're coming all this way,\" says (subject). \"Let them come.\" (hermit) nods slowly, and goes home to sweep (subject.his/her) hut for the first time in years...",
@@ -193,7 +195,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13010"
+   "src": "L13010",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The canoe is just a trader, who has never heard of (hermit)'s children. The rumour, it turns out, came from somebody else's cousin. (subject) walks across the island to break the news. (hermit) listens, nods, and goes back to drying fish. But (subject.he/she) leaves (subject.his/her) hut swept, and next time (subject.he/she) comes to the village, (subject.he/she) says hello.",

@@ -208,7 +208,8 @@
      "scaled": true
     }
    ],
-   "src": "L15745"
+   "src": "L15745",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) gathers a few strong villagers and sets off down the long road out of the village, calling out and searching the ditches and the trees on either side...",
@@ -233,7 +234,8 @@
      "scaled": true
     }
    ],
-   "src": "L15750"
+   "src": "L15750",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) waits all day. No traveler appears. When (he/she) finally gives up at nightfall and goes back to the village, (he/she) finds that the messenger is gone too. (His/her) sleeping mat is empty, the cup by it still half full. Nobody saw (him/her) leave. Nobody saw anyone on the road. The village never does find out what the gift was, or who it was for.",

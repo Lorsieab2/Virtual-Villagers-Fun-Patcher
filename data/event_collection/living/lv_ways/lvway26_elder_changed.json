@@ -90,9 +90,16 @@
    "src": "L23107"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The elder feels embarrassed by the attention.",
-   "src": "L23108"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -108,14 +115,21 @@
   },
   "b1": {
    "name": "Outcome B1",
-   "text": "The harvest improves without public conflict.",
-   "src": "L23110",
    "effects": [
     {
      "do": "food",
      "size": "small",
      "scaled": true,
      "src": "L23110"
+    }
+   ],
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
     }
    ]
   },
@@ -137,9 +151,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "Both techniques prove useful under different conditions.",
-   "src": "L23113"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -164,6 +185,90 @@
    "src": "L23116"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The elder feels embarrassed by the attention.",
+   "src": "L23108",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "bad",
+     "src": "L23108"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The elder feels embarrassed by the attention.",
+   "src": "L23108"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The harvest improves without public conflict.",
+   "src": "L23110",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23110"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The harvest improves without public conflict.",
+   "src": "L23110"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "Both techniques prove useful under different conditions.",
+   "src": "L23113",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23113"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "Both techniques prove useful under different conditions.",
+   "src": "L23113"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "A poor harvest renews the debate.",
+   "src": "L23117",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L23117"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "A poor harvest renews the debate.",
    "src": "L23117"

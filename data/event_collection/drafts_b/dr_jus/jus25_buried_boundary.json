@@ -74,6 +74,32 @@
    "src": "L302"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The elders ask them to work it out between themselves, with the stones in front of them. They stand over the stones for a long time. At last (friend) says, \"What if we just grew something on it together?\" They plant a row of melons there. It turns out to be the best row in either garden, which settles nothing, but makes the question seem less important.",
+   "src": "L305",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "src": "L305"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "The elders ask them to work it out between themselves, with the stones in front of them. They stand over the stones for a long time. At last (friend) says, \"What if we just grew something on it together?\" They plant a row of melons there. It turns out to be the best row in either garden, which settles nothing, but makes the question seem less important.",
    "src": "L305"

@@ -230,11 +230,14 @@
    ]
   },
   "n3": {
-   "src": "L2955-2956",
-   "text": "The villagers discover that the apparently smallest hut has the best ventilation. They reconsider their assumptions.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "end"
+     "next": "n3__fx"
+    },
+    {
+     "next": "n3__text"
     }
    ]
   },
@@ -291,7 +294,8 @@
     {
      "next": "end"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "m2": {
    "src": "L2963-2965",
@@ -321,7 +325,8 @@
      "max": 10,
      "src": "L2966-2967"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "m4": {
    "src": "L2968-2969",
@@ -342,7 +347,8 @@
      "max": 10,
      "src": "L2968-2969"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "talk": {
    "type": "branch",
@@ -420,22 +426,34 @@
    ]
   },
   "e1": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L2982-2983",
-   "text": "By evening, everyone has a safe place to rest. The village feels a little more like home."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L2984-2985",
-   "text": "{@Chief} asks the builders to write down what they learned before the next group of newcomers arrives.",
    "effects": [
     {
      "do": "tech",
      "size": "small",
      "scaled": true,
      "src": "L2984-2985"
+    }
+   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
     }
    ]
   },
@@ -456,6 +474,87 @@
    "join": "paragraph",
    "src": "L2990-2991",
    "text": "The elder invites the newcomers for tea and complains about the village's architecture with great affection."
+  },
+  "n3__fx": {
+   "src": "L2955-2956",
+   "text": "The villagers discover that the apparently smallest hut has the best ventilation. They reconsider their assumptions.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L2955-2956"
+    }
+   ],
+   "auto_text": true
+  },
+  "n3__text": {
+   "src": "L2955-2956",
+   "text": "The villagers discover that the apparently smallest hut has the best ventilation. They reconsider their assumptions.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "e1__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2982-2983",
+   "text": "By evening, everyone has a safe place to rest. The village feels a little more like home.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "builder",
+     "mood": "good",
+     "src": "L2982-2983"
+    },
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L2982-2983"
+    },
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L2982-2983"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2982-2983",
+   "text": "By evening, everyone has a safe place to rest. The village feels a little more like home."
+  },
+  "e2__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2984-2985",
+   "text": "{@Chief} asks the builders to write down what they learned before the next group of newcomers arrives.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L2984-2985"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2984-2985",
+   "text": "{@Chief} asks the builders to write down what they learned before the next group of newcomers arrives."
   }
  }
 }

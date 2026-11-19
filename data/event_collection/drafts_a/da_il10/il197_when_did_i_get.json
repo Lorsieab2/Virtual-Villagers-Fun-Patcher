@@ -61,14 +61,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"Well, look at you,\" (name1) says to the reflection. The reflection looks back, wrinkled and white-haired and a bit startled. (name1) pulls a face at it. It pulls a face back. (He/She) laughs out loud, and the reflection breaks up into ripples. (He/She) still feels thirty-five. (He/She) just looks like (he/she) has had a very interesting time getting here.",
-   "src": "L194"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(name1) sits back on (his/her) heels. When did that happen? It doesn't feel like long ago that (he/she) was the young one being told off by the elders. Now (he/she) is the elder. (He/She) doesn't feel sad about it, exactly. Just surprised, the way you're surprised to find the tide has come in while you weren't looking. (He/She) drinks (his/her) water and goes home.",
    "src": "L197"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Well, look at you,\" (name1) says to the reflection. The reflection looks back, wrinkled and white-haired and a bit startled. (name1) pulls a face at it. It pulls a face back. (He/She) laughs out loud, and the reflection breaks up into ripples. (He/She) still feels thirty-five. (He/She) just looks like (he/she) has had a very interesting time getting here.",
+   "src": "L194",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L194"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Well, look at you,\" (name1) says to the reflection. The reflection looks back, wrinkled and white-haired and a bit startled. (name1) pulls a face at it. It pulls a face back. (He/She) laughs out loud, and the reflection breaks up into ripples. (He/She) still feels thirty-five. (He/She) just looks like (he/she) has had a very interesting time getting here.",
+   "src": "L194"
   }
  }
 }

@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L675"
+   "src": "L675",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The moths leave, and (name) lies there in the grey light feeling strangely light, as though something heavy has been lifted off (his/her) chest. It takes (him/her) a few days to work out what it was. (Name) has always hated the cold shock of deep water, and one hot morning (he/she) wades straight into the lagoon up to (his/her) neck without thinking about it, and only realises afterwards. \"Vine night,\" (he/she) tells anyone who asks.",
@@ -144,7 +145,8 @@
      "role": "subject"
     }
    ],
-   "src": "L678"
+   "src": "L678",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) holds (his/her) breath. The moths shift their wings, slow and soft, like breathing. One by one, as the sky starts to grey, they lift off and drift away towards the vines...",

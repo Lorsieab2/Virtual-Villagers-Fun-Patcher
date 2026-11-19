@@ -143,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11041"
+   "src": "L11041",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) dunks (subject.his/her) head under, once. The mud does nothing for the back, but when (subject.he/she) washes off, (subject.his/her) face is fifteen years younger, glowing and smooth. (healer) says the mud must work on whatever it touches longest. (subject) decides to go back tomorrow and lie down.",
@@ -153,7 +154,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11044"
+   "src": "L11044",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) wades in up to (subject.his/her) neck, between two delighted pigs. The mud is hot and thick and sucks at (subject.his/her) legs, and the ache in (subject.his/her) back starts to melt...",
@@ -179,7 +181,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11050"
+   "src": "L11050",
+   "auto_text": true
   },
   "c2o2": {
    "text": "By the time (subject) gets home, the pot of mud has gone cold and grey and smells even worse. (subject.He/She) spreads it on (subject.his/her) back anyway. Nothing happens, except that the hut smells of rotten eggs for a week. The pigs look very young for a season, and then just look like pigs again.",

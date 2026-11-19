@@ -140,7 +140,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13091"
+   "src": "L13091",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject)'s partner, (partner), is waiting at the edge of the pond and gives a little cry when (subject.he/she) sees what (subject) is carrying. They take the baby home together and spend the first night just looking at it. (friend) brings them a basket of yellow petals in the morning, a little wistfully, to line the sleeping basket.",
@@ -152,7 +153,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13094"
+   "src": "L13094",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) wades into the pond, lifts the baby out of the flower, and holds it close. It smells of pollen. The lotus closes slowly behind (subject.him/her)...",
@@ -182,7 +184,8 @@
      "next": "c2o1_c1"
     }
    ],
-   "src": "L13100"
+   "src": "L13100",
+   "auto_text": true
   },
   "c2o2": {
    "text": "As (friend) lifts the baby, it begins to cry, and the lotus begins to close. (friend) panics and lays it back on the petals, and the flower closes over it gently and sinks below the water. The next morning there is only an ordinary lotus there. The elders say the Lotus Mother will try again, in some other year, when somebody is sure.",

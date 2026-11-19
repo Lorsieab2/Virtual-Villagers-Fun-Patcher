@@ -207,7 +207,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10065"
+   "src": "L10065",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Out pops a crab. A big, cross, extremely offended crab, who has apparently spent the whole voyage trapped among a pile of empty jars, tapping its claw against the wood. It scuttles sideways out of the crate, glares at everyone individually, and makes straight for the surf. The villagers laugh until they cry. The jars are all empty, but nobody minds very much.",

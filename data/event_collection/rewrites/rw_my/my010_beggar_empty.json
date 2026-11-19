@@ -207,7 +207,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10419"
+   "src": "L10419",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The beggar eats slowly, savouring every bite, then scrapes the bowl clean, bows once to (name), and walks on into the heat shimmer. No gift. No strange glow. No magic. Just a hungry old person who isn't hungry anymore. (Name) goes to bed with an empty stomach and finds, to (his/her) surprise, that (he/she) doesn't mind at all.",
@@ -240,7 +241,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10426"
+   "src": "L10426",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The old one tries, really tries, but after an hour (his/her) hands are shaking and (he/she) has to sit down in the shade. (Name) suddenly feels terrible. (He/She) brings the beggar a full bowl anyway and apologizes for making help depend on work. The beggar pats (his/her) hand. \"You're learning,\" the old one says, and eats.",

@@ -207,7 +207,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16499"
+   "src": "L16499",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) reaches for the green bottle. It is cool and heavy in (his/her) hand. The stranger nods once, gathers up the chest and the bowl, and is gone. (Name) works the wax seal loose, and pulls out the stopper...",
@@ -232,7 +233,8 @@
      "scaled": true
     }
    ],
-   "src": "L16504"
+   "src": "L16504",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Inside is grain: sacks and sacks of it, packed tight. (Name) is delighted for about a breath. Then the smell hits. The grain is mouldy and spoiled through, crawling with weevils. Worse, by the time (name) realizes it, (he/she) has already stacked it in the village storehouse, and the weevils have spread into the good stores beside it. The villagers have to throw out a fair amount of food. (Name) is not popular for a while.",
@@ -244,7 +246,8 @@
      "loss": true
     }
    ],
-   "src": "L16506"
+   "src": "L16506",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) chooses the iron-bound chest. It is heavy, and something shifts inside it. The stranger nods, gathers up the other two gifts, and is gone. (Name) drags the chest inside and pries open the lid...",
@@ -269,7 +272,8 @@
      "scaled": true
     }
    ],
-   "src": "L16511"
+   "src": "L16511",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The bowl remains empty, day after day. It is just a plain, ordinary bowl. Then (name) notices that a struggling family down the path has nothing to eat from but a cracked old shell. (He/she) gives them the bowl. The family uses it every day for years, for every meal, and never knows where it came from. (Name) never regrets the choice. (He/she) suspects, in fact, that it might have been the right one all along.",

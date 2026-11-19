@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1899"
+   "src": "L1899",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Nobody can quite remember. They scratch their heads, they look at each other, they say \"it's on the tip of my tongue.\" Then a very small child tugs at (name)'s wrap, looks up at (him/her), and says (his/her) name, without the slightest hesitation, as if it were the most obvious thing in the world. It all comes rushing back at once. (Name) is so grateful that (he/she) picks the child up, spins (him/her) round, and gives (him/her) (his/her) dessert that night, and the next night too.",
@@ -160,7 +161,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1908"
+   "src": "L1908",
+   "auto_text": true
   },
   "c2o2": {
    "text": "...well. (He/She) stands there. (He/She) can't think of one. Not a single name comes into (his/her) head, good or bad. So (he/she) shrugs. And every time someone asks after that, (he/she) shrugs again. Whatever the moon-vine took, it isn't giving back, and (he/she) is left with no name at all: just \"?\". To everyone's surprise, (name) rather likes it. \"It's honest,\" (he/she) says. \"Nobody really knows who they are anyway.\"",
@@ -170,7 +172,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1911"
+   "src": "L1911",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) decides that if (his/her) name can't be bothered to stay, (he/she) can't be bothered to go looking for it. (He/She) stands in the middle of the village, clears (his/her) throat, and announces that from now on (he/she) shall be called...",

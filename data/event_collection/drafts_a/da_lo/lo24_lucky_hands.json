@@ -85,9 +85,42 @@
      "max": 10,
      "src": "L291"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) plants all the seeds without a word. Nearly every one comes up. (friend) is delighted and tells everyone about (subject)'s lucky hands. (subject) doesn't argue. It's quite nice, honestly, being thought of as lucky. Even if, deep down, (subject.he/she) knows it's mostly the watering.",
+   "src": "L294",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L294"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L294"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) plants all the seeds without a word. Nearly every one comes up. (friend) is delighted and tells everyone about (subject)'s lucky hands. (subject) doesn't argue. It's quite nice, honestly, being thought of as lucky. Even if, deep down, (subject.he/she) knows it's mostly the watering.",
    "src": "L294"

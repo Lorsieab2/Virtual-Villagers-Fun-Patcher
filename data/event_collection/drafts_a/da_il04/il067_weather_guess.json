@@ -70,6 +70,32 @@
    "src": "L86"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) just smiles and says nothing. The day turns out sunny, with a little wind after lunch. That evening (subject.he/she) scratches a line on the wall, then, after a moment, a tiny extra mark next to it, which is (subject.his/her) private way of saying \"and (friend) was wrong.\" (subject.He/She) has never been so pleased with a mark in (subject.his/her) life.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L89"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) just smiles and says nothing. The day turns out sunny, with a little wind after lunch. That evening (subject.he/she) scratches a line on the wall, then, after a moment, a tiny extra mark next to it, which is (subject.his/her) private way of saying \"and (friend) was wrong.\" (subject.He/She) has never been so pleased with a mark in (subject.his/her) life.",
    "src": "L89"

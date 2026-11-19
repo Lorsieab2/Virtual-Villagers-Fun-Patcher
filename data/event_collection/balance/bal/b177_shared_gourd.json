@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8211"
+   "src": "L8211",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They swap bodies, and with that, they understand exactly why the other one is the way they are: the aches, the habits, the small fears. By the bottom of the mountain they are calmer than either has ever been. \"I'm sorry about the knee,\" says (subject). \"I'm sorry about the stomach,\" says (friend). A few things that used to bother them stop bothering them.",
@@ -153,7 +154,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8214"
+   "src": "L8214",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) fills the gourd and drinks half, and hands it to (friend), who drinks the rest. The water tastes of cold stone and nothing else. They look at each other, waiting for something...",
@@ -183,7 +185,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8223"
+   "src": "L8223",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Let's not be silly,\" says (friend). They kneel at the spring and drink out of their own cupped hands, side by side, and sit back on their heels...",

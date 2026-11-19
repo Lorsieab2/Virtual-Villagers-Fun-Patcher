@@ -148,7 +148,8 @@
      "child_of_newest": true
     }
    ],
-   "src": "L540"
+   "src": "L540",
+   "auto_text": true
   },
   "c1o2": {
    "text": "There are three of them: a grandparent with arms like rope from years of paddling, a gangly teen who won't stop staring at the village's huts, and a small child who falls asleep in the first warm lap (he/she) can find. The grandparent takes one look at the gardens and starts telling the farmers what they're doing wrong. Annoyingly, the grandparent is right. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}.",
@@ -166,7 +167,8 @@
      "age": "child"
     }
    ],
-   "src": "L543"
+   "src": "L543",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) walks down the beach and holds out (his/her) hand. \"You won't rest on the sand,\" (he/she) says. \"Come up to the fire.\" Behind (him/her), a few of the mutterers go quiet...",
@@ -192,7 +194,8 @@
      "loss": true
     }
    ],
-   "src": "L549"
+   "src": "L549",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The baby, hidden under the sail cloth until now, starts to cry just as they're pushing off. And something about the sound reaches the whole village at once. The people who were muttering are the first ones down the beach, waving their arms. \"Wait. Come back. There's room.\" {#made:There is, but only for one of them, who stays|There is, but only for two of them, who stay|There is, and they decide to stay}.",
@@ -211,7 +214,8 @@
      "child_of_newest": true
     }
    ],
-   "src": "L552"
+   "src": "L552",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) fetches dried fish, water gourds and a basket of fruit and carries it down to the canoe. The family thanks (him/her) over and over...",

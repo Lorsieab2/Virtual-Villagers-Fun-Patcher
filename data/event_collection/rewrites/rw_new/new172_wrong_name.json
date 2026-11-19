@@ -169,7 +169,8 @@
      "scaled": true
     }
    ],
-   "src": "L8345"
+   "src": "L8345",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The only bark sheet explaining the village's old naming customs, and where names like (subject)'s came from, is fetched from the record hut. It's so old and dry that it crumbles while it is being copied, and that bit of old knowledge is lost. (subject) is sad about it, which surprises (subject.him/her).",
@@ -181,7 +182,8 @@
      "loss": true
     }
    ],
-   "src": "L8347"
+   "src": "L8347",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) decides that if people are going to remember the old name, they might as well know where it came from. (subject.He/She) gathers a few curious listeners and explains...",
@@ -206,7 +208,8 @@
      "scaled": true
     }
    ],
-   "src": "L8352"
+   "src": "L8352",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The relatives can't agree on why the name was given. One says it was a great-uncle's idea. One says it was a dream. One says it was a mistake, and the baby was supposed to be called something else entirely. Nobody pretends to know, and (subject) gives up.",
@@ -235,7 +238,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8359"
+   "src": "L8359",
+   "auto_text": true
   },
   "c3o2": {
    "text": "Standing on the log, looking at all the faces, (subject) changes (subject.his/her) mind. The story behind (subject.his/her) name is nobody else's business. (subject.He/She) climbs down and keeps it private. \"What were you going to say?\" someone asks. \"Pass the fish,\" says (subject).",

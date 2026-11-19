@@ -139,7 +139,8 @@
      }
     }
    ],
-   "src": "L2267"
+   "src": "L2267",
+   "auto_text": true
   },
   "c1o2": {
    "text": "There are more caterpillars than leaves. (Name) picks until (his/her) fingers are green and (his/her) back is screaming, and at sunset there's still a caterpillar on every plant, looking at (him/her). (Name) never wants to see a garden again. The sick get better in a few days anyway.",
@@ -151,7 +152,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2270"
+   "src": "L2270",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) kneels in the dirt and starts picking caterpillars off the leaves one by one, dropping them in a bowl to carry out to the forest...",
@@ -177,7 +179,8 @@
      }
     }
    ],
-   "src": "L2276"
+   "src": "L2276",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The walk is long, and hot, and beautiful, and somewhere along the way (name) stops minding it. By the time (he/she) gets back, with the herbs, (he/she) has stopped minding the bitter smell of the herbs, which (he/she) always hated. The sick get better. (Name) offers to make the walk again next month.",
@@ -189,7 +192,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2279"
+   "src": "L2279",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) sets off at dawn with an empty basket, over the ridge and down into the far valley, where the wild herbs grow thick along the stream...",

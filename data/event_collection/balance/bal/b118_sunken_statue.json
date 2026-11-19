@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5345"
+   "src": "L5345",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Someone surfaces beside (name), wearing (his/her) face, and nothing else of (his/hers): different likes, different gifts, a different way of laughing. It treads water and grins. \"Hello,\" it says. \"Are you lonely?\" It takes the name (made1), and is very good company.",
@@ -143,7 +144,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L5348"
+   "src": "L5348",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) presses (his/her) palm against the cold stone one. The water around them shivers, and the sand at the statue's feet starts to stir...",
@@ -172,7 +174,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5357"
+   "src": "L5357",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) kicks for the surface, and doesn't look back, though (he/she) has the strangest feeling the statue's head turned to watch (him/her) go...",

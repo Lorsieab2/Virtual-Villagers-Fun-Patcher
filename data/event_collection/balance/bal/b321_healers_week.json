@@ -139,7 +139,8 @@
      }
     }
    ],
-   "src": "L14873"
+   "src": "L14873",
+   "auto_text": true
   },
   "c1o2": {
    "text": "\\(Head healer name\\) laughs, which surprises everyone. \"I fainted for three years,\" (he/she) says. \"Every time. Here's what I did.\" (He/She) shows (name) how to breathe, where to look, how to keep (his/her) hands busy. By the end of the week, (name) can watch a cut stitched without going grey. The healers' hut, which (he/she) used to dread, starts to feel like (his/hers).",
@@ -151,7 +152,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14876"
+   "src": "L14876",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) puts (his/her) hand up. \"I faint,\" (he/she) says. \"At blood. I'm sorry.\" The other healers stare. \\(Head healer name\\) puts down the knife...",
@@ -178,7 +180,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14882"
+   "src": "L14882",
+   "auto_text": true
   },
   "c2o2": {
    "text": "On the third cut, (name) goes down like a felled tree, taking a tray of jars with (him/her). (He/She) wakes up on the floor with \\(head healer name\\) fanning (him/her) and the whole class staring. From then on (name) dreads the healers' hut more than ever, and finds every reason (he/she) can to be somewhere else when the healers are needed.",
@@ -189,7 +192,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14885"
+   "src": "L14885",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) says nothing, fixes (his/her) eyes on the far wall, and holds very still while \\(head healer name\\) starts cutting...",

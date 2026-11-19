@@ -126,7 +126,8 @@
      "max": 10,
      "src": "L243"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o3": {
    "name": "Outcome C",
@@ -139,7 +140,8 @@
      "scaled": true,
      "src": "L247"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "The elders ask (friend) whether (friend.he/she) wanted to trade. \"No. I wanted (subject.him/her) to stop asking.\" The elders say that a trade made only to end the asking isn't a fair trade, and ask them to swap back. (subject) is cross, and says (friend) should have said no. (friend) says (friend.he/she) did, six times. The elders agree with (friend).",
-   "src": "L470"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) finds (subject). \"I said yes to make you stop asking. That isn't the same as wanting to.\" (subject) is quiet for a moment. \"...I did ask a lot.\" (subject.He/she) gives back the spear, and (friend) gives back the shells and the comb. Things are a little awkward for a while. Then (subject) asks to borrow the spear, just once, and asks only once.",
    "src": "L473"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The elders ask (friend) whether (friend.he/she) wanted to trade. \"No. I wanted (subject.him/her) to stop asking.\" The elders say that a trade made only to end the asking isn't a fair trade, and ask them to swap back. (subject) is cross, and says (friend) should have said no. (friend) says (friend.he/she) did, six times. The elders agree with (friend).",
+   "src": "L470",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L470"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The elders ask (friend) whether (friend.he/she) wanted to trade. \"No. I wanted (subject.him/her) to stop asking.\" The elders say that a trade made only to end the asking isn't a fair trade, and ask them to swap back. (subject) is cross, and says (friend) should have said no. (friend) says (friend.he/she) did, six times. The elders agree with (friend).",
+   "src": "L470"
   }
  }
 }

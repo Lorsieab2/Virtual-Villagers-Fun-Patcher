@@ -145,7 +145,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10053"
+   "src": "L10053",
+   "auto_text": true
   },
   "c1o2": {
    "text": "It works, slowly, over three days. When (healer) comes back, (subject) tells (subject.him/her) everything, and (healer) asks so many questions that by the end of it they are both teaching the other healers what they found out. The healers' hut is a busier place after that.",
@@ -166,7 +167,8 @@
      }
     }
    ],
-   "src": "L10056"
+   "src": "L10056",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) brews the bitter bark tea exactly as (subject.he/she) has watched (healer) brew it a hundred times, and lays the cool cloths on (friend)'s forehead, and waits...",
@@ -192,7 +194,8 @@
      }
     }
    ],
-   "src": "L10062"
+   "src": "L10062",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The moss makes the spots much worse. (friend)'s whole skin comes up in a red, itching rash on top of the fever. (subject) washes it off in a panic and does it (healer)'s way, and (friend) gets better, slowly, over a week. When (healer) gets back, (subject.he/she) doesn't say anything at all, which is worse than anything (subject.he/she) could have said.",
@@ -204,7 +207,8 @@
      "max": -20
     }
    ],
-   "src": "L10065"
+   "src": "L10065",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) crushes the moss into a green paste and spreads it on (friend)'s spots, feeling (subject.his/her) heart pound. (friend) says it smells like a wet dog...",

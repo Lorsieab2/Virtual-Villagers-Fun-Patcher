@@ -138,6 +138,32 @@
    "src": "L1903"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), a child, tries to copy an elder's clapping pattern. (Name1) misses a beat and laughs before trying again.",
+   "src": "L1907",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1907"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1), a child, tries to copy an elder's clapping pattern. (Name1) misses a beat and laughs before trying again.",
    "src": "L1907"

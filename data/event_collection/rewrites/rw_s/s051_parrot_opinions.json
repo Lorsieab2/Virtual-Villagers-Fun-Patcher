@@ -139,7 +139,8 @@
      "next": "c1o1_c1"
     }
    ],
-   "src": "L2431"
+   "src": "L2431",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The parrot says \"No\" to absolutely everything. Hoe, hammer, scroll, basket, net: \"No.\" Then one evening (name) picks up a cooking pot, and the parrot goes completely silent. It hops down from the roof onto the edge of the pot and looks inside, hopefully. (Name) takes up cooking. (He/She) spends the whole season at the fire, gathering herbs and roots and fruits, stewing and roasting and baking, and turns out to be wonderful at it. The parrot was right. It gets the first taste of everything, which may have been the point all along.",
@@ -159,7 +160,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L2434"
+   "src": "L2434",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) decides to try an experiment. For a whole week, (he/she) picks up each tool in turn, holds it up towards the roof, and waits to see what the parrot says. The neighbours think (he/she) has lost (his/her) mind...",
@@ -190,7 +192,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2443"
+   "src": "L2443",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) refuses to be bossed about by a bird. (He/She) picks up (his/her) tools, walks right past the hut, and gets on with the day. \"No,\" says the parrot. \"No. NO.\" (Name) doesn't look up...",

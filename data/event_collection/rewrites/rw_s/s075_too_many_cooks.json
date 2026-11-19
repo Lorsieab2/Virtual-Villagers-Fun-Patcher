@@ -166,7 +166,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L3548"
+   "src": "L3548",
+   "auto_text": true
   },
   "c1": {
    "text": "Nobody wants to be the one to tell twelve people with spoons to stop. So the cooking goes on. And on. More things go in. Some things come out. One of them is definitely a sandal. The pot bubbles ominously...",

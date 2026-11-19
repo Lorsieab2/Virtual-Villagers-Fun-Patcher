@@ -173,7 +173,8 @@
      "max": 10
     }
    ],
-   "src": "L8932"
+   "src": "L8932",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) explains, a little crossly, that the farmers only told (subject.him/her) \"put up a fence.\" Not how. Not how deep. Nobody explains anything to a fisher, apparently, because they assume fishers know nothing about land. It was unclear instructions, not laziness, and the farmers, a little ashamed, start explaining things properly.",
@@ -228,7 +229,8 @@
      "max": 20
     }
    ],
-   "src": "L8946"
+   "src": "L8946",
+   "auto_text": true
   },
   "c3o2": {
    "text": "As they work, (mentor) admits something: (subject.he/she) used to be a fisher too, years ago. And switched to farming for exactly the same reason. \"I got tired of being wet.\" (subject) stares. Then they both laugh until they have to sit down in the mud.",

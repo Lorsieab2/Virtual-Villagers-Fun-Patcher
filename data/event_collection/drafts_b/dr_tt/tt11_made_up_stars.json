@@ -89,14 +89,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) names twenty more: the Sleepy Pig, the Lost Sandal, the Cooking Pot. (friend) memorizes every one, and the next day proudly recites them to (elder), an elder who knows the old star names. (elder) listens to the whole list and says, \"Those are better than ours.\" Soon all the village children use (subject)'s names.",
-   "src": "L134"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "After the third star (subject) laughs and confesses that (subject.he/she) doesn't know the real names. (friend) thinks about this. \"Then can we make up the rest together?\" They lie in the grass for an hour naming every star they can see. The next night neither of them can remember a single name, so they do it all again.",
    "src": "L137"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) names twenty more: the Sleepy Pig, the Lost Sandal, the Cooking Pot. (friend) memorizes every one, and the next day proudly recites them to (elder), an elder who knows the old star names. (elder) listens to the whole list and says, \"Those are better than ours.\" Soon all the village children use (subject)'s names.",
+   "src": "L134",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L134"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) names twenty more: the Sleepy Pig, the Lost Sandal, the Cooking Pot. (friend) memorizes every one, and the next day proudly recites them to (elder), an elder who knows the old star names. (elder) listens to the whole list and says, \"Those are better than ours.\" Soon all the village children use (subject)'s names.",
+   "src": "L134"
   }
  }
 }

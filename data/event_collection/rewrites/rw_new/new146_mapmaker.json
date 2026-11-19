@@ -201,7 +201,8 @@
      "scaled": true
     }
    ],
-   "src": "L6940"
+   "src": "L6940",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) decides that, before anything else, this sunburned person needs a drink...",
@@ -226,7 +227,8 @@
      "scaled": true
     }
    ],
-   "src": "L6945"
+   "src": "L6945",
+   "auto_text": true
   },
   "c2o2": {
    "text": "When (name) asks who taught (him/her) to make maps, the apprentice goes evasive. (He/She) won't say, and nobody insists. \"Someone very good,\" is all (he/she) offers, \"who didn't want to be found.\"",
@@ -254,7 +256,8 @@
      "age": "adult"
     }
    ],
-   "src": "L6952"
+   "src": "L6952",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The apprentice thanks them, but there is so much inland left to map, and (he/she) can't bear to stop. (He/She) walks on in the morning to map the next stretch, promising to bring back a copy.",
@@ -283,7 +286,8 @@
      "scaled": true
     }
    ],
-   "src": "L6959"
+   "src": "L6959",
+   "auto_text": true
   },
   "c4o2": {
    "text": "On the second day, rain warps the hide map badly, and the apprentice is in despair. The villagers help restretch it on a frame by the fire, slowly, until it's flat again, and send (him/her) onward with it, dry.",

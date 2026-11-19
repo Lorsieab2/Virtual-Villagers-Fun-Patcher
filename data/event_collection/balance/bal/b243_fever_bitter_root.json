@@ -147,7 +147,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "The fever breaks within the hour. So does something else. The root was too strong for a body already worn down by four days of fever, and when (subject) finally gets up, (subject.his/her) legs shake under (subject.him/her) and (subject.his/her) hands won't stop trembling. They never quite stop. (subject) is grateful to be alive, and says so, but (subject.he/she) won't set foot in the healers' hut again.",
@@ -172,7 +173,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11371"
+   "src": "L11371",
+   "auto_text": true
   },
   "c1": {
    "text": "(healer) wades into the swamp up to (subject.his/her) waist and comes back with a muddy black root that smells like a wet boot. (subject.He/She) grinds it to a paste. (subject) holds (subject.his/her) nose and swallows...",
@@ -203,7 +205,8 @@
      "best": true
     }
    ],
-   "src": "L11377"
+   "src": "L11377",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The fever lingers for another week and then fades slowly. (subject) gets better, but not quickly, and spends a long time sitting in the shade wrapped in a blanket while everyone else works. (healer) brings (subject.him/her) broth every morning and tells (subject.him/her) it was the right choice. (subject) isn't sure, but the broth is good.",
@@ -215,7 +218,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11380"
+   "src": "L11380",
+   "auto_text": true
   },
   "c2": {
    "text": "\"No roots,\" whispers (subject). (healer) nods, piles on a third blanket and sits by the mat with a bowl of cool water and a cloth. (subject.He/She) stays all night...",

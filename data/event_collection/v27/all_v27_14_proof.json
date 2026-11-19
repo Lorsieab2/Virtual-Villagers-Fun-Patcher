@@ -90,7 +90,8 @@
      "max": 10,
      "src": "L10596"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Outcome B",
@@ -126,7 +127,8 @@
      "reason": "the rare death is its own sub-branch page",
      "src": "L10598"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c_death": {
    "name": "Outcome C: death",
@@ -145,7 +147,8 @@
      "do": "kill",
      "role": "teen",
      "cause": "unknown",
-     "src": "L10598"
+     "src": "L10598",
+     "line": "injuries"
     }
    ],
    "text_only": [
@@ -154,7 +157,8 @@
      "reason": "the severe injury is its own sub-branch page",
      "src": "L10598"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",

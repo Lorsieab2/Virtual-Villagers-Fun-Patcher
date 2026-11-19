@@ -136,7 +136,8 @@
      "role": "friend"
     }
    ],
-   "src": "L14250"
+   "src": "L14250",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Halfway down the hall, the roof shifts with a long groan. (subject) shoves (friend) back towards the crack, and the rock comes down between them. (friend) gets out. (subject) does not. It takes the village two days to dig (subject.him/her) out, and when they do, they bury (subject.him/her) on the shelf where (subject.he/she) fell, among the first people, which the elders say is an honour.",
@@ -144,10 +145,12 @@
     {
      "do": "kill",
      "cause": "unknown",
-     "role": "subject"
+     "role": "subject",
+     "line": "injuries"
     }
    ],
-   "src": "L14253"
+   "src": "L14253",
+   "auto_text": true
   },
   "c1": {
    "text": "They squeeze through the crack one after the other with a torch. Inside, the cave opens out into a long, low hall, lined on both sides with stone shelves. Something at the far end is glowing faintly...",

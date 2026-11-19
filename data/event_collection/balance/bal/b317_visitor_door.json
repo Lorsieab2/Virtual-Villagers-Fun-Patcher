@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14697"
+   "src": "L14697",
+   "auto_text": true
   },
   "c1o2": {
    "text": "At the end of the beach, the figure lowers its hood, and (name) sees a face (he/she) knows: (his/her) grandparent's, long dead, smiling. \"Thank you for coming,\" it says. \"It's time.\" (Name) is found in the morning, sitting peacefully against the rocks with the torch burnt out beside (him/her). The village buries (him/her) beside that grandparent's grave.",
@@ -140,10 +141,12 @@
     {
      "do": "kill",
      "cause": "unknown",
-     "role": "subject"
+     "role": "subject",
+     "line": "injuries"
     }
    ],
-   "src": "L14700"
+   "src": "L14700",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) takes a torch and walks beside the cloaked figure down to the beach, and along it, under the stars. It doesn't speak. At the end of the beach, where the rocks begin, it stops...",
@@ -170,7 +173,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14706"
+   "src": "L14706",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The figure stops at the threshold, as if it has walked into a wall. \"Not in,\" it whispers. \"Never in.\" It turns and walks away down the beach alone. In the morning there is a line of small grey stones across (name)'s doorway that wasn't there before. (Name) leaves them where they are.",

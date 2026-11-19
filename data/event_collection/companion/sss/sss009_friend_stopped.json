@@ -78,11 +78,69 @@
    "src": "L6156"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "They repair fishing nets in comfortable silence and slowly resume conversation.",
+   "src": "L6158",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L6158"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L6158"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "They repair fishing nets in comfortable silence and slowly resume conversation.",
    "src": "L6158"
   },
-  "c": {
+  "c__fx": {
+   "name": "Answer C",
+   "text": "The villager admits feeling lonely despite avoiding crowds; together they plan one manageable visit.",
+   "src": "L6160",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "bad",
+     "src": "L6160"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
    "name": "Answer C",
    "text": "The villager admits feeling lonely despite avoiding crowds; together they plan one manageable visit.",
    "src": "L6160"

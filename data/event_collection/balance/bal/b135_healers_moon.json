@@ -148,7 +148,8 @@
      }
     }
    ],
-   "src": "L6203"
+   "src": "L6203",
+   "auto_text": true
   },
   "c1o2": {
    "text": "On the way down, the cliff edge breaks off under (subject)'s foot. (subject.He/She) slides the last bit on (subject.his/her) back and arrives at the bottom bruised and bleeding, still clutching the baskets. The healers patch (subject.him/her) up and brew the flowers in the same breath. The cough is gone by morning. (subject) is the last one in the village still in bed.",
@@ -166,7 +167,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6206"
+   "src": "L6206",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) climbs by moonlight, which is bright enough to read by. Halfway up the cliff, the flowers start to open all around (subject.him/her), pale and glowing, with a sound like a hundred tiny breaths...",
@@ -206,7 +208,8 @@
      "what": "\"celebrate\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "Most of the pots do nothing. One pot, a mixture of four things nobody would ever have put together, cures the two sickest people in the village overnight. Nobody wrote down what was in it. The healers spend the whole next day arguing about it, and get so confused they forget things they used to know. \"It had bark in it,\" says (healer). \"Definitely bark.\"",
@@ -229,7 +232,8 @@
      }
     }
    ],
-   "src": "L6215"
+   "src": "L6215",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) empties every basket onto the floor of the hut: old roots, dried leaves, bits of bark nobody can name. The healers sit in a circle in the moonlight and start brewing everything, one pot after another...",

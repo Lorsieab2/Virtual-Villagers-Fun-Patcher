@@ -223,7 +223,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L13081"
+   "src": "L13081",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Inside is a single folded piece of bark with a message on it. (Name) unfolds it, and goes cold. It's written in (his/her) own handwriting. Unmistakably. The message says: \"You already know.\" (Name) has no memory of writing it. (He/She) has no idea what (he/she) already knows. (He/She) keeps the note anyway, folded in (his/her) pocket, and takes it out to read sometimes.",

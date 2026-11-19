@@ -69,14 +69,44 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) is surprised and a little defensive. \"But the meeting hut is wonderful.\" \"It is,\" says (subject). \"And the grove is gone. Both things.\" They talk for a long time. In the end, they agree the builder was great and also did something that couldn't be undone, and that it's alright to say both. They start planting saplings on the bare hill. It will take longer than their lives to grow back.",
-   "src": "L566"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) says the story is the story; people need heroes. (subject) isn't sure, but lets it go. That evening, though, at the fire, someone tells the story of the great builder, and (subject) says quietly, \"And the grove.\" A few people look at (subject.him/her). One of them asks what (subject.he/she) means. It's a start, maybe.",
    "src": "L569"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) is surprised and a little defensive. \"But the meeting hut is wonderful.\" \"It is,\" says (subject). \"And the grove is gone. Both things.\" They talk for a long time. In the end, they agree the builder was great and also did something that couldn't be undone, and that it's alright to say both. They start planting saplings on the bare hill. It will take longer than their lives to grow back.",
+   "src": "L566",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L566"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) is surprised and a little defensive. \"But the meeting hut is wonderful.\" \"It is,\" says (subject). \"And the grove is gone. Both things.\" They talk for a long time. In the end, they agree the builder was great and also did something that couldn't be undone, and that it's alright to say both. They start planting saplings on the bare hill. It will take longer than their lives to grow back.",
+   "src": "L566"
   }
  }
 }

@@ -69,11 +69,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) thinks. \"My head wakes up slowly,\" (subject.he/she) says. \"It always has.\" (friend) nods. \"Then we'll stop waiting at the beach, and you catch us up when you're ready.\" It works. (subject) stops feeling rushed, and the others stop waiting. Nobody is exactly late any more.",
+   "src": "L542",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L542"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) thinks. \"My head wakes up slowly,\" (subject.he/she) says. \"It always has.\" (friend) nods. \"Then we'll stop waiting at the beach, and you catch us up when you're ready.\" It works. (subject) stops feeling rushed, and the others stop waiting. Nobody is exactly late any more.",
    "src": "L542"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I'll be on time tomorrow,\" says (subject). The next morning (subject.he/she) is there first, before anyone, sitting on the beach in the dark looking very pleased with (subject.him/her)self. The morning after that, (subject.he/she) is a little late again. (friend) just smiles. Some things change slowly. Some don't change at all, and that's all right too.",
+   "src": "L545",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L545"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"I'll be on time tomorrow,\" says (subject). The next morning (subject.he/she) is there first, before anyone, sitting on the beach in the dark looking very pleased with (subject.him/her)self. The morning after that, (subject.he/she) is a little late again. (friend) just smiles. Some things change slowly. Some don't change at all, and that's all right too.",
    "src": "L545"

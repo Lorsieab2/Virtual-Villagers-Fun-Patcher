@@ -201,7 +201,8 @@
      "scaled": true
     }
    ],
-   "src": "L6998"
+   "src": "L6998",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) half-carries the traveller to the healers, who take one look at the feet and send for warm water...",
@@ -233,7 +234,8 @@
      "what": "\"injuries\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "When (name) asks why (he/she) risked the crossing at all, the traveller looks away. (He/She) would rather not say, and nobody asks again.",
@@ -261,7 +263,8 @@
      "age": "adult"
     }
    ],
-   "src": "L7010"
+   "src": "L7010",
+   "auto_text": true
   },
   "c3o2": {
    "text": "As soon as (he/she) can walk without wincing, the traveller thanks the village, many times, and heads home. By the long way. Not across the rock.",
@@ -290,7 +293,8 @@
      "scaled": true
     }
    ],
-   "src": "L7017"
+   "src": "L7017",
+   "auto_text": true
   },
   "c4o2": {
    "text": "The villagers weave the traveller a sturdy new pair of sandals with thick bark soles, tough enough for any rock, and send (him/her) on (his/her) way. (He/She) is so moved (he/she) can't speak, which is the first time (he/she) hasn't apologized all week.",

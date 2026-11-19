@@ -144,7 +144,8 @@
      }
     }
    ],
-   "src": "L585"
+   "src": "L585",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The steam works. The coughs ease, and one by one the sick get up and go home. But by then (name) is coughing too, the deep, barking cough, and (he/she) is too tired to fight it. The other healers try everything, including the steam. (Name) dies in the healers' hut, among the empty mats of the people (he/she) saved. The village buries (him/her) with (his/her) healing basket, and the recipe is cut into the doorpost of the healers' hut, so no one ever has to remember it again.",
@@ -161,7 +162,8 @@
      "role": "subject"
     }
    ],
-   "src": "L588"
+   "src": "L588",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) sets the pot boiling in the middle of the healers' hut and holds the mat over each patient in turn, breathing the same steam (himself/herself) to keep the pot right...",
@@ -187,7 +189,8 @@
      }
     }
    ],
-   "src": "L594"
+   "src": "L594",
+   "auto_text": true
   },
   "c2o2": {
    "text": "It's too late; the sickness was already in the village. Three more people wake up spotted and coughing, and then the hut at the edge of the village is full, and the healers are running between two huts with no sleep at all. It will pass. But it will take a while.",
@@ -199,7 +202,8 @@
      }
     }
    ],
-   "src": "L597"
+   "src": "L597",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) moves the sick into a hut of their own at the edge of the village. Only two healers go in, with cloths over their faces, and the rest of the village leaves food at the door...",

@@ -330,7 +330,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "coda_c10": {
    "popup": "append",

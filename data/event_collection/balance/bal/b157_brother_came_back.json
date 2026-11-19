@@ -144,7 +144,8 @@
      "age": "child"
     }
    ],
-   "src": "L7255"
+   "src": "L7255",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The brother is restless after a few weeks. He can't stay anywhere long, he says, he never could. But his wife is tired of the sea and wants the children to grow up in one place. So {#made:she stays, though the village has room for no one else|she stays with one of them, as the village has no room for more|she stays with them}, and the brother goes, promising to come back. Maybe in twenty years. (Name) teaches the children everything (he/she) knows, and keeps their father's spear up in the rafters, just in case.",
@@ -162,7 +163,8 @@
      "age": "child"
     }
    ],
-   "src": "L7258"
+   "src": "L7258",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) grabs him and holds on, hard. He smells of salt and strange spices. His wife climbs out of the canoe, smiling uncertainly. The little girl hides behind her mother's legs...",
@@ -195,7 +197,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L7264"
+   "src": "L7264",
+   "auto_text": true
   },
   "c2o2": {
    "text": "He tells (name) everything, and (name) is still angry at the end of it. The brother nods. He says he understands. In the morning, he and his family are gone, back round the point, and there is a carved turtle on (name)'s doorstep. (Name) puts it in the rafters beside the old spear, and doesn't say a word about it to anyone.",

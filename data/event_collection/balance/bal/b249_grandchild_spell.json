@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11644"
+   "src": "L11644",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Something tickles (subject)'s cheeks, and when (subject.he/she) looks in the water, (subject.he/she) looks even older than before: deeper lines, whiter brows, the works. (child) bursts into tears. The spell-keeper arrives at a run, looks at (subject), and sighs. \"You said the word backwards,\" (subject.he/she) tells (child), and from then on gives (subject.him/her) proper lessons.",
@@ -152,7 +153,8 @@
      "best": true
     }
    ],
-   "src": "L11647"
+   "src": "L11647",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) sits down on a log and closes (subject.his/her) eyes. (child) waves the bundle around (subject.his/her) head three times and says a long word that (subject.he/she) gets wrong twice...",
@@ -176,7 +178,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11653"
+   "src": "L11653",
+   "auto_text": true
   },
   "c2o2": {
    "text": "At the end of the explanation, (child) gives (subject) the herbs to keep \"in case you change your mind.\" They turn out to be good for sore knees, once they are boiled. (subject) never does let (subject.him/her) try the spell, but (subject.he/she) makes tea from the herbs every night, and the knees are a little quieter in the mornings.",

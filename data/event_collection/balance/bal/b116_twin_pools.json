@@ -141,7 +141,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5256"
+   "src": "L5256",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) climbs out with a younger face, smooth and bright. The aches come back by the time (he/she) reaches the village. \"The warm sister wanted to be young,\" says an elder. \"She didn't say anything about knees.\"",
@@ -151,7 +152,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5259"
+   "src": "L5259",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) slides into the warm pool. It's like sinking into a bath of honey. (His/Her) aches melt away one by one...",
@@ -190,7 +192,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5265"
+   "src": "L5265",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) climbs out blue with cold, and (his/her) face has aged, but nothing else. No wisdom. No skill. Just older. \"The cold sister,\" says the elder, \"must have been in a bad mood.\" (Name) sulks for a day and then decides the grey suits (him/her).",
@@ -207,7 +210,8 @@
      "what": "\"skill\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) steps into the cold pool and gasps. It's like ice. (He/She) sinks under, and for a moment hears voices, very far away, telling (him/her) things...",

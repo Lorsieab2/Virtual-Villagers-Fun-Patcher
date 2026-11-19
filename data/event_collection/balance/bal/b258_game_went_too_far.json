@@ -143,7 +143,8 @@
      "like": "playing"
     }
    ],
-   "src": "L12050"
+   "src": "L12050",
+   "auto_text": true
   },
   "c1o2": {
    "text": "With their evenings suddenly empty, (subject) and (friend) don't know what to do with themselves. So they start helping in the gardens in the cool of the evening, because it's something to do together. Neither of them has ever been able to stand kneeling in the dirt. It turns out that dirt is much easier to put up with when someone is grumbling about it alongside. By the end of the season the soil doesn't bother either of them.",
@@ -179,7 +180,8 @@
      }
     }
    ],
-   "src": "L12059"
+   "src": "L12059",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) wins, with the very last stone. (friend) stands up, shakes (subject.his/her) hand, and walks away without a word, and that is the end of (friend)'s playing days. (subject.He/She) gives the bag of stones to the children. \"You have it,\" (subject.he/she) says. \"I'm done.\" (subject) plays with the children instead, and lets them win.",
@@ -191,7 +193,8 @@
      "like": "playing"
     }
    ],
-   "src": "L12062"
+   "src": "L12062",
+   "auto_text": true
   },
   "c2": {
    "text": "\"One last game,\" says (subject). \"Winner takes all.\" (friend) nods. The crowd closes in. The first stone goes down with a click that everyone hears...",

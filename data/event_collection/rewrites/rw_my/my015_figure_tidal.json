@@ -205,7 +205,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10714"
+   "src": "L10714",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The reflection's mouth moves. It's saying something, slowly, carefully, over and over. But no sound comes out, and (subject) can't read the words. (subject.He/She) stays there until the tide comes back in and fills the pool, and the face finally breaks up into ripples. (subject) never does find out what it was trying to say.",
@@ -239,7 +240,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10723"
+   "src": "L10723",
+   "auto_text": true
   },
   "c2": {
    "text": "Slowly, (subject) reaches out one finger and touches the surface of the pool, right where the reflection's face is...",

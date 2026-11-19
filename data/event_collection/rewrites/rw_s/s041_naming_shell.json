@@ -162,7 +162,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1950"
+   "src": "L1950",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) carries the shell up the beach to the elders with both hands, and holds it out. The elders read the markings, one after the other, and then they all look at (him/her) with great solemnity...",
@@ -186,7 +187,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1956"
+   "src": "L1956",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The shell sinks without a trace. The sea stays flat. Nothing comes back. The elders tut and shake their heads and say that a naming shell hasn't been refused in living memory, and they're not at all sure what will happen now. As it turns out, nothing happens. Nothing at all. (Name) keeps (his/her) own name, and the elders talk about it for years, and next season's shell is never found, and everyone privately blames (name) for that.",

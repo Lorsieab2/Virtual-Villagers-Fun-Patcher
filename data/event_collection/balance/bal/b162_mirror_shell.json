@@ -149,7 +149,8 @@
      "what": "\"dislikes\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "The reflection climbs out, and then the shell flashes again, {#made:but nothing else comes out|and a second one climbs out after it}. {#made:One of them: (subject)'s face, and a completely different person inside|Two of them: (subject)'s face, twice, and two completely different people inside}. One is loud, one is quiet. {#made:The copy disagrees with (subject) about everything|Both of them disagree with (subject) and with each other}. {#made:The copy takes the name (made1)|They take the names (made1) and (made2)}. The shell cracks right across, as if it is exhausted.",
@@ -163,7 +164,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L7495"
+   "src": "L7495",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) sits down on the doorstep and looks into the shell for a long time. The reflection looks back, and tilts its head, and slowly, very slowly, starts to lean forward out of the silver...",
@@ -187,7 +189,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L7501"
+   "src": "L7501",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The churning stops. Nothing comes up. (subject) stands on the beach until the tide comes in, then goes home. For a week (subject.he/she) avoids every pool and pot of water, in case of reflections. Then, slowly, (subject.he/she) stops worrying. A month later, a fisher finds the shell in a net, and throws it back without looking at it.",

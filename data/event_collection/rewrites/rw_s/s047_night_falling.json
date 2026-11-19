@@ -143,7 +143,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L2238"
+   "src": "L2238",
+   "auto_text": true
   },
   "c1o2": {
    "text": "When everyone tips their baskets out together, there turn out to be fewer stones than they thought, only enough for three necklaces. The village decides to give them to the three villagers who stayed up the longest, watching every last star fall: (subject), (friend) and (name3). The stones are polished, drilled and strung on plaited cord, and the three of them wear them proudly from then on. On clear nights, for anyone who looks closely, the stones still glimmer, very faintly, like they remember where they came from.",
@@ -156,7 +157,8 @@
      }
     }
    ],
-   "src": "L2241"
+   "src": "L2241",
+   "auto_text": true
   },
   "c1": {
    "text": "The whole village goes along the beach with baskets, picking up the stones one by one. They're heavy for their size, dark and pitted, with flecks of something bright inside that catches the light...",
@@ -196,7 +198,8 @@
      "what": "\"disappears\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "The elders say the stars came down on their own, and should be left where they chose to land. So nobody touches them. The children are told to walk around them. For days, the beach sparkles...",

@@ -270,7 +270,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10027"
+   "src": "L10027",
+   "auto_text": true
   },
   "c4o2": {
    "text": "The fruit sits there, untouched, for three days. Then the rain comes and washes it all away. The second set of prints never appears again. Maybe whoever it was didn't like fruit.",

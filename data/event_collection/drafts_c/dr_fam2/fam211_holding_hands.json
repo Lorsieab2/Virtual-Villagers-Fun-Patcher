@@ -75,14 +75,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) takes a breath and takes (friend)'s hand. (friend) goes still for a moment. Then (friend.he/she) squeezes back. They stand there holding hands, watching the dancing, both looking straight ahead and both bright red. Neither of them says anything all evening. It's the best festival either of them has ever had.",
-   "src": "L134"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) doesn't quite dare. They watch the dancing side by side, hands nearly touching all night. On the walk home, (friend) suddenly says, \"I nearly held your hand.\" \"Me too,\" says (subject). They both laugh, very embarrassed. They don't hold hands that night. They're both thinking about the next festival.",
    "src": "L137"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) takes a breath and takes (friend)'s hand. (friend) goes still for a moment. Then (friend.he/she) squeezes back. They stand there holding hands, watching the dancing, both looking straight ahead and both bright red. Neither of them says anything all evening. It's the best festival either of them has ever had.",
+   "src": "L134",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L134"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L134"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) takes a breath and takes (friend)'s hand. (friend) goes still for a moment. Then (friend.he/she) squeezes back. They stand there holding hands, watching the dancing, both looking straight ahead and both bright red. Neither of them says anything all evening. It's the best festival either of them has ever had.",
+   "src": "L134"
   }
  }
 }

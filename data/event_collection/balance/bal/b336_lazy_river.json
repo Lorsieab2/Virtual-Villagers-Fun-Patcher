@@ -148,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15540"
+   "src": "L15540",
+   "auto_text": true
   },
   "c1o2": {
    "text": "It's the most perfect afternoon of the summer. (subject) floats all the way to the sea, and lies on the beach in the sun until dusk. When (subject.he/she) gets back, the farmers are coming in from the gardens, exhausted, with half the harvest still in the ground. Nobody says anything. Their faces say it all.",
@@ -196,7 +197,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L15549"
+   "src": "L15549",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Working the row next to (subject) is (friend), the head farmer's grown child, who has a laugh like a waterfall and talks the whole afternoon. They bring in the harvest together, and then the next day's, and by the end of the season, they are inseparable. By the next rains, there is a baby on the way.",
@@ -208,7 +210,8 @@
      "partner": "friend",
      "partner_may_carry": true
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) sighs, ties up the raft and walks across the village to the gardens, where the farmers hand (subject.him/her) a basket without a word...",

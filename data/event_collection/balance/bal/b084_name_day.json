@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3807"
+   "src": "L3807",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The village can't agree on anything. After an hour of shouting, a small child says, \"Why don't we just call (him/her) what we always call (him/her)?\" and everyone stops, and looks at each other, and the matter is settled. (Name) sits down, a little embarrassed and quite touched. The name fits better than (he/she) thought.",
@@ -160,7 +161,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3816"
+   "src": "L3816",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The village repeats it, and cheers, and in the firelight (name)'s face seems to change, as if a weight has come off it. In the morning, it's still changed: younger, lighter, the face of someone who has finally put something down. \"It's the name,\" say the elders. Nobody argues.",
@@ -174,7 +176,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3819"
+   "src": "L3819",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) takes a deep breath and says the name (he/she) has been carrying around in (his/her) head for years, out loud, for the first time...",

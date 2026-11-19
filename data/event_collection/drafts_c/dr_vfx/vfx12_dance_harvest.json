@@ -86,7 +86,8 @@
      "who": "all",
      "src": "L146"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -99,7 +100,8 @@
      "who": "all",
      "src": "L149"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

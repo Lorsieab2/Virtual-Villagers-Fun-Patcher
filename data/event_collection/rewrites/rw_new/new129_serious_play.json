@@ -201,7 +201,8 @@
      "max": 10
     }
    ],
-   "src": "L6070"
+   "src": "L6070",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) decides that (subject.he/she) will keep score alone, thank you, since it's (subject.his/her) game. So (adult) just watches from the sidelines, cheering for whichever side seems to be losing. At the end, (subject) declares that both teams won, which everyone agrees is fair.",
@@ -230,7 +231,8 @@
      "scaled": true
     }
    ],
-   "src": "L6077"
+   "src": "L6077",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The rules meeting collapses into happy chaos within a minute. Someone starts chasing someone else, the coconut rolls into the sea, and the referee falls asleep. The children all vow to fix the rules properly tomorrow. They will not.",

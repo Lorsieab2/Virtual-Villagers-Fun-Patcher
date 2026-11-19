@@ -146,7 +146,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L549"
+   "src": "L549",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) throws. The spear glances off the great fish's scar as if it were rock. The fish rolls, lazily, almost gently, and its tail lifts the little canoe clean out of the water. For a moment (name) is in the air. Then the canoe comes down hard on top of (him/her). (He/She) makes it to shore somehow, clinging to the wreck, and the fishers pull (him/her) up the sand. The healers do what they can, for weeks. (Name) walks again, but slowly, bent over a little, and (his/her) back is never quite right. (He/She) never goes out in the bay again, and won't even wade at the shore.",
@@ -167,7 +168,8 @@
      "role": "subject"
     }
    ],
-   "src": "L552"
+   "src": "L552",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) stands up in the rocking canoe, braces (his/her) feet, and draws back the spear. (His/her) heart is pounding so hard (he/she) can hear it. The great fish turns one huge, round eye up towards (him/her), as if it knows exactly what (he/she) is about to do...",
@@ -193,7 +195,8 @@
     {
      "do": "kill",
      "cause": "unknown",
-     "role": "subject"
+     "role": "subject",
+     "line": "injuries"
     }
    ],
    "src": "L561",
@@ -203,7 +206,8 @@
      "what": "\"disappears\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) holds the spear for a long, long time. The great fish just lies there in the dark water, breathing, watching (him/her) with its old round eye. Very slowly, (name) lowers the spear...",

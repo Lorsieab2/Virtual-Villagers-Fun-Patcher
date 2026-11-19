@@ -206,7 +206,8 @@
      "scaled": true
     }
    ],
-   "src": "L9748"
+   "src": "L9748",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The fruit soften in no clear order at all: sunny side, shady side, top, bottom, it doesn't seem to matter. (subject) writes down the uncertainty honestly, and asks the hard breadfruit, again, what it's playing at.",
@@ -235,7 +236,8 @@
      "scaled": true
     }
    ],
-   "src": "L9755"
+   "src": "L9755",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The results are muddled, and both explanations still fit. More breadfruit are needed. The cooks don't mind; more breadfruit means more roasted breadfruit.",
@@ -264,7 +266,8 @@
      "scaled": true
     }
    ],
-   "src": "L9762"
+   "src": "L9762",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The cooks argue about what counts as \"soft.\" Squishy? Bendy? Smells sweet? Finally they agree on a thumb press: if a thumb leaves a dent, it's soft. Every breadfruit in the hut is pressed by every cook. Several are now dented.",
@@ -297,7 +300,8 @@
      "max": 20
     }
    ],
-   "src": "L9769"
+   "src": "L9769",
+   "auto_text": true
   },
   "c4o2": {
    "text": "(novice) notices that two of the fruit swapped places in the basket at some point, so their marks no longer match. Someone moved them while cooking. The group revises its notes, and (subject) starts carving marks directly onto the breadfruit skins.",

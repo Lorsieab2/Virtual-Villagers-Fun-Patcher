@@ -110,9 +110,16 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "Engineers recover clues about unfamiliar propulsion.",
-   "src": "L983"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome 2",
@@ -120,6 +127,51 @@
    "src": "L985"
   },
   "o3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "o3__fx"
+    },
+    {
+     "next": "o3__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome 1",
+   "text": "Engineers recover clues about unfamiliar propulsion.",
+   "src": "L983",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L983"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome 1",
+   "text": "Engineers recover clues about unfamiliar propulsion.",
+   "src": "L983"
+  },
+  "o3__fx": {
+   "name": "Outcome 3",
+   "text": "The craft carries a map of waters beyond known Isola.",
+   "src": "L987",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L987"
+    }
+   ],
+   "auto_text": true
+  },
+  "o3__text": {
    "name": "Outcome 3",
    "text": "The craft carries a map of waters beyond known Isola.",
    "src": "L987",
@@ -130,7 +182,8 @@
      "scaled": true,
      "src": "L987"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

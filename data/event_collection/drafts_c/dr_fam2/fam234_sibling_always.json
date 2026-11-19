@@ -79,9 +79,16 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "The next morning (friend) runs a little slower, on purpose. (subject) wins! (subject.He/she) cheers. Then (subject.he/she) stops, suspicious. \"You let me win.\" \"Maybe,\" says (friend). (subject) is furious. \"Don't LET me win! I want to win properly!\" They race again. (friend) wins. (subject) is somehow much happier.",
-   "src": "L410"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
@@ -93,7 +100,27 @@
      "who": "subject",
      "src": "L413"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The next morning (friend) runs a little slower, on purpose. (subject) wins! (subject.He/she) cheers. Then (subject.he/she) stops, suspicious. \"You let me win.\" \"Maybe,\" says (friend). (subject) is furious. \"Don't LET me win! I want to win properly!\" They race again. (friend) wins. (subject) is somehow much happier.",
+   "src": "L410",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L410"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The next morning (friend) runs a little slower, on purpose. (subject) wins! (subject.He/she) cheers. Then (subject.he/she) stops, suspicious. \"You let me win.\" \"Maybe,\" says (friend). (subject) is furious. \"Don't LET me win! I want to win properly!\" They race again. (friend) wins. (subject) is somehow much happier.",
+   "src": "L410"
   }
  }
 }

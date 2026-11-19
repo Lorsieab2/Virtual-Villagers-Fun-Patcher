@@ -96,7 +96,8 @@
      "who": "all",
      "src": "L645"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",

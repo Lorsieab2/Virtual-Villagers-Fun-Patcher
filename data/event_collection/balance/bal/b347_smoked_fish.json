@@ -143,7 +143,8 @@
      "next": "c1o1_c1"
     }
    ],
-   "src": "L16034"
+   "src": "L16034",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject)'s fish taste wonderful the first day and strange the second, and by the third they've gone soft and sticky. (cook)'s ironwood fish keep for a month. The village chooses (cook)'s. (subject) takes it well, and (cook) takes it even better, and shows (subject) the trick with the ironwood, just once.",
@@ -176,7 +177,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L16043"
+   "src": "L16043",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The herbs catch fire, the smoke turns black, and (subject)'s whole basket of fish comes out tasting like a burnt sandal. (subject) eats one anyway, to prove a point, and is ill all night. (cook) wins without trying. After that, (subject) can't look at food of any kind without remembering the taste of that fish.",

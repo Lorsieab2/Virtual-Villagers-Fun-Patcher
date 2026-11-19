@@ -116,7 +116,8 @@
      "loss": true,
      "src": "L239"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -135,7 +136,8 @@
      "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
      "src": "L243"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

@@ -180,7 +180,8 @@
      "max": 10
     }
    ],
-   "src": "L8834"
+   "src": "L8834",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) explains that nobody told (subject.him/her) the herb gatherers were sick too. So (subject.he/she) has been gathering herbs at dawn, and healing all day, and grinding herbs all night. It was a missed message, not anyone shirking. Within an hour, two healthy villagers have volunteered to gather herbs until the gatherers recover.",
@@ -235,7 +236,8 @@
      "max": 20
     }
    ],
-   "src": "L8848"
+   "src": "L8848",
+   "auto_text": true
   },
   "c3o2": {
    "text": "(builder) admits, somewhat sheepishly, that (subject.he/she) fainted the one time (subject.he/she) tried to help a healer, at the sight of a cut. \"Went down like a felled tree.\" It shouldn't make (subject) feel better, but somehow it does, and (subject.he/she) laughs for the first time all week.",

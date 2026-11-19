@@ -201,7 +201,8 @@
      "scaled": true
     }
    ],
-   "src": "L6882"
+   "src": "L6882",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) walks out to the edge of the village alone. For a long moment the two of them just look at each other...",
@@ -226,7 +227,8 @@
      "scaled": true
     }
    ],
-   "src": "L6887"
+   "src": "L6887",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The returnee talks about the places they saw, but when the talk drifts toward the old fight, they go quiet. They are not ready to talk about it, and nobody makes them. \"Another day,\" (name) says, and means it kindly.",
@@ -254,7 +256,8 @@
      "age": "adult"
     }
    ],
-   "src": "L6894"
+   "src": "L6894",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The returnee shakes their head, smiling for the first time. They didn't come back to stay. They only needed to make peace, and now they have. They leave again the next morning, with a lighter step than anyone has ever seen, and (name) watches them go.",
@@ -283,7 +286,8 @@
      "scaled": true
     }
    ],
-   "src": "L6901"
+   "src": "L6901",
+   "auto_text": true
   },
   "c4o2": {
    "text": "The villagers help mend the returnee's leaky canoe instead, working side by side with them for two days, and in the working, the old anger seems to wear away. When the returnee finally paddles off, they are seen off from the beach with more warmth than anyone expected, including the returnee.",

@@ -178,7 +178,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L2959"
+   "src": "L2959",
+   "auto_text": true
   },
   "c1": {
    "text": "\"The store! The store!\" Everyone wades for the food store, waist-deep in the brown water now, forming a chain to pass the baskets up the hill to the high ground, one after another, while the water climbs...",

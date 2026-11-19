@@ -70,14 +70,44 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"I don't know,\" says (subject). \"Nobody does anymore. That's the only bit of that language left, as far as I know. Just this song.\" (friend) is quiet. \"Will you teach me?\" (subject) does, slowly, word by word, neither of them knowing what they're singing. The babies don't seem to mind. They go to sleep exactly the same.",
-   "src": "L158"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"I was told one word means 'water,'\" (subject) says, \"and one means 'sleep.' Or 'stay.' The rest is gone.\" (subject.He/she) sings it again, softly. (friend) listens. \"It sounds like someone who loved the babies very much,\" (friend.he/she) says. \"That's what I always thought,\" says (subject). It's all they have of it. It seems to be enough.",
    "src": "L161"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I don't know,\" says (subject). \"Nobody does anymore. That's the only bit of that language left, as far as I know. Just this song.\" (friend) is quiet. \"Will you teach me?\" (subject) does, slowly, word by word, neither of them knowing what they're singing. The babies don't seem to mind. They go to sleep exactly the same.",
+   "src": "L158",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L158"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I don't know,\" says (subject). \"Nobody does anymore. That's the only bit of that language left, as far as I know. Just this song.\" (friend) is quiet. \"Will you teach me?\" (subject) does, slowly, word by word, neither of them knowing what they're singing. The babies don't seem to mind. They go to sleep exactly the same.",
+   "src": "L158"
   }
  }
 }

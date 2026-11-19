@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4170"
+   "src": "L4170",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Nothing much happens, except that the next morning (subject) wakes up feeling that (subject.his/her) name belongs to someone else now, as if (subject.he/she) gave a little of it away with the shell. (subject.He/She) chooses a new one, and (friend) is the first to use it. The carver says that's about as little as it ever gets.",
@@ -146,7 +147,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4173"
+   "src": "L4173",
+   "auto_text": true
   },
   "c1": {
    "text": "They hang the shells round each other's necks. The two halves click softly against their chests, as if trying to fit back together...",
@@ -176,7 +178,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4182"
+   "src": "L4182",
+   "auto_text": true
   },
   "c2": {
    "text": "They look at the carver's face, and at each other, and hang their own shells back round their own necks. The carver nods, relieved...",

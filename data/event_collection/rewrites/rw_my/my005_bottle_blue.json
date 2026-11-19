@@ -229,7 +229,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10131"
+   "src": "L10131",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The moment the bottle leaves the shade of the roots, its light starts to fade. By the time (subject) reaches the researchers, it's just a dusty bottle of murky water. They poke at it for a week and come up with nothing but theories. Everyone has a different one. None of them can be proven.",
@@ -262,7 +263,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10138"
+   "src": "L10138",
+   "auto_text": true
   },
   "c3o2": {
    "text": "\"Absolutely not,\" (healer) says. \"I don't give people things I can't name.\" The bottle is wrapped in leaves, sealed in a jar, and put on the highest shelf where no child can reach it. It glows up there at night, softly, like a nightlight nobody asked for.",

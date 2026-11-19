@@ -135,9 +135,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "Children delight in an invented monster.",
-   "src": "L32467"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -179,14 +186,59 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "The drawing becomes a teaching aid.",
-   "src": "L32473"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "(villager) exaggerates the size hilariously.",
    "src": "L32474"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Children delight in an invented monster.",
+   "src": "L32467",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L32467"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "Children delight in an invented monster.",
+   "src": "L32467"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The drawing becomes a teaching aid.",
+   "src": "L32473",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L32473"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The drawing becomes a teaching aid.",
+   "src": "L32473"
   }
  }
 }

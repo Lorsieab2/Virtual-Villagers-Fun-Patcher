@@ -197,7 +197,8 @@
      "scaled": true
     }
    ],
-   "src": "L7637"
+   "src": "L7637",
+   "auto_text": true
   },
   "c1o2": {
    "text": "One low basket in the corner is reached by the water before anyone can move it. The food inside is soaked in seawater and ruined. (Name) looks at it sadly. The crab, meanwhile, refuses to leave the pot.",
@@ -209,7 +210,8 @@
      "loss": true
     }
    ],
-   "src": "L7639"
+   "src": "L7639",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) splashes out and starts heaving baskets onto rafters and shelves, shouting for everyone else to do the same...",
@@ -239,7 +241,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7646"
+   "src": "L7646",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) wades from hut to hut along the shore, making sure everyone is awake and moving...",
@@ -264,7 +267,8 @@
      "scaled": true
     }
    ],
-   "src": "L7651"
+   "src": "L7651",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The water marks on different huts disagree, some much higher than others, because some floors slope and some don't. The villagers decide to wait for the next high tide before drawing any conclusions.",
@@ -298,7 +302,8 @@
      "loss": true
     }
    ],
-   "src": "L7660"
+   "src": "L7660",
+   "auto_text": true
   },
   "c4": {
    "text": "Before the next high tide, (name) gets everyone digging, piling sand and stones into a low wall in front of the beach huts...",

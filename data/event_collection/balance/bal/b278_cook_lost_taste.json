@@ -176,7 +176,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L12958"
+   "src": "L12958",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) stands beside (cook) at the fire all day, tasting every pot, every sauce, every half-cooked yam, and saying \"more salt\" or \"less chilli\" or \"what is this?\"...",
@@ -208,7 +209,8 @@
      "next": "c2o1_c2"
     }
    ],
-   "src": "L12964"
+   "src": "L12964",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) burns the yams, overcooks the fish and drops a whole pot of stew in the fire. (cook) watches all of it in silence, which is worse than shouting. In the end the village eats raw fruit for a week, until (cook) can taste again.",

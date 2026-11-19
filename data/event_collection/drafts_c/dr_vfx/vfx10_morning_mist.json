@@ -86,7 +86,8 @@
      "weather": "fog",
      "src": "L122"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -99,7 +100,8 @@
      "weather": "clear",
      "src": "L125"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

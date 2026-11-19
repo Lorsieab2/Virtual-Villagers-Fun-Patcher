@@ -143,7 +143,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "It's nightshade. (sick) sleeps for two days, so deeply that the healers take turns sitting with (subject.him/her) and listening to (subject.his/her) breathing. When (subject.he/she) finally wakes, the stomach is fine. But (subject.his/her) hands are numb, and (subject.his/her) legs don't do what (subject.he/she) tells them, and they never fully come back. (subject) visits every day for a year, as a friend and never with (subject.his/her) healer's bag. (sick) never lets anyone treat (subject.him/her) again.",
@@ -168,7 +169,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13985"
+   "src": "L13985",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) picks the jar on the left, the one that feels right, and brews a strong cup. (sick) drinks it, makes a face, and lies back...",
@@ -203,7 +205,8 @@
      }
     }
    ],
-   "src": "L13991"
+   "src": "L13991",
+   "auto_text": true
   },
   "c2o2": {
    "text": "By the time the head healer gets back, (sick) is much worse, and it takes all night and three different teas to settle the stomach. (subject.He/She) recovers, slowly. (subject) feels terrible, until the head healer tells (subject.him/her) that waiting was the right choice. \"A long night,\" (subject.he/she) says, \"is better than the wrong jar.\"",
@@ -215,7 +218,8 @@
      "max": -20
     }
    ],
-   "src": "L13994"
+   "src": "L13994",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) makes (sick) as comfortable as (subject.he/she) can with cool water and a warm stone for (subject.his/her) belly, and waits. The afternoon drags...",

@@ -211,7 +211,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11011"
+   "src": "L11011",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) thinks for a moment, then sits down on the bank and tells the keeper a story, the one about (his/her) grandfather and the very angry goat...",
@@ -275,7 +276,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11025"
+   "src": "L11025",
+   "auto_text": true
   },
   "c3": {
    "text": "(Name) opens (his/her) pack and holds out (his/her) lunch, dried fruit and a lump of cold cooked yam. \"Will this do?\"...",
@@ -305,7 +307,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11032"
+   "src": "L11032",
+   "auto_text": true
   },
   "c4": {
    "text": "(Name) doesn't fancy answering riddles at a bridge. (He/She) turns and heads upstream to find another way over the river...",

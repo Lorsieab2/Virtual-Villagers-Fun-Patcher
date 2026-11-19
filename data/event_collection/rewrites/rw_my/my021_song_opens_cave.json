@@ -204,7 +204,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11068"
+   "src": "L11068",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Nothing happens. They sing it again. Nothing. (Child) tugs at (subject)'s sleeve, frowning. \"You're not supposed to sing it twice,\" (child.he/she) whispers. \"The visitor said. It's only for once.\" (subject) feels a little shiver at that, then laughs and takes (child) home for supper.",
@@ -237,7 +238,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11075"
+   "src": "L11075",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They're only a few steps in when the cliff groans. Pebbles patter down. \"Out! Everybody out!\" A stone the size of a coconut strikes (subject)'s shoulder with a horrible crack, and the others haul (subject.him/her) out into the daylight as a shower of rubble fills the crack behind them. (subject) spends a week at the healers with (subject.his/her) arm strapped up.",
@@ -249,7 +251,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11077"
+   "src": "L11077",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) sends (child) home, fetches some friends and a torch, and the group squeezes sideways into the narrow crack in the cliff...",

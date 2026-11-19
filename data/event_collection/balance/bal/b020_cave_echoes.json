@@ -137,7 +137,8 @@
      "role": "subject"
     }
    ],
-   "src": "L903"
+   "src": "L903",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The last echo walks out of the dark wearing (subject)'s face. But it is a stranger behind it: it has none of (subject)'s habits, it laughs at different things, and it wants to know where the food is. The cave kept only (subject)'s voice and shape, the fishers say; the rest it had to make up. The newcomer chooses (made1) for a name, and is soon the loudest person at every meal.",
@@ -154,7 +155,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) takes a deep breath and shouts (subject.his/her) own name at the dark. It comes back, and back, and back, and then, very close, it says it again in a voice that isn't an echo at all...",
@@ -179,7 +181,8 @@
      "role": "subject"
     }
    ],
-   "src": "L912"
+   "src": "L912",
+   "auto_text": true
   },
   "c2o2": {
    "text": "From deep in the cave, something giggles. Both of them run, and don't stop until they're on the beach, and then they collapse in the sand laughing until their sides hurt, though neither of them can explain why. They never go back. But on still nights, when the wind is from the north, (subject) swears (subject.he/she) can hear the cave whispering (subject.his/her) name.",

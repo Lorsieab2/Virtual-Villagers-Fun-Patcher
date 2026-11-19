@@ -79,9 +79,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The cooks discover a surprising favorite combination.",
-   "src": "L28731"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -128,9 +135,16 @@
    "src": "L28737"
   },
   "c2": {
+   "type": "branch",
    "name": "Outcome C2",
-   "text": "The cooks accidentally make far too much soup.",
-   "src": "L28738"
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
   },
   "d": {
    "type": "branch",
@@ -145,9 +159,16 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "Laughter fills the gathering as elders reminisce.",
-   "src": "L28740"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
@@ -160,6 +181,62 @@
      "src": "L28741"
     }
    ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The cooks discover a surprising favorite combination.",
+   "src": "L28731",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L28731"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The cooks discover a surprising favorite combination.",
+   "src": "L28731"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The cooks accidentally make far too much soup.",
+   "src": "L28738",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L28738"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "The cooks accidentally make far too much soup.",
+   "src": "L28738"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "Laughter fills the gathering as elders reminisce.",
+   "src": "L28740",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L28740"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "Laughter fills the gathering as elders reminisce.",
+   "src": "L28740"
   }
  }
 }

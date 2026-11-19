@@ -89,14 +89,40 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "They find comfort in remembering.",
-   "src": "L1236"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
    "text": "They leave the question unanswered.",
    "src": "L1237"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "They find comfort in remembering.",
+   "src": "L1236",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L1236"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "They find comfort in remembering.",
+   "src": "L1236"
   }
  }
 }

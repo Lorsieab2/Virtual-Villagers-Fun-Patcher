@@ -146,7 +146,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "Halfway down the hill, the dust gets up the newcomer's nose. It stops. Its face scrunches up. \"Ah... ahh... AHCHOO!\" And with the sneeze, it's gone. Just gone. A little puff of yellow dust drifts away on the breeze where it was standing. (Name) stands there with (his/her) mouth open for a long time. Then (he/she) walks the rest of the way home very carefully, breathing through (his/her) mouth, trying very hard not to sneeze.",
@@ -174,7 +175,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L4056"
+   "src": "L4056",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The oldest elder looks at the newcomer for a long, long time. Then the elder gives it a look. A stern, steady, ancient look, the kind of look elders give children who have been somewhere they shouldn't. The newcomer shuffles its feet. It looks at the ground. Then it turns round, without a word, and shuffles off out of the hut, back up the hill, and behind the old stones, and never comes out again. \"The stones do that sometimes,\" says the elder. \"You just have to be firm with them.\"",

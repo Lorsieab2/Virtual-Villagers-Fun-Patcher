@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1767"
+   "src": "L1767",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The person in the net has (name)'s face, but the shadow came only with the outside. Inside, it's somebody new: shy where (name) is bold, good at things (name) has never tried. It sits up in the tangle of silk and asks, very politely, what it should be called. It chooses (made1).",
@@ -142,7 +143,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L1770"
+   "src": "L1770",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) hauls, hand over hand. The net is heavy, and cold, and getting heavier. Out of the dark mesh, something is starting to take shape...",
@@ -166,7 +168,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1776"
+   "src": "L1776",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The wind gusts, the net flaps, and the pulling stops. The net drifts down to the grass, light as mist again. (Name)'s shadow is right where it should be, attached to (his/her) feet. (He/She) folds the net up and uses it for pigs from then on, and never tests it at dusk again.",

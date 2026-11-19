@@ -70,6 +70,38 @@
    "src": "L182"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) quickly moves (subject.his/her) flower to the other ear. (friend), at exactly the same moment, moves (friend.his/her) flower. They match again. They stare at each other. Then they both burst out laughing, and decide that some things are just meant to be.",
+   "src": "L185",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L185"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L185"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) quickly moves (subject.his/her) flower to the other ear. (friend), at exactly the same moment, moves (friend.his/her) flower. They match again. They stare at each other. Then they both burst out laughing, and decide that some things are just meant to be.",
    "src": "L185"

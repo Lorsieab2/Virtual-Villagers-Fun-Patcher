@@ -201,7 +201,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10301"
+   "src": "L10301",
+   "auto_text": true
   },
   "c1o2": {
    "text": "With a soft whoosh, a cloud of tiny insects bursts out of the jar, shimmering green in the sunlight. (Name) yelps and drops it. The insects don't bite or sting. They just scatter into the long grass, and for a whole afternoon the field hums with them, glittering like scattered jewels. Then, by evening, they're gone.",
@@ -238,7 +239,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10310"
+   "src": "L10310",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) picks up the rain jar. Something sloshes inside. (He/She) peels back the seal...",

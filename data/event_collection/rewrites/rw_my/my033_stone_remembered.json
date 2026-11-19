@@ -204,7 +204,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11776"
+   "src": "L11776",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Then the stone starts repeating something recent. An argument. A private one, between two villagers, about something they'd both rather nobody knew. (subject) yelps and drops the stone, but it's too late; a few others nearby heard it too. The two villagers are mortified, and stop speaking to each other for a whole week. Then, at last, they make up over a shared pot of stew, and everyone politely pretends it never happened.",

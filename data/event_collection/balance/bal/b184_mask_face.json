@@ -147,7 +147,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8543"
+   "src": "L8543",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The mask works too well. When (subject) takes it off, the village doesn't remember (subject.him/her) at all, and welcomes (subject.him/her) as a newcomer. The elders, kind as ever, give the newcomer a name: (made1). (subject) decides not to argue. The debt is gone. So is (subject.his/her) old name. (fisher) offers to take (made1) fishing.",
@@ -157,7 +158,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8546"
+   "src": "L8546",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) lifts the mask down and ties it on. The wood is cool and smells of old smoke. Through the eye holes, the hut looks very slightly grey, as if everything has faded a little...",
@@ -184,7 +186,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8552"
+   "src": "L8552",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) fills half the canoe, then bets (fisher) the other half that (subject.he/she) can catch more by sunset. (subject.He/She) loses. Now (subject.he/she) owes two canoe-loads. The village has to help out of its own stores, and everyone tells (subject) to stop betting.",

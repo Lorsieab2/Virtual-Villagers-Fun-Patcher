@@ -203,7 +203,8 @@
      "age": "child"
     }
    ],
-   "src": "L16265"
+   "src": "L16265",
+   "auto_text": true
   },
   "c1o2": {
    "text": "But as they walk into the village, and people begin to gather and stare and weep, the child grows frightened. (He/she) looks at the faces around (him/her), the family who lost (him/her), and does not recognize a single one. \"I don't know you,\" (he/she) says, pulling away. \"Please. I want to go to the other village. My family is there.\" (Name) and the heartbroken family walk (him/her) to the next village, where a couple run out crying with relief to hug (him/her). Nobody can explain the face, the scar, or the necklace.",
@@ -293,7 +294,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c4": {
    "text": "(Name) decides not to overwhelm the child. The village offers (him/her) a quiet hut to rest in, food and a blanket, and leaves (him/her) be, without demanding a single answer...",

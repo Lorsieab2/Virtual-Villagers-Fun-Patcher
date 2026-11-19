@@ -132,7 +132,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L14741"
+   "src": "L14741",
+   "auto_text": true
   },
   "c1o2": {
    "text": "It's just stone, and it breaks in two. (Name) rolls the pieces off the headland into the sea and goes home feeling a little guilty. A week later, the children report that the twin statues seem to be turned slightly away from each other now, facing the spot where the third stood. Nobody can prove it.",
@@ -161,7 +162,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14750"
+   "src": "L14750",
+   "auto_text": true
   },
   "c2o2": {
    "text": "It stays a statue. It's a very fine one, the best carving anyone in the village has seen in a generation, and it stands between the twins on the headland as if it always belonged there. (Name) has learned more about working stone in a month than most builders learn in years.",
@@ -176,7 +178,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14753"
+   "src": "L14753",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) borrows a chisel and a mallet and goes up to the headland every day for a month, finishing the face that is (his/her) own...",

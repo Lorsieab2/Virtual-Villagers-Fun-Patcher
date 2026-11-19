@@ -74,6 +74,32 @@
    "src": "L398"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Could you give me a minute?\" says (subject). (friend) nods and goes, without a word. Later, at dinner, there's an extra piece of fruit next to (subject)'s bowl. (friend) doesn't look up. (subject) eats the fruit and is very grateful for the minute, and the fruit, and the not looking up.",
+   "src": "L401",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L401"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Could you give me a minute?\" says (subject). (friend) nods and goes, without a word. Later, at dinner, there's an extra piece of fruit next to (subject)'s bowl. (friend) doesn't look up. (subject) eats the fruit and is very grateful for the minute, and the fruit, and the not looking up.",
    "src": "L401"

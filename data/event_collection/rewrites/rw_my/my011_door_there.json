@@ -204,7 +204,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10478"
+   "src": "L10478",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Behind the door is darkness. Not shadow, not a cave, just darkness, flat and black, like a hole cut in the morning. (subject) backs away very slowly and runs for a torch. When (subject.he/she) comes back with half the village behind (subject.him/her), there's nothing between the boulders but wet leaves. The door is gone. (subject) is never really believed, and doesn't much care to be.",
@@ -282,7 +283,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10501"
+   "src": "L10501",
+   "auto_text": true
   },
   "c4": {
    "text": "\"Good wood is good wood,\" (subject) declares. (subject.He/She) wraps (subject.his/her) arms around the door and heaves...",

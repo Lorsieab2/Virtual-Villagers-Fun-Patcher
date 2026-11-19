@@ -204,7 +204,8 @@
      "scaled": true
     }
    ],
-   "src": "L7695"
+   "src": "L7695",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Despite everything, dust gets into one basket that someone left unsealed, and turns the food inside into red, gritty paste. It's ruined, and has to be thrown out. (Name) says some words the children aren't supposed to hear.",
@@ -216,7 +217,8 @@
      "loss": true
     }
    ],
-   "src": "L7697"
+   "src": "L7697",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) gets to work sealing every basket in the storehouse with big leaves and sticky sap...",
@@ -246,7 +248,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7704"
+   "src": "L7704",
+   "auto_text": true
   },
   "c2": {
    "text": "Half the village is coughing. (Name) goes from hut to hut checking on everyone...",
@@ -271,7 +274,8 @@
      "scaled": true
     }
    ],
-   "src": "L7709"
+   "src": "L7709",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The dust seems to come from everywhere at once, filling every bowl equally. (Name) decides to wait for more evidence, and in the meantime, keeps everything covered all the time.",
@@ -305,7 +309,8 @@
      "loss": true
     }
    ],
-   "src": "L7718"
+   "src": "L7718",
+   "auto_text": true
   },
   "c4": {
    "text": "(Name) declares a cleaning day. Everyone hauls everything out of the huts and starts shaking, beating and wiping...",

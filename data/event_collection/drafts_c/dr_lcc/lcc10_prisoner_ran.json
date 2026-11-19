@@ -104,7 +104,8 @@
      "max": 10,
      "src": "L141"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",

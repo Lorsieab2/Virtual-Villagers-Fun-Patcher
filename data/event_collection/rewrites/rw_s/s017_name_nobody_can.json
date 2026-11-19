@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L790"
+   "src": "L790",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) sits down beside the visitor and says (his/her) name very slowly, one sound at a time, while the visitor watches (his/her) mouth with great concentration and repeats each syllable under (his/her) breath...",
@@ -160,7 +161,8 @@
      "role": "subject"
     }
    ],
-   "src": "L796"
+   "src": "L796",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) answers to every version so cheerfully, and there are so many versions, that by evening (he/she) is laughing too hard to sit up straight. On the visitor's twentieth try, (name) rocks back, topples off the log, and cracks (his/her) head on the visitor's tall walking stick, which was propped up behind (him/her). When (he/she) comes round, there is a lump the size of a red nut on (his/her) head, and (his/her) own name is simply gone, along with every one of the visitor's versions. The healers say it might come back. It never does. (Name) is \"?\" from then on, which (he/she) says, a little dazed, is the easiest name (he/she) has ever had.",
@@ -170,7 +172,8 @@
      "role": "subject"
     }
    ],
-   "src": "L799"
+   "src": "L799",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Don't worry about it,\" (name) says kindly. \"Call me whatever you like. I'll know you mean me.\" The visitor looks enormously relieved, and from then on calls (him/her) something completely different every time...",

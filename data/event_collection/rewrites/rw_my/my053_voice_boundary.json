@@ -205,7 +205,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L12956"
+   "src": "L12956",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The voice falls silent. (subject) waits, and waits, and asks again, and again. The stones say nothing. They just lean together in the dusk, keeping their secrets the way they always have. (subject) walks home slowly, wondering whether (subject.he/she) imagined it, and knowing (subject.he/she) didn't.",

@@ -197,7 +197,8 @@
      "scaled": true
     }
    ],
-   "src": "L7753"
+   "src": "L7753",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The storm arrives faster than anyone expected, howling in before the racks are half cleared. A basket of stored food is caught out in the rain and the wind, and is ruined.",
@@ -209,7 +210,8 @@
      "loss": true
     }
    ],
-   "src": "L7755"
+   "src": "L7755",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) sends everyone running for the drying racks...",
@@ -239,7 +241,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7762"
+   "src": "L7762",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) runs through the village, counting everyone, sending them indoors...",
@@ -264,7 +267,8 @@
      "scaled": true
     }
    ],
-   "src": "L7767"
+   "src": "L7767",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The cloud shapes change too fast to read, boiling and tumbling. (Name) gives up and runs back down before the storm catches (him/her) on the bluff, deciding to wait for more evidence next time. From somewhere safer.",
@@ -298,7 +302,8 @@
      "loss": true
     }
    ],
-   "src": "L7776"
+   "src": "L7776",
+   "auto_text": true
   },
   "c4": {
    "text": "(Name) organizes every pair of hands in the village to lash down roofs, canoes, drying racks and anything else that might fly away...",

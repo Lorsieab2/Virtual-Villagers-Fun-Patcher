@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5819"
+   "src": "L5819",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They pull the masks off and find themselves looking out of each other's eyes. It is terrifying for about an hour. Then (subject) discovers that (friend)'s hands know things (subject)'s never did, and (friend) finds the same. Each of them is good at their own job and the other one's too. \"It's a better deal than I expected,\" says (friend) at last, in (subject)'s voice. (carver) puts a lock on the mask chest anyway.",
@@ -157,7 +158,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5822"
+   "src": "L5822",
+   "auto_text": true
   },
   "c1": {
    "text": "The masks are warm, warmer than wood should be, and they smell of old smoke and coconut oil. (subject) looks across at (friend), and through the shell eyes, (friend) looks very strange, and very familiar...",
@@ -187,7 +189,8 @@
      "head": "random"
     }
    ],
-   "src": "L5828"
+   "src": "L5828",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(carver) makes them sit down and hear the story of why the families have separate masks. It turns out to be an old quarrel about a pig, generations ago, and nobody can even remember whose pig it was. (subject) and (friend) laugh so hard at the pig that they forget to be scolded, and walk home feeling lighter. A few things they used to grumble about don't seem worth grumbling about any more.",
@@ -205,7 +208,8 @@
      "remove": true
     }
    ],
-   "src": "L5831"
+   "src": "L5831",
+   "auto_text": true
   },
   "c2": {
    "text": "They snatch the masks off and throw them back onto the mat just as (carver) comes round the corner. Two masks land face up and two face down. (carver) looks at the mat, then at them, and raises one eyebrow very high...",

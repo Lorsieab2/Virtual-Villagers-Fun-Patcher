@@ -69,6 +69,44 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides to wait it out. It's a long, grey wait. (subject.He/she) is quieter than usual, and the village leaves (subject.him/her) to it, with a few small kindnesses along the way. When the sun finally comes back, (subject) sits in it until (subject.his/her) nose gets burnt. \"That,\" (subject.he/she) says, \"was what I needed.\" (subject.He/she) isn't wrong. It isn't the whole answer either.",
+   "src": "L512"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Then let's do the next best thing,\" says (friend). Every evening a few of the villagers who feel the same gather around one big fire, bright and warm, with music and food. It isn't the sun. It's something. When the sun finally returns, (subject) lies on the beach like a lizard for a whole afternoon. (subject.He/she) still misses the fire evenings a little.",
+   "src": "L509",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L509"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L509"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Then let's do the next best thing,\" says (friend). Every evening a few of the villagers who feel the same gather around one big fire, bright and warm, with music and food. It isn't the sun. It's something. When the sun finally returns, (subject) lies on the beach like a lizard for a whole afternoon. (subject.He/she) still misses the fire evenings a little.",
    "src": "L509",
@@ -79,11 +117,6 @@
      "src": "L509"
     }
    ]
-  },
-  "o2": {
-   "name": "Outcome B",
-   "text": "(subject) decides to wait it out. It's a long, grey wait. (subject.He/she) is quieter than usual, and the village leaves (subject.him/her) to it, with a few small kindnesses along the way. When the sun finally comes back, (subject) sits in it until (subject.his/her) nose gets burnt. \"That,\" (subject.he/she) says, \"was what I needed.\" (subject.He/she) isn't wrong. It isn't the whole answer either.",
-   "src": "L512"
   }
  }
 }

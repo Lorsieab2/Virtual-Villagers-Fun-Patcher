@@ -109,7 +109,8 @@
      "who": "all",
      "src": "L565"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -121,7 +122,8 @@
      "who": "all",
      "src": "L569"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

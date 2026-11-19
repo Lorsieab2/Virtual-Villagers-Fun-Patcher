@@ -370,7 +370,8 @@
      },
      "else": "cap4q"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "cap3": {
    "type": "branch",
@@ -497,7 +498,8 @@
      "do": "vanish",
      "role": "volunteer5"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "f_end_short": {
    "text": "\"We believe some foul play is happening. We understand that you are worried, and that everyone's safety is at risk. However, we need to get to the bottom of this. We cannot rest until this matter is settled. We need five able-bodied volunteers to come with us and form an expedition to find the makers of these masks. Only then will we know if they are truly a threat to our people.\"\nFive adults raise their hands and proceed into the elders' hut. After much planning, the expedition team travels to the site where (child1) found the mask, and heads off into parts unknown.\nThe parents of (child1), (child2) and the other kids wish the team good luck, and for justice for their children. The other villagers rally behind them, and hope for an end to the madness.",
@@ -524,7 +526,8 @@
      "role": "volunteer5"
     }
    ],
-   "new_page": true
+   "new_page": true,
+   "auto_text": true
   }
  }
 }

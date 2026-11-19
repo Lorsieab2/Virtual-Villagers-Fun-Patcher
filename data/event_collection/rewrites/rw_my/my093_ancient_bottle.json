@@ -203,7 +203,8 @@
      "scaled": true
     }
    ],
-   "src": "L15279"
+   "src": "L15279",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The tree is left standing, and the path curves around it. Nothing special is found: no fruit, no treasure, no secret. Just a very large, very old tree. Nobody ever learns who wrote the warning, or why. But the children start calling it the Never Tree, and it becomes their favourite climbing spot, and (subject) feels a quiet, unreasonable pride every time (subject.he/she) walks around the bend.",
@@ -232,7 +233,8 @@
      "scaled": true
     }
    ],
-   "src": "L15286"
+   "src": "L15286",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Deep among the roots, wedged into a hollow as if the tree had grown around it, the researchers find a small carved figure: a little wooden person, arms outstretched, worn smooth by time. Nobody knows what it is for. Some say it was a guardian. Some say a child's toy, lost long ago. The tree is left standing just in case, and the figure is put back exactly where it was found.",
@@ -284,7 +286,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15300"
+   "src": "L15300",
+   "auto_text": true
   },
   "c4o2": {
    "text": "The tree comes down with a tremendous crash, exactly where the builders planned it to, and nobody is hurt. The wood is excellent: hard, straight-grained and enormous. It provides beams for three new huts, and the path is wider and straighter than ever. Nothing bad happens at all. (subject) keeps the note anyway, on a shelf, and every so often (subject.he/she) looks at it, and wonders.",

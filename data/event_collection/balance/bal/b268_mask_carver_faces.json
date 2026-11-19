@@ -137,7 +137,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12503"
+   "src": "L12503",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The mask comes off, and (subject) looks exactly as before. But on the back of the mask, scratched in the wood where nobody saw it before, is a name, and (subject) can't stop saying it. \"Obi,\" says (subject), if (subject.he/she) is a man; \"Itchi,\" if a woman. \"That's me, isn't it?\" Within a week, everyone is calling (subject.him/her) by it, and (subject.he/she) answers to nothing else.",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12506"
+   "src": "L12506",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) ties the mask on. It's warm inside, warmer than wood should be, and it smells of salt and smoke. (subject.He/She) counts to three and takes it off...",
@@ -172,7 +174,8 @@
      "head": "random"
     }
    ],
-   "src": "L12512"
+   "src": "L12512",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(carver) leaves the mask on the beach, facing the sea, and goes back to carving bowls. In the morning the mask is gone. A few days later a fisher says (subject.he/she) saw something red and white bobbing out by the reef, facing the island, but nobody goes to look.",

@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12368"
+   "src": "L12368",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Knowing (his/her) time is short, (name) spends the season teaching. Every healer in the village gets dragged into the hut for lessons, every afternoon, whether they like it or not. (Name) is a strict and impatient teacher. By the end of the season, the young healers grumble that their heads are full. They are also much better healers.",
@@ -156,7 +157,8 @@
      }
     }
    ],
-   "src": "L12371"
+   "src": "L12371",
+   "auto_text": true
   },
   "c1": {
    "text": "\"I'll rest when I'm dead,\" says (name), and goes back to the healers' hut. (He/She) works the whole season, slowly, carefully, double-checking every jar...",
@@ -182,7 +184,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12377"
+   "src": "L12377",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) takes to sitting at the cooking fire in the evenings and telling the stories of every birth, every broken bone, every fever (he/she) has seen in fifty years. It turns out (he/she) remembers them all, and most of them are funny, especially the ones about the people sitting right there. The village has never laughed so much.",
@@ -195,7 +198,8 @@
      }
     }
    ],
-   "src": "L12380"
+   "src": "L12380",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) hangs (his/her) healer's bag on the hook by the door and walks out into the sun. The first morning, (he/she) doesn't know what to do with (his/her) hands...",

@@ -151,7 +151,8 @@
      "age": "child"
     }
    ],
-   "src": "L2526"
+   "src": "L2526",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The child follows (name) all the way home, a few steps behind, and stands in the doorway of the cooking hut looking at the pot. (Name) gives (him/her) a bowl of mash. The child eats it so fast that (name) gives (him/her) another. And then a third. Then the child curls up right there by the fire, cloak of leaves and all, and falls fast asleep in the middle of everyone. In the morning the child is still there, sitting up, looking around at the village, and that, everyone agrees, is a very good sign.",
@@ -212,7 +213,8 @@
      "age": "child"
     }
    ],
-   "src": "L2538"
+   "src": "L2538",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) doesn't want to frighten the child. (He/She) sets the fruit down on a flat stone, and a bundle of bread beside it, and backs away one slow step at a time, smiling, and then turns and walks off through the trees...",

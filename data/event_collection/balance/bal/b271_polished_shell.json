@@ -136,7 +136,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L12639"
+   "src": "L12639",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Someone climbs out of the shell who is (subject) in every single way: the same laugh, the same favourite food, the same way of scratching (subject.his/her) ear when (subject.he/she) is thinking. The two of them scratch their ears at the same time and then both stop, embarrassed. \"Well,\" says (polisher), \"the song was right.\" The village names the newcomer (made1).",
@@ -153,7 +154,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) leans closer. The face in the shell leans closer too, and then a little further, until its nose is right at the surface, as if it is pressing on a window...",
@@ -177,7 +179,8 @@
      "copy_of": "polisher"
     }
    ],
-   "src": "L12648"
+   "src": "L12648",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(polisher) sighs, carries the shell to the cooking fire, and the cooks use it as a soup bowl. Nobody uses it as a mirror again, though one of the cooks swears that every so often, a face looks up at (subject.him/her) from the bottom of the soup.",

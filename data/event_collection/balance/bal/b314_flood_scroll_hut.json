@@ -142,7 +142,8 @@
      "max": -20
     }
    ],
-   "src": "L14563"
+   "src": "L14563",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) doesn't stop until every scroll is out, carrying the last armful with water up to (subject.his/her) knees. Then, while they dry in the sun, (subject.he/she) starts reading them, because there's nothing else to do while guarding them. By the time (keeper) arrives, (subject) has learned more in one morning than in the rest of (subject.his/her) life.",
@@ -157,7 +158,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14566"
+   "src": "L14566",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) wades in up to (subject.his/her) ankles and starts grabbing armfuls of scrolls from the lowest shelves, running them up to the dry ground and back again...",
@@ -188,7 +190,8 @@
      "best": true
     }
    ],
-   "src": "L14575"
+   "src": "L14575",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) runs across the village and shakes (keeper) awake. (keeper) comes out at a stumbling run in (subject.his/her) sleeping wrap...",

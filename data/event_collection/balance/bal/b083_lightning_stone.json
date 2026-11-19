@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3762"
+   "src": "L3762",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The lightning goes through the stone and into (name). The villagers who find (him/her) carry (him/her) down the hill unconscious, with burns branching across (his/her) arms like the roots of a tree. (He/She) lives, and heals slowly. The marks never fade, and (his/her) hands are never steady again, and (he/she) keeps well away from fires. (He/She) shows the marks to the children, who think they're beautiful, and in a way they are.",
@@ -153,7 +154,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L3765"
+   "src": "L3765",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) wraps (his/her) arms round the cold black stone and shuts (his/her) eyes. There's a flash so bright (he/she) sees it through (his/her) eyelids, and a crack like the sky breaking...",
@@ -177,7 +179,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L3771"
+   "src": "L3771",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) reaches the trees and lies flat in the leaves while the storm goes over, counting between flashes and thunder like (his/her) grandmother taught (him/her). When it's over, (he/she) walks home with (his/her) hair still standing straight up. It stays that way for two days.",

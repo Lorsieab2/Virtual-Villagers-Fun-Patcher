@@ -211,7 +211,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L2872"
+   "src": "L2872",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The villagers catch a lot of them. Basket after basket, pot after pot, until their arms ache. But there are millions, and only so many villagers, and while everyone is busy catching them in the fields, the rest of the cloud quietly settles on the food store and eats its way through it. By the time anyone notices, the swarm is lifting off again, fat and slow, and there's a lot less food than there was this morning.",

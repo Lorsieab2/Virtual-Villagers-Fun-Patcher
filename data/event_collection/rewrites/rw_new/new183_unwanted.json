@@ -177,7 +177,8 @@
      "max": 10
     }
    ],
-   "src": "L8883"
+   "src": "L8883",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) explains that nobody ever said what \"leading\" would actually mean. Shouting? Planning? Doing all the work? (subject.He/She) wasn't dodging the job; (subject.he/she) just didn't know what the job was. Once it's explained \\(plan the work, check the joints, keep people fed\\), (subject) comes out from behind the lumber pile, looking thoughtful.",
@@ -232,7 +233,8 @@
      "max": 20
     }
    ],
-   "src": "L8897"
+   "src": "L8897",
+   "auto_text": true
   },
   "c3o2": {
    "text": "(mentor) admits, with a sigh, that (subject.he/she) hated leading at first too. \"Still do, some days.\" (subject.He/She) leans back against the logs. \"This is my spot, you know. I still hide behind the lumber pile sometimes.\" (subject) laughs, and the two of them sit there together for a while before going back to work.",

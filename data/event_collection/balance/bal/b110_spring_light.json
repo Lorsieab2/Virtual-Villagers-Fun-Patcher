@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4985"
+   "src": "L4985",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Nothing happens. The water is just cold water, without the first light in it. (Name) sits by the spring as the sun comes up, and the water glows gold for an hour, and then dries up. (He/She) doesn't wash again. Watching it was enough, (he/she) decides, and climbs down with nothing but the memory.",
@@ -160,7 +161,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4994"
+   "src": "L4994",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The first light comes, but clouds have gathered over the mountain, and it comes thin and pale. The spring dries up before it's really bright. (Name) washes anyway, and nothing happens. (He/She) climbs down tired and disappointed, and then, halfway down, starts laughing at (himself/herself), and feels better.",

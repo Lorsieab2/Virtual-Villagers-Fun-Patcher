@@ -69,14 +69,41 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) stands perfectly still under the tree with the basket held out. It's a long wait. A bird lands on the rim of the basket and looks at (subject.him/her). A second coconut falls, a long way off, nowhere near. By sunset (subject) has one coconut and a very stiff arm, and is still certain the tree did it on purpose.",
-   "src": "L194"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "Nobody believes (subject.him/her). Even so, the next day half the village is strolling about under the palms with baskets held out hopefully. Nothing falls. Then, late in the afternoon, a coconut drops gently into (friend)'s lap while (friend.he/she) is sitting resting against a trunk. Now (friend) won't stop talking about it either.",
    "src": "L197"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) stands perfectly still under the tree with the basket held out. It's a long wait. A bird lands on the rim of the basket and looks at (subject.him/her). A second coconut falls, a long way off, nowhere near. By sunset (subject) has one coconut and a very stiff arm, and is still certain the tree did it on purpose.",
+   "src": "L194",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L194"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) stands perfectly still under the tree with the basket held out. It's a long wait. A bird lands on the rim of the basket and looks at (subject.him/her). A second coconut falls, a long way off, nowhere near. By sunset (subject) has one coconut and a very stiff arm, and is still certain the tree did it on purpose.",
+   "src": "L194"
   }
  }
 }

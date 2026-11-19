@@ -211,7 +211,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L12661"
+   "src": "L12661",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The vessel stays empty. (subject) shakes it, sighs, and puts it down. That evening, (friend), a neighbor (subject) barely knows, knocks on the door with a steaming pot of stew. \"Made too much,\" (friend) says. \"Thought you might want some.\" It's the most generous meal (subject) has had in weeks. Coincidence, surely. Surely.",
@@ -251,7 +252,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L12668"
+   "src": "L12668",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) listens once. (subject.He/She) listens twice. From deep inside the vessel comes (subject.his/her) own question, whispered back to (subject.him/her), exactly as (subject.he/she) asked it. Nothing more. No answer, just the question, echoing around and around inside the clay until it fades. (subject) puts the vessel down, feeling strange.",

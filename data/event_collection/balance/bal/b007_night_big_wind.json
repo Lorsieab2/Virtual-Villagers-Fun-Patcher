@@ -146,7 +146,8 @@
      }
     }
    ],
-   "src": "L313"
+   "src": "L313",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They save most of the roofs. But in the worst of it, while (builder) is running for another pole, the middle beam of (subject)'s hut gives way. The neighbours dig (subject.him/her) out together, by lamplight, in the rain, as fast as they can. They are too late. In the morning the village stands around the broken hut in silence. They bury (subject) at the edge of the village, where (subject.he/she) could see (subject.his/her) hut, and they rebuild it exactly as it was, with a new, stronger beam.",
@@ -154,10 +155,12 @@
     {
      "do": "kill",
      "cause": "unknown",
-     "role": "subject"
+     "role": "subject",
+     "line": "injuries"
     }
    ],
-   "src": "L316"
+   "src": "L316",
+   "auto_text": true
   },
   "c1": {
    "text": "(builder) shouts for every pair of hands that can hold a pole. In the howling dark, the villagers stagger from hut to hut, wedging posts under the worst roofs while the rain comes sideways...",
@@ -181,7 +184,8 @@
      "structures": "any"
     }
    ],
-   "src": "L322"
+   "src": "L322",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Everyone is safe inside. But in the middle of the night, a palm comes down across the back of the storehouse, and the corner where the village keeps its notes, carvings and half-finished experiments takes the worst of the water. In the morning, the scholars pick through soggy bark scrolls and split tablets, saying very little. The huts can be rebuilt. Some of what was written down can't.",
@@ -193,7 +197,8 @@
      "loss": true
     }
    ],
-   "src": "L325"
+   "src": "L325",
+   "auto_text": true
   },
   "c2": {
    "text": "The storehouse has thick walls and a low, heavy roof. (builder) bangs on every door and herds the whole village inside, children and elders and dogs, and even old (subject), grumbling, carried the last few steps...",

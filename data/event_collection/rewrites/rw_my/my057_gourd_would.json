@@ -223,7 +223,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L13199"
+   "src": "L13199",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Broth flows out of the gourd, hot and fragrant, and the cooks cheer. Then (name)'s elbow catches the pot, and the whole lot goes over into the dirt. When (name) tips the gourd again, nothing comes out. Apparently what was needed was a lesson in being careful. The cooks are not amused.",
@@ -256,7 +257,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L13206"
+   "src": "L13206",
+   "auto_text": true
   },
   "c3o2": {
    "text": "They look at it for days. They tap it, measure it, fill it, empty it. There's no seam, no hidden chamber, no trick anyone can find. It's just a gourd, an old, ordinary gourd, and yet. The researchers hand it back to (name) with a shrug and a frown, and quietly agree never to mention it again.",

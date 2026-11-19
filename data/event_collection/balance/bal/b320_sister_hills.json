@@ -133,10 +133,12 @@
    "effects": [
     {
      "do": "vanish",
-     "role": "subject"
+     "role": "subject",
+     "line": "leaves"
     }
    ],
-   "src": "L14829"
+   "src": "L14829",
+   "auto_text": true
   },
   "c1o2": {
    "text": "At the edge of the trees, the child stops, looks back at the village, then up at (subject). Then, all at once, (subject.he/she) is smaller: a baby, lying in the leaves, with the woven leaves still in its hair. The hills, it seems, have decided. (subject) carries the baby home and raises it. It always loves the jungle, and comes home from it with leaves in its hair.",
@@ -147,7 +149,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14832"
+   "src": "L14832",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) wipes the dirt off (subject.his/her) palm and takes the small cold hand. The child smiles, and starts to walk back towards the trees, pulling (subject) gently after (subject.him/her)...",
@@ -171,7 +174,8 @@
      "role": "friend"
     }
    ],
-   "src": "L14838"
+   "src": "L14838",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The child comes. (subject.He/She) sits by (subject) at the fire, eats a whole bowl of stew without a word, falls asleep against (subject)'s arm, and in the morning is gone, leaving a ring of leaves on the mat. (subject), who has never had any patience for children, finds that (subject.he/she) misses the weight of that small sleeping head, and starts minding the village's little ones in the evenings.",

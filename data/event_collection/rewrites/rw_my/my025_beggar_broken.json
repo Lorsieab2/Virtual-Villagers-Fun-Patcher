@@ -201,7 +201,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11304"
+   "src": "L11304",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) works hard on it, and the mended cup holds water beautifully. The beggar drinks, thanks (him/her) in that familiar voice, and shuffles off down the path. (Name) watches (him/her) go. Just as the beggar reaches the bend, there's a faint crack, and water splashes onto the dust. The cup has broken again, along exactly the same line. The beggar doesn't look back.",
@@ -256,7 +257,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11318"
+   "src": "L11318",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The beggar falls asleep almost immediately, snoring softly under the tree. When (he/she) wakes at dusk, (he/she) stares around in bewilderment. \"Where am I? How did I get here?\" The old one has no memory of the path, or the cup, or (name). And when (he/she) speaks now, the voice is just an ordinary old voice, not the one (name) remembered. (Name) walks the old one to the edge of the village and wonders, all night, what (he/she) heard.",

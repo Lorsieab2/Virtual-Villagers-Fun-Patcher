@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2720"
+   "src": "L2720",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) grabs the gourd and nearly goes in after it, and (friend), who has come running, grabs (subject)'s ankle just in time. The three of them end up in a heap on the muddy bank, the baby laughing for the first time. Nobody comes looking. \"Well,\" says (friend), wiping the mud off the baby's nose, \"I suppose we're keeping (subject.him/her).\" They are.",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2723"
+   "src": "L2723",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) edges out along the slippery log, the brown water roaring underneath, and lies flat, arm out, as the gourd comes spinning towards (subject.him/her)...",
@@ -180,7 +182,8 @@
      "child_of_newest": true
     }
    ],
-   "src": "L2729"
+   "src": "L2729",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The gourd floats into (subject)'s arms, and the baby inside is cold and quiet. (subject) runs all the way to the healers, who warm the baby by the fire until the little one is pink and screaming again. When the river goes down, the elders send word upriver, and a cousin of the baby's family comes to fetch the little one home. (subject) gets to say goodbye.",

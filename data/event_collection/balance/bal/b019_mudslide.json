@@ -134,7 +134,8 @@
      "structures": "any"
     }
    ],
-   "src": "L857"
+   "src": "L857",
+   "auto_text": true
   },
   "c1o2": {
    "text": "While they're working, the crack opens wider, and a second slide comes down. Everyone scrambles clear, except (friend), who is pinned by a fallen post until the others can dig (friend.him/her) out. (friend.His/Her) hip mends badly. (friend.He/She) walks with a cane afterwards, and can't stand on a ladder again. But (friend.he/she) has the best eye for a straight wall in the village, and soon (friend.he/she) is the one telling the builders where to put their posts.",
@@ -155,7 +156,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L860"
+   "src": "L860",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) gets every builder to work, digging posts out of the mud, straightening walls, re-tying thatch. People need somewhere dry to sleep tonight...",
@@ -190,7 +192,8 @@
      "structures": "any"
     }
    ],
-   "src": "L866"
+   "src": "L866",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The channel works, and the hill holds. But the two families sleep in the storehouse for a week while it's dug, and the storehouse is where the food is. By the time the huts are fixed, a surprising amount of it has been eaten, sat on, or knocked into the mud by children. Nobody begrudges it. Still, the cooks keep counting the baskets with a pained look.",
@@ -202,7 +205,8 @@
      "loss": true
     }
    ],
-   "src": "L869"
+   "src": "L869",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) takes three villagers up the hill with digging sticks and baskets, and they start cutting a channel along the slope, just above the crack, to carry the water away to the stream...",

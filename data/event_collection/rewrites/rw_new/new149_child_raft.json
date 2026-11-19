@@ -202,7 +202,8 @@
      "scaled": true
     }
    ],
-   "src": "L7115"
+   "src": "L7115",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) wraps the child in the first blanket (he/she) can find, and carries (him/her) straight up to the healers...",
@@ -227,7 +228,8 @@
      "scaled": true
     }
    ],
-   "src": "L7120"
+   "src": "L7120",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The child talks about many things, birds and shells and the colour of the sea, but won't talk about how (he/she) came to be on the raft. Whenever (name) gets close to it, (he/she) goes silent again. No one presses.",
@@ -255,7 +257,8 @@
      "age": "child"
     }
    ],
-   "src": "L7127"
+   "src": "L7127",
+   "auto_text": true
   },
   "c3o2": {
    "text": "Days later, a canoe arrives with the child's relatives, frantic, who have been searching every island for (him/her). The reunion on the beach makes everyone cry. The child goes home with them, waving until they are out of sight.",
@@ -284,7 +287,8 @@
      "scaled": true
     }
    ],
-   "src": "L7134"
+   "src": "L7134",
+   "auto_text": true
   },
   "c4o2": {
    "text": "While the villagers mend the battered raft, the child, calmer now, points out over the water: \"Home is that way. Past the two rocks.\" Two fishers paddle (him/her) carefully back, and return to say the child's family wept with joy, and sent back a basket of shells in thanks.",

@@ -207,7 +207,8 @@
      "scaled": true
     }
    ],
-   "src": "L9453"
+   "src": "L9453",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The ants do something different every time the stone moves: go left, go right, go over the top, give up and go home. (subject) records the uncertainty honestly. The crowd is still enthralled.",
@@ -243,7 +244,8 @@
      "what": "\"vanished\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "After wiping, the ants are a little confused, but only a little, and find their way again quickly. Both explanations still fit what they saw. More ant-watching is needed, which nobody minds at all.",
@@ -272,7 +274,8 @@
      "scaled": true
     }
    ],
-   "src": "L9467"
+   "src": "L9467",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The watchers argue about how to count ants that won't stop moving. One by one? By the handful? By guessing? Eventually they agree to count only the ants that cross one particular leaf. It goes surprisingly well, until the leaf blows away.",
@@ -305,7 +308,8 @@
      "max": 20
     }
    ],
-   "src": "L9474"
+   "src": "L9474",
+   "auto_text": true
   },
   "c4o2": {
    "text": "(novice) notices that every time (subject) leans over to watch, (subject.his/her) shadow falls across the trail, and the ants scatter. The scholar's own shadow was scaring them! The group revises its notes. (subject) watches from a respectful distance from then on.",

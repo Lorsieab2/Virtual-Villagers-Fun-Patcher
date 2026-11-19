@@ -1,0 +1,1028 @@
+# Text-implied outcome effects (the owner's outcomes pass, v1.35.97): scripts/outcome_effects.py.
+# <file under data/event_collection> | <node> | <OWNER WORDS> | "<the outcome's own words>" | <effect JSON>
+# PENDING: apply after #774 (feat/97-round6) merge(s) into feat/v1.35.97: move this file up
+# to data/event_collection/outcome_effects/, then run python scripts/outcome_effects.py and collection_check.
+companion/c5/c5dn002_wrong.json | e2 | HAPPIER (teen) (50%) | "Try the family trade and unexpectedly enjoy it." | {"do":"mood","role":"teen","mood":"good"}
+living/lv_unseen/lvuns23_silence_after.json | a1 | HAPPIER (believer) (50%) | "The believer finds comfort in a story of endurance" | {"do":"mood","role":"believer","mood":"good"}
+balance/bal/b001_undertow.json | c1o1 | UNHAPPY (friend) (50%) | "someone sits on the beach and watches the place past the reef" | {"do":"mood","role":"friend","mood":"bad"}
+balance/bal/b001_undertow.json | c1o2 | INJURY (subject) (50%) | "coughing up half the lagoon" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b001_undertow.json | c1o2 | UNHAPPY (subject) (50%) | "The joy of it is gone" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b001_undertow.json | c2o2 | UNHAPPY (friend) (50%) | "(friend) mends nets alone for a long time after that" | {"do":"mood","role":"friend","mood":"bad"}
+balance/bal/b002_three_day_fever.json | c1o1 | HAPPIER (subject) (50%) | "(subject.he/she) answers to it cheerfully" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b002_three_day_fever.json | c1o2 | TECH GAIN normal (50%) | "(healer) writes down the dose very carefully" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b005_blessing_stones.json | c1o1 | HAPPIER (friend) (50%) | "(friend) runs round the whole village telling everybody" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b005_blessing_stones.json | c2o1 | HAPPIER (friend) (50%) | "\"No stones,\" (friend) tells everyone proudly" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b005_blessing_stones.json | c2o2 | HAPPIER (subject) (50%) | "Their life is already full" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b005_blessing_stones.json | c2o2 | HAPPIER (friend) (50%) | "Their life is already full" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b007_night_big_wind.json | c1o1 | HAPPIER (builder) (50%) | "(builder) sleeps for a whole day, and wakes up famous" | {"do":"mood","role":"builder","mood":"good"}
+balance/bal/b007_night_big_wind.json | c1o2 | UNHAPPY (builder) (50%) | "In the morning the village stands around the broken hut in silence" | {"do":"mood","role":"builder","mood":"bad"}
+balance/bal/b008_mirror_shell.json | c1o2 | HAPPIER (subject) (50%) | "Then (he/she) starts laughing" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b009_cliff_path.json | c1o2 | INJURY (subject) (50%) | "cracks (his/her) head on an overhang so hard (he/she) sees stars" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b009_cliff_path.json | c2o1 | INJURY (subject) (50%) | "(his/her) scraped hands and white face" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b010_cook_hated.json | c1o1 | UNHAPPY (subject) (50%) | "The smell of the fire that (subject.he/she) used to love just reminds (subject.him/her) of that day" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b010_cook_hated.json | c1o1 | SKILL + Building a lot (subject) (50%) | "takes up net-mending instead, and is good at it" | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+balance/bal/b010_cook_hated.json | c1o2 | HAPPIER (cook) (50%) | "grins for the first time anyone can remember" | {"do":"mood","role":"cook","mood":"good"}
+balance/bal/b010_cook_hated.json | c2o2 | SKILL + Farming a lot (subject) (50%) | "You're so good at peeling" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+balance/bal/b012_canoe_north.json | c1o2 | TECH GAIN normal (50%) | "Annoyingly, the grandparent is right" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b013_spotted_sickness.json | c1o1 | TECH GAIN normal (50%) | "teaches the recipe to every healer in the village, who all write it down" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b013_spotted_sickness.json | c1o2 | TECH GAIN normal (50%) | "the recipe is cut into the doorpost of the healers' hut" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b013_spotted_sickness.json | c2o1 | HAPPIER (subject) (50%) | "someone has left a basket of fruit by (his/her) door" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b014_naming_stone.json | c1o1 | HAPPIER (subject) (50%) | "finds (he/she) likes it very much" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b016_grandchild_spell.json | c1o1 | HAPPIER (subject) (50%) | "laughs so loud the goat runs away" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b016_grandchild_spell.json | c2o2 | HAPPIER (young) (50%) | "(young) beams with pride" | {"do":"mood","role":"young","mood":"good"}
+balance/bal/b017_child_followed.json | c1o1 | CELEBRATE (everyone) (50%) | "The whole village has a feast that night" | {"do":"celebrate","who":"all"}
+balance/bal/b017_child_followed.json | c2o1 | INJURY (subject) (50%) | "hit (subject.his/her) head on a branch" | {"do":"health_change","role":"subject","min":-20,"max":-10}
+balance/bal/b018_night_whales_sang.json | c2o1 | HAPPIER (subject) (50%) | "feels as if (he/she) has been washed clean inside" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b020_cave_echoes.json | c1o1 | UNHAPPY (friend) (50%) | "(friend) is less delighted" | {"do":"mood","role":"friend","mood":"bad"}
+balance/bal/b020_cave_echoes.json | c2o2 | HAPPIER (subject) (50%) | "laughing until their sides hurt" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b020_cave_echoes.json | c2o2 | HAPPIER (friend) (50%) | "laughing until their sides hurt" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b022_fisher_voyage.json | c1o2 | FOOD GAIN normal (50%) | "a fish in the bottom so big that it takes four people to lift it" | {"do":"food","size":"normal","scaled":true}
+balance/bal/b022_fisher_voyage.json | c1o2 | HAPPIER (subject) (50%) | "grinning like a child" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b022_fisher_voyage.json | c2o1 | UNHAPPY (subject) (50%) | "something goes out of (him/her) that day" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b022_fisher_voyage.json | c2o2 | HAPPIER (subject) (50%) | "finds to (his/her) own surprise that (he/she) likes it" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b022_fisher_voyage.json | c2o2 | FOOD GAIN normal (50%) | "The young fishers bring (him/her) the first fish of every catch" | {"do":"food","size":"normal","scaled":true}
+balance/bal/b023_rivals_spirit.json | c1o2 | HAPPIER (subject) (50%) | "They both start laughing and can't stop" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b023_rivals_spirit.json | c1o2 | HAPPIER (friend) (50%) | "They both start laughing and can't stop" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b023_rivals_spirit.json | c2o2 | UNHAPPY (subject) (50%) | "Neither of them is happy" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b023_rivals_spirit.json | c2o2 | UNHAPPY (friend) (50%) | "Neither of them is happy" | {"do":"mood","role":"friend","mood":"bad"}
+balance/bal/b024_hot_spring_hills.json | c1o1 | HEALTH UP (subject) (50%) | "my back's better" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b025_fire_weaving_hut.json | c1o2 | INJURY (subject) (50%) | "Singed eyebrows, a cough" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b026_sleepwalker.json | c1o1 | INJURY (subject) (50%) | "cracking (subject.his/her) head on a stone" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b026_sleepwalker.json | c1o2 | UNHAPPY (friend) (50%) | "in time (friend.he/she) almost believes it" | {"do":"mood","role":"friend","mood":"bad"}
+balance/bal/b028_wishing_tree.json | c1o2 | HAPPIER (friend) (50%) | "(friend) laughs until (friend.he/she) cries" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b028_wishing_tree.json | c2o1 | HAPPIER (friend) (50%) | "(friend) is very proud" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b028_wishing_tree.json | c2o2 | HAPPIER (subject) (50%) | "They are patient, and they are happy" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b028_wishing_tree.json | c2o2 | HAPPIER (friend) (50%) | "They are patient, and they are happy" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b028_wishing_tree.json | c2o2 | SKILL + Parenting a lot (subject) (50%) | "(subject) and (friend) look after their friends' children" | {"do":"skill","role":"subject","skills":["Parenting"],"min":20,"max":40}
+balance/bal/b028_wishing_tree.json | c2o2 | SKILL + Parenting a lot (friend) (50%) | "(subject) and (friend) look after their friends' children" | {"do":"skill","role":"friend","skills":["Parenting"],"min":20,"max":40}
+balance/bal/b029_smoke_horizon.json | c2o2 | FOOD LOSS normal (50%) | "filling the bowls for the third time" | {"do":"food","size":"normal","loss":true,"scaled":true}
+balance/bal/b030_rival_builders.json | c2o1 | HUT DAMAGE small (50%) | "two of them blow clean off" | {"do":"damage","structures":"any","size":"small"}
+balance/bal/b030_rival_builders.json | c2o1 | UNHAPPY (friend) (50%) | "The pleasure of tying a good knot is simply gone" | {"do":"mood","role":"friend","mood":"bad"}
+balance/bal/b030_rival_builders.json | c2o1 | UNHAPPY (subject) (50%) | "(subject) feels much worse about it than (subject.he/she) expected" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b031_bonesetter_choice.json | c1o1 | SKILL + Building a lot (subject) (50%) | "takes up net-mending in the shade of the very palm" | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+balance/bal/b032_mask_another_face.json | c1o2 | HAPPIER (subject) (50%) | "(He/She) seems happier as Azizi" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b033_overturned_canoe.json | c1o1 | UNHAPPY (subject) (50%) | "sits by the grave every evening for a month anyway" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b033_overturned_canoe.json | c2o1 | UNHAPPY (subject) (50%) | "the joy of it doesn't come back" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b033_overturned_canoe.json | c2o2 | HAPPIER (subject) (50%) | "the two of them are on the beach, laughing too loud" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b033_overturned_canoe.json | c2o2 | HAPPIER (friend) (50%) | "the two of them are on the beach, laughing too loud" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b035_lagoon_keeps_time.json | c2o2 | INJURY (subject) (50%) | "(he/she) is very tired and very wet" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b036_festival_lanterns.json | c1o2 | HUT DAMAGE small (50%) | "two roofs are scorched black" | {"do":"damage","structures":"any","size":"small"}
+balance/bal/b037_wind_bell_rocks.json | c2o2 | INJURY (subject) (50%) | "(He/She) is deaf as a stone for a whole day afterwards" | {"do":"health_change","role":"subject","min":-50,"max":-25}
+balance/bal/b038_elder_last_winter.json | c1o1 | HAPPIER (subject) (50%) | "hugs (healer.him/her) for a long time" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b038_elder_last_winter.json | c1o1 | HAPPIER (healer) (50%) | "hugs (healer.him/her) for a long time" | {"do":"mood","role":"healer","mood":"good"}
+balance/bal/b038_elder_last_winter.json | c1 | INJURY (healer) (50%) | "scratched and limping" | {"do":"health_change","role":"healer","min":-30,"max":-15}
+balance/bal/b038_elder_last_winter.json | c2o1 | TECH GAIN normal (50%) | "(healer) writes down in (healer.his/her) notes" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b040_teaching_day.json | c1o2 | UNHAPPY (young) (50%) | "(young), who started all this, is sulking at the back" | {"do":"mood","role":"young","mood":"bad"}
+balance/bal/b040_teaching_day.json | c2o2 | UNHAPPY (young) (50%) | "(young) has no appetite for lessons of any kind" | {"do":"mood","role":"young","mood":"bad"}
+balance/bal/b041_dance_shared.json | c2o2 | HAPPIER (subject) (50%) | "a lot relieved" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b041_dance_shared.json | c2o2 | HAPPIER (friend) (50%) | "a lot relieved" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b042_coconut_season.json | c1o1 | INJURY (subject) (50%) | "catches (him/her) right on the head" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b042_coconut_season.json | c1o2 | FOOD GAIN normal (50%) | "collects the coconuts, and carries them home" | {"do":"food","size":"normal","scaled":true}
+balance/bal/b042_coconut_season.json | c2o1 | FOOD GAIN normal (50%) | "six coconuts in (his/her) lap" | {"do":"food","size":"normal","scaled":true}
+balance/bal/b042_coconut_season.json | c2o1 | HAPPIER (subject) (50%) | "decides (he/she) likes it" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b045_pearl_bed.json | c2o2 | HAPPIER (subject) (50%) | "(Name) comes up laughing anyway" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b046_old_couple_wish.json | c2o1 | CELEBRATE (everyone) (50%) | "There's a feast by the stream" | {"do":"celebrate","who":"all"}
+balance/bal/b047_turtle_nest.json | c2o1 | HAPPIER (subject) (50%) | "quiet and content" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b047_turtle_nest.json | c2o1 | HAPPIER (friend) (50%) | "quiet and content" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b049_mist_canoe.json | c1o2 | HAPPIER (subject) (50%) | "(He/She) smiles more than (he/she) used to" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b050_healers_garden.json | c1o1 | TECH GAIN large (50%) | "They learn more about their own garden in one day than in the whole year before" | {"do":"tech","size":"large","scaled":true}
+balance/bal/b050_healers_garden.json | c1o2 | INJURY (subject) (50%) | "(his/her) back is screaming" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b050_healers_garden.json | c2o1 | INJURY (subject) (50%) | "footsore and scratched" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b053_wrestling_match.json | c1o1 | UNHAPPY (friend) (50%) | "feels terrible about it" | {"do":"mood","role":"friend","mood":"bad"}
+balance/bal/b053_wrestling_match.json | c1o2 | HAPPIER (subject) (50%) | "The confidence of that win carries over" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b053_wrestling_match.json | c2o1 | UNHAPPY (subject) (50%) | "doesn't come out for two days" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b054_two_same_name.json | c1o1 | CELEBRATE (everyone) (50%) | "The village throws a small naming feast" | {"do":"celebrate","who":"all"}
+balance/bal/b054_two_same_name.json | c2o1 | HAPPIER (subject) (50%) | "feels so relieved that it changes (subject.his/her) mood about other things too" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b055_termites.json | c2o2 | INJURY (subject) (50%) | "Two weeks of carrying ironwood is too much for (name)" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b056_woman_tide_pools.json | c1o2 | HAPPIER (subject) (50%) | "(Name) is surprised to find (he/she) likes the face" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b057_sick_canoe.json | c1o1 | HAPPIER (healer) (50%) | "(healer) breathes out for the first time in a week" | {"do":"mood","role":"healer","mood":"good"}
+balance/bal/b058_rope_swing_over.json | c1o2 | INJURY (subject) (50%) | "hits the tree trunk head first" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b059_paired_gourds.json | c1o1 | HAPPIER (subject) (50%) | "laughing too much to be very upset" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b059_paired_gourds.json | c1o1 | HAPPIER (friend) (50%) | "laughing too much to be very upset" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b061_banyan_bark.json | c2o1 | TECH GAIN normal (50%) | "The healers write it all down" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b062_torch_fishers.json | c2o2 | FOOD GAIN large (50%) | "wades in at dawn with a full basket" | {"do":"food","size":"large","scaled":true}
+balance/bal/b063_wedding_night.json | c2o1 | HAPPIER (subject) (50%) | "(subject) and (friend) wait, and are happy" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b063_wedding_night.json | c2o1 | HAPPIER (friend) (50%) | "(subject) and (friend) wait, and are happy" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b063_wedding_night.json | c2o2 | HAPPIER (subject) (50%) | "They play until dawn" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b063_wedding_night.json | c2o2 | HAPPIER (friend) (50%) | "They play until dawn" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b064_floating_chest.json | c2o1 | INJURY (subject) (50%) | "cold and sore and empty-handed" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b065_twin_stars.json | c2o2 | HAPPIER (subject) (50%) | "(Name) is mostly relieved" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b066_wild_boar.json | c1o2 | HAPPIER (subject) (50%) | "carry (him/her) home like a hero" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b066_wild_boar.json | c2o2 | INJURY (subject) (50%) | "stiff and cold and covered in ant bites" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b067_shaking_ground.json | c1o1 | HUT DAMAGE small (50%) | "the roof slides the rest of the way down" | {"do":"damage","structures":"any","size":"small"}
+balance/bal/b067_shaking_ground.json | c1o1 | HAPPIER (subject) (50%) | "The elder brings (subject) a bowl of stew every day for a month" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b067_shaking_ground.json | c2o1 | HUT DAMAGE small (50%) | "The builders spend the next week putting the village back together" | {"do":"damage","structures":"any","size":"small"}
+balance/bal/b068_day_sun_went_dark.json | c1o2 | HAPPIER (subject) (50%) | "laugh with relief" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b068_day_sun_went_dark.json | c1o2 | HAPPIER (friend) (50%) | "laugh with relief" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b069_sea_glass_window.json | c1o1 | HAPPIER (subject) (50%) | "(name) finds (he/she) loves it" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b069_sea_glass_window.json | c1o2 | HAPPIER (subject) (50%) | "(Name) laughs and takes it" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b069_sea_glass_window.json | c2o1 | HAPPIER (subject) (50%) | "Then (he/she) smiles" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b071_ancestor_masks.json | c1o1 | HAPPIER (subject) (50%) | "finds the conversation better than expected" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b071_ancestor_masks.json | c2o1 | HAPPIER (subject) (50%) | "(Name) dances till dawn" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b071_ancestor_masks.json | c2o2 | HAPPIER (subject) (50%) | "just very hot and very happy" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b072_canoe_didnt_come.json | c1o1 | UNHAPPY (friend) (50%) | "(friend) sits on the beach every evening for a long time" | {"do":"mood","role":"friend","mood":"bad"}
+balance/bal/b072_canoe_didnt_come.json | c1o1 | INJURY (friend) (50%) | "burned by the sun" | {"do":"health_change","role":"friend","min":-30,"max":-15}
+balance/bal/b072_canoe_didnt_come.json | c2o1 | UNHAPPY (subject) (50%) | "(subject) never quite forgives the sea" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b072_canoe_didnt_come.json | c2o2 | CELEBRATE (everyone) (50%) | "at the welcome feast" | {"do":"celebrate","who":"all"}
+balance/bal/b072_canoe_didnt_come.json | c2o2 | INJURY (subject) (50%) | "hungry and burnt" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b072_canoe_didnt_come.json | c2o2 | INJURY (friend) (50%) | "hungry and burnt" | {"do":"health_change","role":"friend","min":-30,"max":-15}
+balance/bal/b073_scholar_mixture.json | c1o2 | TECH GAIN normal (50%) | "(Name) writes it all down very carefully" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b074_remedy_deep.json | c1o1 | TECH GAIN normal (50%) | "ask the oldest fisher to teach them which octopus" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b074_remedy_deep.json | c2o2 | HEALTH UP (subject) (50%) | "it just fades on its own" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b075_moon_charm.json | c1o2 | HAPPIER (subject) (50%) | "It becomes their favourite night of the month" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b075_moon_charm.json | c1o2 | HAPPIER (friend) (50%) | "It becomes their favourite night of the month" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b076_giant_eel.json | c1o1 | SKILL + Building a great deal (subject) (50%) | "(He/She) makes the best fish hooks in the village instead" | {"do":"skill","role":"subject","skills":["Building"],"min":30,"max":60}
+balance/bal/b076_giant_eel.json | c2o2 | UNHAPPY (subject) (50%) | "something goes out of (him/her)" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b077_rope_bridge.json | c2o2 | HAPPIER (subject) (50%) | "(subject) walks across to cheers" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b077_rope_bridge.json | c2o2 | SKILL + Building a lot (subject) (50%) | "admits, grudgingly, that it'll hold" | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+balance/bal/b079_garden_raft.json | c1o2 | TECH GAIN normal (50%) | "the village tries a raft garden of its own in the lagoon" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b080_elder_hills.json | c1o2 | HEALTH UP (subject) (50%) | "(subject) gets stronger after that" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b081_walker_fog.json | c2o2 | HAPPIER (subject) (50%) | "They walk home together, laughing too loudly" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b084_name_day.json | c1o1 | HAPPIER (subject) (50%) | "(name) laughs too" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b084_name_day.json | c1o2 | HAPPIER (subject) (50%) | "a little embarrassed and quite touched" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b087_grey_morning.json | c2o2 | HAPPIER (subject) (50%) | "which (name) keeps, and is quite proud of" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b088_wet_rocks_falls.json | c1o1 | INJURY (subject) (50%) | "a bleeding scalp and a ringing head" | {"do":"health_change","role":"subject","min":-50,"max":-25}
+balance/bal/b088_wet_rocks_falls.json | c1o2 | HAPPIER (subject) (50%) | "comes up whooping into the spray" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b089_singing_reef.json | c1o2 | HAPPIER (subject) (50%) | "(Name) hums it for the rest of (his/her) life" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b089_singing_reef.json | c2o1 | HEALTH UP (subject) (50%) | "(his/her) back doesn't ache the way it did" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b090_healer_steps_down.json | c1o1 | HAPPIER (subject) (50%) | "catches nothing, and doesn't care" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b090_healer_steps_down.json | c2o1 | SKILL + Building a great deal (young) (50%) | "becomes the best net-maker the village has had in years" | {"do":"skill","role":"young","skills":["Building"],"min":30,"max":60}
+balance/bal/b090_healer_steps_down.json | c2o1 | HAPPIER (subject) (50%) | "is proud of both" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b091_double_rainbow.json | c2o1 | CELEBRATE (everyone) (50%) | "the rest of the day turns into a sort of festival" | {"do":"celebrate","who":"all"}
+balance/bal/b093_leaking_roofs.json | c1o1 | HAPPIER (subject) (50%) | "goes straight back out to dance in the puddles" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b093_leaking_roofs.json | c1o2 | HUTS REPAIRED (50%) | "The roofs get fixed" | {"do":"repair"}
+balance/bal/b093_leaking_roofs.json | c1o2 | UNHAPPY (subject) (50%) | "the rain has gone from wonderful to miserable" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b093_leaking_roofs.json | c2o1 | TECH GAIN normal (50%) | "has given (subject.him/her) an idea for a drum" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b094_baby_waves.json | c2o1 | UNHAPPY (subject) (50%) | "with wet feet and a strange ache" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b096_storm_lookout.json | c1o1 | INJURY (subject) (50%) | "singed and shaky" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b096_storm_lookout.json | c2o2 | HAPPIER (subject) (50%) | "drenched and laughing with relief" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b097_bark_boat_race.json | c1o2 | UNHAPPY (subject) (50%) | "the joy of running goes out of (name)" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b097_bark_boat_race.json | c2o2 | HAPPIER (subject) (50%) | "to a big cheer" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b099_moon_tree.json | c1o2 | HAPPIER (subject) (50%) | "(He/She) hums that song all day without noticing" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b100_elder_wants_stop.json | c1o1 | HAPPIER (subject) (50%) | "is, quite clearly, happy" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b100_elder_wants_stop.json | c1o2 | HEALTH UP (subject) (50%) | "(name) learns, at last, how to rest" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b100_elder_wants_stop.json | c2o2 | HAPPIER (subject) (50%) | "the best thing that ever happened to me" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b101_carved_cradle.json | c1o2 | HAPPIER (friend) (50%) | "(friend) goes back to the carving fire that same evening, laughing" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b101_carved_cradle.json | c2o2 | SKILL + Building a lot (friend) (50%) | "takes the half-carved one down and finishes it overnight" | {"do":"skill","role":"friend","skills":["Building"],"min":20,"max":40}
+balance/bal/b104_race_far_reef.json | c2o1 | HAPPIER (subject) (50%) | "(subject) wins the race by a canoe length" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b106_sleeping_sickness.json | c1o1 | TECH GAIN normal (50%) | "(healer) writes in the notes that the smoke worked this time" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b106_sleeping_sickness.json | c2o1 | INJURY (healer) (50%) | "(healer) has not slept in nine days" | {"do":"health_change","role":"healer","min":-30,"max":-15}
+balance/bal/b106_sleeping_sickness.json | c2o2 | ILLNESS CURED (subject) (50%) | "The fever is gone" | {"do":"cure","role":"subject"}
+balance/bal/b106_sleeping_sickness.json | c2o2 | INJURY (subject) (50%) | "weak and confused and thin, but alive" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b108_fire_children_hut.json | c1o2 | HUT DAMAGE small (50%) | "the whole village rebuilds the children's hut" | {"do":"damage","structures":"any","size":"small"}
+balance/bal/b108_fire_children_hut.json | c2o2 | INJURY (subject) (50%) | "(Name)'s hands are torn and bleeding from the wall" | {"do":"health_change","role":"subject","min":-50,"max":-25}
+balance/bal/b109_washing_stones.json | c1o1 | INJURY (subject) (50%) | "(subject.his/her) hands are cracked and bleeding" | {"do":"health_change","role":"subject","min":-50,"max":-25}
+balance/bal/b109_washing_stones.json | c1o1 | UNHAPPY (subject) (50%) | "never wants to see a washing stone again" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b110_spring_light.json | c1o1 | HAPPIER (subject) (50%) | "starts the long walk down, smiling" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b112_contest_hands.json | c1o2 | UNHAPPY (subject) (50%) | "half the village isn't speaking to the other half" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b113_night_fishers.json | c1o1 | UNHAPPY (subject) (50%) | "paddles home alone" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b113_night_fishers.json | c2o1 | UNHAPPY (friend) (50%) | "(friend) carves a blue lamp on the grave post" | {"do":"mood","role":"friend","mood":"bad"}
+balance/bal/b114_grandmother.json | c1o1 | UNHAPPY (elder) (50%) | "(elder) is mortified" | {"do":"mood","role":"elder","mood":"bad"}
+balance/bal/b114_grandmother.json | c1o2 | HAPPIER (subject) (50%) | "walks home feeling lighter than (subject.he/she) has in a year" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b115_typhoon.json | c1o2 | HUT DAMAGE normal (50%) | "half the village is flattened" | {"do":"damage","structures":"any","size":"normal"}
+balance/bal/b115_typhoon.json | c1o2 | INJURY (subject) (50%) | "soaked and bruised" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b115_typhoon.json | c2o1 | HUT DAMAGE normal (50%) | "the village is wrecked and the goat pen is gone" | {"do":"damage","structures":"any","size":"normal"}
+balance/bal/b115_typhoon.json | c2o2 | UNHAPPY (subject) (50%) | "(Name) feels bad about the goats for a long time" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b116_twin_pools.json | c1o1 | HAPPIER (subject) (50%) | "arrives laughing" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b117_leaping_contest.json | c1o2 | INJURY (subject) (50%) | "singed feet and a fright" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b117_leaping_contest.json | c1o2 | UNHAPPY (subject) (50%) | "the joy of leaping is gone" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b119_coughing_season.json | c1o2 | UNHAPPY (subject) (50%) | "(name) is teased about it for a month" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b119_coughing_season.json | c2o1 | HAPPIER (subject) (50%) | "run to (him/her) whenever they see (him/her) coming" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b119_coughing_season.json | c2o2 | SKILL + Healing a lot (subject) (50%) | "two weeks of sitting with coughing children changes that" | {"do":"skill","role":"subject","skills":["Healing"],"min":20,"max":40}
+balance/bal/b120_last_night_year.json | c2o2 | HAPPIER (subject) (50%) | "(name) laughs harder than (he/she) has in years" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b121_fever_tea.json | c1o1 | TECH GAIN large (50%) | "writing down how many leaves, how long, how hot" | {"do":"tech","size":"large","scaled":true}
+balance/bal/b121_fever_tea.json | c2o1 | TECH GAIN normal (50%) | "They do it exactly as the song says" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b121_fever_tea.json | c2o2 | HEALTH UP (friend) (50%) | "(friend) gets better on (subject.his/her) own" | {"do":"health_change","role":"friend","min":15,"max":30}
+balance/bal/b122_night_roofs_flew.json | c2o2 | HUT DAMAGE small (50%) | "The thatch is in shreds" | {"do":"damage","structures":"any","size":"small"}
+balance/bal/b122_night_roofs_flew.json | c2o2 | HUTS REPAIRED (50%) | "It takes four days to cut new fronds and roof the huts again" | {"do":"repair"}
+balance/bal/b124_name_stone.json | c2o1 | HAPPIER (subject) (50%) | "(Name) walks home feeling very different about (his/her) name" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b125_blessing_shell.json | c2o2 | HAPPIER (subject) (50%) | "They paddle home holding hands" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b125_blessing_shell.json | c2o2 | HAPPIER (friend) (50%) | "They paddle home holding hands" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b127_festival_masks.json | c2o2 | HAPPIER (subject) (50%) | "walk home feeling lighter" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b127_festival_masks.json | c2o2 | HAPPIER (friend) (50%) | "walk home feeling lighter" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b128_goat_path.json | c1o2 | INJURY (subject) (50%) | "(subject.His/her) head hit the rock" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b130_raft_dawn.json | c2o1 | FOOD LOSS normal (50%) | "They eat everything the cooks put in front of them" | {"do":"food","size":"normal","loss":true,"scaled":true}
+balance/bal/b135_healers_moon.json | c1o1 | TECH GAIN normal (50%) | "write it all down on bark before they forget" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b136_mimic_bird.json | c2o2 | UNHAPPY (subject) (50%) | "(Name) never sings again" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b138_fisher_trip.json | c1o2 | UNHAPPY (subject) (50%) | "(subject) paddles home very slowly" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b138_fisher_trip.json | c2o2 | FOOD GAIN normal (50%) | "they are catching more fish than they have in years" | {"do":"food","size":"normal","scaled":true}
+balance/bal/b138_fisher_trip.json | c2o2 | HAPPIER (fisher) (50%) | "(fisher) says nothing about it, very smugly" | {"do":"mood","role":"fisher","mood":"good"}
+balance/bal/b139_bitter_berry_week.json | c1o2 | CELEBRATE (everyone) (50%) | "The parents are so happy they throw a little feast" | {"do":"celebrate","who":"all"}
+balance/bal/b140_two_canoes.json | c2o1 | CELEBRATE (everyone) (50%) | "The village holds a welcome feast that same night" | {"do":"celebrate","who":"all"}
+balance/bal/b142_fig_fruits_once.json | c1o1 | HAPPIER (subject) (50%) | "(subject) is pregnant, and very happy" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b142_fig_fruits_once.json | c1o2 | HAPPIER (farmer) (50%) | "(farmer) laughs and hugs them both" | {"do":"mood","role":"farmer","mood":"good"}
+balance/bal/b142_fig_fruits_once.json | c2o2 | HAPPIER (farmer) (50%) | "They are so happy that the whole village is happy for them" | {"do":"mood","role":"farmer","mood":"good"}
+balance/bal/b142_fig_fruits_once.json | c2o2 | HAPPIER (subject) (50%) | "(subject) and (friend) say they are happy too, and mostly mean it" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b142_fig_fruits_once.json | c2o2 | HAPPIER (friend) (50%) | "(subject) and (friend) say they are happy too, and mostly mean it" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b143_too_many_babies.json | c1o1 | HEALTH UP (friend) (50%) | "(friend) sleeps for a whole day" | {"do":"health_change","role":"friend","min":30,"max":50}
+balance/bal/b143_too_many_babies.json | c2o1 | HEALTH UP (friend) (50%) | "(friend) sleeps all afternoon on (subject)'s doorstep" | {"do":"health_change","role":"friend","min":15,"max":30}
+balance/bal/b144_painter_pot.json | c2o1 | HAPPIER (subject) (50%) | "then gets very fond of it" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b148_termite_year.json | c1o1 | TECH GAIN large (50%) | "learn a great deal about how termites build, which they use to build better" | {"do":"tech","size":"large","scaled":true}
+balance/bal/b150_grey_clay.json | c1o2 | UNHAPPY (subject) (50%) | "(subject.he/she) says sadly" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b151_two_round_stones.json | c2o2 | UNHAPPY (subject) (50%) | "go home a little disappointed" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b151_two_round_stones.json | c2o2 | UNHAPPY (friend) (50%) | "go home a little disappointed" | {"do":"mood","role":"friend","mood":"bad"}
+balance/bal/b152_shadow_stayed.json | c2o1 | HEALTH UP (subject) (50%) | "more rested than (subject.he/she) has in years" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b153_love_charm_mix_up.json | c2o1 | HAPPIER (subject) (50%) | "they laugh about the whole thing for an hour" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b153_love_charm_mix_up.json | c2o1 | HAPPIER (friend) (50%) | "they laugh about the whole thing for an hour" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b156_old_well.json | c2o1 | CELEBRATE (everyone) (50%) | "has a little feast for the goat" | {"do":"celebrate","who":"all"}
+balance/bal/b157_brother_came_back.json | c2o2 | UNHAPPY (subject) (50%) | "(name) is still angry at the end of it" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b159_teaching_turtle.json | c1o1 | HAPPIER (subject) (50%) | "(subject.he/she) has never felt so calm" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b159_teaching_turtle.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) feels oddly sad about it" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b160_path_wasnt_there.json | c1o1 | UNHAPPY (subject) (50%) | "(subject) calls after (friend.him/her) and gets no answer" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b160_path_wasnt_there.json | c2o1 | FOOD GAIN normal (50%) | "then turn into perfectly ordinary beans" | {"do":"food","size":"normal","scaled":true}
+balance/bal/b163_dreaming_hammock.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) sits by the hammock all day, waiting" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b164_coconut_shy.json | c1o1 | INJURY (subject) (50%) | "hits (subject) right on the top of the head" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b166_after_big_wave.json | c2o1 | CELEBRATE (everyone) (50%) | "The families hold a feast to warm the new huts, and everyone comes" | {"do":"celebrate","who":"all"}
+balance/bal/b166_after_big_wave.json | c2o2 | HUTS REPAIRED (50%) | "The huts are moved and rebuilt" | {"do":"repair"}
+balance/bal/b166_after_big_wave.json | c2o2 | UNHAPPY (subject) (50%) | "the families are angry with (name) for a long time" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b167_elders_dance.json | c1o1 | YOUNGER LOOK (elder) (50%) | "Every one of them has a young face" | {"do":"young_look","role":"elder"}
+balance/bal/b167_elders_dance.json | c1o1 | HAPPIER (elder) (50%) | "(elder) is very smug about the steps" | {"do":"mood","role":"elder","mood":"good"}
+balance/bal/b168_race_reef.json | c1o1 | UNHAPPY (subject) (50%) | "Nobody races that year, or the next" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b168_race_reef.json | c2o1 | HAPPIER (friend) (50%) | "(friend) is so happy" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b170_naming_feast.json | c1o1 | HAPPIER (subject) (50%) | "It is a good name. It suits (subject.him/her)." | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b170_naming_feast.json | c1o2 | HAPPIER (subject) (50%) | "(subject.he/she) decides (subject.he/she) quite likes it" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b170_naming_feast.json | c2o1 | HAPPIER (subject) (50%) | "Ginger is very happy" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b170_naming_feast.json | c2o2 | CELEBRATE (everyone) (50%) | "it is a very good feast" | {"do":"celebrate","who":"all"}
+balance/bal/b173_hammerhead.json | c2o2 | FOOD GAIN small (50%) | "with half a basket of clams" | {"do":"food","size":"small","scaled":true}
+balance/bal/b176_sunken_canoe.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) never dives in the lagoon after that" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b177_shared_gourd.json | c2o1 | HAPPIER (subject) (50%) | "they understand each other a lot better than they thought" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b177_shared_gourd.json | c2o1 | HAPPIER (friend) (50%) | "they understand each other a lot better than they thought" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b179_fern_remembers.json | c2o2 | TECH GAIN large (50%) | "They learn a great deal from it" | {"do":"tech","size":"large","scaled":true}
+balance/bal/b180_family_storm.json | c2o2 | FOOD LOSS normal (50%) | "They stay for a week, eating, resting and thanking everyone" | {"do":"food","size":"normal","loss":true,"scaled":true}
+balance/bal/b182_hot_spring_rocks.json | c1o1 | HAPPIER (friend) (50%) | "smelling powerfully of eggs and grinning" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b184_mask_face.json | c2o1 | INJURY (subject) (50%) | "(subject) is sunburnt and exhausted" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b186_dolphin_waits.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) goes and sits on the rocks at the point sometimes, and talks to the sea" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b187_elder_hat.json | c1o1 | HAPPIER (elder) (50%) | "(elder) is delighted" | {"do":"mood","role":"elder","mood":"good"}
+balance/bal/b187_elder_hat.json | c2o2 | HAPPIER (friend) (50%) | "much more pleased with (subject.himself/herself)" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b188_thatcher_ladder.json | c2o1 | TECH GAIN normal (50%) | "The builders all make a point of learning (subject)'s lashing knot" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b188_thatcher_ladder.json | c2o2 | HUT DAMAGE small (50%) | "the store's roof leaks all over the food" | {"do":"damage","structures":"any","size":"small"}
+balance/bal/b189_coughing_season.json | c1o1 | TECH GAIN normal (50%) | "add it to their own songs" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b189_coughing_season.json | c2o1 | HAPPIER (healer) (50%) | "declares it the best medicine (subject.he/she) has ever tasted" | {"do":"mood","role":"healer","mood":"good"}
+balance/bal/b190_crab_moon.json | c1o2 | INJURY (friend) (50%) | "gives (friend) a sharp pinch on the toe" | {"do":"health_change","role":"friend","min":-30,"max":-15}
+balance/bal/b190_crab_moon.json | c2o2 | HAPPIER (subject) (50%) | "They get home breathless and laughing" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b190_crab_moon.json | c2o2 | HAPPIER (friend) (50%) | "They get home breathless and laughing" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b192_burning_fever.json | c1o1 | INJURY (subject) (50%) | "(subject) is weak for a week" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b192_burning_fever.json | c2o1 | TECH GAIN normal (50%) | "They write it all down" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b192_burning_fever.json | c2o2 | UNHAPPY (healer) (50%) | "stands in the cold water for a long time" | {"do":"mood","role":"healer","mood":"bad"}
+balance/bal/b193_night_blooming.json | c1o1 | HAPPIER (subject) (50%) | "They're still talking at dawn, hoarse and laughing" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b193_night_blooming.json | c1o1 | HAPPIER (friend) (50%) | "They're still talking at dawn, hoarse and laughing" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b194_canoe_shed_baby.json | c1o1 | SKILL + Parenting a lot (subject) (50%) | "walks the beach with (subject.him/her), and learns all the songs" | {"do":"skill","role":"subject","skills":["Parenting"],"min":20,"max":40}
+balance/bal/b195_bitter_honey.json | c1o1 | UNHAPPY (subject) (50%) | "But the joy doesn't" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b195_bitter_honey.json | c2o1 | INJURY (subject) (50%) | "(subject.He/She) gets stung four times" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b195_bitter_honey.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) feels terrible about it for a week" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b196_second_tide.json | c2o1 | HEALTH UP (subject) (50%) | "wakes up rested" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b197_moth_many_summers.json | c2o2 | HEALTH UP (subject) (50%) | "(subject) sleeps better that night than in a long time" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b198_jumping_rock.json | c1o2 | INJURY (subject) (50%) | "bangs (subject.his/her) head on the bottom" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b201_rain_drinker.json | c2o1 | UNHAPPY (subject) (50%) | "That is worse than shouting" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b201_rain_drinker.json | c2o2 | HAPPIER (researcher) (50%) | "and laughs" | {"do":"mood","role":"researcher","mood":"good"}
+balance/bal/b203_sleepy_spell.json | c1o1 | HEALTH UP (subject) (50%) | "feels better than (subject.he/she) has in years" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b203_sleepy_spell.json | c1o2 | HEALTH UP (subject) (50%) | "(subject) sleeps for three days" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b203_sleepy_spell.json | c2o1 | HAPPIER (subject) (50%) | "stays at the fire till the end, and it's the start of something" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b204_scroll_bit.json | c1o1 | UNHAPPY (subject) (50%) | "something has gone out of (subject.him/her)" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b204_scroll_bit.json | c1o1 | HAPPIER (friend) (50%) | "(friend) is very grateful" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b204_scroll_bit.json | c2o1 | TECH GAIN normal (50%) | "take the notes back to their own hut, and learn from them" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b204_scroll_bit.json | c2o2 | HEALTH UP (friend) (50%) | "(friend) gets better slowly, on (subject.his/her) own" | {"do":"health_change","role":"friend","min":15,"max":30}
+balance/bal/b205_fastest_feet.json | c2o1 | CELEBRATE (everyone) (50%) | "The village feasts all night" | {"do":"celebrate","who":"all"}
+balance/bal/b205_fastest_feet.json | c2o1 | HAPPIER (friend) (50%) | "(friend) runs the race of (friend.his/her) life and wins" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b205_fastest_feet.json | c2o2 | HEALTH UP (subject) (50%) | "(subject) rests the knee for a month, as (healer) says, and it stops clicking" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b206_washing_stones.json | c1o2 | UNHAPPY (subject) (50%) | "finds the joy has gone out of washing" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b208_eel_under_rock.json | c1o1 | INJURY (subject) (50%) | "hits (subject.his/her) head on a stone in the pool" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b208_eel_under_rock.json | c1o2 | HAPPIER (subject) (50%) | "(subject) wins" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b208_eel_under_rock.json | c2o1 | FOOD GAIN normal (50%) | "there are three big fish in the trap" | {"do":"food","size":"normal","scaled":true}
+balance/bal/b209_twin_pond.json | c2o1 | HAPPIER (subject) (50%) | "feeling very calm and very balanced" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b210_grandchild_wish.json | c1o1 | HAPPIER (subject) (50%) | "(subject) picks (child) up and swings (subject.him/her) round" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b210_grandchild_wish.json | c1o2 | HAPPIER (subject) (50%) | "(subject) laughs until (subject.he/she) cries" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b210_grandchild_wish.json | c2o1 | HAPPIER (child) (50%) | "(child) is delighted with half a success" | {"do":"mood","role":"child","mood":"good"}
+balance/bal/b212_last_canoe.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) can't bring (subject.himself/herself) to touch it" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b214_mango_tree.json | c1o2 | INJURY (subject) (50%) | "(subject.his/her) head hits the trunk with a thud" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b215_wind_spirit_visit.json | c2o1 | HUT DAMAGE small (50%) | "tears the roof off (subject)'s hut" | {"do":"damage","structures":"any","size":"small"}
+balance/bal/b215_wind_spirit_visit.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) feels a bit mean about it" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b216_apprentice.json | c1o1 | HAPPIER (subject) (50%) | "It is the proudest moment of (subject)'s life" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b216_apprentice.json | c1o2 | TECH GAIN normal (50%) | "they are both teaching the other healers what they found out" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b221_stone_teaches.json | c1o2 | UNHAPPY (subject) (50%) | "(subject) says, a little sadly" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b221_stone_teaches.json | c2o1 | TECH GAIN normal (50%) | "(researcher) writes it down anyway" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b221_stone_teaches.json | c2o2 | HAPPIER (subject) (50%) | "lighter than (subject.he/she) has ever felt" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b223_rain_copies.json | c2o2 | HAPPIER (subject) (50%) | "(subject) is soaked to the skin and very relieved" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b224_wrong_jar.json | c1o2 | HEALTH UP (friend) (50%) | "(friend)'s cough gets better on its own over the week" | {"do":"health_change","role":"friend","min":15,"max":30}
+balance/bal/b224_wrong_jar.json | c2o1 | HEALTH UP (friend) (50%) | "it was the best sleep of (friend.his/her) life" | {"do":"health_change","role":"friend","min":30,"max":50}
+balance/bal/b225_fishing_contest.json | c1o2 | HAPPIER (subject) (50%) | "(subject) still wins" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b225_fishing_contest.json | c2o1 | HAPPIER (subject) (50%) | "It is the best morning of (subject.his/her) life" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b226_flood.json | c1o1 | UNHAPPY (elder) (50%) | "sits by (subject)'s grave every morning from then on" | {"do":"mood","role":"elder","mood":"bad"}
+balance/bal/b226_flood.json | c1o2 | INJURY (subject) (50%) | "both of them soaked and coughing" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b228_talking_pig.json | c2o1 | INJURY (subject) (50%) | "(Name) lands on (his/her) head, with the pig on top" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b229_mask_years.json | c1o1 | HAPPIER (subject) (50%) | "They look at each other and burst out laughing" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b229_mask_years.json | c1o1 | HAPPIER (friend) (50%) | "They look at each other and burst out laughing" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b229_mask_years.json | c1o2 | HAPPIER (friend) (50%) | "(friend) is delighted" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b230_brave_child.json | c1o1 | HAPPIER (subject) (50%) | "The teasing stops at once" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b231_moon_bowl.json | c2o2 | HAPPIER (subject) (50%) | "is quite relieved" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b233_hut_raising_song.json | c2o1 | TECH GAIN normal (50%) | "teaching each other the tricks they'd been keeping to themselves" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b234_ghost_canoe.json | c1o2 | FOOD GAIN large (50%) | "(Name) comes home exhausted, with a full catch" | {"do":"food","size":"large","scaled":true}
+balance/bal/b235_grey_gull.json | c2o2 | HAPPIER (subject) (50%) | "feeling very kindly towards everything" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b237_mud_bath.json | c2o1 | HEALTH UP (subject) (50%) | "the ache goes, and doesn't come back" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b237_mud_bath.json | c2o1 | HAPPIER (subject) (50%) | "is in a good mood for a month" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b238_island_wedding.json | c1o1 | HAPPIER (elder) (50%) | "very pleased with (subject.himself/herself)" | {"do":"mood","role":"elder","mood":"good"}
+balance/bal/b238_island_wedding.json | c2o1 | HAPPIER (friend) (50%) | "(friend) is delighted" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b239_long_night_fire.json | c2o1 | UNHAPPY (builder) (50%) | "(builder) doesn't speak to (subject) for a week" | {"do":"mood","role":"builder","mood":"bad"}
+balance/bal/b241_night_roofs_flew.json | c2o2 | HUTS REPAIRED (50%) | "people have started fixing their own roofs with whatever they can find" | {"do":"repair"}
+balance/bal/b243_fever_bitter_root.json | c1o1 | UNHAPPY (subject) (50%) | "now picks at (subject.his/her) food and sighs" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b243_fever_bitter_root.json | c2o1 | TECH GAIN normal (50%) | "writes down every step of that night, and the healers use it for years" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b246_vine_swing_over.json | c1o1 | HAPPIER (subject) (50%) | "(subject.He/She) lands laughing" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b247_red_moon_midwife.json | c2o2 | HEALTH UP (subject) (50%) | "They go inside and sleep soundly" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b247_red_moon_midwife.json | c2o2 | HEALTH UP (friend) (50%) | "They go inside and sleep soundly" | {"do":"health_change","role":"friend","min":15,"max":30}
+balance/bal/b248_feast_nobody.json | c1o2 | INJURY (subject) (50%) | "lies on (subject.his/her) back groaning for the rest of the night" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b249_grandchild_spell.json | c2o1 | HAPPIER (child) (50%) | "(child) is so delighted to be listened to" | {"do":"mood","role":"child","mood":"good"}
+balance/bal/b249_grandchild_spell.json | c2o2 | HEALTH UP (subject) (50%) | "the knees are a little quieter in the mornings" | {"do":"health_change","role":"subject","min":10,"max":20}
+balance/bal/b250_contest_best.json | c1o2 | HAPPIER (subject) (50%) | "is quietly proud of that" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b250_contest_best.json | c2o1 | HAPPIER (subject) (50%) | "turned into a pleasure" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b252_basket_mangroves.json | c1o1 | SKILL + Parenting a lot (subject) (50%) | "(subject) can change a wrap one-handed while eating" | {"do":"skill","role":"subject","skills":["Parenting"],"min":20,"max":40}
+balance/bal/b254_bundle_thatch.json | c2o2 | UNHAPPY (subject) (50%) | "nobody says a word about it, which is somehow worse" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b255_coughing_season.json | c2o1 | TECH GAIN normal (50%) | "(subject) keeps a careful note of the recipe" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b257_wishing_well_coin.json | c2o1 | SKILL + Farming a lot (subject) (50%) | "(name) is kneeling in the gardens" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+balance/bal/b257_wishing_well_coin.json | c2o1 | HAPPIER (subject) (50%) | "humming (his/her) grandmother's songs" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b258_game_went_too_far.json | c1o1 | UNHAPPY (subject) (50%) | "it isn't fun any more, and it doesn't come back" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b258_game_went_too_far.json | c1o1 | UNHAPPY (friend) (50%) | "it isn't fun any more, and it doesn't come back" | {"do":"mood","role":"friend","mood":"bad"}
+balance/bal/b258_game_went_too_far.json | c1o2 | SKILL + Farming a lot (subject) (50%) | "they start helping in the gardens in the cool of the evening" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+balance/bal/b258_game_went_too_far.json | c1o2 | SKILL + Farming a lot (friend) (50%) | "they start helping in the gardens in the cool of the evening" | {"do":"skill","role":"friend","skills":["Farming"],"min":20,"max":40}
+balance/bal/b259_elder_wandered.json | c1o2 | INJURY (friend) (50%) | "(friend) twists an ankle carrying (subject.him/her) back" | {"do":"health_change","role":"friend","min":-30,"max":-15}
+balance/bal/b259_elder_wandered.json | c2o2 | UNHAPPY (friend) (50%) | "(friend) keeps the fire at the edge of the jungle burning for a month" | {"do":"mood","role":"friend","mood":"bad"}
+balance/bal/b260_warm_stone.json | c2o2 | HEALTH UP (subject) (50%) | "the warm soak does them so much good" | {"do":"health_change","role":"subject","min":30,"max":50}
+balance/bal/b260_warm_stone.json | c2o2 | HEALTH UP (friend) (50%) | "the warm soak does them so much good" | {"do":"health_change","role":"friend","min":30,"max":50}
+balance/bal/b261_dream_sharing_tea.json | c1o2 | HAPPIER (subject) (50%) | "stiff, starving and laughing" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b261_dream_sharing_tea.json | c1o2 | HAPPIER (friend) (50%) | "stiff, starving and laughing" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b261_dream_sharing_tea.json | c2o1 | HAPPIER (healer) (50%) | "is delighted" | {"do":"mood","role":"healer","mood":"good"}
+balance/bal/b261_dream_sharing_tea.json | c2o2 | HAPPIER (subject) (50%) | "have been laughing at them all afternoon" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b261_dream_sharing_tea.json | c2o2 | HAPPIER (friend) (50%) | "have been laughing at them all afternoon" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b262_baby_whale_wake.json | c1o2 | HAPPIER (friend) (50%) | "starts laughing" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b262_baby_whale_wake.json | c2o2 | INJURY (subject) (50%) | "tired and sunburnt" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b263_echo_conch.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) feels terrible about it" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b267_night_hill_moved.json | c1o2 | UNHAPPY (friend) (50%) | "(friend) sits by the grave every evening for a month" | {"do":"mood","role":"friend","mood":"bad"}
+balance/bal/b268_mask_carver_faces.json | c1o1 | HAPPIER (carver) (50%) | "(carver) nods, satisfied" | {"do":"mood","role":"carver","mood":"good"}
+balance/bal/b269_grey_shark.json | c1o1 | UNHAPPY (subject) (50%) | "sits on the sand shaking for an hour" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b269_grey_shark.json | c1o2 | HAPPIER (subject) (50%) | "(he/she) laughs out loud" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b270_festival_floating.json | c2o1 | TECH GAIN large (50%) | "the whole village is a little cleverer than it was this morning" | {"do":"tech","size":"large","scaled":true}
+balance/bal/b272_coconut_climb.json | c1o2 | UNHAPPY (subject) (50%) | "(Name) can't bring (himself/herself) to eat one" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b272_coconut_climb.json | c2o1 | INJURY (subject) (50%) | "drops straight down onto (name)'s head" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b272_coconut_climb.json | c2o2 | HAPPIER (subject) (50%) | "(his/her) pride enormous" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b273_elders.json | c1o1 | HAPPIER (subject) (50%) | "They walk home arm in arm" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b273_elders.json | c1o1 | HAPPIER (friend) (50%) | "They walk home arm in arm" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b274_hammock_built_two.json | c1o1 | HAPPIER (friend) (50%) | "(friend) is so proud" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b274_hammock_built_two.json | c2o2 | HAPPIER (friend) (50%) | "the most popular thing (friend) has ever made" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b275_lights_reef.json | c2o2 | UNHAPPY (friend) (50%) | "(friend) is furious" | {"do":"mood","role":"friend","mood":"bad"}
+balance/bal/b275_lights_reef.json | c2o2 | HAPPIER (subject) (50%) | "(subject) is mostly relieved" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b276_swamp_fever.json | c1o1 | INJURY (subject) (50%) | "covered in bites" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b276_swamp_fever.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) sits with (subject.him/her) until morning" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b277_name_carved.json | c2o1 | SKILL + Research a lot (subject) (50%) | "(He/She) is still there, reading, at sunset" | {"do":"skill","role":"subject","skills":["Research"],"min":20,"max":40}
+balance/bal/b278_cook_lost_taste.json | c2o2 | UNHAPPY (subject) (50%) | "which is worse than shouting" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b279_hermit_children.json | c1o1 | HAPPIER (hermit) (50%) | "(hermit) starts coming to the cooking fire in the evenings" | {"do":"mood","role":"hermit","mood":"good"}
+balance/bal/b279_hermit_children.json | c1o2 | HAPPIER (hermit) (50%) | "they don't talk much, which suits them both" | {"do":"mood","role":"hermit","mood":"good"}
+balance/bal/b280_two_carved_totems.json | c1o2 | DISLIKE + fruit (subject) (50%) | "neither of them can stand picking fruit or berries at all" | {"do":"preference","role":"subject","list":"dislikes","preference":"fruit"}
+balance/bal/b280_two_carved_totems.json | c1o2 | DISLIKE + fruit (friend) (50%) | "neither of them can stand picking fruit or berries at all" | {"do":"preference","role":"friend","list":"dislikes","preference":"fruit"}
+balance/bal/b280_two_carved_totems.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) feels a little ashamed" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b283_warm_lake_crater.json | c2o2 | HAPPIER (subject) (50%) | "(name) laughs, sits down on the rock beside it" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b287_fever_burns_away.json | c2o1 | TECH GAIN normal (50%) | "teaches the slow method to every young healer who will listen" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b287_fever_burns_away.json | c2o1 | HAPPIER (healer) (50%) | "(healer) is proud of the week's work" | {"do":"mood","role":"healer","mood":"good"}
+balance/bal/b287_fever_burns_away.json | c2o2 | UNHAPPY (healer) (50%) | "(healer) does not speak for a week" | {"do":"mood","role":"healer","mood":"bad"}
+balance/bal/b290_sleepwalker.json | c1o1 | HEALTH UP (subject) (50%) | "sleeps like a stone" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b294_eel_twin_pools.json | c2o1 | HAPPIER (subject) (50%) | "They carry it home between them on a pole, singing" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b294_eel_twin_pools.json | c2o1 | HAPPIER (friend) (50%) | "They carry it home between them on a pole, singing" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b295_ash_fell_like.json | c1o1 | UNHAPPY (subject) (50%) | "which (name) finds very little comfort" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b296_spirit_wanted.json | c2o2 | HEALTH UP (subject) (50%) | "(Name) sleeps soundly for the first time in a month" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b297_wedding_nobody.json | c1o1 | CELEBRATE (everyone) (50%) | "the feast goes on until the stars are out" | {"do":"celebrate","who":"all"}
+balance/bal/b297_wedding_nobody.json | c2o2 | HAPPIER (friend) (50%) | "(friend) says it was perfect" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b298_crocodile_river.json | c2o2 | TECH GAIN normal (50%) | "(Name) finds the washing goes faster there, too" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b299_oldest_hut_falls.json | c1o1 | SKILL + Building a lot (subject) (50%) | "they tell (subject) and (builder), and then every builder in earshot, how it went" | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+balance/bal/b299_oldest_hut_falls.json | c1o1 | SKILL + Building a lot (builder) (50%) | "they tell (subject) and (builder), and then every builder in earshot, how it went" | {"do":"skill","role":"builder","skills":["Building"],"min":20,"max":40}
+balance/bal/b304_waterfall_two.json | c2o2 | INJURY (subject) (50%) | "(subject) shivers for two days" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b305_coconut_cried.json | c1o2 | SKILL + Parenting a lot (subject) (50%) | "takes it home in its coconut cradle and learns fast" | {"do":"skill","role":"subject","skills":["Parenting"],"min":20,"max":40}
+balance/bal/b306_pale_blossoms.json | c1o1 | HAPPIER (child) (50%) | "(child) is very proud" | {"do":"mood","role":"child","mood":"good"}
+balance/bal/b306_pale_blossoms.json | c1o2 | HAPPIER (subject) (50%) | "(subject) laughs until (subject.he/she) cries" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b307_burial_cave.json | c2o1 | UNHAPPY (friend) (50%) | "(friend) sulks for a week" | {"do":"mood","role":"friend","mood":"bad"}
+balance/bal/b312_apprentice_roof.json | c1o2 | UNHAPPY (subject) (50%) | "doesn't say much for a long time" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b312_apprentice_roof.json | c2o1 | HAPPIER (apprentice) (50%) | "(apprentice) is quietly proud" | {"do":"mood","role":"apprentice","mood":"good"}
+balance/bal/b312_apprentice_roof.json | c2o1 | HAPPIER (subject) (50%) | "(subject) is loudly proud" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b312_apprentice_roof.json | c2o2 | UNHAPPY (apprentice) (50%) | "(apprentice) is miserable" | {"do":"mood","role":"apprentice","mood":"bad"}
+balance/bal/b313_kindnesses.json | c2o1 | UNHAPPY (subject) (50%) | "(subject) is so tired and so embarrassed" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b313_kindnesses.json | c2o2 | SKILL + Parenting some (subject) (50%) | "(subject) ends up minding three small children for a tired neighbour" | {"do":"skill","role":"subject","skills":["Parenting"],"min":10,"max":20}
+balance/bal/b318_twin_statues.json | c1o2 | UNHAPPY (subject) (50%) | "goes home feeling a little guilty" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b319_slippery_rocks.json | c1o2 | HAPPIER (subject) (50%) | "(He/She) takes it home in triumph" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b320_sister_hills.json | c2o2 | SKILL + Parenting some (subject) (50%) | "starts minding the village's little ones in the evenings" | {"do":"skill","role":"subject","skills":["Parenting"],"min":10,"max":20}
+balance/bal/b321_healers_week.json | c1o2 | SKILL + Healing a lot (subject) (50%) | "(name) can watch a cut stitched without going grey" | {"do":"skill","role":"subject","skills":["Healing"],"min":20,"max":40}
+balance/bal/b321_healers_week.json | c2o2 | INJURY (subject) (50%) | "(name) goes down like a felled tree" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b322_sky_lantern_came.json | c2o2 | HUT DAMAGE small (50%) | "nothing worse is lost than the ends of a few roofs" | {"do":"damage","structures":"any","size":"small"}
+balance/bal/b323_cousins_across.json | c1o2 | FOOD LOSS normal (50%) | "eats until (he/she) has to lie down" | {"do":"food","size":"normal","loss":true,"scaled":true}
+balance/bal/b323_cousins_across.json | c2o2 | UNHAPPY (subject) (50%) | "(Name) watches the south every morning for a year" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b324_hollow_log_drum.json | c1o1 | HAPPIER (subject) (50%) | "still with complete joy" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b324_hollow_log_drum.json | c2o2 | UNHAPPY (drummer) (50%) | "has lost (subject.his/her) love of drumming altogether" | {"do":"mood","role":"drummer","mood":"bad"}
+balance/bal/b326_double_banana.json | c2o2 | HAPPIER (subject) (50%) | "it is the sweetest banana either of them has ever tasted" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b326_double_banana.json | c2o2 | HAPPIER (friend) (50%) | "it is the sweetest banana either of them has ever tasted" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b327_fall_festival.json | c1o1 | INJURY (subject) (50%) | "(his/her) head smacking the ground" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b328_naming_stone.json | c1o2 | HAPPIER (subject) (50%) | "In the end (he/she) laughs" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b328_naming_stone.json | c2o2 | HAPPIER (subject) (50%) | "feeling as if (he/she) has put down something heavy" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b329_elder_last_story.json | c1o1 | TECH GAIN normal (50%) | "the knowledge in it, of plants and stars and tides, stays with them for life" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b329_elder_last_story.json | c1o2 | HEALTH UP (subject) (50%) | "getting stronger every night" | {"do":"health_change","role":"subject","min":15,"max":30}
+balance/bal/b330_tunnel_under.json | c1o2 | HAPPIER (subject) (50%) | "scraped and laughing" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b331_basket_turtle.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) stands knee-deep in the surf, calling, until dawn" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b333_two_looked_alike.json | c2o2 | HAPPIER (subject) (50%) | "The whole village laughs, and the joke is over" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b333_two_looked_alike.json | c2o2 | HAPPIER (friend) (50%) | "The whole village laughs, and the joke is over" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b334_fever_ward.json | c1o1 | TECH GAIN normal (50%) | "The healers write down the traveller's way" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b334_fever_ward.json | c2o1 | HAPPIER (subject) (50%) | "gives (subject) a nod that means more than any words" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b336_lazy_river.json | c1o1 | INJURY (subject) (50%) | "scraped from shoulder to hip" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+balance/bal/b336_lazy_river.json | c1o1 | FOOD LOSS normal (50%) | "the harvest is half lost" | {"do":"food","size":"normal","loss":true,"scaled":true}
+balance/bal/b343_rainbow_over.json | c2o2 | HAPPIER (subject) (50%) | "(subject) and (friend) laugh at themselves all the way home" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b343_rainbow_over.json | c2o2 | HAPPIER (friend) (50%) | "(subject) and (friend) laugh at themselves all the way home" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b344_lost_recipe.json | c1o1 | TECH GAIN normal (50%) | "gives one to every healer in the village with a lesson in how to make it" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b344_lost_recipe.json | c2o1 | TECH GAIN normal (50%) | "remembers eleven more. (subject) writes them all down" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b345_games_hill.json | c1o1 | CELEBRATE (everyone) (50%) | "the two villages dance together until dawn" | {"do":"celebrate","who":"all"}
+balance/bal/b345_games_hill.json | c1o2 | UNHAPPY (subject) (50%) | "(subject) isn't kind to (subject.himself/herself) for a long time" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b345_games_hill.json | c2o1 | CELEBRATE (everyone) (50%) | "the village hosts the feast happily" | {"do":"celebrate","who":"all"}
+balance/bal/b345_games_hill.json | c2o2 | HAPPIER (champion) (50%) | "(champion) is so happy (subject.he/she) can't stop crying" | {"do":"mood","role":"champion","mood":"good"}
+balance/bal/b345_games_hill.json | c2o2 | CELEBRATE (everyone) (50%) | "The village loses the other three events and hosts the feast" | {"do":"celebrate","who":"all"}
+balance/bal/b346_dolphin_wouldnt.json | c2o1 | UNHAPPY (subject) (50%) | "(Name) misses it terribly" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b347_smoked_fish.json | c1o1 | UNHAPPY (cook) (50%) | "finds the cooking fire has lost its joy" | {"do":"mood","role":"cook","mood":"bad"}
+balance/bal/b347_smoked_fish.json | c1o2 | SKILL + Farming a lot (subject) (50%) | "shows (subject) the trick with the ironwood, just once" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+balance/bal/b347_smoked_fish.json | c2o2 | ILLNESS (subject) (50%) | "is ill all night" | {"do":"sick","role":"subject"}
+balance/bal/b347_smoked_fish.json | c2o2 | FOOD LOSS large (50%) | "(subject)'s whole basket of fish comes out tasting like a burnt sandal" | {"do":"food","size":"large","loss":true,"scaled":true}
+balance/bal/b348_map_wrinkles.json | c1o1 | FOOD GAIN large (50%) | "(subject.He/She) comes home with the canoe full" | {"do":"food","size":"large","scaled":true}
+balance/bal/b350_second_naming.json | c1o1 | HAPPIER (subject) (50%) | "The children cheer" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b351_bundle_breadfruit.json | c2o1 | HAPPIER (partner) (50%) | "(partner) unwraps it and laughs" | {"do":"mood","role":"partner","mood":"good"}
+balance/bal/b351_bundle_breadfruit.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) is very embarrassed" | {"do":"mood","role":"subject","mood":"bad"}
+balance/bal/b352_moon_bath.json | c1o1 | HAPPIER (subject) (50%) | "very pleased with (himself/herself)" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b353_morning_after.json | c1o1 | TECH GAIN normal (50%) | "set them on flat stones, so they can rock without cracking" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b354_sweet_spring_sour.json | c1o2 | HAPPIER (subject) (50%) | "(name) finds (himself/herself) humming" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b356_harvest_moon.json | c2o1 | HAPPIER (friend) (50%) | "(friend) is so happy" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b356_harvest_moon.json | c2o2 | HAPPIER (subject) (50%) | "decide that the dancing was the point" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b356_harvest_moon.json | c2o2 | HAPPIER (friend) (50%) | "decide that the dancing was the point" | {"do":"mood","role":"friend","mood":"good"}
+balance/bal/b358_canoe_came_back.json | c2o1 | FOOD GAIN large (50%) | "(Name) gets home with a full basket of fish" | {"do":"food","size":"large","scaled":true}
+balance/bal/b359_healer_sweet.json | c1o1 | TECH GAIN normal (50%) | "writes the recipe down with the traveller's name at the top" | {"do":"tech","size":"normal","scaled":true}
+balance/bal/b359_healer_sweet.json | c1o1 | HAPPIER (healer) (50%) | "(healer) is delighted" | {"do":"mood","role":"healer","mood":"good"}
+balance/bal/b360_ghost_empty_hut.json | c2o2 | HUTS REPAIRED (50%) | "The builders mend the hut around them, carefully" | {"do":"repair"}
+mie/mie/mie_adventurer.json | a9 | HAPPIER (subject) (50%) | "walks back to the village with a smile" | {"do":"mood","role":"subject","mood":"good"}
+mie/mie/mie_adventurer.json | heal2 | HEALTH UP (subject) (50%) | "(subject) eventually makes a full recovery" | {"do":"health_change","role":"subject","min":30,"max":50}
+mie/mie/mie_cave_explorers.json | dont | HAPPIER (subject) (50%) | "their bond is stronger than ever" | {"do":"mood","role":"subject","mood":"good"}
+mie/mie/mie_cave_explorers.json | dont | HAPPIER (friend) (50%) | "their bond is stronger than ever" | {"do":"mood","role":"friend","mood":"good"}
+mie/mie/mie_cave_explorers.json | fall_out | UNHAPPY (subject) (50%) | "both storm off to their homes" | {"do":"mood","role":"subject","mood":"bad"}
+mie/mie/mie_cave_explorers.json | fall_out | UNHAPPY (friend) (50%) | "both storm off to their homes" | {"do":"mood","role":"friend","mood":"bad"}
+rewrites/rw_my/my001_person_beyond.json | c1o2 | HAPPIER (subject) (50%) | "a little embarrassed and a lot delighted" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my002_old_beggar_door.json | c3o1 | UNHAPPY (subject) (50%) | "feeling worse than (he/she) expected to" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my002_old_beggar_door.json | c4o2 | UNHAPPY (subject) (50%) | "(Name) sits at the edge of the fire and doesn't say a word" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my004_crate_owner.json | c1o2 | HAPPIER (subject) (50%) | "The villagers laugh until they cry" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my005_bottle_blue.json | c1o1 | HEALTH UP (friend) (50%) | "says (friend.he/she) feels better than (friend.he/she) has in days" | {"do":"health_change","role":"friend","min":15,"max":30}
+rewrites/rw_my/my006_woman_else_hears.json | c4o1 | HEALTH UP (subject) (50%) | "wakes up feeling oddly refreshed" | {"do":"health_change","role":"subject","min":15,"max":30}
+rewrites/rw_my/my007_mask_changes.json | c1o1 | HAPPIER (subject) (50%) | "leaping, spinning, stamping, laughing" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my007_mask_changes.json | c1o2 | UNHAPPY (subject) (50%) | "(subject.he/she) is shaking" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my009_stranger.json | c2o1 | UNHAPPY (subject) (50%) | "that's somehow worse" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my010_beggar_empty.json | c1o2 | HAPPIER (subject) (50%) | "finds, to (his/her) surprise, that (he/she) doesn't mind at all" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my010_beggar_empty.json | c2o2 | UNHAPPY (subject) (50%) | "(Name) suddenly feels terrible" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my010_beggar_empty.json | c4o2 | UNHAPPY (subject) (50%) | "(name) can't stop thinking about those tired eyes and that empty bowl" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my012_mirror_another.json | c1o2 | HAPPIER (subject) (50%) | "(subject) bursts out laughing" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my012_mirror_another.json | c3o2 | HAPPIER (subject) (50%) | "wakes up feeling oddly calm about getting older" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my013_guest_knew.json | c4o2 | HAPPIER (subject) (50%) | "(subject) laughs too" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my015_figure_tidal.json | c2o1 | HAPPIER (subject) (50%) | "(subject) laughs out loud, mostly from relief" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my016_potion_two.json | c2o2 | HAPPIER (subject) (50%) | "(subject) is never more relieved to remember it" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my018_sealed_box_winds.json | c1o1 | INJURY (subject) (50%) | "knocking (subject) flat on (subject.his/her) back" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+rewrites/rw_my/my019_three_gifts.json | c3o1 | HEALTH UP (child) (50%) | "(child) is sleeping peacefully, pink-cheeked" | {"do":"health_change","role":"child","min":15,"max":30}
+rewrites/rw_my/my019_three_gifts.json | c3o2 | HAPPIER (subject) (50%) | "(subject.he/she) has had rather good luck lately" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my020_bridge_keeper.json | c4o1 | UNHAPPY (subject) (50%) | "grumbles about it all the way home" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my021_song_opens_cave.json | c4o2 | HAPPIER (subject) (50%) | "(subject) is mostly relieved" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my022_fisherman.json | c4o2 | HAPPIER (subject) (50%) | "The village laughs about it for days" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my023_visitor_cast.json | c2o1 | HAPPIER (subject) (50%) | "everyone agrees it was the best supper they've had in ages" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my026_house_dreamed.json | c3o2 | INJURY (subject) (50%) | "with aching legs and dusty feet" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+rewrites/rw_my/my026_house_dreamed.json | c4o2 | HAPPIER (child) (50%) | "\"It's nice there,\" (child) says happily" | {"do":"mood","role":"child","mood":"good"}
+rewrites/rw_my/my027_river_returned.json | c4o2 | HAPPIER (subject) (50%) | "(subject) hugs (friend) so hard (friend.he/she) drops (friend.his/her) net" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my027_river_returned.json | c4o2 | HAPPIER (friend) (50%) | "(subject) hugs (friend) so hard (friend.he/she) drops (friend.his/her) net" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_my/my028_orchard_night.json | c3o1 | HAPPIER (subject) (50%) | "It's the loveliest week anyone can remember." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my028_orchard_night.json | c3o1 | HAPPIER (friend) (50%) | "It's the loveliest week anyone can remember." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_my/my030_gift_could_given.json | c3o1 | SKILL + Building a lot (subject) (50%) | "The old one shows (subject) how" | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+rewrites/rw_my/my030_gift_could_given.json | c4o2 | HAPPIER (subject) (50%) | "(subject) walks home, relieved." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my031_shoreline.json | c2o2 | UNHAPPY (subject) (50%) | "shaken and uncertain" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my031_shoreline.json | c4o1 | SKILL + Farming a lot (subject) (50%) | "(Name) helps with the nets" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_my/my033_stone_remembered.json | c1o1 | SKILL + Farming a lot (subject) (50%) | "tries it in a corner of the garden" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_my/my033_stone_remembered.json | c3o2 | TECH GAIN normal (50%) | "The researchers copy the lines down before they fade." | {"do":"tech","size":"normal","scaled":true}
+rewrites/rw_my/my035_merchant.json | c1o2 | UNHAPPY (subject) (50%) | "Now (he/she) misses it terribly." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my035_merchant.json | c4o1 | TECH GAIN normal (50%) | "(Name) copies it carefully." | {"do":"tech","size":"normal","scaled":true}
+rewrites/rw_my/my036_empty_seat_feast.json | c1o2 | HAPPIER (subject) (50%) | "Everyone laughs until they cry" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my036_empty_seat_feast.json | c1o2 | HAPPIER (child) (50%) | "(child) gets a second mango" | {"do":"mood","role":"child","mood":"good"}
+rewrites/rw_my/my036_empty_seat_feast.json | c2o1 | CELEBRATE (everyone) (50%) | "It's the best feast anyone can remember" | {"do":"celebrate","who":"all"}
+rewrites/rw_my/my037_forest_borrowed.json | c1o1 | HAPPIER (subject) (50%) | "(subject) is so relieved" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my037_forest_borrowed.json | c2o2 | HAPPIER (subject) (50%) | "(subject) can't stop laughing, partly from relief." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my038_sea_three.json | c2o2 | UNHAPPY (subject) (50%) | "(Name) is still a bit annoyed." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my038_sea_three.json | c4o2 | UNHAPPY (subject) (50%) | "feels terrible about the whole thing" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my039_clay_figure.json | c1o2 | HAPPIER (subject) (50%) | "(subject) laughs so hard" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my039_clay_figure.json | c3o1 | HAPPIER (subject) (50%) | "(subject) is completely touched" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my039_clay_figure.json | c4o1 | SKILL + Building a lot (subject) (50%) | "carefully mending it with fresh clay" | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+rewrites/rw_my/my040_night_visitor.json | c2o2 | INJURY (subject) (50%) | "(Name) comes home tired and aching" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+rewrites/rw_my/my041_woman_three.json | c1o1 | SKILL + Farming a great deal (subject) (50%) | "she has shown (name) the whole method" | {"do":"skill","role":"subject","skills":["Farming"],"min":30,"max":60}
+rewrites/rw_my/my041_woman_three.json | c2o2 | HAPPIER (subject) (50%) | "but it felt like one" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my041_woman_three.json | c3o1 | UNHAPPY (subject) (50%) | "The fire doesn't feel quite as warm as it did." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my041_woman_three.json | c4o1 | UNHAPPY (subject) (50%) | "(Name) feels quite small for the rest of the week." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my042_broken_seal.json | c2o1 | UNHAPPY (subject) (50%) | "(He/She) goes rather pink" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my042_broken_seal.json | c3o1 | HAPPIER (subject) (50%) | "It's the most beautiful thing (name) has ever seen." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my043_road_returning.json | c2o1 | HAPPIER (friend) (50%) | "(friend) laughs about it all the way home." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_my/my044_guest_left_name.json | c1o1 | FOOD GAIN small (50%) | "a basket of sweet potatoes and a message of thanks" | {"do":"food","size":"small","scaled":true}
+rewrites/rw_my/my044_guest_left_name.json | c2o2 | HAPPIER (subject) (50%) | "(subject) thanks (child) and laughs" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my044_guest_left_name.json | c3o1 | HAPPIER (subject) (50%) | "Everyone seems very happy about it." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my044_guest_left_name.json | c3o1 | HAPPIER (child) (50%) | "Everyone seems very happy about it." | {"do":"mood","role":"child","mood":"good"}
+rewrites/rw_my/my045_promise_beneath.json | c1o1 | HAPPIER (subject) (50%) | "(Name) says nothing, as promised, and just smiles." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my045_promise_beneath.json | c3o1 | CELEBRATE (everyone) (50%) | "at the welcoming feast" | {"do":"celebrate","who":"all"}
+rewrites/rw_my/my045_promise_beneath.json | c3o2 | UNHAPPY (subject) (50%) | "the hope and the sadness all mixed together. It's hard." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my045_promise_beneath.json | c4o1 | HAPPIER (subject) (50%) | "goes home feeling oddly light" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my046_boatman_asked.json | c1o2 | HAPPIER (subject) (50%) | "the festival is still there in (his/her) head, brighter than ever" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my047_shrine_guest.json | c1o1 | HAPPIER (subject) (50%) | "a lighter heart" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my048_wishing_vessel.json | c1o1 | SKILL + Farming a lot (subject) (50%) | "(subject.He/She) plants them that afternoon." | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_my/my048_wishing_vessel.json | c1o2 | HAPPIER (subject) (50%) | "It's the most generous meal (subject) has had in weeks." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my048_wishing_vessel.json | c2o1 | SKILL + Farming a great deal (subject) (50%) | "(subject) cooks it for the whole family" | {"do":"skill","role":"subject","skills":["Farming"],"min":30,"max":60}
+rewrites/rw_my/my048_wishing_vessel.json | c3o1 | HAPPIER (subject) (50%) | "saying thank you to it, just in case" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my048_wishing_vessel.json | c4o1 | HAPPIER (subject) (50%) | "keeps smiling for the rest of the day" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my049_hollow_tree.json | c2o2 | HAPPIER (subject) (50%) | "(subject) laughs all the way home." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my050_sea_chest_two.json | c2o1 | FOOD GAIN normal (50%) | "leaves the village his thanks and a fine string of fish" | {"do":"food","size":"normal","scaled":true}
+rewrites/rw_my/my050_sea_chest_two.json | c2o2 | UNHAPPY (subject) (50%) | "The search turns up only sad news." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my051_visitor_cradle.json | c1o2 | HAPPIER (subject) (50%) | "(subject) laughs out of sheer relief." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my051_visitor_cradle.json | c3o1 | HAPPIER (subject) (50%) | "everyone is tired and stiff and very relieved" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my051_visitor_cradle.json | c4o1 | HAPPIER (subject) (50%) | "they always feel a little better for doing it" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my052_box_winter.json | c2o2 | UNHAPPY (subject) (50%) | "(Name) is very disappointed" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my056_person_rain.json | c1o1 | TECH GAIN normal (50%) | "showing the weavers how it's done" | {"do":"tech","size":"normal","scaled":true}
+rewrites/rw_my/my056_person_rain.json | c3o1 | HAPPIER (subject) (50%) | "(name) laughs out loud" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my056_person_rain.json | c4o2 | HAPPIER (subject) (50%) | "(Name) lights the best fire in the village that morning" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my057_gourd_would.json | c2o2 | FOOD LOSS large (50%) | "the whole lot goes over into the dirt" | {"do":"food","size":"large","loss":true,"scaled":true}
+rewrites/rw_my/my058_beggar_request.json | c3o2 | UNHAPPY (subject) (50%) | "(subject) feels sick about it for a long time." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my058_beggar_request.json | c4o2 | UNHAPPY (subject) (50%) | "(subject) feels ashamed" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my059_mist_called_name.json | c3o1 | HAPPIER (subject) (50%) | "(he/she) seems lighter somehow" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my060_crown_driftwood.json | c1o1 | HAPPIER (subject) (50%) | "(name) is leading a royal procession through the village" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my060_crown_driftwood.json | c1o2 | HAPPIER (subject) (50%) | "swallowing seawater and grinning" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my060_crown_driftwood.json | c4o1 | TECH GAIN normal (50%) | "The weavers study how the driftwood was bent without breaking" | {"do":"tech","size":"normal","scaled":true}
+rewrites/rw_my/my060_crown_driftwood.json | c4o1 | HAPPIER (subject) (50%) | "(name) proudly tells anyone who will listen" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my060_crown_driftwood.json | c4o2 | UNHAPPY (subject) (50%) | "(He/she) is heartbroken" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my061_sleeper_beneath.json | c2o1 | HAPPIER (subject) (50%) | "(name) is very proud of (his/her) hole" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my061_sleeper_beneath.json | c3o2 | HEALTH UP (subject) (50%) | "falls into the deepest, most peaceful sleep of (his/her) life" | {"do":"health_change","role":"subject","min":15,"max":30}
+rewrites/rw_my/my062_flower_bloomed.json | c1o2 | SKILL + Farming a lot (subject) (50%) | "plants them all around the memorial" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_my/my062_flower_bloomed.json | c2o2 | TECH GAIN normal (50%) | "The botanist takes careful notes and a sketch" | {"do":"tech","size":"normal","scaled":true}
+rewrites/rw_my/my062_flower_bloomed.json | c3o2 | HAPPIER (subject) (50%) | "(subject) laughs for the first time in days." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my062_flower_bloomed.json | c4o1 | HAPPIER (subject) (50%) | "Soon everyone is laughing and crying at the same time" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my062_flower_bloomed.json | c4o1 | HAPPIER (botanist) (50%) | "Soon everyone is laughing and crying at the same time" | {"do":"mood","role":"botanist","mood":"good"}
+rewrites/rw_my/my062_flower_bloomed.json | c4o2 | UNHAPPY (subject) (50%) | "(subject) feels terrible." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my063_bargain_hidden.json | c1o2 | INJURY (subject) (50%) | "a great deal of nettle, which (subject) discovers by sitting in it" | {"do":"health_change","role":"subject","min":-50,"max":-25}
+rewrites/rw_my/my063_bargain_hidden.json | c2o1 | CELEBRATE (everyone) (50%) | "That night there is a great feast." | {"do":"celebrate","who":"all"}
+rewrites/rw_my/my063_bargain_hidden.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) does not boast about anything for a very long time" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my063_bargain_hidden.json | c3o1 | SKILL + Farming a great deal (subject) (50%) | "spends the whole afternoon clearing them, watering the thirsty plants" | {"do":"skill","role":"subject","skills":["Farming"],"min":30,"max":60}
+rewrites/rw_my/my063_bargain_hidden.json | c3o2 | SKILL + Farming a lot (subject) (50%) | "(subject) helps tend it twice a week" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_my/my063_bargain_hidden.json | c4o2 | SKILL + Farming a lot (subject) (50%) | "(subject) waters it every day" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_my/my064_threshold_test.json | c1o1 | SKILL + Farming a lot (subject) (50%) | "watches the birds, and paddles exactly where they dive" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_my/my064_threshold_test.json | c4o2 | HUT DAMAGE small (50%) | "the roof sags" | {"do":"damage","structures":"any","size":"small"}
+rewrites/rw_my/my066_night_open_doors.json | c3o2 | UNHAPPY (neighbour) (50%) | "(neighbour) is mortified for weeks." | {"do":"mood","role":"neighbour","mood":"bad"}
+rewrites/rw_my/my066_night_open_doors.json | c3o2 | HAPPIER (subject) (50%) | "Everyone else is delighted." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my066_night_open_doors.json | c4o1 | HAPPIER (subject) (50%) | "(subject), naturally, has become the hero who saved the village" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my067_hidden_companion.json | c1o2 | HAPPIER (subject) (50%) | "(friend) makes a point of sitting with (subject) at every meal" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my067_hidden_companion.json | c2o1 | HAPPIER (subject) (50%) | "perfectly cheerful" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my067_hidden_companion.json | c3o1 | HAPPIER (subject) (50%) | "(subject) looks more pleased than anyone has seen (subject.him/her) look in years" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my067_hidden_companion.json | c3o1 | HAPPIER (friend) (50%) | "By the end of the meal, everyone is laughing" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_my/my067_hidden_companion.json | c4o1 | HEALTH UP (subject) (50%) | "(subject) grumbles, but rests." | {"do":"health_change","role":"subject","min":15,"max":30}
+rewrites/rw_my/my067_hidden_companion.json | c4o2 | HAPPIER (subject) (50%) | "(subject) seems grateful for both" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my068_box_last_word.json | c1o1 | HAPPIER (subject) (50%) | "(subject) whoops with delight." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my068_box_last_word.json | c1o2 | HAPPIER (subject) (50%) | "Everyone agrees it was the best evening they have had in ages." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my068_box_last_word.json | c1o2 | HAPPIER (elder) (50%) | "Everyone agrees it was the best evening they have had in ages." | {"do":"mood","role":"elder","mood":"good"}
+rewrites/rw_my/my068_box_last_word.json | c3o1 | UNHAPPY (subject) (50%) | "(subject) feels terrible." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my069_watcher_cliff.json | c3o2 | UNHAPPY (fisher) (50%) | "(fisher) is mortified" | {"do":"mood","role":"fisher","mood":"bad"}
+rewrites/rw_my/my070_beggar_returned.json | c2o1 | SKILL + Building a lot (subject) (50%) | "(he/she) shows every builder in the village" | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+rewrites/rw_my/my070_beggar_returned.json | c3o1 | FOOD LOSS small (50%) | "(name) leaves a basket of bread outside the village gate, and keeps doing it" | {"do":"food","size":"small","loss":true,"scaled":true}
+rewrites/rw_my/my070_beggar_returned.json | c3o2 | UNHAPPY (subject) (50%) | "sits uncomfortably in (his/her) stomach for weeks" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my070_beggar_returned.json | c4o1 | HAPPIER (subject) (50%) | "The village laughs too" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my071_visitor_final.json | c1o2 | INJURY (subject) (50%) | "scratched and filthy" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+rewrites/rw_my/my071_visitor_final.json | c3o1 | HAPPIER (subject) (50%) | "the village has a lot of fun arguing about it" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my071_visitor_final.json | c3o1 | HAPPIER (neighbour) (50%) | "the village has a lot of fun arguing about it" | {"do":"mood","role":"neighbour","mood":"good"}
+rewrites/rw_my/my071_visitor_final.json | c3o2 | HAPPIER (subject) (50%) | "(subject) laughs too" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my071_visitor_final.json | c3o2 | HAPPIER (neighbour) (50%) | "(neighbour), one of the neighbours, bursts out laughing." | {"do":"mood","role":"neighbour","mood":"good"}
+rewrites/rw_my/my072_jar_two_sunrises.json | c1o1 | CELEBRATE (everyone) (50%) | "the fish are shared out for a feast that evening" | {"do":"celebrate","who":"all"}
+rewrites/rw_my/my072_jar_two_sunrises.json | c1o2 | FOOD GAIN normal (50%) | "fishing grounds they never knew existed" | {"do":"food","size":"normal","scaled":true}
+rewrites/rw_my/my073_dreamer_stranger.json | c1o1 | HAPPIER (subject) (50%) | "They end up laughing about it and sharing the guavas" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my073_dreamer_stranger.json | c2o1 | HAPPIER (subject) (50%) | "They talk until dark." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my073_dreamer_stranger.json | c2o2 | SKILL + Building a lot (subject) (50%) | "picks up the adze. It takes all season." | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+rewrites/rw_my/my073_dreamer_stranger.json | c4o1 | HAPPIER (subject) (50%) | "(subject.He/she) wakes up feeling triumphant" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my073_dreamer_stranger.json | c4o2 | HAPPIER (subject) (50%) | "(subject) wakes up feeling strangely warm" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my074_man_storm_gate.json | c3o1 | HUT DAMAGE small (50%) | "half the roof of the food store is ripped away" | {"do":"damage","structures":"any","size":"small"}
+rewrites/rw_my/my074_man_storm_gate.json | c3o2 | UNHAPPY (subject) (50%) | "(he/she) feels quite small for the rest of the day" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my075_stone_boat.json | c2o1 | SKILL + Building some (subject) (50%) | "helping fix canoes, watching boats come and go, and carving little wooden boats" | {"do":"skill","role":"subject","skills":["Building"],"min":10,"max":20}
+rewrites/rw_my/my075_stone_boat.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) is surprised by how sad (subject.he/she) feels" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my076_voice_behind.json | c4o1 | HAPPIER (subject) (50%) | "full of laughter and stories" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my077_gift_unseen.json | c1o1 | HAPPIER (subject) (50%) | "(subject) is the most popular villager on the island for a while" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my077_gift_unseen.json | c1o2 | HAPPIER (subject) (50%) | "It is the best meal (subject) has eaten all year." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my077_gift_unseen.json | c2o1 | HAPPIER (subject) (50%) | "(subject) hugs (fisher)" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my077_gift_unseen.json | c2o2 | FOOD GAIN small (50%) | "On the doorstep sits a basket of fish, tied with red cord." | {"do":"food","size":"small","scaled":true}
+rewrites/rw_my/my077_gift_unseen.json | c3o1 | FOOD GAIN normal (50%) | "there is one last basket waiting" | {"do":"food","size":"normal","scaled":true}
+rewrites/rw_my/my077_gift_unseen.json | c3o2 | UNHAPPY (subject) (50%) | "(subject) feels a bit silly, and a bit guilty" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my077_gift_unseen.json | c4o1 | HAPPIER (subject) (50%) | "(subject) laughs, and invites (subject.him/her) to breakfast" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my078_forest_unclaimed.json | c3o1 | HAPPIER (crafter) (50%) | "lets out a whoop of delight" | {"do":"mood","role":"crafter","mood":"good"}
+rewrites/rw_my/my081_cave_returned.json | c2o1 | INJURY (subject) (50%) | "bumps (subject.his/her) head on the roof" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+rewrites/rw_my/my081_cave_returned.json | c3o2 | TECH GAIN normal (50%) | "writes everything down in careful notes" | {"do":"tech","size":"normal","scaled":true}
+rewrites/rw_my/my081_cave_returned.json | c3o2 | UNHAPPY (researcher) (50%) | "(subject.he/she) is pale and shaking" | {"do":"mood","role":"researcher","mood":"bad"}
+rewrites/rw_my/my082_traveler_lost.json | c1o2 | HAPPIER (subject) (50%) | "soon everyone on the beach is laughing too" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my082_traveler_lost.json | c2o1 | TECH GAIN normal (50%) | "The village fishers crowd in to listen until the fire burns down." | {"do":"tech","size":"normal","scaled":true}
+rewrites/rw_my/my082_traveler_lost.json | c2o2 | TECH GAIN small (50%) | "a scrap of sailcloth with stars drawn all over it" | {"do":"tech","size":"small","scaled":true}
+rewrites/rw_my/my083_beggar_golden.json | c3o1 | FOOD LOSS large (50%) | "(Name) gives the beggar the whole pot, as promised." | {"do":"food","size":"large","loss":true,"scaled":true}
+rewrites/rw_my/my083_beggar_golden.json | c3o2 | UNHAPPY (subject) (50%) | "It does not taste as good as usual." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my084_unseen_guide.json | c1o1 | HAPPIER (subject) (50%) | "feels a little braver" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my084_unseen_guide.json | c2o2 | INJURY (subject) (50%) | "limps home, soaked and furious with (himself/herself)" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+rewrites/rw_my/my084_unseen_guide.json | c4o1 | INJURY (subject) (50%) | "stiff and soggy" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+rewrites/rw_my/my085_box_storms.json | c2o1 | HAPPIER (subject) (50%) | "is extremely smug about it" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my085_box_storms.json | c2o2 | HAPPIER (subject) (50%) | "(subject.his/her) face lights up again" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my085_box_storms.json | c3o2 | HAPPIER (subject) (50%) | "Everyone it touches smiles without quite knowing why." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my085_box_storms.json | c3o2 | HAPPIER (friend) (50%) | "Everyone it touches smiles without quite knowing why." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_my/my085_box_storms.json | c4o2 | UNHAPPY (subject) (50%) | "(subject) is heartbroken for a whole day" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my086_last_lamp_ruins.json | c2o1 | HEALTH UP (subject) (50%) | "feels better than (he/she) has felt in days" | {"do":"health_change","role":"subject","min":15,"max":30}
+rewrites/rw_my/my087_woman_asked.json | c2o1 | HAPPIER (subject) (50%) | "the family is in fits of laughter" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my088_hidden_name.json | c1o2 | SKILL + Research a lot (subject) (50%) | "(he/she) comes to know the mountain better than anyone in the village" | {"do":"skill","role":"subject","skills":["Research"],"min":20,"max":40}
+rewrites/rw_my/my088_hidden_name.json | c2o2 | HAPPIER (subject) (50%) | "(he/she) is laughing so hard (he/she) has to sit down" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my088_hidden_name.json | c4o1 | HAPPIER (subject) (50%) | "(he/she) is quite content" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my090_hungry_stranger.json | c1o2 | FOOD LOSS normal (50%) | "a somewhat emptier pot" | {"do":"food","size":"normal","loss":true,"scaled":true}
+rewrites/rw_my/my090_hungry_stranger.json | c1o2 | HAPPIER (subject) (50%) | "(He/She) washes the bowl, humming." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my090_hungry_stranger.json | c3o1 | SKILL + Farming a lot (subject) (50%) | "shows (name) how to cut the stalks at an angle" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_my/my090_hungry_stranger.json | c4o2 | UNHAPPY (subject) (50%) | "(He/she) feels a little foolish" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my091_unfinished.json | c1o2 | HAPPIER (subject) (50%) | "(subject) is enormously relieved" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my091_unfinished.json | c2o1 | SKILL + Building a great deal (carver) (50%) | "The work takes a whole season." | {"do":"skill","role":"carver","skills":["Building"],"min":30,"max":60}
+rewrites/rw_my/my091_unfinished.json | c2o2 | UNHAPPY (carver) (50%) | "(carver) drops the chisel in horror" | {"do":"mood","role":"carver","mood":"bad"}
+rewrites/rw_my/my091_unfinished.json | c3o2 | HAPPIER (subject) (50%) | "(subject) decides (subject.he/she) likes that idea very much" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my092_silent_stranger.json | c1o2 | HAPPIER (subject) (50%) | "(Name) laughs and lends (him/her) a sleeping mat." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my092_silent_stranger.json | c4o2 | UNHAPPY (subject) (50%) | "(Name) feels rather small" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my093_ancient_bottle.json | c1o2 | HAPPIER (subject) (50%) | "(subject) feels a quiet, unreasonable pride" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my094_shore_unseen.json | c1o1 | HAPPIER (subject) (50%) | "never feels alone on it" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my094_shore_unseen.json | c1o2 | HAPPIER (subject) (50%) | "They are still laughing about it years later." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my094_shore_unseen.json | c1o2 | HAPPIER (friend) (50%) | "They are still laughing about it years later." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_my/my095_basket_unknown.json | c2o2 | FOOD GAIN normal (50%) | "the crowd falls on the basket like starving gulls" | {"do":"food","size":"normal","scaled":true}
+rewrites/rw_my/my095_basket_unknown.json | c3o1 | HAPPIER (farmer) (50%) | "then enthusiastically thanked for the fruit" | {"do":"mood","role":"farmer","mood":"good"}
+rewrites/rw_my/my095_basket_unknown.json | c4o1 | SKILL + Farming a lot (subject) (50%) | "(subject) visits the row every evening to check on (subject.his/her) trees" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_my/my095_basket_unknown.json | c4o2 | FOOD LOSS normal (50%) | "The rest of the fruit, set aside in the meantime, has rotted to mush." | {"do":"food","size":"normal","loss":true,"scaled":true}
+rewrites/rw_my/my096_traveler_shadow.json | c2o2 | HAPPIER (subject) (50%) | "Everyone laughs" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my096_traveler_shadow.json | c4o1 | UNHAPPY (subject) (50%) | "The whole household is quieter than usual for days." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my099_hidden_cup_rain.json | c3o1 | UNHAPPY (subject) (50%) | "It is a long, uncomfortable season, and (name) does not sleep well." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my100_stranger_two.json | c1o2 | HAPPIER (subject) (50%) | "(subject) bursts out laughing." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my101_traveler_never.json | c3o1 | HAPPIER (subject) (50%) | "It mostly laughs." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my102_god_garden.json | c1o2 | HAPPIER (subject) (50%) | "(subject) is beside (subject.himself/herself) with joy." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my102_god_garden.json | c4o2 | SKILL + Farming a lot (subject) (50%) | "starts helping with the weeding instead" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_my/my103_jar_silent.json | c2o2 | TECH GAIN normal (50%) | "The researchers watch it all through the storm, taking notes." | {"do":"tech","size":"normal","scaled":true}
+rewrites/rw_my/my103_jar_silent.json | c3o2 | INJURY (subject) (50%) | "staggering, sweating, bent double" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+rewrites/rw_my/my104_ferryman_empty.json | c1o1 | SKILL + Farming some (subject) (50%) | "(Name) fishes with (his/her) bare hands and a basket" | {"do":"skill","role":"subject","skills":["Farming"],"min":10,"max":20}
+rewrites/rw_my/my104_ferryman_empty.json | c2o2 | HAPPIER (subject) (50%) | "(Name) laughs so hard (he/she) has to sit down in the shallows." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my105_woman_empty.json | c2o1 | SKILL + Farming a lot (subject) (50%) | "(Name) plants the seeds" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_my/my105_woman_empty.json | c4o2 | UNHAPPY (subject) (50%) | "(He/she) wakes before dawn, tired and shaken." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my106_circle_unseen.json | c1o1 | HAPPIER (subject) (50%) | "(he/she) staggers home breathless and grinning" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my106_circle_unseen.json | c1o2 | INJURY (subject) (50%) | "(His/her) feet ache for three days." | {"do":"health_change","role":"subject","min":-30,"max":-15}
+rewrites/rw_my/my106_circle_unseen.json | c2o1 | CELEBRATE (everyone) (50%) | "It is the best party anyone can remember." | {"do":"celebrate","who":"all"}
+rewrites/rw_my/my106_circle_unseen.json | c2o2 | UNHAPPY (subject) (50%) | "(name) feels as though (he/she) has walked in on something private and broken it up" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my106_circle_unseen.json | c3o1 | HAPPIER (subject) (50%) | "(Name) laughs out loud" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my106_circle_unseen.json | c4o2 | UNHAPPY (subject) (50%) | "(He/she) misses it far more than (he/she) expected to." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my107_wanderer_three.json | c1o2 | FOOD GAIN normal (50%) | "(He/she) fills (his/her) basket on the way back." | {"do":"food","size":"normal","scaled":true}
+rewrites/rw_my/my108_beggar_stolen.json | c1o1 | HAPPIER (subject) (50%) | "people come out of their huts to stand in it and laugh" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my108_beggar_stolen.json | c1o2 | HAPPIER (subject) (50%) | "(name)'s family are crying with laughter by the end" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my108_beggar_stolen.json | c2o2 | HAPPIER (subject) (50%) | "a very pleasant way to spend a gloomy afternoon" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my109_stranger_spoke.json | c3o1 | SKILL + Farming a lot (subject) (50%) | "pulling away vines, hauling off dead branches" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_my/my109_stranger_spoke.json | c3o2 | SKILL + Farming a lot (subject) (50%) | "(Name) clears the worst of the vines from the roots" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_my/my111_wandering.json | c1o1 | HEALTH UP (friend) (50%) | "By morning, the fever has broken." | {"do":"health_change","role":"friend","min":30,"max":50}
+rewrites/rw_my/my111_wandering.json | c1o2 | UNHAPPY (subject) (50%) | "(subject) feels awful" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my111_wandering.json | c2o1 | TECH GAIN normal (50%) | "shows the healers which herbs are which" | {"do":"tech","size":"normal","scaled":true}
+rewrites/rw_my/my111_wandering.json | c2o1 | HEALTH UP (friend) (50%) | "(friend) is better within two days." | {"do":"health_change","role":"friend","min":15,"max":30}
+rewrites/rw_my/my111_wandering.json | c4o1 | HEALTH UP (friend) (50%) | "(friend) is better in two days." | {"do":"health_change","role":"friend","min":15,"max":30}
+rewrites/rw_my/my112_guest_old_song.json | c1o1 | HAPPIER (subject) (50%) | "the village feels, somehow, a little more complete" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my113_garden_vanished.json | c2o2 | SKILL + Farming a lot (subject) (50%) | "(subject.He/she) just keeps tending it." | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_my/my113_garden_vanished.json | c4o1 | HAPPIER (subject) (50%) | "always leaves feeling lighter than when (subject.he/she) came" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_my/my114_stranger_offered.json | c2o2 | UNHAPPY (subject) (50%) | "(Name) is not popular for a while." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_my/my114_stranger_offered.json | c4o1 | HEALTH UP (subject) (50%) | "sleeps better than (he/she) has in months" | {"do":"health_change","role":"subject","min":30,"max":50}
+rewrites/rw_new/new101_spring.json | c3o2 | SKILL + Research a lot (subject) (50%) | "(elder) shows (subject) how to visit the spring at dawn and dusk and tie a knot" | {"do":"skill","role":"subject","skills":["Research"],"min":20,"max":40}
+rewrites/rw_new/new102_second_shadow.json | c1o2 | UNHAPPY (subject) (50%) | "(subject.he/she) is a little sad about that" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_new/new102_second_shadow.json | c3o2 | SKILL + Research a lot (subject) (50%) | "(elder) shows (subject) how to push sticks into the sand" | {"do":"skill","role":"subject","skills":["Research"],"min":20,"max":40}
+rewrites/rw_new/new104_charm_forgot.json | c2o1 | HAPPIER (friend) (50%) | "to everyone's relief, (friend) laughs" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new104_charm_forgot.json | c3o2 | SKILL + Building a lot (subject) (50%) | "has (subject) watch how it dries" | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+rewrites/rw_new/new105_night_exchanged.json | c2o1 | HAPPIER (name3) (50%) | "(Name3) seems rather pleased about it." | {"do":"mood","role":"name3","mood":"good"}
+rewrites/rw_new/new105_night_exchanged.json | c3o2 | SKILL + Building a lot (subject) (50%) | "(subject.He/She) teaches (subject) an old way of tapping and listening for echoes through the floor." | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+rewrites/rw_new/new106_blessing_tree.json | c2o1 | HAPPIER (subject) (50%) | "The two of them can hardly stop smiling" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new106_blessing_tree.json | c2o1 | HAPPIER (friend) (50%) | "The two of them can hardly stop smiling" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new106_blessing_tree.json | c3o2 | SKILL + Farming a lot (subject) (50%) | "(elder) shows (subject) how to judge the tree's health from the colour of its bark" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_new/new107_mirror_other.json | c3o1 | SKILL + Building a lot (subject) (50%) | "teaches (subject) the old way of polishing stone with wet sand and coconut oil" | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+rewrites/rw_new/new108_spirit.json | c2o1 | HAPPIER (subject) (50%) | "(subject.he/she) looks rather pleased about the whole thing" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new109_blue_flame.json | c3o2 | SKILL + Farming a lot (subject) (50%) | "teaches (subject) how to judge a fire's heat by the colour of its flame" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_new/new110_dream_two.json | c3o1 | HAPPIER (subject) (50%) | "(subject) and (friend) look at each other and laugh for the first time" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new110_dream_two.json | c3o1 | HAPPIER (friend) (50%) | "(subject) and (friend) look at each other and laugh for the first time" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new111_fishing_line.json | c1o2 | HAPPIER (subject) (50%) | "both start to laugh" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new111_fishing_line.json | c1o2 | HAPPIER (friend) (50%) | "both start to laugh" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new112_watch_night.json | c1o2 | HAPPIER (friend) (50%) | "Several people want to hug (subject.him/her)." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new113_lost_public.json | c1o2 | HAPPIER (friend) (50%) | "with (friend) marching proudly at the front" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new117_storehouse_key.json | c2o1 | HAPPIER (subject) (50%) | "smiling for the first time all day" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new117_storehouse_key.json | c3o1 | CELEBRATE (everyone) (50%) | "Everyone eats well" | {"do":"celebrate","who":"all"}
+rewrites/rw_new/new119_broken_promise.json | c1o1 | FOOD LOSS normal (50%) | "three households have filled baskets of their own" | {"do":"food","size":"normal","loss":true,"scaled":true}
+rewrites/rw_new/new119_broken_promise.json | c3o1 | FOOD LOSS large (50%) | "The eldest goes home with a full basket" | {"do":"food","size":"large","loss":true,"scaled":true}
+rewrites/rw_new/new121_scientist.json | c1o1 | HAPPIER (subject) (50%) | "(subject.He/She) beams at being taken seriously by a grown-up" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new121_scientist.json | c2o1 | HAPPIER (subject) (50%) | "is very proud of it" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new122_secret_fort.json | c1o1 | HAPPIER (subject) (50%) | "(subject.He/She) is delighted that an adult wanted to know" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new122_secret_fort.json | c1o2 | HAPPIER (subject) (50%) | "(subject) gives up, laughing" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new122_secret_fort.json | c2o2 | SKILL + Building a lot (subject) (50%) | "watches (subject) brace the roof alone" | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+rewrites/rw_new/new123_first_fish.json | c1o1 | HAPPIER (subject) (50%) | "(subject) feels truly heard" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new123_first_fish.json | c1o2 | HAPPIER (subject) (50%) | "it seems to make (subject) very happy" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new123_first_fish.json | c2o2 | SKILL + Farming a lot (subject) (50%) | "then immediately casts the line again" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_new/new123_first_fish.json | c3o2 | HAPPIER (subject) (50%) | "Then (subject.he/she) grins." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new124_teacher.json | c1o1 | HAPPIER (subject) (50%) | "sits up a little straighter for the rest of the day" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new124_teacher.json | c3o1 | HAPPIER (subject) (50%) | "(subject) explains it proudly to the adults" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new125_broken_toy_boat.json | c1o1 | HAPPIER (subject) (50%) | "By the end, (subject.he/she) is smiling" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new125_broken_toy_boat.json | c3o1 | HAPPIER (subject) (50%) | "(subject.He/She) proudly explains it to the adults" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new126_child_feared.json | c1o1 | HAPPIER (subject) (50%) | "(subject) is comforted just to be taken seriously" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new126_child_feared.json | c3o1 | HAPPIER (subject) (50%) | "(subject.he/she) announces proudly" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new127_two_best.json | c1o2 | HAPPIER (subject) (50%) | "then burst out laughing" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new127_two_best.json | c1o2 | HAPPIER (friend) (50%) | "then burst out laughing" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new127_two_best.json | c2o2 | SKILL + Building a lot (subject) (50%) | "watches from the garden wall as they work it out between them" | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+rewrites/rw_new/new127_two_best.json | c2o2 | SKILL + Building a lot (friend) (50%) | "watches from the garden wall as they work it out between them" | {"do":"skill","role":"friend","skills":["Building"],"min":20,"max":40}
+rewrites/rw_new/new127_two_best.json | c3o1 | HAPPIER (subject) (50%) | "The two friends proudly explain their discovery to the adults" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new127_two_best.json | c3o1 | HAPPIER (friend) (50%) | "The two friends proudly explain their discovery to the adults" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new128_lost_shell.json | c3o1 | HAPPIER (subject) (50%) | "(subject) proudly explains to the adults" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new129_serious_play.json | c1o1 | HAPPIER (subject) (50%) | "(subject) is thrilled to be taken seriously" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new129_serious_play.json | c3o2 | HAPPIER (subject) (50%) | "The rules meeting collapses into happy chaos within a minute." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new129_serious_play.json | c3o2 | HAPPIER (referee) (50%) | "The rules meeting collapses into happy chaos within a minute." | {"do":"mood","role":"referee","mood":"good"}
+rewrites/rw_new/new130_young_helper.json | c1o1 | HAPPIER (subject) (50%) | "feeling very much part of the crew" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new130_young_helper.json | c1o2 | SKILL + Building a lot (subject) (50%) | "(subject) carries bundles of thatch for the rest of the afternoon" | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+rewrites/rw_new/new130_young_helper.json | c2o2 | HAPPIER (subject) (50%) | "Every builder cheers." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new131_elder_garden.json | c1o1 | SKILL + Farming a lot (subject) (50%) | "the sapling is in the ground, watered, with a ring of stones around it" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_new/new131_elder_garden.json | c1o1 | HAPPIER (subject) (50%) | "looking very satisfied" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new131_elder_garden.json | c3o1 | SKILL + Farming a lot (subject) (50%) | "tending everything in sight" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_new/new132_forgotten_path.json | c3o1 | HAPPIER (subject) (50%) | "smiling more with every step" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new132_forgotten_path.json | c3o2 | INJURY (subject) (50%) | "(subject.His/Her) knees and back ache" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+rewrites/rw_new/new133_fisher_hands.json | c1o1 | HAPPIER (subject) (50%) | "comes back with three fish and a smug expression" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new133_fisher_hands.json | c3o1 | HAPPIER (subject) (50%) | "seems genuinely moved" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new133_fisher_hands.json | c3o2 | INJURY (subject) (50%) | "(subject.his/her) hands are hurting too much today" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+rewrites/rw_new/new134_birthday.json | c1o1 | HAPPIER (subject) (50%) | "(subject) declares it the best birthday (subject.he/she) has had" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new134_birthday.json | c1o2 | CELEBRATE (everyone) (50%) | "The feast is loud, long and wonderful" | {"do":"celebrate","who":"all"}
+rewrites/rw_new/new134_birthday.json | c3o1 | HAPPIER (subject) (50%) | "(subject) laughs until (subject.he/she) cries" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new135_teacher_retired.json | c1o1 | HAPPIER (subject) (50%) | "(subject) smiles slowly" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new135_teacher_retired.json | c3o1 | HAPPIER (subject) (50%) | "(subject) teaches comfortably for the first time in ages" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new135_teacher_retired.json | c3o2 | HAPPIER (subject) (50%) | "(subject) watches them go, smiling, and dozes off under the tree" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new137_last_dance.json | c1o1 | HAPPIER (subject) (50%) | "(subject.He/She) is beaming when (subject.he/she) sits down." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new137_last_dance.json | c1o2 | HAPPIER (subject) (50%) | "They dance together, very slowly" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new137_last_dance.json | c3o1 | HAPPIER (subject) (50%) | "it is done with great style" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new137_last_dance.json | c3o2 | HAPPIER (subject) (50%) | "seems to have a wonderful time" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new139_old_scar.json | c3o1 | HAPPIER (subject) (50%) | "(subject) talks comfortably about the scar" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new139_old_scar.json | c3o1 | HAPPIER (young) (50%) | "the two of them are friends from then on" | {"do":"mood","role":"young","mood":"good"}
+rewrites/rw_new/new140_bench_sun.json | c3o1 | HAPPIER (subject) (50%) | "enjoy it comfortably, every evening" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new142_sailor_stayed.json | c4o2 | FOOD LOSS normal (50%) | "with a bundle of fruit and an open invitation" | {"do":"food","size":"normal","loss":true,"scaled":true}
+rewrites/rw_new/new143_letter_across.json | c1o1 | HAPPIER (subject) (50%) | "sits for a long while looking out at the sea, smiling" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new144_farmhand_west.json | c2o1 | SKILL + Farming a lot (subject) (50%) | "(name) rests that field the next season" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_new/new144_farmhand_west.json | c2o2 | SKILL + Building a lot (subject) (50%) | "(Name) spends the evening trying to carve a curved stick of (his/her) own." | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+rewrites/rw_new/new146_mapmaker.json | c4o1 | TECH GAIN normal (50%) | "(He/She) also maps every field in the village" | {"do":"tech","size":"normal","scaled":true}
+rewrites/rw_new/new149_child_raft.json | c1o1 | HEALTH UP (subject) (50%) | "sleeps for a full day and night without moving" | {"do":"health_change","role":"subject","min":30,"max":50}
+rewrites/rw_new/new149_child_raft.json | c2o1 | HAPPIER (subject) (50%) | "The child seems pleased to have taught the grown-ups something." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new149_child_raft.json | c4o1 | HAPPIER (subject) (50%) | "starts chattering for the first time" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new150_visitor.json | c1o1 | CELEBRATE (everyone) (50%) | "There are stories, and songs" | {"do":"celebrate","who":"all"}
+rewrites/rw_new/new151_rain_after.json | c1o1 | HAPPIER (subject) (50%) | "soaked and grinning" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new151_rain_after.json | c2o1 | HAPPIER (subject) (50%) | "It is crowded, damp and surprisingly happy." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new151_rain_after.json | c2o1 | HUT DAMAGE small (50%) | "Families whose roofs are leaking" | {"do":"damage","structures":"any","size":"small"}
+rewrites/rw_new/new152_fog_held.json | c2o1 | HAPPIER (subject) (50%) | "Everyone is accounted for" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new152_fog_held.json | c4o1 | TECH GAIN normal (50%) | "Everyone agrees the new markers are much better." | {"do":"tech","size":"normal","scaled":true}
+rewrites/rw_new/new153_wind_granary.json | c3o2 | FOOD LOSS normal (50%) | "The birds, meanwhile, keep eating." | {"do":"food","size":"normal","loss":true,"scaled":true}
+rewrites/rw_new/new154_heat_classroom.json | c2o1 | HAPPIER (subject) (50%) | "Everyone is relieved." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new154_heat_classroom.json | c4o1 | HAPPIER (subject) (50%) | "It's so pleasant that the adults start sneaking in to nap there" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new156_lightning.json | c1o2 | HUT DAMAGE small (50%) | "a corner of the storehouse that the thunder shook loose" | {"do":"damage","structures":"any","size":"small"}
+rewrites/rw_new/new158_tide_door.json | c1o2 | UNHAPPY (subject) (50%) | "(Name) looks at it sadly." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_new/new159_dusty_season.json | c1o1 | HAPPIER (subject) (50%) | "(name) feels like (he/she) found treasure" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new161_second.json | c1o2 | HAPPIER (subject) (50%) | "accepts it gladly" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new161_second.json | c3o2 | HAPPIER (subject) (50%) | "(subject) is laughing so hard (subject.he/she) forgets to feel guilty" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new162_farmer_shy.json | c1o1 | HAPPIER (subject) (50%) | "They weed together all afternoon, talking." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new162_farmer_shy.json | c1o2 | HAPPIER (subject) (50%) | "(subject.he/she) is just relieved to have finally said it" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new162_farmer_shy.json | c2o2 | UNHAPPY (subject) (50%) | "both a little sad" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_new/new162_farmer_shy.json | c3o2 | HAPPIER (subject) (50%) | "It goes rather well." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new163_proposal.json | c2o1 | HAPPIER (subject) (50%) | "they have both agreed to try, carefully" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new163_proposal.json | c2o1 | HAPPIER (friend) (50%) | "they have both agreed to try, carefully" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new163_proposal.json | c2o2 | UNHAPPY (subject) (50%) | "It's a sad walk home." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_new/new163_proposal.json | c2o2 | UNHAPPY (friend) (50%) | "It's a sad walk home." | {"do":"mood","role":"friend","mood":"bad"}
+rewrites/rw_new/new163_proposal.json | c3o2 | HAPPIER (friend) (50%) | "walks home grinning anyway" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new164_love_letter.json | c1o1 | HAPPIER (subject) (50%) | "asks if (subject) wants to walk with (subject.him/her) tomorrow" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new164_love_letter.json | c1o2 | HAPPIER (subject) (50%) | "is somehow relieved that the worst is over" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new164_love_letter.json | c2o1 | HAPPIER (subject) (50%) | "laughing about the mix-up until they can't breathe" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new164_love_letter.json | c2o1 | HAPPIER (friend) (50%) | "laughing about the mix-up until they can't breathe" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new164_love_letter.json | c2o2 | UNHAPPY (subject) (50%) | "which is not what (subject) hoped" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_new/new165_couple_chose.json | c1o1 | HAPPIER (subject) (50%) | "They hold hands for a long time afterwards." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new165_couple_chose.json | c1o1 | HAPPIER (friend) (50%) | "They hold hands for a long time afterwards." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new166_wedding_without.json | c1o2 | HAPPIER (subject) (50%) | "then accepts it with a laugh" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new167_partners_work.json | c2o1 | HAPPIER (subject) (50%) | "They laugh more than they have in a month." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new167_partners_work.json | c2o1 | HAPPIER (friend) (50%) | "They laugh more than they have in a month." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new168_friendship.json | c1o1 | HAPPIER (subject) (50%) | "They walk to the well together." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new168_friendship.json | c1o1 | HAPPIER (friend) (50%) | "(friend) listens, and then, slowly, smiles." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new168_friendship.json | c2o1 | HAPPIER (subject) (50%) | "It's perfect." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new168_friendship.json | c2o1 | HAPPIER (friend) (50%) | "It's perfect." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new168_friendship.json | c2o2 | UNHAPPY (subject) (50%) | "It's a quiet walk home." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_new/new168_friendship.json | c2o2 | UNHAPPY (friend) (50%) | "It's a quiet walk home." | {"do":"mood","role":"friend","mood":"bad"}
+rewrites/rw_new/new168_friendship.json | c3o1 | HAPPIER (friend) (50%) | "Then (friend) laughs, and it's all right." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new170_newcomer_choice.json | c1o1 | HAPPIER (subject) (50%) | "(subject) laughs" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new170_newcomer_choice.json | c3o2 | SKILL + Farming a lot (subject) (50%) | "(subject.he/she) does go fishing at dawn, and it is very good" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_new/new171_record_washed.json | c1o2 | UNHAPPY (subject) (50%) | "(subject) sits in the wet record hut for a long time" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_new/new172_wrong_name.json | c1o2 | UNHAPPY (subject) (50%) | "(subject) is sad about it" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_new/new172_wrong_name.json | c3o1 | HAPPIER (subject) (50%) | "everyone cheers" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new174_family_recipe.json | c1o1 | SKILL + Farming a lot (subject) (50%) | "the pudding, on the fifth try, tastes almost right" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_new/new174_family_recipe.json | c2o1 | HAPPIER (subject) (50%) | "the first spoonful makes (subject.him/her) cry" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new177_two_histories.json | c1o1 | HAPPIER (subject) (50%) | "(subject) is triumphant." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new177_two_histories.json | c2o1 | HAPPIER (subject) (50%) | "then both laugh, and then go and eat lunch together" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new177_two_histories.json | c2o1 | HAPPIER (friend) (50%) | "then both laugh, and then go and eat lunch together" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_new/new180_stone_names.json | c2o2 | UNHAPPY (subject) (50%) | "everyone goes home a little sad, still unsure" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_new/new180_stone_names.json | c3o1 | SKILL + Building a great deal (subject) (50%) | "(name)'s carving skills grow tremendously in the making of it" | {"do":"skill","role":"subject","skills":["Building"],"min":30,"max":60}
+rewrites/rw_new/new181_apprentice.json | c2o1 | SKILL + Building a lot (subject) (50%) | "The stools get better and better." | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+rewrites/rw_new/new181_apprentice.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) does not laugh." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_new/new181_apprentice.json | c3o2 | HAPPIER (subject) (50%) | "(subject), for the first time all evening, finally laughs" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new182_overworked.json | c1o1 | HEALTH UP (subject) (50%) | "that night, (subject.he/she) sleeps for six hours" | {"do":"health_change","role":"subject","min":15,"max":30}
+rewrites/rw_new/new182_overworked.json | c2o1 | HEALTH UP (subject) (50%) | "(subject) has had three hot meals" | {"do":"health_change","role":"subject","min":15,"max":30}
+rewrites/rw_new/new182_overworked.json | c3o1 | HEALTH UP (subject) (50%) | "(subject)'s back stops aching for the first time in years" | {"do":"health_change","role":"subject","min":15,"max":30}
+rewrites/rw_new/new182_overworked.json | c3o2 | HAPPIER (subject) (50%) | "(subject.he/she) laughs for the first time all week" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new183_unwanted.json | c3o2 | HAPPIER (subject) (50%) | "(subject) laughs" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new184_fisher_wanted.json | c2o1 | SKILL + Farming a lot (subject) (50%) | "farming afternoons let (subject) learn at a pace that suits (subject.him/her)" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_new/new184_fisher_wanted.json | c2o2 | UNHAPPY (subject) (50%) | "(subject.He/She) is miserable." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_new/new184_fisher_wanted.json | c3o2 | HAPPIER (subject) (50%) | "they both laugh until they have to sit down in the mud" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new184_fisher_wanted.json | c3o2 | HAPPIER (mentor) (50%) | "they both laugh until they have to sit down in the mud" | {"do":"mood","role":"mentor","mood":"good"}
+rewrites/rw_new/new185_without_tasks.json | c1o1 | HAPPIER (subject) (50%) | "(subject) is blissfully happy" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new185_without_tasks.json | c2o2 | HEALTH UP (subject) (50%) | "which turns out to be quite restful after all" | {"do":"health_change","role":"subject","min":15,"max":30}
+rewrites/rw_new/new185_without_tasks.json | c3o1 | HEALTH UP (subject) (50%) | "(subject.He/She) returns to work the next day refreshed" | {"do":"health_change","role":"subject","min":15,"max":30}
+rewrites/rw_new/new185_without_tasks.json | c3o2 | UNHAPPY (subject) (50%) | "rigid, worrying that (subject.he/she) is falling behind" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_new/new186_misunderstood.json | c2o1 | HAPPIER (subject) (50%) | "(subject) is the proudest apprentice on the island." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new186_misunderstood.json | c3o2 | HAPPIER (subject) (50%) | "(subject) feels much better." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new186_misunderstood.json | c3o2 | HAPPIER (master) (50%) | "(master) starts laughing, and can't stop." | {"do":"mood","role":"master","mood":"good"}
+rewrites/rw_new/new187_shared_harvest.json | c2o1 | FOOD GAIN normal (50%) | "The harvest is even better." | {"do":"food","size":"normal","scaled":true}
+rewrites/rw_new/new187_shared_harvest.json | c3o1 | FOOD GAIN large (50%) | "the next harvest is so huge" | {"do":"food","size":"large","scaled":true}
+rewrites/rw_new/new187_shared_harvest.json | c3o2 | HAPPIER (subject) (50%) | "Everyone laughs so hard that the argument is forgotten" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new187_shared_harvest.json | c3o2 | HAPPIER (builder) (50%) | "Everyone laughs so hard that the argument is forgotten" | {"do":"mood","role":"builder","mood":"good"}
+rewrites/rw_new/new189_night_shift.json | c3o1 | HEALTH UP (subject) (50%) | "(subject.He/She) wakes up feeling like a new person." | {"do":"health_change","role":"subject","min":30,"max":50}
+rewrites/rw_new/new190_worker_said.json | c2o1 | HEALTH UP (subject) (50%) | "(subject.His/Her) strength comes back slowly." | {"do":"health_change","role":"subject","min":15,"max":30}
+rewrites/rw_new/new191_water_tasted.json | c4o2 | SKILL + Research a lot (novice) (50%) | "(novice) notices that (subject.he/she) always tastes the old well first" | {"do":"skill","role":"novice","skills":["Research"],"min":20,"max":40}
+rewrites/rw_new/new192_plant_grew.json | c4o2 | SKILL + Research a lot (novice) (50%) | "(novice) notices that one pot was always watered more than the other" | {"do":"skill","role":"novice","skills":["Research"],"min":20,"max":40}
+rewrites/rw_new/new193_shells_holes.json | c4o2 | SKILL + Research a lot (novice) (50%) | "(novice) notices that half the shells in the basket came from one single rock pool" | {"do":"skill","role":"novice","skills":["Research"],"min":20,"max":40}
+rewrites/rw_new/new194_ant_trail.json | c3o1 | HAPPIER (child) (50%) | "(child) is very pleased." | {"do":"mood","role":"child","mood":"good"}
+rewrites/rw_new/new194_ant_trail.json | c4o2 | SKILL + Research a lot (novice) (50%) | "(novice) notices that every time (subject) leans over to watch" | {"do":"skill","role":"novice","skills":["Research"],"min":20,"max":40}
+rewrites/rw_new/new195_two_kinds_ash.json | c2o2 | HAPPIER (subject) (50%) | "(subject) is delighted." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new195_two_kinds_ash.json | c4o2 | SKILL + Research a lot (novice) (50%) | "(novice) notices that one of the jars had seawater in it" | {"do":"skill","role":"novice","skills":["Research"],"min":20,"max":40}
+rewrites/rw_new/new196_tide_clock.json | c2o1 | HAPPIER (subject) (50%) | "(subject) is unbearably smug for a week." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new196_tide_clock.json | c4o2 | SKILL + Research a lot (novice) (50%) | "(novice) notices that two of the sticks were planted at the wrong time" | {"do":"skill","role":"novice","skills":["Research"],"min":20,"max":40}
+rewrites/rw_new/new197_sick_plant.json | c2o1 | FOOD GAIN large (50%) | "The next harvest is the best in years." | {"do":"food","size":"large","scaled":true}
+rewrites/rw_new/new197_sick_plant.json | c4o2 | SKILL + Research a lot (novice) (50%) | "(novice) notices something nobody else did" | {"do":"skill","role":"novice","skills":["Research"],"min":20,"max":40}
+rewrites/rw_new/new198_stone_floats.json | c2o2 | HAPPIER (subject) (50%) | "(subject) is delighted." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_new/new198_stone_floats.json | c4o2 | SKILL + Research some (novice) (50%) | "(novice) notices that some of the stones were still wet from the last test" | {"do":"skill","role":"novice","skills":["Research"],"min":10,"max":20}
+rewrites/rw_new/new199_breadfruit.json | c4o2 | SKILL + Research a lot (novice) (50%) | "(novice) notices that two of the fruit swapped places in the basket" | {"do":"skill","role":"novice","skills":["Research"],"min":20,"max":40}
+rewrites/rw_new/new200_echo_cave.json | c4o2 | SKILL + Research a lot (novice) (50%) | "(novice) notices that during one count the tide was in" | {"do":"skill","role":"novice","skills":["Research"],"min":20,"max":40}
+rewrites/rw_s/s001_spring_talks_back.json | c1o2 | UNHAPPY (subject) (50%) | "(Name) gets up, red to the ears, and stomps off down the hill" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s001_spring_talks_back.json | c2o1 | HEALTH UP (subject) (50%) | "walks home very refreshed" | {"do":"health_change","role":"subject","min":15,"max":30}
+rewrites/rw_s/s001_spring_talks_back.json | c2o2 | HAPPIER (subject) (50%) | "(He/She) comes home humming." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s002_face_tide_pool.json | c2o2 | UNHAPPY (subject) (50%) | "(Name) is very cross with (himself/herself) for the rest of the day" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s004_two_hammocks.json | c1o1 | HAPPIER (subject) (50%) | "then they laugh about it for the rest of their lives" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s004_two_hammocks.json | c1o1 | HAPPIER (friend) (50%) | "then they laugh about it for the rest of their lives" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s004_two_hammocks.json | c2o1 | HAPPIER (subject) (50%) | "they're both exhausted and oddly proud of themselves" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s004_two_hammocks.json | c2o1 | HAPPIER (friend) (50%) | "they're both exhausted and oddly proud of themselves" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s005_wind_took_name.json | c2o1 | HAPPIER (subject) (50%) | "There's a small cheer" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s007_granary_gets_wet.json | c1o2 | HUTS REPAIRED (50%) | "The roof is mended by lunchtime the next day" | {"do":"repair"}
+rewrites/rw_s/s007_granary_gets_wet.json | c2o2 | HUTS REPAIRED (50%) | "By evening the roof is mended" | {"do":"repair"}
+rewrites/rw_s/s008_coconut_bonanza.json | c2o2 | CELEBRATE (everyone) (50%) | "The festival is so good that it goes on for three days" | {"do":"celebrate","who":"all"}
+rewrites/rw_s/s009_elder_forgot_get.json | c1o2 | HAPPIER (subject) (50%) | "goes to bed the happiest (subject.he/she) has been in years" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s010_bee_hat.json | c2o1 | DISLIKE + bees (subject) (50%) | "(Name) gives up on beekeeping on the spot." | {"do":"preference","role":"subject","list":"dislikes","preference":"bees"}
+rewrites/rw_s/s011_second.json | c2o1 | HAPPIER (subject) (50%) | "By morning they are best friends" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s011_second.json | c2o2 | UNHAPPY (subject) (50%) | "gets quite annoyed when everyone keeps asking" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s012_biggest_fish_bay.json | c2o1 | HAPPIER (subject) (50%) | "gives (him/her) the best seat by the fire" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s013_researchers.json | c2o2 | UNHAPPY (subject) (50%) | "goes very pale" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s014_fog_walker.json | c2o2 | UNHAPPY (subject) (50%) | "(he/she) is grumpy with everybody for a whole week" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s016_fertility_stone.json | c1o1 | HAPPIER (subject) (50%) | "(subject) is thrilled too" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s016_fertility_stone.json | c1o1 | HAPPIER (friend) (50%) | "(friend) is over the moon." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s016_fertility_stone.json | c2o1 | PREGNANT (subject) WITH (friend) (50%) | "A few weeks later (subject) is pregnant." | {"do":"pregnant","role":"subject","partner":"friend"}
+rewrites/rw_s/s016_fertility_stone.json | c2o2 | HAPPIER (subject) (50%) | "a lovely, slow, wandering walk home, holding hands" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s016_fertility_stone.json | c2o2 | HAPPIER (friend) (50%) | "a lovely, slow, wandering walk home, holding hands" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s017_name_nobody_can.json | c1o1 | HAPPIER (subject) (50%) | "(Name) feels unexpectedly proud of (his/her) own name" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s017_name_nobody_can.json | c2o2 | INJURY (subject) (50%) | "cracks (his/her) head on the visitor's tall walking stick" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+rewrites/rw_s/s018_pig_knew_better.json | c1o2 | FOOD GAIN large (50%) | "(name)'s fields are the best on the island, heavy and green and overflowing" | {"do":"food","size":"large","scaled":true}
+rewrites/rw_s/s019_glowing_berries.json | c1o1 | HAPPIER (subject) (50%) | "feels absolutely fantastic" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s020_grumpy_morning.json | c2o1 | HAPPIER (subject) (50%) | "(He/She) is so cheered up" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s023_lightning.json | c1o2 | HUT DAMAGE small (50%) | "the roof is gone. Entirely." | {"do":"damage","structures":"any","size":"small"}
+rewrites/rw_s/s023_lightning.json | c2o1 | HUT DAMAGE small (50%) | "nothing is lost but the roof thatch" | {"do":"damage","structures":"any","size":"small"}
+rewrites/rw_s/s023_lightning.json | c2o1 | HAPPIER (subject) (50%) | "soot-faced and pleased with themselves" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s025_quiet_afternoon.json | c2o1 | HAPPIER (subject) (50%) | "the best afternoon of (his/her) whole season" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s025_quiet_afternoon.json | c2o2 | HEALTH UP (subject) (50%) | "(name)'s eyes close. When (he/she) wakes, the shadows are long and gold." | {"do":"health_change","role":"subject","min":15,"max":30}
+rewrites/rw_s/s027_isolan_fire.json | c1o1 | SKILL + Building a lot (friend) (50%) | "is surprised to find how much (friend.he/she) enjoys working the wood" | {"do":"skill","role":"friend","skills":["Building"],"min":20,"max":40}
+rewrites/rw_s/s029_wrong_step_falls.json | c2o1 | HAPPIER (subject) (50%) | "(He/She) floats on (his/her) back and laughs at the sky" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s031_mould_made_friend.json | c2o2 | UNHAPPY (subject) (50%) | "(Name) is oddly sad about it" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s031_mould_made_friend.json | c2o2 | SKILL + Building a lot (subject) (50%) | "(he/she) really likes working with wood" | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+rewrites/rw_s/s034_something_has.json | c2o2 | SKILL + Research a lot (subject) (50%) | "(He/She) has fallen head over heels in love with learning" | {"do":"skill","role":"subject","skills":["Research"],"min":20,"max":40}
+rewrites/rw_s/s035_gift_smoking.json | c2o1 | UNHAPPY (subject) (50%) | "Everyone is a little disappointed." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s035_gift_smoking.json | c2o2 | HAPPIER (subject) (50%) | "People sit round it, warm, talking, late into the night." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s036_weaver_pattern.json | c1o2 | HAPPIER (subject) (50%) | "is now at every festival, first on and last off" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s036_weaver_pattern.json | c2o1 | HAPPIER (elder) (50%) | "puts it on, and smiles" | {"do":"mood","role":"elder","mood":"good"}
+rewrites/rw_s/s038_prank_mirror.json | c1o2 | HAPPIER (subject) (50%) | "starts standing up a little straighter" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s038_prank_mirror.json | c2o2 | UNHAPPY (subject) (50%) | "feels seven different kinds of guilty all at once" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s039_sacred_pool.json | c1o1 | HAPPIER (subject) (50%) | "Then, slowly, they start to laugh." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s039_sacred_pool.json | c1o1 | HAPPIER (friend) (50%) | "Then, slowly, they start to laugh." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s039_sacred_pool.json | c2o1 | INJURY (subject) (50%) | "wake up with terrible sunburns" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+rewrites/rw_s/s039_sacred_pool.json | c2o1 | INJURY (friend) (50%) | "wake up with terrible sunburns" | {"do":"health_change","role":"friend","min":-30,"max":-15}
+rewrites/rw_s/s040_forgetful_morning.json | c1o2 | HAPPIER (subject) (50%) | "(Name) is so grateful that (he/she) picks the child up, spins (him/her) round" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s041_naming_shell.json | c1o1 | HAPPIER (subject) (50%) | "(Name) takes the new name proudly" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s041_naming_shell.json | c2o2 | UNHAPPY (subject) (50%) | "everyone privately blames (name) for that" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s042_midwife_dream.json | c1o1 | HAPPIER (subject) (50%) | "(subject) and (friend) are thrilled." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s042_midwife_dream.json | c1o1 | HAPPIER (friend) (50%) | "(subject) and (friend) are thrilled." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s042_midwife_dream.json | c1o2 | HAPPIER (healer) (50%) | "(Healer) is so relieved \(healer: he/she\) cries." | {"do":"mood","role":"healer","mood":"good"}
+rewrites/rw_s/s045_master_builder.json | c1o1 | HAPPIER (friend) (50%) | "It's the proudest word (friend) has ever heard." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s045_master_builder.json | c1o2 | HAPPIER (subject) (50%) | "then smiles when (friend) isn't looking" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s045_master_builder.json | c2o1 | HAPPIER (subject) (50%) | "it's the best week (subject.he/she) has had in years" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s046_shortcut_over.json | c1o1 | HAPPIER (subject) (50%) | "with a full basket and a huge grin" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s046_shortcut_over.json | c2o1 | UNHAPPY (subject) (50%) | "tired and grumpy and filthy and safe" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s046_shortcut_over.json | c2o1 | FOOD GAIN normal (50%) | "(He/She) drops the basket in the store" | {"do":"food","size":"normal","scaled":true}
+rewrites/rw_s/s047_night_falling.json | c1o2 | HAPPIER (subject) (50%) | "the three of them wear them proudly from then on" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s047_night_falling.json | c1o2 | HAPPIER (friend) (50%) | "the three of them wear them proudly from then on" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s047_night_falling.json | c1o2 | HAPPIER (name3) (50%) | "the three of them wear them proudly from then on" | {"do":"mood","role":"name3","mood":"good"}
+rewrites/rw_s/s048_elder_wet_rocks.json | c2o1 | HAPPIER (subject) (50%) | "an extremely smug look on (subject.his/her) face" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s054_moon_mirror.json | c2o1 | HAPPIER (subject) (50%) | "Then they both burst out laughing." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s055_fire_spirit_joke.json | c2o1 | UNHAPPY (subject) (50%) | "They stare at each other, very shaken." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s055_fire_spirit_joke.json | c2o1 | UNHAPPY (friend) (50%) | "They stare at each other, very shaken." | {"do":"mood","role":"friend","mood":"bad"}
+rewrites/rw_s/s057_elder_gift_years.json | c1o2 | HEALTH UP (friend) (50%) | "with time and soup and rest, gets better on (friend.his/her) own" | {"do":"health_change","role":"friend","min":15,"max":30}
+rewrites/rw_s/s057_elder_gift_years.json | c2o1 | HEALTH UP (friend) (50%) | "(friend) gets better slowly, over the following weeks, the ordinary way" | {"do":"health_change","role":"friend","min":15,"max":30}
+rewrites/rw_s/s057_elder_gift_years.json | c2o2 | HAPPIER (subject) (50%) | "(subject) starts to laugh so hard that (subject.he/she) has to sit down" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s058_old_friends_again.json | c1o1 | HAPPIER (subject) (50%) | "out of breath and laughing" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s058_old_friends_again.json | c1o1 | HAPPIER (friend) (50%) | "out of breath and laughing" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s058_old_friends_again.json | c1o2 | HAPPIER (subject) (50%) | "they laugh more than either of them has laughed in years" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s058_old_friends_again.json | c1o2 | HAPPIER (friend) (50%) | "they laugh more than either of them has laughed in years" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s058_old_friends_again.json | c2o1 | HAPPIER (subject) (50%) | "They laugh about that until they cry." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s058_old_friends_again.json | c2o1 | HAPPIER (friend) (50%) | "They laugh about that until they cry." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s058_old_friends_again.json | c2o2 | HAPPIER (subject) (50%) | "go home to their own huts, smiling" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s058_old_friends_again.json | c2o2 | HAPPIER (friend) (50%) | "go home to their own huts, smiling" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s059_magic_seed.json | c1o2 | UNHAPPY (subject) (50%) | "feels a little bit disappointed" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s059_magic_seed.json | c1o2 | UNHAPPY (friend) (50%) | "So does (friend)." | {"do":"mood","role":"friend","mood":"bad"}
+rewrites/rw_s/s059_magic_seed.json | c2o2 | SKILL + Farming some (subject) (50%) | "(subject.He/She) starts a little garden behind the hut, and spends every spare moment in it" | {"do":"skill","role":"subject","skills":["Farming"],"min":10,"max":20}
+rewrites/rw_s/s059_magic_seed.json | c2o2 | HAPPIER (subject) (50%) | "is very happy there" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s062_flood.json | c2o1 | HUT DAMAGE normal (50%) | "the walls of the food store give way, and the river takes it" | {"do":"damage","structures":"any","size":"normal"}
+rewrites/rw_s/s064_stranger_recipe.json | c1o1 | SKILL + Farming a lot (subject) (50%) | "(Name) learns how to do it on the spot" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+rewrites/rw_s/s064_stranger_recipe.json | c1o2 | FOOD LOSS small (50%) | "the fish is a small black lump that smokes when poked" | {"do":"food","size":"small","loss":true,"scaled":true}
+rewrites/rw_s/s065_coral_reef_dive.json | c1o1 | HAPPIER (subject) (50%) | "(Name) comes home soaked and glowing with pride" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s065_coral_reef_dive.json | c2o1 | HAPPIER (subject) (50%) | "(Name) spends a long, warm, happy afternoon on the shallow reef" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s067_whispering_cave.json | c2o1 | UNHAPPY (subject) (50%) | "(name) can't sleep at all" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s068_long_illness.json | c1o1 | HAPPIER (subject) (50%) | "thinner and paler but grinning" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s068_long_illness.json | c1o1 | TECH GAIN normal (50%) | "(healer) writes the recipe for the old remedy down very carefully" | {"do":"tech","size":"normal","scaled":true}
+rewrites/rw_s/s069_snake_basket.json | c1o1 | DISLIKE + snakes (subject) (50%) | "(Name) won't reach into a basket of anything without looking first, ever again" | {"do":"preference","role":"subject","list":"dislikes","preference":"snakes"}
+rewrites/rw_s/s070_isolan_healer.json | c1o2 | TECH GAIN large (50%) | "They learn more in that one night than in a whole season." | {"do":"tech","size":"large","scaled":true}
+rewrites/rw_s/s070_isolan_healer.json | c1o2 | HEALTH UP (friend) (50%) | "(friend) gets better slowly, over the following week." | {"do":"health_change","role":"friend","min":15,"max":30}
+rewrites/rw_s/s071_robe_shrank.json | c1o1 | HAPPIER (subject) (50%) | "is delighted. Absolutely delighted." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s073_sculptor.json | c1o2 | UNHAPPY (subject) (50%) | "(He/She) gives up carving for good" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s073_sculptor.json | c2o2 | UNHAPPY (subject) (50%) | "(Name) is a little hurt." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s075_too_many_cooks.json | c1o1 | HAPPIER (subject) (50%) | "The whole village laughs until they cry." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s075_too_many_cooks.json | c1o1 | HAPPIER (elder) (50%) | "The whole village laughs until they cry." | {"do":"mood","role":"elder","mood":"good"}
+rewrites/rw_s/s075_too_many_cooks.json | c1o2 | HAPPIER (subject) (50%) | "The stew is, somehow, the best stew anyone has ever eaten." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s075_too_many_cooks.json | c2o1 | SKILL + Farming some (subject) (50%) | "adds fresh water and fresh roots and a few careful herbs" | {"do":"skill","role":"subject","skills":["Farming"],"min":10,"max":20}
+rewrites/rw_s/s075_too_many_cooks.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) gets so nervous" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s076_goat_followed.json | c2o2 | UNHAPPY (subject) (50%) | "is surprised to find that (he/she) is a little bit hurt" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s077_mask_seller.json | c1o1 | HAPPIER (subject) (50%) | "(Name) loves it." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s077_mask_seller.json | c1o2 | UNHAPPY (subject) (50%) | "(Name) is not delighted at all" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s077_mask_seller.json | c2o1 | HAPPIER (subject) (50%) | "(he/she) feels lighter than (he/she) has in years" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s078_second_name_day.json | c1o2 | UNHAPPY (subject) (50%) | "Nobody likes it. Not the village, not the elders themselves, and certainly not (subject)." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s080_child_grew_up.json | c2o1 | HAPPIER (subject) (50%) | "runs around the village hugging everyone" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s081_feast_elders.json | c2o1 | HAPPIER (subject) (50%) | "The elders love it just as much as any feast." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s081_feast_elders.json | c2o1 | HAPPIER (elder) (50%) | "One of them says it's the nicest day in years" | {"do":"mood","role":"elder","mood":"good"}
+rewrites/rw_s/s082_healer_mistake.json | c1o1 | HAPPIER (friend) (50%) | "(friend) even laughs about it, eventually." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s082_healer_mistake.json | c1o1 | TECH GAIN small (50%) | "paint a little picture on the side of each to show what it's for" | {"do":"tech","size":"small","scaled":true}
+rewrites/rw_s/s082_healer_mistake.json | c2o1 | UNHAPPY (subject) (50%) | "(subject) is so embarrassed" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s082_healer_mistake.json | c2o2 | UNHAPPY (subject) (50%) | "(subject) lies awake about it for a few nights." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s083_rock_slide.json | c1o1 | HAPPIER (subject) (50%) | "laughing and crying at the same time" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s084_riptide.json | c1o1 | INJURY (subject) (50%) | "too exhausted to move" | {"do":"health_change","role":"subject","min":-30,"max":-15}
+rewrites/rw_s/s084_riptide.json | c2o1 | HAPPIER (subject) (50%) | "hugs (him/her) without saying a word" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s087_swapping_mango.json | c1o2 | HAPPIER (subject) (50%) | "It was the best mango either of them ever tasted" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s087_swapping_mango.json | c1o2 | HAPPIER (friend) (50%) | "It was the best mango either of them ever tasted" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s087_swapping_mango.json | c2o1 | UNHAPPY (subject) (50%) | "They're both a little disappointed, actually." | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s087_swapping_mango.json | c2o1 | UNHAPPY (friend) (50%) | "They're both a little disappointed, actually." | {"do":"mood","role":"friend","mood":"bad"}
+rewrites/rw_s/s088_stranger_took.json | c2o1 | HAPPIER (subject) (50%) | "Everyone toasts the new name with coconut milk." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s089_beach_wedding.json | c1o1 | CELEBRATE (everyone) (50%) | "The feast goes on all night, on the sand, by torchlight, with dancing and singing" | {"do":"celebrate","who":"all"}
+rewrites/rw_s/s089_beach_wedding.json | c1o2 | CELEBRATE (everyone) (50%) | "It's the best wedding anyone can remember." | {"do":"celebrate","who":"all"}
+rewrites/rw_s/s089_beach_wedding.json | c2o1 | HAPPIER (subject) (50%) | "It's perfect." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s089_beach_wedding.json | c2o1 | HAPPIER (friend) (50%) | "It's perfect." | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s090_baby_ferns.json | c1o1 | HAPPIER (subject) (50%) | "Or so happy." | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s090_baby_ferns.json | c1o2 | HAPPIER (friend) (50%) | "falls in love, there and then, at first sight" | {"do":"mood","role":"friend","mood":"good"}
+rewrites/rw_s/s091_fever_dream.json | c2o1 | HEALTH UP (subject) (50%) | "(He/She) sleeps for two days straight, deep and dreamless" | {"do":"health_change","role":"subject","min":15,"max":30}
+rewrites/rw_s/s094_spilled_dye.json | c1o2 | UNHAPPY (subject) (50%) | "purple hands over (his/her) purple face" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s094_spilled_dye.json | c2o2 | UNHAPPY (subject) (50%) | "something in (him/her) just gives up" | {"do":"mood","role":"subject","mood":"bad"}
+rewrites/rw_s/s096_peaceful_passing.json | c2o1 | HEALTH UP (subject) (50%) | "wakes up the next morning feeling much, much better than (he/she) has in weeks" | {"do":"health_change","role":"subject","min":15,"max":30}
+rewrites/rw_s/s097_ghost_light.json | c2o1 | HAPPIER (subject) (50%) | "(he/she) feels oddly comforted" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s099_back_childhood.json | c1o1 | HAPPIER (subject) (50%) | "with aching shoulders and a very big grin" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s099_back_childhood.json | c2o1 | HEALTH UP (subject) (50%) | "More rested." | {"do":"health_change","role":"subject","min":15,"max":30}
+rewrites/rw_s/s100_last_sunset_year.json | c1o1 | HAPPIER (subject) (50%) | "feeling peaceful, every single one of them" | {"do":"mood","role":"subject","mood":"good"}
+rewrites/rw_s/s100_last_sunset_year.json | c1o2 | HAPPIER (subject) (50%) | "everybody laughs, the whole village at once" | {"do":"mood","role":"subject","mood":"good"}
+balance/bal/b002_three_day_fever.json | c2o2 | ILLNESS CURED (subject) (50%) | "It is a slow recovery, when it comes" | {"do":"cure","role":"subject"}
+balance/bal/b003_basket_mangroves.json | c2o2 | NEW VILLAGER (child) (50%) | "a couple who have been hoping for a child for years have taken the baby in" | {"do":"new_villager","age":"child"}
+balance/bal/b117_leaping_contest.json | c2o2 | CELEBRATE (everyone) (50%) | "the contest dissolves into a festival of terrible leaps" | {"do":"celebrate","who":"all"}
+rewrites/rw_my/my005_bottle_blue.json | c1o1 | ILLNESS CURED (friend) (50%) | "says (friend.he/she) feels better than (friend.he/she) has in days" | {"do":"cure","role":"friend"}
+rewrites/rw_my/my111_wandering.json | c1o1 | ILLNESS CURED (friend) (50%) | "By morning, the fever has broken" | {"do":"cure","role":"friend"}
+rewrites/rw_my/my111_wandering.json | c2o1 | ILLNESS CURED (friend) (50%) | "(friend) is better within two days" | {"do":"cure","role":"friend"}
+rewrites/rw_my/my111_wandering.json | c4o1 | ILLNESS CURED (friend) (50%) | "(friend) is better in two days" | {"do":"cure","role":"friend"}
+rewrites/rw_new/new184_fisher_wanted.json | c3o1 | FOOD GAIN large (50%) | "first crop of taro, grown in them, is the best in the village" | {"do":"food","size":"large","scaled":true}
+rewrites/rw_new/new185_without_tasks.json | c3o1 | LIKE + resting (subject) (50%) | "(subject.He/She) loves the rest of it." | {"do":"preference","role":"subject","list":"likes","preference":"resting"}
+rewrites/rw_s/s036_weaver_pattern.json | c1o2 | LIKE + dancing (subject) (50%) | "(subject), who never used to dance at all, is now at every festival" | {"do":"preference","role":"subject","list":"likes","preference":"dancing"}
+rewrites/rw_s/s057_elder_gift_years.json | c2o1 | ILLNESS CURED (friend) (50%) | "(friend) gets better slowly, over the following weeks, the ordinary way." | {"do":"cure","role":"friend"}
+rewrites/rw_s/s057_elder_gift_years.json | c2o2 | ILLNESS CURED (friend) (50%) | "(friend)'s fever has dropped." | {"do":"cure","role":"friend"}
+rewrites/rw_s/s070_isolan_healer.json | c1o2 | ILLNESS CURED (friend) (50%) | "(friend) gets better slowly, over the following week." | {"do":"cure","role":"friend"}
+rewrites/rw_my/my111_wandering.json | c2o2 | ILLNESS CURED (friend) (50%) | "(friend) slowly recovers on (subject.his/her) own with the healers' help" | {"do":"cure","role":"friend"}
+rewrites/rw_my/my111_wandering.json | c3o1 | ILLNESS CURED (friend) (50%) | "(friend) recovers on (subject.his/her) own" | {"do":"cure","role":"friend"}
+rewrites/rw_my/my111_wandering.json | c3o2 | ILLNESS CURED (friend) (50%) | "(friend) recovers slowly with ordinary care" | {"do":"cure","role":"friend"}
+rewrites/rw_my/my111_wandering.json | c4o2 | ILLNESS CURED (friend) (50%) | "(friend) has begun to recover on (subject.his/her) own" | {"do":"cure","role":"friend"}
+rewrites/rw_s/s082_healer_mistake.json | c1o1 | ILLNESS CURED (friend) (50%) | "the cough is much better by evening" | {"do":"cure","role":"friend"}
+balance/bal/b012_canoe_north.json | c2 | FOOD LOSS small (50%) | "fetches dried fish, water gourds and a basket of fruit and carries it down to the canoe" | {"do":"food","size":"small","loss":true,"scaled":true}
+balance/bal/b114_grandmother.json | c2o2 | LIKE - learning (subject) (50%) | "(subject)'s love of learning new things, which (subject.he/she) always had, just fades" | {"do":"preference","role":"subject","list":"likes","preference":"learning","remove":true}
+balance/bal/b195_bitter_honey.json | c1o1 | LIKE - honey (subject) (50%) | "never once again trades a week's fish for a pot of honey" | {"do":"preference","role":"subject","list":"likes","preference":"honey","remove":true}
+balance/bal/b243_fever_bitter_root.json | c1o1 | DISLIKE + eating (subject) (50%) | "now picks at (subject.his/her) food and sighs" | {"do":"preference","role":"subject","list":"dislikes","preference":"eating"}
+balance/bal/b257_wishing_well_coin.json | c2o1 | DISLIKE - dirt (subject) (50%) | "the soil under (his/her) fingernails doesn't bother (him/her) at all" | {"do":"preference","role":"subject","list":"dislikes","preference":"dirt","remove":true}
+balance/bal/b277_name_carved.json | c2o1 | LIKE + learning (subject) (50%) | "makes (him/her) curious about the people who came before" | {"do":"preference","role":"subject","list":"likes","preference":"learning"}
+balance/bal/b334_fever_ward.json | c1o2 | DISLIKE + rain (subject) (50%) | "comes to hate the sound of it on a roof" | {"do":"preference","role":"subject","list":"dislikes","preference":"rain"}
+rewrites/rw_new/new195_two_kinds_ash.json | c2o2 | LIKE + learning (subject) (50%) | "More tests is (subject.his/her) favourite thing now." | {"do":"preference","role":"subject","list":"likes","preference":"learning"}
+rewrites/rw_s/s031_mould_made_friend.json | c2o2 | LIKE + wood (subject) (50%) | "(he/she) really likes working with wood" | {"do":"preference","role":"subject","list":"likes","preference":"wood"}
+rewrites/rw_s/s034_something_has.json | c2o2 | LIKE + learning (subject) (50%) | "(He/She) has fallen head over heels in love with learning" | {"do":"preference","role":"subject","list":"likes","preference":"learning"}
+rewrites/rw_s/s051_parrot_opinions.json | c1o2 | LIKE + cooking (subject) (50%) | "(Name) takes up cooking." | {"do":"preference","role":"subject","list":"likes","preference":"cooking"}
+rewrites/rw_s/s064_stranger_recipe.json | c1o1 | LIKE + cooking (subject) (50%) | "From then on, (name) can't stop cooking" | {"do":"preference","role":"subject","list":"likes","preference":"cooking"}
+rewrites/rw_s/s073_sculptor.json | c1o2 | DISLIKE + wood (subject) (50%) | "can't stand the feel of wood after that" | {"do":"preference","role":"subject","list":"dislikes","preference":"wood"}
+mie/mie/mie_diving.json | ashore | INJURY (subject) (50%) | "(subject) spends several days recovering" | {"do":"health_change","role":"subject","min":-30,"max":-15}

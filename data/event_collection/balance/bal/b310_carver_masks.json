@@ -137,7 +137,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14385"
+   "src": "L14385",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Nothing happens. (subject) takes the mask off and, laughing, holds it up to (friend)'s face. \"Your turn.\" The mask sticks for a moment. When it comes off, (friend) has a different face entirely, broad and weathered, and has stopped laughing. \"Apparently,\" says the eldest, \"it chose the one who laughed.\"",
@@ -148,7 +149,8 @@
      "head": "random"
     }
    ],
-   "src": "L14388"
+   "src": "L14388",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) holds the mask to (subject.his/her) face. It fits perfectly, as if carved for (subject.him/her). There is a smell of salt and fish oil, and the sound of oars, very far away...",
@@ -173,7 +175,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14394"
+   "src": "L14394",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) looks at the peg, finds it loose, and fixes it with a new wooden pin. The mask stays up. (friend) is disappointed. The elders say it was just a loose peg, and some of them even believe it. Every so often, though, someone notices the fisher's mask is turned slightly towards (subject)'s usual seat.",

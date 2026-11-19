@@ -173,7 +173,8 @@
      "max": 10
     }
    ],
-   "src": "L9030"
+   "src": "L9030",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) points out, quite reasonably, that the order really could mean either thing. Said quickly. With a mouth full of breakfast. The builders repeat it to each other several times, and have to admit (subject.he/she) has a point. The fault was in the wording, not in any lack of effort, and orders get given more carefully from then on.",
@@ -228,7 +229,8 @@
      "max": 20
     }
    ],
-   "src": "L9044"
+   "src": "L9044",
+   "auto_text": true
   },
   "c3o2": {
    "text": "(master) starts laughing, and can't stop. When (subject.he/she) finally does, (subject.he/she) admits that, as an apprentice, (subject.he/she) once built a door on the wrong side of a hut. Facing the cliff. Nobody noticed for a year, because the family just climbed in through the window. (subject) feels much better.",

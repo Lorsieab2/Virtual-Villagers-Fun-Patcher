@@ -134,7 +134,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1367"
+   "src": "L1367",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The vine holds. (His/her) leg doesn't. (Name) swings back into the cliff feet first, and the rocks take the full force of it. (He/She) hangs there, screaming into the roar of the water, until the people below see (him/her) and climb up with ropes. The healers do everything they can, for weeks. (Name) walks again, in the end, slowly and stiffly, with a stick. (He/She) never carries water from the falls again, and the sound of rushing water makes (his/her) hands shake. The elders put up a post of carved wood beside the third flat rock, so nobody else steps on it.",
@@ -155,7 +156,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1370"
+   "src": "L1370",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) twists in the air and lunges for the vine with both hands. (His/her) fingers close round it. It burns through (his/her) palms as (he/she) slides, and then catches, and holds, and (name) swings out over the white water like a weight on a string...",
@@ -180,7 +182,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1376"
+   "src": "L1376",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) misses the pool. When (he/she) doesn't come back with the water, they go looking, and they find (him/her) on the rocks at the bottom of the falls, in the spray, with the little rainbows still dancing over (him/her). They carry (him/her) home for the last time, slowly, taking turns. The village buries (name) beside the path to the falls, and for a long time afterwards, nobody can bring themselves to fetch water from there.",
@@ -188,10 +191,12 @@
     {
      "do": "kill",
      "cause": "unknown",
-     "role": "subject"
+     "role": "subject",
+     "line": "injuries"
     }
    ],
-   "src": "L1379"
+   "src": "L1379",
+   "auto_text": true
   },
   "c2": {
    "text": "There's no time to reach the vine. (Name) shuts (his/her) eyes, pulls (his/her) arms in tight, and falls, and falls, down through the rainbows and the spray and the roaring white...",

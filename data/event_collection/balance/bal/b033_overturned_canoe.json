@@ -137,7 +137,8 @@
      "cause": "unknown"
     }
    ],
-   "src": "L1494"
+   "src": "L1494",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) slashes the net, gets a hand under (friend)'s arm and kicks for the light. They come up coughing and spitting into the arms of the other fishers. (friend) is sick for a day and fine after that. That evening every fisher in the village sits on the beach and practises cutting free from a net, blindfolded, again and again, until it's as natural as breathing.",
@@ -154,7 +155,8 @@
      }
     }
    ],
-   "src": "L1497"
+   "src": "L1497",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) takes the biggest breath of (subject.his/her) life and dives, knife in hand, down into the churning blue. The net is everywhere, wrapped round (friend)'s arm and leg...",
@@ -180,7 +182,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1503"
+   "src": "L1503",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The other canoe reaches them almost at once, and three fishers dive together and have (friend) out in moments, coughing and furious with the net. By sundown the two of them are on the beach, laughing too loud, mending the net that nearly killed (friend). \"Next time,\" says (friend), \"I'll hold the canoe, and you can get tangled.\"",

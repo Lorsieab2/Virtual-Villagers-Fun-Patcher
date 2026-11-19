@@ -148,7 +148,8 @@
      }
     }
    ],
-   "src": "L15451"
+   "src": "L15451",
+   "auto_text": true
   },
   "c1o2": {
    "text": "On the second night it rains, hard and cold, and the healers have to carry everyone back inside in the dark, soaked. The fevers break anyway, in the end, but (subject), who carried more patients through that rain than anyone, comes to hate the sound of it on a roof, and stops whatever (subject.he/she) is doing to get out of it for the rest of (subject.his/her) life.",
@@ -163,7 +164,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L15454"
+   "src": "L15454",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) wakes the other healers and, one by one, they carry the sick out on their mats into the shade of the big trees behind the hut, where the sea breeze blows...",
@@ -194,7 +196,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15460"
+   "src": "L15460",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Everyone recovers, except (sick), who was the sickest from the start and never got better. The healers sit with (subject.him/her) on the last night. The village buries (subject.him/her) on the hill. The next time a fever comes, the healers move the sick out into the shade, just to try, and nobody says anything about the elders being wrong.",
@@ -209,7 +212,8 @@
      "cause": "unknown"
     }
    ],
-   "src": "L15463"
+   "src": "L15463",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) decides the elders are right, and keeps working, bringing water and cool cloths from mat to mat in the heat...",

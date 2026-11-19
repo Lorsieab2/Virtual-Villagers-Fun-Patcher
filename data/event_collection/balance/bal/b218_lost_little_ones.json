@@ -151,7 +151,8 @@
      "age": "child"
     }
    ],
-   "src": "L10148"
+   "src": "L10148",
+   "auto_text": true
   },
   "c1o2": {
    "text": "A week later a man and a woman come stumbling along the beach, calling the children's names. The reunion is so loud the whole village comes out. The parents won't let go of the children for a day. Then they decide they have had enough of travelling, and {#made:only one of them can stay, as the village has no room for more|only two of them can stay, as the village has no room for more|the four of them stay}, and the girl still follows (subject) everywhere.",
@@ -175,7 +176,8 @@
      "age": "child",
      "sex": "female"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) takes the baby, who is heavy and asleep, and takes the girl's hand, and walks them both to (subject.his/her) hut. The girl eats three bowls of stew without stopping...",
@@ -217,7 +219,8 @@
      "age": "child",
      "sex": "female"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "They find only the empty camp, washed out by the river, and nobody in it. The girl doesn't cry when (subject) tells her. She just nods, as if she knew. She stays in the village, and (healer), who has milk to spare, takes the baby. The girl visits her brother every day.",
@@ -231,7 +234,8 @@
      "role": "healer"
     }
    ],
-   "src": "L10160"
+   "src": "L10160",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) hands the children to the healers and gets the fishers together. They set off along the coast with canoes and torches, calling...",

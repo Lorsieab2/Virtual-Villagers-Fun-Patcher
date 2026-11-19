@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3399"
+   "src": "L3399",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Nothing changes that month, or the next. The wise-woman shrugs. \"The moon is slow sometimes.\" (subject) and (friend) hang the fish on their wall anyway. They go to the lagoon on every full moon after that, not to ask, just to sit there together. It becomes their favourite night of the month.",
@@ -169,7 +170,8 @@
      "any_birth_sex": true
     }
    ],
-   "src": "L3408"
+   "src": "L3408",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Nothing happens for a few months, and they stop thinking about it. Then, on the next full moon after the rains, (subject) realises a baby is expected. \"The moon is slow,\" says the wise-woman, \"but it listens.\" (friend) still has the fish, and won't give it back.",
@@ -181,7 +183,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3411"
+   "src": "L3411",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) puts the carved fish into (friend)'s hands. \"You ask,\" (subject.he/she) says. They sit together in the moonlight, and (friend) asks...",

@@ -69,11 +69,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) asks for the marks to be bigger and deeper, so (subject.he/she) can feel them as well as see them. (friend) carves them as big as a hand, cut deep. (subject) runs (subject.his/her) fingers over the seed mark and smiles. A week later, everyone is using the big marks, because nobody, it turns out, enjoyed squinting at the small ones. Even the children can find things now.",
+   "src": "L446",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L446"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) asks for the marks to be bigger and deeper, so (subject.he/she) can feel them as well as see them. (friend) carves them as big as a hand, cut deep. (subject) runs (subject.his/her) fingers over the seed mark and smiles. A week later, everyone is using the big marks, because nobody, it turns out, enjoyed squinting at the small ones. Even the children can find things now.",
    "src": "L446"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) suggests a simpler idea: different shapes. Round baskets for seeds, square for fish, tall for roots. (subject) likes it. It takes a while to reorganize the whole storehouse, and several people put things in the wrong baskets for weeks. But (subject) can find anything by touch now, in the dark if (subject.he/she) has to. (subject.He/she) demonstrates this, at night, to prove it.",
+   "src": "L449",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L449"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) suggests a simpler idea: different shapes. Round baskets for seeds, square for fish, tall for roots. (subject) likes it. It takes a while to reorganize the whole storehouse, and several people put things in the wrong baskets for weeks. But (subject) can find anything by touch now, in the dark if (subject.he/she) has to. (subject.He/she) demonstrates this, at night, to prove it.",
    "src": "L449"

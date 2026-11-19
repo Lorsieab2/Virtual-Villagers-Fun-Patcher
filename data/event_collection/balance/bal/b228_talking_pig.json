@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10620"
+   "src": "L10620",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The pig, satisfied, says the name to everyone else in the village too, one by one, over the next week. By the end of it, the whole village is calling (name) (made1), and (name) has stopped noticing. The healers say pigs are cleverer than people think. The pig agrees, in a way.",
@@ -143,7 +144,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10623"
+   "src": "L10623",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) looks at the pig, and sighs, and says, \"Yes? What?\" The pig looks enormously satisfied, and says the name once more, very softly, and climbs down off the wall...",
@@ -167,7 +169,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10629"
+   "src": "L10629",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They land in a pile of soft compost, both unhurt and both disgusting. The pig gets up, shakes itself, looks at (name), and says, very clearly, \"Thank you.\" Then it never speaks again. (Name) tells nobody about it, ever. (He/She) does start bringing that pig the best scraps.",

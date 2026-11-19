@@ -157,7 +157,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "(friend) reads the message twice, and then sits down and holds out (friend.his/her) arms without a word. The baby is passed over, and frowns at (friend) too, and then, slowly, smiles. \"Well,\" says (friend). \"That's that decided.\" They raise the baby together, and wear a red bead each, to match.",
@@ -169,7 +170,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9018"
+   "src": "L9018",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) picks up the basket, bark message and all. The baby wakes, looks up at (subject.him/her) with a frown, and starts to suck its fist thoughtfully...",
@@ -193,7 +195,8 @@
      "role": "healer"
     }
    ],
-   "src": "L9024"
+   "src": "L9024",
+   "auto_text": true
   },
   "c2o2": {
    "text": "\"Who will take this child?\" asks the {@chief}, and before (subject) knows it, (subject.he/she) is standing up. The village cheers. Every family brings something that night: a mat, a little blanket, a carved spoon. (subject) ends up with more baby things than one baby could ever use, and passes them on to every new baby in the village for years.",
@@ -211,7 +214,8 @@
      }
     }
    ],
-   "src": "L9027"
+   "src": "L9027",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) carries the basket to the {@chief}'s hut. The {@chief} reads the message, sighs, and calls the whole village together at the cooking fire...",

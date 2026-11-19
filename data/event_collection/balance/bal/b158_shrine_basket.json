@@ -145,7 +145,8 @@
      "role": "subject",
      "any_birth_sex": true
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "The babies will not be separated. Every time (subject) and (friend) go to their own huts, {#babies:the baby screams|both babies scream} until they're back together. On the third night (friend) gives up and moves into (subject)'s hut with (friend.his/her) mat. \"Just until they're bigger,\" (friend.he/she) says. They raise {#babies:the baby|the twins} together, and the village stops pretending to be surprised.",
@@ -158,7 +159,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7304"
+   "src": "L7304",
+   "auto_text": true
   },
   "c1": {
    "text": "They carry the babies down the hill, one each, and the babies stop crying halfway down and stare at each other across the gap between their new parents' shoulders...",
@@ -186,7 +188,8 @@
      "age": "child"
     }
    ],
-   "src": "L7310"
+   "src": "L7310",
+   "auto_text": true
   },
   "c2o2": {
    "text": "A visiting trader that week can read the message in the dirt. It says, \"For the one who finds them first.\" (subject) saw the basket first, by a step. The researchers are fascinated by the language, and the trader teaches them a little of it. {#babies:The baby goes|The babies go} home with (subject), who did not expect any of this, and gets used to it fast. Your villagers gain (award) tech points.",
@@ -207,7 +210,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L7313"
+   "src": "L7313",
+   "auto_text": true
   },
   "c2": {
    "text": "They carry the basket down between them, to the healers' hut, where (healer) takes one look and puts the cooking pot on for warm milk...",

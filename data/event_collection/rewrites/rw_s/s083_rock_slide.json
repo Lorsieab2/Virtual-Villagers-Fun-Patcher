@@ -134,10 +134,12 @@
     {
      "do": "kill",
      "cause": "unknown",
-     "role": "subject"
+     "role": "subject",
+     "line": "injuries"
     }
    ],
-   "src": "L3913"
+   "src": "L3913",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) drops the basket and runs, down the slope, as fast as (his/her) legs will go, leaping over roots and rocks, with the roar growing louder and louder behind (him/her), and stones whizzing past on both sides...",
@@ -176,7 +178,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3922"
+   "src": "L3922",
+   "auto_text": true
   },
   "c2": {
    "text": "There's no time to run. Just below (him/her) is a great old boulder, half buried in the hillside, as big as a hut. (Name) throws (himself/herself) down behind it, curls up tight, and covers (his/her) head with (his/her) arms. The roar comes down over (him/her) like a wave...",

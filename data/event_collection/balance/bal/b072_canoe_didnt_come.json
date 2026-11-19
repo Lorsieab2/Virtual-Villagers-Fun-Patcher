@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3264"
+   "src": "L3264",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Both of them are there, and so are three strangers: a parent, a teenager and a small child, whose own canoe was wrecked in the same storm. (subject) and (friend) pulled them out of the water and have kept them alive for two days on rainwater and raw shellfish. Everyone comes home. {#made:Only one of the strangers can stay; the village has no room for more|Only two of the strangers can stay; the village has no room for more|The strangers decide to stay}.",
@@ -153,7 +154,8 @@
      "age": "child"
     }
    ],
-   "src": "L3267"
+   "src": "L3267",
+   "auto_text": true
   },
   "c1": {
    "text": "Three canoes go out into the rough water, paddlers soaked to the skin, fighting every wave. The smoke gets closer, and then they can see figures on the sand, waving...",
@@ -178,7 +180,8 @@
      "cause": "unknown"
     }
    ],
-   "src": "L3273"
+   "src": "L3273",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Both of them are on the sandbar, hungry and burnt and arguing about whose fault it was that the canoe went over. They're still arguing when the fishers pull them aboard, and all the way home, and at the welcome feast, and for most of the next year.",

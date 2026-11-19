@@ -89,11 +89,75 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) starts telling people things. (fisher), the young fisher, gets the shell beach. The children get the secret path. (cook), the new cook, gets the sweet tree. Everyone is grateful. (subject) is surprised how much (subject.he/she) enjoys giving it away. (subject.He/she) keeps the goat information, though. Some things are power.",
+   "src": "L398",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L398"
+    },
+    {
+     "do": "mood",
+     "role": "fisher",
+     "mood": "good",
+     "src": "L398"
+    },
+    {
+     "do": "mood",
+     "role": "cook",
+     "mood": "good",
+     "src": "L398"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) starts telling people things. (fisher), the young fisher, gets the shell beach. The children get the secret path. (cook), the new cook, gets the sweet tree. Everyone is grateful. (subject) is surprised how much (subject.he/she) enjoys giving it away. (subject.He/she) keeps the goat information, though. Some things are power.",
    "src": "L398"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides to keep it to (subject.him/her)self, at least for now. It's (subject.his/her) treasure, gathered over a whole life. (subject.He/she) walks to the waterfall by the secret way, picks a fruit from the sweet tree, and finds three beautiful shells on the north beach on the way home. (subject.He/she) is the richest person on Isola today, and nobody knows.",
+   "src": "L401",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L401"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) decides to keep it to (subject.him/her)self, at least for now. It's (subject.his/her) treasure, gathered over a whole life. (subject.He/she) walks to the waterfall by the secret way, picks a fruit from the sweet tree, and finds three beautiful shells on the north beach on the way home. (subject.He/she) is the richest person on Isola today, and nobody knows.",
    "src": "L401"

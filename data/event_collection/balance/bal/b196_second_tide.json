@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9111"
+   "src": "L9111",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The sleeper sits up and stretches. It has (name)'s face and nothing else of (name)'s at all. It doesn't like fish, it hates the sun, and it laughs at (name)'s jokes in a way that suggests it doesn't find them funny. It follows (name) home anyway, and takes the name (made1). \"The sea gives back what it wants,\" say the old fishers. \"Not what you want.\"",
@@ -142,7 +143,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L9114"
+   "src": "L9114",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) kneels and touches the sleeper's shoulder. It's cold and wet, like a stone from the sea. Its eyes open, (name)'s own eyes, and look up at (him/her) without surprise...",
@@ -170,7 +172,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9123"
+   "src": "L9123",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) backs away, slowly, and walks on across the lagoon, not looking back. Behind (him/her), the water starts to come back in over the sand, very fast...",

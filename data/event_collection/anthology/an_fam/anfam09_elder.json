@@ -134,9 +134,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "A warm meal helps everyone relax together.",
-   "src": "L28426"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -156,9 +163,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The elders enjoy peaceful afternoons away from gossip.",
-   "src": "L28429"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -183,6 +197,94 @@
    "src": "L28432"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "A warm meal helps everyone relax together.",
+   "src": "L28426",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder1",
+     "mood": "good",
+     "src": "L28426"
+    },
+    {
+     "do": "mood",
+     "role": "elder2",
+     "mood": "good",
+     "src": "L28426"
+    },
+    {
+     "do": "mood",
+     "role": "relative",
+     "mood": "good",
+     "src": "L28426"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "A warm meal helps everyone relax together.",
+   "src": "L28426"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The elders enjoy peaceful afternoons away from gossip.",
+   "src": "L28429",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder1",
+     "mood": "good",
+     "src": "L28429"
+    },
+    {
+     "do": "mood",
+     "role": "elder2",
+     "mood": "good",
+     "src": "L28429"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The elders enjoy peaceful afternoons away from gossip.",
+   "src": "L28429"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "The elders laugh that they never expected to explain romance again.",
+   "src": "L28433",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder1",
+     "mood": "good",
+     "src": "L28433"
+    },
+    {
+     "do": "mood",
+     "role": "elder2",
+     "mood": "good",
+     "src": "L28433"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "The elders laugh that they never expected to explain romance again.",
    "src": "L28433"

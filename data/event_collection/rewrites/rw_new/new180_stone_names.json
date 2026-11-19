@@ -165,7 +165,8 @@
      "scaled": true
     }
    ],
-   "src": "L8736"
+   "src": "L8736",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Scrubbing off the moss in one corner, (name) feels the stone give under (his/her) brush. A crumbling corner chips away, and falls in pieces on the grass, and a fragile part of the stone is lost: four names, maybe five, gone. (Name) kneels there for a long time, holding the pieces.",
@@ -177,7 +178,8 @@
      "loss": true
     }
    ],
-   "src": "L8738"
+   "src": "L8738",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) brings charcoal and thin bark, and begins, very carefully, to scrub the moss away and take rubbings of the names...",
@@ -202,7 +204,8 @@
      "scaled": true
     }
    ],
-   "src": "L8743"
+   "src": "L8743",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The families disagree about whose names are whose. Two families claim the same name. A third claims it's a spelling mistake. Nobody pretends to know. It gets heated for a while, and then everyone goes home a little sad, still unsure.",
@@ -231,7 +234,8 @@
      "scaled": true
     }
    ],
-   "src": "L8750"
+   "src": "L8750",
+   "auto_text": true
   },
   "c3o2": {
    "text": "In the end, (name) decides that some names should be left to the moss, and to the memories of their families. Not everything needs to be carved again. (He/She) cleans the stone gently, and leaves it as it is, and plants flowers at its base.",

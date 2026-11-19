@@ -91,9 +91,36 @@
      "max": 10,
      "src": "L578"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Wonderful,\" says (subject), and means it. (subject.He/she) lets (subject.him/her)self be proud for a whole evening, without adding any \"but.\" It's a rare feeling. (subject.He/she) sits with it for a long time. Tomorrow there will be more to learn. Tonight (subject.he/she) is simply, quietly, good at something, and that's enough.",
+   "src": "L581",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L581"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Wonderful,\" says (subject), and means it. (subject.He/she) lets (subject.him/her)self be proud for a whole evening, without adding any \"but.\" It's a rare feeling. (subject.He/she) sits with it for a long time. Tomorrow there will be more to learn. Tonight (subject.he/she) is simply, quietly, good at something, and that's enough.",
    "src": "L581"

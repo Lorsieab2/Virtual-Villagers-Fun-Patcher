@@ -156,7 +156,8 @@
      "like": "wood"
     }
    ],
-   "src": "L1270"
+   "src": "L1270",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) eats, and then, to everyone's astonishment, (subject.he/she) starts talking. About the old ways of the island, from before the believers came. About the songs the Isolans sing to the tide, and the names they have for each of the stars, and the stories behind the names. (friend) brings more stew, and then more, and listens until the fire is nothing but ash and the rain has stopped. When (subject) finally leaves, the stew pot is empty and (friend)'s head is full of things nobody else in the village knows.",
@@ -211,7 +212,8 @@
      "dislike": "resting"
     }
    ],
-   "src": "L1279"
+   "src": "L1279",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) shrugs. \"Your fire's too smoky anyway,\" (subject.he/she) says, standing up and pulling (subject.his/her) wet wrap tighter. \"You built it in the wind.\" And (subject.he/she) goes. Everyone sits there in silence. Then the wind gusts and blows a great cloud of smoke right into (friend)'s face, and (friend.he/she) coughs and coughs. It's true. The fire is far too smoky. The next day, (friend) moves the fire pit round behind the big rock, out of the wind. It's much better there. Nobody mentions why.",

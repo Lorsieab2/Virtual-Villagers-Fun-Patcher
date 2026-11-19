@@ -140,7 +140,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15852"
+   "src": "L15852",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Some weeks later, (subject) is pregnant with one baby. They name the baby's sleeping basket \"Rainbow,\" and (friend) paints it in every colour (subject.he/she) can find. When the baby comes, it laughs every time the sun hits the water.",
@@ -152,7 +153,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15855"
+   "src": "L15855",
+   "auto_text": true
   },
   "c1": {
    "text": "They wade in hand in hand and swim through the rainbow. For a moment the water around them glows every colour at once...",
@@ -178,7 +180,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15861"
+   "src": "L15861",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The crying is a nest of baby birds on a ledge behind the waterfall, squawking for their mother. (subject) and (friend) laugh at themselves all the way home. They come back the next morning and the morning after, but the rainbow doesn't come back until next season.",

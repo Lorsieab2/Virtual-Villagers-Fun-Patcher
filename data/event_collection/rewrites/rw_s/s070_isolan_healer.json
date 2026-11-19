@@ -176,7 +176,8 @@
      },
      "text": "(subject) crushes the leaves between (subject.his/her) green palms and makes a paste, and spreads it on (friend)'s chest and forehead, and brews a tea from the roots and holds the cup to (friend)'s lips. (subject.He/She) hums something under (subject.his/her) breath the whole time, very low. The herbs work. By morning, (friend)'s fever is gone, and (friend.he/she) is sitting up, asking for food. The faithful's healers have a great many questions for (subject). (subject) answers some of them, and smiles at the rest, and goes back to the Isolans at midday. Your villagers gain (award) tech points."
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "The herbs help, a little. The fever drops, a little. It isn't a miracle, and (subject) doesn't pretend it is. But (subject.he/she) stays all night anyway, kneeling by (friend)'s mat, changing the cloths, giving the tea, humming. The believers' healers stay too, and watch everything (subject.he/she) does: how (subject.he/she) holds a wrist to count the heartbeat, which leaves (subject.he/she) uses for what, how (subject.he/she) mixes them. They learn more in that one night than in a whole season. (friend) gets better slowly, over the following week.",
@@ -201,7 +202,8 @@
      },
      "text": "The herbs help, a little. The fever drops, a little. It isn't a miracle, and (subject) doesn't pretend it is. But (subject.he/she) stays all night anyway, kneeling by (friend)'s mat, changing the cloths, giving the tea, humming. The faithful's healers stay too, and watch everything (subject.he/she) does: how (subject.he/she) holds a wrist to count the heartbeat, which leaves (subject.he/she) uses for what, how (subject.he/she) mixes them. They learn more in that one night than in a whole season. (friend) gets better slowly, over the following week."
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1": {
    "text": "The healers look at each other for a long time. Then (healer), the oldest of them, steps aside, and nods. (subject) walks into the village, slowly, past all the watching faces, and kneels down beside (friend)'s mat, and unwraps the herbs...",
@@ -225,7 +227,8 @@
      "role": "friend"
     }
    ],
-   "src": "L3327"
+   "src": "L3327",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) shrugs, and wraps the herbs back up, and goes. The healers keep trying their own teas and poultices. (friend) gets better, in the end, slowly, painfully, on (friend.his/her) own, over two long weeks. When (friend) is finally well enough to walk, (friend.he/she) asks who the Isolan was, at the edge of the village, that night. Nobody quite wants to tell (friend.him/her).",

@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4397"
+   "src": "L4397",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) wins, and turns round, and sees the younger one standing by the rock, crying for real now, with a boat stuck fast. The village cheers for (name), but it sounds thin. After that day, the joy of running goes out of (name). (He/She) walks everywhere, slowly, and doesn't race again.",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4400"
+   "src": "L4400",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) splashes in and pushes (his/her) boat free, and races alongside it, faster than ever, down to the lagoon...",
@@ -174,7 +176,8 @@
      }
     }
    ],
-   "src": "L4406"
+   "src": "L4406",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The younger one's boat wins. (Name)'s boat comes loose eventually and drifts down to the lagoon in last place, very slowly, to a big cheer. \"Next year,\" (name) tells the younger one. \"I'm not letting you win twice.\" (He/She) does, though.",

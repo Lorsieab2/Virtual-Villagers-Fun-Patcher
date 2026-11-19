@@ -74,6 +74,32 @@
    "src": "L266"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) keeps squelching. By the afternoon (subject.he/she) has stopped noticing it most of the time. By evening, the sandals are finally dry. (subject.He/she) sits by the fire, feet warm, very content. Then (subject.he/she) gets up to fetch water and steps in the same puddle. Both feet. (friend) has to leave the fire to laugh.",
+   "src": "L269",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L269"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) keeps squelching. By the afternoon (subject.he/she) has stopped noticing it most of the time. By evening, the sandals are finally dry. (subject.He/she) sits by the fire, feet warm, very content. Then (subject.he/she) gets up to fetch water and steps in the same puddle. Both feet. (friend) has to leave the fire to laugh.",
    "src": "L269"

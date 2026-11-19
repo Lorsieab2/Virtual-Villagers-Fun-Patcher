@@ -65,14 +65,46 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) puts down (subject.his/her) basket and walks all the way across the fields. (friend) sees (subject.him/her) coming and starts walking too. They meet in the middle, both slightly out of breath. \"I've been meaning to visit,\" they both say at once. They make a plan to meet at the halfway tree every few days. Mostly, they manage it.",
-   "src": "L206"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) waves, a big wave with both arms. Far away, (friend) waves back the same way. It's not the same as talking. But it's something. (subject) goes back to work feeling a bit less far away. That evening (subject.he/she) walks over to the other side of the village after all, just to say hello.",
    "src": "L209"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) puts down (subject.his/her) basket and walks all the way across the fields. (friend) sees (subject.him/her) coming and starts walking too. They meet in the middle, both slightly out of breath. \"I've been meaning to visit,\" they both say at once. They make a plan to meet at the halfway tree every few days. Mostly, they manage it.",
+   "src": "L206",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L206"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L206"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) puts down (subject.his/her) basket and walks all the way across the fields. (friend) sees (subject.him/her) coming and starts walking too. They meet in the middle, both slightly out of breath. \"I've been meaning to visit,\" they both say at once. They make a plan to meet at the halfway tree every few days. Mostly, they manage it.",
+   "src": "L206"
   }
  }
 }

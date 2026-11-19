@@ -138,7 +138,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8874"
+   "src": "L8874",
+   "auto_text": true
   },
   "c1o2": {
    "text": "While everyone is standing still, arguing about the mast, a big wave comes in and lifts the canoe off its rollers and swings it sideways. (subject) is caught between the hull and a roller. The healers save (subject.his/her) leg, but it never bends properly again. The canoe is a fine canoe. (subject) never sets foot in it.",
@@ -159,7 +160,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8877"
+   "src": "L8877",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) shouts and waves until the paddlers stop pushing and the drummers stop drumming and the whole beach goes quiet and stares at (subject.him/her). (builder) comes stomping down the side of the canoe, red in the face...",
@@ -184,7 +186,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8883"
+   "src": "L8883",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) climbs up the swaying mast in the middle of the sea, with nineteen people yelling advice at (subject.him/her), and re-ties the lashing with (subject.his/her) teeth and one hand. It holds. They paddle out further than the village has ever fished before, and come back with the canoe full to the brim. Your villagers gain (award) food.",
@@ -199,7 +202,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L8886"
+   "src": "L8886",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) decides it's probably fine. They push the canoe down into the surf, all twenty of them shouting, and leap in and start paddling. Out past the reef, the mast starts to sway...",

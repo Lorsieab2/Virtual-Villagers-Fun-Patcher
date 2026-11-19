@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11780"
+   "src": "L11780",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject)'s partner, (friend), takes one look at the furious baby and holds out (subject.his/her) arms. The baby stops crying at once, hiccups twice, and falls asleep. \"Well,\" says (friend). \"That's decided.\" They raise the baby together. (friend) does the night feeds, and never once complains, which (subject) finds very suspicious.",
@@ -148,7 +149,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11783"
+   "src": "L11783",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) lifts the basket clear of the mud and carries it home on (subject.his/her) hip, the baby yelling the whole way. People come out of their huts to see what the noise is...",
@@ -184,7 +186,8 @@
      "role": "$newest"
     }
    ],
-   "src": "L11789"
+   "src": "L11789",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) searches until the tide forces (subject.him/her) back, and finds nobody. On the way back to the basket (subject.he/she) notices a heron standing in the roots nearby, watching (subject.him/her) the way the carved bird on the handle seems to. It takes off as (subject) gets close. (subject) carries the baby home. (subject.He/She) raises it, and every so often a heron lands on (subject.his/her) roof and stays a while.",
@@ -195,7 +198,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11792"
+   "src": "L11792",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) tucks the basket up high in the roots, safe from the tide, and starts wading along the shore, calling out. Around the bend, (subject.he/she) hears someone calling back...",

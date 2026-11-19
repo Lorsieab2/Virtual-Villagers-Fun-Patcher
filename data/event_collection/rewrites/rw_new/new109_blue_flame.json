@@ -173,7 +173,8 @@
      "scaled": true
     }
    ],
-   "src": "L5114"
+   "src": "L5114",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Around midnight, the flame gutters, shrinks to a blue speck, and goes out. (subject) waits and waits, holding (subject.his/her) breath, but it will not come back. In the morning (subject.he/she) walks home stiff, cold and empty-handed, and has to explain to (subject.his/her) family why (subject.he/she) spent the night talking to a rock.",
@@ -202,7 +203,8 @@
      "head": "random"
     }
    ],
-   "src": "L5121"
+   "src": "L5121",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(friend)'s fingertips touch the edge of the flame, and it flares up tall and bright. (subject.He/She) yanks (subject.his/her) hand back with a yelp. It does not hurt. It just felt strange, like plunging into cold sea water. Nobody wants to test the \"cool\" fire any further after that, and the children are firmly walked home.",
@@ -235,7 +237,8 @@
      "scaled": true
     }
    ],
-   "src": "L5130"
+   "src": "L5130",
+   "auto_text": true
   },
   "c3": {
    "text": "(elder), who has kept the village fire burning for longer than most villagers have been alive, hobbles up the path, takes one look at the flame, and makes a noise like an annoyed pigeon...",

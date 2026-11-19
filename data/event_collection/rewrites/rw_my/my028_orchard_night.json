@@ -204,7 +204,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11481"
+   "src": "L11481",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The fruit looks perfect. It smells perfect. But the moment anyone takes a bite, they spit it straight back out. It's horribly, eye-wateringly bitter, every single one, from every tree. The whole harvest has to be thrown away. The bees, at least, seem to enjoy the blossoms.",
@@ -237,7 +238,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11488"
+   "src": "L11488",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(friend) comes back pale. \"These trees have unfamiliar leaves. I don't know what kind they are. And look at the bark. These trees are old. A hundred years, maybe more.\" (subject) points out that yesterday there were no trees at all. (friend) says (friend.he/she) knows. Neither of them knows what to say after that.",
@@ -296,7 +298,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11504"
+   "src": "L11504",
+   "auto_text": true
   },
   "c4": {
    "text": "(subject) decides to wait and see whether the grove is still there at the end of the day...",

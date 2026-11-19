@@ -145,7 +145,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L4457"
+   "src": "L4457",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The village harvests so much, so fast, that they simply can't carry it all. Baskets fill up faster than anyone can take them to the store. Heaps of fruit sit waiting in the fields, and the birds come, in great happy flocks, and help themselves. By the time the last basket is carried in, the birds have had a good share. But even so, it's the biggest harvest the village has ever had. Your villagers gain (award) food.",
@@ -160,7 +161,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L4460"
+   "src": "L4460",
+   "auto_text": true
   },
   "c1": {
    "text": "Every single villager who can walk heads for the fields with a basket. Children, elders, healers, researchers, the {@chief}. They pick from dawn to dark, and carry, and pick again, singing to keep going...",
@@ -189,7 +191,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L4466"
+   "src": "L4466",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They leave the rest for the spirits, the way the old stories say, with a little bowl of the best fruit placed at the edge of each field. In the morning the bowls are empty. And in each one, where the fruit was, there's something left behind. A smooth river stone with a hole in it. A carved bone hook, finer than anyone in the village can make. A shell full of seeds nobody recognises. Nobody knows who left them. Everybody agrees not to ask. Your villagers gain (award) food and (award) tech points.",
@@ -209,7 +212,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L4469"
+   "src": "L4469",
+   "auto_text": true
   },
   "c2": {
    "text": "The elders say that a gift this big should be shared. So the village harvests what it needs, and then, on purpose, leaves the rest: whole rows in the fields, whole trees in the orchards, left standing, untouched...",

@@ -105,7 +105,8 @@
      "cause": "unknown",
      "src": "L20301"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -134,7 +135,8 @@
      "max": 30,
      "src": "L20303"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -148,7 +150,8 @@
      "max": -40,
      "src": "L20304"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -177,9 +180,36 @@
      "max": 10,
      "src": "L20306"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The device becomes a teaching model rather than a proven treatment.",
+   "src": "L20307",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20307"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "The device becomes a teaching model rather than a proven treatment.",
    "src": "L20307"

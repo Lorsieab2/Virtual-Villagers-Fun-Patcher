@@ -155,7 +155,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L7832"
+   "src": "L7832",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) puts it on the shelf in (subject.his/her) hut, facing the wall. In the night, (subject.he/she) hears it humming louder, and then a soft sweeping sound, as if someone is tidying the floor...",
@@ -182,7 +183,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7838"
+   "src": "L7838",
+   "auto_text": true
   },
   "c2o2": {
    "text": "On the way down, (subject) meets (friend) coming up, looking guilty. (friend) asked the spirit to visit (subject). \"I wanted help with the chores,\" (friend.he/she) admits. The spirit, it seems, decided (friend) was the one who needed a lesson. From that day (friend) can't sit still and can't settle to a job either, and fidgets about the village, and (subject) does (subject.his/her) share of the chores and a bit of (friend)'s too.",
@@ -199,7 +201,8 @@
      "dislike": "resting"
     }
    ],
-   "src": "L7841"
+   "src": "L7841",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) carries the figure up the hill to the shrine and sets it down with a flower. \"I'll do the other jobs,\" (subject.he/she) says. \"I promise. You don't need to stay.\" The humming stops...",

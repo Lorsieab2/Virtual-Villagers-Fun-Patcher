@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3536"
+   "src": "L3536",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) surfaces, and so does someone else: same face, same hair, and that's where it ends. The coral copied only what it touched, which was the outside. The newcomer can't swim very well, and loves sitting in the sun, and laughs at all the wrong moments. It takes the name (made1).",
@@ -143,7 +144,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L3539"
+   "src": "L3539",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) plants both feet on the coral and kicks hard for the surface. The pink branches flex, and glow, and something follows (him/her) up through the water...",
@@ -172,7 +174,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3548"
+   "src": "L3548",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) lifts (his/her) foot away gently and swims up, lungs burning, careful not to brush the coral again. Below, the pink branches stop swaying...",

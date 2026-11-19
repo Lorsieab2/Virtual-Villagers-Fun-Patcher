@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2674"
+   "src": "L2674",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The water is cold and good, and that's all. They look at each other, and wait, and nothing happens. \"Do you know my mind?\" (subject) asks. \"You're thinking about lunch,\" says (friend). \"That's not magic,\" says (subject). \"That's you.\"",
@@ -172,7 +173,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2683"
+   "src": "L2683",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Nothing obvious happens. But over the next week, they find they know exactly what the other is good at, as if they'd learned it themselves: (subject) can suddenly do what (friend) does best, and the other way round. They work together for the rest of the season, and get twice as much done.",
@@ -192,7 +194,8 @@
      "best": true
     }
    ],
-   "src": "L2686"
+   "src": "L2686",
+   "auto_text": true
   },
   "c2": {
    "text": "They fill one gourd and pass it back and forth, a sip each, until it's empty. The other gourd, still on its cord, seems to sway a little on its own...",

@@ -77,6 +77,32 @@
    "src": "L470"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) pulls it out of the sand and brings it to the elders. One of them recognizes the carved fish: it belongs to (fisher), an old fisher who walked over from another village yesterday to watch the sunset, and forgot it. (subject) walks the stick back. The old fisher laughs and says (fisher.he/she) wondered why (fisher.his/her) legs felt so wobbly on the way home.",
+   "src": "L473",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "fisher",
+     "mood": "good",
+     "src": "L473"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) pulls it out of the sand and brings it to the elders. One of them recognizes the carved fish: it belongs to (fisher), an old fisher who walked over from another village yesterday to watch the sunset, and forgot it. (subject) walks the stick back. The old fisher laughs and says (fisher.he/she) wondered why (fisher.his/her) legs felt so wobbly on the way home.",
    "src": "L473"

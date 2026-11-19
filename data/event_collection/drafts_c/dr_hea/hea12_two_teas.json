@@ -79,6 +79,36 @@
    "src": "L146"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides one tea is enough. (subject.He/she) drinks (friend)'s and puts (third)'s aside. Later, mentioning it, (subject.he/she) learns that drinking both would have kept (subject.him/her) awake all night with a racing heart. \"I didn't know,\" says (third), dismayed. \"Neither did I,\" says (subject). From then on, (third.he/she) always asks what's already in a person before (third.he/she) offers them anything.",
+   "src": "L149",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "third",
+     "skills": [
+      "Healing"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L149"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) decides one tea is enough. (subject.He/she) drinks (friend)'s and puts (third)'s aside. Later, mentioning it, (subject.he/she) learns that drinking both would have kept (subject.him/her) awake all night with a racing heart. \"I didn't know,\" says (third), dismayed. \"Neither did I,\" says (subject). From then on, (third.he/she) always asks what's already in a person before (third.he/she) offers them anything.",
    "src": "L149"

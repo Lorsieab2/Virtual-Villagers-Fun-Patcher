@@ -85,9 +85,37 @@
      "max": -10,
      "src": "L341"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) is too embarrassed to go back. (subject.He/she) lies down with (subject.his/her) knees up and groans quietly for most of the afternoon. By evening it's passed. Later, (subject.he/she) tells (friend), who winces. \"Natural doesn't mean you can't have too much,\" (friend) says. \"Next time, come and tell me straight away. Nobody gets laughed at in my hut.\" (subject) believes (friend.him/her). Mostly.",
+   "src": "L344",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L344"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) is too embarrassed to go back. (subject.He/she) lies down with (subject.his/her) knees up and groans quietly for most of the afternoon. By evening it's passed. Later, (subject.he/she) tells (friend), who winces. \"Natural doesn't mean you can't have too much,\" (friend) says. \"Next time, come and tell me straight away. Nobody gets laughed at in my hut.\" (subject) believes (friend.him/her). Mostly.",
    "src": "L344"

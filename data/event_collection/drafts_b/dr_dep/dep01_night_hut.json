@@ -65,14 +65,41 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) creeps back to (his/her) old hut and lies down in (his/her) old spot. Nobody says anything. Someone, half asleep, pulls a blanket over (him/her). (He/she) is asleep in moments. In the morning (he/she) walks back to the new hut, a little embarrassed and much better rested, and tells nobody.",
-   "src": "L14"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) stays where (he/she) is. After a while the quiet stops being empty. There are frogs. There is the sea. There is a small creak that turns out to be the roof settling and not, as (he/she) briefly suspects, an enormous crab. (He/she) falls asleep some time before dawn, in (his/her) own hut, for the first time.",
    "src": "L17"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) creeps back to (his/her) old hut and lies down in (his/her) old spot. Nobody says anything. Someone, half asleep, pulls a blanket over (him/her). (He/she) is asleep in moments. In the morning (he/she) walks back to the new hut, a little embarrassed and much better rested, and tells nobody.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L14"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) creeps back to (his/her) old hut and lies down in (his/her) old spot. Nobody says anything. Someone, half asleep, pulls a blanket over (him/her). (He/she) is asleep in moments. In the morning (he/she) walks back to the new hut, a little embarrassed and much better rested, and tells nobody.",
+   "src": "L14"
   }
  }
 }

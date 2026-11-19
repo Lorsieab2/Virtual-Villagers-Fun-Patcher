@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4034"
+   "src": "L4034",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The figure listens to (name)'s whole song. Then it laughs, a sound like water running over stones, and slides off the rocks and is gone. When (name) walks back up the beach, (his/her) face in the moonlit shallows is years younger. The song stops after that night. (Name) hums it for the rest of (his/her) life.",
@@ -142,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4037"
+   "src": "L4037",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) wades into the shallows and sings back, the first song that comes into (his/her) head. Out on the reef the figure goes still, and turns, and holds out a hand...",
@@ -166,7 +168,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4043"
+   "src": "L4043",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) listens until dawn, and comes home quiet, and says nothing all day. That night (he/she) goes down to the beach again, and the next night too. On the fourth night, (he/she) doesn't come back. (His/Her) friends find (his/her) wrap folded neatly on the sand. Nobody hears the singing again.",
@@ -176,7 +179,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4046"
+   "src": "L4046",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) sits down on the sand and listens, hugging (his/her) knees, while the song rolls over the water. It's so beautiful it hurts...",

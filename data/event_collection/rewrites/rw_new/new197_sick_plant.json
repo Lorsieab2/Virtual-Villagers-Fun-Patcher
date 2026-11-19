@@ -207,7 +207,8 @@
      "scaled": true
     }
    ],
-   "src": "L9630"
+   "src": "L9630",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The roots look much the same as the healthy plants' roots: white, firm, normal. (subject) can't see anything wrong. (subject.He/She) records the uncertainty honestly, packs the soil back, and apologizes to the plant.",
@@ -236,7 +237,8 @@
      "scaled": true
     }
    ],
-   "src": "L9637"
+   "src": "L9637",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Both explanations still fit: the cutting perks up a little, but there are some bugs, too. (subject) needs more plants to be sure. (subject.He/She) looks at the long, healthy row, and decides not to make any more of them sick to find out.",
@@ -265,7 +267,8 @@
      "scaled": true
     }
    ],
-   "src": "L9644"
+   "src": "L9644",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The gardeners argue about how to measure \"wilted.\" Yellow? Floppy? Sad-looking? They finally agree to count drooping leaves: anything touching the ground counts as a droop. The wilted plant has seven. It's very satisfying to have a number, though it doesn't help the plant.",
@@ -298,7 +301,8 @@
      "max": 20
     }
    ],
-   "src": "L9651"
+   "src": "L9651",
+   "auto_text": true
   },
   "c4o2": {
    "text": "(novice) notices something nobody else did: the sick plant is also the one everyone steps on when they take the shortcut across the garden. There's a faint path of footprints right over it. The group revises its notes, and puts a fence around the taro row.",

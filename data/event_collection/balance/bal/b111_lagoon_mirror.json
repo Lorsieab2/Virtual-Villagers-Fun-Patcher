@@ -132,7 +132,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L5030"
+   "src": "L5030",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The reflection hesitates, and then the ripples reach it, and it breaks up into a hundred pieces of sky. (Name) wades out quickly. The children, who were holding their breath, all start talking at once. (Name) declares that (he/she) won, and that's enough of that game.",
@@ -167,7 +168,8 @@
      "what": "\"dislikes\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "The wind picks up, and the reflection blurs, and (name) is the champion, forever. The children carry (him/her) up the beach on their shoulders, which is hard work, and the whole village turns out to cheer. They're still telling the story at the fire a month later, and it gets longer each time.",
@@ -180,7 +182,8 @@
      }
     }
    ],
-   "src": "L5042"
+   "src": "L5042",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) keeps very, very still. The reflection does too. They look at each other for a long time, and the whole lagoon seems to hold its breath...",

@@ -109,9 +109,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The apprentice completes the simpler work while the craftsperson rests.",
-   "src": "L79"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -160,6 +167,29 @@
   "d2": {
    "name": "Outcome D2",
    "text": "The leader asks a healer to assess whether continuing work would be appropriate.",
+   "src": "L79"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The apprentice completes the simpler work while the craftsperson rests.",
+   "src": "L79",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "villager",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L79"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The apprentice completes the simpler work while the craftsperson rests.",
    "src": "L79"
   }
  }

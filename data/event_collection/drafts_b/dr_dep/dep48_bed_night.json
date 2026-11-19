@@ -70,9 +70,16 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) lies awake listening. It's an astonishing snore: a rumble, a whistle, and a little pop at the end. By the middle of the night (he/she) is shaking with silent laughter. The traveler leaves before dawn and leaves a beautifully carved spoon by the fire as thanks. (name1) is exhausted all day. It was worth it.",
-   "src": "L578"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
@@ -85,7 +92,34 @@
      "scaled": true,
      "src": "L581"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) lies awake listening. It's an astonishing snore: a rumble, a whistle, and a little pop at the end. By the middle of the night (he/she) is shaking with silent laughter. The traveler leaves before dawn and leaves a beautifully carved spoon by the fire as thanks. (name1) is exhausted all day. It was worth it.",
+   "src": "L578",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L578"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L578"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) lies awake listening. It's an astonishing snore: a rumble, a whistle, and a little pop at the end. By the middle of the night (he/she) is shaking with silent laughter. The traveler leaves before dawn and leaves a beautifully carved spoon by the fire as thanks. (name1) is exhausted all day. It was worth it.",
+   "src": "L578"
   }
  }
 }

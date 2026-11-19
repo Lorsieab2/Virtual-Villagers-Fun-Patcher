@@ -75,6 +75,41 @@
    "src": "L2379"
   },
   "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They eat a favorite food and remember someone fondly.",
+   "src": "L2380",
+   "text_only": [
+    {
+     "what": "food",
+     "reason": "a favorite food eaten in remembrance; no food is gained or lost",
+     "src": "L2380"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L2380"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Ending 2",
    "popup": "append",
    "join": "paragraph",

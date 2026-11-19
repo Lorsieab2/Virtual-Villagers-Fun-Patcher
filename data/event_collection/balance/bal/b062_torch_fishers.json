@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2810"
+   "src": "L2810",
+   "auto_text": true
   },
   "c1o2": {
    "text": "In the pitch black, (name) hears a voice, close, and a hand grabs (his/her) arm. It's the oldest fisher, who saw the torch go out and came straight for it, by memory. They wade back together, the old fisher counting the steps out loud. On the beach, the old fisher clips (name) round the ear and then hugs (him/her) hard.",
@@ -161,7 +162,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2819"
+   "src": "L2819",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Halfway along the reef edge, the school of silver fish comes back, swirling round (his/her) knees in the torchlight, so thick (he/she) can scoop them up by hand. (Name) wades in at dawn with a full basket and a story nobody believes. It does something for (his/her) nerve: from then on, (he/she) is calmer and steadier at everything (he/she) turns (his/her) hand to.",
@@ -174,7 +176,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2822"
+   "src": "L2822",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) turns along the reef edge, feeling for the coral with (his/her) feet. The water stays at (his/her) knees. It's slow. The torch sputters lower...",

@@ -210,7 +210,8 @@
      "max": 20
     }
    ],
-   "src": "L10596"
+   "src": "L10596",
+   "auto_text": true
   },
   "c1o2": {
    "text": "By dawn the visitor is gone, the blanket folded neatly by the fire. Beside it lies a brand new fishing net, knotted so tightly and evenly that it looks like it was made by a spider with a great deal of patience. At sunrise the old net splits right down the middle, exactly as promised. The fishers just shrug, pick up the new one, and argue all morning about who gets to use it first.",
@@ -265,7 +266,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10610"
+   "src": "L10610",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The visitor just smiles. \"Some questions are better left unanswered,\" (subject.he/she) says gently, and asks again about the fire. (subject) gives in. In the morning, the visitor is gone. Nobody goes down to check the net. Somehow nobody wants to know.",

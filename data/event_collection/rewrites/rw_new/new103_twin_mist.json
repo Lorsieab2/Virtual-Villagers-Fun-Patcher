@@ -169,7 +169,8 @@
      "scaled": true
     }
    ],
-   "src": "L4829"
+   "src": "L4829",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The sun comes up over the trees, and the double thins with the mist. It gives (subject) one last friendly wave as it fades, until nothing is left but wet grass and a single, perfectly ordinary footprint. (subject) puts (subject.his/her) own foot next to it. It is an exact match. (subject.He/She) goes home and does not mention this to anyone for three days.",
@@ -197,7 +198,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L4836"
+   "src": "L4836",
+   "auto_text": true
   },
   "c2o2": {
    "text": "At the edge of the village, (subject) stops dead. \"No. I'm sorry. I can't share a fire with my own face.\" The others honour that, and nobody presses. The double looks only a little hurt. It bows, turns, and drifts back down the path into the mist, scratching behind one ear.",
@@ -226,7 +228,8 @@
      "scaled": true
     }
    ],
-   "src": "L4843"
+   "src": "L4843",
+   "auto_text": true
   },
   "c3o2": {
    "text": "When the doors finally open, the double is gone. Only the people who saw it can say it was ever there, and they do, often, loudly, and with more detail every time. By the end of the season, the double has apparently juggled fish and sung a song. It did neither.",

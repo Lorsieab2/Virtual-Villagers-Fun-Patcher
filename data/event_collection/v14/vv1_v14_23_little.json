@@ -62,7 +62,8 @@
      "what": "collapses",
      "reason": "the boy's contraption, not a village structure"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

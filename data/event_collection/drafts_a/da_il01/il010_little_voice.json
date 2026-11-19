@@ -62,14 +62,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(name1) puts the shell on top. The tower wobbles. It wobbles some more. It stays up! (name1) shrieks so loudly that three villagers come running to see. The little voice is very quiet for the rest of the day.",
-   "src": "L119"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "\"Walls are better anyway,\" (name1) decides. (He/She) builds a long, wonderful wall that winds all the way around a tide pool. The crabs inside seem very impressed. The little voice has nothing to say about walls.",
    "src": "L122"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) puts the shell on top. The tower wobbles. It wobbles some more. It stays up! (name1) shrieks so loudly that three villagers come running to see. The little voice is very quiet for the rest of the day.",
+   "src": "L119",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L119"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) puts the shell on top. The tower wobbles. It wobbles some more. It stays up! (name1) shrieks so loudly that three villagers come running to see. The little voice is very quiet for the rest of the day.",
+   "src": "L119"
   }
  }
 }

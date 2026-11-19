@@ -110,9 +110,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The traveler relaxes, and the villagers learn something new.",
-   "src": "L676"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -162,6 +169,25 @@
    "name": "Outcome D2",
    "text": "The traveler prefers not to talk about home, and the villager changes the subject.",
    "src": "L683"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The traveler relaxes, and the villagers learn something new.",
+   "src": "L676",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L676"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The traveler relaxes, and the villagers learn something new.",
+   "src": "L676"
   }
  }
 }

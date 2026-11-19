@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13625"
+   "src": "L13625",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Someone climbs out of the kiln in the morning who looks just like (subject), but who was made by (potter)'s hands, not (subject)'s life. It likes what (potter) likes, hates what (potter) hates, and calls itself (made1). (subject) and the newcomer get on surprisingly well, mainly by complaining about (potter) together.",
@@ -145,7 +146,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L13628"
+   "src": "L13628",
+   "auto_text": true
   },
   "c1": {
    "text": "(potter) slides the little figure into the kiln with the evening's pots and banks up the fire. All night the kiln glows and ticks and sighs...",
@@ -170,7 +172,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13634"
+   "src": "L13634",
+   "auto_text": true
   },
   "c2o2": {
    "text": "It squishes into a lump, the way clay does. (potter) rolls it into a ball and makes a bowl out of it instead. It is a perfectly ordinary bowl. Except that (subject) is sure, every time (subject.he/she) eats from it, that it has a faint look of (subject.him/her) about the rim.",

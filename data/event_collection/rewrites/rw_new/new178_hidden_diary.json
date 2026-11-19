@@ -165,7 +165,8 @@
      "scaled": true
     }
    ],
-   "src": "L8639"
+   "src": "L8639",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The oldest pages are so brittle that they crumble at the first touch, into dust and flakes. A fragile part of the diary is lost: the first years of notes, before anyone else in the village kept any. (Name) gathers the dust into a little pot, not knowing what else to do with it.",
@@ -177,7 +178,8 @@
      "loss": true
     }
    ],
-   "src": "L8641"
+   "src": "L8641",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) decides the weather notes, at least, are too valuable to lose. (He/She) sits down with fresh bark and starts copying...",
@@ -202,7 +204,8 @@
      "scaled": true
     }
    ],
-   "src": "L8646"
+   "src": "L8646",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Nobody agrees on who the writer was. A fisher, a healer, a lonely farmer, a spirit. Nobody pretends to know. But everyone wants to read the bits about the neighbours, and at least three families find out unflattering things about their ancestors.",
@@ -231,7 +234,8 @@
      "scaled": true
     }
    ],
-   "src": "L8653"
+   "src": "L8653",
+   "auto_text": true
   },
   "c3o2": {
    "text": "Before anything else is done with it, (name) decides the diary's personal pages should remain private. They were never meant to be read. (He/She) ties the bundle back up with its old fishing line and puts it back under the floorboards, where it was. Only the weather is copied.",

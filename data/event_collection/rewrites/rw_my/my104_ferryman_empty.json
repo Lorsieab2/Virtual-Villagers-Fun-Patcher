@@ -197,7 +197,8 @@
      "scaled": true
     }
    ],
-   "src": "L15917"
+   "src": "L15917",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The ferry glides out past the far shore, past the reef, and keeps going, out into deep water, far from land. (Name) grabs the paddle, and the paddle will not move. (He/she) shouts. The boat does not stop. Finally (name) jumps over the side. (He/she) swims for a very long time against the pull of the water and crawls up the beach at last, shaking, gasping and utterly spent. Behind (him/her), the ferry is already gliding back across the lagoon, empty and calm.",
@@ -248,7 +249,8 @@
      "scaled": true
     }
    ],
-   "src": "L15931"
+   "src": "L15931",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The ferry crosses and returns, crosses and returns, all day long, never fast, never slow, never with anyone in it. Villagers come down to watch it. Nobody gets in. At sunset, as the last light leaves the water, the ferry reaches the far shore and does not come back. In the morning, there is no boat on either shore. (Name) remembers it for the rest of (his/her) life: the paddle resting, and the water never rippling.",

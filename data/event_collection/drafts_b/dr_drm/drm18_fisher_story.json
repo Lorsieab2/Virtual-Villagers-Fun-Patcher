@@ -64,14 +64,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) tells the one about the crab who tricked the octopus into carrying it across the lagoon. (His/her) voice shakes at first. Then it doesn't. The children laugh in the right places, and some of the adults too. When it's over, a small voice says, \"Is there another one?\" There are about forty.",
-   "src": "L218"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) closes (his/her) mouth again. Someone else tells a story about a canoe that paddled itself, and it's very good. (name1) listens and thinks about the crab and the octopus. Maybe next time. It's comforting, somehow, to know the stories are there, waiting, whether (he/she) ever tells them or not.",
    "src": "L221"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) tells the one about the crab who tricked the octopus into carrying it across the lagoon. (His/her) voice shakes at first. Then it doesn't. The children laugh in the right places, and some of the adults too. When it's over, a small voice says, \"Is there another one?\" There are about forty.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L218"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) tells the one about the crab who tricked the octopus into carrying it across the lagoon. (His/her) voice shakes at first. Then it doesn't. The children laugh in the right places, and some of the adults too. When it's over, a small voice says, \"Is there another one?\" There are about forty.",
+   "src": "L218"
   }
  }
 }

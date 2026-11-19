@@ -70,14 +70,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Then don't be,\" says (friend). \"Being grown isn't a door you go through. You do it slowly. Climb trees as long as you want.\" (subject) looks doubtful. \"Do grown-ups climb trees?\" (friend) thinks. Then (friend.he/she) walks over to the nearest tree and climbs it, badly. (subject) laughs so hard (subject.he/she) has to sit down.",
-   "src": "L146"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"I felt exactly like that,\" says (friend). \"I think everyone does.\" (subject) is amazed. \"What happened?\" \"I got older anyway, and some of it was good, and I still miss being little sometimes.\" (subject) thinks about that. It isn't a comfort exactly. It's honest, and that's better.",
    "src": "L149"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Then don't be,\" says (friend). \"Being grown isn't a door you go through. You do it slowly. Climb trees as long as you want.\" (subject) looks doubtful. \"Do grown-ups climb trees?\" (friend) thinks. Then (friend.he/she) walks over to the nearest tree and climbs it, badly. (subject) laughs so hard (subject.he/she) has to sit down.",
+   "src": "L146",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L146"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Then don't be,\" says (friend). \"Being grown isn't a door you go through. You do it slowly. Climb trees as long as you want.\" (subject) looks doubtful. \"Do grown-ups climb trees?\" (friend) thinks. Then (friend.he/she) walks over to the nearest tree and climbs it, badly. (subject) laughs so hard (subject.he/she) has to sit down.",
+   "src": "L146"
   }
  }
 }

@@ -75,6 +75,32 @@
    "src": "L89"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"This sandal has ruined my day,\" (subject) announces. (friend) looks at the sunshine, the beautiful beach, and the enormous basket of fruit beside them. \"A terrible tragedy,\" (friend.he/she) agrees solemnly. (subject) begins laughing.",
+   "src": "L93",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L93"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"This sandal has ruined my day,\" (subject) announces. (friend) looks at the sunshine, the beautiful beach, and the enormous basket of fruit beside them. \"A terrible tragedy,\" (friend.he/she) agrees solemnly. (subject) begins laughing.",
    "src": "L93"

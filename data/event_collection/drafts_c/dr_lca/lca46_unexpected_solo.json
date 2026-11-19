@@ -95,7 +95,8 @@
      "who": "subject",
      "src": "L649"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",

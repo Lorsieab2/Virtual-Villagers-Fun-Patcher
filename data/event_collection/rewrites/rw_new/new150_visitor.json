@@ -201,7 +201,8 @@
      "scaled": true
     }
    ],
-   "src": "L7173"
+   "src": "L7173",
+   "auto_text": true
   },
   "c1": {
    "text": "If (he/she) has to go, (name) decides, then (he/she) is going to go properly fed...",
@@ -226,7 +227,8 @@
      "scaled": true
     }
    ],
-   "src": "L7178"
+   "src": "L7178",
+   "auto_text": true
   },
   "c2o2": {
    "text": "When (name) asks why (he/she) really has to go, the visitor is quiet for a while. Some of (his/her) reasons for leaving stay private, and (name) doesn't insist on hearing them. They watch the stars instead.",
@@ -254,7 +256,8 @@
      "age": "adult"
     }
    ],
-   "src": "L7185"
+   "src": "L7185",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The visitor thanks everyone, cries a little, hugs (name) for a long time, and goes home as planned. The sandals are returned at the very last moment, on the beach, by a very sulky child. (Name) watches the canoe until it's just a dot.",
@@ -283,7 +286,8 @@
      "scaled": true
     }
    ],
-   "src": "L7192"
+   "src": "L7192",
+   "auto_text": true
   },
   "c4o2": {
    "text": "The villagers repair the visitor's split bundles and tighten every lashing on the canoe, and see (him/her) off from the beach the next morning. The whole village comes down to wave. (Name) waves the longest.",

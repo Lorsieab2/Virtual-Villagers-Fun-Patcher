@@ -220,7 +220,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L12899"
+   "src": "L12899",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) wedges a thumbnail under the lid and flips it open...",
@@ -249,7 +250,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L12904"
+   "src": "L12904",
+   "auto_text": true
   },
   "c2o2": {
    "text": "By the time (name) has fetched the fish and opened the lid, the box isn't cold anymore. Not even cool. Just an ordinary wooden box, warm from the sun. Whatever made it cold has faded before anyone could test it. (Name) is very disappointed and goes looking for the trader to complain.",

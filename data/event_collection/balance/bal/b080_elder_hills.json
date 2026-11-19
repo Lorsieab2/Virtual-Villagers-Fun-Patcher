@@ -145,7 +145,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3626"
+   "src": "L3626",
+   "auto_text": true
   },
   "c1o2": {
    "text": "After a long silence, (subject) starts to talk. And talks, and talks, as if a year of saving words has filled (subject.him/her) up: everything (subject.he/she) knows about the work (young) does, every trick and shortcut and mistake. (young) listens until dark, and goes home with (young.his/her) head buzzing. (subject) gets stronger after that, and comes down to the village for meals, sometimes.",
@@ -158,7 +159,8 @@
      "best": true
     }
    ],
-   "src": "L3629"
+   "src": "L3629",
+   "auto_text": true
   },
   "c1": {
    "text": "(young) sits. For a long time, neither of them says anything. The birds sing. The wind moves in the grass. (subject)'s hand finds (young)'s...",
@@ -182,7 +184,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3635"
+   "src": "L3635",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The healers fuss over (subject.him/her) for a week, and (subject) complains about every minute of it. But somewhere in that week, (subject.he/she) finds (subject.he/she) has missed the village: the noise, the children, the chatter by the fire. When (subject.he/she) is well, (subject.he/she) doesn't go back up the hill. \"The birds will manage,\" (subject.he/she) says.",
@@ -194,7 +197,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3638"
+   "src": "L3638",
+   "auto_text": true
   },
   "c2": {
    "text": "(young) runs all the way down the hill and comes back with two healers and a stretcher. (subject) rolls (subject.his/her) eyes at the fuss, but lets them carry (subject.him/her) down...",

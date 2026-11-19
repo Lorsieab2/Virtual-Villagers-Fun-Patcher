@@ -514,7 +514,7 @@ def run(source: str, table: dict, review: str | None = None) -> int:
             doc, _log = build(r, table.get(num_of(r), {}))
             p = lib.DRAFTS_A_DIR / source / f"{r['id']}.json"
             p.parent.mkdir(parents=True, exist_ok=True)
-            p.write_text(cc.canonical(doc), encoding="utf-8", newline="\n")
+            p.write_text(cc.canonical(cc.with_outcome_effects(doc, p)), encoding="utf-8", newline="\n")
             paths.append(str(p))
             reports.append(pron_report(r, doc))
     if review:

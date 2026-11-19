@@ -69,11 +69,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Probably never,\" says (subject) cheerfully. \"I like my life as it is.\" (friend) blinks. \"Oh! But don't you want...\" \"No,\" says (subject), still smiling. \"I really don't. But I love a good wedding.\" (friend) considers this, then laughs. \"Then dance with me,\" (friend.he/she) says. They dance. Nobody asks (subject) again that night.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L26"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Probably never,\" says (subject) cheerfully. \"I like my life as it is.\" (friend) blinks. \"Oh! But don't you want...\" \"No,\" says (subject), still smiling. \"I really don't. But I love a good wedding.\" (friend) considers this, then laughs. \"Then dance with me,\" (friend.he/she) says. They dance. Nobody asks (subject) again that night.",
    "src": "L26"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Ask me again when the honey cakes run out,\" says (subject), and steers (friend) straight to the honey cakes. They stand there eating cake and gossiping about the guests, and the question is completely forgotten. (subject) doesn't owe anyone an explanation, and doesn't give one. It's a lovely wedding. (subject.He/she) has a wonderful time.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L29"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Ask me again when the honey cakes run out,\" says (subject), and steers (friend) straight to the honey cakes. They stand there eating cake and gossiping about the guests, and the question is completely forgotten. (subject) doesn't owe anyone an explanation, and doesn't give one. It's a lovely wedding. (subject.He/she) has a wonderful time.",
    "src": "L29"

@@ -145,7 +145,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15006"
+   "src": "L15006",
+   "auto_text": true
   },
   "c1o2": {
    "text": "On the third beat, (subject) jumps, lands on the side of (subject.his/her) foot, and goes down with a crack everyone hears over the drum. The ankle never heals straight, and (subject) walks with a hitch from then on. The drum, the elders say, is properly woken. (subject) says, with feeling, that the drum can go back to sleep.",
@@ -166,7 +167,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15009"
+   "src": "L15009",
+   "auto_text": true
   },
   "c1": {
    "text": "(drummer) raises the sticks. BOOM. The sound goes through (subject)'s feet and up (subject.his/her) legs, and before (subject.he/she) can think about it, (subject.his/her) feet are moving...",
@@ -190,7 +192,8 @@
      "do": "young_look",
      "role": "eldest"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "Nobody else will do it. The drum is played anyway, and it sounds flat and dull, like hitting a wet log. (drummer) tries for weeks to make it sing, and fails, and by the end of the season has lost (subject.his/her) love of drumming altogether. The great drum ends up as a water trough for the pigs.",
@@ -202,7 +205,8 @@
      "like": "drums"
     }
    ],
-   "src": "L15018"
+   "src": "L15018",
+   "auto_text": true
   },
   "c2": {
    "text": "\"No,\" says (subject). \"Get someone else.\" The crowd groans. (drummer) shrugs and looks for another first-time dancer...",

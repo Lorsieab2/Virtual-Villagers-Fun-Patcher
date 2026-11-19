@@ -197,7 +197,8 @@
      "scaled": true
     }
    ],
-   "src": "L14873"
+   "src": "L14873",
+   "auto_text": true
   },
   "c1o2": {
    "text": "There is no oil. The lamp is completely dry inside, dusty even. And yet the flame burns on, steady and bright, without anything to burn. (Name) sets it down very carefully. (He/she) stays in the ruins all night, too fascinated to leave, watching the little flame. At the first light of dawn, it gutters once and goes out, and a thin curl of smoke rises from the dry wick. The rice is cold.",
@@ -226,7 +227,8 @@
      "scaled": true
     }
    ],
-   "src": "L14880"
+   "src": "L14880",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The first mouthful tastes strange. The second tastes worse. By the third, (name) realizes the rice is not steaming because it is hot, but because it is spoiled and rotting. (He/she) spits it out, but too late. By nightfall, (name) is doubled over with stomach cramps on the long walk home, and the healers keep (him/her) in bed for several days on nothing but water and broth. When (he/she) is better, (he/she) cannot stand the smell of rice for a month.",
@@ -236,7 +238,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14882"
+   "src": "L14882",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) is very hungry, and the rice smells very good. \"Sorry,\" (he/she) says to nobody, and picks up the bowl...",

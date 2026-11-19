@@ -145,7 +145,8 @@
      }
     }
    ],
-   "src": "L5389"
+   "src": "L5389",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The steam is too much for some of them. One elder faints, and the healers have to drag people out into the cool air. The coughs get better in the end, slowly, the ordinary way. The steam hut is taken down, and (name) is teased about it for a month.",
@@ -175,7 +176,8 @@
      }
     }
    ],
-   "src": "L5398"
+   "src": "L5398",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) has always been squeamish around the sick, and only helped the healers by carrying things. But two weeks of sitting with coughing children changes that. By the end, (he/she) isn't squeamish at all, and asks the healers to teach (him/her) properly. The cough passes, in its own time.",
@@ -187,7 +189,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5401"
+   "src": "L5401",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) goes from hut to hut with a pot of honey and a basket of leaves, day after day, making tea and sitting with the sick...",

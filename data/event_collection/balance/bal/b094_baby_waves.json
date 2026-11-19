@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4262"
+   "src": "L4262",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(friend) meets them at the door, sees the seaweed wrapping, and goes very quiet, because (friend.his/her) grandmother told that story too. Then (friend.he/she) takes the baby's tiny hand. They raise the baby together. Every year at the lowest tide, the three of them leave a shell on the flat rock.",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4265"
+   "src": "L4265",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) scoops the baby off the rock just as the first wave washes over it. The baby smells of salt, and grabs (subject.his/her) hair, and laughs...",
@@ -176,7 +178,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4274"
+   "src": "L4274",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) stands on the beach, the water lapping round the rock, watching the waves for long hair and a tail. The baby gurgles happily...",

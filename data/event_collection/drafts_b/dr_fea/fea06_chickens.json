@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Could we swap?\" asks (subject). \"Chickens and I don't get on.\" (friend) shrugs and swaps. (subject) carries water instead, which is heavier and further, and (subject.he/she) is perfectly happy about it. Nobody laughs. (friend) only says, \"You'd be surprised how many people hate chickens.\"",
-   "src": "L74"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) tries. (friend) walks beside (subject.him/her), shooing. One chicken flaps its wings and (subject) jumps backwards into a bush. (friend) helps (subject.him/her) out and doesn't laugh, though it takes some effort. They get the eggs. (subject) decides that once was enough, and that is entirely fair.",
    "src": "L77"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Could we swap?\" asks (subject). \"Chickens and I don't get on.\" (friend) shrugs and swaps. (subject) carries water instead, which is heavier and further, and (subject.he/she) is perfectly happy about it. Nobody laughs. (friend) only says, \"You'd be surprised how many people hate chickens.\"",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L74"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Could we swap?\" asks (subject). \"Chickens and I don't get on.\" (friend) shrugs and swaps. (subject) carries water instead, which is heavier and further, and (subject.he/she) is perfectly happy about it. Nobody laughs. (friend) only says, \"You'd be surprised how many people hate chickens.\"",
+   "src": "L74"
   }
  }
 }

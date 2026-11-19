@@ -143,7 +143,8 @@
      }
     }
    ],
-   "src": "L14518"
+   "src": "L14518",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The adults mostly roll their eyes and forget. But the children take it very seriously. Each of them picks someone to help, and spends the whole day following them around, learning: a child helps the potter and learns to shape a bowl, another helps the healers and learns which leaves to crush. By evening, every child in the village has learned something new.",
@@ -173,7 +174,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14527"
+   "src": "L14527",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Somewhere in the middle of the day, (subject) ends up minding three small children for a tired neighbour, though (subject.he/she) has never been able to stand the noise little ones make. By the time the neighbour comes back, all three children are asleep on (subject), and (subject) is very surprised to find that (subject.he/she) doesn't want to move them.",

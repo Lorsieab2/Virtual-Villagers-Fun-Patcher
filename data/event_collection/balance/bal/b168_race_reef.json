@@ -139,7 +139,8 @@
      "cause": "unknown"
     }
    ],
-   "src": "L7780"
+   "src": "L7780",
+   "auto_text": true
   },
   "c1o2": {
    "text": "A wave throws (friend) across the coral, and (subject) turns back to drag (friend.him/her) clear. They come back to the beach together, (friend) bleeding badly from one leg. The healers save the leg, but it never works properly again, and (friend) walks with a limp from then on. (subject) gives (friend) the necklace. \"You'd have won,\" (subject.he/she) says.",
@@ -160,7 +161,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7783"
+   "src": "L7783",
+   "auto_text": true
   },
   "c1": {
    "text": "They run into the surf together, dive under the first wave and come up swimming, side by side, heads down, arms flashing. The crowd on the beach roars. At the reef, the waves are taller than they look from the shore...",
@@ -187,7 +189,8 @@
      "best": true
     }
    ],
-   "src": "L7789"
+   "src": "L7789",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(friend) swims out alone, to prove (friend.he/she) can. (friend.He/She) touches the reef, and a wave knocks (friend.him/her) into the coral, and (friend.he/she) comes back slowly, bleeding from a dozen cuts. The healers patch (friend.him/her) up and say a great deal about stubbornness. (subject) keeps the necklace, and doesn't wear it.",
@@ -199,7 +202,8 @@
      "max": -20
     }
    ],
-   "src": "L7792"
+   "src": "L7792",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Not today,\" says (subject), loudly, so the whole beach can hear. \"(fisher) is right. Next calm day, I'll race you, and I'll beat you.\" The crowd groans. (friend) goes very red...",

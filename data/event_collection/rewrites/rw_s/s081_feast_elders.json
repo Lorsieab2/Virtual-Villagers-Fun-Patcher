@@ -246,7 +246,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L3830"
+   "src": "L3830",
+   "auto_text": true
   },
   "c2": {
    "text": "The stores are not what they could be this season, so the village keeps it simple: a good warm meal under the banyan tree, flower crowns, and everyone sitting together...",

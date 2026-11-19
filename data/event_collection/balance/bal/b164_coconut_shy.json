@@ -141,7 +141,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7588"
+   "src": "L7588",
+   "auto_text": true
   },
   "c1o2": {
    "text": "At the top, the wind gives the palm a great shove, and the rope slips. (subject) falls a long way and lands badly, on the sand by the fire. (subject.He/She) lives. But (subject.his/her) hip is broken, and though it heals, (subject.he/she) never walks without a stick again, and never climbs anything again either, not even the steps to the {@chief}'s hut.",
@@ -162,7 +163,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L7591"
+   "src": "L7591",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) loops the rope round the trunk and starts to climb, leaning back, walking up the palm the way the old climbers taught (subject.him/her). The higher (subject.he/she) gets, the more the tree sways...",
@@ -191,7 +193,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L7597"
+   "src": "L7597",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The wind drops at dusk and (subject) climbs up easily and cuts them all. The only casualty is the big cooking pot, which nobody moved, and which a coconut has gone straight through. The cooks are very annoyed. They have to make supper in three small pots, and it isn't as good, and they say so all evening.",

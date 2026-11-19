@@ -146,7 +146,8 @@
      "next": "c1o1_c1"
     }
    ],
-   "src": "L9959"
+   "src": "L9959",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) grabs the mango, the branch whips back, and (subject.his/her) head hits the trunk with a thud the whole village hears. (subject.He/She) climbs down very slowly, holding the mango, and sits on the grass. (subject.He/She) knows the mango. (subject.He/She) knows the tree. (subject.He/She) doesn't know (subject.his/her) own name, and it never comes back. The village calls (subject.him/her) \"?\". It was a very good mango.",
@@ -156,7 +157,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9962"
+   "src": "L9962",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) stretches out, fingers spread, the branch dipping under (subject.him/her). (subject.His/her) fingertips brush the mango's warm skin...",
@@ -185,7 +187,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L9968"
+   "src": "L9968",
+   "auto_text": true
   },
   "c2o2": {
    "text": "As soon as (subject) is down, (friend), who was watching, climbs up and goes straight out along the branch, laughing at (subject) for giving up. The branch breaks. (friend) lives, but (friend.his/her) leg is never right again. The elders cut the long branch off the next day. Nobody laughs about the mango tree any more.",
@@ -206,7 +209,8 @@
      "next": "c2o2_c1"
     }
    ],
-   "src": "L9971"
+   "src": "L9971",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) looks down at the drop, and at the mango, and edges back along the branch, inch by inch, to the trunk. The elders on the ground let out a breath...",

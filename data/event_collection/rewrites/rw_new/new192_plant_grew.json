@@ -207,7 +207,8 @@
      "scaled": true
     }
    ],
-   "src": "L9336"
+   "src": "L9336",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Some days it bends back toward the crack, and some days it doesn't. (subject) can't work out why. (subject.He/She) records the uncertainty honestly. The plant, meanwhile, keeps growing, in several directions at once.",
@@ -236,7 +237,8 @@
      "scaled": true
     }
    ],
-   "src": "L9343"
+   "src": "L9343",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Both ideas still seem possible after the test: the second plant bends a little toward the draught, but only a little. More watching is needed. (subject) sets up two more pots.",
@@ -265,7 +267,8 @@
      "scaled": true
     }
    ],
-   "src": "L9350"
+   "src": "L9350",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The gardeners argue about how to measure \"bending.\" By eye? By the angle? By how sad it looks? Eventually they agree to use a stick marked with notches, held up against the stem. It takes all afternoon.",
@@ -298,7 +301,8 @@
      "max": 20
     }
    ],
-   "src": "L9357"
+   "src": "L9357",
+   "auto_text": true
   },
   "c4o2": {
    "text": "(novice) notices that one pot was always watered more than the other, because it was nearer the door. That could change everything. The group corrects its notes, and starts over with equal water.",

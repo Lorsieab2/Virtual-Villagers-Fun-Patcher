@@ -146,7 +146,8 @@
      }
     }
    ],
-   "src": "L11277"
+   "src": "L11277",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The roof in the taro patch turns out to be in such good shape that eight people simply pick it up and carry it back, singing a work song in time with their steps. It drops onto its old hut with a thump and fits perfectly. Everyone cheers so loudly that the pigs run off. That night the village eats together under the newly mended roofs, sore-armed and proud.",
@@ -163,7 +164,8 @@
      }
     }
    ],
-   "src": "L11280"
+   "src": "L11280",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) walks from hut to hut, knocking on doors that are still standing and calling into the ones that aren't. Soon there is a line of villagers passing thatch up ladders, and (builder) is shouting directions from a rooftop...",
@@ -194,7 +196,8 @@
      "best": true
     }
    ],
-   "src": "L11286"
+   "src": "L11286",
+   "auto_text": true
   },
   "c2o2": {
    "text": "It drizzles for a week. Nobody gets any sleep, because every hut that still has a roof now has two families in it, and somebody in every family snores. By the time the thatch is dry enough to use, people have started fixing their own roofs with whatever they can find. The village ends up with three roofs that look like birds' nests, and a great many opinions about whose fault that is.",

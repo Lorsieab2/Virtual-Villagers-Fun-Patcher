@@ -207,7 +207,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L12248"
+   "src": "L12248",
+   "auto_text": true
   },
   "c1o2": {
    "text": "She sleeps soundly by the hearth, snoring like a pig, and is gone before (name) wakes. On the mat where she slept, scratched carefully into a piece of bark, is a short note: \"Thank you. Your answers were wrong, but your door was right.\" (Name) doesn't know whether to laugh or be offended, and decides on both.",

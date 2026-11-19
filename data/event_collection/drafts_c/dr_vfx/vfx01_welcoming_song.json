@@ -83,7 +83,8 @@
      "who": "all",
      "src": "L14"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -96,7 +97,8 @@
      "who": "subject",
      "src": "L17"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

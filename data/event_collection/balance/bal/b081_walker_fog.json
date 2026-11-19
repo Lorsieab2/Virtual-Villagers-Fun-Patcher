@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3671"
+   "src": "L3671",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The light leads (name) round the whole bay and back to the village, and stops at (his/her) own door, and goes out. (Name) stands there a long time. Inside, on the floor, is the shell bracelet (he/she) lost a year ago. (He/She) never follows a light in the fog again, but (he/she) wears the bracelet every day.",
@@ -160,7 +161,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3680"
+   "src": "L3680",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The lamp comes closer, and turns out to be held by one of the young fishers, who has been out checking the nets and stuffed green leaves round the lamp to keep the wind off it. The fisher nearly drops it on seeing (name). They walk home together, laughing too loudly.",

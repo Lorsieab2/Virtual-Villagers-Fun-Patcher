@@ -105,7 +105,8 @@
      "who": "friend",
      "src": "L71"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -117,7 +118,8 @@
      "who": "all",
      "src": "L75"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

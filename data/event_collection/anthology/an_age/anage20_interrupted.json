@@ -139,6 +139,36 @@
    ]
   },
   "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(mother.He/She) continues explaining while feeding, and (apprentice) learns the technique.",
+   "src": "L30433",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L30433"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
    "name": "Outcome A1",
    "text": "(mother.He/She) continues explaining while feeding, and (apprentice) learns the technique.",
    "src": "L30433"
@@ -161,6 +191,36 @@
    ]
   },
   "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(apprentice) completes a careful first attempt.",
+   "src": "L30436",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L30436"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
    "name": "Outcome B1",
    "text": "(apprentice) completes a careful first attempt.",
    "src": "L30436"

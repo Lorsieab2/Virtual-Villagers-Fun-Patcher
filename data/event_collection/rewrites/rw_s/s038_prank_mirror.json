@@ -132,7 +132,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L1802"
+   "src": "L1802",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The reflection shakes (his/her) hand warmly, and looks around at the village with real admiration: the huts, the fields, the cooking fire, the children. \"It's lovely here,\" it says, in (name)'s voice, but softer. \"You're lucky.\" Then it steps back up onto the frame and climbs back into the mirror, and the surface ripples once and goes still. The mirror is never quite as shiny again. And (name), for reasons (he/she) can't explain, starts standing up a little straighter.",
@@ -160,7 +161,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L1811"
+   "src": "L1811",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The mirror cracks right down the middle with a sound like a bell. The reflection, halfway out, flickers, and vanishes. Just like that. (Name) stands there with the rock in (his/her) hand, breathing hard, and then feels seven different kinds of guilty all at once. (He/She) can't stop thinking about the look on its face. From then on (he/she) can't stand mirrors, or polished things, or the still surface of the lagoon, where (his/her) face looks back at (him/her), and (he/she) won't go swimming at all.",
@@ -178,7 +180,8 @@
      "what": "\"vanishes\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) doesn't trust it. Not for a moment. (He/She) grabs the nearest rock and swings it at the mirror with all (his/her) strength...",

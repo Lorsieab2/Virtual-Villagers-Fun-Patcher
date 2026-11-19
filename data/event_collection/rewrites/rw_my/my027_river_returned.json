@@ -204,7 +204,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11422"
+   "src": "L11422",
+   "auto_text": true
   },
   "c1o2": {
    "text": "On (subject.his/her) very first swing, there's a loud crack, and (subject) is left holding half a handle again. Broken in exactly the same place as before. (subject) stares at the pieces in disbelief. Everyone who's gathered to watch is terribly disappointed. (subject) does not throw it in the river this time. (subject.He/She) just sits down on the bank with the pieces in (subject.his/her) lap.",
@@ -237,7 +238,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11429"
+   "src": "L11429",
+   "auto_text": true
   },
   "c2o2": {
    "text": "On the underside of the handle, (friend) finds a row of small marks scratched into the wood, neat and deliberate, like a signature. Nobody recognizes them. Not the carvers, not the elders, not the researchers. The marks weren't there before (subject) threw it in the river. (subject) is quite sure of that.",

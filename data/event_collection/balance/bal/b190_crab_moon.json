@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8827"
+   "src": "L8827",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The crabs flow past for an hour, and one of them gives (friend) a sharp pinch on the toe on its way, which (friend) says is extremely rude. Otherwise nothing happens. When the march has passed, they walk home along a path scraped clean, and (friend) limps a little, and complains about the crab the whole way.",
@@ -177,7 +178,8 @@
      "max": -20
     }
    ],
-   "src": "L8836"
+   "src": "L8836",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They get home breathless and laughing, with crab bits on their feet, and sit on (subject)'s doorstep watching the red tide go past in the moonlight. It is, they agree, the most ridiculous thing that has ever happened to either of them. After a night like that, a lot of small things they used to grumble about don't seem worth the trouble.",
@@ -195,7 +197,8 @@
      "remove": true
     }
    ],
-   "src": "L8839"
+   "src": "L8839",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Run!\" shouts (friend), and they run, hopping and leaping, trying to land in the gaps. Crabs crunch under their feet. Both of them wince at every one...",

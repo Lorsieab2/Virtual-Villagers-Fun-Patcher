@@ -121,7 +121,8 @@
      "reason": "food in the story (a meal, a snack, a basket of fruit); the village's stores do not change",
      "src": "L400"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -151,7 +152,8 @@
      "reason": "rule 9: no game makes a later health loss; the gain now is the effect",
      "src": "L402"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a": {
    "name": "Answer A",

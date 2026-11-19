@@ -165,7 +165,8 @@
      "scaled": true
     }
    ],
-   "src": "L8492"
+   "src": "L8492",
+   "auto_text": true
   },
   "c1o2": {
    "text": "A sudden downpour soaks the bark strip before (name) can get it inside. The word survives, just. But the ink recipe that (name) had scratched on the back, the only copy of (his/her) mother's method, washes away, and with it, that bit of know-how. The baby watches the rain and says nothing.",
@@ -177,7 +178,8 @@
      "loss": true
     }
    ],
-   "src": "L8494"
+   "src": "L8494",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) decides that this bark strip is the most important document in the village, and must be preserved...",
@@ -202,7 +204,8 @@
      "scaled": true
     }
    ],
-   "src": "L8499"
+   "src": "L8499",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The witnesses disagree. One says it was definitely \"fish.\" One says it was \"fiss.\" One says it was a sneeze, and is now no longer welcome at (name)'s hut. Nobody pretends to know. The baby sneezes, and everyone gasps.",
@@ -231,7 +234,8 @@
      "scaled": true
     }
    ],
-   "src": "L8506"
+   "src": "L8506",
+   "auto_text": true
   },
   "c3o2": {
    "text": "Looking at the board, (name) decides that the first word is a family treasure, and keeps it for (himself/herself). (He/She) tucks the bark strip into a safe place and doesn't carve it. A few days later, the baby says \"fish\" again. Only (name) hears it. That's fine.",

@@ -146,7 +146,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10242"
+   "src": "L10242",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The crown purrs on (subject)'s head all day, and by evening (subject.his/her) face under it has changed: brighter, smoother, younger, as if (subject.he/she) has had a whole season of good sleep. \"That's the bird's gift,\" says (elder). \"Bright years for a kind roof.\" (subject) wears it every day.",
@@ -161,7 +162,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10245"
+   "src": "L10245",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) lowers the feather crown onto (subject.his/her) head. It's light, and cool, and it fits as if it grew there. The humming gets a little louder, then settles to a soft purr...",
@@ -189,7 +191,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10254"
+   "src": "L10254",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) hangs the crown from a peg over the door of (subject.his/her) hut, where everyone can see it. It turns slowly in the breeze, shining...",

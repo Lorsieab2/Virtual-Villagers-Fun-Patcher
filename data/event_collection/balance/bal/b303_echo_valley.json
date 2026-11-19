@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14071"
+   "src": "L14071",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Up the path comes someone with (name)'s face, but the echo has bounced off too many rocks on its way back. It has (name)'s looks and nothing else: different likes, different dislikes, different talents. \"That's not how you say it,\" it tells (name), and says (name)'s name properly, which sounds exactly the same. It takes the name (made1), and the two of them never agree about anything.",
@@ -149,7 +150,8 @@
      "what": "\"dislikes\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) cups (his/her) hands and shouts (his/her) own name as loud as (he/she) can. It comes back once. Twice. The third echo doesn't come back. Instead, there are footsteps on the path...",
@@ -177,7 +179,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L14083"
+   "src": "L14083",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) whistles a little tune. It comes back once, twice, three times, each one slightly out of tune...",

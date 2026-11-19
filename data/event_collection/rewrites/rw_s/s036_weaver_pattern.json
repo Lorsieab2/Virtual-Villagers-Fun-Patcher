@@ -148,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1704"
+   "src": "L1704",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) wears it to the next festival dance. When the drums start, (subject.he/she) starts to spin, and the faster (subject.he/she) spins, the more the pattern moves, until the waves are crashing and the birds are flying in great circles around (subject.him/her) in the firelight. Everyone stops dancing and just watches. Everyone talks about it for a month. (subject), who never used to dance at all, is now at every festival, first on and last off.",
@@ -164,7 +165,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L1707"
+   "src": "L1707",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) sews it into a wrap that afternoon, and puts it on, and walks around the village in it. People turn to watch (subject.him/her) go by. Children follow (subject.him/her), trying to catch the birds...",
@@ -189,7 +191,8 @@
      "body": "random"
     }
    ],
-   "src": "L1713"
+   "src": "L1713",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) gives it to (friend), (subject.his/her) best friend. (friend) is so delighted that (friend.he/she) puts it on straight away, wraps it round (friend.his/her) shoulders, twirls, and sneezes. Then sneezes again. Then starts scratching. By evening, (friend) is covered from neck to wrist in an angry red rash. It turns out (friend) is allergic to the blue dye (subject) used, the one from the shimmering vine, which nobody in the village has ever used before. The healers keep (friend) for a few days. The wrap goes on the wall, where it is admired from a safe distance.",
@@ -199,7 +202,8 @@
      "role": "friend"
     }
    ],
-   "src": "L1716"
+   "src": "L1716",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) looks at what (subject.he/she) has made for a long time. It's the best thing (subject.he/she) has ever made. Perhaps the best thing (subject.he/she) will ever make. And somehow, that makes (subject.him/her) want to give it to someone...",

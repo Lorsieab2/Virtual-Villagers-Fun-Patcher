@@ -211,7 +211,8 @@
      "role": "friend"
     }
    ],
-   "src": "L16325"
+   "src": "L16325",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) hesitates for a long time, then decides a promise is worth less than a life. (subject.He/she) carries the box to the healers' hut and opens it. Inside, packed in tiny compartments, are dozens of dried herbs, powders and roots...",
@@ -258,7 +259,8 @@
      "scaled": true
     }
    ],
-   "src": "L16337"
+   "src": "L16337",
+   "auto_text": true
   },
   "c3o2": {
    "text": "Most of the labels are written in a language none of the healers have ever seen: tiny, looping script, nothing like anything on Isola. A few have little pictures, a leaf, a moon, a sleeping face, but nobody dares guess what they mean. The healers put the box back on the shelf, and (friend) recovers slowly with ordinary care. One of the healers copies out the strange script, and spends years trying to read it.",

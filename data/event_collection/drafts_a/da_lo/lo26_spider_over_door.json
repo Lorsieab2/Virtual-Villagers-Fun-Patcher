@@ -61,14 +61,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(name1) leaves it, ducking carefully each time. The web catches dew in the mornings and shines like a little silver net. (name1) starts to look forward to seeing it. Whether it keeps anything out, (he/she) can't say. It certainly keeps the flies out. That's something.",
-   "src": "L315"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(name1) gently scoops the spider onto a leaf and carries it to a bush by the door, where it can catch flies without being ducked under all day. The spider builds a new web there the next morning. (name1) decides that counts: it's still guarding the door, just from a little further away.",
    "src": "L318"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) leaves it, ducking carefully each time. The web catches dew in the mornings and shines like a little silver net. (name1) starts to look forward to seeing it. Whether it keeps anything out, (he/she) can't say. It certainly keeps the flies out. That's something.",
+   "src": "L315",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L315"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) leaves it, ducking carefully each time. The web catches dew in the mornings and shines like a little silver net. (name1) starts to look forward to seeing it. Whether it keeps anything out, (he/she) can't say. It certainly keeps the flies out. That's something.",
+   "src": "L315"
   }
  }
 }

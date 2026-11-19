@@ -147,11 +147,64 @@
    ]
   },
   "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Someone brings water and prepares a meal while (mother.he/she) rests.",
+   "src": "L30452",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "mother",
+     "min": 15,
+     "max": 30,
+     "src": "L30452"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
    "name": "Outcome B1",
    "text": "Someone brings water and prepares a meal while (mother.he/she) rests.",
    "src": "L30452"
   },
   "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "(helper) takes over a household chore, giving (mother.him/her) a peaceful hour.",
+   "src": "L30453",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "mother",
+     "mood": "good",
+     "src": "L30453"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
    "name": "Outcome B2",
    "text": "(helper) takes over a household chore, giving (mother.him/her) a peaceful hour.",
    "src": "L30453"

@@ -138,7 +138,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8067"
+   "src": "L8067",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The sparks rush out of the stone, and swirl round (subject), and settle beside (subject.him/her) into a shape, and the shape becomes another (subject), standing in the ferns and looking very surprised to have legs. The star, (researcher) decides later, must have wanted a body to walk around in for a while. The second (subject) takes the name (made1), and spends a lot of time looking at the sky.",
@@ -148,7 +149,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8070"
+   "src": "L8070",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) climbs down into the hole and picks up the stone. It's heavy and warm, and the sparks inside rush to where (subject.his/her) fingers are, as if they are curious...",
@@ -177,7 +179,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L8076"
+   "src": "L8076",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(researcher) picks the stone up with (subject.his/her) bare hands, before anyone can stop (subject.him/her). By evening (subject.he/she) has a fever and a rash all up (subject.his/her) arm in the shape of little stars. (healer) is not happy about being right, and says so all week while nursing (subject.him/her). The stone is buried at the bottom of the hole.",
@@ -187,7 +190,8 @@
      "role": "researcher"
     }
    ],
-   "src": "L8079"
+   "src": "L8079",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) runs back to the village and fetches (researcher) and (healer), who argue the whole way there. By the time they get back, the hole has stopped smoking...",

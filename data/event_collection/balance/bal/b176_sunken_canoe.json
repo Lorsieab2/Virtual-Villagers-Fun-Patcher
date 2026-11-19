@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8163"
+   "src": "L8163",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) grabs the bundle and kicks for the surface with (subject.his/her) lungs on fire, and comes up gasping beside the canoe. Inside the oiled cloth are tools: fine bone needles, a stone blade sharper than anything the village can make, and a small carved figure of a fish. The researchers spend a month on the blade alone. Your villagers gain (award) tech points.",
@@ -150,7 +151,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L8166"
+   "src": "L8166",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) takes three long breaths and goes down, kicking hard, into the blue. The light fades. The cold bites. The old canoe comes up out of the dark below (subject.him/her), and the bundle inside it glints...",
@@ -179,7 +181,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L8172"
+   "src": "L8172",
+   "auto_text": true
   },
   "c2o2": {
    "text": "That night a storm comes in. In the morning the float is gone, the rope is gone, and (fisher), who went out at first light to check on it, is found on the reef. The village lays (subject.him/her) to rest on the headland. Nobody goes looking for the old canoe again, and (subject) never dives in the lagoon after that.",
@@ -190,7 +193,8 @@
      "cause": "unknown"
     }
    ],
-   "src": "L8175"
+   "src": "L8175",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) ties a float to a long rope and drops a weighted end down to the canoe. \"Tomorrow,\" (subject.he/she) says. \"With three divers and a rope each.\" (fisher) looks relieved...",

@@ -74,6 +74,38 @@
    "src": "L290"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They look at each other and turn round. Nobody says anything for a while. Then (friend) admits (friend.he/she) is relieved, and (subject) admits the same, and they laugh about it all the way home. They never do get the seeds. They tell people the walk was \"too far,\" which is true.",
+   "src": "L293",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L293"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L293"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "They look at each other and turn round. Nobody says anything for a while. Then (friend) admits (friend.he/she) is relieved, and (subject) admits the same, and they laugh about it all the way home. They never do get the seeds. They tell people the walk was \"too far,\" which is true.",
    "src": "L293"

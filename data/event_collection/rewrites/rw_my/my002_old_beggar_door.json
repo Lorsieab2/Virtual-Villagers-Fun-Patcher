@@ -207,7 +207,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L9946"
+   "src": "L9946",
+   "auto_text": true
   },
   "c1o2": {
    "text": "At sunrise the bedding is empty. The door is still latched from the inside. On the pillow sits a polished stone, smooth as an egg and faintly warm, and no one in the village has ever seen one like it. (Name) asks everyone if they saw the old stranger leave. Nobody did. The stone ends up on (name)'s shelf, and on cold nights (he/she) swears it's warmer than it ought to be.",
@@ -235,7 +236,8 @@
      "age": "elder"
     }
    ],
-   "src": "L9953"
+   "src": "L9953",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The stranger smiles and shakes (his/her) head. \"Kind of you. But my road isn't finished.\" Before leaving, though, the old one notices a cracked storage jar by the door and spends the whole morning showing (name) how to seal it with heated resin and fibre, a trick so simple (name) can't believe nobody thought of it. The stranger leaves at noon. The jar never leaks again. Your villagers gain (award) tech points.",
@@ -250,7 +252,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L9955"
+   "src": "L9955",
+   "auto_text": true
   },
   "c2": {
    "text": "\"You shouldn't be wandering about at your age,\" (name) says firmly. \"Stay here. Stay with us. There's always room for one more.\" The old stranger stares at (him/her) for a long moment, then (his/her) eyes fill up...",

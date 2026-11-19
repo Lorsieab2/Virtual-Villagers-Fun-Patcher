@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1948"
+   "src": "L1948",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(friend) meets them at the door of their hut, looks at the baby, looks at (subject), and simply holds out (friend.his/her) arms. By noon there's a cradle. By evening, there's a name. By the end of the week, neither of them can remember what their hut sounded like without the crying.",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1951"
+   "src": "L1951",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) lifts the sling and the baby settles against (subject.him/her) with a sigh, as if (subject.he/she) has been waiting for exactly this. The healers come out and look, and then look at (subject)...",
@@ -176,7 +178,8 @@
      "age": "adult"
     }
    ],
-   "src": "L1957"
+   "src": "L1957",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The canoe comes back with no answer. Nobody in the shell village will say whose the baby is. So the baby stays with the healers, who take turns, and is spoiled rotten by all of them, and grows up in the herb-smell of the healers' hut. (subject) visits every day, and is the first person the baby learns to name.",

@@ -145,7 +145,8 @@
      "structures": "any"
     }
    ],
-   "src": "L4321"
+   "src": "L4321",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The builders mend everything in three days. And while they're doing it, one of them, cursing at a roof pole that keeps slipping, comes up with a new way to tie a roof down: a clever double knot round the rafters, pinned with a wooden peg, that the wind just can't pull loose. It works so well that they use it on every hut. The researchers come and watch, and draw it, and write it up very carefully, so it's never forgotten. Your villagers gain (award) tech points.",
@@ -164,7 +165,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L4324"
+   "src": "L4324",
+   "auto_text": true
   },
   "c1": {
    "text": "The builders don't wait. Before breakfast they're up on the walls with fresh thatch and new poles and rope, and soon everyone who can carry anything is carrying it to them, while the children are sent to fetch the cooking pots back from the beach...",
@@ -197,7 +199,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L4333"
+   "src": "L4333",
+   "auto_text": true
   },
   "c2": {
    "text": "Before anyone can build anything, the village has to be cleared. Everyone starts at one end and works to the other, hauling away the fallen branches, the broken poles, the torn thatch, the smashed baskets and the goats that have got into places goats shouldn't be...",

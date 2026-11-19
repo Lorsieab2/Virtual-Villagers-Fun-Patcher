@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14608"
+   "src": "L14608",
+   "auto_text": true
   },
   "c1o2": {
    "text": "A storm cloud billows out of the gourd, bigger and bigger, until it covers the whole village. It rains for an hour, a warm, gentle, perfect rain. The gardens drink it up, the dust is washed off every roof, and the builders, who have been waiting for wet clay to mend the walls with, finally have some, and use it. Your villagers gain (award) food.",
@@ -155,7 +156,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L14611"
+   "src": "L14611",
+   "auto_text": true
   },
   "c1": {
    "text": "They carry it out onto the beach, both holding it, and (subject) picks the last of the wax off with a fingernail. The gourd hums...",
@@ -180,7 +182,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14617"
+   "src": "L14617",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The gourd has burst, and a rain cloud is pouring buckets of water onto the meeting-hut floor. By the time it rains itself out, the floor is a pond and the mats are floating. It takes a week to dry everything. (subject) and (friend) are given the job, together, and stop arguing over whose turn it is for anything at all.",

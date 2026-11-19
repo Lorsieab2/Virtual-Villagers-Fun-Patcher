@@ -70,6 +70,44 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tells (friend) that without the First Fire, there'd be no cooking, no warmth, no light, no village. (friend) considers this. On the night, (friend.he/she) waves (friend.his/her) leaves with tremendous intensity, crackling and hissing, for the entire play, including several scenes where the fire is not supposed to be lit. It's very distracting. Everyone agrees it's the most committed fire they've ever seen.",
+   "src": "L581"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) adds a new character: the First Crab, who greets the founders on the beach. (friend) is thrilled. On the night, (friend.he/she) scuttles out sideways and announces, \"Welcome to Isola! I am the crab!\" in such a huge voice that the audience collapses. It is not historically accurate. It's the best part of the play. The First Crab is in every play after that.",
+   "src": "L578",
+   "text_only": [
+    {
+     "what": "\"collapses\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- the draft's notes: everything but the marked effects is story only",
+     "src": "L578"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L578"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) adds a new character: the First Crab, who greets the founders on the beach. (friend) is thrilled. On the night, (friend.he/she) scuttles out sideways and announces, \"Welcome to Isola! I am the crab!\" in such a huge voice that the audience collapses. It is not historically accurate. It's the best part of the play. The First Crab is in every play after that.",
    "src": "L578",
@@ -80,11 +118,6 @@
      "src": "L578"
     }
    ]
-  },
-  "o2": {
-   "name": "Outcome B",
-   "text": "(subject) tells (friend) that without the First Fire, there'd be no cooking, no warmth, no light, no village. (friend) considers this. On the night, (friend.he/she) waves (friend.his/her) leaves with tremendous intensity, crackling and hissing, for the entire play, including several scenes where the fire is not supposed to be lit. It's very distracting. Everyone agrees it's the most committed fire they've ever seen.",
-   "src": "L581"
   }
  }
 }

@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6298"
+   "src": "L6298",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The fever burns all night. In the morning (subject) sits up, cool as a stone, and says (subject.his/her) name is (made1). (subject.He/She) is perfectly sure about it. Everyone else is perfectly sure it isn't. But after a while, as (fisher) points out, it's hard to argue with someone who knows their own name. \"My grandmother was the same,\" (subject.he/she) says. \"Called herself something new for sixty years.\"",
@@ -145,7 +146,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6301"
+   "src": "L6301",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) eats the whole fish, every bite, with a little salt. It tastes like nothing (subject.he/she) has ever eaten, sweet and smoky and a little bit like lightning. By the time (subject.he/she) has licked (subject.his/her) fingers, (subject.his/her) cheeks are burning...",
@@ -180,7 +182,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L6307"
+   "src": "L6307",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The red fish stares at (subject) for a very long time. Then it sinks. (subject) goes home hungry and eats cold breadfruit. (fisher) says that's a good sign. When (subject) asks why, (fisher) says the last person who got stared at like that lived to be a hundred.",

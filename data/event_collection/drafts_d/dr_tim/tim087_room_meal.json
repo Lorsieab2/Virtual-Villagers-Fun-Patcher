@@ -122,21 +122,125 @@
    ]
   },
   "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "Two neighbors invite (name1), a quiet villager, to share their meal. The conversation is ordinary, which is exactly what feels comforting.",
+   "src": "L1459",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1459"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
    "name": "Ending 1",
    "text": "Two neighbors invite (name1), a quiet villager, to share their meal. The conversation is ordinary, which is exactly what feels comforting.",
    "src": "L1459"
   },
-  "e2": {
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "Two neighbors invite (name1), a quiet villager, to share their meal. A small invitation changes the mood of the whole afternoon.",
+   "src": "L1463",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1463"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Ending 2",
    "text": "Two neighbors invite (name1), a quiet villager, to share their meal. A small invitation changes the mood of the whole afternoon.",
    "src": "L1463"
   },
-  "e3": {
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "Two neighbors invite (name1), a quiet villager, to share their meal. (Name1) enjoys the company and also looks forward to time alone.",
+   "src": "L1467",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1467"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
    "name": "Ending 3",
    "text": "Two neighbors invite (name1), a quiet villager, to share their meal. (Name1) enjoys the company and also looks forward to time alone.",
    "src": "L1467"
   },
-  "e4": {
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "Two neighbors invite (name1), a quiet villager, to share their meal. Someone remembers an old joke, and the group starts laughing again.",
+   "src": "L1471",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1471"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "Two neighbors invite (name1), a quiet villager, to share their meal. Someone remembers an old joke, and the group starts laughing again.",
    "src": "L1471"

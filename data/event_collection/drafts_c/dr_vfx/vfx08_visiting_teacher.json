@@ -93,7 +93,8 @@
      "reason": "technology talked about in the story; no tech points change -- the draft's notes: everything but the marked effects is story only",
      "src": "L98"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -106,7 +107,8 @@
      "scaled": true,
      "src": "L101"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

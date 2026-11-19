@@ -137,7 +137,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L4547"
+   "src": "L4547",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The light leads (name) deeper and deeper into the trees, further than (he/she) has ever been, further than anyone has been, through forest that gets older and darker and quieter, until (name) can't remember which way the village is, and doesn't seem to care. (He/She) is never seen again. In the morning, (his/her) mat is empty, and (his/her) footprints lead into the trees and stop. The light is never seen again either. The elders say nothing at all, which is somehow worse.",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4550"
+   "src": "L4550",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) steps into the trees. The light drifts ahead of (him/her), never too fast, never too far, waiting whenever (he/she) stumbles, glowing softly on the trunks and the ferns and the ground...",
@@ -175,7 +177,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4559"
+   "src": "L4559",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) doesn't step into the trees. (He/She) stays right at the edge, where the grass ends and the forest begins, and calls out, quietly, into the dark: \"Hello? Who are you? What do you want?\"...",

@@ -210,7 +210,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "The count matches (subject)'s tally exactly, down to the last coconut. Nobody has been sneaking food, and no one is punished. It turns out (subject) simply forgot to tell the cooks that half the feast food was already set aside in a different hut. There is a lot of embarrassed laughter, and the cooks fill their baskets.",

@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9818"
+   "src": "L9818",
+   "auto_text": true
   },
   "c1o2": {
    "text": "It is the best harvest dance anyone can remember. The old ones dance longer than they have in years, because nobody is making them hop. At the end, (elder) hugs (subject) and says it was perfect. Then, at the very end, when the elders have sat down, (subject) does thirty hops round the fire on (subject.his/her) own, and everyone cheers.",
@@ -148,7 +149,8 @@
      }
     }
    ],
-   "src": "L9821"
+   "src": "L9821",
+   "auto_text": true
   },
   "c1": {
    "text": "The drums start, slow and deep. (subject) stamps, and sways, and holds the hops in with every muscle (subject.he/she) has. Round the fire behind (subject.him/her), the old ones follow, swaying, smiling...",
@@ -174,7 +176,8 @@
      "max": -20
     }
    ],
-   "src": "L9827"
+   "src": "L9827",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The old ones don't try to hop. They clap. They clap the beat for the young ones, laughing, and the young ones hop round them in a ring, and it's a new dance entirely, and everyone loves it. (subject) is so happy that a few things (subject.he/she) used to sulk about stop seeming to matter.",
@@ -193,7 +196,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9830"
+   "src": "L9830",
+   "auto_text": true
   },
   "c2": {
    "text": "The drums start slow. (subject) waits one beat, two, then gives the drummers a look, and the drums speed up, and (subject) starts to hop...",

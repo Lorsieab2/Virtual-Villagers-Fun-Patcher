@@ -137,7 +137,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L2190"
+   "src": "L2190",
+   "auto_text": true
   },
   "c1o2": {
    "text": "It rained up on the ridge in the afternoon. (Name) didn't know. The red rock is slick and wet, and halfway across, where the path is narrowest, (his/her) foot slides out from under (him/her). There's nobody there to see. (He/She) does not come home. When (he/she) still hasn't come back by morning, the searchers go out along both paths, calling, and on the ridge they find (his/her) basket lying on its side at the edge, with the fruit spilled out over the rocks. Nothing else. The sea below gives nothing back. Nobody in the village takes the shortcut again, for a while.",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2193"
+   "src": "L2193",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) shifts the basket on (his/her) back, takes a deep breath, and steps out onto the ridge. The wind comes up from the sea in gusts, tugging at (him/her). Far below, the waves boom against the rocks. (He/She) doesn't look down...",
@@ -185,7 +187,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L2202"
+   "src": "L2202",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) looks at the ridge for a long time, at the red rock and the drop and the setting sun. Then (he/she) sighs, shifts the heavy basket, and turns down the long, winding path through the jungle instead...",

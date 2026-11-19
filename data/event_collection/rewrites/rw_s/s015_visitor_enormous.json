@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L691"
+   "src": "L691",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The traveller laughs and pats the hat fondly. \"Oh no. I can't part with this. This hat and I have been through too much together.\" But (he/she) rummages in the bottom of the canoe and brings out a bundle wrapped in oiled leaves. \"Take these instead. I've no more use for them.\" Inside are clever little tools of bone and stone and shell, some that the village has never seen before: a hook that folds, a tiny saw, a thing with a spiral in it that nobody can work out. The researchers work out the spiral thing in a week, and are very excited about it. Your villagers gain (award) tech points.",
@@ -148,7 +149,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L694"
+   "src": "L694",
+   "auto_text": true
   },
   "c1": {
    "text": "\"I'll give you anything for that hat,\" (name) blurts out, before (he/she) can stop (himself/herself). The traveller straightens up slowly, one hand on the brim, and gives (name) a long, measuring look...",
@@ -177,7 +179,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L700"
+   "src": "L700",
+   "auto_text": true
   },
   "c2o2": {
    "text": "\"Somewhere else,\" says the traveller. Then (he/she) stops pushing the canoe. (He/She) looks back up the beach at the village, where the cooking smoke is rising and the children are already running down to wave. (He/She) looks at the empty sea. \"Although,\" (he/she) says slowly, \"I've been to a great many somewhere elses.\" (He/She) pulls the canoe back up the sand. The traveller decides that this village is nicer than somewhere else, and stays, tipping (his/her) hat to (name).",
@@ -187,7 +190,8 @@
      "age": "adult"
     }
    ],
-   "src": "L703"
+   "src": "L703",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Where are you going, anyway?\" asks (name). The traveller stops, the canoe halfway into the water, and looks out at the horizon for a long moment, as if (he/she) has never really thought about it...",

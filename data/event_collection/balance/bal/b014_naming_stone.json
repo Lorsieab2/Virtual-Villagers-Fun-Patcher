@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L630"
+   "src": "L630",
+   "auto_text": true
   },
   "c1o2": {
    "text": "In the end, (name) just carves the first name that comes into (his/her) head, and steps back, and looks at it. It's an ordinary sort of name. It's nobody's great-uncle's. \"That'll do,\" (he/she) says, and goes home feeling lighter than (he/she) has in years. (He/She) answers to it from the first day, as if it had always been waiting.",
@@ -142,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L633"
+   "src": "L633",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) scratches out the old name with three careful strokes. Then (he/she) stands there with the knife over the empty stone, and realises (he/she) has no idea what to carve...",

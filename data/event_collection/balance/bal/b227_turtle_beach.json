@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10573"
+   "src": "L10573",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The hatchlings reach the sea, and on the way home they find the crying baby's family camped further along the beach: travellers whose baby has colic and has kept them up for a week. (subject) and (friend) help walk the baby up and down till it sleeps. Soon after, (subject) is pregnant, and the two of them are much more patient people than they were.",
@@ -163,7 +164,8 @@
      "remove": true
     }
    ],
-   "src": "L10576"
+   "src": "L10576",
+   "auto_text": true
   },
   "c1": {
    "text": "They stay. The crying goes on, far along the beach, and then stops. (subject) can't stop thinking about it. At dawn, the first hatchlings dig out of the sand and run for the sea...",
@@ -189,7 +191,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10582"
+   "src": "L10582",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The crying turns out to be a young seal, stranded on the rocks and calling for its mother. They push it back into the sea. When they get back, the crabs have been at two of the nests. But most of the hatchlings reach the sea at dawn, and a month later (subject) is pregnant anyway. \"Close enough,\" says (friend).",
@@ -201,7 +204,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10585"
+   "src": "L10585",
+   "auto_text": true
   },
   "c2": {
    "text": "They leave the torch by the nests and run along the beach in the dark towards the crying. It gets louder, and closer, and then, round a rock, they find it...",

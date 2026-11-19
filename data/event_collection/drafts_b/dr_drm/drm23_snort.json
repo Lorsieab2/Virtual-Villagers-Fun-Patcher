@@ -69,11 +69,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) puts on the hat, holds up the fish, and does the voice. (friend) stares. (subject)'s confidence wobbles. Then (friend)'s mouth twitches, and twitches again, and suddenly (friend.he/she) is laughing helplessly, and somewhere in the middle of it comes a loud, unmistakable snort. (subject) keeps a perfectly straight face, and privately decides this is the best day of the year.",
+   "src": "L278",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L278"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L278"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) puts on the hat, holds up the fish, and does the voice. (friend) stares. (subject)'s confidence wobbles. Then (friend)'s mouth twitches, and twitches again, and suddenly (friend.he/she) is laughing helplessly, and somewhere in the middle of it comes a loud, unmistakable snort. (subject) keeps a perfectly straight face, and privately decides this is the best day of the year.",
    "src": "L278"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) chickens out at the last moment and just eats (subject.his/her) fish. Halfway through the meal, (subject.he/she) chokes on a piece of it, recovers, and says in a very small voice, \"That went down the wrong way.\" For some reason (friend) finds this so funny that (friend.he/she) snorts. (subject) doesn't know whether that counts.",
+   "src": "L281",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L281"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) chickens out at the last moment and just eats (subject.his/her) fish. Halfway through the meal, (subject.he/she) chokes on a piece of it, recovers, and says in a very small voice, \"That went down the wrong way.\" For some reason (friend) finds this so funny that (friend.he/she) snorts. (subject) doesn't know whether that counts.",
    "src": "L281"

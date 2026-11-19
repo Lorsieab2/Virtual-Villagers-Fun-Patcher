@@ -134,7 +134,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3773"
+   "src": "L3773",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) is a grown-up. A real one, all at once, overnight, with a grown-up's height and a grown-up's hands. But inside, (he/she) is still a child, and has no idea how to do any of the grown-up things. (He/She) holds the hoe upside down. (He/She) ties knots that fall apart. The adults are very patient with (him/her), and show (him/her) everything, slowly, one thing at a time, and (name) learns fast, much faster than anyone expected. By the end of the season, nobody would ever know.",
@@ -158,7 +159,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3776"
+   "src": "L3776",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) leaps up, banging (his/her) head on the roof beam, and runs out into the village. \"I'm big!\" (he/she) shouts to everyone. \"I can help now! Give me something to do!\" The adults look at each other...",
@@ -187,7 +189,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3785"
+   "src": "L3785",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) looks down at (his/her) long new legs, and (his/her) big new hands, and at (his/her) parents' faces, and suddenly doesn't feel so sure about any of this. That night (he/she) goes back out to the beach and lies on the sand, watching the sky, waiting for another falling star...",

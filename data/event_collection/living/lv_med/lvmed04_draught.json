@@ -102,7 +102,8 @@
      "max": -10,
      "src": "L20261"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -116,7 +117,8 @@
      "max": -40,
      "src": "L20262"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -167,9 +169,46 @@
      "max": 10,
      "src": "L20267"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "A safer method of easing pain is found, though it cannot guarantee comfort.",
+   "src": "L20268",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20268"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20268"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "A safer method of easing pain is found, though it cannot guarantee comfort.",
    "src": "L20268",
@@ -190,7 +229,8 @@
      "scaled": true,
      "src": "L20268"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

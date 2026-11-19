@@ -137,7 +137,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9440"
+   "src": "L9440",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) sleeps for three days. When (subject.he/she) wakes, (subject.he/she) is very calm about everything. Very, very calm. Jobs get done when they get done. Things that used to bother (subject.him/her) don't bother (subject.him/her) at all. (subject.His/her) family are relieved, then slightly alarmed. (apprentice) writes \"half the honey\" on (subject.his/her) recipe.",
@@ -155,7 +156,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9443"
+   "src": "L9443",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) eats every bite, too tired to argue. Then (subject.he/she) sits back, and the fire seems very warm, and the voices round it very kind, and (subject.his/her) eyelids very heavy...",
@@ -181,7 +183,8 @@
      "role": "subject"
     }
    ],
-   "src": "L9449"
+   "src": "L9449",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(apprentice), offended that (subject.his/her) cake is being refused, eats it (subject.himself/herself) to prove it's safe. (subject.He/She) falls asleep sitting up, falls sideways into the woodpile, and wakes up two days later with a lump on (subject.his/her) head and a very sore arm. (subject) goes on working from dark to dark.",
@@ -193,7 +196,8 @@
      "max": -20
     }
    ],
-   "src": "L9452"
+   "src": "L9452",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Someone's put something in this,\" says (subject), and pushes the bowl across the mat. Everyone round the fire looks innocent. (apprentice) looks so innocent (subject.he/she) goes red...",

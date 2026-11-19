@@ -136,7 +136,8 @@
      "age": "adult"
     }
    ],
-   "src": "L11323"
+   "src": "L11323",
+   "auto_text": true
   },
   "c1o2": {
    "text": "A wave throws (name) against the reef on the way out, and the coral opens a long cut along (his/her) leg. (He/She) keeps going anyway. In the canoe are a weary (man/woman), a teenager who has been bailing water for two days straight, and a small child asleep under a mat. (Name) brings them {#made:in, though the village has room for only one of them|in, though the village has room for only two of them|in}, bleeding the whole way, and has to be helped up the beach. The teenager stays by (his/her) side until the healers come.",
@@ -160,7 +161,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11326"
+   "src": "L11326",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) drops the net, wades in and starts swimming. The water over the reef is choppy and full of churned sand, and (he/she) has to pick (his/her) way carefully between the coral heads...",
@@ -188,7 +190,8 @@
      "age": "adult"
     }
    ],
-   "src": "L11332"
+   "src": "L11332",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The smoke goes up straight and tall, but the current has the canoe. (Name) watches it drift past the point, the paddle still waving, until it is a speck and then nothing. (He/She) keeps the fire burning all night anyway. In the morning there is nothing on the horizon. (Name) tells (himself/herself) that the next island over has beaches too, and tries to believe it.",

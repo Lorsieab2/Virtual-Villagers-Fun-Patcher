@@ -206,7 +206,8 @@
      "scaled": true
     }
    ],
-   "src": "L9512"
+   "src": "L9512",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Some batches are slippery, and some aren't, and (subject) can't work out why. (subject.He/She) writes down the uncertainty honestly, and starts a third jar.",
@@ -235,7 +236,8 @@
      "scaled": true
     }
    ],
-   "src": "L9519"
+   "src": "L9519",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Both explanations, the fuel and the salt in the driftwood, still fit after the test. More tests are needed. (subject) is delighted. More tests is (subject.his/her) favourite thing now.",
@@ -264,7 +266,8 @@
      "scaled": true
     }
    ],
-   "src": "L9526"
+   "src": "L9526",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The group argues about how much ash counts as \"a handful.\" Big hands? Small hands? Heaped or flat? Finally they agree on a coconut shell measure: one half shell, level. It takes all evening.",
@@ -297,7 +300,8 @@
      "max": 20
     }
    ],
-   "src": "L9533"
+   "src": "L9533",
+   "auto_text": true
   },
   "c4o2": {
    "text": "(novice) notices that one of the jars had seawater in it, not fresh water, because someone filled it at the beach. That would change everything. The group revises its notes, and (subject) labels the water jars too, now.",

@@ -201,7 +201,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11245"
+   "src": "L11245",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The boat is empty except for one thing, tucked into a crack in the hull: a child's drawing in charcoal on bark. It's a picture of the village. Every hut is in the right place, even the new ones, even the one that was only finished last week. (Name) shows it to everyone. No child in the village drew it.",

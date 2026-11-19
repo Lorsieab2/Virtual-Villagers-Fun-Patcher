@@ -204,7 +204,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L12130"
+   "src": "L12130",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The figure is pointing straight at a big muddy puddle. (subject) stares at it. There's nothing there. Then a small, giggling voice comes from behind the bean poles, and a child pops out, covered in clay. The child has been making the figure, turning it every morning, and smoothing the soil \"so it looks magic\". (subject) laughs so hard (subject.he/she) has to sit down in the mud.",

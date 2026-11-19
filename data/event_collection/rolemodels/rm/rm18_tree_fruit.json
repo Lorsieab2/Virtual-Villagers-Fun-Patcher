@@ -219,7 +219,8 @@
      "scaled": true,
      "src": "L39"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d2": {
    "name": "Outcome D2",

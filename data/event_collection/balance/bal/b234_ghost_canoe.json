@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10903"
+   "src": "L10903",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) paddles beside the old canoe all night, in silence, through the fog. At dawn the paddler holds out (his/her) hand for the paddle, and (name) gives it back, and the Ghost Canoe fades with the fog. (Name) comes home exhausted, with a full catch, and knows the sea better than (he/she) ever did. (He/She) never talks about it.",
@@ -145,7 +146,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10906"
+   "src": "L10906",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) reaches out and takes the paddle. It's cold and wet and very old, and it fits (his/her) hands perfectly. The paddler nods, and starts to paddle again, and (name)'s own canoe begins to drift along beside...",
@@ -170,7 +172,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10912"
+   "src": "L10912",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) makes it through the gap and runs (his/her) canoe up onto the sand and doesn't stop running until (he/she) is in (his/her) hut. In the morning, there's a very old paddle lying on the beach beside (his/her) canoe. Nobody will touch it. In the end the fishers push it out to sea on the tide.",

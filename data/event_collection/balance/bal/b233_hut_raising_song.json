@@ -142,7 +142,8 @@
      }
     }
    ],
-   "src": "L10855"
+   "src": "L10855",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The words (subject) makes up are not quite the right ones. A post that \"wants to stand up\" stands up very suddenly and knocks (subject) off the stump. The healers bind (subject.his/her) arm. The huts get finished anyway, by people humming very carefully, without words. (elder) remembers the right words a week later.",
@@ -158,7 +159,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10858"
+   "src": "L10858",
+   "auto_text": true
   },
   "c1": {
    "text": "At dawn (subject) stands on a tree stump in the middle of the broken huts and starts to sing, making up the words (elder) has forgotten. The whole village joins in on the chorus, and starts to work...",
@@ -193,7 +195,8 @@
      }
     }
    ],
-   "src": "L10864"
+   "src": "L10864",
+   "auto_text": true
   },
   "c2o2": {
    "text": "While everyone works, (elder) sits on the stump and sings the old song by (subject.himself/herself), the half of it (subject.he/she) remembers, over and over, in a cracked old voice. It's not loud. But the posts go up, one by one, and the huts are all finished by sunset. Nobody knows whether it was the song.",
@@ -203,7 +206,8 @@
      "structures": "any"
     }
    ],
-   "src": "L10867"
+   "src": "L10867",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) decides hands are more use than a voice. (subject.He/She) spends the day lifting posts and tying thatch with the builders, sweating and swearing...",

@@ -132,7 +132,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L3174"
+   "src": "L3174",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The warm hand pulls back, harder. (Name) stumbles forward through the cold curtain and is gone. (His/Her) gourds are found the next day at the pool's edge, full. The village searches the hollow behind the waterfall and finds only wet rock and moss. The children don't play near the waterfall anymore, and the elders don't call it nonsense.",
@@ -142,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3177"
+   "src": "L3177",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) reaches out. (His/Her) hand goes through the falling water, cold as ice, and closes round another hand, warm, on the other side...",
@@ -166,7 +168,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L3183"
+   "src": "L3183",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The reflection fades back into the falling water. (Name) goes home with (his/her) gourds, and only notices at supper that everyone is staring. The spray has done something: (his/her) face looks years younger, fresh as a child's after a swim. \"The waterfall learned your face,\" says an elder, \"and gave back an earlier one.\"",
@@ -176,7 +179,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3186"
+   "src": "L3186",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) takes a step back, and then another. The reflection in the water doesn't step back. It stays where it is, close to the front of the curtain, as if it is waiting...",

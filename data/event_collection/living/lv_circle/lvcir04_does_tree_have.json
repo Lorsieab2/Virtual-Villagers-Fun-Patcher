@@ -119,9 +119,16 @@
    "src": "L21289"
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "A woodworker discovers the tree sheltered a rare creature and regrets the loss.",
-   "src": "L21290"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -144,6 +151,25 @@
    "name": "Outcome C2",
    "text": "The debate remains unsettled, but villagers begin recording tree ages.",
    "src": "L21293"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "A woodworker discovers the tree sheltered a rare creature and regrets the loss.",
+   "src": "L21290",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "carpenter",
+     "mood": "bad",
+     "src": "L21290"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "A woodworker discovers the tree sheltered a rare creature and regrets the loss.",
+   "src": "L21290"
   }
  }
 }

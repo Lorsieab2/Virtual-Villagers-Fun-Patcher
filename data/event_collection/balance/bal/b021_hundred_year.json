@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L948"
+   "src": "L948",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(friend) comes running when (subject.he/she) hears, and stops dead at the edge of the pond. Then (friend.he/she) wades straight in, clothes and all, and takes the baby's other foot in (friend.his/her) hand, and that's that. They carry the baby home between them. The lotus closes behind them, and the pond goes back to smelling of mud.",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L951"
+   "src": "L951",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) slides (subject.his/her) hands under the petal and lifts. The baby is warm and smells of honey too. As soon as it is out of the flower, the great lotus begins, very slowly, to close...",
@@ -178,7 +180,8 @@
      }
     }
    ],
-   "src": "L960"
+   "src": "L960",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) wades back and runs for the elders. By the time they arrive, half the village is standing round the pond, and the lotus has begun to close, petal by petal, around the sleeping baby...",

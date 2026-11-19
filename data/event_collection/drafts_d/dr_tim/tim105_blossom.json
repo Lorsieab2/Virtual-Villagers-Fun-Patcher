@@ -99,9 +99,16 @@
    "src": "L1759"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(Name1) discovers a flower blooming where none was expected. The progress is tiny, but it brightens the morning.",
-   "src": "L1763"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -112,6 +119,25 @@
    "name": "Ending 4",
    "text": "(Name1) discovers a flower blooming where none was expected. A neighbor stops to admire the careful work.",
    "src": "L1771"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1) discovers a flower blooming where none was expected. The progress is tiny, but it brightens the morning.",
+   "src": "L1763",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1763"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1) discovers a flower blooming where none was expected. The progress is tiny, but it brightens the morning.",
+   "src": "L1763"
   }
  }
 }

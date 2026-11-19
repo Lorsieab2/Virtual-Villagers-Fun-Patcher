@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7206"
+   "src": "L7206",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) reaches the goat and ties it on, and the village hauls it up. Then a stone falls on (subject)'s back. It takes three people and two ropes to get (subject.him/her) out. The healers do what they can, but (subject)'s back is never the same. (subject.He/She) walks bent from then on, slowly, with a stick, and won't go near a ladder or a rope again. (child) brings (subject.him/her) a cup of goat's milk every morning for the rest of (subject.his/her) life.",
@@ -160,7 +161,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L7209"
+   "src": "L7209",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) ties the rope round a tree, then round (subject.his/her) waist, and starts down into the dark, feet against the stones. The goat bleats louder. A stone comes loose under (subject.his/her) hand and falls for a long time...",
@@ -187,7 +189,8 @@
      }
     }
    ],
-   "src": "L7215"
+   "src": "L7215",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The ladder is two steps too short. In the end (builder) climbs down to the end of the ladder and hangs off it by one hand while (subject) holds the top, and grabs the goat by one ear. Everybody shouts. The goat is saved, and so is (builder), just. They fill in the well the next day, every stone.",

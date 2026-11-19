@@ -132,7 +132,8 @@
      "structures": "any"
     }
    ],
-   "src": "L12323"
+   "src": "L12323",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Once the props are in, (name) shows the other builders how to spot termite wood before it gives way: tap it, and listen for the dry papery sound. They go through the whole village, scroll hut included, and replace every bad post. It takes a week. When it's done, every builder can find termites with their eyes shut.",
@@ -153,7 +154,8 @@
      }
     }
    ],
-   "src": "L12326"
+   "src": "L12326",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) runs from hut to hut, shouting for the builders. They drag in every spare pole in the village and start jamming them under the sagging rafters, one hut after another...",
@@ -184,7 +186,8 @@
      "what": "\"collapse\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "The scrolls are safe, but two huts collapse in the night, one of them (name)'s own. Nobody is hurt, but it is a long, cold night for the families. (Name) spends the next week rebuilding both huts, from the ground up, alone, out of guilt. By the end, (he/she) is a much better builder than (he/she) was, and a very tired one.",
@@ -204,7 +207,8 @@
      "what": "\"collapse\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) runs to the scroll hut and starts carrying scrolls out into the sun by the armful. Behind (him/her) the shelves are already beginning to lean...",

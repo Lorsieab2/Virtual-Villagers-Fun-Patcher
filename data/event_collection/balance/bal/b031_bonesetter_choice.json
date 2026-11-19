@@ -146,7 +146,8 @@
      "next": "c1o1_c1"
     }
    ],
-   "src": "L1403"
+   "src": "L1403",
+   "auto_text": true
   },
   "c1o2": {
    "text": "There's a terrible noise, and then it's done, and (subject) has fainted, which is probably for the best. The splint goes on. Six weeks later, (subject) walks out of the healers' hut on two good legs. The young healers can't stop talking about how fast (healer)'s hands moved. (healer) spends the next month teaching them, and gets better at it every time.",
@@ -159,7 +160,8 @@
      "best": true
     }
    ],
-   "src": "L1406"
+   "src": "L1406",
+   "auto_text": true
   },
   "c1": {
    "text": "(healer) nods to two strong villagers to hold (subject) down, puts both hands on the leg, counts to three, and pulls on two...",
@@ -189,7 +191,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1412"
+   "src": "L1412",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) sleeps through the whole thing, and wakes up with a neat splint and no memory of how it got there. \"Is it done?\" (subject.he/she) asks. \"When are you going to do it?\" It heals slowly, and straight. (subject) spends six weeks on (subject.his/her) back, telling everyone who visits that falling out of a palm tree is \"nothing, really.\"",

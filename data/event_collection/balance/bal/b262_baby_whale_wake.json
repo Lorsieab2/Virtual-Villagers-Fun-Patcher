@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12232"
+   "src": "L12232",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) brings the baby home and (friend), (subject.his/her) partner, takes one look at the kelp bundle and starts laughing. \"Only you,\" (subject.he/she) says, \"would come home from watching a whale with a baby.\" They raise it together, and (friend) insists on calling the baby's sleeping basket \"the whale.\"",
@@ -148,7 +149,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12235"
+   "src": "L12235",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) picks up the bundle. The baby opens its eyes, looks at (subject.him/her) very seriously, and grabs (subject.his/her) finger in a tiny fist...",
@@ -176,7 +178,8 @@
      "age": "adult"
     }
    ],
-   "src": "L12241"
+   "src": "L12241",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Nobody along the whole coast is missing a baby. (subject) comes back after three days, tired and sunburnt, and goes straight to the healers' hut. The baby is awake, and reaches out for (subject.him/her) as soon as (subject.he/she) walks in. The healers hand it over without a word. They had already guessed.",
@@ -187,7 +190,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12244"
+   "src": "L12244",
+   "auto_text": true
   },
   "c2": {
    "text": "The healers take the baby in, and (subject) sets off along the coast in a canoe, stopping at every cove and fishing camp to ask...",

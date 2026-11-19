@@ -140,7 +140,8 @@
      "role": "friend"
     }
    ],
-   "src": "L12820"
+   "src": "L12820",
+   "auto_text": true
   },
   "c1o2": {
    "text": "At the reef, (friend) leans over the side to touch one of the lights, and topples in. (subject) dives after (subject.him/her) again and again in the black water, and finally drags (subject.him/her) back to the canoe, but it is too late. (subject) paddles home alone with (friend) in the bottom of the canoe. The green lights never come back.",
@@ -151,7 +152,8 @@
      "cause": "unknown"
     }
    ],
-   "src": "L12823"
+   "src": "L12823",
+   "auto_text": true
   },
   "c1": {
    "text": "The two of them paddle out across the black lagoon towards the reef. The green lights drift apart as they get closer, as if making room for them...",
@@ -175,7 +177,8 @@
      "role": "friend"
     }
    ],
-   "src": "L12829"
+   "src": "L12829",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They sit on the beach together instead and watch the lights until they fade at dawn. On the fourth night the lights are gone. Later, a fisher from up the coast mentions that (subject.his/her) cousins had been night-fishing out on the reef with lanterns made of glowing fungus. (friend) is furious. (subject) is mostly relieved.",

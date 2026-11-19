@@ -144,9 +144,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The group invents a cheerful hybrid.",
-   "src": "L32426"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -174,6 +181,25 @@
    "name": "Outcome D2",
    "text": "The children decide there need not be one true version.",
    "src": "L32430"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The group invents a cheerful hybrid.",
+   "src": "L32426",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L32426"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The group invents a cheerful hybrid.",
+   "src": "L32426"
   }
  }
 }

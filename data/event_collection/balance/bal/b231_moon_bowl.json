@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10760"
+   "src": "L10760",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The face in the bowl is old: white-haired, deeply lined, kind. (subject) looks at it for a long time, and the face looks back. In the morning, (subject)'s hair has gone grey and the lines are there. \"The moon thinks you're wise,\" says (elder), which is a kind way of putting it.",
@@ -145,7 +146,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10763"
+   "src": "L10763",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) leans over the bowl and doesn't blink. The face in the water shifts and settles, like ripples finding their shape, and then holds still...",
@@ -169,7 +171,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10769"
+   "src": "L10769",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The water runs away into the sand, but the moon stays where it was, reflected on the bare, wet stone, for a long moment, before it fades. (subject) goes to bed and dreams of nothing at all. In the morning (subject.he/she) looks exactly the same, and is quite relieved.",

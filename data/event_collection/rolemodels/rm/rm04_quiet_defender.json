@@ -131,9 +131,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The children discover that several quiet classmates have useful ideas.",
-   "src": "L11"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -160,6 +167,25 @@
   "d2": {
    "name": "Outcome D2",
    "text": "The teacher observes the group and later addresses the exclusion privately.",
+   "src": "L11"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The children discover that several quiet classmates have useful ideas.",
+   "src": "L11",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L11"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The children discover that several quiet classmates have useful ideas.",
    "src": "L11"
   }
  }

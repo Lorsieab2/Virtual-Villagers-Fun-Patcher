@@ -141,7 +141,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16301"
+   "src": "L16301",
+   "auto_text": true
   },
   "c1o2": {
    "text": "On the second day, the ground shakes again while (name) is up on a roof. (He/She) slides off and lands hard, bruised from shoulder to hip. The other builders finish the work while (name) lies on a mat, shouting directions. The huts are mended by the end of the week. (Name) is mended by the end of the month.",
@@ -157,7 +158,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16304"
+   "src": "L16304",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) gathers the builders and starts with the worst huts, propping walls and replacing cracked posts while the families watch from outside...",
@@ -181,7 +183,8 @@
      "structures": "any"
     }
    ],
-   "src": "L16310"
+   "src": "L16310",
+   "auto_text": true
   },
   "c2o2": {
    "text": "On the second night, the ground shakes hard, and two of the cracked huts fall flat. Nobody is in them, because everyone is on the beach. The elders look at (name) with new respect. The builders rebuild everything, and the scroll-keepers write down how long the island shook and what fell, so that next time, people will know. Your villagers gain (award) tech points.",
@@ -200,7 +203,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L16313"
+   "src": "L16313",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) tells everyone to sleep in the open, away from the leaning walls, and waits. The village camps on the beach for three nights...",

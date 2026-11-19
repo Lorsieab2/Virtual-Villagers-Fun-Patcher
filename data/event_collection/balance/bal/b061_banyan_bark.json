@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2765"
+   "src": "L2765",
+   "auto_text": true
   },
   "c1o2": {
    "text": "When (name) lifts the bark away, the healers are quiet. (His/Her) face has the tree's years on it now: deep lines, a weathered, patient look. (Name) feels the same as ever, only calmer. \"It shared the old ones,\" says a healer. \"They're the ones it values most.\" (Name) decides to take that as a compliment.",
@@ -142,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2768"
+   "src": "L2768",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) lies back in the shade and lays the bark over (his/her) face. It settles like a damp cloth. Through it (he/she) can hear the tree creaking, like an old person stretching...",
@@ -167,7 +169,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2774"
+   "src": "L2774",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Nothing changes, except a pale patch on (name)'s arm in the shape of the bark, which fades in a week. The healers are disappointed. The tree finishes shedding, and stands in the clearing, silver and new, and keeps whatever it knows to itself.",

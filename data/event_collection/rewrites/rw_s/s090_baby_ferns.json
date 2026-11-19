@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4230"
+   "src": "L4230",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) brings the baby home, and (friend) is at the door. (friend) takes one look at the little red furious face, and falls in love, there and then, at first sight, completely and forever. \"Is it... can we...?\" (friend) says. (subject) doesn't even have to answer. They raise the baby together, and the baby, who started off so cross, turns out to be the happiest, most smiling baby in the whole village.",
@@ -148,7 +149,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4233"
+   "src": "L4233",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) picks the baby up, mat and all, very carefully, the way someone would pick up a bird's nest. The baby grabs a fistful of (subject.his/her) hair and holds on tight. \"All right,\" (subject) says. \"All right. Let's go home.\"...",
@@ -173,7 +175,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4239"
+   "src": "L4239",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Deep in the jungle, on the second day, (subject) hears weeping. (subject.He/She) follows it, and finds a frightened young couple huddled under a rock, filthy and exhausted. They were travelling, they say, and a storm caught them, and in the dark and the rain they set the baby down safe in the ferns to fight their way back to the path, and then they couldn't find the ferns again. They've been searching for two days. When they see the baby on (subject)'s chest, they both burst into tears. They come back to the village with (subject), and the baby, and {#made:only one of them can stay; the village has no room for more|only two of them can stay; the village has no room for more|stay}.",
@@ -192,7 +195,8 @@
      "child_of_newest": true
     }
    ],
-   "src": "L4242"
+   "src": "L4242",
+   "auto_text": true
   },
   "c2": {
    "text": "Somebody must be looking for this baby. (subject) ties the baby to (subject.his/her) chest with (subject.his/her) wrap and goes into the jungle, calling, searching, following every path, every broken twig, every bent fern (subject.he/she) can find...",

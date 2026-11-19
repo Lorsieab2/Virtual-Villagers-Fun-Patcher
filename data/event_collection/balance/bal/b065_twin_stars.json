@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2947"
+   "src": "L2947",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The glow fades, and there's a second (name), exactly alike, sitting in the grass and rubbing (his/her) eyes. One stone went dull. The other is still glittering, and the elders take it away very quickly and bury it somewhere nobody is told about. The newcomer takes the name (made1), and the two of them walk home arguing about who got there first.",
@@ -143,7 +144,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2950"
+   "src": "L2950",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) picks up a stone in each hand. They're warm, and grow warmer, and (his/her) hands begin to glow, and then (his/her) arms, and then all of (him/her)...",
@@ -167,7 +169,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L2956"
+   "src": "L2956",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The other stone flickers out. (Name) carries (his/her) stone home and keeps it on a shelf, where it glitters faintly at night for years. Nothing gets doubled. (Name) is mostly relieved, and slightly disappointed, and shows the stone to anyone who asks.",

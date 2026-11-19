@@ -138,7 +138,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8116"
+   "src": "L8116",
+   "auto_text": true
   },
   "c1o2": {
    "text": "When (name) takes the cloak off, a line of red and yellow feathers stays behind, stuck along (his/her) shoulders and down (his/her) arms, as if (he/she) has grown them. They won't come off, and they don't hurt. The {@chief} is furious, then curious, then amused. (Name) makes the best of it and adds more feathers to (his/her) clothes to match.",
@@ -149,7 +150,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8119"
+   "src": "L8119",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) lifts the cloak out of the chest. It's lighter than it looks, and it settles round (his/her) shoulders with a soft rustle, like birds landing...",
@@ -176,7 +178,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8125"
+   "src": "L8125",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The rustling is moths. Hundreds of them. They have been eating the first {@chief}'s cloak for years. (Name) and the {@chief} spend the whole day picking moths out of the feathers and hanging the cloak in the smoke of the fire to drive them off. The cloak is saved, more or less. It now has a small bald patch at the back, which nobody mentions.",

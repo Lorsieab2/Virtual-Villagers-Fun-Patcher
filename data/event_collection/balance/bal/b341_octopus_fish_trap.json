@@ -147,7 +147,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L15763"
+   "src": "L15763",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Then it lets go and slides away. For the rest of the day, (subject) and (friend) keep seeing flashes of red and gold out of the corners of their eyes, and their wrists are ringed with faint pink marks shaped like suckers. By morning the marks are gone. They both agree, privately, that the octopus was laughing at them.",
@@ -176,7 +177,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15772"
+   "src": "L15772",
+   "auto_text": true
   },
   "c2o2": {
    "text": "On the beach, the octopus squeezes through a gap in the trap no bigger than a coconut and pours itself back into the sea, leaving a cloud of ink over (friend)'s face. (friend) spends the evening scrubbing, and can't get the taste of ink out of (subject.his/her) mouth for a week. After that, fish of any kind just tastes of ink to (subject.him/her).",
@@ -188,7 +190,8 @@
      "like": "fish"
     }
    ],
-   "src": "L15775"
+   "src": "L15775",
+   "auto_text": true
   },
   "c2": {
    "text": "They lash the trap shut and paddle for the beach as fast as they can. The octopus squeezes harder, and harder, and its skin turns black...",

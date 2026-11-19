@@ -207,7 +207,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11127"
+   "src": "L11127",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The chest is empty except for a soaked, folded letter. The ink has run, but (name) can still make out a few lines. Whoever wrote it is asking the finder to remember a name, just one name, so that it isn't lost. The name is still legible. (Name) says it aloud on the beach, and then again at supper, and the village carves it on a post by the shore so it won't be forgotten.",

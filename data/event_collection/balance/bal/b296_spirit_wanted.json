@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13760"
+   "src": "L13760",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The footsteps go away, and come back an hour later. Something small and smooth is left on the doorstep: a river pebble, with a name scratched on it that isn't (name)'s. The spirit has kept (his/her) old name, but it has given (him/her) a new one in exchange. From the next morning on, everyone, (name) included, calls (him/her) (made1), and nobody remembers why.",
@@ -142,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13763"
+   "src": "L13763",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) opens the door and says (his/her) own name, slowly and clearly, into the dark. Something warm brushes past (his/her) face, like a breath...",
@@ -166,7 +168,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13769"
+   "src": "L13769",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) gives it the name of (his/her) grandmother's favourite tree. The spirit is quiet for a moment, then whispers it back, delighted, and the footsteps go away down the path for good. (Name) sleeps soundly for the first time in a month. Now and then, the children say they hear something in the forest calling itself by that name.",

@@ -119,6 +119,44 @@
    ]
   },
   "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An elder notes that convenience may change habits but not the need for stewardship.",
+   "src": "L753"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The villagers map their own springs and agree that protecting the watershed matters regardless of technology.",
+   "src": "L752",
+   "text_only": [
+    {
+     "what": "\"technology\"",
+     "reason": "technology talked about or imagined; no tech points change",
+     "src": "L752"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L752"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
    "name": "Outcome C1",
    "text": "The villagers map their own springs and agree that protecting the watershed matters regardless of technology.",
    "src": "L752",
@@ -136,12 +174,8 @@
      "scaled": true,
      "src": "L752"
     }
-   ]
-  },
-  "c2": {
-   "name": "Outcome C2",
-   "text": "An elder notes that convenience may change habits but not the need for stewardship.",
-   "src": "L753"
+   ],
+   "auto_text": true
   }
  }
 }

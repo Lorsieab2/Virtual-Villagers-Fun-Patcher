@@ -132,7 +132,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L1026"
+   "src": "L1026",
+   "auto_text": true
   },
   "c1o2": {
    "text": "\"Hello,\" the stranger calls back. \"Hello. Hello.\" Each one quieter than the last, exactly like an echo, and with each one the figure grows fainter, until the light is shining straight through it. On the last \"hello,\" barely a whisper, it's gone. (Name) stands there until (his/her) shadow is long, but nothing else comes out of the cave. From then on (he/she) only ever shouts other people's names at it, just in case.",
@@ -160,7 +161,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L1035"
+   "src": "L1035",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) runs. Unfortunately, in (his/her) panic (he/she) runs the wrong way: not out of the cave mouth but deeper into it, straight into the dark, and straight into the cave wall with a hollow thud. (He/She) wakes up a while later on the gravel with a bleeding head and a sore pride, and nobody else there at all. (He/She) staggers home, and the healers clean the cut and wrap (his/her) head in leaves. (Name) is never quite sure afterwards whether (he/she) saw anything at all, or just knocked it out of (his/her) head.",
@@ -172,7 +174,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1038"
+   "src": "L1038",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) doesn't wait to find out. (He/She) turns and runs, as fast as (he/she) can, not looking back, with the sound of the cave's breathing all around (him/her)...",

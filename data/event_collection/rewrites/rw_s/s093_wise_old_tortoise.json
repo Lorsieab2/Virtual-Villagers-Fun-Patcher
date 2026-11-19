@@ -143,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4367"
+   "src": "L4367",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) sits so long that (he/she) completely forgets about work. All afternoon (he/she) sits there, gazing into the tortoise's eyes, while (his/her) share of the harvesting doesn't get done, and the fruit sits unpicked, and the birds get at it. When the farmers come back in the evening and find (him/her) still sitting there, they are very annoyed. The tortoise, as far as anyone can tell, is not sorry at all.",
@@ -185,7 +186,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4376"
+   "src": "L4376",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The tortoise leads (name) very, very slowly, all afternoon, out of the village, down the path, across the beach, all the way to the edge of the water. Then it walks straight into the sea, and swims away. That's it. That's where it was going. (Name) stands there in the shallows at sunset, feeling slightly foolish. The little yellow flower on its shell is the last thing to disappear under the waves.",

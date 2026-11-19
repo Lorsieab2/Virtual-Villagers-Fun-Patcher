@@ -113,7 +113,8 @@
      "age": "adult",
      "src": "L21817"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -125,7 +126,8 @@
      "age": "adult",
      "src": "L21818"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",

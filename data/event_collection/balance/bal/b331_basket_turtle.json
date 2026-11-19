@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15317"
+   "src": "L15317",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) lifts the basket off the turtle's shell and turns to find (subject.his/her) partner, (partner), right behind (subject.him/her), having followed (subject.him/her) out of the dunes. (partner) takes one look inside and says, \"Well. We'd better go home.\" They raise the baby together, and name the sleeping basket \"the shell.\"",
@@ -148,7 +149,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15320"
+   "src": "L15320",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) creeps out of the dunes and kneels beside the huge turtle, which stops and looks at (subject.him/her) with one old, wet eye. (subject.He/She) unties the kelp with trembling fingers...",
@@ -187,7 +189,8 @@
      "what": "\"celebrated\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) is too slow. The turtle reaches the water, slips into the waves with the basket still on her back, and is gone. (subject) stands knee-deep in the surf, calling, until dawn. The elders say the turtle will find another beach, where somebody is quicker. (subject) is never late for the turtles again.",

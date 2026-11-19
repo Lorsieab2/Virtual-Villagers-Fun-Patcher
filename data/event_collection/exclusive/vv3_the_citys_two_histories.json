@@ -67,7 +67,8 @@
      "scaled": true,
      "src": "L7919"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "src": "L7920",
@@ -87,7 +88,8 @@
      "scaled": true,
      "src": "L7923"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "src": "L7924",

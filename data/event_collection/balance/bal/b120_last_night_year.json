@@ -134,7 +134,8 @@
      }
     }
    ],
-   "src": "L5434"
+   "src": "L5434",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) tells it beautifully, and when dawn comes (he/she) is exhausted, and looks it. The long night has settled into (his/her) face. (He/She) looks every one of (his/her) years now, and somehow more like an eldest than ever. \"Worth it,\" (he/she) says, and goes to sleep for most of the first day of the year.",
@@ -144,7 +145,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5437"
+   "src": "L5437",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) tells it slowly, solemnly, by the firelight, every name and every day, and the village sits in silence, listening...",
@@ -171,7 +173,8 @@
      }
     }
    ],
-   "src": "L5443"
+   "src": "L5443",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Telling the funny parts, (name) laughs harder than (he/she) has in years, and something about the long night of laughing seems to wash the years out of (his/her) face. By dawn (he/she) looks years younger, and swears (he/she) feels it too. \"Laughing,\" (he/she) says, \"is the best medicine the healers never thought of.\"",
@@ -181,7 +184,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5446"
+   "src": "L5446",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) tells the hard parts gently, and then tells about the fish that jumped into the wrong canoe, and the night the pigs got into the stores, and the village starts to laugh...",

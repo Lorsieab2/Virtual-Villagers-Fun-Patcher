@@ -94,7 +94,8 @@
      "max": 2,
      "src": "L170"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",

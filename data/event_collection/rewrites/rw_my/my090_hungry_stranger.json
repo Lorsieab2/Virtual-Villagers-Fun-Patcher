@@ -204,7 +204,8 @@
      "scaled": true
     }
    ],
-   "src": "L15105"
+   "src": "L15105",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The traveler eats, thanks (name) with great feeling, and continues on (his/her) way. There is no magic map, no glowing gift, no mysterious blessing. Just an empty bowl, a full traveler and a somewhat emptier pot. (Name) is surprised to find that (he/she) does not mind at all. (He/she) had half expected something, and is a little ashamed of that. (He/she) washes the bowl, humming.",
@@ -233,7 +234,8 @@
      "scaled": true
     }
    ],
-   "src": "L15112"
+   "src": "L15112",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The traveler accepts the half bowl with a little bow, and when (he/she) is done, picks up (name)'s old cracked basket from beside the door. \"May I?\" Before (name) can answer, the traveler's fingers are flying, weaving, tightening, tucking. Five minutes later, the basket is stronger than when it was new, with a neat little fish woven into the side. The traveler hands it back, nods, and goes on (his/her) way.",
@@ -262,7 +264,8 @@
      "scaled": true
     }
    ],
-   "src": "L15119"
+   "src": "L15119",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The traveler tries. (He/she) picks up the hoe, takes three steps into the field, and sways, and sits down hard in the dirt, pale and shaking. \"I'm sorry,\" (he/she) whispers. \"I can't.\" (Name) looks at (him/her) for a long moment. Then (he/she) helps the traveler up, sits (him/her) in the shade, and brings (him/her) a full bowl anyway. \"Work tomorrow,\" (name) says gruffly. The traveler is gone by morning, but the bowl has been washed and stacked.",
@@ -299,7 +302,8 @@
      "loss": true
     }
    ],
-   "src": "L15126"
+   "src": "L15126",
+   "auto_text": true
   },
   "c4o2": {
    "text": "The traveler finds help in the next hut down the path, where an old couple feed (him/her) and let (him/her) sleep by their fire. No storm comes. No curse falls. The village has an ordinary week. (Name) hears about it from the old couple, who were glad of the company. (He/she) feels a little foolish, and resolves that next time, lean season or not, (he/she) will find something to share.",

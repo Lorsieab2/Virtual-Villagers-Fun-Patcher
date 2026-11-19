@@ -589,13 +589,16 @@
    "effects": [
     {
      "do": "vanish",
-     "role": "subject"
+     "role": "subject",
+     "line": "leaves"
     },
     {
      "do": "vanish",
-     "role": "friend"
+     "role": "friend",
+     "line": "leaves"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "chasm2": {
    "text": "As they burst out of the cave, they flop onto what seems to be solid ground. However, (friend)'s foot slips and (friend.he/she) falls down a slippery chasm. Horrified, (subject) has no time to react before (subject.he/she), too tumbles down the winding waterfall. All that's left of them is their fading screams and a bowl of fresh berries.",
@@ -605,13 +608,16 @@
    "effects": [
     {
      "do": "vanish",
-     "role": "friend"
+     "role": "friend",
+     "line": "leaves"
     },
     {
      "do": "vanish",
-     "role": "subject"
+     "role": "subject",
+     "line": "leaves"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "dig1": {
    "text": "The two trek on, searching high and low for anything they can find. After a while with no luck, (subject) finds something buried in the ground. Wow! It's",
@@ -703,7 +709,8 @@
     {
      "do": "pay_award"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "map": {
    "text": "a map! (subject) and (friend) follow the map to a strange place that was previously unknown by the villagers. No one knows where they went, but they left a note saying they were 'alive and well' along with a drawing of their whereabouts. 'I hope you'll come and follow us someday,' the note says. 'You'll love it here. - (subject) and (friend)'",
@@ -712,13 +719,16 @@
    "effects": [
     {
      "do": "vanish",
-     "role": "subject"
+     "role": "subject",
+     "line": "leaves"
     },
     {
      "do": "vanish",
-     "role": "friend"
+     "role": "friend",
+     "line": "leaves"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "treasure": {
    "text": "a treasure map! (subject) and (friend) follow the map to the X marked on the ground, where they dig up a large chest full of jewels and gold! They drag the chest all the way back home to the utter delight of the villagers. Your villagers gain (award) of tech points.",
@@ -734,7 +744,8 @@
     {
      "do": "pay_award"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "preserved": {
    "text": "a sack of preserved food! (subject) and (friend) haul the large sack back to the village, to the delight of the villagers. Your villagers gain (award) food.",
@@ -750,7 +761,8 @@
     {
      "do": "pay_award"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "stay": {
    "text": "(friend) is too enamored by all the glittering sights and objects and decides to stay put. (friend.he/she) tries to take some to show the researchers, but (subject) stops them.",
@@ -819,7 +831,8 @@
      "what": "\"tech\"",
      "reason": "the word in the owner's story; what changes in the game is the outcome's own effects (the owner's spec beside it), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "ret_tech": {
    "text": "(Friend) carefully rearranges the objects exactly where (friend.he/she) found them, and offers a quick prayer of apology to the spirits. When the two return home, they find that someone has left a bundle of strange devices at their doorsteps. Your villagers gain (award) tech points.",
@@ -844,7 +857,8 @@
      "src": "L397",
      "alt": "tech points"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "keep": {
    "text": "(Friend) decides to take some of the objects for further study. \"Surely the researchers will want to come here now.\" When they return home,",
@@ -879,7 +893,8 @@
      "role": "subject",
      "cause": "unknown"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "k2": {
    "text": "(friend) suddenly feels a strange pain in their chest. Over the next few days (friend.he/she) develops a high fever and convulsions. No matter what the healers do, (friend) becomes weaker and weaker, until (friend.he/she) passes away in agony. The villagers mourn for (friend.him/her), and upon discovering the stolen artifacts, perform a complicated ritual to appease any angered spirits. Hopefully, this will put them, and poor (friend), to rest in peace.",
@@ -891,7 +906,8 @@
      "role": "friend",
      "cause": "unknown"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "k3": {
    "text": "(friend) informs the researchers about the objects (subject) and (friend) found. Intrigued, they start launching investigations into the strange artifacts along with the mysterious cave. Their discoveries astonish the historians and scientists greatly, yielding much information about the island's history and previous inhabitants. Your villagers gain (award) tech points.",
@@ -907,7 +923,8 @@
     {
      "do": "pay_award"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

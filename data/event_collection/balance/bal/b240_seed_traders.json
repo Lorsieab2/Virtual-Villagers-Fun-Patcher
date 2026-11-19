@@ -142,7 +142,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11184"
+   "src": "L11184",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The trade is done, and as the canoes push off, the tall grandson jumps out into the shallows and wades back. \"I want to stay,\" he says. His grandmother laughs and waves. \"He's been saying that at every island for a year,\" she calls. \"Yours is the first he meant.\" He stays, and he knows a great deal about seeds.",
@@ -152,7 +153,8 @@
      "age": "teen"
     }
    ],
-   "src": "L11187"
+   "src": "L11187",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) takes off (his/her) outer wrap and holds it out. The grandmother claps her hands, delighted, and starts digging through the mats for her very best packets...",
@@ -181,7 +183,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11193"
+   "src": "L11193",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The trading takes so long, and the village is so friendly, that by nightfall the traders are talking about it among themselves. In the morning, the grandmother sails on with one canoe, and {#made:only her son can stay, as the village has no room for more|only her son and his wife can stay, as the village has no room for more|her son, his wife and the tall grandson stay with the other}, to plant the new seeds and see them grow. \"Somebody has to,\" the grandmother says.",
@@ -199,7 +202,8 @@
      "age": "teen"
     }
    ],
-   "src": "L11196"
+   "src": "L11196",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) fetches baskets of the village's own seeds from the store, and the trading goes on all afternoon, with a lot of shouting and laughing and arguing about yams...",

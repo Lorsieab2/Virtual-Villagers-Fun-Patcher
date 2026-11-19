@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6874"
+   "src": "L6874",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The spirits let (name) sit at the feast with them, and give (him/her) a taste of everything. It is the best food (he/she) will ever eat, and everything (he/she) eats afterwards will taste like ashes next to it. In the morning there are new baskets beside the empty plates, full of fish nobody can name. (Name) goes home and never cares much for food again. Your villagers gain (award) food.",
@@ -152,7 +153,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L6877"
+   "src": "L6877",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) stands up, trembling, and says the old greeting. The lights go still. Then the tall one holds out a hand made of something like moonlight on water, and beckons...",
@@ -180,7 +182,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6886"
+   "src": "L6886",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) presses (himself/herself) flat behind the rock and doesn't breathe. The tall light looks at the rock for a long time. Then it turns back to the feast...",

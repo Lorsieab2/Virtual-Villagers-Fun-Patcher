@@ -140,7 +140,8 @@
      "role": "friend"
     }
    ],
-   "src": "L12729"
+   "src": "L12729",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They wake up the next morning with springy knees and straight backs, fifteen years younger, both of them. They spend the whole day doing everything they haven't been able to do for years: climbing, swimming, dancing at the cooking fire. In the evening they sit on the beach, exhausted. \"Same as last time,\" says (friend). \"We wore ourselves out by sunset.\"",
@@ -166,7 +167,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12732"
+   "src": "L12732",
+   "auto_text": true
   },
   "c1": {
    "text": "They both close their eyes and wish, as hard as they can, to be as young as they were the night they met. The sand under them grows warm...",
@@ -188,10 +190,12 @@
     {
      "do": "kill",
      "cause": "unknown",
-     "role": "subject"
+     "role": "subject",
+     "line": "injuries"
     }
    ],
-   "src": "L12738"
+   "src": "L12738",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They have a good year, and then another. Something about that night stays with them. Neither of them has ever had any patience for games, but now, when the children are racing on the beach or playing stones on the flat rock, the two old ones join in. \"What's the point of waiting?\" (friend) says. \"We wished for good years. Might as well enjoy them.\"",
@@ -209,7 +213,8 @@
      "dislike": "playing"
     }
    ],
-   "src": "L12741"
+   "src": "L12741",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Another good year,\" says (subject). \"That's all.\" (friend) smiles and nods, and they wish it together, quietly. The star burns out over the sea...",

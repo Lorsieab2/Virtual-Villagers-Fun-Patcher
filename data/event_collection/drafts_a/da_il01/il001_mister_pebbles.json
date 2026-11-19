@@ -86,7 +86,8 @@
      "who": "subject",
      "src": "L14"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Answer B",

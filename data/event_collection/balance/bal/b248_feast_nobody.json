@@ -151,7 +151,8 @@
      }
     }
    ],
-   "src": "L11598"
+   "src": "L11598",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) feels responsible, so (subject) makes sure nothing goes to waste. (subject.He/She) eats the fish, the yams, the stew, three mangoes, the sweet potatoes, and finally, at (cook)'s insistence, a second bowl of stew. Then (subject.he/she) lies on (subject.his/her) back groaning for the rest of the night. For a long time afterwards, the smell of the cooking fire makes (subject.him/her) feel slightly ill.",
@@ -169,7 +170,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L11601"
+   "src": "L11601",
+   "auto_text": true
   },
   "c1": {
    "text": "\"It's a feast,\" says (subject). A cheer goes up. The drummers fetch their drums, and (cook) throws (subject.his/her) hands in the air and starts giving orders...",
@@ -203,7 +205,8 @@
      "next": "c2o1_c1"
     }
    ],
-   "src": "L11607"
+   "src": "L11607",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The food goes into the store, and the village goes to bed early, a little put out. The children sulk the most. The next day the stew is reheated and served at lunch, and it tastes even better the second time, which (cook) says (subject.he/she) could have told everyone. Your villagers gain (award) food.",
@@ -218,7 +221,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11610"
+   "src": "L11610",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Let's not waste it,\" says (subject). There is some grumbling, but people start wrapping food in leaves and carrying it to the store. (cook) supervises, and finds the job oddly pleasant...",

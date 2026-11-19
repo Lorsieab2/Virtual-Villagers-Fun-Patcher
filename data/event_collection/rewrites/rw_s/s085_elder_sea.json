@@ -137,7 +137,8 @@
      "age": "elder"
     }
    ],
-   "src": "L4001"
+   "src": "L4001",
+   "auto_text": true
   },
   "c1o2": {
    "text": "\"Oh, where to begin,\" says the old one, and settles in, and begins. And keeps going. (He/She) tells them about islands made of black glass, and islands where the trees walk, and islands where the fish talk and the people don't, and a great city where... The stories are so amazing that the researchers come running with bark and charcoal and start writing them all down. They're still writing at sunset. They're still writing a month later, because the old one, of course, has stayed. Your villagers gain (award) tech points.",
@@ -156,7 +157,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L4004"
+   "src": "L4004",
+   "auto_text": true
   },
   "c1": {
    "text": "The elders come down the beach and greet the visitor politely, and ask where (he/she) has come from, and where (he/she) is going. The old one sits down on the edge of the canoe, crab and all, to answer...",
@@ -193,7 +195,8 @@
      "age": "elder"
     }
    ],
-   "src": "L4013"
+   "src": "L4013",
+   "auto_text": true
   },
   "c2": {
    "text": "Questions can wait. The village brings the old one a warm bowl of stew and a cup of fresh water, and sits (him/her) down by the fire, and lets (him/her) eat in peace...",

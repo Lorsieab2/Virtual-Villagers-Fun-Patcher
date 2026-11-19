@@ -69,11 +69,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The council rules that the fruit is (subject)'s, but that (subject) must pick it from (friend)'s side without trampling anything, and that (friend) may keep whatever has already fallen. (subject) spends the season climbing carefully over to pick. (friend) spends it sitting under the tree, catching anything that drops. Neither of them is entirely happy. The mangoes are excellent.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "The council rules that the fruit is (subject)'s, but that (subject) must pick it from (friend)'s side without trampling anything, and that (friend) may keep whatever has already fallen. (subject) spends the season climbing carefully over to pick. (friend) spends it sitting under the tree, catching anything that drops. Neither of them is entirely happy. The mangoes are excellent.",
    "src": "L26"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The council rules that fruit falling on (friend)'s side is (friend)'s, and that (subject) may trim the branches if (subject.he/she) likes. (subject) considers cutting back every branch that hangs over, then looks at the shade they give both gardens, and doesn't. Instead (subject.he/she) starts leaving a basket by the boundary stones. It fills up with mangoes and, every so often, a few beans from (friend)'s garden.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L29"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "The council rules that fruit falling on (friend)'s side is (friend)'s, and that (subject) may trim the branches if (subject.he/she) likes. (subject) considers cutting back every branch that hangs over, then looks at the shade they give both gardens, and doesn't. Instead (subject.he/she) starts leaving a basket by the boundary stones. It fills up with mangoes and, every so often, a few beans from (friend)'s garden.",
    "src": "L29"

@@ -144,7 +144,8 @@
      "best": true
     }
    ],
-   "src": "L14473"
+   "src": "L14473",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Late in the afternoon, reaching for one last bundle, (apprentice) leans too far and slides off the edge of the roof. (subject.He/She) lands badly on (subject.his/her) shoulder. The healers, whose roof (subject.he/she) was fixing, take care of (subject.him/her) under their own half-finished thatch. The shoulder never works quite right again. (subject) finishes the roof the next day, and doesn't say much for a long time.",
@@ -165,7 +166,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L14476"
+   "src": "L14476",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) sits on a log across the path with (subject.his/her) arms folded, and watches without saying a word, which is the hardest thing (subject.he/she) has done in a year...",
@@ -207,7 +209,8 @@
      ]
     }
    ],
-   "src": "L14482"
+   "src": "L14482",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) can't stop correcting. Every knot, every bundle, every angle. \"Not like that. Like this.\" By the end of the day the roof is perfect and (apprentice) is miserable. (subject.He/She) never asks to build anything again. \"I liked it,\" (subject.he/she) tells a friend, \"until today.\"",

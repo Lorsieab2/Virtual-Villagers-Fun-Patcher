@@ -140,7 +140,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6010"
+   "src": "L6010",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(friend) wakes up at the first cry and stumbles over, half asleep, and finds (subject) sitting on the floor with a baby. (friend) doesn't ask a single question. (friend.He/She) just sits down beside them and takes one of the baby's feet in (friend.his/her) hand, as if checking it's real. By sunrise they have decided, without really discussing it. They will raise the baby together.",
@@ -152,7 +153,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6013"
+   "src": "L6013",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) scoops the bundle up and kicks the door shut behind (subject.him/her). The baby is cold but not crying. It grips (subject)'s thumb with a surprisingly strong little fist, and holds on...",
@@ -183,7 +185,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6019"
+   "src": "L6019",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The footprints end at the tree, and there is nobody up it. Only the rain, and a broken string hanging from a branch. (subject) carries the baby to the healers' hut, where (healer) has just had a baby of (subject.his/her) own and has milk to spare. \"Give him here,\" (healer) says, and the baby settles at once. The carved fish is hung up over the healers' door, in case anyone ever comes looking.",
@@ -193,7 +196,8 @@
      "role": "healer"
     }
    ],
-   "src": "L6022"
+   "src": "L6022",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) tucks the baby inside (subject.his/her) shirt and runs out into the rain after the footprints. They lead to the edge of the jungle and then, strangely, up the trunk of a tall tree, and stop...",

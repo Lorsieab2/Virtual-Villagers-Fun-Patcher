@@ -65,14 +65,47 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) creeps about the hut all day so as not to wake it, which turns out to be very difficult. At sunset the bat stirs, stretches its wings, and flits out of the door into the evening. (subject) feels oddly honored. (subject.He/She) also feels very tired, from a whole day of tiptoeing.",
-   "src": "L146"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "\"It's a fruit bat,\" says (friend). \"It'll go when it gets dark.\" They both stand looking up at it. It opens one tiny eye, looks down at them, and closes it again. \"I think it heard you,\" whispers (subject). They leave it alone and go to eat outside, and by the time they're back, it has gone.",
    "src": "L149"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) creeps about the hut all day so as not to wake it, which turns out to be very difficult. At sunset the bat stirs, stretches its wings, and flits out of the door into the evening. (subject) feels oddly honored. (subject.He/She) also feels very tired, from a whole day of tiptoeing.",
+   "src": "L146",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L146"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -50,
+     "max": -25,
+     "src": "L146"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) creeps about the hut all day so as not to wake it, which turns out to be very difficult. At sunset the bat stirs, stretches its wings, and flits out of the door into the evening. (subject) feels oddly honored. (subject.He/She) also feels very tired, from a whole day of tiptoeing.",
+   "src": "L146"
   }
  }
 }

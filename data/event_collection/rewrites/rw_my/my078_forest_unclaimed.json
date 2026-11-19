@@ -222,7 +222,8 @@
      "scaled": true
     }
    ],
-   "src": "L14417"
+   "src": "L14417",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Inside is a broken amulet of carved green stone, snapped in half, and a strip of bark with a list of names written on it. None of them are names (subject) knows. Something about it makes the hair on (subject.his/her) neck stand up. (subject.He/she) closes the box and takes it home anyway, and shows the list to the elders. They do not recognize the names either. The box sits in the elders' hut, and every so often, someone reads the names aloud, just in case someone is waiting to hear them.",
@@ -251,7 +252,8 @@
      "scaled": true
     }
    ],
-   "src": "L14424"
+   "src": "L14424",
+   "auto_text": true
   },
   "c3o2": {
    "text": "By the time (subject) reaches the village, the box has sealed itself shut. The lid, which had a simple latch in the forest, now has no seam at all, as though the box were carved from one solid piece of wood. The villagers try everything: knives, prying, warm water, sweet talk. Nothing works. When (subject) finally takes it back to the stump, the lid falls open by itself, empty. (subject) puts it down very carefully and backs away.",

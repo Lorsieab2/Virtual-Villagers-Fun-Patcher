@@ -85,9 +85,36 @@
      "scaled": true,
      "src": "L206"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) says nothing. A week later, (subject) comes to (friend.him/her) at the glass fire and asks, gruffly, if those clear discs (friend.he/she) makes do anything useful. (friend) holds one up in front of (subject)'s eyes over a leaf, and (subject) sees the tiny hairs on it. They work on the frame together. It takes a few tries. It's worth it.",
+   "src": "L209",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L209"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) says nothing. A week later, (subject) comes to (friend.him/her) at the glass fire and asks, gruffly, if those clear discs (friend.he/she) makes do anything useful. (friend) holds one up in front of (subject)'s eyes over a leaf, and (subject) sees the tiny hairs on it. They work on the frame together. It takes a few tries. It's worth it.",
    "src": "L209"

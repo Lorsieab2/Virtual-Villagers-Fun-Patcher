@@ -140,7 +140,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3864"
+   "src": "L3864",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) admits it straight away. But the foot remedy doesn't agree with (friend) at all. By the afternoon (friend)'s cough has turned into something much worse, deep and rattling, with a fever behind it, and (friend) has to stay in the hospital, wrapped in blankets. (subject) looks after (friend.him/her) day and night, without being asked, sitting up through every night, until (friend) is well again. It takes a week. (friend) forgives (subject.him/her) long before then.",
@@ -150,7 +151,8 @@
      "role": "friend"
     }
    ],
-   "src": "L3867"
+   "src": "L3867",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) takes a deep breath. \"I'm so sorry,\" (subject.he/she) says. \"That was the wrong jar. That was for feet.\" (friend) stops hopping, mid-hop, and stares at (subject.him/her). Then at (friend.his/her) foot. Then back at (subject.him/her)...",
@@ -175,7 +177,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3873"
+   "src": "L3873",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(friend) shrugs, and thanks (subject), and hops off home. The cough gets better on its own over the next few days, as coughs do. So does the tingling. (friend) tells everyone the healers are wonderful. Nobody ever finds out. (subject) lies awake about it for a few nights. Then (subject.he/she) quietly scratches a little mark on the bottom of every jar, so it can never happen again.",

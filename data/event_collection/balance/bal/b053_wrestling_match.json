@@ -147,7 +147,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2402"
+   "src": "L2402",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The shoulder holds. (friend) hits the sand, and lies there, and then starts laughing, and holds up (subject)'s good arm to the crowd. \"Finally,\" (friend) says. \"Someone to train with.\" The confidence of that win carries over into everything (subject) does for the rest of the year.",
@@ -160,7 +161,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2405"
+   "src": "L2405",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) grits (subject.his/her) teeth and heaves. There's a sound from (subject.his/her) shoulder that the whole ring hears, and then (friend) is going over, and down, and the crowd roars...",
@@ -186,7 +188,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2411"
+   "src": "L2411",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The village can't stop talking about it. It was the best match in years, and everyone saw how close it was. (friend) declares a rematch for next harvest, and the whole village starts training, children and elders and all, and for the next few weeks there are small wrestling matches breaking out in every corner of the village, and a lot of laughing.",
@@ -199,7 +202,8 @@
      }
     }
    ],
-   "src": "L2414"
+   "src": "L2414",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) slaps the sand three times. (friend) lets go at once, and helps (subject.him/her) up, and the crowd cheers for both of them...",

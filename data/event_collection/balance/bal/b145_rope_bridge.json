@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6684"
+   "src": "L6684",
+   "auto_text": true
   },
   "c1o2": {
    "text": "One plank snaps, and (subject)'s leg goes straight through it, up to the hip. (subject.He/She) hangs there, wedged, until the pickers on the far side crawl out and pull (subject.him/her) free. The leg is badly broken. It heals, but stiff, and (subject) walks with a limp from then on and can't stand heights. (builder) mends the bridge, grimly, all by (subject.himself/herself).",
@@ -157,7 +158,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L6687"
+   "src": "L6687",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) puts one foot on the first plank. It creaks. (subject.He/She) puts the other foot on the second plank. It creaks louder. Halfway across, the whole bridge begins to swing...",
@@ -184,7 +186,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6693"
+   "src": "L6693",
+   "auto_text": true
   },
   "c2o2": {
    "text": "By the time (subject) gets round to the fruit trees, the birds have eaten most of the fruit, and the pickers who crossed the bridge earlier have taken the rest. \"It held,\" one of them says, cheerfully. \"Creaked a lot.\" (subject) walks all the way home again with an empty basket, and decides being careful is overrated. It was very good advice, though, and (subject.he/she) knows it.",

@@ -142,7 +142,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2855"
+   "src": "L2855",
+   "auto_text": true
   },
   "c1o2": {
    "text": "A baby is expected, and when the healer comes to listen, (healer.he/she) listens a long time. {#babies:\"Just one, a strong one\"|\"Two heartbeats\"|\"Three heartbeats\"} The old woman, told the news, cackles. \"I may have made it a bit strong,\" she admits.",
@@ -155,7 +156,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2858"
+   "src": "L2858",
+   "auto_text": true
   },
   "c1": {
    "text": "The drink tastes of honey and petals and something sharp, like lemon. The old woman watches them drink every drop, then nods and walks off without a word...",
@@ -185,7 +187,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2867"
+   "src": "L2867",
+   "auto_text": true
   },
   "c2": {
    "text": "They put the cups aside for later and join the blindfold game, which involves a great deal of falling over and everyone shrieking with laughter...",

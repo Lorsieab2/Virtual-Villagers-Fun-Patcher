@@ -132,7 +132,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L8259"
+   "src": "L8259",
+   "auto_text": true
   },
   "c1o2": {
    "text": "\"I've been practising being you,\" it says. \"I'm better at it now. Look.\" It's right, in a way: by the end of the evening, it is so much more like (name) than (name) is that the village, the next morning, cheerfully calls it by (name)'s old name, and nothing will change their minds. (Name) has to pick a new one. (He/She) picks (made2). (He/She) still isn't sure how it happened.",
@@ -146,7 +147,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8262"
+   "src": "L8262",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) pushes the door open. The figure by the fire turns round. It has (name)'s face. It smiles, (name)'s own smile, a little shy...",
@@ -170,7 +172,8 @@
      "age": "teen"
     }
    ],
-   "src": "L8268"
+   "src": "L8268",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The fire goes out, all at once, as if someone breathed on it. When (name) brings a torch, the hut is empty: just the spare clothes, folded neatly, and a little pile of fish bones. Nobody copies (name)'s washing or cooking after that. Sometimes, though, from far away in the jungle, (he/she) hears someone singing (his/her) song, a little wrong.",

@@ -94,9 +94,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1) brings a portion of supper to an exhausted friend. (Name1) feels relieved not to do everything alone.",
-   "src": "L2047"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -109,6 +116,51 @@
    "src": "L2055"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1) brings a portion of supper to an exhausted friend. (Name1) feels relieved not to do everything alone.",
+   "src": "L2047",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L2047"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1) brings a portion of supper to an exhausted friend. (Name1) feels relieved not to do everything alone.",
+   "src": "L2047"
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1) brings a portion of supper to an exhausted friend. Afterward, the group lingers just to enjoy being together.",
+   "src": "L2059",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L2059"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1) brings a portion of supper to an exhausted friend. Afterward, the group lingers just to enjoy being together.",
    "src": "L2059"

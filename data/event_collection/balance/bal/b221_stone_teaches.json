@@ -143,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10289"
+   "src": "L10289",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The Teacher gives (subject) what (subject.he/she) asked for, and takes something back for it. (subject) wakes up much better at (subject.his/her) work, and with no wish to learn anything else at all. The scrolls in the hut look dull now. (researcher) is very sorry. \"Don't complain about what you get,\" (subject) says, a little sadly, and goes back to work.",
@@ -162,7 +163,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10292"
+   "src": "L10292",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) whispers to the stone: \"Teach me to be better at my work.\" Then (subject.he/she) lies down beside it, with (subject.his/her) hand on it, and closes (subject.his/her) eyes...",
@@ -198,7 +200,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10301"
+   "src": "L10301",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) doesn't ask. (subject.He/She) just lies down with (subject.his/her) hand on the cold stone, and lets (subject.himself/herself) drift off, curious and a little scared...",

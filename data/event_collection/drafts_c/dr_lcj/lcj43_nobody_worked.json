@@ -97,7 +97,8 @@
      "max": 30,
      "src": "L607"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",

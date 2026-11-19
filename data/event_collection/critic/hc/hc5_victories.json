@@ -2089,7 +2089,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "rw_subjects_farm": {
    "type": "branch",
@@ -2314,7 +2315,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r76": {
    "text": "{N} The intended dish is ruined, but the cooks discover that the accidental result tastes wonderful. {Z2} (Mentor) tastes it twice before admitting that (subject) may have invented something useful. The examination is still marked incomplete, but the new recipe goes into the village cookbook.",
@@ -2341,7 +2343,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r77": {
    "text": "The finished structure fails the original requirements, but the accident produces an unexpected artistic effect. {Z3} The officials commission a proper version for the village. (Mentor) says, \"You still owe me the original assignment,\" while studying the new design with unmistakable interest.",
@@ -2373,7 +2376,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r78": {
    "text": "{N} (Subject) notices an unexpected pattern in the failed experiment. {Z4} Rather than claiming a discovery immediately, (subject.he/she) repeats the observation and records what happened. (Mentor) finally nods. \"That is research,\" (mentor) says. \"Not what you meant to find, but what you actually found.\"",
@@ -2395,7 +2399,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r79": {
    "text": "The training demonstration falls apart in front of everyone. {Z5} The healers recognize a useful improvement to their routine and adopt it after checking that it is safe. (Mentor) praises (subject) for noticing the problem, then assigns another practice examination.",
@@ -2417,7 +2422,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r80": {
    "text": "{O} The lesson is derailed by laughter, but the children remember every detail. {Z6} The elders ask (subject) to use the new approach in future lessons. (Mentor) insists that next time the comedy should at least be intentional.",
@@ -2449,7 +2455,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r81": {
    "text": "{Q} The rite goes wrong, and (subject) fears (subject.he/she) has offended everyone. Instead, the elders notice something worth preserving. {Z7} They agree to treat the new practice as a separate custom rather than replacing the original ceremony. (Mentor) says that respecting tradition also means understanding how traditions begin.",
@@ -2483,7 +2490,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r82": {
    "text": "{N} {O} {Y} {@Chief} is delighted by the chaos and announces that the village should hold a yearly celebration of spectacular mistakes. {Z8} (Mentor) is not consulted before being named the first judge.",
@@ -2513,7 +2521,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r83": {
    "text": "The officials demand that (subject) repeat the extraordinary accident. (Subject) tries, but everything works exactly as originally intended. (Mentor) stares at the flawless result. \"So you can do it correctly,\" (mentor) says. \"You just cannot do it incorrectly on command.\"",
@@ -2554,7 +2563,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r85": {
    "text": "{N} The examination appears ruined, but the harmless commotion alerts everyone to a neglected problem nearby. (Subject) helps correct it before anyone is hurt. The officials praise (subject.his/her) quick thinking. (Mentor) agrees that the original work was dreadful and the response was excellent.",
@@ -2577,7 +2587,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r86": {
    "text": "By sunset, the story has grown into a tale of towering flames, thunderous explosions, and a {@chiefw} who fainted three times. In reality, a gourd popped and a chair squeaked. (Subject) tries to correct the rumors, but the villagers prefer the dramatic version.",
@@ -2600,7 +2611,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r87": {
    "text": "{Z1} (Subject) is delighted to receive a special prize, until the officials explain that the winner must demonstrate the incident at next year's festival. (Mentor) quietly says, \"You had better learn how to do it safely.\"",
@@ -2623,7 +2635,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r88": {
    "text": "The judges praise the accidental result more enthusiastically than anything (mentor) has produced all season. (Mentor) congratulates (subject) through clenched teeth, then spends the afternoon trying to understand how it happened. Eventually, (mentor) asks for a demonstration.",
@@ -2646,7 +2659,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r89": {
    "text": "The crowd begins chanting for (subject) to repeat the catastrophe. (Subject) looks to (mentor), who folds (mentor.his/her) arms. \"Absolutely not.\" The crowd chants louder. (Mentor) agrees to one carefully supervised reenactment using harmless props, then assigns the original task again.",
@@ -2669,7 +2683,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r90": {
    "text": "The original assignment ends in spectacular failure, but (subject) turns out to be remarkably good at entertaining the audience. The village begins inviting (subject.him/her) to festivals as a comic performer. (Mentor) reminds (subject) that being funny does not excuse unfinished work. (Subject) begins to wonder whether there might be room for both talents.",
@@ -2692,7 +2707,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "rw_subjectl_farm": {
    "type": "branch",
@@ -2907,7 +2923,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "rw_mentors_subjectn_farm": {
    "type": "branch",
@@ -3198,7 +3215,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r95": {
    "text": "Years later, villagers still tell the story of (subject)'s impossible examination. The original mistake has become a lesson, a joke, and a small tradition. (Mentor) claims the whole thing was planned as a teaching exercise. (Subject) knows better.",
@@ -3221,7 +3239,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "routes": {
    "type": "branch",

@@ -156,7 +156,8 @@
      "role": "friend"
     }
    ],
-   "src": "L2084"
+   "src": "L2084",
+   "auto_text": true
   },
   "c1o2": {
    "text": "In the morning, their faces are young again: smooth, bright, the faces from fifty years ago. Their knees, however, are exactly as old as they were. \"Well,\" says (friend), creaking up off the sleeping mat, \"at least we look nice while we complain.\"",
@@ -170,7 +171,8 @@
      "role": "friend"
     }
    ],
-   "src": "L2087"
+   "src": "L2087",
+   "auto_text": true
   },
   "c1": {
    "text": "They pass the pot back and forth, a sip each, until it's gone. The water tastes of moss and stones and, very faintly, of the morning they met...",
@@ -204,7 +206,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "Nothing happens, and that's fine. They sit by the stream until the stars come out, talking about fifty years of small things. \"I'd rather have the years we had,\" (subject) says, \"than get them back.\" (friend) agrees, and then pushes (subject.him/her) in the stream, for old times' sake.",

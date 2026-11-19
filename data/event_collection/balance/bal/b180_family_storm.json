@@ -145,7 +145,8 @@
      "child_of_newest": true
     }
    ],
-   "src": "L8353"
+   "src": "L8353",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The woman is very ill by morning. The healers come, and do all they can, but she dies before the next night. The man and the girl, half-mad with grief, can't care for the baby. When they leave a month later, to go back to their own island and their own people, they ask (name) to keep the baby, \"because (he/she) has been so kind.\" (Name) says yes.",
@@ -163,7 +164,8 @@
      "what": "\"dies\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) half-carries the woman, and the man carries the girl, and they fall into (name)'s hut together, dripping on everything. (Name) builds the fire up as high as it will go...",
@@ -204,7 +206,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8362"
+   "src": "L8362",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The healers come, and the family is saved. They stay for a week, eating, resting and thanking everyone, and then a cousin's canoe comes looking for them, and they go home to their own island. Before they leave, the girl gives (name) the torch that went out on the beach. \"So you can find us,\" she says.",

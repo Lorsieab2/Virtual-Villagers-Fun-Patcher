@@ -150,6 +150,32 @@
    ]
   },
   "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(mother.His/Her) practical idea changes the plan.",
+   "src": "L31882",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L31882"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
    "name": "Outcome C1",
    "text": "(mother.His/Her) practical idea changes the plan.",
    "src": "L31882"

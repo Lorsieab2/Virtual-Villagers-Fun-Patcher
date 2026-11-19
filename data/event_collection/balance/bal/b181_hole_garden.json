@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8400"
+   "src": "L8400",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The rope holds, but the side of the hole breaks under (subject)'s feet and (subject.he/she) swings into the rock, hard. (subject.He/She) reaches the goat on a ledge, and they are both hauled up, the goat bleating the whole way. (subject)'s shoulder never heals properly. (subject.He/She) can't lift (subject.his/her) arm above (subject.his/her) head again, and (subject.he/she) won't go into any dark place, not even the store hut, without a torch.",
@@ -157,7 +158,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8403"
+   "src": "L8403",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) ties a rope round (subject.his/her) waist, and four farmers take the other end. (subject.He/She) goes down over the edge into the cold dark, feet against the crumbling side, a torch in (subject.his/her) teeth...",
@@ -186,7 +188,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L8409"
+   "src": "L8409",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The bleating stops on the second night. The fence stays. The farmers plant around it, and in a year the hole is full of ferns, and birds nest in its sides. (subject) still goes and stands by the fence sometimes, listening for running water.",

@@ -137,7 +137,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L3091"
+   "src": "L3091",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) touches the bottom, and grabs at a shell, and it's stuck, and (he/she) pulls, and pulls, a moment too long. When (he/she) turns for the light, it's too far away. The others in the canoe wait, watching the water. Then they wait longer. Then two of them dive in after (him/her), and find (him/her) halfway up the coral wall, and pull (him/her) from the water. But it is too late. The village buries (name) on the headland above the reef, and mourns a fearless diver who loved the deep blue more than anyone.",
@@ -148,7 +149,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3094"
+   "src": "L3094",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) jack-knifes and kicks down, hard, along the coral wall. Ten strokes. Twenty. The light fades. The water turns cold, then colder. (His/her) ears ache. (His/her) chest starts to burn. The bottom is right there, pale sand in the dark blue...",
@@ -177,7 +179,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L3100"
+   "src": "L3100",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Even in the shallows, things can go wrong. Halfway back to the canoe, (name)'s leg cramps, suddenly and agonisingly, knotting up like a fist. (He/She) goes under, and swallows what feels like half the sea, and comes up choking, and goes under again. Somehow, coughing and kicking with one leg, (he/she) makes it back to shore and crawls up the sand. The healers keep (him/her) for a few days, pressing on (his/her) chest. After that, (name) won't go in any deeper than (his/her) ankles.",
@@ -194,7 +197,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3103"
+   "src": "L3103",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) looks down into the dark blue for a long, long time. Then (he/she) lets the breath out slowly, and shakes (his/her) head, and decides the bottom will still be there tomorrow. (He/She) dives along the bright, sunny top of the reef instead...",

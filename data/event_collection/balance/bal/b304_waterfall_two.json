@@ -141,7 +141,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14115"
+   "src": "L14115",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They see the world through each other's eyes for one dizzy moment, and then the water lets them go. It was long enough. Each of them came out of it knowing a little of what the other knows: how (subject) reads the weather, how (friend) ties a knot. They walk home quietly, grinning, and from then on each of them is better at the other's best work.",
@@ -161,7 +162,8 @@
      "min": 10,
      "max": 10
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1": {
    "text": "They wade in, holding hands, and step under the falling water. It hits them like a slap, warm on one side and cold on the other...",
@@ -186,7 +188,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14124"
+   "src": "L14124",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) slips on the cold side, goes under, and comes up spluttering and frozen to the bone. (friend) hauls (subject.him/her) out. Nothing is swapped except a lot of water into (subject)'s lungs. (subject) shivers for two days, and after that, the thought of cold water makes (subject.him/her) want to curl up by the fire.",
@@ -198,7 +201,8 @@
      "role": "subject"
     }
    ],
-   "src": "L14127"
+   "src": "L14127",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) goes first, alone, while (friend) waits on the rocks. Under the water, (subject) feels the cold side and the warm side pulling in two directions. Then (friend), impatient, wades in after (subject.him/her)...",

@@ -149,7 +149,8 @@
      }
     }
    ],
-   "src": "L5533"
+   "src": "L5533",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The tea works on (friend) at once. It also works on (subject), who only had a sip, and spends the night in a burning, swimming dream about walking through a village where every hut has a door but no names on anything. In the morning (subject)'s fever is gone, and so is (subject.his/her) name. (subject.He/She) can remember the dream perfectly, and (subject.his/her) own name not at all. The village calls (subject.him/her) \"?\" until it comes back. It does not come back. \"Warts,\" says (healer) gloomily. \"It might have been for warts.\"",
@@ -163,7 +164,8 @@
      "role": "friend"
     }
    ],
-   "src": "L5536"
+   "src": "L5536",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) drops the leaves into the pot. The water turns the colour of a bruise and starts to hum, very faintly, like a bee trapped in a gourd. (subject.He/She) pours out a cup for (friend), then, after a moment's thought, takes a sip first...",
@@ -189,7 +191,8 @@
      }
     }
    ],
-   "src": "L5542"
+   "src": "L5542",
+   "auto_text": true
   },
   "c2o2": {
    "text": "By the time (healer) has remembered, the leaves have wilted on the stone and turned black and slimy. \"Fevers,\" (subject.he/she) says triumphantly, and then looks at the stone. \"Oh.\" The fever runs its course the slow way. (friend) gets better on (subject.his/her) own, one long week later, and tells everyone (subject.he/she) would have tried anything, even wart tea.",

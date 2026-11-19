@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15096"
+   "src": "L15096",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Someone sits up behind (subject) who looks exactly like (subject.him/her), but who complains at once that the banana was too ripe, and that (subject.he/she) never liked bananas anyway. (subject.He/She) has (subject)'s face and nothing else of (subject.him/her). The village names (subject.him/her) (made1), and (made1) never eats another banana as long as (subject.he/she) lives.",
@@ -145,7 +146,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L15099"
+   "src": "L15099",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) peels it, sits down behind the healers' hut where nobody can see, and eats both halves, one after the other...",
@@ -173,7 +175,8 @@
      "role": "friend"
     }
    ],
-   "src": "L15105"
+   "src": "L15105",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They eat their halves, and nothing happens, except that it is the sweetest banana either of them has ever tasted. They become good friends after that, which the elders say is what the saying meant all along. (subject) isn't sure, but (subject.he/she) checks behind (subject.himself/herself) occasionally, just in case.",

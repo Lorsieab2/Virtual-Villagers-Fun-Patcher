@@ -82,6 +82,38 @@
    "src": "L122"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Have you tried the new fish stew?\" says (friend) brightly, and hands (third) a bowl. (third) is distracted for the rest of the afternoon. Later, (subject) and (friend) sit on their step and laugh about it. They don't owe anyone an explanation, and they're not going to give one. Their life is full exactly as it is.",
+   "src": "L125",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L125"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L125"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Have you tried the new fish stew?\" says (friend) brightly, and hands (third) a bowl. (third) is distracted for the rest of the afternoon. Later, (subject) and (friend) sit on their step and laugh about it. They don't owe anyone an explanation, and they're not going to give one. Their life is full exactly as it is.",
    "src": "L125"

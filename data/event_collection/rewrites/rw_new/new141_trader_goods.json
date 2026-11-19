@@ -201,7 +201,8 @@
      "scaled": true
     }
    ],
-   "src": "L6650"
+   "src": "L6650",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) helps the trader haul the canoe up the sand and leads (him/her) straight to the cooking fire...",
@@ -226,7 +227,8 @@
      "scaled": true
     }
    ],
-   "src": "L6655"
+   "src": "L6655",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The trader starts to talk about the storm, then goes quiet when (he/she) gets to the night the cargo went over the side. (He/She) stares into the fire for a long time. \"Another day,\" (he/she) says at last. No one presses. Someone hands (him/her) more stew instead.",
@@ -254,7 +256,8 @@
      "age": "adult"
     }
    ],
-   "src": "L6662"
+   "src": "L6662",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The trader thanks everyone warmly, but shakes (his/her) head. (He/She) wants to rebuild (his/her) trade, and that means going back out on the water. Once the canoe is sound, (he/she) paddles away, promising to bring the village the first and best of (his/her) new cargo. Everyone waves from the beach.",
@@ -283,7 +286,8 @@
      "scaled": true
     }
    ],
-   "src": "L6669"
+   "src": "L6669",
+   "auto_text": true
   },
   "c4o2": {
    "text": "The villagers patch the trader's cracked hull with sap and fibre, and the trader turns out to be hopeless at farming, pulling up three taro plants by mistake. Nobody minds. They wave (him/her) off from the beach the next morning, canoe sound and spirits high.",

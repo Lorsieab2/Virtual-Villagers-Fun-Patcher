@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L267"
+   "src": "L267",
+   "auto_text": true
   },
   "c1o2": {
    "text": "There's a loud crack, a smell like singed hair, and both of them are sitting in the grass again, a body length back. The blue glow goes out of the wood like a snuffed lamp. \"Well,\" says (friend), patting at (friend.his/her) smoking eyebrows, \"that was a mistake.\" Their hair doesn't lie flat for a week, and the children follow them around trying to touch it.",
@@ -165,7 +166,8 @@
      "role": "subject"
     }
    ],
-   "src": "L276"
+   "src": "L276",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They wake up in their own bodies, a little disappointed. At breakfast they tell the whole village about the shared dream, and then act it out, each of them doing a perfect impression of the other: (subject)'s walk, (friend)'s laugh, the way they both eat their fish. Soon the whole village is crying with laughter. People are still doing the impressions days later.",
@@ -178,7 +180,8 @@
      }
     }
    ],
-   "src": "L279"
+   "src": "L279",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) grabs (friend)'s arm and walks (friend.him/her) firmly away. They go home and try to forget about it. That night, both of them have the same dream, of standing under the tree, looking out of the other one's eyes...",

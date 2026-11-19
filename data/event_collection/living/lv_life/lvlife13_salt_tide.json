@@ -81,14 +81,21 @@
   },
   "a1": {
    "name": "Outcome A1",
-   "text": "The preserved fish feeds the village during rough weather.",
-   "src": "L20801",
    "effects": [
     {
      "do": "food",
      "size": "small",
      "scaled": true,
      "src": "L20801"
+    }
+   ],
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
     }
    ]
   },
@@ -113,9 +120,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "A well-ventilated rack preserves part of the catch.",
-   "src": "L20804"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -129,7 +143,8 @@
      "loss": true,
      "src": "L20805"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -159,6 +174,44 @@
      "src": "L20808"
     }
    ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The preserved fish feeds the village during rough weather.",
+   "src": "L20801",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20801"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The preserved fish feeds the village during rough weather.",
+   "src": "L20801"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "A well-ventilated rack preserves part of the catch.",
+   "src": "L20804",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20804"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "A well-ventilated rack preserves part of the catch.",
+   "src": "L20804"
   }
  }
 }

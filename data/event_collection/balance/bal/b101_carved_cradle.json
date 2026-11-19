@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4576"
+   "src": "L4576",
+   "auto_text": true
   },
   "c1o2": {
    "text": "A baby is expected. Then the healer listens again: {#babies:\"Just the one, and the cradle is just right\"|\"Two, you'll need a wider cradle\"|\"Three, you'll need a much wider cradle\"} (friend) goes back to the carving fire that same evening, laughing, to start again.",
@@ -152,7 +153,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4579"
+   "src": "L4579",
+   "auto_text": true
   },
   "c1": {
    "text": "(friend) carves every evening by the fire, with (subject) sitting beside (friend.him/her), sanding the edges smooth with a piece of coral...",
@@ -178,7 +180,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4585"
+   "src": "L4585",
+   "auto_text": true
   },
   "c2o2": {
    "text": "No baby comes that season. But when a neighbour's baby arrives early, with no cradle ready, (friend) takes the half-carved one down and finishes it overnight, and gives it away. (subject) and (friend) are the baby's favourite visitors. \"Ours can have the next one,\" (subject) says, and means it.",

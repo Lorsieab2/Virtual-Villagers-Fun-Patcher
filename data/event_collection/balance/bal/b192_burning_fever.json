@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8921"
+   "src": "L8921",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The fever breaks on the third dip. In the morning (subject) is cool and clear-eyed and hungry, and remembers everyone's names, except (subject.his/her) own. It is as if the fever burned that one word away on its way out. The healers wait for it to come back. It doesn't. The village calls (subject.him/her) \"?\", and (subject.he/she) says it's a fair price.",
@@ -149,7 +150,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8924"
+   "src": "L8924",
+   "auto_text": true
   },
   "c1": {
    "text": "Four healers carry (subject) down the beach on a mat by torchlight. The sea is black and cold. They wade in up to their waists and dip (subject.him/her) under, once, twice, three times...",
@@ -184,7 +186,8 @@
      }
     }
    ],
-   "src": "L8930"
+   "src": "L8930",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The fever doesn't break. Near dawn, (subject) stops talking to the people who aren't there and goes very quiet, and then very still. The healers sit with (subject.him/her) until the sun comes up. The village buries (subject) on the hill. (healer) goes down to the sea alone the next midnight, and stands in the cold water for a long time.",
@@ -195,7 +198,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8933"
+   "src": "L8933",
+   "auto_text": true
   },
   "c2": {
    "text": "(healer) decides against the sea. They wrap (subject) in wet banana leaves and sit with (subject.him/her) all night, changing the leaves every hour, singing the old healing songs...",

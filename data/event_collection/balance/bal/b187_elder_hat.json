@@ -145,7 +145,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8685"
+   "src": "L8685",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The hat makes (subject) stand up straighter. Then (subject.he/she) weaves a cloak to go with it, and adds shells to (subject.his/her) clothes to match the brim, and by the end of the season (subject.he/she) looks every inch a councillor, without a single grey hair. The elders grumble that it's not how it's done. They give (subject.him/her) a seat anyway.",
@@ -156,7 +157,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8688"
+   "src": "L8688",
+   "auto_text": true
   },
   "c1": {
    "text": "(elder) lifts the hat off (subject.his/her) own head and settles it on (subject)'s. It is heavier than it looks, and warm, and fits as if it was made for (subject.him/her)...",
@@ -183,7 +185,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8694"
+   "src": "L8694",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(elder) gives the hat to (friend) instead, who accepts it at once, and within a season looks fifteen years older and much more pleased with (subject.himself/herself). (subject) is relieved, mostly. (friend) tells (subject.him/her), rather often, what the council thinks about things.",
@@ -198,7 +201,8 @@
      "do": "old_look",
      "role": "friend"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) thanks (elder), very politely, and says (subject.he/she) isn't ready for a hat. \"Could you teach me something instead?\" (elder) looks at (subject.him/her) for a long moment, and laughs...",

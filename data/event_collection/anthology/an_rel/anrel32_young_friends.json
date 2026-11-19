@@ -106,9 +106,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "They continue sharing happy afternoons together.",
-   "src": "L27485"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -150,9 +157,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "Their friends cheer a meaningful friendship.",
-   "src": "L27491"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -172,14 +186,96 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "Their bond grows into a gentle romance.",
-   "src": "L27494"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "They realize friendship is what they want most.",
    "src": "L27495"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "They continue sharing happy afternoons together.",
+   "src": "L27485",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen1",
+     "mood": "good",
+     "src": "L27485"
+    },
+    {
+     "do": "mood",
+     "role": "teen2",
+     "mood": "good",
+     "src": "L27485"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "They continue sharing happy afternoons together.",
+   "src": "L27485"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "Their friends cheer a meaningful friendship.",
+   "src": "L27491",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen1",
+     "mood": "good",
+     "src": "L27491"
+    },
+    {
+     "do": "mood",
+     "role": "teen2",
+     "mood": "good",
+     "src": "L27491"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "Their friends cheer a meaningful friendship.",
+   "src": "L27491"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "Their bond grows into a gentle romance.",
+   "src": "L27494",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen1",
+     "mood": "good",
+     "src": "L27494"
+    },
+    {
+     "do": "mood",
+     "role": "teen2",
+     "mood": "good",
+     "src": "L27494"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "Their bond grows into a gentle romance.",
+   "src": "L27494"
   }
  }
 }

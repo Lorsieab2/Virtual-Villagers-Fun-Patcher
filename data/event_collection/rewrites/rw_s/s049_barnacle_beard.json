@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2335"
+   "src": "L2335",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) keeps the beard, and something about it makes (him/her) feel more at home in the sea than ever. (He/She) spends even longer under the water. (He/She) learns to hold (his/her) breath for longer than anyone in the village, to read the currents, to find the fattest shellfish under the deepest ledges. The fish don't seem to be afraid of (him/her) any more. By the end of the season (name) is the best diver in the village by a long way, and brings home more food than anyone.",
@@ -160,7 +161,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) looks at (himself/herself) in a bowl of still water for a long time, turning (his/her) head this way and that. \"Actually,\" (he/she) says slowly, as the barnacles click, \"I think I like it.\"...",
@@ -186,7 +188,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2344"
+   "src": "L2344",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Off they come, one at a time, with a very satisfying pop each. It doesn't even hurt much. (Name) holds up the last one, glares at it, and throws it back into the sea. And then (he/she) stands at the edge of the water for a long time, thinking about how (he/she) was slowly being turned into a rock. (Name) swears there and then never to swim again. And (he/she) doesn't. Not ever.",
@@ -197,7 +200,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2347"
+   "src": "L2347",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) has had enough. (He/She) takes a flat shell, sharpens the edge on a rock, grits (his/her) teeth, and starts to scrape...",

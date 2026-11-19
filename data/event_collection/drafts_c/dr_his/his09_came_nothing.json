@@ -70,14 +70,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) tells it plainly: the long crossing, the hunger, the first sight of the island, the people already here who shared their fish. (subject.He/she) doesn't say what they left. Nobody ever does. At the end, (subject.he/she) puts a pinch of sand from the beach in (friend)'s hand. \"This is where we're from now,\" (subject.he/she) says. (friend) holds the sand very tightly. It's a solemn moment, and a happy one.",
-   "src": "L110"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) has questions. Why couldn't they go back? (subject) doesn't know. Were they scared? Probably. Were they sad? Yes, for a long time. Are we still sad? (subject) thinks. \"Some of us carry a bit of it. You don't have to. But it's yours to know.\" (friend) thinks about this. Then (friend.he/she) asks if there's cake. There is. That's alright too.",
    "src": "L113"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tells it plainly: the long crossing, the hunger, the first sight of the island, the people already here who shared their fish. (subject.He/she) doesn't say what they left. Nobody ever does. At the end, (subject.he/she) puts a pinch of sand from the beach in (friend)'s hand. \"This is where we're from now,\" (subject.he/she) says. (friend) holds the sand very tightly. It's a solemn moment, and a happy one.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L110"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) tells it plainly: the long crossing, the hunger, the first sight of the island, the people already here who shared their fish. (subject.He/she) doesn't say what they left. Nobody ever does. At the end, (subject.he/she) puts a pinch of sand from the beach in (friend)'s hand. \"This is where we're from now,\" (subject.he/she) says. (friend) holds the sand very tightly. It's a solemn moment, and a happy one.",
+   "src": "L110"
   }
  }
 }

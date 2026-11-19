@@ -145,7 +145,8 @@
      "best": true
     }
    ],
-   "src": "L1357"
+   "src": "L1357",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They never agree. But they're both so determined to show the other one up that they fix every damaged roof in the village in three days flat, racing each other from hut to hut. The roofs are a bit odd: half low and wide, half tall and narrow, sometimes on the same hut. They don't leak, though.",
@@ -155,7 +156,8 @@
      "structures": "any"
     }
    ],
-   "src": "L1360"
+   "src": "L1360",
+   "auto_text": true
   },
   "c1": {
    "text": "The elders put them on the same roof with one ladder and one bundle of thatch. The village gathers to watch, as if it's a festival...",

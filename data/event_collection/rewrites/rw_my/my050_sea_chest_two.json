@@ -201,7 +201,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L12779"
+   "src": "L12779",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The letters contradict each other completely. One brother says their father gave him the adze on his deathbed. The other says the same thing about himself. Each calls the other a liar. Neither letter is dated. There's no way of knowing who is telling the truth, and by the end of the evening, the village is just as divided as the brothers were.",
@@ -256,7 +257,8 @@
      "max": 20
     }
    ],
-   "src": "L12793"
+   "src": "L12793",
+   "auto_text": true
   },
   "c3o2": {
    "text": "On the third day of use, there's a terrible crack, and the bronze blade snaps clean off the handle. The whole village goes silent. The tool that two brothers fought over for years, broken by the people who were only borrowing it. The villagers argue long into the night about how they would ever explain it, if anyone comes. Nobody does. But they feel bad about it for a long time.",

@@ -211,7 +211,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L12073"
+   "src": "L12073",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) sits up on the dunes for three days, watching the sea for signs. The other villagers think (he/she) has lost (his/her) mind...",

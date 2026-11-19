@@ -69,6 +69,39 @@
    "src": "L338"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(name1) enjoys it for a moment, then gets on with the day. But everything is easier in the cool. Work goes quickly. Food tastes better. People laugh more. It's not a special day, exactly. It's just a good one, and (name1) notices, on the way to bed, that (he/she) hasn't been grumpy once.",
+   "src": "L341",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L341"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L341"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(name1) enjoys it for a moment, then gets on with the day. But everything is easier in the cool. Work goes quickly. Food tastes better. People laugh more. It's not a special day, exactly. It's just a good one, and (name1) notices, on the way to bed, that (he/she) hasn't been grumpy once.",
    "src": "L341",

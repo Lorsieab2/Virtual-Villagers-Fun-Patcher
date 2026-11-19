@@ -66,11 +66,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Gain a new village favorite.",
-   "src": "L2753"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -85,6 +90,29 @@
    "join": "paragraph",
    "text": "The dish becomes a family tradition.",
    "src": "L2755"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Gain a new village favorite.",
+   "src": "L2753",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "chef",
+     "mood": "good",
+     "src": "L2753"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Gain a new village favorite.",
+   "src": "L2753"
   }
  }
 }

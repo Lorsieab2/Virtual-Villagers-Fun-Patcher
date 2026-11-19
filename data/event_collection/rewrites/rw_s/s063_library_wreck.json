@@ -137,7 +137,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L3001"
+   "src": "L3001",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The moment the bundles touch the air and the sun, they start to crumble. The thin leaves curl up, and crack, and fall apart in the researchers' hands like dead leaves in a dry wind, and blow away along the beach. In moments, it's all gone. Everybody stands there in shock. But (name), who opened the chest underwater, looked at the first few pages for a long time before (he/she) swam up. And (he/she) remembers a few of the drawings. (He/She) sits down and draws them out again in the sand, very carefully, as best (he/she) can. Your villagers gain (award) tech points.",
@@ -161,7 +162,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L3004"
+   "src": "L3004",
+   "auto_text": true
   },
   "c1": {
    "text": "It takes (name) and three of the strongest swimmers all morning to haul the heavy chest up out of the wreck and tow it back across the reef to the beach. The whole village crowds round as the researchers lift the lid...",
@@ -194,7 +196,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L3013"
+   "src": "L3013",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) looks at the chest for a long time, hanging there in the cold water among the coral. Somebody put this here. Somebody sealed it, carefully, against the sea. (He/She) closes the lid, gently, and swims back up to the light...",

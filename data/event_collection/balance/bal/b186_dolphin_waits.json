@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8637"
+   "src": "L8637",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Out past the reef, the dolphin dives, and comes up in the middle of a great shoal of fish, flashing silver, so thick (subject) can feel them brushing past. The dolphin herds them all the way back to the bay, with (subject) swimming beside it, and the fishers on the shore fill every net. (subject) swims better than anyone in the village after that week. Your villagers gain (award) food.",
@@ -157,7 +158,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L8640"
+   "src": "L8640",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) dives in and swims after the dolphin, out past the shallows, out past the reef, into the deep blue water where the waves are long and slow. The dolphin swims just ahead, always just ahead...",
@@ -184,7 +186,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8646"
+   "src": "L8646",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Round the far point, the current catches the canoe and spins it, and tips them both into the sea. (subject) is pulled back onto the rocks by the dolphin, pushing and squeaking. (fisher) is not. The village searches for days. The dolphin never comes back to the bay. (subject) goes and sits on the rocks at the point sometimes, and talks to the sea.",
@@ -194,7 +197,8 @@
      "role": "fisher"
     }
    ],
-   "src": "L8649"
+   "src": "L8649",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) and (fisher) take a canoe out after the dolphin, paddling hard to keep up. It leads them past the reef, past the point, round the far side of the island where nobody fishes...",

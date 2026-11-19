@@ -129,10 +129,12 @@
    "effects": [
     {
      "do": "vanish",
-     "role": "subject"
+     "role": "subject",
+     "line": "leaves"
     }
    ],
-   "src": "L2222"
+   "src": "L2222",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) climbs in, and the mist closes round, and then (he/she) is standing on the beach again, soaking wet, in bright sunshine. Only a moment seems to have passed. But (his/her) face has aged, as if (he/she) had been gone for years, and (he/she) can't say where, only that it was \"very peaceful, and very far.\" (He/She) smiles more than (he/she) used to.",
@@ -142,7 +144,8 @@
      "role": "subject"
     }
    ],
-   "src": "L2225"
+   "src": "L2225",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) wades out, knee deep, waist deep. The canoe is closer than it looked, and further, both at once. A hand that (he/she) can't quite see reaches down to help (him/her) in...",
@@ -175,7 +178,8 @@
      "child_of_newest": true
     }
    ],
-   "src": "L2231"
+   "src": "L2231",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The voice calls back (name)'s own name, softly, and then the sun breaks through and the mist goes in a rush, and there's nothing on the water but a single white seabird. (Name) stands there a long time. (He/She) never tells anyone what the voice sounded like.",

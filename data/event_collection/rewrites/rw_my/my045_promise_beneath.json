@@ -201,7 +201,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L12484"
+   "src": "L12484",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The next harvest comes, and it's... fine. An ordinary harvest. Not bad, not good. (Name) waits and waits for something magical to happen. Nothing does. (He/She) starts to wonder whether wishing changed anything at all, or whether the stranger was just a stranger. Still, nobody goes hungry that season. Maybe that's the wish, quietly coming true.",
@@ -234,7 +235,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L12491"
+   "src": "L12491",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Nothing changes. (Name) doesn't wake up any smarter. The questions (he/she) always had are still questions. But over the next weeks, (he/she) realizes something: some questions just stay unanswered, even after a wish. And somehow that's all right. (He/She) starts enjoying the questions instead.",

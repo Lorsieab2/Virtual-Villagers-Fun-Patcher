@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6732"
+   "src": "L6732",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The echo comes back changed. It is still (name)'s voice, but the name it calls is \"Ponui,\" over and over, an old name nobody has used in the village for a hundred years. (Name) comes out of the cave answering to it. When (he/she) tells the elders, they go through their memories and find it: (his/her) great-great-grandparent's name. \"The cave thought you should have it back,\" says the eldest.",
@@ -143,7 +144,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6735"
+   "src": "L6735",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) calls (his/her) own name into the dark. The cave takes it, and turns it over, and passes it back and forth between the walls, softer and softer, until (name) can hardly hear it...",
@@ -169,7 +171,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6741"
+   "src": "L6741",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The tide comes in faster than (name) expects. By the mouth of the cave the water is at (his/her) chest, and a wave throws (him/her) against the shell-covered wall. (He/She) comes home soaked and cut all along one arm, holding the torch, which went out long ago. The healers clean the cuts and pick out tiny white shells for an hour.",
@@ -181,7 +184,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6744"
+   "src": "L6744",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) backs away from the pool. Some things are better left unheard. On the way out (he/she) passes a long row of names written in shells on the wall, and stops, and touches one...",

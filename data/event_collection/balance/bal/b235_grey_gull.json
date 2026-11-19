@@ -143,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10949"
+   "src": "L10949",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) slides down on (his/her) back in a shower of stones, and lands on the beach bruised from head to foot, but whole. Something has changed, though. The next morning, (he/she) walks down the path. Slowly. The grey gull walks beside (him/her), and seems satisfied.",
@@ -161,7 +162,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10952"
+   "src": "L10952",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) jumps the gull without breaking stride, and lands on the loose stones on the other side, and the stones go out from under (his/her) feet...",
@@ -187,7 +189,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10958"
+   "src": "L10958",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) kneels down and looks at the gull's bad wing, and sees a fishing line tangled round it. (He/She) unpicks it, very carefully, while the gull glares at (him/her). When it's free, the gull flies straight up into the sky, and is gone. (Name) walks the rest of the way down the path, feeling very kindly towards everything.",
@@ -199,7 +202,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10961"
+   "src": "L10961",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) skids to a halt, stones skittering away down the path, an arm's length from the gull. The gull looks up at (him/her) with one yellow eye...",

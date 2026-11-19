@@ -139,7 +139,8 @@
      "role": "friend"
     }
    ],
-   "src": "L10666"
+   "src": "L10666",
+   "auto_text": true
   },
   "c1o2": {
    "text": "In the morning (subject) takes the mask off and finds (subject.he/she) is sitting in (friend)'s seat, in (friend)'s body, with (friend)'s bad back. And (friend) is standing by the fire, holding the mask, in (subject)'s young body, looking astonished. The mask, it seems, shared everything. (friend) is delighted. (subject) is going to need a cushion.",
@@ -150,7 +151,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10669"
+   "src": "L10669",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) ties on the mask and dances, and sings, and leads the Remembering all night, while (friend) watches from (friend.his/her) seat. As the night goes on, (friend) sits up straighter...",
@@ -174,7 +176,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10675"
+   "src": "L10675",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The mask does nothing at all, for one dance. But (friend) spends the whole night telling (subject) the stories behind the Remembering, the names and the reasons, and in the morning (subject) knows more about the village's past than anyone of (subject.his/her) age.",

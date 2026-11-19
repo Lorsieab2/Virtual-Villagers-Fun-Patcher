@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4125"
+   "src": "L4125",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The colours wash over (name) and fade. (He/She) walks back to the village, and the children stop and stare. (His/Her) face has changed, as if the colours mixed it up and painted it again. (Name) looks in a water bowl, tilts (his/her) head, and decides (he/she) likes the new paint.",
@@ -143,7 +144,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4128"
+   "src": "L4128",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) steps into the shimmer. The air is full of colours, red and gold and violet, warm on (his/her) skin, and everything seems to blur, as if (he/she) is seeing double...",
@@ -170,7 +172,8 @@
      }
     }
    ],
-   "src": "L4134"
+   "src": "L4134",
+   "auto_text": true
   },
   "c2o2": {
    "text": "By the time everyone arrives, the rainbow has moved on, the way rainbows do, and is standing over the sea, out of reach. (Name) gets some teasing for that. But (he/she) saw it first, up close, and the children believe (him/her), which is all that matters.",

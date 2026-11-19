@@ -132,7 +132,8 @@
      "copy_of": "subject"
     }
    ],
-   "src": "L65"
+   "src": "L65",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The reflection waves again, a slow, kind little wave, the way someone would wave to a child on a passing canoe. Then it sinks back into the dark of the pool and is gone, and the water shows only (name), looking very confused. (He/She) sits on the rocks until the tide comes back in, waiting for it to return. It never does. (Name) walks home with the strange feeling of having been politely turned down by (himself/herself).",
@@ -165,7 +166,8 @@
      "role": "subject"
     }
    ],
-   "src": "L77"
+   "src": "L77",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) picks up a pebble and, before (he/she) can think better of it, tosses it straight at the smiling face. Plop...",

@@ -104,14 +104,40 @@
    "src": "L203"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "Two neighbors shelter from a shower beneath a broad overhang. (Name1) had dreaded the weather but now finds it soothing.",
-   "src": "L207"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "Two neighbors shelter from a shower beneath a broad overhang. The conversation wanders pleasantly without reaching any conclusion.",
    "src": "L211"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "Two neighbors shelter from a shower beneath a broad overhang. (Name1) had dreaded the weather but now finds it soothing.",
+   "src": "L207",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L207"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "Two neighbors shelter from a shower beneath a broad overhang. (Name1) had dreaded the weather but now finds it soothing.",
+   "src": "L207"
   }
  }
 }

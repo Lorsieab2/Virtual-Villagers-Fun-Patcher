@@ -137,7 +137,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4640"
+   "src": "L4640",
+   "auto_text": true
   },
   "c1": {
    "text": "By the time the breeze has passed, (name) is sitting on the doorstep in a grown-up's wrap that's suddenly far too big, with small hands and small feet and a small, delighted face. (He/She) looks down at the beach, where the children are playing. Then (he/she) runs...",
@@ -166,7 +167,8 @@
      "role": "subject"
     }
    ],
-   "src": "L4649"
+   "src": "L4649",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) looks down at (his/her) shrinking hands in horror. \"No, no, no! Not like that! I didn't mean it! I take it back!\" (He/She) jumps up, grown-up wrap trailing, and runs after the breeze down the path, shouting...",

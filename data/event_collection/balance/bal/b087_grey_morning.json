@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3944"
+   "src": "L3944",
+   "auto_text": true
   },
   "c1o2": {
    "text": "No dream comes. In the morning (name)'s hair is still white, and (his/her) face has settled to match it, lined and calm. The elders say the old ones must have wanted (him/her) to keep it. (Name) decides that's a compliment, and stops minding. The children think (he/she) looks like a cloud.",
@@ -143,7 +144,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3947"
+   "src": "L3947",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) lies down in the same long grass that night, and before (he/she) sleeps, (he/she) asks, out loud and politely, for (his/her) own hair back...",
@@ -167,7 +169,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3953"
+   "src": "L3953",
+   "auto_text": true
   },
   "c2o2": {
    "text": "By the end of the week, the white is fading, strand by strand, back to (his/her) own colour. By the end of the month there's only a single white streak left over (his/her) forehead, which (name) keeps, and is quite proud of.",

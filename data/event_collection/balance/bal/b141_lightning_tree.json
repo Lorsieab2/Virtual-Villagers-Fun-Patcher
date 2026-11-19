@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6491"
+   "src": "L6491",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The lightning hits the tree and jumps. (subject) takes most of it. (friend) drags (subject.him/her) down the hill through the rain, shouting for the healers. (subject) lives. But (subject.his/her) right side is weak from then on, and (subject.his/her) hair has gone white where the lightning came out. (subject.He/She) never goes up the hill again, and gets indoors the moment the rain starts.",
@@ -157,7 +158,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L6494"
+   "src": "L6494",
+   "auto_text": true
   },
   "c1": {
    "text": "They huddle together against the black trunk. It is warm, which it should not be, and it hums under their backs. (friend) starts to say, \"I don't like this,\" and doesn't get to finish...",
@@ -182,7 +184,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6500"
+   "src": "L6500",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They reach the village so wet that water pours out of their sleeves, and stand dripping in the doorway of the nearest hut until the storm passes. Up on the hill, the lightning strikes the tree three more times. The elders nod. \"Good thing you didn't shelter,\" they say. \"You'd have come down very mixed up.\" Nobody ever explains exactly what that means.",

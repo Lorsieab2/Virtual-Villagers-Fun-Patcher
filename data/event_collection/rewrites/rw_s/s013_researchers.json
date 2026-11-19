@@ -209,7 +209,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L605"
+   "src": "L605",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) writes and writes. Then (he/she) stops and reads back what (he/she) has written, and goes very pale. It turns out what (he/she) remembers best from all those years of study is the drawings in the margins: a researcher's doodle of a grumpy fish, a little sketch of somebody's goat, a very good picture of a nimbus cloud. The real notes, the measurements and the numbers, have mostly gone from (his/her) memory. The other researchers are kind about it. They pin the grumpy fish on the wall.",

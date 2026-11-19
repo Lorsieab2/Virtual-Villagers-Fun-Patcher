@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15811"
+   "src": "L15811",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) throws the wet washing over (his/her) head and runs for the door. Moths bump against the cloth like soft raindrops...",
@@ -161,7 +162,8 @@
      "role": "subject"
     }
    ],
-   "src": "L15817"
+   "src": "L15817",
+   "auto_text": true
   },
   "c2o2": {
    "text": "One by one, other villagers come out to watch, until half the village is standing in the paths with gold dust in their hair, laughing. Nobody's face changes. The children chase the moths until midnight. In the morning everyone is gold from head to foot, and nobody can stop smiling at each other.",
@@ -174,7 +176,8 @@
      }
     }
    ],
-   "src": "L15820"
+   "src": "L15820",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) puts down the washing and stands in the middle of the path, face turned up, while the golden cloud drifts down around (him/her)...",

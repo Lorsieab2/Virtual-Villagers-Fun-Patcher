@@ -143,7 +143,8 @@
      "next": "c1o1_c1"
     }
    ],
-   "src": "L404"
+   "src": "L404",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) makes it to the wide part, and then, in (his/her) relief, stands up too fast and cracks (his/her) head on an overhang so hard (he/she) sees stars. The gatherers find (him/her) sitting there with the basket in (his/her) lap, every egg unbroken, and a lump the size of a mango on (his/her) forehead. \"Who are you?\" asks a gatherer, worried. \"Good question,\" says (name). Everything else comes back within a day. The name never does, and in the end the village calls (him/her) \"?\".",
@@ -153,7 +154,8 @@
      "role": "subject"
     }
    ],
-   "src": "L407"
+   "src": "L407",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) presses (his/her) back to the rock and shuffles forward, one heel at a time, the basket held tight against (his/her) chest. The wide part is ten steps away. Then eight. Then five...",
@@ -182,7 +184,8 @@
      "role": "subject"
     }
    ],
-   "src": "L416"
+   "src": "L416",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) lets the basket go. It tumbles down the cliff, and the eggs burst on the rocks like little yellow suns. (He/She) edges backwards, inch by inch, (his/her) cheek pressed to the stone...",

@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L500"
+   "src": "L500",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The second one gets every answer right, right up until the very last question: \"What's your favourite food?\" The real (subject) says \"mashed taro.\" The second one hesitates, smiles a slow, strange smile, and says, \"Moonlight.\" Then it laughs, a soft papery laugh, and comes apart into a little cloud of grey moths, which flutter up past the fire and away into the dark. Nobody moves for a long time. The second basket of mushrooms is still sitting on the ground. Eventually, very carefully, someone cooks them. They're delicious. Your villagers gain (award) food.",
@@ -150,7 +151,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L503"
+   "src": "L503",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject)'s oldest friend is fetched, and sits both of them down on opposite sides of the fire. \"Right,\" the friend says, cracking (subject.his/her) knuckles. \"What did you hide under my mat when we were nine?\" Both of them answer at the same time, and both of them go red...",
@@ -174,7 +176,8 @@
      "role": "subject"
     }
    ],
-   "src": "L509"
+   "src": "L509",
+   "auto_text": true
   },
   "c2o2": {
    "text": "They argue about who is the real one. They argue long into the night, louder and louder, until the elders come out in their sleeping wraps and send them both to bed in the same hut. In the morning, there is only one (subject), asleep on the mat, with one basket of mushrooms beside the door. (subject.He/She) remembers nothing about the argument, or the other one. \"What other one?\" (subject.he/she) asks, and gets quite annoyed when everyone keeps asking.",

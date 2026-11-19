@@ -98,7 +98,8 @@
      "who": "all",
      "src": "L183"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",

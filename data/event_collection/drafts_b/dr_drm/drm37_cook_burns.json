@@ -76,11 +76,73 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) eats the good bits and says they're nice, and they are, sort of. (subject) laughs and admits it's a disaster. They end up cooking a second fish together, with (friend) watching the fire, and it comes out fine. (subject) still burns things. (subject.He/she) still loves cooking. Both are true.",
+   "src": "L446",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L446"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) eats the good bits and says they're nice, and they are, sort of. (subject) laughs and admits it's a disaster. They end up cooking a second fish together, with (friend) watching the fire, and it comes out fine. (subject) still burns things. (subject.He/she) still loves cooking. Both are true.",
    "src": "L446"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) asks (friend) what (subject.he/she) is doing wrong. \"Your fire's too hot,\" says (friend). \"You keep feeding it.\" (subject) had no idea. (subject.He/she) tries a smaller fire the next night, and the fish comes out only slightly burnt. (subject.He/she) is overjoyed. It's not wonderful cooking yet. It's a long way from always.",
+   "src": "L449",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L449"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L449"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) asks (friend) what (subject.he/she) is doing wrong. \"Your fire's too hot,\" says (friend). \"You keep feeding it.\" (subject) had no idea. (subject.He/she) tries a smaller fire the next night, and the fish comes out only slightly burnt. (subject.He/she) is overjoyed. It's not wonderful cooking yet. It's a long way from always.",
    "src": "L449"

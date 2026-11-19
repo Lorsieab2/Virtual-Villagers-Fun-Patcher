@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5724"
+   "src": "L5724",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The shell gets louder every night. More laughter, and more voices, until (friend) has to sleep with a blanket over (friend.his/her) head. Then, all at once, it goes quiet. (subject) is pregnant, and the healers, feeling (subject.his/her) belly a few weeks later, look at each other and start counting on their fingers. \"{#babies:Just the one, for all that noise|Two|Three},\" says the eldest healer. \"I'd start weaving {#babies:a cradle|two cradles|three cradles}.\"",
@@ -152,7 +153,8 @@
      "role": "subject"
     }
    ],
-   "src": "L5727"
+   "src": "L5727",
+   "auto_text": true
   },
   "c1": {
    "text": "They carry the shell between them like a full pot of water, and set it by the door of their hut. All night it hums, very softly, a tune that (friend) swears (friend.his/her) mother used to sing...",
@@ -185,7 +187,8 @@
      "child_of_newest": true
     }
    ],
-   "src": "L5733"
+   "src": "L5733",
+   "auto_text": true
   },
   "c2o2": {
    "text": "As the shell sinks, a whale sings somewhere under the canoe, so close that the water shivers and the paddles buzz in their hands. It is the loveliest sound either of them has ever heard. Nothing else happens. They paddle home holding hands, and the old fishers say they were lucky to hear it at all.",

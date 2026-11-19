@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10195"
+   "src": "L10195",
+   "auto_text": true
   },
   "c1o2": {
    "text": "In the morning the rope is lying on the floor, still knotted, untied neatly from (subject)'s ankle by someone with small, careful fingers. (subject) is gone. There is grey dust on the doorstep. The village goes up to the burial ground and finds (subject.his/her) footprints walking in among the graves, and none walking out.",
@@ -145,7 +146,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10198"
+   "src": "L10198",
+   "auto_text": true
   },
   "c1": {
    "text": "They tie a soft rope round (subject)'s ankle and the other end to the doorpost. At midnight, (subject) gets up, eyes open and empty, and walks to the end of the rope, and pulls, and pulls...",
@@ -175,17 +177,20 @@
      "role": "subject"
     }
    ],
-   "src": "L10204"
+   "src": "L10204",
+   "auto_text": true
   },
   "c2o2": {
    "text": "At the grave, a mist comes up out of the ground, white and thick, and wraps round (subject), and when the followers rush in with the torch, there is nobody there. Only the mist, sinking back into the grass, and grey dust. The village leaves flowers on the grandmother's grave every week after that, for both of them.",
    "effects": [
     {
      "do": "vanish",
-     "role": "subject"
+     "role": "subject",
+     "line": "leaves"
     }
    ],
-   "src": "L10207"
+   "src": "L10207",
+   "auto_text": true
   },
   "c2": {
    "text": "At midnight (subject) gets up and walks, and (healer) and two others follow at a distance, carrying a covered torch. Up the hill, into the burial ground, between the old stones, to (subject.his/her) grandmother's grave...",

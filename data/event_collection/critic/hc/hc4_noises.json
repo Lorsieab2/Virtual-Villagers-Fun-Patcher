@@ -1868,7 +1868,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r59": {
    "text": "{O} {Q} For several terrible seconds, nobody speaks. Then {@chief} begins laughing, and the entire audience follows. (Subject) will have to perform the task again, preferably without the accompanying sound effects.",
@@ -1891,7 +1892,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r60": {
    "text": "{P} {Y} The examiners abandon their seats and move the assessment outdoors. (Mentor) pinches (mentor.his/her) nose. 'Before we discuss the work,' (mentor) says, 'we are going to discuss why that smell exists.'",
@@ -2171,7 +2173,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r63": {
    "text": "{N} (Subject) announces that the situation is under control. A second gourd pops behind the judges. {Y} (Mentor) declares that there will be no third attempt today.",
@@ -2216,7 +2219,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r66": {
    "text": "{O} (Mentor) tries to scold (subject) and accidentally repeats the offending noise. (Mentor) bursts out laughing before (subject) does. When the laughter finally stops, they review the mistake together.",
@@ -2239,7 +2243,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "rw_subjectl_farm": {
    "type": "branch",
@@ -2443,7 +2448,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r68": {
    "text": "{Q} The audience interprets the mangled line in an entirely different way from what (subject) intended. (Subject) explains the mistake, and the officials agree that a single syllable can matter a great deal. The lesson will be repeated without spectators.",
@@ -2466,7 +2472,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r69": {
    "text": "{N} A drifting cloud of harmless powder settles over the officials' notes. {Y} Nobody can read the marks beneath the dust. The examiners agree to hold a new assessment once the records are cleaned.",
@@ -2500,7 +2507,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "r71p": {
    "text": "(Subject) acknowledges the interruption, recovers the correct meaning, and completes the performance with confidence. The officials reward the recovery.",
@@ -2578,7 +2586,8 @@
     }
    ],
    "popup": "append",
-   "join": "paragraph"
+   "join": "paragraph",
+   "auto_text": true
   },
   "routes": {
    "type": "branch",

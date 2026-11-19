@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L213"
+   "src": "L213",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) takes off after the seed pod, barefoot, past the huts, through the gardens, scattering chickens in every direction. The pod bounces ahead along the path towards the cliffs, never quite close enough to grab...",
@@ -160,7 +161,8 @@
      "role": "subject"
     }
    ],
-   "src": "L219"
+   "src": "L219",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Nobody can agree. Every name gets shouted down. One family insists on a name that another family thinks is unlucky. The children want something that rhymes with \"pudding.\" And every time the village finally settles on one, the warm wind gusts back through the ring, smelling of cinnamon bark, and snatches that one away too, until nobody can remember any of the names they tried. By evening the wind has gone, and so has every name, and (name) is left with none at all: just \"?\". It never comes back. Years later, (name) is still \"?\", and quite likes it, and the argument still flares up every so often at festivals.",
@@ -170,7 +172,8 @@
      "role": "subject"
     }
    ],
-   "src": "L222"
+   "src": "L222",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Well, there's no use running after the wind,\" says one of the elders. \"Nobody's ever caught it yet. Somebody fetch the drum.\" In no time at all, half the village has gathered around (name) in a ring...",

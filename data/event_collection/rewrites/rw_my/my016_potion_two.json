@@ -204,7 +204,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L10773"
+   "src": "L10773",
+   "auto_text": true
   },
   "c1o2": {
    "text": "When (friend) holds the bottle to the light, (friend.he/she) sighs. The mixture has separated into three layers, murky brown, cloudy white and something that might once have been green. \"Whatever it was,\" (friend.he/she) says, \"it isn't that anymore.\" The original recipe is impossible to work out. The bottle goes back in the chest.",
@@ -232,7 +233,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10780"
+   "src": "L10780",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The drop tastes of nothing at all. Not bitter, not sweet, not even like water. (subject) waits. Nothing happens. Nothing happens all day. Somehow, that makes everyone more nervous, not less, and (subject)'s friends check on (subject.him/her) every hour, asking (subject.him/her) what (subject.his/her) name is. (subject) is never more relieved to remember it.",

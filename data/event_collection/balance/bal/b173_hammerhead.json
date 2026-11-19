@@ -146,7 +146,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8019"
+   "src": "L8019",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The shark looks at (subject) for a long time, then turns its head away and goes back to sleep. (subject) fills the basket to the brim, one silent clam at a time, and wades out backwards, very, very slowly. On the shore, (subject.his/her) legs give out and (subject.he/she) has to sit down. The clams are the best anyone has eaten all year. Your villagers gain (award) food.",
@@ -161,7 +162,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L8022"
+   "src": "L8022",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) moves very slowly, bending (subject.his/her) body down into the water, pulling up clams one at a time. The sharks lie still. One of them turns its strange flat head towards (subject.him/her)...",
@@ -186,7 +188,8 @@
      "role": "subject"
     }
    ],
-   "src": "L8028"
+   "src": "L8028",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) reaches the shore without a ripple, and sits down hard on the sand, shaking, with half a basket of clams. Out in the shallows the sharks are lying still, as if nothing happened. \"They don't bother anyone who doesn't bother them,\" says (fisher), cheerfully, coming over. (subject) gives (subject.him/her) a long look.",

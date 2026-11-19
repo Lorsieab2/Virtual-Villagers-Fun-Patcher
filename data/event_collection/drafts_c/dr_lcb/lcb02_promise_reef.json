@@ -98,7 +98,8 @@
      "loss": true,
      "src": "L29"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",

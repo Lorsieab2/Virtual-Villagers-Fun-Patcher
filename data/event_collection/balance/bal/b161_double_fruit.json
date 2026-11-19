@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7444"
+   "src": "L7444",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Each half of the fruit, it turns out, was doubled too. By the time (subject) has finished eating, there are {#made:two|three} of (subject.him/her) standing on the path, all with juice on their chins. The elders take one look as the {#made:two|three} of them walk into the village, and say, \"We told you.\" {#made:One of them takes the name (made1)|Two of them take the names (made1) and (made2)}. They spend the next week arguing about who has to do the work.",
@@ -146,7 +147,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7447"
+   "src": "L7447",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) breaks it apart at the join. Both halves are sweet and soft and taste faintly of rain. (subject.He/She) eats one half, then, since it seems rude not to, eats the other...",
@@ -170,7 +172,8 @@
      "role": "elder"
     }
    ],
-   "src": "L7453"
+   "src": "L7453",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The elders tell (subject) to take it back and tie it to the tree it fell from, so the spirit doesn't miss it. (subject) does, feeling foolish. The next morning, the tree is covered in fruit, all ordinary, single, perfectly ripe, more than it has ever grown before. Your villagers gain (award) food.",
@@ -185,7 +188,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L7456"
+   "src": "L7456",
+   "auto_text": true
   },
   "c2": {
    "text": "(subject) carries the fruit very carefully to the elders, holding it out in front of (subject.him/her) like a hot pot. The eldest elder looks at it for a long time, then holds out (subject.his/her) hand...",

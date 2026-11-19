@@ -69,14 +69,44 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) looks genuinely puzzled. \"But don't you wonder?\" \"Not really,\" says (subject). \"I wonder about whether the fish will bite tomorrow.\" (friend) laughs, a little uncertainly. Then, slowly, more naturally. \"Alright. Tell me about the fish, then.\" (subject) does. It turns out (friend) knows nothing about fish. They both learn something.",
-   "src": "L182"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) is quiet. (friend.He/she) had hoped (subject) would be interested. \"Sorry,\" says (subject). \"I don't mean it's silly. It's just not mine.\" (friend) nods slowly. \"That's alright. I suppose not everyone needs it.\" They walk on in an awkward silence that fades after a while. They're still friends. They just talk about other things.",
    "src": "L185"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) looks genuinely puzzled. \"But don't you wonder?\" \"Not really,\" says (subject). \"I wonder about whether the fish will bite tomorrow.\" (friend) laughs, a little uncertainly. Then, slowly, more naturally. \"Alright. Tell me about the fish, then.\" (subject) does. It turns out (friend) knows nothing about fish. They both learn something.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L182"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) looks genuinely puzzled. \"But don't you wonder?\" \"Not really,\" says (subject). \"I wonder about whether the fish will bite tomorrow.\" (friend) laughs, a little uncertainly. Then, slowly, more naturally. \"Alright. Tell me about the fish, then.\" (subject) does. It turns out (friend) knows nothing about fish. They both learn something.",
+   "src": "L182"
   }
  }
 }

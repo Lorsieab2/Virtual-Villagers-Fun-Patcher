@@ -92,9 +92,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The apprentice finds meaning in the words and learns not to waste the catch.",
-   "src": "L21351"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -124,7 +131,8 @@
      "scaled": true,
      "src": "L21354"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -152,6 +160,29 @@
    "name": "Outcome C2",
    "text": "A poor catch reminds them that respect cannot guarantee abundance.",
    "src": "L21358"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The apprentice finds meaning in the words and learns not to waste the catch.",
+   "src": "L21351",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L21351"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The apprentice finds meaning in the words and learns not to waste the catch.",
+   "src": "L21351"
   }
  }
 }

@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1721"
+   "src": "L1721",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(healer) runs into the village with the bark, and is met at the edge of the clearing by (subject)'s family. (subject) went that afternoon, peacefully, in (subject.his/her) sleep, with (subject.his/her) family around (subject.him/her). They tell (healer) that (subject) asked after (healer.him/her) at the end, and sent (healer.him/her) thanks, and not to be sad about the bark. The village buries (subject) in the sun, where (subject.he/she) liked to sit.",
@@ -150,7 +151,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1724"
+   "src": "L1724",
+   "auto_text": true
   },
   "c1": {
    "text": "(healer) leaves at dawn, running most of the way, and comes back on the second evening, scratched and limping, with a bundle of grey bark under (healer.his/her) arm...",
@@ -174,7 +176,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1730"
+   "src": "L1730",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) sleeps most of the two days, but in the waking hours (subject.he/she) talks, slowly, about everything (subject.he/she) knows: which plants, which leaves, which old stories. (healer) listens and remembers it all. (subject) stays poorly for a long time, but comfortable. (healer) never forgets those two days, and is a better healer for every word.",
@@ -187,7 +190,8 @@
      "best": true
     }
    ],
-   "src": "L1733"
+   "src": "L1733",
+   "auto_text": true
   },
   "c2": {
    "text": "(healer) puts the bundle of travelling things away and sits down by the mat. For two days, (healer.he/she) and (subject)'s family take turns holding (subject)'s hand and telling (subject.him/her) the village news...",

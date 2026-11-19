@@ -111,14 +111,21 @@
   },
   "b1": {
    "name": "Outcome B1",
-   "text": "A fortunate harvest inspires conflicting interpretations.",
-   "src": "L22446",
    "effects": [
     {
      "do": "food",
      "size": "small",
      "scaled": true,
      "src": "L22446"
+    }
+   ],
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
     }
    ]
   },
@@ -148,6 +155,25 @@
    "name": "Outcome C2",
    "text": "A spiritual elder reminds them that practical care and prayer can coexist.",
    "src": "L22450"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "A fortunate harvest inspires conflicting interpretations.",
+   "src": "L22446",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22446"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "A fortunate harvest inspires conflicting interpretations.",
+   "src": "L22446"
   }
  },
  "patches": [

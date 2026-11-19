@@ -132,7 +132,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13715"
+   "src": "L13715",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) steps out of the canoe onto the beach and (his/her) legs nearly give way. (His/her) back is bent, (his/her) hands are spotted, (his/her) hair is white. The ash has given (him/her) all the years at once. The healers can do nothing. (Name) sits down on the sand, looks at (his/her) old hands, and says, slowly, \"Well. I always did want the good sitting stone.\"",
@@ -147,7 +148,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13718"
+   "src": "L13718",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) paddles hard for the beach, the ash settling on (his/her) shoulders and in (his/her) hair, grey on everything...",
@@ -171,7 +173,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13724"
+   "src": "L13724",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The fish don't seem to mind the ash at all. In fact, they seem to like it: they rise to nibble at it on the surface, and (name) catches more than (he/she) has caught all month. (He/She) comes home with a grey basket on (his/her) head and a full one in (his/her) arms. Your villagers gain (award) food.",
@@ -186,7 +189,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L13727"
+   "src": "L13727",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) jams the fish basket over (his/her) head and carries on fishing, peering out through the weave. The ash piles up on top of the basket like a little grey hat...",

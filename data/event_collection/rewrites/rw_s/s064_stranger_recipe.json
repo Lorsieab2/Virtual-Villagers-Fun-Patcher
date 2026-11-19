@@ -142,7 +142,8 @@
      "next": "c1o1_c1"
     }
    ],
-   "src": "L3046"
+   "src": "L3046",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) wraps the fish, heats the stones, and buries it all just like the trader did. Then (he/she) gets bored of waiting, and digs it up early, and decides it needs more heat, and puts it straight on the fire. Then (he/she) gets distracted talking to someone. When (he/she) remembers, the fish is a small black lump that smokes when poked. The trader laughs so hard (he/she) has to lie down. Then (he/she) gets up, wipes (his/her) eyes, and shows (name) again from the beginning. Slower this time.",
@@ -180,7 +181,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L3055"
+   "src": "L3055",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(Name) writes it all down, folds the bark up small, and tucks it into a pocket for safekeeping. The trader leaves the next morning. And (name) can't find the bark anywhere. (He/She) searches the whole hut, twice. It's gone. A whole year later, digging in an old wrap for something completely different, (he/she) finds it, tucked into a fold. (He/She) opens it. It's smudged, and faded, and the only thing (he/she) can still read is \"...then you wait.\"",

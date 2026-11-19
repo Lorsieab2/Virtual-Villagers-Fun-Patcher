@@ -142,7 +142,8 @@
      "get_amount": 400,
      "src": "L116"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o3": {
    "name": "Outcome C",
@@ -174,7 +175,8 @@
      "get_amount": 700,
      "src": "L119"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2b": {
    "name": "Haggle, the worse deal",
@@ -189,7 +191,8 @@
      "get_amount": 200,
      "src": "L120"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "nothing": {
    "name": "Nothing to trade",

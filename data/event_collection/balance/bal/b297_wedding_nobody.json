@@ -154,7 +154,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c1o2": {
    "text": "The ceremony is a glorious, chaotic success. And a few weeks later, (subject) has a surprise of her own to announce at breakfast. She waits until (friend) has a mouthful of soup, and then tells (subject.him/her) she's pregnant. (friend) chokes. The village decides it was worth putting on a wedding just to see that.",
@@ -173,7 +174,8 @@
      }
     }
    ],
-   "src": "L13807"
+   "src": "L13807",
+   "auto_text": true
   },
   "c1": {
    "text": "\"Sunset,\" says (subject). The village explodes into action. People run in every direction, carrying flowers, food, mats and a very confused goat...",
@@ -215,7 +217,8 @@
      }
     }
    ],
-   "src": "L13813"
+   "src": "L13813",
+   "auto_text": true
   },
   "c2o2": {
    "text": "By the full moon, (subject) is already pregnant, and so tired she can barely stay awake for her own wedding. They have a quiet ceremony under the banyan, just the two of them and the elders, and (subject) falls asleep against (friend)'s shoulder before the feast even starts. (friend) says it was perfect.",
@@ -227,7 +230,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13816"
+   "src": "L13816",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Not like this,\" says (subject). \"Let's do it properly. Next full moon.\" (friend) deflates a little, but agrees. The village gets a month to prepare...",

@@ -155,9 +155,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(child) follows water from sea to cloud to rain in a simple lesson.",
-   "src": "L27755"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -229,6 +236,29 @@
    "name": "Outcome D2",
    "text": "(child) begins recording rainy and clear days.",
    "src": "L27765"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(child) follows water from sea to cloud to rain in a simple lesson.",
+   "src": "L27755",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L27755"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(child) follows water from sea to cloud to rain in a simple lesson.",
+   "src": "L27755"
   }
  }
 }

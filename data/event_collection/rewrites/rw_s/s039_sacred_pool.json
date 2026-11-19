@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1849"
+   "src": "L1849",
+   "auto_text": true
   },
   "c1o2": {
    "text": "For exactly one breath, they see through each other's eyes. (subject) sees (subject.himself/herself), standing in the starlit pool, looking a little frightened and very hopeful. (friend) sees the same. Then the stars in the water go still, and they're themselves again, each behind their own eyes. Neither of them says a word. They walk all the way home in silence, very close together, and very quiet, and neither of them ever tells anyone else what they saw.",
@@ -169,7 +170,8 @@
      "role": "subject"
     }
    ],
-   "src": "L1861"
+   "src": "L1861",
+   "auto_text": true
   },
   "c2": {
    "text": "Standing there in the dark with the black stones all around them, they both lose their nerve at the same moment. \"Maybe,\" whispers (friend), \"we could come back tomorrow. When it's light.\" They sleep under a tree nearby, and come back at noon...",

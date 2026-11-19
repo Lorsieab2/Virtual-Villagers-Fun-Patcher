@@ -138,7 +138,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12684"
+   "src": "L12684",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(Name) gets the coconuts. Then the bark belt snaps on the way down, and (he/she) falls the last third of the trunk onto the rocks. The coconuts land beside (him/her), unbroken. (Name) does not. (His/her) back never mends properly, and (he/she) moves slowly and carefully from then on. The coconuts, people say afterwards, were delicious. (Name) can't bring (himself/herself) to eat one.",
@@ -159,7 +160,8 @@
      "next": "c1o2_c1"
     }
    ],
-   "src": "L12687"
+   "src": "L12687",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) loops the belt around the trunk and starts climbing, hand over hand. The palm sways more the higher (he/she) goes. The crowd below goes quiet...",
@@ -183,7 +185,8 @@
      "role": "subject"
     }
    ],
-   "src": "L12693"
+   "src": "L12693",
+   "auto_text": true
   },
   "c2o2": {
    "text": "After a lot of swatting, three coconuts fall, bounce off the rocks, and roll to the feet of the crowd, who cheer as if (name) has won a war. They are very big coconuts, and very sweet. (Name) climbs down with (his/her) arms aching and (his/her) pride enormous. Your villagers gain (award) food.",
@@ -198,7 +201,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L12696"
+   "src": "L12696",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) climbs halfway, wedges (himself/herself) against the trunk, and starts swatting at the coconuts with a long bamboo pole. They don't budge...",

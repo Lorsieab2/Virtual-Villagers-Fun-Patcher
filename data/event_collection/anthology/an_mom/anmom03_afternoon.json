@@ -104,9 +104,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(villager) rests and feels a little better.",
-   "src": "L80"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -134,6 +141,26 @@
    "name": "Outcome B2",
    "text": "(companion) begins telling an unexpectedly funny story.",
    "src": "L84"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(villager) rests and feels a little better.",
+   "src": "L80",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 10,
+     "max": 20,
+     "src": "L80"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(villager) rests and feels a little better.",
+   "src": "L80"
   }
  }
 }

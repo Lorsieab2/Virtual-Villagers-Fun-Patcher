@@ -172,7 +172,8 @@
      "scaled": true
     }
    ],
-   "src": "L8589"
+   "src": "L8589",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The old record is so dry that it cracks apart as it is unrolled, splitting into pieces that crumble at the edges. A fragile part of the history is lost, including, ironically, the part that said what started the fire. (subject) and (friend) stare at the pieces. Then at each other. Then, for the first time in three days, they're both quiet.",
@@ -184,7 +185,8 @@
      "loss": true
     }
    ],
-   "src": "L8591"
+   "src": "L8591",
+   "auto_text": true
   },
   "c1": {
    "text": "(scholar) fetches the ancient bark record of the fire, and unrolls it very, very carefully, with (subject) and (friend) breathing down (subject.his/her) neck...",
@@ -209,7 +211,8 @@
      "scaled": true
     }
    ],
-   "src": "L8596"
+   "src": "L8596",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The grandparents' stories contradict each other completely: lightning, a cooking pot, a dropped torch, an angry spirit, and one great-aunt who insists there was no fire at all. Nobody pretends to know the truth. (subject) and (friend) keep arguing, but now there are seven sides.",
@@ -238,7 +241,8 @@
      "scaled": true
     }
    ],
-   "src": "L8603"
+   "src": "L8603",
+   "auto_text": true
   },
   "c3o2": {
    "text": "As (scholar) writes, an old woman comes to ask that some parts of the story be left out: the parts about which families lost people, and who was blamed afterwards. (scholar) decides those parts should stay private to the families involved. (subject) and (friend), hearing why, quietly stop arguing.",

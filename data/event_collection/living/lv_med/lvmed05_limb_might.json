@@ -115,7 +115,8 @@
      "preference": "running",
      "src": "L20274"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -128,7 +129,8 @@
      "cause": "unknown",
      "src": "L20275"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -158,7 +160,8 @@
      "max": -10,
      "src": "L20277"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -171,7 +174,8 @@
      "cause": "unknown",
      "src": "L20278"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -212,7 +216,8 @@
      "preference": "running",
      "src": "L20281"
     }
-   ]
+   ],
+   "auto_text": true
   }
  },
  "grammar_fixes": [

@@ -139,7 +139,8 @@
      "role": "subject"
     }
    ],
-   "src": "L11735"
+   "src": "L11735",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The pot holds something that smells like a burnt goat. (healer) makes them both breathe it in at the same time. They sneeze at the same moment, and when they open their eyes, they are back where they belong. Neither of them can smell anything for three days, and neither of them goes near the healers' hut again if they can help it.",
@@ -155,7 +156,8 @@
      "dislike": "medicine"
     }
    ],
-   "src": "L11738"
+   "src": "L11738",
+   "auto_text": true
   },
   "c1": {
    "text": "They stagger to the healers' hut together, each of them tripping over the other's feet. (healer), the head healer, listens to the whole story, looks at them both for a long time, and reaches for a clay pot with a stopper in it...",
@@ -192,7 +194,8 @@
      "dislike": "lifting"
     }
    ],
-   "src": "L11744"
+   "src": "L11744",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The lightning comes back down through the banyan just as (subject) is about to give up. They both wake up in the mud, back in their own bodies, with ringing ears and singed eyebrows. The healers spend a week treating their burns. The water argument is never mentioned again by either of them.",
@@ -210,7 +213,8 @@
      "max": -20
     }
    ],
-   "src": "L11747"
+   "src": "L11747",
+   "auto_text": true
   },
   "c2": {
    "text": "\"Lightning did it,\" says (friend), in (subject)'s voice, \"so lightning can undo it.\" They stand back under the smoking banyan as the storm grumbles around the hills, waiting for it to strike again...",

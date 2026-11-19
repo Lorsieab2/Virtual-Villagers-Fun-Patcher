@@ -207,7 +207,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L11894"
+   "src": "L11894",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The merchant reaches into the basket at (name)'s feet, takes out an old broken comb that's been lying at the bottom for years, and leaves, apparently satisfied. (Name) laughs. That's it? (He/She) only thinks about the comb once the merchant is long gone, and then can't stop thinking about it: it was (his/her) grandmother's. (Name) hadn't looked at it in years. Now (he/she) misses it terribly.",

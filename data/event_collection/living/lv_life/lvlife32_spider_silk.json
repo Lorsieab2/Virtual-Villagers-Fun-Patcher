@@ -80,9 +80,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The thread becomes stronger in a small test.",
-   "src": "L21048"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -132,6 +139,25 @@
    "name": "Outcome C2",
    "text": "The first design tangles, and the apprentice starts again.",
    "src": "L21055"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The thread becomes stronger in a small test.",
+   "src": "L21048",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L21048"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The thread becomes stronger in a small test.",
+   "src": "L21048"
   }
  }
 }

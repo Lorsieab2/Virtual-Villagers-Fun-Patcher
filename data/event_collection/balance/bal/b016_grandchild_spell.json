@@ -145,7 +145,8 @@
      "role": "subject"
     }
    ],
-   "src": "L720"
+   "src": "L720",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The smoke clears, and (subject)'s back still hurts exactly as much as it did before. But (subject.his/her) friends gasp when they see (subject.him/her), and someone fetches a water bowl. The charm has given (subject.him/her) the face (subject.he/she) had at twenty-five, and nothing else. \"Well,\" (subject) says, poking at (subject.his/her) smooth cheek. \"My back still hurts. But at least now I'm handsome while it does.\"",
@@ -155,7 +156,8 @@
      "role": "subject"
     }
    ],
-   "src": "L723"
+   "src": "L723",
+   "auto_text": true
   },
   "c1": {
    "text": "(young) waves the bundle over (subject)'s head three times, mutters the words, gets one of them wrong, says \"Sorry, sorry,\" and starts again. The herbs start to smoke without being lit...",
@@ -179,7 +181,8 @@
      "role": "subject"
     }
    ],
-   "src": "L729"
+   "src": "L729",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The goat comes trotting back, looking delighted with itself, and leaps onto a hut roof that it couldn't have reached for years. (young) beams with pride. (subject) looks at the goat. Then at the herbs. Then at (subject.his/her) aching back. \"Tomorrow,\" (subject.he/she) says. \"Maybe.\" The goat lives on the roof for a week.",

@@ -197,7 +197,8 @@
      "scaled": true
     }
    ],
-   "src": "L7288"
+   "src": "L7288",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The fog's damp creeps into everything. When (name) opens the storehouse, a whole basket of dried food has gone furry with mould, and has to be thrown out. The missing canoe paddles in at dusk, its crew safe, which is the only good news of the day.",
@@ -209,7 +210,8 @@
      "loss": true
     }
    ],
-   "src": "L7290"
+   "src": "L7290",
+   "auto_text": true
   },
   "c1": {
    "text": "There's nothing to do for the missing canoe yet, so (name) does what (he/she) can: (he/she) rounds up the fishers who made it home, and they get to work on the catch...",
@@ -246,7 +248,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7297"
+   "src": "L7297",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) has an idea: if the lost canoe can't see the reef markers, maybe it can see fire. The fishers build bonfires all along the beach and on the rocks...",
@@ -271,7 +274,8 @@
      "scaled": true
     }
    ],
-   "src": "L7302"
+   "src": "L7302",
+   "auto_text": true
   },
   "c3o2": {
    "text": "Everyone's notes about the fog disagree: thinner here, thicker there, thinner again. The fishers agree to watch the next one more carefully. The lost canoe drifts home by luck the next morning, its crew sheepish and starving.",
@@ -305,7 +309,8 @@
      "loss": true
     }
    ],
-   "src": "L7311"
+   "src": "L7311",
+   "auto_text": true
   },
   "c4": {
    "text": "So this never happens again, (name) gathers workers to wade out at low tide and set new, bigger markers on the reef...",

@@ -152,7 +152,8 @@
      }
     }
    ],
-   "src": "L6826"
+   "src": "L6826",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The smoke works everywhere except the research hut, where a bundle of herbs rolls under a pile of notes and sets them smouldering. By the time anyone notices, a season of notes has gone up in yellow smoke. The termites are gone, and the huts are fixed, but the researchers walk round with grim faces for a week.",
@@ -204,7 +205,8 @@
      }
     }
    ],
-   "src": "L6835"
+   "src": "L6835",
+   "auto_text": true
   },
   "c2o2": {
    "text": "On the last day, a great hardwood tree falls the wrong way. (builder) pushes two young villagers out of the way, and doesn't get out of the way (subject.himself/herself). The village finishes the posts in silence. Every hut in the village stands on new posts now, and the last one, in the middle of the village, has (builder)'s name carved on it.",
@@ -216,10 +218,12 @@
     {
      "do": "kill",
      "role": "builder",
-     "cause": "unknown"
+     "cause": "unknown",
+     "line": "injuries"
     }
    ],
-   "src": "L6838"
+   "src": "L6838",
+   "auto_text": true
   },
   "c2": {
    "text": "The whole village goes into the jungle with axes and ropes. They cut new posts of hardwood, the kind termites hate, and drag them back one by one through the mud...",

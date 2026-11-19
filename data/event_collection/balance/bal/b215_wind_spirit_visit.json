@@ -142,7 +142,8 @@
      }
     }
    ],
-   "src": "L10006"
+   "src": "L10006",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The whirlwind goes from hut to hut, and the villagers follow it, and wherever it stops and spins, they find a loose post or a hole in the thatch, and fix it. By evening every hut is mended, and everyone has learned something about where roofs go wrong. The whirlwind is gone in the morning, but the roofs stay fixed.",
@@ -163,7 +164,8 @@
      }
     }
    ],
-   "src": "L10009"
+   "src": "L10009",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) bows to the little whirlwind and says the old words of welcome. The whirlwind spins faster, delighted, and drops the spoon at (subject.his/her) feet...",
@@ -189,7 +191,8 @@
      "role": "subject"
     }
    ],
-   "src": "L10015"
+   "src": "L10015",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The whirlwind sinks down, drops all its leaves and feathers in a sad little heap, and drifts away towards the beach. (subject) feels a bit mean about it. That night, the spoon is found back in the cooking hut. Nobody saw it come back.",

@@ -197,7 +197,8 @@
      "scaled": true
     }
    ],
-   "src": "L7404"
+   "src": "L7404",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The fruit is saved, but the heat has already got into the storehouse. When (name) checks, a basket of fish has spoiled in the heat, and smells so terrible that the children run screaming. It has to be thrown out, quickly, and far away.",
@@ -209,7 +210,8 @@
      "loss": true
     }
    ],
-   "src": "L7406"
+   "src": "L7406",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) abandons the lesson, and sends the children running to help move the drying racks under the trees, which is the most exciting thing that's happened all day...",
@@ -239,7 +241,8 @@
      "role": "subject"
     }
    ],
-   "src": "L7413"
+   "src": "L7413",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) goes along the rows checking every child, making sure everyone drinks water...",
@@ -264,7 +267,8 @@
      "scaled": true
     }
    ],
-   "src": "L7418"
+   "src": "L7418",
+   "auto_text": true
   },
   "c3o2": {
    "text": "The children's guesses about the hottest hour disagree wildly. One says the morning was hottest. One says it's always hot. One put all (his/her) pebbles in a pattern shaped like a fish. (Name) decides to measure again tomorrow, when everyone's brains are less cooked.",
@@ -298,7 +302,8 @@
      "loss": true
     }
    ],
-   "src": "L7427"
+   "src": "L7427",
+   "auto_text": true
   },
   "c4": {
    "text": "(Name) gets the builders to come and open up the hut so the sea breeze can blow through...",

@@ -133,7 +133,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13136"
+   "src": "L13136",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The fog seems to follow (name) all the way home, wrapped around (him/her) like a blanket. When (he/she) finally steps inside, (his/her) back aches, (his/her) knees creak and (his/her) hair is grey. Ten years older, in one walk. (Name) sits down very slowly. \"Well,\" (he/she) says, \"at least I didn't drop the yams.\"",
@@ -152,7 +153,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13139"
+   "src": "L13139",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) walks on, step by step, feeling for the path with (his/her) toes. The fog presses against (his/her) face like a damp cloth...",
@@ -176,7 +178,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13145"
+   "src": "L13145",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The fog passes over and around (name) without touching (him/her) at all, as if (he/she) were a rock in a stream. When it clears, (he/she) is sitting on the path, perfectly dry, with the yams in (his/her) lap and a small lizard asleep on (his/her) knee. (He/She) gets up carefully so as not to wake it.",

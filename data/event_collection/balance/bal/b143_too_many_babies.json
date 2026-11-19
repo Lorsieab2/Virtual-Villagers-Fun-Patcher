@@ -143,7 +143,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6588"
+   "src": "L6588",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The next night, (friend) knocks again, with the other twin. \"It won't settle without its sister,\" (friend.he/she) says. So (subject) has both of them for a night, and (friend) sleeps for the first time in a month. After that the whole village takes turns. There is a rota, with shells, by the cooking fire. One twin stays with (subject) for good. The village is loud and tired and cheerful for a year.",
@@ -162,7 +163,8 @@
      }
     }
    ],
-   "src": "L6591"
+   "src": "L6591",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) holds out (subject.his/her) arms. (friend) hands over the louder one, which immediately goes silent and stares at (subject) with enormous, astonished eyes...",
@@ -188,7 +190,8 @@
      "remove": true
     }
    ],
-   "src": "L6597"
+   "src": "L6597",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(subject) keeps both twins all afternoon so (friend) can sleep, and forgets that (subject.he/she) left a pot on the fire. By the time (subject.he/she) smells it, the stew is a black crust and half the store's beans with it. The twins are asleep. (friend) is asleep. (subject) stands in the smoke and decides it was worth it.",

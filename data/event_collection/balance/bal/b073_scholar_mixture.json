@@ -131,7 +131,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3311"
+   "src": "L3311",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The green steam settles on (name)'s face like dew, and when (he/she) wipes it off, the skin underneath is smooth and fresh. The mixture copied (his/her) face from years ago, it seems, from some memory held in the skin. (Name) writes it all down very carefully. Then (he/she) pours the rest of the mixture into a sealed jar and buries it.",
@@ -141,7 +142,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3314"
+   "src": "L3314",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) plunges (his/her) hand into the water bowl and scrubs. The water turns green, then bright green, then starts to steam...",
@@ -165,7 +167,8 @@
      "role": "subject"
     }
    ],
-   "src": "L3320"
+   "src": "L3320",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The glow fades. Nothing is copied. But watching it, (name) understands at last what the mixture is doing, and why, and spends the whole night writing it down. The other scholars are thrilled, and a little disappointed there aren't two of anyone. Your villagers gain (award) tech points.",
@@ -180,7 +183,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L3323"
+   "src": "L3323",
+   "auto_text": true
   },
   "c2": {
    "text": "(Name) holds (his/her) hand very still, and watches. The drop spreads, and glows, and then the glow climbs up (his/her) arm, and over (his/her) shoulder, and then all over (him/her)...",

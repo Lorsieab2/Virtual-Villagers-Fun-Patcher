@@ -204,7 +204,8 @@
      "scaled": true
     }
    ],
-   "src": "L16091"
+   "src": "L16091",
+   "auto_text": true
   },
   "c1o2": {
    "text": "Through the door is an empty hut, its roof fallen in, its shelves bare. Not a grain, not a crumb. (Name) is bitterly disappointed. But on the walk home, (he/she) notices something (he/she) was too busy searching to see on the way there: the path to the door is lined with wild yams, edible mushrooms and berry bushes nobody in the village knew about. (He/she) fills (his/her) basket on the way back. Perhaps, (he/she) thinks, the door was never the point.",
@@ -233,7 +234,8 @@
      "scaled": true
     }
    ],
-   "src": "L16098"
+   "src": "L16098",
+   "auto_text": true
   },
   "c2o2": {
    "text": "Beyond the doorway is a room full of tablets: dozens and dozens of smooth stone tablets, stacked on shelves, every one perfectly blank. Not a mark on them. (Name) turns them over, one after another, looking for anything, and finds nothing. Disappointed, (he/she) heads home and tells the traveler. The traveler grins. \"Knowledge,\" (he/she) says, \"has to be written by someone first. Those are waiting for you.\"",
@@ -265,7 +267,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16107"
+   "src": "L16107",
+   "auto_text": true
   },
   "c3": {
    "text": "(Name) cannot stop thinking about the door with nothing on it. Against the traveler's quiet warning, (he/she) goes looking for it, and after a long, strange day of walking, finds it: a plain grey door standing alone among the trees, with no marks at all...",

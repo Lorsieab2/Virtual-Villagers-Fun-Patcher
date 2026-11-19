@@ -144,7 +144,8 @@
      "structures": "any"
     }
    ],
-   "src": "L7684"
+   "src": "L7684",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The huts are rebuilt, and then, three nights later, another wave comes, smaller, and soaks them again, and this time it gets into the research hut next door and turns a season of bark notes into mush. The huts are fixed a second time, with stone floors. The notes are not.",
@@ -192,7 +193,8 @@
      }
     }
    ],
-   "src": "L7693"
+   "src": "L7693",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The huts are moved and rebuilt, but the families are angry with (name) for a long time. Every time (name) walks past, the grandmother turns her back. (Name) can't stand the sound of a hut going up any more, or the smell of new thatch. It reminds (him/her) of the quarrel. The huts stay on the hill. They are very nice huts, and nobody says so.",

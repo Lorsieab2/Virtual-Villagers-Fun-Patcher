@@ -74,7 +74,8 @@
      "max": -10,
      "src": "L9020"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "text": "The medicine fails, and the physicians grieve.",
@@ -86,7 +87,8 @@
      "cause": "unknown",
      "src": "L9021"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_a": {
    "type": "branch",
@@ -117,7 +119,8 @@
      "max": 30,
      "src": "L9023"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "Both die despite the attempt.",
@@ -135,7 +138,8 @@
      "cause": "unknown",
      "src": "L9024"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "text": "The untreated patient unexpectedly recovers.",
@@ -148,7 +152,8 @@
      "max": 30,
      "src": "L9025"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_b": {
    "type": "branch",
@@ -182,7 +187,8 @@
      "cause": "unknown",
      "src": "L9028"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c3": {
    "text": "A child notices the needed plant growing near the hospital.",

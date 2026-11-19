@@ -135,7 +135,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16567"
+   "src": "L16567",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The cough goes, but slowly, and by the end of the week, (subject) is so tired of the taste of honey and coral every morning that (subject.he/she) can't stand the thought of it. \"It's lovely,\" (subject.he/she) says. \"For the first three days.\" After that, even the smell of the healers' hut makes (subject.him/her) wince, and (subject.he/she) never asks for anything from it again unless (subject.he/she) has to.",
@@ -151,7 +152,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16570"
+   "src": "L16570",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) takes one spoonful every morning, as told, and makes the gourd last a whole week, which takes a great deal of willpower...",
@@ -181,7 +183,8 @@
      "role": "subject"
     }
    ],
-   "src": "L16576"
+   "src": "L16576",
+   "auto_text": true
   },
   "c2o2": {
    "text": "...and nothing happens. The cough is still there in the morning. And the taste of that much honey, all at once, has put (subject) off sweet things, and then off food of almost any kind, for a very long time. (healer) gives (subject.him/her) the usual bitter root instead, which works in three days, and tastes like a wet boot.",

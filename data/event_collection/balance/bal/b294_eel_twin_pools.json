@@ -136,7 +136,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13670"
+   "src": "L13670",
+   "auto_text": true
   },
   "c1o2": {
    "text": "They come up in each other's bodies, tangled in each other's nets and choking on pool water. It takes ages to get free. Neither of them ever wants to go in the water again, in either body. \"I've been swum through,\" (friend) says, in (subject)'s voice, whenever anyone suggests a dip. \"Once is enough.\"",
@@ -159,7 +160,8 @@
      "like": "swimming"
     }
    ],
-   "src": "L13673"
+   "src": "L13673",
+   "auto_text": true
   },
   "c1": {
    "text": "\"Now!\" They dive into their pools at the same moment. Underwater, the silver eel flashes out of the tunnel and straight through (subject)'s chest, and out the other side, and through (friend)'s...",
@@ -188,7 +190,8 @@
      "do": "pay_award"
     }
    ],
-   "src": "L13679"
+   "src": "L13679",
+   "auto_text": true
   },
   "c2o2": {
    "text": "The eel slides out into (subject)'s pool, straight through the net as if it isn't there, and straight through (subject)'s hand. It feels like being touched by cold water from the inside. After that day, (subject) can't face eating eel, or fish of any kind, without remembering that feeling. (subject.He/She) passes the fish basket along at every meal without taking any.",
@@ -200,7 +203,8 @@
      "role": "subject"
     }
    ],
-   "src": "L13682"
+   "src": "L13682",
+   "auto_text": true
   },
   "c2": {
    "text": "They crouch at the edges of the pools and wait. The eel takes its time. The sun moves across the sky...",

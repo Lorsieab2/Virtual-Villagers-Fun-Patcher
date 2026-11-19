@@ -155,7 +155,8 @@
      "age": "elder"
     }
    ],
-   "src": "L6443"
+   "src": "L6443",
+   "auto_text": true
   },
   "c1o2": {
    "text": "The couple and their baby are on their way to family further along the coast, and leave after a few days rest. {#made:The second canoe stays, though the village has room for only one of them|The second canoe stays, though the village has room for only two of them|The second canoe stays}: the old man's granddaughter, her teenage cousin who turns up from under a pile of mats, and the small boy with the goat. The old man goes on with the couple. \"Too old to start again,\" he says. \"But they're not.\"",
@@ -173,7 +174,8 @@
      "age": "child"
     }
    ],
-   "src": "L6446"
+   "src": "L6446",
+   "auto_text": true
   },
   "c1": {
    "text": "(Name) holds out both hands, the old way, and says the words of welcome (his/her) grandmother taught (him/her). The old man starts to cry. The small boy lets go of the goat, and it runs off immediately...",
@@ -220,7 +222,8 @@
      "what": "\"food\"",
      "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2o2": {
    "text": "The {@chief} is worried about food and says they may rest for a week, but no more. (Name) argues. The {@chief} argues back. The strangers listen to all of it, very politely, and slip away before dawn to avoid causing trouble. They leave a cooking pot on (name)'s doorstep as thanks. (Name) uses it every day, and every time, (he/she) thinks of them.",

@@ -142,7 +142,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6539"
+   "src": "L6539",
+   "auto_text": true
   },
   "c1o2": {
    "text": "(subject) is pregnant within the month. They can't bear the guilt, so they go to (farmer) and tell (subject.him/her) everything. (farmer) laughs and hugs them both. \"Seven years I've watered that tree,\" (subject.he/she) says. \"It was never going to be for me.\" After that, all four of them work the garden together, and (subject) and (friend) find they've stopped minding a lot of things.",
@@ -166,7 +167,8 @@
      "remove": true
     }
    ],
-   "src": "L6542"
+   "src": "L6542",
+   "auto_text": true
   },
   "c1": {
    "text": "(subject) reaches up and twists the fig off the branch. It comes away with a soft pop, and the whole tree seems to sigh. They split it in two right there in the garden, and eat it...",
@@ -193,7 +195,8 @@
      "role": "subject"
     }
    ],
-   "src": "L6548"
+   "src": "L6548",
+   "auto_text": true
   },
   "c2o2": {
    "text": "(farmer) and (subject.his/her) partner share the fig under the tree, and before the rains they are expecting a baby, the first in seven years of hoping. They are so happy that the whole village is happy for them. (subject) and (friend) say they are happy too, and mostly mean it. (farmer) promises to save them the next fig, in seven years.",

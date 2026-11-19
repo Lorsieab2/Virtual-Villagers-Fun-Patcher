@@ -135,14 +135,41 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "A less invasive approach provides partial relief.",
-   "src": "L20742"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "No safe alternative is found, and the patient must weigh difficult options.",
    "src": "L20743"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "A less invasive approach provides partial relief.",
+   "src": "L20742",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20742"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "A less invasive approach provides partial relief.",
+   "src": "L20742"
   }
  }
 }
