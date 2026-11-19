@@ -42,7 +42,7 @@ PINS = (
     ("technology", "Magic level 3", "C", ""),
     ("technology", "Choosing a faction", "C", "E"),
     ("puzzle", "Puzzles in general", "C", ""),
-    ("puzzle", "The First Chief", "C", "CU"),
+    ("puzzle", "The First Chief", "C", "CC"),
     ("puzzle", "The Bee Hive", "C", ""),
     ("puzzle", "The Alchemy Lab", "C", ""),
     ("puzzle", "The Roster of the Dead", "C", ""),
@@ -57,24 +57,24 @@ PINS = (
     ("puzzle", "The Ash Key", "E", ""),
     ("puzzle", "The Cliff Key", "C", ""),
     ("puzzle", "The Clam Key", "C", ""),
-    ("puzzle", "The Chief and the Princess", "U", ""),
+    ("puzzle", "The Chief and the Princess", "C", ""),
     ("building", "Building in general", "C", "C"),
     ("building", "The first hut", "C", ""),
     ("building", "The second hut", "C", ""),
     ("building", "The third hut", "C", ""),
     ("building", "The fourth hut", "C", ""),
-    ("building", "Fixing huts", "C", "U"),
+    ("building", "Fixing huts", "C", "C"),
     ("building", "The campfire", "C", "O"),
-    ("building", "The medical area", "C", "U"),
+    ("building", "The medical area", "C", "C"),
     ("item", "The herbs", "C", "OC"),
     ("item", "Brewing a potion", "E", "COO"),   # the code's spoil time, then the owner's word (2026-10-27)
     ("item", "Drinking a potion", "E", "O"),
     ("item", "The recipe book", "C", ""),
 ) + tuple(("item", items._potion_name(p), "C", "") for p in range(41)) + (
-    ("item", "Fruit", "C", "UUU"),
+    ("item", "Fruit", "C", "CCC"),
     ("item", "Honey", "C", ""),
     ("item", "Fish and the crab", "C", ""),
-    ("item", "Mushrooms", "E", "EUCC"),
+    ("item", "Mushrooms", "E", "ECCC"),
     ("item", "Collectibles", "C", "CC"),
     ("item", "Turtle Shell Collection", "C", "C"),
     ("item", "Coral Collection", "C", "C"),
@@ -82,24 +82,25 @@ PINS = (
     ("item", "Feather Collection", "C", "C"),
     ("item", "All four collections", "C", ""),
     ("item", "Grant Food (the chief's power)", "C", ""),
-    ("item", "Educate the Children (the chief's power)", "C", "CU"),
+    ("item", "Educate the Children (the chief's power)", "C", "CC"),
     ("item", "Point Out a Rare Collectible (the chief's power)", "C", "E"),
     ("item", "New clothes", "C", "C"),
     ("item", "Wood for the campfire", "C", ""),
     ("item", "Water for the Ash Key", "E", ""),
     ("item", "A snack at the food bin", "C", ""),
-    ("patcher", "Free Origins upgrades", "U", ""),
+    ("patcher", "Free Origins upgrades", "C", ""),
     ("patcher", "Time Warp", "K", ""),
-) + tuple(("patcher", name, "U", "") for name in (
-    "Island Event", "Barrel of Babies", "Tech Point Doubler", "Food Point Doubler", "Complete All Collections",
-    "Reset All Collections", "Equal Division of Labor (Includes Parenting / No Parenting)",
+) + tuple(("patcher", name, "C", "") for name in (
+    "Island Event", "Barrel of Babies", "Tech Point Doubler", "Food Point Doubler", "Full Heal",
+    "Complete All Collections", "Reset All Collections", "Equal Division of Labor (Includes Parenting / No Parenting)",
     "Clear All Skill Preferences", "Check Highest Skill (Includes Parenting / No Parenting)",
     "All Villagers Like Running", "Grant Full Mastery to All Villagers", "Make Villagers Young Adults",
-    "Grant Youth", "Grant Full Mastery", "Grant Running", "Set Age to 18", "Change Appearance",
-    "Pick Island Event", "Custom Island Event", "Choose Time Skip Amount", "Recharge Chief Powers")) + (
+    "Change Appearance for All", "Grant Youth", "Grant Full Mastery", "Grant Running", "Set Age to 18",
+    "Change Appearance", "Pick Island Event", "Custom Island Event", "Choose Time Skip Amount",
+    "Recharge Chief Powers")) + (
     ("patcher", "Learning Skills Never Fails", "C", ""),)
 
-COUNTS = {"technology": 23, "puzzle": 17, "building": 8, "item": 62, "patcher": 24}
+COUNTS = {"technology": 23, "puzzle": 17, "building": 8, "item": 62, "patcher": 26}
 
 
 class Exe:
@@ -147,7 +148,7 @@ class Entries(unittest.TestCase):
 
     def test_unconfirmed_lines_carry_the_label(self) -> None:
         text = gm.render(items.item_facts())
-        self.assertIn(f"{gm.UNCONFIRMED}  The Chief and the Princess: solved in 1 step", text)
+        self.assertNotIn(gm.UNCONFIRMED, text)              # every VV3 catalog line is traced (2026-11-18)
         self.assertIn("• Alchemy level 1: a new village's level, no price.", text)
 
     def test_the_general_rules_page_keeps_every_line(self) -> None:

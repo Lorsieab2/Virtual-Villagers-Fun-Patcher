@@ -44,7 +44,7 @@ class Hidden5(HiddenChecks, unittest.TestCase):
         ('tip', 'Where the tips appear', C, (C, C, C, O)),
         ('patcher', 'The tip vine (village screen)', C, (C, C)),
         ('patcher', 'Difficulty (Options dialog)', C, ()),
-        ('patcher', 'Upgrades buttons (Tech and Villager Detail screens)', C, (U,)),
+        ('patcher', 'Upgrades buttons (Tech and Villager Detail screens)', C, (C,)),
         ('patcher', 'Story / Cheat menus (in the Origins Upgrades menu)', C, ()),
         ('patcher', 'Ctrl+V, Shift+Insert, Ctrl+C, Ctrl+Insert, Ctrl+X (any text box)', 'VERIFIED-E', ()),
     )

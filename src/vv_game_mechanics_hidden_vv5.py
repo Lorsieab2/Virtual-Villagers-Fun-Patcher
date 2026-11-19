@@ -312,7 +312,9 @@ def _patcher() -> list[Entry]:
             "Speed"), C, feature=DIFFICULTY),
         Entry(PATCHER, "Upgrades buttons (Tech and Villager Detail screens)", (
             "a click opens the Origins Upgrades menu (Tech screen) or the Villager Upgrades menu (Villager Detail)"),
-              C, feature=ORIGINS, subs=(("Esc closing these menus is tested only in A New Home.", U),)),
+              # native/vv5_task9_origins: every dialog ends on IDCANCEL (what Esc sends) -- the menu with -1, its own
+              # Cancel.
+              C, feature=ORIGINS, subs=(("Esc closes these menus as Cancel does: nothing is bought.", C),)),
         Entry(PATCHER, "Story / Cheat menus (in the Origins Upgrades menu)", (
             "adds Pick Island Event, Custom Island Event and Choose Time Skip Amount, and makes every Origins Upgrade "
             "cost 0 tech points"), C, feature=STORY),

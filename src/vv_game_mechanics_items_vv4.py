@@ -474,13 +474,12 @@ def _items() -> list[Entry]:
             ((patch("vv4_super_secret_golden_mushroom") + ": 1 in 1,000,000 of the random mushrooms is a Golden "
               "Mushroom worth 100 food (Mushrooms).", VERIFIED_E),
              # data/builds.json vv4_everyone_collects_like_vv1: 0x413A3F `jne` -> nops in the drop hit-test 0x413A20,
-             # which otherwise skips an item whose reserver (+0x18) is set.  What the pickup does for the second
-             # child was not followed.
+             # which otherwise skips an item whose reserver (+0x18) is set (tests/test_everyone_collects.py runs it).
+             # The second child: the pickup (collectible manager vf0) returns 1 even when the first pickup already
+             # removed the item, and the award (vf1) reads only the carried id, so each is paid.
              (patch("vv4_everyone_collects_like_vv1") + ": a child can be dropped on a mushroom or collectible "
               "another villager is already going for (the game normally ignores that drop), and several children "
-              "dropped on one each collect it, so it is multiplied. What the code changes is only the first part; "
-              "that each one then collects it was not followed through the game's code -- drop two children on one "
-              "mushroom and watch the food count to see it.", UNCONFIRMED),
+              "dropped on one each collect it and each is paid for it, so it is multiplied.", VERIFIED_C),
              # The release listener 0x414410: 0x414442 cmp eax,8 / jne becomes cmp eax,5 / je
              # (vv4_collectibles_stay_collected); the stew pot's listener 0x42EA30 runs first.
              (patch("vv4_collectibles_stay_collected") + ": a mushroom a child has picked up counts wherever the "

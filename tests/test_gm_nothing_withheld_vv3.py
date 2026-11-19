@@ -145,5 +145,33 @@ class HiddenShowsTheSharedSlot(unittest.TestCase):
         self.assertEqual(ok, hidden_vv3.C)
 
 
+class KeptListDone(unittest.TestCase):
+    """The coordinator, 2026-11-18: the patcher's own rows, the sharks and The Chief and the Princess, traced."""
+
+    def test_no_catalog_line_is_unconfirmed(self) -> None:
+        self.assertEqual([e.name for e in items.entries() if e.verified is False], [])
+        self.assertEqual([e.name for e in items.entries() for _t, v in e.subs if v is False], [])
+
+    def test_the_chief_and_the_princess(self) -> None:
+        entry = _entry("The Chief and the Princess")
+        self.assertIn("once all three keys are in place", entry.text)
+        self.assertIn("every 3 minutes of the game's clock", entry.text)
+        self.assertEqual(entry.verified, gm.CODE)
+
+    def test_the_patchers_rows(self) -> None:
+        self.assertIn("5 real-life seconds after it is bought", _entry("Island Event").text)
+        self.assertIn("below 80 health is brought to 100", _entry("Full Heal").text)
+        self.assertIn("450,000", _entry("Change Appearance for All").text)
+        self.assertIn("Research is a work step", _entry("Tech Point Doubler").text)
+        self.assertIn("fish, the fisher's crab and the chief's Grant Food are not", _entry("Food Point Doubler").text)
+        self.assertIn("a running dislike is taken away for free", _entry("Grant Running").text)
+
+    def test_the_sharks_have_no_timer(self) -> None:
+        import vv_game_mechanics_vv3 as vv3
+        texts = [t for t, _ok in vv3.CHANCE_LINES]
+        self.assertTrue(any(t.startswith("The sharks have no timer") for t in texts))
+        self.assertFalse(any("the sharks' timer" in t for t in texts))
+
+
 if __name__ == "__main__":
     unittest.main()

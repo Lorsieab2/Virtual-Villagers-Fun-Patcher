@@ -137,10 +137,10 @@ class Items(unittest.TestCase):
     def test_the_golden_fish_patch(self) -> None:
         self.assertEqual(sub("Fishing Nets", "With the patcher (\"Complete Fish Scales")[1], gm.CODE)
 
-    def test_the_duplication_patch_says_what_to_watch(self) -> None:
+    def test_the_duplication_patch_pays_each_child(self) -> None:
         text, verified = sub("Mushrooms", "With the patcher (\"VV1 Mushroom")
-        self.assertIn("drop two children on one mushroom and watch the food count", text)
-        self.assertFalse(verified)
+        self.assertIn("each collect it and each is paid for it", text)
+        self.assertEqual(verified, gm.CODE)
 
 
 class Patcher(unittest.TestCase):

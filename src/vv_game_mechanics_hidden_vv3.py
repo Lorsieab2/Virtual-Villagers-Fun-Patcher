@@ -222,7 +222,9 @@ def _patcher() -> list[Entry]:
             "faction!\" (native/vvfp_vv3_both_factions)"), C, feature=FACTIONS),
         Entry(PATCHER, "Upgrades buttons (Tech and Villager Detail screens)", (
             "a click opens the Origins Upgrades menu (Tech screen) or the Villager Upgrades menu (Villager Detail)"),
-              C, feature=ORIGINS, subs=(("Esc closing these menus is tested only in A New Home.", U),)),
+              # native/vv3_full_mastery_candidate upgrade_dialog: IDCANCEL (what Esc sends a dialog) -> EndDialog(-1),
+              # the menu's own Cancel; the appearance dialogs end on IDCANCEL too.
+              C, feature=ORIGINS, subs=(("Esc closes these menus as Cancel does: nothing is bought.", C),)),
         Entry(PATCHER, "Story / Cheat menus (in the Origins Upgrades menu)", (
             "adds Pick Island Event, Custom Island Event, Choose Time Skip Amount and Recharge Chief Powers, and makes "
             "every Origins Upgrade cost 0 tech points"), C, feature=STORY),

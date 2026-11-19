@@ -663,8 +663,12 @@ CHANCE_LINES = (
     # settings, the slot and slot + 20, once 600 seconds of the system clock 0x401ED0 have passed.  It is called at
     # 0x427B40, the last step of the game object's per-frame update 0x427720 (vtable slot 0x1C), skipped only while
     # the start-up loading step [+0x2C] is 6 or less (0x427B37); gm.autosave_line has the five games' trace.
-    ("Not traced: how long a fixed-spot coral from puzzle code stays out, and the sharks' timer (so their clocks, "
-     "real time or on the game's clock, are not known).", False),
+    # The sharks: the puzzle object (vtable 0x49D348) keeps only its solved byte; the drawer 0x436200 draws
+    # max(1, (100 - progress of puzzle 6) x 10 / 100) sharks at ten fixed spots (0x594B50.., set once at 0x436270);
+    # nothing in it, or in the sharks' listeners 0x436390 / 0x436580, reads a clock.
+    ("The sharks have no timer: they stay off the beach, at fixed spots, until The Sharks is solved; the game draws "
+     "10 of them, one fewer for each 10% of the puzzle's progress (at least 1).", True),
+    ("Not traced in this pass: how long a fixed-spot coral placed by puzzle code stays out.", False),
     # A live run of The Secret City, written down in the Game Mechanics audit of 2026-10-25 (commit 72b88737): a
     # village played for 30 minutes left no new save.  The code says otherwise (Autosave above); the owner,
     # 2026-10-27: "for cases where the code contradicts live observation write both cases down".

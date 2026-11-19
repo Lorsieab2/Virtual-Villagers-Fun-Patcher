@@ -43,13 +43,23 @@ class SharedWording(unittest.TestCase):
 class TechDoubler(unittest.TestCase):
     def test_a_new_home_reads_the_doubler_from_the_save(self) -> None:
         # native/vv1_origins_icons VV_DOUBLER_TECH_OFFSET 0x9E90, file offset state + 4.
-        self.assertEqual(tech_time.DOUBLER_TECH_AT[1], 0x9E94)
+        self.assertEqual(tech_time.DOUBLER_TECH_AT[1][0], 0x9E94)
         data = bytearray(0xABDC + 12)
         self.assertIs(tech_time.doubler_owned(1, bytes(data)), False)
         struct.pack_into("<I", data, 0x9E94, 1)
         self.assertIs(tech_time.doubler_owned(1, bytes(data)), True)
         self.assertIsNone(tech_time.doubler_owned(1, b"\0" * 16))
-        self.assertIsNone(tech_time.doubler_owned(2, bytes(data)))
+
+    def test_every_game_reads_its_doubler_bit(self) -> None:
+        # VV2 state +0x2EAE8 bit 1; VV3-VV5 the statistics block's +0x30 bit 1 (bit 2 is the Food Doubler).
+        for game, at in ((2, 0x2EAEC), (3, 0x520), (4, 0x890), (5, 0x7F4)):
+            with self.subTest(game=game):
+                self.assertEqual(tech_time.DOUBLER_TECH_AT[game], (at, 1))
+                data = bytearray(at + 8)
+                struct.pack_into("<I", data, at, 2)                  # the Food Doubler only
+                self.assertIs(tech_time.doubler_owned(game, bytes(data)), False)
+                struct.pack_into("<I", data, at, 3)
+                self.assertIs(tech_time.doubler_owned(game, bytes(data)), True)
 
     def test_no_line_says_not_read_here_or_not_counted(self) -> None:
         source = (ROOT / "src" / "vv_game_mechanics_tech_time.py").read_text(encoding="utf-8")

@@ -311,17 +311,23 @@ def buyable(game: int, levels: dict[str, int], both_factions: bool = False) -> l
     return out
 
 
-# Where a save keeps the Origins Tech Point Doubler's ownership: A New Home's state +0x9E90 (native/vv1_origins_icons
-# VV_DOUBLER_TECH_OFFSET; the save holds state+8 onward from file offset 12, so file offset = state + 4).
-DOUBLER_TECH_AT = {1: 0x9E90 + 4}
+# Where a save keeps the Origins Tech Point Doubler's ownership, as (file offset, the bit that marks it):
+#   A New Home: state +0x9E90, a whole dword (native/vv1_origins_icons VV_DOUBLER_TECH_OFFSET; file = state + 4);
+#   The Lost Children: state +0x2EAE8 bit 1 (scripts/build_vv2_origins_feature.py do_tech_doubler; file = state + 4);
+#   The Secret City, The Tree of Life, New Believers: bit 1 of the live statistics block's +0x30 (VV3 0x5824D0, VV4
+#   0x4D6E10, VV5 0x51D388), which the game saves and loads with the block (VV3 0x4264A0 / 0x426480 copy its 0x98
+#   bytes to and from manager +0x4EC), so file = the block's file offset (counts.SAVE_ROWS bases 0x4F0, 0x860,
+#   0x7C4) + 0x30.  The builders' "not in the save" notes for VV3/VV4 predate that reading.
+DOUBLER_TECH_AT = {1: (0x9E90 + 4, 0xFFFFFFFF), 2: (0x2EAE8 + 4, 1), 3: (0x4F0 + 0x30, 1), 4: (0x860 + 0x30, 1),
+                   5: (0x7C4 + 0x30, 1)}
 
 
 def doubler_owned(game: int, data: bytes) -> bool | None:
-    """Whether this save owns the Origins Tech Point Doubler; None where the game's field is not listed here."""
-    at = DOUBLER_TECH_AT.get(game)
+    """Whether this save owns the Origins Tech Point Doubler; None when the save ends before its field."""
+    at, bit = DOUBLER_TECH_AT.get(game, (None, 0))
     if at is None or at + 4 > len(data):
         return None
-    return struct.unpack_from("<I", data, at)[0] != 0
+    return struct.unpack_from("<I", data, at)[0] & bit != 0
 
 
 def lab_bonus(game: int, data: bytes) -> float:
@@ -548,21 +554,23 @@ def lines(ctx, everyone) -> list[gm.Fact]:
     if village.has(f"vv{game}_enable_origins_exclusive_features") is True:
         origins = f"With the patcher's \"{gm.feature_name(f'vv{game}_enable_origins_exclusive_features')}\" (in this game)"
         owned = doubler_owned(game, village.data)
-        if game == 4:
+        if game in (3, 4):
             # scripts/build_vv4_origins_feature.py tech_exclusions: 0x464E5D, 0x464E87 and 0x464EB0 are the returns
-            # of research's base pay, its Lab Equipment bonus and its fire bonus (the dispatcher 0x4642F0), so the
-            # doubler wrapper passes all three through undoubled.  Being reworked with the doublers' scope (PR #805).
+            # of research's base pay, its Lab Equipment bonus and its fire bonus (the dispatcher 0x4642F0);
+            # scripts/build_vv3_origins_feature.py tech_increment passes every return inside the step routine
+            # 0x458DB0..0x45943F, where all of research's payments return.  Being reworked (PR #805).
             add(origins + ": its Tech Point Doubler, in this version, does not double the points research earns (its "
-                "base pay, the Lab Equipment bonus and the fire bonus are all passed through), so the times above "
-                "stay the same with it.", gm.CODE)
+                "base pay and every bonus on it are passed through), so the times above stay the same with it"
+                + ("" if owned is None else
+                   "; this save owns one." if owned else "; this save does not own one.")
+                + ("" if owned is not None else "."), gm.CODE)
         else:
             lead = (origins + ": an owned Tech Point Doubler doubles the tech points research earns, so every time "
                     "above halves")
             if owned is None:
-                # VV2, VV3, VV5: where each keeps the ownership is not listed in DOUBLER_TECH_AT (VV3 keeps it in a
-                # process global, build_vv3_origins_feature.DOUBLER_OWNERSHIP_VA); re-checked with PR #805.
-                add(lead + "; whether this village owns one: the Tech screen's Upgrades list says \"Remove\" on its "
-                    "row when it does.", gm.CODE)
+                # Only a save that ends before the field (DOUBLER_TECH_AT) reaches here.
+                add(lead + "; whether this village owns one: this save ends before its field, and the Tech screen's "
+                    "Upgrades list says \"Remove\" on its row when it does.", gm.CODE)
             else:
                 add(lead + (": this save owns one, so each time above takes half as long as it says." if owned else
                             ": this save does not own one."), gm.SAVE)

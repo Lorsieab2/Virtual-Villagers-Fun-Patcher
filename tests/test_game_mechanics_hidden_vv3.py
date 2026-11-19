@@ -40,7 +40,7 @@ class Hidden3(HiddenChecks, unittest.TestCase):
         ('click', 'Places that show their state (village)', C, (C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, U, U)),
         ('tip', 'Where the tips appear', C, (U,)),
         ('patcher', 'The second faction (Tech screen)', C, ()),
-        ('patcher', 'Upgrades buttons (Tech and Villager Detail screens)', C, (U,)),
+        ('patcher', 'Upgrades buttons (Tech and Villager Detail screens)', C, (C,)),
         ('patcher', 'Story / Cheat menus (in the Origins Upgrades menu)', C, ()),
         ('patcher', 'Ctrl+V, Shift+Insert, Ctrl+C, Ctrl+Insert, Ctrl+X (any text box)', 'VERIFIED-E', ()),
     )
