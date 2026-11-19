@@ -197,6 +197,19 @@ class LiveScheduler(unittest.TestCase):
                     self.assertEqual(m.asked, [(ret, g["healing"])])
                     self.assertEqual(m.draws("fix_huts"), 0)
 
+    def test_the_games_own_parenting_pick_is_never_displaced(self):
+        # Review on #807: a worker with a ticked job whose own pick is Parenting (an embrace attempt) must
+        # still make that attempt -- never their job instead -- so births stay the game's and Birth Control's.
+        for game in GAMES:
+            g = G[game]
+            for who, own in _own_jobs(game):
+                for ret in LIVE[game]:
+                    with self.subTest(game=game, who=who, ret=hex(ret)):
+                        m = live(world(game, selected=own, force=FORCE_PASS), game, ret, g["parenting"])
+                        self.assertEqual(jobs(m), [g["parenting"]])
+                        self.assertEqual(m.asked[0][0], ret, "the scheduler's own request, unchanged")
+                        self.assertEqual(m.draws("fix_huts"), 0)
+
     def test_research_never_takes_the_place_of_farming(self):
         # The later games' low-food scheduler asks for Farming first.
         for game in GAMES:
