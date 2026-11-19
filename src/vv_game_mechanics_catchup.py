@@ -340,7 +340,8 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
         _patch_vv5(village, VV5_WORK_FIRST, "Normally every job turn uses the game's job choice.",
                "on 75 job turns in 100 a believer whose job is Farming, Research, Healing, Building or Devotion "
                "does that job first, once that skill is above 5 (a researcher never instead of farming; "
-               "Parenting never); farmers also harvest noni before the Hungry Totem; at 250 food or less a "
+               "Parenting never); the \"untrained\" mark is turned off, so a believer never dropped on a job works "
+               "too; farmers also harvest noni before the Hungry Totem; at 250 food or less a "
                "believer with Farming 20 or more still farms first."),
         _patch_vv5(village, VV5_FIX_HUTS, "Normally a builder in a job turn joins only a site already more than 1% "
                                           "built, and examines huts only once Houses 1 to 3 and the Clothing Hut "
@@ -472,7 +473,8 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
         _patch(village, VV4_WORK_FIRST, "Normally every job turn uses the game's job choice.",
                "on 75 job turns in 100 a villager whose job is Farming, Research, Healing or Building does that "
                "job first, once that skill is above 5 (a researcher never instead of farming; Parenting "
-               "never; a builder not while puzzle work could start); farmers also make "
+               "never; a builder not while puzzle work could start); the \"untrained\" mark is turned off, so a "
+               "villager never dropped on a job works too; farmers also make "
                "the fruit trip (Attempting to retrieve fruit) once the Cooking Pit is restored; at 250 food or "
                "less a villager with Farming 20 or more still farms first."),
         _patch(village, VV4_FIX_HUTS, "Normally a builder in a job turn joins only a building already more than 1% "

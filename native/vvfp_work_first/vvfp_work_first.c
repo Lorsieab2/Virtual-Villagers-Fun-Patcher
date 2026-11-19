@@ -80,10 +80,13 @@
    * The Tree of Life and New Believers, "untrained" (item 3; The Tree of
      Life added by the owner on #807): every new villager starts with
      [record+0x1C54] = 1, and the dispatcher refuses every job while it is 1
-     (VV4 0x4639D2, VV5 0x46C565).  For the scheduler's and catch-up's calls, a request for the
-     villager's selected job (never Parenting) is dispatched with the mark
-     lifted for that one call and put back afterwards (a refusal inside the
-     call writes 0, which would otherwise train them for everything).
+     (VV4 0x4639D2, VV5 0x46C565).  The owner (2026-11-19) wants the mark
+     gone with this patch: every request of the scheduler and the catch-up
+     worker is dispatched with the mark lifted for that one call and put back
+     afterwards (a refusal inside the call writes 0), so a skilled adult
+     works on their own as in VV1-VV3 and the record stays stock.  Not for a
+     Heathen, nor a Tree of Life Building request while puzzle work is on
+     offer (see untrained_dispatch).
    * The Tree of Life, the fruit trip in catch-up (item 84): the Farming case
      offers "Attempting to retrieve fruit" only while not catching up
      (0x463A30: cmp byte [game+0x171A4], bl; jne).  In catch-up a villager
@@ -565,17 +568,31 @@ static int __cdecl vv2_handle(unsigned int ret, unsigned char *village, unsigned
 }
 
 /* The Tree of Life and New Believers: every new villager starts with the
-   "untrained" mark [record+0x1C54] = 1, which the dispatcher refuses (VV4
-   0x4639D2, VV5 0x46C565).  The mark is lifted for one dispatch of the
-   villager's selected job (never Parenting) and put back afterwards if it is
-   still 0 (a refusal inside the call writes 0, which would otherwise train
-   them for everything).  The owner: New Believers (item 3), and The Tree of
-   Life too (2026-11-18, on #807). */
+   "untrained" mark [record+0x1C54] = 1 (VV4 0x45F534, VV5 0x4687D3), and the
+   work dispatcher refuses every job while it is 1 (VV4 0x4639D2, VV5
+   0x46C565) -- so a villager the player never dropped on anything, however
+   skilled (a child who grew up through the Nursery School, say), never works
+   on their own.  The owner (2026-11-19): "the untrained tag in vv4-vv5
+   sucks ... that patch should disable those too", and skilled adults must
+   work on their own like VV1-VV3.  So with this patch the mark is ignored:
+   every request of the scheduler and the catch-up worker (all five of their
+   dispatcher calls, the low-food Farming dispatch included) runs as for a
+   trained villager.  Which job, and whether at all, stays the game's own
+   picker's choice: above skill 5 only, then (skill + 40)% of the time, as in
+   VV1-VV3; Parenting only when the picker chooses it, under Birth Control.
+   The dispatcher is the mark's only gate (its other readers -- the scheduler
+   and the worker's assigned-site test, the end-of-action reset -- treat 1
+   as "nothing assigned", as they treat 0).
+   The record itself is not changed: the mark is set to 0 for the one call
+   and put back afterwards (a refusal inside the call writes 0), so a save
+   played without the patch is the stock game.
+   Not lifted: a Heathen (New Believers), and in The Tree of Life a Building
+   request while the Building case would start puzzle work on its own
+   (builders never start a project nobody was dropped on). */
 static int untrained_dispatch(void (*original)(void), unsigned char *object, unsigned char *record, int job,
-                              unsigned int selected_at) {
+                              int building_ok) {
     int *mark = (int *)(record + 0x1C54u);
-    int lifted = *mark == 1 && job >= 0 && job != LATER_JOBS.parenting && job == *(const int *)(record + selected_at)
-                 && later_skill(record, job, 5) > SKILL_ABOVE;
+    int lifted = *mark == 1 && job >= 0 && (job != LATER_JOBS.building || building_ok);
     int started;
     if (lifted) *mark = 0;
     started = dispatch_later(original, object, job);
@@ -583,27 +600,46 @@ static int untrained_dispatch(void (*original)(void), unsigned char *object, uns
     return started;
 }
 
+/* The worker's low-food Farming dispatch: never own-job-first (Farming wins
+   there), but the untrained mark is ignored for it too. */
+#define VV4_LOW_FOOD_CATCH_UP 0x46580Fu
+#define VV5_LOW_FOOD_CATCH_UP 0x46E9B1u
+
+static int vv4_building_ok(int job) {
+    return job != LATER_JOBS.building || !vv4_puzzle_on_offer();
+}
+
 static int __cdecl vv4_handle(unsigned int ret, unsigned char *object, int job) {
     unsigned char *record;
     int own, selected, skill_ok;
+    if (ret == VV4_LOW_FOOD_CATCH_UP) {
+        record = *(unsigned char *const *)(object + 0x1B88u);
+        if (*(const int *)(record + 0x1C54u) != 1) return -1;
+        return untrained_dispatch(vv4_original, object, record, job, 1);
+    }
     if (!is_one_of(ret, VV4_CALLS, 4)) return -1;
     record = *(unsigned char *const *)(object + 0x1B88u);
     selected = *(const int *)(record + 0x1C70u);
     skill_ok = later_skill(record, selected, 4) > SKILL_ABOVE;
     own = own_first(&LATER_JOBS, selected, job, skill_ok,
                     selected == LATER_JOBS.building && !vv4_puzzle_on_offer(), 0, 1);
-    if (own >= 0 && untrained_dispatch(vv4_original, object, record, own, 0x1C70u)) {
+    if (own >= 0 && untrained_dispatch(vv4_original, object, record, own, 1)) {
         COUNT(started);
         return 1;
     }
     if (*(const int *)(record + 0x1C54u) != 1) return -1;     /* the stock request, as it was */
-    return untrained_dispatch(vv4_original, object, record, job, 0x1C70u);
+    return untrained_dispatch(vv4_original, object, record, job, vv4_building_ok(job));
 }
 
 
 static int __cdecl vv5_handle(unsigned int ret, unsigned char *object, int job) {
     unsigned char *record;
     int own, catch_up, skill_ok;
+    if (ret == VV5_LOW_FOOD_CATCH_UP) {
+        record = *(unsigned char *const *)(object + 0x1B88u);
+        if (record[VV5_HEATHEN] != 0 || *(const int *)(record + 0x1C54u) != 1) return -1;
+        return untrained_dispatch(vv5_original, object, record, job, 1);
+    }
     if (!is_one_of(ret, VV5_CALLS, 4)) return -1;
     catch_up = ret == VV5_CATCH_UP_CALL;
     record = *(unsigned char *const *)(object + 0x1B88u);
@@ -611,12 +647,12 @@ static int __cdecl vv5_handle(unsigned int ret, unsigned char *object, int job) 
     skill_ok = later_skill(record, *(const int *)(record + 0x1C74u), 5) > SKILL_ABOVE;
     own = own_first(&VV5_JOBS, *(const int *)(record + 0x1C74u), job, skill_ok, 1,
                     catch_up || !vv5_devotee_training_present(), 1);
-    if (own >= 0 && untrained_dispatch(vv5_original, object, record, own, 0x1C74u)) {
+    if (own >= 0 && untrained_dispatch(vv5_original, object, record, own, 1)) {
         COUNT(started);
         return 1;
     }
     if (*(const int *)(record + 0x1C54u) != 1) return -1;     /* the stock request, as it was */
-    return untrained_dispatch(vv5_original, object, record, job, 0x1C74u);
+    return untrained_dispatch(vv5_original, object, record, job, 1);
 }
 
 /* For The Secret City's executable-side stub at the dispatcher's entry (the
