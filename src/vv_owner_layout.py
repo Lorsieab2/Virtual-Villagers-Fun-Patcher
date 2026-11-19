@@ -45,6 +45,43 @@ SKILLS = ("Farming", "Building", "Research", "Healing", "Parenting")
 SKILL_ALIASES = {"fishing": "Farming", "gathering": "Farming", "science": "Research", "medicine": "Healing",
                  "devotion": "Devotion", "fishing, or the game's closest skill": "Farming",
                  "fishing, or the skill the game uses for fishing": "Farming"}
+# The style guide's 8b and 8c (the owner, 2026-11-18): a craft or job counts as its main skill.  Two skills are one
+# of them at random, and each game keeps only the skills it has (cie: a skill effect's list), so magic is Healing in
+# VV1-VV4 and a Devotion-only craft is flavor there (8b).  The importer, the GO files and the AI prompt all read this
+# table.
+CRAFT_GROUPS: tuple[tuple[tuple[str, ...], tuple[str, ...]], ...] = (
+    (("cooking", "fishing", "gathering", "hunting", "trapping"), ("Farming",)),
+    (("carving", "sculpture", "weaving", "pottery", "canoe-making", "jewelry", "craftmaking", "weaponsmithing",
+      "bow-making"), ("Building",)),
+    (("archery",), ("Farming", "Building")),                          # hunting and bow-making
+    (("stargazing", "scroll-keeping", "writing", "alchemy", "mapping", "science"), ("Research",)),
+    (("potions", "stews", "remedies", "poultices", "salves", "tonics"), ("Research", "Healing")),
+    (("magic", "spells", "charms", "blessings", "sigils"), ("Healing", "Devotion")),
+    (("herbalism", "bonesetting", "midwifery", "medicine"), ("Healing",)),
+    (("teaching", "storytelling"), ("Parenting",)),
+    (("omens",), ("Research", "Devotion")),                           # 8b: omens = Research in VV1-VV4
+    (("prayer", "ritual", "devotion"), ("Devotion",)),
+)
+_SINGULAR = {"potion": "potions", "stew": "stews", "remedy": "remedies", "poultice": "poultices", "salve": "salves",
+             "tonic": "tonics", "spell": "spells", "charm": "charms", "blessing": "blessings", "sigil": "sigils",
+             "omen": "omens", "prayers": "prayer", "rituals": "ritual"}
+CRAFT_SKILLS: dict[str, tuple[str, ...]] = {w: sk for words, sk in CRAFT_GROUPS for w in words}
+# Story only, never a skill (the owner): doubt is flavor, and a doodle is not a sigil.
+FLAVOR_SKILLS = ("doubt", "doodle", "doodles", "doodling")
+
+
+def skills_of(word: str) -> list[str] | None:
+    """The skills a skill word names: a game skill, an alias or a craft (one of them at random); [] for a flavor word
+    (no effect); None when it is none of these."""
+    w = word.strip().lower()
+    if w in FLAVOR_SKILLS:
+        return []
+    if w.title() in SKILLS + ("Devotion",):
+        return [w.title()]
+    if w in SKILL_ALIASES:
+        return [SKILL_ALIASES[w]]
+    w = _SINGULAR.get(w, w)
+    return list(CRAFT_SKILLS[w]) if w in CRAFT_SKILLS else None
 SIZE_WORDS = {"a little": "small", "some": "normal", "a lot": "large", "hugely": "huge"}
 MOODS = {"warm": 0, "funny": 0, "happy": 0, "silly": 0, "sweet": 0, "social": 1, "curious": 1, "mixed": 1,
          "tense": 2, "eerie": 2, "sad": 2, "serious": 2, "solemn": 2, "mysterious": 2, "bittersweet": 2}
@@ -248,16 +285,19 @@ def _one(raw: str, ctx: _Ctx) -> list[dict]:
     if m:
         n = NUMBERS.get(m.group(1)) or int(m.group(1))
         return [{"do": "sick", "target": {"random": n}}]
-    m = re.fullmatch(r"every (healer|builder|farmer|researcher|scholar|parent) gains (\d+)(?: to (\d+))? (\w+)", low)
+    m = re.fullmatch(r"every (healer|builder|farmer|researcher|scholar|parent) gains (\d+)(?: to (\d+))? ([\w-]+)", low)
     if m:
         lo, hi = int(m.group(2)), int(m.group(3) or m.group(2))
-        return [{"do": "skill", "skills": [_skill(m.group(4))], "min": lo, "max": hi,
-                 "target": {"skill": GROUP_NOUNS[m.group(1)]}}]
+        sk = _skills(m.group(4))
+        return [{"do": "skill", "skills": sk, "min": lo, "max": hi,
+                 "target": {"skill": GROUP_NOUNS[m.group(1)]}}] if sk else []
     m = re.fullmatch(r"every (?:working )?villager(?: in the [a-z ]+)? gains (\d+)(?: to (\d+))? (?:in )?"
-                     r"(a skill they don't usually use|a random skill|\w+)", low)
+                     r"(a skill they don't usually use|a random skill|[\w-]+)", low)
     if m:
         lo, hi = int(m.group(1)), int(m.group(2) or m.group(1))
-        sk = list(SKILLS) if " " in m.group(3) else [_skill(m.group(3))]
+        sk = list(SKILLS) if " " in m.group(3) else _skills(m.group(3))
+        if not sk:
+            return []
         return [{"do": "skill", "skills": sk, "min": lo, "max": hi, "target": {"all": True}}]
     m = re.fullmatch(r"new look for (one|two|three|four|five|\d+) random villagers?(?: \((.*)\))?", low)
     if m:
@@ -298,13 +338,11 @@ def _one(raw: str, ctx: _Ctx) -> list[dict]:
     return out
 
 
-def _skill(word: str) -> str:
-    w = word.strip().lower()
-    if w in SKILL_ALIASES:
-        return SKILL_ALIASES[w]
-    if w.title() in SKILLS + ("Devotion",):
-        return w.title()
-    raise Unmapped(f"{word!r} is not a skill")
+def _skills(word: str) -> list[str]:
+    sk = skills_of(word)
+    if sk is None:
+        raise Unmapped(f"{word!r} is not a skill")
+    return sk
 
 
 def _target_tail(s: str) -> tuple[str, str | None]:
@@ -325,32 +363,35 @@ def _predicate(s: str, who: str | None, ctx: _Ctx, any_sex: bool, raw: str, grou
         return [_fx(do="kill", role=r)]
     if re.fullmatch(r"(?:is |are )?disappears?(?: \(.*\))?", s):
         return [_fx(do="vanish", role=r)]
-    m = re.fullmatch(r"skill \+ (\w+),? \(?(a little|some|a lot)(?:, \+\d+)?\)?(?: \(.*\))?", s)
+    m = re.fullmatch(r"skill \+ ([\w-]+),? \(?(a little|some|a lot)(?:, \+\d+)?\)?(?: \(.*\))?", s)
     if m:
-        return [_fx(do="skill", role=r, skills=[_skill(m.group(1))], size=SIZE_WORDS[m.group(2)])]
-    m = re.fullmatch(r"(?:skill \+ )?(\w+) becomes master(?: \(\d+\))?", s)
+        sk = _skills(m.group(1))
+        return [_fx(do="skill", role=r, skills=sk, size=SIZE_WORDS[m.group(2)])] if sk else []
+    m = re.fullmatch(r"(?:skill \+ )?([\w-]+) becomes master(?: \(\d+\))?", s)
     if m:
-        return [_fx(do="skill", role=r, skills=[_skill(m.group(1))], set=100)]
+        sk = _skills(m.group(1))
+        return [_fx(do="skill", role=r, skills=sk, set=100)] if sk else []
     m = re.fullmatch(r"(?:each )?gains? (\d+)(?: to (\d+))? (?:in )?(?:\(his/her\) |their )?(best skill|the other's best "
-                     r"skill|\w+)(?: and now likes (.+))?(?: \([^)]*\))?", s)
+                     r"skill|[\w-]+)(?: and now likes (.+))?(?: \([^)]*\))?", s)
     if m:
         lo, hi = int(m.group(1)), int(m.group(2) or m.group(1))
         e = _fx(do="skill", role=r, min=lo, max=hi)
         if "best" in m.group(3):
             e["best"] = True
         else:
-            e["skills"] = [_skill(m.group(3))]
-        out = [e]
+            e["skills"] = _skills(m.group(3))
+        out = [e] if e.get("best") or e["skills"] else []
         if m.group(4):
             out += _pref("like", m.group(4), r, ctx)
         return out
     m = re.fullmatch(r"gains? (\d+) in a random skill", s)
     if m:
         return [_fx(do="skill", role=r, skills=list(SKILLS), min=int(m.group(1)), max=int(m.group(1)))]
-    m = re.fullmatch(r"loses (\d+)(?: to (\d+))? (\w+)", s)
+    m = re.fullmatch(r"loses (\d+)(?: to (\d+))? ([\w-]+)", s)
     if m:
         lo, hi = int(m.group(1)), int(m.group(2) or m.group(1))
-        return [_fx(do="skill", role=r, skills=[_skill(m.group(3))], min=-hi, max=-lo)]
+        sk = _skills(m.group(3))
+        return [_fx(do="skill", role=r, skills=sk, min=-hi, max=-lo)] if sk else []
     m = re.fullmatch(r"(?:each |both )?loses? the (like|dislike) of (.+)", s)
     if m:
         return _pref(m.group(1), m.group(2), r, ctx, remove=True)

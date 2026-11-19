@@ -51,11 +51,72 @@ rule below. When in doubt, read them and write like them.
 8. EFFECTS, WRITTEN PLAINLY
    - Dislikes: "now dislikes swimming, or something similar if the game has it".
    - Injuries: "loses health" (needs the healers).
-   - Pregnancy: say how many babies; twins or triplets where the game allows them.
+   - Pregnancy: say how many babies; twins or triplets where the game allows them. Whoever carries the baby is
+     "the mother" in the game, whatever their sex (in a same-sex couple, one partner carries). A man may carry when
+     the event gives a reason (magic, a spell, a blessing, caring for a baby), when he decides to (a choice where he
+     offers to carry), or by a rare random chance in any couple's pregnancy.
    - Clones: one or two, each with a different name.
    - A "?" name only comes from a bump on the head or something like it (a fall, a fever, memory-taking magic);
      never from a villager choosing "?" or the village calling them "?".
    - Every ending within a choice is equally likely.
+
+8b. DEVOTION IN VV1-VV4
+   VV1-VV4 have no Devotion skill. A Devotion reward there goes at random to one of Farming, Building, Research,
+   Healing or Parenting that fits the event (sacred garden = Farming, shrine = Building, omens = Research, healing
+   rite = Healing, teaching the old prayers = Parenting), or is flavor only. In VV5 it can be Devotion or one of those.
+
+8c. CRAFTS COUNT AS THEIR MAIN SKILL
+   A craft or job that grows out of one of the main professions counts as that profession's skill: cooking, fishing,
+   gathering, hunting, trapping = Farming; carving, sculpture, weaving, pottery, canoe-making, jewelry, craftmaking,
+   weaponsmithing, bow-making, archery = Building; stargazing, scroll-keeping, writing scrolls and books, alchemy,
+   mapping = Research; potions, stews, remedies, poultices, salves, tonics and anything similar = Research or
+   Healing; magic, spells, charms, blessings and the like = Healing or Devotion (VV1-VV4: Healing); herbalism, bonesetting, midwifery = Healing;
+   teaching, storytelling to the young = Parenting; prayer, ritual, reading omens = Devotion (VV5). Anything else an
+   event mentions goes to its obvious main skill. A craft that fits more than one main profession (archery = hunting
+   and bow-making; a medicine potion = Research and Healing) can give skill in each of them, or in one of them at
+   random. Be creative, but if it doesn't make sense, it's flavor.
+
+8d. CLOTH IS A BUILDING AND REPAIR MATERIAL
+   Cloth suits building and repairs: sails, awnings, patching a roof or hut, mending nets, wrapping a broken
+   frame. In VV4, which has cloth bolts, an event that uses cloth this way uses up real cloth bolts when the village
+   has them; when it has none, the choice is still offered and the cloth is flavor only. The same goes for every
+   other material (soap, cutting tools, collectibles, food items...): use the real stock when the game has it and the
+   village has some, otherwise flavor. In games without that material it is always flavor.
+
+8e. SONGS, CHANTS AND SPEECHES
+   A villager or the whole village can sing in solidarity or support, chant together or give a speech, in the
+   spirit of real Polynesian and Indigenous traditions: always with respect or an understandable purpose, never as
+   a costume or a joke. The villagers gather, sing, dance, pray or honor in the game; the words of the song, chant
+   or speech live in the text. Fitting moments: welcoming a new leader, wishing travelers luck on a journey,
+   greeting newcomers or a newborn, comforting the grieving, honoring the dead or the ancestors, giving thanks for a
+   harvest, rallying everyone before hard work or a storm, celebrating a recovery, a homecoming or a finished
+   building, and supporting someone facing a hard choice.
+
+8f. LAVASTONES
+   Lavastones live only in lore and event text, never as an item the game counts. They are gem-like stones that
+   pulse with an orange-pinkish glow: crystallized, concentrated magic said to hold the power of creation and
+   destruction. Villagers have crushed them into potions and stews to make them stronger, healed wounds and
+   diseases that should have been fatal, revived someone near death by implanting one (forbidden, a last resort),
+   channelled their inner potential into real magic, made soil more fertile, and used them as a wishing stone or a
+   focus. Depending on the use a stone may last, crumble, or need time to recharge. The power has a price: it can
+   overwhelm someone unused to it, most often leaving them dazed or unable to act for a while, sometimes hurt,
+   disabled or worse. Masters spend decades learning to bear it and carry the strain in their bodies. Some call
+   lavastones good luck and some bad luck; they can turn a fate either way. They turn up anywhere: washed up on the
+   beach, dropped from the sky (sometimes onto someone's head). No one knows for sure where they come from or whether
+   they are a gift or a curse, and there are many stories about their origins, none of them confirmed.
+   Magic itself stays ambiguous: it may be people striving past their natural limits, an extension of their talent
+   and will, or something truly arcane, perhaps all of these. Events never settle which. The same goes for the island
+   itself: it may be just an island, or spirits may watch over and control its riches, or something else entirely.
+
+8g. ISOLA'S SCHOOLS OF THOUGHT
+   Isolans are divided into schools of thought that argue with and borrow from each other; a villager can lean
+   toward one, several or none, and no school is presented as simply right.
+   - Nature: protecting the environment. Debate: how much may people use versus preserve? Are people entitled to
+     the land, or should they take only what is readily given?
+   - Science: studying the natural world. Debate: where does faith or religion fit, if at all?
+   - Spiritualism: what is unseen, from atheism through every kind of belief to the worship of beings. Debate:
+     where does science fit, if at all?
+   - Magic: as in 8f, its nature unsettled (striving past limits, talent and will, the truly arcane, or all three).
 
 8a. LIKES AND DISLIKES ARE NOT JOBS
    Never write "(name) hates (a job), so (name) gets a dislike", or "(name) loves (a job), so a like". Say what
@@ -73,6 +134,31 @@ rule below. When in doubt, read them and write like them.
    Titles and choices in Title Case. PG-13 presentation: bad things happen, described just enough, never
    sanitized. Villagers are peaceful, imperfect people. Supernatural beings stay open to interpretation.
    In VV5, Isolans (Guardians of Isola wording).
+   Isola has a rich culture and living traditions of its own. Write it as something respectful that honors and
+   supports Indigenous, under-supported and historically oppressed cultures: their ways are shown with dignity and
+   care, never as exotic decoration, mockery or a lesser way of living.
+   - Isola has its OWN traditions. Draw on the purposes of real-world practices (welcome, mourning, shared work,
+     stewardship, self-government) but never copy sacred chants, ceremonial language or rituals that belong to a
+     particular community, and never name a real people in the event text. Indigenous cultures are many and
+     different: there is no single "Indigenous way" of celebrating, grieving or deciding.
+   - Culture belongs to the people who live it: Isolans create new traditions, question and change old ones, speak
+     for themselves, celebrate who they are, and stand together when someone is treated unfairly. Respecting a
+     tradition does not mean freezing it.
+   - Villagers take part in their own ways: some lead, some listen, some disagree, some choose not to join
+     (especially in ceremonies, beliefs and matters of identity), and that choice is respected.
+   - Culture is also ordinary life and joy: games, food, jokes, music, gossip, courtship, crafts, science and
+     everyday work, not only ceremonies, legends, ruins and struggle. Isolans are not "ancient" or "behind".
+   - Outcomes can be real and village-wide, and a village may learn from a mistake rather than reach harmony at once.
+   - Competing values are fine: several sides can each be understandable, with no single obviously right answer.
+     Some endings stay unresolved (an apology refused, a disagreement that continues, a village that still has work
+     to do). Solidarity is not conformity: dissent and holding leaders to account are signs of a strong community.
+   - Experts can disagree and be wrong: a navigator may correct a researcher, a farmer may spot a flaw in a theory.
+     Neither traditional knowledge nor experiment is automatically right.
+   - Consequences follow the story, not a formula: don't reward every event with "everyone happier". Outcomes can
+     be mixed (food spent to support a struggling family, knowledge gained through an uncomfortable truth, a
+     smaller harvest to protect a reef), and the villagers' choices should matter.
+   - Not every event needs an outsider, a crisis or a lesson: sometimes the village sings because the harvest was
+     good, or laughs because the chief fell into a puddle.
 
 ##############################################################################
 # APPENDIX A
