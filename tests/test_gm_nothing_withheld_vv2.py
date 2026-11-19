@@ -176,6 +176,14 @@ class Birds(unittest.TestCase):
         self.assertTrue(any("so it runs out after 100, 143 or 250 harvests" in t for t in texts))
         self.assertTrue(any("(not only the first time)" in t for t in texts))
 
+    def test_every_tip_pop_up_says_how_it_comes(self) -> None:
+        for tip in hidden2.POPUP_TIPS:
+            self.assertTrue(tip[2] or hidden2._popup_note(tip), tip[0])
+        self.assertIn("flashing tutorial button", hidden2._popup_note(next(t for t in hidden2.POPUP_TIPS
+                                                                             if t[0] == 393)))
+        self.assertIn("when it reaches 50", hidden2._popup_note(next(t for t in hidden2.POPUP_TIPS if t[0] == 453)))
+        self.assertEqual(hidden2.NEVER_ASKED, frozenset({442, 443}))
+
     def test_harvests_to_use_up_the_allowance(self) -> None:
         self.assertEqual([-(-vv2.BIRD_ALLOWANCE // n) for n in vv2.BIRD_HARVEST], [100, 143, 250])
 

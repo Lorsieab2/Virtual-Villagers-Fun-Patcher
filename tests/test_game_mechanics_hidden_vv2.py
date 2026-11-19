@@ -36,7 +36,7 @@ class Hidden2(HiddenChecks, unittest.TestCase):
         ('code', 'Typed codes and name cheats', C, (U,)),
         ('click', 'The mask (village screen)', C, (C, U)),
         ('click', 'Places that show their state (village)', C, (C, C, C, C, C, C, C, C, C, C, C, C, C, C)),
-        ('tip', 'Where the tips appear', C, (C, U)),
+        ('tip', 'Where the tips appear', C, (C, C)),
         ('patcher', 'Tip 786 (the mask)', C, (C,)),
         ('patcher', 'Upgrades buttons (Tech and Villager Detail screens)', C, (C,)),
         ('patcher', 'Story / Cheat menus (in the Origins Upgrades menu)', C, ()),
@@ -44,7 +44,7 @@ class Hidden2(HiddenChecks, unittest.TestCase):
     )
     TIP_COUNTS = {
         'The 50 random tips (the loading screen draws from the first 30, the mask from all)': {C: 50},
-        'The 89 tip pop-ups (tutorial and milestones)': {C: 66, U: 23},
+        'The 89 tip pop-ups (tutorial and milestones)': {C: 89},
     }
     DEAD = (
         "the box's own ending on a typed Enter or",

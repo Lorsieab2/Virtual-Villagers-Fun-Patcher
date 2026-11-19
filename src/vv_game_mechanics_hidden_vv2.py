@@ -198,18 +198,48 @@ def _tips() -> list[Entry]:
             f"of all {RANDOM_COUNT} (above); the tutorial and milestone pop-ups are asked for by number"), C, subs=(
                 ("So tips 31 to 50, among them \"You can zip around the island with your keypad.\" (786), come only "
                  "from the mask.", C),
-                ("A new village asks \"Would you like tutorial tips turned on?\"; how the answer arms the pop-ups, and "
-                 "whether each shows once a village, is not traced.", U))),
+                # The chooser 0x4257F0 (run after every tip pop-up, 0x426CB3; only with the tutorial byte +0x1D7 on)
+                # takes the first tip of 391-439 still marked (+0x31 + id) whose tip before it is not, skipping odd
+                # tips from 392 to 415 (0x425816..0x425826), and keeps the one before it (+0x30344); 0x42F423
+                # flashes the tutorial button (+0x284) while there is one, and its click (0x42ABC3) queues it again.
+                # The fixed places each clear their own one-time byte when they ask (e.g. 0x42EE85, 0x44E24A).
+                ("A new village asks \"Would you like tutorial tips turned on?\". With the tutorial on, the game "
+                 "keeps one current tutorial instruction (tips 391 to 438): after each tip pop-up it moves on to the "
+                 "next step not yet done, the tutorial's button flashes while there is one, and a click on it shows "
+                 "that instruction again. A pop-up asked for from a fixed place shows once a village: the place "
+                 "clears its own mark when it asks.", C))),
         Entry(TIP, f"The {RANDOM_COUNT} random tips (the loading screen draws from the first {LOADING_COUNT}, the "
                    "mask from all)", "every one, as the game words it:", C,
               subs=hidden.tip_lines(RANDOM_TIPS, lambda tip: C,
                                     lambda tip: "" if tip[0] < RANDOM_BASE + LOADING_COUNT else "the mask only")),
         Entry(TIP, f"The {len(POPUP_TIPS)} tip pop-ups (tutorial and milestones)", (
-            "every one, as the game words it, with the places that ask for it by number (a tip with none is asked for "
-            "by a number the game works out, which is not traced, and is labelled as not confirmed)"), C,
-              subs=hidden.tip_lines(POPUP_TIPS, lambda tip: C if tip[2] else U,
-                                    lambda tip: hidden.sites_note(tip[2]))),
+            "every one, as the game words it, with the places that ask for it by number, or how else it comes; a tip "
+            "nothing asks for is never shown by the normal game"), C,
+              subs=hidden.tip_lines(POPUP_TIPS, lambda tip: C if _popup_note(tip) else U, _popup_note)),
     ]
+
+
+# The tips with no fixed-number asker, every path checked (2026-11-18): the tip queue 0x4257A0 and its callers
+# (including the ones that share a call after a jump), the tutorial's current instruction (0x4257F0 / 0x42ABC3),
+# the pop-up display 0x426C00, the string loads by literal or base-plus-offset number, and the mask and loading
+# screen (random tips only).
+TUTORIAL_CURRENT = frozenset(range(393, 418, 2)) | {421, 424, 438}      # the step before an armed one (0x4257F0)
+SHARED_CALL = {426: 0x44E3F7, 435: 0x42EEBE, 452: 0x43C1E7, 453: 0x43C1E7, 454: 0x43C1E7}
+SHARED_WHEN = {452: "when the village reaches 25 people", 453: "when it reaches 50",
+               454: "when it reaches 90 and has no room for more"}      # 0x43C140..0x43C1D9
+NEVER_ASKED = frozenset({442, 443})                                    # the skill-level tips: nothing asks for them
+
+
+def _popup_note(tip) -> str:
+    if tip[2]:
+        return hidden.sites_note(tip[2])
+    if tip[0] in SHARED_CALL:
+        return "asked for by number at one place" + (f", {SHARED_WHEN[tip[0]]}" if tip[0] in SHARED_WHEN else "")
+    if tip[0] in TUTORIAL_CURRENT:
+        return "the tutorial's current instruction: shown by a click on the flashing tutorial button"
+    if tip[0] in NEVER_ASKED:
+        return "nothing in the normal game asks for it, so the normal game never shows it"
+    return ""
 
 
 def _patcher() -> list[Entry]:
