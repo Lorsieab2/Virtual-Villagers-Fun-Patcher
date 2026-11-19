@@ -1112,8 +1112,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         unsigned int text = cg_u16(n + 6), vfirst = cg_u16(n + 8), vcount = cg_u16(n + 10);
         unsigned int cfirst = cg_u16(n + 12), ccount = cg_u16(n + 14), els = cg_u16(n + 16);
         unsigned int efirst = cg_u16(n + 18), ecount = cg_u16(n + 20);
-        if (n[0] > 2u || n[1] > 1u || n[2] > 1u || (n[3] & ~CG_NODE_AUTO_TEXT) != 0u
-            || (n[3] != 0u && (g->version < 6 || n[0] != CG_POPUP))   /* 25: auto lines on a v6 popup only */
+        if (n[0] > 2u || n[1] > 1u || n[2] > 1u || (n[3] & ~(CG_NODE_AUTO_TEXT | 6u)) != 0u
+            || ((n[3] & CG_NODE_AUTO_TEXT) != 0u && (g->version < 6 || n[0] != CG_POPUP))   /* 25: v6 popups only */
+            || ((n[3] & 6u) != 0u && n[0] == CG_BRANCH)   /* Village Solidarity: a page's tag, never a branch's */
             || !cg_str_ok(g, cg_u16(n + 4), 0) || !cg_str_ok(g, text, 1)
             || (vcount > 0u && vfirst + vcount > (unsigned int)g->n_variant)
             || (ccount > 0u && cfirst + ccount > (unsigned int)g->n_child)
@@ -2801,6 +2802,8 @@ static const char *cg_node_text(int node, int game) {
     return cg_s(&cg_g, cg_u16(n + 6));
 }
 
+#include "story_solidarity.inc"
+
 /* The child drawn at `node` (src/vv_cie_graph.py _resolved_children), -1 at an end. */
 static int cg_draw(const ce_adapter *a, int node, int game) {
     const unsigned char *n = cg_node_at(&cg_g, node);
@@ -2835,7 +2838,9 @@ static int cg_draw(const ce_adapter *a, int node, int game) {
         }
     }
 #endif
-    roll = ce_random_below(a, total);
+    /* Village Solidarity: the favoured children's weights x their factors (the draw as before without it). */
+    roll = cg_sol_weights(game, targets, weights, count, &total) ? cg_sol_random_below(a, total)
+                                                                 : ce_random_below(a, total);
     return targets[ce_roll_index(weights, count, roll)];
 }
 
@@ -5340,7 +5345,8 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
             for (i = from; i < h->nodes; ++i) {
                 const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
                 int page = 0;
-                if (cg_node_pop[i] != p || cg_fx_count(n) == 0) {
+                /* A page with no effects is a job too when it carries a Village Solidarity tag (made with the page). */
+                if (cg_node_pop[i] != p || (cg_fx_count(n) == 0 && cg_sol_tag(n) == 0)) {
                     continue;
                 }
                 while (page + 1 < pages.count && pages.src_end[page] < cg_node_end[i]) {
@@ -5551,6 +5557,9 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
             int va = fx < CG_MAX_FX ? h->fx_a[fx] : 0, vb = fx < CG_MAX_FX ? h->fx_b[fx] : 0;
             cg_effect(a, game, eff, va, vb, &award_kind, &award, r);
         }
+        /* Village Solidarity: once per run (its purchase time) and page (its place on the path, its node). */
+        cg_sol_reached(game, n, cg_s(&cg_g, (unsigned int)cg_g.base_title), cg.when,
+                       (unsigned int)i << 16 | (unsigned int)(unsigned short)h->node[i]);
     }
     if (cg.job_count[k] > 0) {
         cg.applied_when[k] = sq_clock();

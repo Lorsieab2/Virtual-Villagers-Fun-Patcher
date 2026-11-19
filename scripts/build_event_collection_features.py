@@ -58,7 +58,7 @@ VV1_ID_MAX = 22
 CREDITS_MD = ROOT / "docs" / "more-island-events" / "Isola Grand Event Collection - Credits.md"
 NAME = "Isola Grand Event Collection"
 GAMES = (1, 2, 3, 4, 5)
-NOT_EVENTS = {"manifest.json", "shared_pools.json"}
+NOT_EVENTS = {"manifest.json", "shared_pools.json", "solidarity_tags.json"}
 # The Living Event Engine (docs/event-collection/living-pack.md): its variants ship in one pack per game,
 # "Island Event Collection\\living.pak", and its seeds are manifest rows (id living_..., one series per category).
 LIVING_NAME = "living.pak"
@@ -255,6 +255,36 @@ def one_line(text: str) -> str:
     return " ".join(str(text).replace("\t", " ").split())
 
 
+# Village Solidarity (the owner, 2026-11-17): the collection events' tags, kept apart from the owner-approved event
+# files (scripts/tag_village_solidarity.py writes it): {event id: {"kind": "cooperative" | "repair" (optional),
+# "nodes": {node id: "raise" | "lower" | "neutral"}}}.  Applied to each graph before it is compiled.
+SOLIDARITY_TAGS = DATA / "solidarity_tags.json"
+
+
+def solidarity_tags() -> dict:
+    return json.loads(SOLIDARITY_TAGS.read_text(encoding="utf-8")) if SOLIDARITY_TAGS.is_file() else {}
+
+
+_SOLIDARITY_CACHE: dict | None = None
+
+
+def apply_solidarity_tags(ident: str, g: dict) -> str:
+    """Event `ident`'s page tags written into its validated graph `g`; its kind ("" none)."""
+    global _SOLIDARITY_CACHE
+    if _SOLIDARITY_CACHE is None:
+        _SOLIDARITY_CACHE = solidarity_tags()
+    entry = _SOLIDARITY_CACHE.get(ident) or {}
+    for nid, tag in (entry.get("nodes") or {}).items():
+        node = g["nodes"].get(nid)
+        if node is None or tag not in cie.SOLIDARITY_CODES or node["type"] == "branch":
+            raise SystemExit(f"{SOLIDARITY_TAGS.relative_to(ROOT)}: {ident} node {nid}: not a page of the event, or "
+                             f"not raise, lower or neutral")
+        node["solidarity"] = tag
+    kind = entry.get("kind", "")
+    if kind not in ("", "cooperative", "repair"):
+        raise SystemExit(f"{SOLIDARITY_TAGS.relative_to(ROOT)}: {ident}: kind is cooperative or repair")
+    return kind
+
 def compile_events(src: Path = DATA) -> list[dict]:
     """Every event under `src`: {id, title, games, weight, series, credit, lines, cieg}.  A problem fails the build."""
     pools = shared_pools(src)
@@ -275,6 +305,7 @@ def compile_events(src: Path = DATA) -> list[dict]:
         if ident in seen:
             raise SystemExit(f"{path.relative_to(ROOT)}: collection id {ident} is also {seen[ident]}")
         seen[ident] = path.relative_to(ROOT).as_posix()
+        kind = apply_solidarity_tags(ident, g)
         out.append({
             "id": ident,
             "title": one_line(g.get("title", data.get("title", ident))),
@@ -288,6 +319,7 @@ def compile_events(src: Path = DATA) -> list[dict]:
             "lines": meta.get("lines"),
             "source": meta.get("source", "v28"),
             "cieg": cie.compile_graph(g),
+            "solidarity": kind,
         })
     return sorted(out, key=lambda e: e["id"])
 
@@ -311,8 +343,10 @@ def manifest_line(game: int, e: dict) -> str:
         alt_title = one_line(cie.event_title(e["graph"], game, (GUARDIANS,)))
         alt_description = description_with(e, (GUARDIANS,))
         extra = [alt_title if alt_title != title else "", alt_description if alt_description != description else ""]
+    # Village Solidarity (column 10, only when the event has a kind): "cooperative" or "repair".
+    kind = [e["solidarity"]] if e.get("solidarity") else []
     return "\t".join([e["id"], title, ",".join(str(n) for n in e["games"]), str(e["weight"]), e["series"],
-                      e["credit"], description] + extra)
+                      e["credit"], description] + extra + kind)
 
 
 def living_line(r: dict) -> str:

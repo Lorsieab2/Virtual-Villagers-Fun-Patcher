@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 import patcher_files
+import vv_village_scores
 from transparency import write_transparency_artifacts
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -344,6 +345,12 @@ CHILDREN_PLAY_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_children_play_featur
 # scripts/build_gender_presentation_feature.py.
 GENDER_PRESENTATION_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_gender_presentation_feature.json"
                                           for n in range(1, 6))
+# Village Solidarity (all five games; on in Owner's Defaults only; the owner, 2026-11-17): the village's 0-100 score,
+# moved by the new events' tagged pages, changing only the odds of the patcher's own events; companion only, "VVFP
+# Village Solidarity.dll", started by VVFP Startup.dll from its second word, its strength (0.1x-10x) written beside it
+# (src/vv_village_scores.py); scripts/build_village_solidarity_feature.py.
+VILLAGE_SOLIDARITY_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_village_solidarity_feature.json"
+                                         for n in range(1, 6))
 # Island Events Scale With Population (like The Lost Children) and its alternative Island Events Scale With Stored
 # Food and Tech Points (A New Home, The Tree of Life, New Believers; the owner, 2026-11-12): companion only, "VVFP
 # Island Events Scale.dll", started by VVFP Startup.dll from its second word; the stored row also ships the flag
@@ -1076,8 +1083,8 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "F461D0C8D23474A5CA1D5BFD7E717A166478A091F29C9D9A8B127526A1D6D25F",
-    "map": "9EB296B116598F6A34AE81818136B09F168662B15FBA79F2CF9B57A18766D5BC",
+    "manifest": "5425D0354FFBA21E43F00CB89BFA4B403FED3EDB2172687F0BB9E04CF4DD24E9",
+    "map": "C10FC73B32715CCE1D66585AEF4479EC8D0DA450D6B63A31DC1B14D3D8C07483",
 }
 VV5_TASK9_DLL_SHA256 = "3F6222D8A56CDDBD2532924E2FDD3D1B2229D98B4F7767482EECDECB34E411FA"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
@@ -1085,7 +1092,7 @@ VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A406986
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 # The tribe-delete stub's companion, shipped from this record because it owns
 # the VV5 Origins companion list.
-VV5_TASK9_SAVE_RESET_SHA256 = "C07E2A06BDD8F67E5A6F17AC8B6888E217E8B42EA71AE68BBD599941240E70E6"
+VV5_TASK9_SAVE_RESET_SHA256 = "40F330FAE10137D8B2D276EA32B191B14F04BFEFE4FC0627E52FBABB4DAE7875"
 VV5_TASK9_SAVE_RESET_SIZE = 161792
 # Change Appearance's head look (native/vvfp_head_look), shipped from this record for the same reason.
 VV5_TASK9_HEAD_LOOK_SOURCE = "assets/head_look/VVFP Head Look.dll"
@@ -1095,7 +1102,7 @@ VV5_TASK9_PAGE_SHA256 = {
     "experimental_expanded_256": "D6881CFDBC4F96AB063A7A17D3D1B9AFE5B26590931738058373D2E5523C9282",
     "experimental_expanded_256_progression": "D6881CFDBC4F96AB063A7A17D3D1B9AFE5B26590931738058373D2E5523C9282",
 }
-VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "5F56DA473985F71EE6978D04B570E2C900D2F9A2B20AAB0041514A206E7AD3BF"
+VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "5520C174A1FB0A9DE136519ECFB1B760455A288D49B0B85130C4C7CAD40687D6"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
 VV5_TASK9_ATOMIC_CORE_COMMIT = "c4e5fe76d1de258d5d4baeac77cbea842b206cd7"
 VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
@@ -2139,7 +2146,7 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
     "builder": "2D2FEE8884739A3702F9BDD3BE8CDC34031D269DC34B9E271C873DEFEB5E72F4",
-    "task9_builder": "A2553702246D80D6469B865EC02DBF04520E92DD3125272D4EF621EBD38F01EC",
+    "task9_builder": "7819CDC9BE91960796C01F32DDA7C0281E1E40D1981D78CA7CE4F86A8C6D4E67",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -2151,8 +2158,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "96731C5F0587057D450BF6D0C83A6B791145FFFF6C9E21A5D7C962E8C25A5BC2",
-        "map": "4A27D1E867440F44E46CD5CE128347717230203446D717B2EC19619612E67649",
+        "manifest": "27382269DE6F4F57C439D9D69B2E33791F542293236329D89EC405F8D2571D5B",
+        "map": "7986A17173B8D6AC9BD03ACAC1F2D67D0ED24EB15F22207B2329C6D10D019050",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -4233,6 +4240,7 @@ def _load_fun_patch_records(
                          + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS
                          + LOUDER_FLUTES_FEATURE_PATHS + CHILDREN_PLAY_FEATURE_PATHS
                          + GENDER_PRESENTATION_FEATURE_PATHS
+                         + VILLAGE_SOLIDARITY_FEATURE_PATHS
                          + ISLAND_EVENTS_SCALE_FEATURE_PATHS
                          + SCROLLING_POPUPS_FEATURE_PATHS + MORE_ISLAND_EVENTS_FEATURE_PATHS
                          + EVENT_COLLECTION_FEATURE_PATHS):
@@ -10996,6 +11004,7 @@ def _copy_companion_files(
                 if generated_temp is not None:
                     generated_temp.cleanup()
     _write_unicode_font_choice(output_folder, fun_patches)
+    _write_village_solidarity_choice(output_folder, fun_patches)
     return copied
 
 
@@ -11087,6 +11096,41 @@ def _write_unicode_font_choice(output_folder: Path, fun_patches: list[FunPatch])
                 lines += name + "\n"
             (dll.parent / UNICODE_FONT_CHOICE_FILE).write_text(lines, encoding="utf-8")
 
+
+# Village Solidarity's strength (the row's slider; the owner, 2026-11-17: the new sliders' range, 0.1x to 10x, 1x the
+# normal strength): written beside "VVFP Village Solidarity.dll" as "VVFP Village Solidarity.txt" ("1", "0.5",
+# "2.5"), which the companion reads at start (missing or unreadable: 1x).  The window's slider and the command line's
+# --village-solidarity-strength set it.
+_village_solidarity_strength: int | float = vv_village_scores.STRENGTH_DEFAULT
+
+
+def set_village_solidarity_strength(value) -> int | float:
+    """Choose Village Solidarity's strength (0.1 to 10 in steps of 0.1) for the next patch."""
+    global _village_solidarity_strength
+    if vv_village_scores.strength_tenths(value) is None:
+        raise PatcherError(f"{vv_village_scores.SOLIDARITY_NAME}: the strength must be a number from 0.1 to 10 in "
+                           f"steps of 0.1, not {value!r}. Nothing was written.")
+    _village_solidarity_strength = vv_village_scores.strength_number(value)
+    return _village_solidarity_strength
+
+
+def village_solidarity_strength() -> int | float:
+    """Village Solidarity's strength now (set_village_solidarity_strength)."""
+    return _village_solidarity_strength
+
+
+def _write_village_solidarity_choice(output_folder: Path, fun_patches: list[FunPatch]) -> None:
+    for feature in fun_patches:
+        if not feature.id.endswith(vv_village_scores.SOLIDARITY_ROW_SUFFIX):
+            continue
+        for item in feature.raw.get("companion_files", []):
+            if item.get("destination") != vv_village_scores.SOLIDARITY_DLL:
+                continue
+            dll = patcher_files.long_path(output_folder / _safe_companion_destination(item["destination"]))
+            dll.parent.mkdir(parents=True, exist_ok=True)
+            (dll.parent / vv_village_scores.SOLIDARITY_CHOICE_FILE).write_text(
+                vv_village_scores.strength_text(_village_solidarity_strength) + "\n", encoding="ascii",
+                newline="\n")
 
 def _remove_unselected_companions(
     staging_folder: Path, build: Build, fun_patches: list[FunPatch]
@@ -12763,7 +12807,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "136D72FEB8B411FD8293D6DB07F163732F18E6F2161F29474553FCC3B9E0F2CC",
+    "sha256": "6120260F6A5BC9998678C7751EE9B166B56DABAC833EB841DD09A7548FD26802",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12882,6 +12926,9 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Change Sex and Gender Presentation (all five games): a villager drawn with the other sex's heads and bodies,
     # keeping the recorded sex; its row also offers Change Appearance's "Change sex...".
     "VVFP Gender Presentation.dll",
+    # Village Solidarity (all five games): the village's 0-100 score, moved by the new events' tagged pages, which
+    # changes only the odds of the patcher's own events; its counter on the Tech screen.
+    "VVFP Village Solidarity.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time
@@ -13459,6 +13506,8 @@ def _game_opened_relatives(
                 if _unicode_font_file is not None:
                     relatives.append(str(installed.parent / UNICODE_FONT_FILE_FOLDER
                                          / _font_file_name_for_companion(_unicode_font_file)))
+            if item.get("destination") == vv_village_scores.SOLIDARITY_DLL:
+                relatives.append(str(installed.parent / vv_village_scores.SOLIDARITY_CHOICE_FILE))
             if str(item.get("destination", "")).casefold() == "vvfp translations.dll":
                 relatives.append(str(Path(patcher_files.PATCHER_FILES_FOLDER) / "Translation" / "Translation.txt"))
     if relatives:
@@ -14249,6 +14298,11 @@ def _add_fun_patch_args(parser: argparse.ArgumentParser) -> None:
         help="optional game-specific patch; may be supplied more than once",
     )
     parser.add_argument(
+        "--village-solidarity-strength",
+        default=None,
+        help="Village Solidarity's strength, 0.1 to 10 in steps of 0.1 (default: 1, the normal strength)",
+    )
+    parser.add_argument(
         "--unicode-font",
         default=None,
         help="the typeface Use Unicode Font (overrides in-game fonts) draws with (default: Segoe UI)",
@@ -14415,6 +14469,8 @@ def main() -> int:
             set_unicode_font_face(args.unicode_font)
         if getattr(args, "unicode_font_file", None) is not None:
             set_unicode_font_file(args.unicode_font_file)
+        if getattr(args, "village_solidarity_strength", None) is not None:
+            set_village_solidarity_strength(args.village_solidarity_strength)
         if args.command == "identify":
             print(json.dumps(identify(args.exe).raw, indent=2))
         elif args.command == "dry-run":

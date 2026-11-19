@@ -141,6 +141,8 @@ FILES = [
     "assets/children_play/VVFP Children Play.dll",
     # Change Sex and Gender Presentation (all five games): the other sex's look, keeping the recorded sex.
     "assets/gender_presentation/VVFP Gender Presentation.dll",
+    # Village Solidarity (all five games): the village's score, its odds factor and the Tech screen counter.
+    "assets/village_solidarity/VVFP Village Solidarity.dll",
     # Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
     # Believers): the companion and the stored row's flag file.
     "assets/island_events_scale/VVFP Island Events Scale.dll",
@@ -336,6 +338,11 @@ FILES = [
     "data/vv3_gender_presentation_feature.json",
     "data/vv4_gender_presentation_feature.json",
     "data/vv5_gender_presentation_feature.json",
+    "data/vv1_village_solidarity_feature.json",
+    "data/vv2_village_solidarity_feature.json",
+    "data/vv3_village_solidarity_feature.json",
+    "data/vv4_village_solidarity_feature.json",
+    "data/vv5_village_solidarity_feature.json",
     "data/vv1_island_events_scale_with_population_feature.json",
     "data/vv1_island_events_scale_with_stored_amounts_feature.json",
     "data/vv4_island_events_scale_with_population_feature.json",
@@ -565,6 +572,8 @@ FILES = [
     "src/vv_the_rumblings.py",
     "src/vv_game_mechanics_ceremony.py",
     "src/vv_game_mechanics_children_play.py",
+    "src/vv_game_mechanics_solidarity.py",
+    "src/vv_village_scores.py",
     # Isola Grand Event Collection on the Game Mechanics pages, and its index of sections and deadly events.
     "src/vv_game_mechanics_collection.py",
     "data/event_collection_index.json",

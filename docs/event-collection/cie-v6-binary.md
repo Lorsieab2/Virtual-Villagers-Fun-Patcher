@@ -937,3 +937,15 @@ Appearance's "Gender presentation: use the other sex's look" offers.
   their own look again." (off); the automatic line (section 25): `R's look changes.`
 - No game capability bit: whether it can be made is known only at run time, so the patcher's checks accept it in
   every game.
+
+## 32. Village Solidarity tags (the owner, 2026-11-17)
+
+A page (`popup` or `question` node, never a `branch`) may carry `"solidarity": "raise" | "lower" | "neutral"`, in
+every format version. In the .cieg it is the node flags byte (offset 3), bits 1-2: 1 raise, 2 lower, 3 neutral
+(`SOLIDARITY_CODES`, `NODE_SOLIDARITY_MASK` 6); bit 0 stays the automatic outcome lines (25). An untagged node keeps
+0, so an untagged graph compiles to the same bytes as before. With "VVFP Village Solidarity.dll" in the game, the
+Story companion passes a reached page's tag on (`VvfpVillageScoreTag`: raise +5, lower -5, kept within 0..100) and
+weights a chance split's children by the tags of their next pages (`VvfpVillageScoreFactor`); without it the tag is
+only a word in the file. The collection's tags are kept apart from the event files, in
+`data/event_collection/solidarity_tags.json` (`scripts/tag_village_solidarity.py`), and applied when the collection
+is built; an event's own kind (`cooperative` / `repair`) is the manifest's tenth column.

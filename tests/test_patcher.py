@@ -2639,6 +2639,7 @@ class StockIntegrationTests(unittest.TestCase):
                 # Require Story / Cheat Upgrades, excluded above.
                 "vv1_more_island_events",
                 "vv1_isola_grand_event_collection",
+                "vv1_village_solidarity",
             }
         ]
         rendered, applied = render_patched_bytes(
@@ -4192,6 +4193,8 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_adult_confused",
             # Children Play Tag and Build Sandcastles: companion only, no executable bytes.
             "vv2_children_play",
+            # Village Solidarity (#804): companion only, needs Story / Cheat Upgrades (selected above).
+            "vv2_village_solidarity",
             },
         )
         for mode in ALL_MODES:

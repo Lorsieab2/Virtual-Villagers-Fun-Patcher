@@ -77,6 +77,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Change Sex and Gender Presentation (all five games): a villager drawn with the other sex's heads and bodies,
        keeping the recorded sex; its row also offers Change Appearance's Change sex button. */
     "VVFP Gender Presentation.dll",
+    /* Village Solidarity (all five games): the village's 0-100 score, moved by the new events' tagged pages, which
+       changes only the odds of the patcher's own events; its counter on the Tech screen. */
+    "VVFP Village Solidarity.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \
