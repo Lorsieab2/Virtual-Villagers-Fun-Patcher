@@ -3342,7 +3342,7 @@ AUTO_LINES = {
     "change_name": "<R> is now called <W>.",
     "change_age": "<R> is now <N> years old.",
     # New Believers' Faith (faith 38, join 39, apostasy 40)
-    "faith": "<R> feels closer to the tribe.",
+    "faith": "<R>'s Faith rises by <N>.",
     "join": "<R> joins the tribe.",
     "apostasy": "<R> becomes a Heathen.",
     "presentation": "<R>'s gender presentation changes.",
@@ -3390,7 +3390,49 @@ AUTO_LINES = {
     "weather_rain": "It starts to rain.",
     "weather_storm": "A storm rolls in.",
     "weather_fog": "Fog rolls in.",
+    # The owner (2026-11-19): every amount exact, singular and plural.  A group's change is written as it is made
+    # (cg_group_effect): <C> how many villagers it changed, <N> the change (<L> to <N> when they differ), <W> the one
+    # villager's name.  Added at the end: the lines above keep their places (their translation keys).
+    "tech1+": "The village gains 1 tech point.",
+    "tech1-": "The village loses 1 tech point.",
+    "skill_best-": "<R> loses <N> skill in what <P> does best.",
+    "group_skill+": "<C> villagers each gain <N> <S> skill.",
+    "group_skill-": "<C> villagers each lose <N> <S> skill.",
+    "group_skill+r": "<C> villagers gain <L> to <N> <S> skill.",
+    "group_skill-r": "<C> villagers lose <L> to <N> <S> skill.",
+    "group1_skill+": "<W> gains <N> <S> skill.",
+    "group1_skill-": "<W> loses <N> <S> skill.",
+    "group_best+": "<C> villagers each gain <N> skill in what they do best.",
+    "group_best-": "<C> villagers each lose <N> skill in what they do best.",
+    "group_best+r": "<C> villagers gain <L> to <N> skill in what they do best.",
+    "group_best-r": "<C> villagers lose <L> to <N> skill in what they do best.",
+    "group1_best+": "<W> gains <N> <S> skill.",
+    "group1_best-": "<W> loses <N> <S> skill.",
+    "group_health_change+": "<C> villagers each gain <N> health.",
+    "group_health_change-": "<C> villagers each lose <N> health.",
+    "group_health_change+r": "<C> villagers gain <L> to <N> health.",
+    "group_health_change-r": "<C> villagers lose <L> to <N> health.",
+    "group1_health_change+": "<W> gains <N> health.",
+    "group1_health_change-": "<W> loses <N> health.",
+    "group_faith+": "The Faith of <C> villagers rises by <N> each.",
+    "group_faith+r": "The Faith of <C> villagers rises by <L> to <N>.",
+    "group1_faith+": "<W>'s Faith rises by <N>.",
+    "group_set": "The <S> skill of <C> villagers is now <N>.",
+    "group_set_best": "The best skill of <C> villagers is now <N>.",
+    "group1_set": "<W>'s <S> skill is now <N>.",
+    "group_health": "The health of <C> villagers is now <N>.",
+    "group1_health": "<W>'s health is now <N>.",
 }
+# A good's words for one of it and for many (story_graph_village.inc cg_good_words); other goods as they are.
+GOOD_WORDS = {"tech": ("tech point", "tech points"), "collectible": ("collectible", "collectibles"),
+              "cutting_tools": ("cutting tool", "cutting tools"), "berries": ("berry", "berries"),
+              "coconuts": ("coconut", "coconuts"), "blackberries": ("blackberry", "blackberries")}
+
+
+def good_words(word: str, number: int) -> str:
+    """`word`'s words for `number` of it (a good's singular or plural; underscores as spaces)."""
+    one, many = GOOD_WORDS.get(word, (word, word))
+    return (one if abs(number) == 1 else many).replace("_", " ")
 # The widest a scaled food / tech amount can grow (the "Island Events Scale ..." patches): the fit takes this many
 # times the amount when no roll is given (with Scrolling Popups only the bytes count).
 AUTO_SCALE_ROOM = 100
@@ -3403,7 +3445,9 @@ def _auto_fill(key: str, role: str | None, skill: str = "", word: str = "", numb
                other: str | None = None) -> str:
     """One line of AUTO_LINES with its role's placeholders, its words and its number put in (the names not yet
     filled).  <N> is the amount as a plain number, never signed (the line's verb says gain or loss); <Q> the other
-    role's name (a body swap)."""
+    role's name (a body swap).  One tech point is "1 tech point" (story_graph.inc cg_amount_key)."""
+    if key in ("tech+", "tech-") and abs(number or 0) == 1:
+        key = "tech1" + key[-1]
     line = AUTO_LINES[key]
     if role is not None:
         line = line.replace("<R>", f"({role}.Name)").replace("<P>", f"({role}.his/her)")
@@ -3442,8 +3486,12 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
         amount = award[1]
         lo, hi = amount if isinstance(amount, tuple) else (amount, amount)
         return [_auto_fill(k, None, number=n) for k, n in _sign_keys(award[0], lo, hi)]
-    if e.get("target") or r in NEW_ROLES:
-        return []                                       # a group or a new villager: the engine's own lines
+    if e.get("target"):
+        # a group's change: written as it is made (story_graph.inc cg_group_line), so a simulated run has none; the
+        # fit takes the widest it can give
+        return [] if fx is not None else _group_lines(e, gm)
+    if r in NEW_ROLES:
+        return []                                       # a new villager: the engine's own lines
     if do in ("kill", "vanish"):
         return [_auto_fill(do + ("_" + e["line"] if e.get("line") else ""), r)]
     if do == "health":
@@ -3473,7 +3521,8 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
         if "set" in e:
             return [_auto_fill("skill_best", r, number=e["set"])]
         lo, hi = (fx[1], fx[1]) if fx is not None else (e["min"], e["max"])
-        return [_auto_fill("skill_best", r, number=hi)] if hi > 0 else []
+        return ([_auto_fill("skill_best-", r, number=lo)] if lo < 0 else []) + \
+            ([_auto_fill("skill_best", r, number=hi)] if hi > 0 else [])
     if do == "celebrate":
         return [_auto_fill("celebrate_all", None)] if r is None else [_auto_fill("celebrate", r)]
     if do == "mood":
@@ -3508,18 +3557,48 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
     return []                                           # action, new villager, age: no line (their own logs)
 
 
+def _group_line(key: str, count: int = 0, low: int = 0, number: int = 0, skill: str = "", word: str = "") -> str:
+    """One group line of AUTO_LINES with its numbers and words put in (story_graph.inc cg_group_line)."""
+    return (AUTO_LINES[key].replace("<C>", str(count)).replace("<L>", str(abs(low))).replace("<S>", skill)
+            .replace("<W>", word).replace("<N>", str(abs(number))))
+
+
+def _group_lines(e: dict, gm: "Game") -> list[str]:
+    """The lines a group's skill or health change can write as it is made, at their widest (a range, every
+    villager of the largest village, the widest skill)."""
+    do = e["do"]
+    many = 256
+    if do == "skill":
+        if "set" in e:
+            skill = max((s for s in e.get("skills", []) if s in gm.skills), key=len, default="")
+            return [_group_line("group_set_best" if e.get("best") else "group_set", many, 0, e["set"], skill)]
+        stem = "best" if e.get("best") else "skill"
+        skill = "" if e.get("best") else max((s for s in e["skills"] if s in gm.skills), key=len, default="")
+        lines = []
+        for sign, n in (("-", e["min"]), ("+", e["max"])):
+            if (n < 0) == (sign == "-") and n != 0:
+                lines.append(_group_line(f"group_{stem}{sign}r", many, 100, n, skill))
+        return lines
+    if do == "health_change":
+        return [_group_line(f"group_health_change{sign}r", many, 100, n)
+                for sign, n in (("-", e["min"]), ("+", e["max"])) if n != 0 and (n < 0) == (sign == "-")]
+    if do == "health":
+        return [_group_line("group_health", many, 0, e["max"])]
+    return []
+
+
 def _village_lines(e: dict, gm: "Game") -> list[str]:
     """The lines a village effect can write as it is made (story_graph_village.inc), at their widest."""
-    def good(word: str) -> str:
-        return "tech points" if word == "tech" else word
+    def good(word: str, number: int = 2) -> str:
+        return good_words(word, number)
 
     do = e["do"]
     big = 99999
     if do == "supply":
         return [_auto_fill("supply+" if e["max"] > 0 else "supply-", None, word=good(e["item"]), number=big)]
     if do == "trade":
-        return [_auto_fill("trade_give", None, word=good(e["give"]), number=e["give_amount"]),
-                _auto_fill("trade_get", None, word=good(e["get"]), number=e["get_amount"])]
+        return [_auto_fill("trade_give", None, word=good(e["give"], e["give_amount"]), number=e["give_amount"]),
+                _auto_fill("trade_get", None, word=good(e["get"], e["get_amount"]), number=e["get_amount"])]
     if do == "group":
         kind = e["kind"]
         if kind == "sick":

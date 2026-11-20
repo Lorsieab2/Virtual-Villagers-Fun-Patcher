@@ -461,6 +461,14 @@ class SharedVectors(unittest.TestCase):
                               cg.GAMES[case["game"]].preferences.index(word))
         if "tribe" in case:
             put_tribe(r, game, case["tribe"])
+        if case["name"].startswith("auto_lines"):
+            # Every skill at 50: each gain or loss the vector rolls is made in full, as the patcher's walk (which has
+            # no village) states it -- the lines state the change really made (cie-v6-binary.md 25), so a loss from 0
+            # would have none.
+            for idx in range(len(vector_village(case))):
+                for k in range(r.v.L["skill_count"]):
+                    r.p.write(r.v.record(idx) + r.v.L["skills"] + 4 * k,
+                              struct.pack("<f" if r.v.L["floats"] else "<i", 50))
         r.p.export("VvfpStoryProbeGraphHeadLook", 1, 0, 0)    # 27: "VVFP Head Look.dll" in the game
         installed(r, case.get("patches", ()))
         self.assertIsNone(r.queue6(data))
