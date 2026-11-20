@@ -178,9 +178,9 @@
    "functions": ["cr_remembrance", "cr_rumblings", "cr_log_line", "CR_V1_NAMES", "CR_V2_NAMES", "CR_V3_NAMES", "CR_V45_NAMES", "SD_V1_NAMES", "SD_V2_NAMES", "SD_V3_NAMES", "SD_V45_NAMES", "cr_from_story"]
   },
   {
-   "reason": "The Isola Grand Event Collection's folder and the save's roll file name (story_collection.inc): file and folder names the companion opens, never shown.",
+   "reason": "The Isola Grand Event Collection's installed folder, \"Events\" (story_collection.inc SC_FOLDER, fix/97-path-lengths): a folder name the companion opens, never shown.",
    "files": ["native/vvfp_story_upgrades/story_collection.inc"],
-   "match": "^(Island Event Collection|Island Event Collection Roll)$"
+   "match": "^Events$"
   }
  ]
 }

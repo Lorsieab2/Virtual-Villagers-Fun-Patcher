@@ -214,6 +214,11 @@ def declared_detours(feature_ids) -> list[tuple[int, bytes, str]]:
         charged = f"{feature_id}_cost_tech_points" in features
         for detour in catalog()[feature_id].raw.get("runtime_detours", []) or []:
             routine = detour.get("routine", "")
+            # A third-word companion is started by VVFP More Companions.dll from the number written at publish,
+            # which this emulation has no file for (loaded_at_winmain; its own emulation:
+            # tests/test_more_companions.py): its sites are not armed here.
+            if str(detour.get("installed_by", "")).split(",", 1)[0].strip() in vfp.STARTUP_LOADER_COMPANIONS_3:
+                continue
             if charged and routine.startswith(("the Origins price table", "an Origins charge",
                                                  "an Origins prompt that shows the price")):
                 continue
