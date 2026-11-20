@@ -123,14 +123,15 @@ def _feature(feature: str) -> str:
 # the test keeps the two the same).
 # Story / Cheat Upgrades and its cost row are on by default (owner, 2026-11-01).
 DEFAULT_OFF = frozenset({"vv5_learning_never_fails", "vv5_everyone_collects_like_vv1", "vv5_super_secret_golden_mushroom",
-                         "vv5_collectibles_stay_collected"})
+                         "vv5_collectibles_stay_collected", "vv5_science_collectibles_complete"})
 ORIGINS = "vv5_enable_origins_exclusive_features"
 STORY = "vv5_story_cheat_upgrades"
 STORY_COST = "vv5_story_cheat_upgrades_cost_tech_points"
 PATCHES = (ORIGINS, STORY, STORY_COST, "vv5_learning_never_fails", "vv5_heathen_mommy_puzzle",
            "vv5_statue_polishing_or_honoring", "vv5_easier_devotee_training", "vv5_vv4_nursery_divisor_parity",
            "vv5_builders_fix_huts", "vv5_builders_and_healers_work_first", "vv5_super_secret_golden_mushroom",
-           "vv5_everyone_collects_like_vv1", "vv5_collectibles_stay_collected", "vv5_adult_confused")
+           "vv5_everyone_collects_like_vv1", "vv5_collectibles_stay_collected", "vv5_adult_confused",
+           "vv5_science_collectibles_complete")
 
 
 # ---------------------------------------------------------------------------
@@ -559,7 +560,12 @@ def _item_entries() -> list[Entry]:
             "every successful research session gives 0 to (half the pieces owned, less 1) more tech points, each "
             "equally likely (0 to 11 with all 24). A piece found again gives 100, 250 or 1,500 tech points by rarity. "
             "Completing the set raises the believers' limit by 5. Once the Knowing Totem is down, half of the "
-            "collectibles that appear are from each set."), VERIFIED_E),
+            "collectibles that appear are from each set."), VERIFIED_E,
+              # The bonus 0x46DE5F: 12 with all 24 pieces, else 0 (scripts/build_science_collectibles_complete_features.py;
+              # emulated in tests/test_science_collectibles_complete.py).
+              ((f"{_feature('vv5_science_collectibles_complete')}: the pieces add nothing to research until all 24 "
+                "are found; with all 24, 0 to 11 more as in the normal game. A piece found again still gives 100, 250 "
+                "or 1,500 tech points, and completing the set still raises the believers' limit by 5.", VERIFIED_C),)),
         Entry(ITEM, "A change of clothes", "5,000 tech points, at the built Clothing Hut", (
             # Work event 90, queued at 0x45CF5F, takes the 5,000 at 0x46CEC7; the chooser steps the body 0 to 28
             # (0x419CE0); its fourth button returns the 5,000 (0x419E77); too few points at 0x46CE93.
