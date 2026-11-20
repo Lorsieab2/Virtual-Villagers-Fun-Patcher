@@ -99,6 +99,15 @@ typedef struct sp_shift {
     int mode;
     unsigned int yfield, text_a, text_b, flag, font_mgr;
     int text_top;
+    /* A tip that asks for more width than the screen holds (the later three's tutorial tips ask for the screen's
+       whole width and more: The Secret City 0x23A + 0x48 wide, The Tree of Life 0x2FA + 0x48, New Believers 0x3EC
+       + 0x48): its text (the pointer at `wrap_text`, in the font of the text manager at `font_mgr`) is wrapped at the
+       width at `wrap_w`, which the constructor measured its height at with `wrap_height_fn` (font; text, width, float
+       scale) ret 0xC.  0: not such a tip.  A tutorial tip (the byte at `tutorial` set and the dword at `tutorial_on`
+       0) places its text at a fixed x the game chose to keep the whole text on the screen (The Tree of Life 0x12,
+       New Believers 0x0A): only its frame runs past the screen's sides, so its width is kept as the game asks. */
+    unsigned int wrap_text, wrap_w, wrap_height_fn;
+    unsigned int tutorial, tutorial_on;
 } sp_shift;
 #define SP_SHIFT_ASKED 0
 #define SP_SHIFT_MEASURED 1
@@ -215,9 +224,12 @@ static const sp_shift SP_VV2_SHIFTS[] = {
     {0x476F30u, 0x439FA4u, 0x40D140u, {0x52, 0x8B, 0xCE}, 0, 0, 0, 0x0C, 20,
      SP_SHIFT_MEASURED, 0x6Cu, 0x74u, 0x2783u, 0x50u, 0x50B0u, 0x23},
 };
-static const sp_shift SP_VV3_SHIFTS[] = {{0x47F454u, 0x41DFF1u, 0x40DDD0u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20}};
-static const sp_shift SP_VV4_SHIFTS[] = {{0x48D47Cu, 0x41B4B9u, 0x40DE20u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20}};
-static const sp_shift SP_VV5_SHIFTS[] = {{0x49868Cu, 0x41BD13u, 0x40E310u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20}};
+static const sp_shift SP_VV3_SHIFTS[] = {{0x47F454u, 0x41DFF1u, 0x40DDD0u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20,
+                                          SP_SHIFT_ASKED, 0, 0, 0, 0, 0x70u, 0, 0x58u, 0x5Cu, 0x402480u, 0x4Cu, 0x38u}};
+static const sp_shift SP_VV4_SHIFTS[] = {{0x48D47Cu, 0x41B4B9u, 0x40DE20u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20,
+                                          SP_SHIFT_ASKED, 0, 0, 0, 0, 0x70u, 0, 0x58u, 0x5Cu, 0x4026E0u, 0x4Cu, 0x38u}};
+static const sp_shift SP_VV5_SHIFTS[] = {{0x49868Cu, 0x41BD13u, 0x40E310u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20,
+                                          SP_SHIFT_ASKED, 0, 0, 0, 0, 0x70u, 0, 0x58u, 0x5Cu, 0x402690u, 0x4Cu, 0x38u}};
 
 /* The Secret City: the island-event dialog 0x4192F0. */
 static const sp_class SP_VV3_CLASSES[] = {
