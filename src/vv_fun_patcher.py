@@ -11689,6 +11689,16 @@ def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]
             owned.add(legacy.as_posix().casefold())
 
     own(STARTUP_LOADER_DLL)
+    # ...and the other companions the patcher adds on its own, never by a record (_attach_no_safeguards,
+    # _attach_more_companions), as _remove_unselected_companions counts them.
+    own(NO_SAFEGUARDS_DLL)
+    own(MORE_COMPANIONS_DLL)
+    # Player Events' own files (vv_player_events.install / install_references): the patcher writes them every time,
+    # so the earlier build's are never the player's.  (Copies of the player's own event files there keep their
+    # names and are not claimed: the originals are elsewhere and the next install copies them again.)
+    import vv_player_events
+    for name in (vv_player_events.PROMPT_NAME, "Player Events Report.txt", *vv_player_events.OWNER_FILES):
+        own(f"{vv_player_events.INSTALLED_FOLDER}/{name}")
     # The setting files the patcher itself writes beside their companions (no record ships them, so neither the
     # catalog nor a patch log names them): owned too, so a re-patch that leaves their row out drops them, loose
     # (an older patcher's layout) or in the patcher's folder, instead of carrying them over as the player's.

@@ -184,6 +184,9 @@ PATCHER_READ_FOLDERS: tuple[str, ...] = (
     # Upgrades.dll" from "Island Event Collection\\" beside it (story_collection.inc;
     # scripts/build_event_collection_features.py).
     "Island Event Collection/",
+    # Player Events (src/vv_player_events.py install): the AI prompt, the owner's reference files, the install report
+    # and copies of the player's event files, written there for the player to read.
+    "Player Events/",
 )
 
 # Setting files the patcher itself writes beside their companions (no catalog record ships them): the sliders'
