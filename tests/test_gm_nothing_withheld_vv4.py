@@ -151,6 +151,9 @@ class Items(unittest.TestCase):
 
 class Patcher(unittest.TestCase):
     def test_the_doublers_say_what_they_skip(self) -> None:
+        # v1.35.97's doublers (PR #805) are whitelists: scripts/build_vv4_origins_feature.py
+        # TECH_DOUBLER_ELIGIBLE_RETURNS (research, the Lab Equipment bonus, the fire's point, duplicate collectibles)
+        # and FOOD_DOUBLER_ELIGIBLE_RETURNS; the lines follow them (3b5990488).
         tech = entry("Tech Point Doubler")
         # PR #805's doublers (3b5990488): research earnings, with the Lab Equipment bonus and the fire's point.
         self.assertIn("the tech points research earns are doubled (with the Lab Equipment bonus and the fire's extra "

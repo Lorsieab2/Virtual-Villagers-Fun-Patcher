@@ -223,7 +223,7 @@
   },
   "d1__fx": {
    "name": "Outcome D1",
-   "text": "Friends bring a little festival music to her neighborhood.",
+   "text": "Friends bring a little festival music to (mother.his/her) neighborhood.",
    "src": "L30474",
    "effects": [
     {
@@ -242,7 +242,7 @@
   },
   "d2__fx": {
    "name": "Outcome D2",
-   "text": "She declines a gathering and enjoys a restful evening instead.",
+   "text": "(mother.He/She) declines a gathering and enjoys a restful evening instead.",
    "src": "L30475",
    "effects": [
     {

@@ -76,6 +76,16 @@ class GodPowers(unittest.TestCase):
         words = [name for name, _, _ in powers.TABLE
                  if name not in ("Revive", "Sunshine", "Tempest", "Time Warp", "Grant Youth")]
         words += ["0x422EB0", "0x4234A0", "0x498840", "0x4CA000", "Divine Energy", "Spell"]
+        # Rows that name a power or Divine Energy without changing any power's cost, range, duration, odds or
+        # targets (what PATCHED says); each is described on its own Game Mechanics line, so a new row still fails.
+        around_the_powers = {
+            # the stock +1 Divine Energy step for polishing the statue (10e99038a; Puzzles: The Tribute Statue)
+            "vv5_fix_vanilla_bugs",
+            # the per-year Faith and Divine Energy follow the age multiplier (the 0.1-10x sliders)
+            "vv5_age_speed",
+            # what a believer's drop does under the Fog of Doom's thick fog (Faith: vv_game_mechanics_faith_vv5)
+            "vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions",
+        }
         data = ROOT / "data"
         # Rows that name a power or Divine Energy without changing any power's cost, range, duration, odds or
         # targets: the two Fog of Doom conversion rows change what a Heathen does while the fog is over the island
@@ -88,7 +98,7 @@ class GodPowers(unittest.TestCase):
                 if row.endswith(".cieg"):
                     continue    # an island event file's name (sss043_spell_worked.cieg): a story, not a God Power
                 for word in words:
-                    if word.lower() not in row.lower():
+                    if word.lower() not in row.lower() or patch_id in around_the_powers:
                         continue
                     if word == "Divine Energy" and any(said in row for said in (
                             # Fix Vanilla Bugs' statue polish (the game's own +1 Divine Energy step, which no action
