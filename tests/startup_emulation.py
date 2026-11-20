@@ -23,6 +23,7 @@ verify and replace.
 """
 from __future__ import annotations
 
+import re
 import struct
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -39,6 +40,9 @@ from unicorn.x86_const import (
 
 EXE_BASE = 0x400000
 STUBS = 0x7C000000
+# Room for 65,536 import stubs (16 bytes each): every import of the game and of every companion loaded, the third
+# word's included.
+STUBS_SIZE = 0x100000
 STACK_TOP = 0x0F000000
 HEAP = 0x60000000
 MODULE_BASE = 0x10000000
@@ -80,6 +84,13 @@ STDCALL = {
     # The translations companion (native/vvfp_translations) opens "Translation\Translation.txt" with
     # OPEN_EXISTING (CreateFileW above answers INVALID_HANDLE_VALUE when it is not there) and, with no file,
     # does nothing more.
+    # "VVFP More Companions.dll" reads the third word from "VVFP More Companions.txt", and the companions it
+    # starts read their numbers from the .txt files the patcher writes beside them (the sliders seed their own
+    # numbers with the process id): the files given as `patcher_files`.
+    "ReadFile": 20, "GetCurrentProcessId": 0,
+    # The Tree of Life's Pier Holes and Cloth Sacks spell each picture's "Images\<name>" with user32's wsprintfA
+    # (cdecl: the caller pops) before they read its PNG header.
+    "wsprintfA": 0,
 }
 # What the emulated machine answers for the Documents folder and the local time.
 # Not under \\Users\\<name>: a tracked file never names an account (test_archive_has_no_personal_paths).
@@ -113,10 +124,15 @@ class Access:
 class StartupMachine:
     """One emulated process at the C runtime's call of WinMain."""
 
-    def __init__(self, exe: bytes, exe_name: str, shipped: dict[str, Path], game_dir: str = GAME_DIR):
+    def __init__(self, exe: bytes, exe_name: str, shipped: dict[str, Path], game_dir: str = GAME_DIR,
+                 game_files: dict[str, bytes] | None = None):
         """exe: the published executable's bytes; shipped: the companion files
         in the patcher's folder (destination name -> source file); game_dir:
-        the folder GetModuleFileNameW reports, ending in a backslash."""
+        the folder GetModuleFileNameW reports, ending in a backslash;
+        game_files: the other files the patcher puts in the game folder (path
+        relative to it -> bytes: "Virtual Villagers Fun Patcher Files\\VVFP
+        More Companions.txt", a slider's number, "Images\\<picture>"), which a
+        companion may open (OPEN_EXISTING) and read by their full path."""
         self.mu = mu = Uc(UC_ARCH_X86, UC_MODE_32)
         self.shipped = {name.lower(): path for name, path in shipped.items()}
         self.game_dir = game_dir
@@ -124,7 +140,7 @@ class StartupMachine:
         self.exe_path = game_dir + exe_name
         self.stub_names: dict[int, str] = {}
         self._next_stub = STUBS
-        mu.mem_map(STUBS, 0x10000)
+        mu.mem_map(STUBS, STUBS_SIZE)
         mu.mem_map(KERNEL32_BASE, 0x1000)
         mu.mem_map(FMOD_BASE, 0x1000)
         self.kernel32_stubs: dict[str, int] = {}
@@ -137,6 +153,10 @@ class StartupMachine:
         # Files a companion wrote: path -> bytes appended (CreateFileW / WriteFile).
         self.files: dict[str, bytes] = {}
         self._open_path: str | None = None
+        # Files to read: full path (lower case) -> bytes; the open one's read position.
+        self.readable = {(game_dir + name.replace("/", "\\")).lower(): bytes(data)
+                         for name, data in (game_files or {}).items()}
+        self._read_position = 0
         self.accesses: list[Access] = []
         self.error: str | None = None
         self.stop_at: int | None = None
@@ -206,12 +226,18 @@ class StartupMachine:
                 return name, characteristics
         return None, 0
 
+    def _new_stub(self) -> int:
+        stub = self._next_stub
+        if stub + 16 > STUBS + STUBS_SIZE:
+            raise AssertionError(f"the emulated import stubs are full ({STUBS_SIZE // 16} stubs)")
+        self._next_stub += 16
+        return stub
+
     def _redirect(self, image: bytearray, pe: pefile.PE, base: int) -> None:
         for entry in getattr(pe, "DIRECTORY_ENTRY_IMPORT", []):
             for imp in entry.imports:
                 name = imp.name.decode() if imp.name else f"#{imp.ordinal}"
-                stub = self._next_stub
-                self._next_stub += 16
+                stub = self._new_stub()
                 self.stub_names[stub] = name
                 struct.pack_into("<I", image, imp.address - base, stub)
                 popped = STDCALL.get(name, EXTRA_IMPORTS[name][0] if name in EXTRA_IMPORTS else None)
@@ -333,8 +359,7 @@ class StartupMachine:
                 return
             stub = self.kernel32_stubs.get(proc)
             if stub is None:
-                stub = self._next_stub
-                self._next_stub += 16
+                stub = self._new_stub()
                 self.stub_names[stub] = proc
                 self.mu.mem_write(stub, b"\xC2" + struct.pack("<H", STDCALL[proc]))
                 self.kernel32_stubs[proc] = stub
@@ -347,8 +372,7 @@ class StartupMachine:
                 return
             stub = self.fmod_stubs.get(proc)
             if stub is None:
-                stub = self._next_stub
-                self._next_stub += 16
+                stub = self._new_stub()
                 self.stub_names[stub] = "fmod.dll!" + proc
                 self.mu.mem_write(stub, b"\xC2" + struct.pack("<H", int(proc.rsplit("@", 1)[1])))
                 self.fmod_stubs[proc] = stub
@@ -424,6 +448,11 @@ class StartupMachine:
         elif name == "CreateFileW":
             path = wstr(arg(0))
             self.calls.append((name, path, arg(1), arg(4)))
+            if arg(4) == 3 and arg(1) == 0x80000000 and path.lower() in self.readable:   # GENERIC_READ
+                self._open_path = path.lower()
+                self._read_position = 0
+                ret(FILE_HANDLE)
+                return
             if arg(4) == 3 and path not in self.files:       # OPEN_EXISTING a file that is not there
                 ret(0xFFFFFFFF)                               # INVALID_HANDLE_VALUE, as Windows answers
                 return
@@ -444,18 +473,57 @@ class StartupMachine:
                 mu.mem_write(arg(3), struct.pack("<I", len(data)))
             self.calls.append((name, self._open_path, len(data)))
             ret(1)
+        elif name == "ReadFile":
+            data = self.readable.get(self._open_path or "")
+            if arg(0) != FILE_HANDLE or data is None:
+                self.error = "ReadFile from a handle no CreateFileW opened for reading"
+                mu.emu_stop()
+                return
+            chunk = data[self._read_position:self._read_position + arg(2)]
+            self._read_position += len(chunk)
+            if chunk:
+                mu.mem_write(arg(1), chunk)
+            if arg(3):
+                mu.mem_write(arg(3), struct.pack("<I", len(chunk)))
+            self.calls.append((name, self._open_path, len(chunk)))
+            ret(1)
         elif name == "CloseHandle":
             self.calls.append((name, arg(0)))
             ret(1)
         elif name == "GetCurrentThreadId":
             ret(0x1234)
+        elif name == "GetCurrentProcessId":
+            ret(0x2345)
+        elif name == "wsprintfA":
+            out, k = [], 2
+            parts = re.split(r"(%[-0-9]*[a-zA-Z%])", cstr(arg(1)))
+            for part in parts:
+                if part == "%%":
+                    out.append("%")
+                elif part.startswith("%") and part[-1] == "s":
+                    out.append(cstr(arg(k)))
+                    k += 1
+                elif part.startswith("%") and part[-1] in "du":
+                    value = arg(k)
+                    k += 1
+                    out.append(str(value - (1 << 32) if part[-1] == "d" and value >= 1 << 31 else value))
+                elif part.startswith("%"):
+                    self.error = f"wsprintfA format {part!r} not emulated"
+                    mu.emu_stop()
+                    return
+                else:
+                    out.append(part)
+            text = "".join(out).encode("latin-1")
+            mu.mem_write(arg(0), text + b"\0")
+            ret(len(text))
         elif name in ("SetWindowsHookExA", "SetTimer"):
             self.calls.append((name, arg(0), arg(2), arg(3)))
             ret(0x77)
         elif name in ("GetFileAttributesA", "GetFileAttributesW"):
             text = wstr(arg(0)) if name.endswith("W") else cstr(arg(0))
             base_name = text.split("\\")[-1].lower()
-            there = base_name in self.shipped and text.lower() == (self.files_dir + base_name).lower()
+            there = (base_name in self.shipped and text.lower() == (self.files_dir + base_name).lower()
+                     or text.lower() in self.readable)
             ret(0x20 if there else 0xFFFFFFFF)
         elif name in EXTRA_IMPORTS:
             EXTRA_IMPORTS[name][1](self, arg, ret)
