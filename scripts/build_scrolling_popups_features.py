@@ -99,6 +99,9 @@ TITLE_SITES = {3: (0x418561, 0x40A070), 4: (0x416F1C, 0x409BE0), 5: (0x4176B9, 0
 # A New Home's and The Lost Children's island-event dialogs (plain, encounter, crate): each body draw's second call of
 # the centred-lines draw (the text from its first line break): (sites, centred-lines draw).
 WHOLE_SITES = {1: ((0x4279A9, 0x418885, 0x42AA75), 0x4094C0), 2: ((0x433299, 0x41F4D5, 0x437545), 0x4096B0)}
+# A New Home's and The Lost Children's tip: its constructor's and its body draw's call of the string table's lookup
+# (a line of the tip's text wider than the box is broken at its spaces): (sites, lookup).
+TIP_LOOKUP = {1: ((0x435F37, 0x4362F7), 0x433970), 2: ((0x443C3D, 0x4442D5), 0x441680)}
 ART = {1: "WideSlider2.png and sliderhandle.png (its own) and Images\\vvfp_scroll_up/down/track/knob.png (The Secret "
           "City's UpArrowButton, DownArrowButton, VerticalScrollTrack and VerticalScrollKnob, borrowed)",
        3: "image ids 0x1B-0x1E, 0x19, 0x1A", 4: "image ids 0xA3-0xA6, 0xA1, 0xA2", 5: "image ids 0x81-0x84, 0x7F, 0x80"}
@@ -136,9 +139,10 @@ def description(game: int) -> str:
                 "The Secret City's (shipped as new picture files; no game file is replaced)." if game in (1, 2) else "")
     return (
         "Popups get scrollbars when their text does not fit: a popup is never taller or wider than the screen (its "
-        "buttons stay at its bottom, where they always are), and when its text is taller than the room left, or "
-        "wider than the box (a long line, or one very long word), a vertical and/or a horizontal scrollbar appears, "
-        "drawn with the game's own scrollbar pictures; every popup below can show both at once." + borrowed
+        "buttons stay at its bottom, where they always are). A line wider than the box wraps onto the next line, as "
+        "text normally does. When the text is taller than the room left, a vertical scrollbar appears; only a single "
+        "word wider than the box gets a horizontal scrollbar. The bars are drawn with the game's own scrollbar "
+        "pictures; every popup below can show both at once." + borrowed
         + " Scroll up and down with the mouse wheel over the popup, sideways with the wheel over the horizontal bar "
         "(or a sideways wheel or touchpad), with the arrows, by dragging the knob or handle or by clicking the bar; "
         "the text starts at the top and starts over when it changes. A popup whose text fits looks and works exactly "
@@ -208,6 +212,12 @@ def detours(game: int) -> list[dict]:
                                "dialog's field holds only the start of a longer text (a new island event's), the "
                                "same call draws the whole text from the same place; otherwise the stock call")
                 for va in whole_sites]
+    if game in TIP_LOOKUP:
+        lookup_sites, lookup = TIP_LOOKUP[game]
+        out += [(va, lookup, "the tip's call of the string table (its constructor, which measures the text, and its "
+                             "body draw): the same text, each line wider than the box broken at its spaces so it "
+                             "wraps instead of scrolling sideways")
+                for va in lookup_sites]
     rows = [{"va": f"0x{va:X}", "stock_bytes": call_bytes(va, target), "written_bytes": "E8XXXXXXXX",
              "routine": routine, "installed_by": INSTALLED_BY} for va, target, routine in out]
     tail, stock = TAIL[game]
