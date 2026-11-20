@@ -663,7 +663,10 @@ EFFECT_VOCABULARY = (
     "OTHER PRESENTATION <who>", "OWN PRESENTATION <who>",
     "SKILL + BEST a little|some|a lot|hugely", "EVERYONE: MOOD GOOD", "EVERY HEALER: SKILL + Healing some",
     "3 RANDOM VILLAGERS: ILLNESS", "NEW VILLAGER (adult woman)", "NEW BABY OF THE NEWCOMERS",
-    "PREGNANT <who> WITH <who> (TWINS OR TRIPLETS)", "CHANGE AGE <who> OLDER <n> YEARS (NEVER PAST ELDER)")
+    "PREGNANT <who> WITH <who> (TWINS OR TRIPLETS)", "CHANGE AGE <who> OLDER <n> YEARS (NEVER PAST ELDER)",
+    "SUPPLY GAIN|LOSS <n> [TO <m>] <good>", "TRADE <n> <good> FOR <m> <good>", "GROUP <kind> [<who>]",
+    "GROUP WORK <skill>", "NEXT EVENT SOONER|LATER <n> [TO <m>] HOURS", "TECH LEVEL UP|DOWN [<area>]",
+    "WEATHER <weather>")
 
 
 GROUP_SKILLS = {"healer": "Healing", "builder": "Building", "farmer": "Farming", "researcher": "Research",
@@ -672,6 +675,31 @@ GROUP_SKILLS = {"healer": "Healing", "builder": "Building", "farmer": "Farming",
 _GROUP = re.compile(r"^(everyone|every villager|all villagers|every (healer|builder|farmer|researcher|scholar|scientist|"
                     r"parent|nanny|priest|devout)|(\d+|one|two|three|four|five) random villagers?)\s*:\s*", re.I)
 _NUM_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5}
+# GROUP <kind>: the engine's group kinds a line may name (sickness and cure are EVERYONE: ILLNESS / EVERYONE: CURE,
+# work is GROUP WORK <skill>, and the temporary effects are words only; the owner, 2026-11-20).
+# The effects that act on no villager's role (the village, its stores, or "who" for a gathering).
+NO_ROLE_EFFECTS = ("food", "tech", "pay_award", "damage", "repair", "new_villager", "celebrate", "supply", "trade",
+                   "group", "village")
+GROUP_WORD_KINDS = tuple(k for k in cie.GROUP_KINDS if k not in ("sick", "cure", "work", "effect"))
+
+
+def _good(word: str) -> str | None:
+    """A good's id (vv_cie_graph.GOODS) from its words ("cutting tools", "tech points", "collectibles"), or None."""
+    w = re.sub(r"\s+", "_", word.strip().lower().removesuffix(" points"))
+    if w in cie.GOODS:
+        return w
+    return w[:-1] if w.endswith("s") and w[:-1] in cie.GOODS else None
+
+
+def _good_words(supply: bool = False) -> list[str]:
+    """The goods as a line writes them (SUPPLY never names food or tech)."""
+    return [g.replace("_", " ") for g in cie.GOODS if not (supply and g in ("food", "tech"))]
+
+
+def _tech_area(word: str) -> str:
+    """A technology area in the game's own spelling; an unknown one as written, for the engine's check to name."""
+    areas = {a.lower(): a for names in cie.TECH_AREAS.values() for a in names}
+    return areas.get(word.strip().lower(), word.strip())
 FLAVOR_NOTE = "{0!r} is flavor only: no skill changes"
 
 
@@ -937,6 +965,49 @@ def plain_effect(line: str) -> PlainEffect | str:
         if m:
             st = split_list(m.group(2)) if m.group(2) else cie.DAMAGE_ANY
             return PlainEffect([{"do": "damage", "size": (m.group(1) or "normal").lower(), "structures": st}], roles)
+        # The trader and Village Moments kinds (cie-v6-binary.md 38-42; the owner's words, 2026-11-20).
+        m = re.fullmatch(r"supply (gain|loss) (\d+)(?: to (\d+))? (.+)", s, re.I)
+        if m:
+            item = _good(m.group(4))
+            if item in ("food", "tech"):
+                return f"SUPPLY never names {item}: write {item.upper()} GAIN or {item.upper()} LOSS"
+            if item is None:
+                return f"{m.group(4)!r} is not a good ({', '.join(_good_words(supply=True))})"
+            lo, hi = sorted((int(m.group(2)), int(m.group(3) or m.group(2))))
+            if m.group(1).lower() == "loss":
+                lo, hi = -hi, -lo
+            return PlainEffect([{"do": "supply", "item": item, "min": lo, "max": hi}], roles)
+        m = re.fullmatch(r"trade (\d+) (.+?) for (\d+) (.+)", s, re.I)
+        if m:
+            give, get = _good(m.group(2)), _good(m.group(4))
+            for word, item in ((m.group(2), give), (m.group(4), get)):
+                if item is None:
+                    return f"{word!r} is not a good ({', '.join(_good_words())})"
+            return PlainEffect([{"do": "trade", "give": give, "give_amount": int(m.group(1)), "get": get,
+                                 "get_amount": int(m.group(3))}], roles)
+        m = re.fullmatch(r"group work ([A-Za-z]+)", s, re.I)
+        if m:
+            return PlainEffect([{"do": "group", "kind": "work", "who": "all", "skill": m.group(1).title()}], roles)
+        m = re.fullmatch(r"group ([a-z]+)(?: " + _T + r")?", s, re.I)
+        if m and m.group(1).lower() in GROUP_WORD_KINDS:
+            who = (m.group(2) or "everyone").lower()
+            who = "all" if who in ("everyone", "all", "everybody", "the village") else need(_target(who)) or "@default"
+            return PlainEffect([{"do": "group", "kind": m.group(1).lower(), "who": who}], roles)
+        m = re.fullmatch(r"next (?:island )?event (sooner|later) (\d+)(?: to (\d+))? hours?", s, re.I)
+        if m:
+            lo, hi = sorted((int(m.group(2)), int(m.group(3) or m.group(2))))
+            if m.group(1).lower() == "sooner":
+                lo, hi = -hi, -lo
+            return PlainEffect([{"do": "village", "what": "event_timer", "min": lo, "max": hi}], roles)
+        m = re.fullmatch(r"tech level (up|down)(?: (.+))?", s, re.I)
+        if m:
+            e = {"do": "village", "what": "tech_level", "step": 1 if m.group(1).lower() == "up" else -1}
+            if m.group(2):
+                e["area"] = _tech_area(m.group(2))
+            return PlainEffect([e], roles)
+        m = re.fullmatch(r"weather ([a-z]+)", s, re.I)
+        if m:
+            return PlainEffect([{"do": "village", "what": "weather", "weather": m.group(1).lower()}], roles)
     except _Bad as exc:
         return str(exc)
     return f"{line.strip()!r} is not an effect this format knows (docs/player-events-format.md 4)"
@@ -1959,8 +2030,7 @@ def _seed_pieces(seed: dict, ev: Item, games: list[int], choices: dict, order: l
                 for key in ("role", "partner", "with", "copy_of", "who"):
                     if key in e and e[key] in (None, "@default"):
                         e[key] = main
-                if "role" not in e and e["do"] not in ("food", "tech", "pay_award", "damage", "repair",
-                                                       "new_villager", "celebrate") and not e.get("target"):
+                if "role" not in e and e["do"] not in NO_ROLE_EFFECTS and not e.get("target"):
                     e["role"] = main
                 for key in ("role", "partner", "with", "copy_of"):
                     rid = e.get(key)
@@ -3292,6 +3362,15 @@ main villager):
   DAMAGE (small|normal|large|huge) (damages huts and buildings), STORY MUTE <who> (never speaks in events),
   OTHER PRESENTATION <who> (dresses and looks as the other sex, staying who they are), OWN PRESENTATION <who> (back).
 - VV5 only: BECOMES HEATHEN <who>.
+- The village's goods, gatherings and island: SUPPLY GAIN <n> <good> or SUPPLY LOSS <n> TO <m> <good> (goods: berries
+  VV1; coconuts, fish VV2; collectible VV2-VV5; honey, fruit VV3; blackberries, cutting tools, soap, cloth, yellow
+  fruit VV4; noni VV5; food and tech are FOOD GAIN / TECH GAIN), TRADE <n> <good> FOR <m> <good> (all or nothing:
+  only when the village has enough to give; food and tech may be traded), GROUP <kind> [<who>] (everyone, or that
+  villager, will relax, swim, dance, pray, celebrate, pond, play, stories, song, chant or speech), GROUP WORK <skill>
+  (the whole village's workers of that skill work), NEXT EVENT SOONER|LATER <n> [TO <m>] HOURS (the next island
+  event, 1 to 72 hours), TECH LEVEL UP|DOWN [<area>] (one technology level; no area: a random one), WEATHER
+  clear|sun|rain|storm|fog (VV3-VV5; sun VV4-VV5). Sickness or a cure for everyone is EVERYONE: ILLNESS /
+  EVERYONE: CURE.
 Optional lines: "Requires: population 20+" (or "3 children+", "golden child present", "chief present"),
 "Filters: F05" under an outcome (content filter tags: the patcher adds most by itself), "Description: one sentence for
 the Pick Island Event list", "Coda:" (a closing paragraph shown after every outcome).
@@ -3886,6 +3965,34 @@ def _plain_words(e: dict) -> str:
         return f"DAMAGE ({size})" + ("" if st in (None, cie.DAMAGE_ANY) else f" ON {', '.join(st)}")
     if do == "repair":
         return "REPAIR" if e.get("structures") in (None, cie.DAMAGE_ANY) else ""
+    if do == "supply":
+        if e.get("item") in (None, "food", "tech"):
+            return ""                                   # food and tech are FOOD / TECH GAIN (the owner, 2026-11-20)
+        lo, hi = e["min"], e["max"]
+        a, b = sorted((abs(lo), abs(hi)))
+        return (f"SUPPLY {'LOSS' if hi < 0 else 'GAIN'} {a}" + (f" TO {b}" if b != a else "")
+                + f" {e['item'].replace('_', ' ')}")
+    if do == "trade":
+        return (f"TRADE {e['give_amount']} {e['give'].replace('_', ' ')} FOR {e['get_amount']} "
+                f"{e['get'].replace('_', ' ')}")
+    if do == "group":
+        if e.get("kind") == "work":
+            return f"GROUP WORK {e['skill']}" if e.get("who", "all") == "all" else ""
+        if e.get("kind") not in GROUP_WORD_KINDS:
+            return ""
+        w = e.get("who", "all")
+        return f"GROUP {e['kind']}" + ("" if w in (None, "all") else f" {who(w)}")
+    if do == "village":
+        what = e.get("what")
+        if what == "event_timer":
+            a, b = sorted((abs(e["min"]), abs(e["max"])))
+            return (f"NEXT EVENT {'SOONER' if e['max'] < 0 else 'LATER'} {a}" + (f" TO {b}" if b != a else "")
+                    + " HOURS")
+        if what == "tech_level":
+            return f"TECH LEVEL {'UP' if e.get('step') == 1 else 'DOWN'}" + (f" {e['area']}" if e.get("area") else "")
+        if what == "weather":
+            return f"WEATHER {e['weather']}"
+        return ""
     if do == "status":
         return f"BECOMES HEATHEN {who(r)}" if e.get("status") == "heathen" else ""
     if do == "trait":
@@ -3923,13 +4030,10 @@ def _plain_of(e: dict) -> str:
     for key in ("copy_of", "with", "who"):
         if got.get(key) == "@default":
             got[key] = "subject"
-    if got.get("role") is None and "target" not in got and got["do"] not in ("food", "tech", "pay_award", "damage",
-                                                                              "repair", "celebrate", "new_villager"):
+    if got.get("role") is None and "target" not in got and got["do"] not in NO_ROLE_EFFECTS:
         got["role"] = "subject"
     want = dict(e)
-    if want.get("role") is None and "target" not in want and want["do"] not in ("food", "tech", "pay_award",
-                                                                                 "damage", "repair", "celebrate",
-                                                                                 "new_villager"):
+    if want.get("role") is None and "target" not in want and want["do"] not in NO_ROLE_EFFECTS:
         want["role"] = "subject"
     try:
         same = _piece_signature(got) == _piece_signature(want)

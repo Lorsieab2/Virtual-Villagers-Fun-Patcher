@@ -197,6 +197,12 @@ class EveryEffectWord(unittest.TestCase):
         "NEW BABY OF THE NEWCOMERS": "new_villager", "PREGNANT mother WITH father (TWINS)": "pregnant",
         "CHANGE AGE fisher OLDER 20 YEARS (NEVER PAST ELDER)": "change_age", "CLONE OF newcomer": "clone",
         "OTHER PRESENTATION fisher": "presentation",
+        # The trader and Village Moments kinds (the owner's words, 2026-11-20); New Believers' goods and weather.
+        "SUPPLY GAIN 3 noni": "supply", "SUPPLY LOSS 2 TO 5 collectible": "supply",
+        "TRADE 150 food FOR 400 tech": "trade", "GROUP song": "group", "GROUP stories cook": "group",
+        "GROUP WORK Farming": "group", "NEXT EVENT SOONER 2 TO 6 HOURS": "village",
+        "NEXT EVENT LATER 12 HOURS": "village", "TECH LEVEL UP Medicine": "village", "TECH LEVEL DOWN": "village",
+        "WEATHER rain": "village",
     }
 
     def test_the_new_kinds_carry_their_fields(self):
@@ -236,6 +242,57 @@ class EveryEffectWord(unittest.TestCase):
         self.assertFalse(it.problems, [str(p) for p in it.problems])
         c, probs = pe.compile_item(it, "pl_every_001")
         self.assertIsNotNone(c, probs)
+
+
+class VillageEffectWords(unittest.TestCase):
+    """SUPPLY, TRADE, GROUP, NEXT EVENT, TECH LEVEL and WEATHER (the owner's approved words, 2026-11-20): each line
+    compiles into the engine's own effect and comes back as the same line (text -> .cieg -> text); food and tech are
+    never SUPPLY, and sickness / cure for everyone stay EVERYONE: ILLNESS / EVERYONE: CURE."""
+
+    LINES = {   # line -> the games of its event
+        "SUPPLY GAIN 3 cloth": "VV4", "SUPPLY GAIN 200 TO 500 berries": "VV1",
+        "SUPPLY LOSS 2 cutting tools": "VV4", "SUPPLY LOSS 10 TO 40 yellow fruit": "VV4",
+        "SUPPLY GAIN 1 collectible": "VV2, VV3, VV4, VV5", "TRADE 150 food FOR 400 tech": "VV1, VV2, VV3, VV4, VV5",
+        "TRADE 200 honey FOR 600 tech": "VV3", "GROUP song": "VV1, VV5", "GROUP stories elder": "VV2",
+        "GROUP WORK Farming": "VV3", "NEXT EVENT SOONER 2 TO 6 HOURS": "VV1", "NEXT EVENT LATER 12 HOURS": "VV2",
+        "TECH LEVEL UP Medicine": "VV5", "TECH LEVEL DOWN": "VV4", "WEATHER rain": "VV3, VV4, VV5",
+        "WEATHER sun": "VV4, VV5",
+    }
+
+    def test_text_compiled_text(self):
+        for line, games in self.LINES.items():
+            with self.subTest(line=line):
+                text = (f"Title: Village Words\nApplies to: {games}\nRole elder: elder\nEvent:\n(Name) looks around.\n"
+                        f"Choice 1: Go\n* Outcome A: Something changes.\n  Effect: {line}\n"
+                        "Choice 2: Stay\n* Outcome A: Nothing happens.\n")
+                c = compiled(text)
+                back = cie.decompile_graph(c.cieg)
+                effects = [e for n in back["nodes"].values() for e in n.get("effects") or []]
+                self.assertEqual(len(effects), 1, effects)
+                self.assertEqual(pe._plain_words(effects[0]), line)
+
+    def test_the_words_carry_their_fields(self):
+        def first(words):
+            return pe.plain_effect(words).effects[0]
+        self.assertEqual(first("SUPPLY LOSS 2 TO 5 soap"), {"do": "supply", "item": "soap", "min": -5, "max": -2})
+        self.assertEqual(first("TRADE 150 food FOR 1 collectible"),
+                         {"do": "trade", "give": "food", "give_amount": 150, "get": "collectible", "get_amount": 1})
+        self.assertEqual(first("GROUP WORK healing"), {"do": "group", "kind": "work", "who": "all", "skill": "Healing"})
+        self.assertEqual(first("GROUP dance"), {"do": "group", "kind": "dance", "who": "all"})
+        self.assertEqual(first("NEXT EVENT SOONER 6 TO 2 HOURS"),
+                         {"do": "village", "what": "event_timer", "min": -6, "max": -2})
+        self.assertEqual(first("TECH LEVEL UP food mastery"),
+                         {"do": "village", "what": "tech_level", "step": 1, "area": "Food Mastery"})
+        self.assertEqual(first("WEATHER Fog"), {"do": "village", "what": "weather", "weather": "fog"})
+
+    def test_what_the_words_refuse(self):
+        for line in ("SUPPLY GAIN 5 food", "SUPPLY LOSS 3 tech", "SUPPLY GAIN 2 pebbles", "TRADE 5 food FOR 2 pebbles",
+                     "GROUP sick", "GROUP cure", "GROUP effect"):
+            with self.subTest(line=line):
+                self.assertIsInstance(pe.plain_effect(line), str)
+        self.assertIn("FOOD GAIN", pe.plain_effect("SUPPLY GAIN 5 food"))
+        # a compiled supply of food or tech has no words (FOOD / TECH GAIN are the food and tech effects)
+        self.assertEqual(pe._plain_words({"do": "supply", "item": "food", "min": 5, "max": 5}), "")
 
 
 class ChangeNameToAFixedName(unittest.TestCase):
@@ -398,7 +455,8 @@ class FormatSectionMatchesTheParser(unittest.TestCase):
         fmt = pe.FORMAT_SECTION
         section = fmt[fmt.index("Gameplay effects"):fmt.index("Optional lines")]
         samples = {"<skill>": "Healing", "<thing>": "swimming", "<who>": "fisher", "<n>": "5", "<name>": "Lani",
-                   "<0-100>": "50", "<the game's own action words>": "Dance"}
+                   "<0-100>": "50", "<the game's own action words>": "Dance", "<m>": "9", "<good>": "noni",
+                   "<kind>": "song", "<area>": "Medicine", "<weather>": "rain"}
         found = 0
         for phrase in pe.EFFECT_VOCABULARY:
             line = phrase

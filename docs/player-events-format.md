@@ -150,6 +150,10 @@ knock, fever, forget / forgot, memory, magic, spell or charm.
 | `MOOD GOOD\|BAD <who>`, `CELEBRATE [<who>\|everyone]`, `ACTION <who> "words"` | behaviour | mood, celebrate, action |
 | `DAMAGE (size) [ON hut, school]` | buildings damaged | damage |
 | `BECOMES HEATHEN <who>` (VV5), `STORY MUTE <who>` | faith; the story trait | status, trait |
+| `SUPPLY GAIN 3 cloth`, `SUPPLY LOSS 200 TO 500 berries` | a good gained or lost (1..9999; cutting tools, soap and cloth 1..99). Goods: berries (VV1), coconuts, fish (VV2), collectible (VV2-VV5), honey, fruit (VV3), blackberries, cutting tools, soap, cloth, yellow fruit (VV4), noni (VV5). SUPPLY never names food or tech: those are `FOOD GAIN` / `TECH GAIN` | supply (item, min, max) |
+| `TRADE 150 food FOR 400 tech` | give some of one good, get some of another, all or nothing (food and tech may be traded) | trade |
+| `GROUP song`, `GROUP stories elder`, `GROUP WORK Farming` | the whole village (or that villager) relaxes, swims, dances, prays, celebrates, goes to the pond, plays, tells stories, sings, chants or gives a speech; the whole village's workers of that skill work. Sickness or a cure for everyone is `EVERYONE: ILLNESS` / `EVERYONE: CURE` | group (kind, who; work, skill) |
+| `NEXT EVENT SOONER 2 TO 6 HOURS`, `NEXT EVENT LATER 12 HOURS`, `TECH LEVEL UP Medicine`, `TECH LEVEL DOWN`, `WEATHER rain` | the next island event's time (1..72 hours), one technology level (no area: a random one), the weather (clear, rain, storm, fog in VV3-VV5; sun in VV4-VV5) | village (event_timer, tech_level, weather) |
 
 **Casting:** PREGNANT and NURSING go to a villager born female and 18 or more; `(ANY BIRTH SEX)` (the owner's cases:
 magic, or a father caring for a baby) lets any villager carry. Each effect's own engine rules hold (cie-v6-binary.md).

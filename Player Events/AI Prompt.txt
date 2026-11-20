@@ -214,6 +214,15 @@ main villager):
   DAMAGE (small|normal|large|huge) (damages huts and buildings), STORY MUTE <who> (never speaks in events),
   OTHER PRESENTATION <who> (dresses and looks as the other sex, staying who they are), OWN PRESENTATION <who> (back).
 - VV5 only: BECOMES HEATHEN <who>.
+- The village's goods, gatherings and island: SUPPLY GAIN <n> <good> or SUPPLY LOSS <n> TO <m> <good> (goods: berries
+  VV1; coconuts, fish VV2; collectible VV2-VV5; honey, fruit VV3; blackberries, cutting tools, soap, cloth, yellow
+  fruit VV4; noni VV5; food and tech are FOOD GAIN / TECH GAIN), TRADE <n> <good> FOR <m> <good> (all or nothing:
+  only when the village has enough to give; food and tech may be traded), GROUP <kind> [<who>] (everyone, or that
+  villager, will relax, swim, dance, pray, celebrate, pond, play, stories, song, chant or speech), GROUP WORK <skill>
+  (the whole village's workers of that skill work), NEXT EVENT SOONER|LATER <n> [TO <m>] HOURS (the next island
+  event, 1 to 72 hours), TECH LEVEL UP|DOWN [<area>] (one technology level; no area: a random one), WEATHER
+  clear|sun|rain|storm|fog (VV3-VV5; sun VV4-VV5). Sickness or a cure for everyone is EVERYONE: ILLNESS /
+  EVERYONE: CURE.
 Optional lines: "Requires: population 20+" (or "3 children+", "golden child present", "chief present"),
 "Filters: F05" under an outcome (content filter tags: the patcher adds most by itself), "Description: one sentence for
 the Pick Island Event list", "Coda:" (a closing paragraph shown after every outcome).
