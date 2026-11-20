@@ -24,8 +24,8 @@ WINDOWS_LIMIT = 32767
 MAIN_PAGE_BUDGET = 24000
 # Widgets under one game's patch tab: a header, the list, its scrollbar and the rows on
 # screen (about four at a time, six widgets each). Before the list was virtual a tab held
-# 101 to 176 of them.  Each game's Island Events section (v1.35.97) adds its own short list (the same virtual rows)
-# and the 28 content filters' ticks with their heading and notes: about 40 more.
+# 101 to 176 of them.  Each game's Island Events section (v1.35.97) adds its own short list (the same virtual rows);
+# its content filters and the rest are in the row's Settings window (the owner, 2026-11-19), not on the tab.
 WIDGETS_PER_TAB_BOUND = 160
 
 CHILD = r"""

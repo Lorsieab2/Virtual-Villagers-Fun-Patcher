@@ -1219,7 +1219,10 @@
     "c1": [
      "F07"
     ],
-    "d1": [
+    "d1__fx": [
+     "F25"
+    ],
+    "d1__text": [
      "F25"
     ],
     "setup": [
@@ -1502,7 +1505,10 @@
    ],
    "notes": [],
    "nodes": {
-    "b2": [
+    "b2__fx": [
+     "F25"
+    ],
+    "b2__text": [
      "F25"
     ]
    },
@@ -1795,7 +1801,10 @@
    ],
    "notes": [],
    "nodes": {
-    "a2": [
+    "a2__fx": [
+     "F07"
+    ],
+    "a2__text": [
      "F07"
     ]
    },
@@ -1809,7 +1818,10 @@
    ],
    "notes": [],
    "nodes": {
-    "c1": [
+    "c1__fx": [
+     "F25"
+    ],
+    "c1__text": [
      "F25"
     ],
     "c2": [
@@ -1940,9 +1952,17 @@
    "nodes": {}
   },
   "anhs24_small_cut_work": {
-   "filters": [],
-   "notes": [],
-   "nodes": {},
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "a2__fx": [
+     "F06"
+    ]
+   },
    "speaks": [
     "healer"
    ]
@@ -2031,7 +2051,10 @@
     "Serious injury"
    ],
    "nodes": {
-    "a1": [
+    "a1__fx": [
+     "F25"
+    ],
+    "a1__text": [
      "F25"
     ],
     "setup": [
@@ -2135,9 +2158,17 @@
    ]
   },
   "anhs42_unfair": {
-   "filters": [],
-   "notes": [],
-   "nodes": {}
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "b1__fx": [
+     "F06"
+    ]
+   }
   },
   "anjoy01_newborn": {
    "filters": [],
@@ -2766,9 +2797,15 @@
    ]
   },
   "anmom02_same_soup": {
-   "filters": [],
+   "filters": [
+    "F20"
+   ],
    "notes": [],
-   "nodes": {}
+   "nodes": {
+    "b1__fx": [
+     "F20"
+    ]
+   }
   },
   "anmom03_afternoon": {
    "filters": [],
@@ -2795,7 +2832,10 @@
    ],
    "notes": [],
    "nodes": {
-    "a1": [
+    "a1__fx": [
+     "F27"
+    ],
+    "a1__text": [
      "F27"
     ],
     "a2": [
@@ -3027,7 +3067,10 @@
    ],
    "notes": [],
    "nodes": {
-    "a1": [
+    "a1__fx": [
+     "F27"
+    ],
+    "a1__text": [
      "F27"
     ],
     "b1": [
@@ -3082,9 +3125,15 @@
    "nodes": {}
   },
   "anrel36_clothing_felt": {
-   "filters": [],
+   "filters": [
+    "F27"
+   ],
    "notes": [],
-   "nodes": {}
+   "nodes": {
+    "a1__fx": [
+     "F27"
+    ]
+   }
   }
  }
 }

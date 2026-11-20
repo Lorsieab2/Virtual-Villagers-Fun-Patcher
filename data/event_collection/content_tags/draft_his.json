@@ -49,7 +49,11 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F20",
+     "F25"
+    ],
+    "o1__text": [
      "F20",
      "F25"
     ],
@@ -96,8 +100,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "friend",
-    "subject"
+    "subject",
+    "friend"
    ]
   },
   "his06_someone_lived": {
@@ -136,7 +140,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F20"
+    ],
+    "o1__text": [
      "F20"
     ]
    },
@@ -339,7 +346,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F08"
+    ],
+    "o1__text": [
      "F08"
     ]
    },
@@ -542,8 +552,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "subject",
-    "friend"
+    "friend",
+    "subject"
    ]
   },
   "his48_founding_play": {
@@ -552,7 +562,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F08"
+    ],
+    "o1__text": [
      "F08"
     ]
    },

@@ -1,0 +1,586 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_lci",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "lci01_land_taken": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lci02_returned": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lci03_apology_without": {
+   "filters": [
+    "F20",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20",
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lci04_forgotten": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lci05_council_without": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lci06_treaty_two": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "lci07_burden": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lci08_assembly": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lci09_people_decision": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lci10_song_borrowed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lci11_researcher": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lci12_market_many": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lci13_ceremony": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lci14_festival": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lci15_forgotten_craft": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lci16_tradition": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lci17_stranger_accent": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lci18_apprentice": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lci19_rumor_about": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lci20_daughter_wanted": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lci21_father_stayed": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lci22_marriage_nobody": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "third"
+   ]
+  },
+  "lci23_elder_became": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lci24_family_chose": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "third"
+   ]
+  },
+  "lci25_healer_could": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lci26_after_storm": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lci27_villager_stopped": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lci28_day_listening": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lci29_elder": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lci30_nest_beneath": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lci31_animals_eating": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lci32_turtle_net": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "lci33_hunter": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lci34_village_beloved": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o2": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lci35_forest_houses": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lci36_fishing_ban": {
+   "filters": [
+    "F20",
+    "F21",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20",
+     "F21"
+    ],
+    "o2": [
+     "F20"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lci37_promise": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lci38_bridge_many": {
+   "filters": [
+    "F08",
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F08"
+    ],
+    "o2": [
+     "F21"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lci39_floating_garden": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lci40_child_found": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lci41_school_beneath": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "lci42_workers_refused": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lci43_harvest_unequal": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ],
+    "o2": [
+     "F20"
+    ]
+   }
+  },
+  "lci44_chief_ridiculous": {
+   "filters": [
+    "F11"
+   ],
+   "notes": [
+    "Emotional distress"
+   ],
+   "nodes": {
+    "o2": [
+     "F11"
+    ]
+   }
+  },
+  "lci45_festival_bad": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lci46_necklace_story": {
+   "filters": [
+    "F07",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ],
+    "o2": [
+     "F07"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lci47_friendship": {
+   "filters": [
+    "F25",
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25",
+     "F26"
+    ],
+    "o2": [
+     "F26"
+    ],
+    "setup": [
+     "F26"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lci48_memorial_without": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lci49_villager_refused": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lci50_island_many": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "third"
+   ]
+  }
+ }
+}

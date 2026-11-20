@@ -42,7 +42,10 @@
     "Emotional distress"
    ],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F25"
+    ],
+    "o1__text": [
      "F25"
     ],
     "setup": [
@@ -69,7 +72,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F26"
+    ],
+    "o1__text": [
      "F26"
     ]
    }
@@ -80,7 +86,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F21"
+    ],
+    "o1__text": [
      "F21"
     ]
    },
@@ -106,9 +115,17 @@
    ]
   },
   "div07_hat_weaver": {
-   "filters": [],
-   "notes": [],
-   "nodes": {}
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o2__fx": [
+     "F06"
+    ]
+   }
   },
   "div08_paint_around": {
    "filters": [],
@@ -126,10 +143,16 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
      "F25"
     ],
-    "o2": [
+    "o1__text": [
+     "F25"
+    ],
+    "o2__fx": [
+     "F08"
+    ],
+    "o2__text": [
      "F08"
     ],
     "setup": [
@@ -170,7 +193,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o2": [
+    "o2__fx": [
+     "F07"
+    ],
+    "o2__text": [
      "F07"
     ]
    }
@@ -185,9 +211,15 @@
    ]
   },
   "div15_garden": {
-   "filters": [],
+   "filters": [
+    "F20"
+   ],
    "notes": [],
-   "nodes": {},
+   "nodes": {
+    "o2__fx": [
+     "F20"
+    ]
+   },
    "speaks": [
     "friend",
     "subject"
@@ -222,7 +254,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o2": [
+    "o2__fx": [
+     "F16"
+    ],
+    "o2__text": [
      "F16"
     ]
    },
@@ -265,9 +300,17 @@
    ]
   },
   "div22_eat_more": {
-   "filters": [],
-   "notes": [],
-   "nodes": {},
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o2__fx": [
+     "F06"
+    ]
+   },
    "speaks": [
     "subject",
     "friend"
@@ -335,8 +378,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "subject",
-    "friend"
+    "friend",
+    "subject"
    ]
   },
   "div29_two_languages": {
@@ -369,7 +412,10 @@
     "Bereavement"
    ],
    "nodes": {
-    "o2": [
+    "o2__fx": [
+     "F03"
+    ],
+    "o2__text": [
      "F03"
     ]
    },
@@ -474,8 +520,8 @@
     ]
    },
    "speaks": [
-    "friend",
-    "subject"
+    "subject",
+    "friend"
    ]
   },
   "div43_new_frame": {
@@ -509,7 +555,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o2": [
+    "o2__fx": [
+     "F25"
+    ],
+    "o2__text": [
      "F25"
     ],
     "setup": [
@@ -530,12 +579,17 @@
   },
   "div48_where_goat_went": {
    "filters": [
-    "F04"
+    "F04",
+    "F06"
    ],
    "notes": [
+    "Serious injury",
     "Disappearance"
    ],
    "nodes": {
+    "o2__fx": [
+     "F06"
+    ],
     "setup": [
      "F04"
     ]

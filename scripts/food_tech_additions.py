@@ -300,6 +300,9 @@ TEXT_EDITS: list[tuple[str, str, str, str, str, str]] = [
      "dislike running (every game); the outcome names the running"),
     ("lvmed05_limb_might", "c2", "L20281", "in a new craft.", "in a new craft, though running is now hard.",
      "dislike running (every game); the outcome names the running"),
+    ("blf26_isolan_feast", "setup", "L311", "a feast for the Guardians,", "a feast for the whole tribe,",
+     "the owner, 2026-11-19: never \"Guardians\" as the name of our villagers (docs/event-collection/"
+     "guardians-wording.md, \"No Guardians as the villagers' name\")"),
 ]
 # Owner-approved label edits (event id, choice src, before, after, why); a file with one shows its labels in title case
 # (its collection.label_case "source" exception goes).
@@ -365,7 +368,8 @@ DEVOTION_MAPPINGS: list[tuple[str, str, str, str]] = [
 def apply_guardians(doc: dict) -> None:
     """New Believers with Guardians of Isola Rewrite (docs/event-collection/guardians-wording.md, its "Believers"
     rows, the owner 2026-11-16): each page and Pick Island Event description that says believer(s) gets its Guardians
-    form (the event's rows' pairs made) as its first variant, and the event names the patch."""
+    form (the event's rows' pairs made) as its first variant; a choice label or a pool item that says it is shown only
+    without the patch and gets a twin shown only with it; and the event names the patch."""
     if 5 not in (doc.get("games") or []):
         return
     sys.path.insert(0, str(ROOT / "scripts"))
@@ -374,6 +378,7 @@ def apply_guardians(doc: dict) -> None:
     pairs = lib.guardians_pairs().get(col.get("id"), [])
     if not pairs:
         return
+    guardians_split, guardians_cond = lib.guardians_split, lib.guardians_cond
 
     def form(text: str) -> str:
         for _w, before, after in pairs:
@@ -390,6 +395,48 @@ def apply_guardians(doc: dict) -> None:
         vs = [v for v in n.get("variants") or [] if v.get("if") != GUARDIANS_IF]
         n["variants"] = [{"if": dict(GUARDIANS_IF), "text": good}] + vs
         touched = True
+    # a label: shown only without the patch, and its twin (the same next, the Guardians form) only with it, as the
+    # Living Event Engine's (scripts/living_vols/living_common.py)
+    for n in (doc.get("nodes") or {}).values():
+        chs = n.get("choices") or []
+        if not any(BELIEVER.search(c.get("label", "")) for c in chs):
+            continue
+        out = []
+        for c in chs:
+            if c.get("if") == GUARDIANS_IF:
+                continue               # remade from its sibling below
+            label = c.get("label", "")
+            if c.get("if") in (None, {"not": GUARDIANS_IF}) and BELIEVER.search(label) and form(label) != label:
+                out += [dict(c, **{"if": {"not": dict(GUARDIANS_IF)}}),
+                        dict(c, label=form(label), **{"if": dict(GUARDIANS_IF)})]
+                touched = True
+            else:
+                out.append(c)
+        n["choices"] = out
+    # a pool item: the item keeps its text shown only without the patch, and its twin (the same condition, the
+    # Guardians form) right after it is shown only with it (the runtime draws among the items whose "if" holds)
+    for p in (doc.get("pools") or {}).values():
+        items = p.get("items") or []
+        out = []
+        for it in items:
+            out.append(it)
+            it_d = it if isinstance(it, dict) else {"text": it}
+            base, mode = guardians_split(it_d.get("if"))
+            if mode is not None or not BELIEVER.search(it_d.get("text", "")):
+                continue
+            good = form(it_d["text"])
+            if good == it_d["text"]:
+                continue
+            out[-1] = dict(it_d, **{"if": guardians_cond(base, False)})
+            out.append(dict(it_d, text=good, **{"if": guardians_cond(base, True)}))
+            touched = True
+        for i, it in enumerate(out):
+            # an item already twinned (an earlier run): its twin's text follows the pairs as they are now
+            if isinstance(it, dict) and guardians_split(it.get("if"))[1] == "without" and i + 1 < len(out) \
+                    and guardians_split(out[i + 1].get("if")) == (guardians_split(it.get("if"))[0], "with"):
+                out[i + 1] = dict(out[i + 1], text=form(it["text"]))
+                touched = True
+        p["items"] = out
     desc = col.get("description") or ""
     if BELIEVER.search(desc) and form(desc) != desc:
         dvs = [v for v in col.get("description_variants") or [] if v.get("if") != GUARDIANS_IF]
@@ -399,11 +446,26 @@ def apply_guardians(doc: dict) -> None:
         doc["patches"] = (doc.get("patches") or []) + ["guardians_of_isola"]
 
 
+def apply_owner_title(doc: dict) -> None:
+    """A title renamed in docs/event-collection/owner-title-changes.md (such as the owner's 2026-11-19 rule: never
+    "Guardians" as the villagers' name) is the event's title, and a page named for the old title takes the new one."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import collection_lib as lib
+    row = lib.owner_titles().get((doc.get("collection") or {}).get("id"))
+    if row is None or doc.get("title") != row["old"]:
+        return
+    doc["title"] = row["new"]
+    for n in (doc.get("nodes") or {}).values():
+        if n.get("name") == row["old"]:
+            n["name"] = row["new"]
+
+
 def apply_likes_fix(doc: dict) -> None:
     eid = (doc.get("collection") or {}).get("id")
     nodes = doc.get("nodes", {})
     apply_guardians(doc)
     apply_heathen_roles(doc)
+    apply_owner_title(doc)
     for e_id, src, before, after, _ in LABEL_EDITS:
         if e_id != eid:
             continue
@@ -597,9 +659,12 @@ def main(argv=None) -> int:
                 bad += 1
     import collection_lib as lib
     believer_rows = {eid for eid, rows_ in lib.guardians_pairs().items() if any(BELIEVER.search(b) for _w, b, _a in rows_)}
+    # an owner title change not yet made in its file (apply_owner_title)
+    renamed = {eid for eid, row in lib.owner_titles().items() if eid in files
+               and json.loads(files[eid].read_text(encoding="utf-8")).get("title") == row["old"]}
     for eid in sorted({r[0] for r in TEXT_EDITS} | {r[0] for r in EFFECT_REMOVALS} | {r[0] for r in LABEL_EDITS}
                       | {r[0] for r in HEATHEN_ROLES} | {r[0] for r in DEVOTION_MAPPINGS}
-                      | believer_rows):
+                      | believer_rows | renamed):
         if eid not in files:
             print(f"{eid}: no collection file")
             bad += 1

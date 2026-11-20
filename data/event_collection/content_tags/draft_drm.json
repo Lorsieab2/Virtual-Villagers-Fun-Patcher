@@ -91,7 +91,11 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F19",
+     "F21"
+    ],
+    "o1__text": [
      "F19",
      "F21"
     ]
@@ -157,8 +161,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "friend",
-    "subject"
+    "subject",
+    "friend"
    ]
   },
   "drm16_window_faces": {
@@ -279,11 +283,20 @@
   },
   "drm29_sunrise_sunset": {
    "filters": [
+    "F06",
     "F26"
    ],
-   "notes": [],
+   "notes": [
+    "Serious injury"
+   ],
    "nodes": {
-    "o2": [
+    "o1__fx": [
+     "F06"
+    ],
+    "o2__fx": [
+     "F26"
+    ],
+    "o2__text": [
      "F26"
     ]
    },
@@ -306,7 +319,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o2": [
+    "o2__fx": [
+     "F25"
+    ],
+    "o2__text": [
      "F25"
     ],
     "setup": [
@@ -331,8 +347,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "subject",
-    "friend"
+    "friend",
+    "subject"
    ]
   },
   "drm34_tree_later": {
@@ -363,11 +379,18 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
      "F07",
      "F21"
     ],
-    "o2": [
+    "o1__text": [
+     "F07",
+     "F21"
+    ],
+    "o2__fx": [
+     "F07"
+    ],
+    "o2__text": [
      "F07"
     ],
     "setup": [
@@ -409,7 +432,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F25"
+    ],
+    "o1__text": [
      "F25"
     ],
     "o2": [
@@ -447,8 +473,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "friend",
-    "subject"
+    "subject",
+    "friend"
    ]
   },
   "drm44_beetle_name": {

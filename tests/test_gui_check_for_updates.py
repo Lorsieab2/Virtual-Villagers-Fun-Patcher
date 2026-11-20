@@ -179,6 +179,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
                # The horizontal scroll bars every window's scrolling areas share (the owner, 2026-11-11).
                "vv_scrollbars",
+               # Village Solidarity's numbers (the owner, 2026-11-17): the GUI reads its slider's strength from it.
+               "vv_village_scores",
                # Game Mechanics (the owner, 2026-10-22): its window, the page and each game's module,
                # found by name (importlib) and so listed here for the release zip.
                "vv_game_mechanics_window", "vv_game_mechanics", "vv_game_mechanics_vv1", "vv_game_mechanics_vv2", "vv_game_mechanics_vv3",
@@ -408,7 +410,9 @@ class ReleasesLinkTests(unittest.TestCase):
                                    "vv_game_mechanics_chances",  # the old-age roll's exact odds (function-level)
                                    "vv_fun_patcher",  # the patcher's own applied-patch check of the exe (function-level)
                                    "patcher_files"}),  # the patch log's names, read at any path length
-            ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename", "vv_tool_fonts"}),
+            # ...and the Minimum Detail tick box's words as the chosen translation shows them (function-level).
+            ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename", "vv_tool_fonts",
+                                          "vv_translations"}),
             # Picture Studio: the window, the pure-Python image code (no Pillow), the save and the patcher's own
             # files as the log checker reads them (function-level), and each game's renderer.
             ("vv_picture_studio", {"vv_picture_image", "vv_pictures_common", "vv_pictures_text_tab",
@@ -446,7 +450,11 @@ class ReleasesLinkTests(unittest.TestCase):
                                             # to bind the yellow fruit tree's file (function-level).
                                             "vv_last_names",
                                             # Children Play Tag and Build Sandcastles' lines.
-                                            "vv_game_mechanics_children_play"})
+                                            "vv_game_mechanics_children_play",
+                                            # Village Solidarity's lines.
+                                            "vv_game_mechanics_solidarity",
+                                            # The Secret City: the Tribal Chief's Directing work (function-level).
+                                            "vv_game_mechanics_chief_vv3"})
               for n in range(1, 5)),
             # New Believers also has its God powers group in its own module.
             ("vv_game_mechanics_vv5", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
@@ -454,9 +462,15 @@ class ReleasesLinkTests(unittest.TestCase):
                                        "vv_game_mechanics_events", "vv_game_mechanics_faith_vv5",
                                        "vv_game_mechanics_nursery",
                                        # Children Play Tag and Build Sandcastles' lines.
-                                       "vv_game_mechanics_children_play"}),
+                                       "vv_game_mechanics_children_play",
+                                       # Village Solidarity's lines.
+                                       "vv_game_mechanics_solidarity"}),
             # Children Play Tag and Build Sandcastles: the page's words only.
             ("vv_game_mechanics_children_play", {"vv_game_mechanics"}),
+            # Village Solidarity: the page's words and the slider's numbers.
+            ("vv_game_mechanics_solidarity", {"vv_game_mechanics", "vv_village_scores"}),
+            # The Secret City's Tribal Chief: the page's words, the villagers as Last Names reads them (function-level).
+            ("vv_game_mechanics_chief_vv3", {"vv_game_mechanics", "vv_last_names"}),
             # God powers: the Spirituality roll's exact odds from the shared Chances helpers.
             ("vv_game_mechanics_powers_vv5", {"vv_game_mechanics", "vv_game_mechanics_chances"}),
             # Death and graves: the graves and Deaths log as Fix grave information reads them, the villagers as

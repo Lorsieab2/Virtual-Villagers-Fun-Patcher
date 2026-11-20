@@ -140,6 +140,10 @@ FILES = [
     # Heathens Keep Their Masks When Converted (New Believers): a converting Heathen's mask becomes their Change
     # Appearance mask.
     "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll",
+    # Fog of Doom Lets Every Heathen Listen (New Believers): the companion, and No Restrictions on Fog of Doom
+    # Conversions' flag file.
+    "assets/fog_listening/VVFP Fog Listening.dll",
+    "assets/fog_listening/VVFP Fog Listening No Restrictions.txt",
     # Louder Wind Flutes (The Tree of Life): the wind flute sounds louder (the slider).
     "assets/vv4_louder_flutes/VVFP VV4 Louder Flutes.dll",
     # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices.
@@ -336,6 +340,9 @@ FILES = [
     "data/vv3_push_overview_clouds_feature.json",
     # Heathens Keep Their Masks When Converted (New Believers).
     "data/vv5_heathens_keep_masks_feature.json",
+    # Fog of Doom Lets Every Heathen Listen and No Restrictions on Fog of Doom Conversions (New Believers).
+    "data/vv5_fog_of_doom_every_heathen_listens_feature.json",
+    "data/vv5_fog_of_doom_no_restrictions_feature.json",
     # 0.1-10x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
     "data/vv1_tech_cost_multiplier_feature.json",
     "data/vv2_tech_cost_multiplier_feature.json",
@@ -779,6 +786,8 @@ FILES = [
     "src/vv_game_mechanics_vv3.py",
     "src/vv_game_mechanics_vv4.py",
     "src/vv_game_mechanics_vv5.py",
+    # The Secret City's Tribal Chief (Directing work), imported by vv_game_mechanics_vv3.
+    "src/vv_game_mechanics_chief_vv3.py",
     "src/vv_game_mechanics_powers_vv5.py",
     "src/vv_game_mechanics_life.py",
     "src/vv_game_mechanics_nursery.py",

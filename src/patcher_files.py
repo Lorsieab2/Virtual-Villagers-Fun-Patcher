@@ -137,6 +137,9 @@ PATCHER_READS: frozenset[str] = frozenset({
     # The Tree of Life's Yellow Breadfruit Refills Partially Every Time: a flag file whose presence beside the
     # companions tells "VVFP VV4 Fruit Supply.dll" to refill at The Secret City's pace (vvfp_vv4_fruit_supply.c).
     "VVFP VV4 Fruit Partial Refill.txt",
+    # New Believers' No Restrictions on Fog of Doom Conversions: a flag file whose presence beside the companions
+    # tells "VVFP Fog Listening.dll" to leave out the Faith limit (vvfp_fog_listening.c).
+    "VVFP Fog Listening No Restrictions.txt",
     # Island Events Scale With Stored Food and Tech Points (A New Home, The Tree of Life, New Believers): a flag file
     # whose presence beside the companions tells "VVFP Island Events Scale.dll" to scale by the stored food and tech
     # points instead of the population (vvfp_island_events_scale.c).

@@ -71,9 +71,17 @@
    "nodes": {}
   },
   "dep06_more_bend_path": {
-   "filters": [],
-   "notes": [],
-   "nodes": {}
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o2__fx": [
+     "F06"
+    ]
+   }
   },
   "dep07_canoe_kept_going": {
    "filters": [
@@ -153,17 +161,31 @@
    }
   },
   "dep14_hut_too_big_now": {
-   "filters": [],
+   "filters": [
+    "F20"
+   ],
    "notes": [],
-   "nodes": {},
+   "nodes": {
+    "o2__fx": [
+     "F20"
+    ]
+   },
    "speaks": [
     "subject"
    ]
   },
   "dep15_walk_far_beach": {
-   "filters": [],
-   "notes": [],
-   "nodes": {},
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1__fx": [
+     "F06"
+    ]
+   },
    "speaks": [
     "friend",
     "subject"
@@ -208,8 +230,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "subject",
-    "friend"
+    "friend",
+    "subject"
    ]
   },
   "dep22_teacher_goes": {
@@ -327,8 +349,8 @@
    "nodes": {},
    "speaks": [
     "friend",
-    "subject",
-    "child"
+    "child",
+    "subject"
    ]
   },
   "dep36_saying_goodbye": {
@@ -345,8 +367,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "friend",
-    "subject"
+    "subject",
+    "friend"
    ]
   },
   "dep38_season_away": {
@@ -418,15 +440,26 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F25"
+    ],
+    "o1__text": [
      "F25"
     ]
    }
   },
   "dep48_bed_night": {
-   "filters": [],
-   "notes": [],
-   "nodes": {}
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1__fx": [
+     "F06"
+    ]
+   }
   },
   "dep49_hill_where_you": {
    "filters": [],

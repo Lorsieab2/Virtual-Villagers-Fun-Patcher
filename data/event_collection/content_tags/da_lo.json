@@ -108,9 +108,17 @@
    ]
   },
   "lo09_unlucky_number": {
-   "filters": [],
-   "notes": [],
-   "nodes": {},
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "b__fx": [
+     "F06"
+    ]
+   },
    "speaks": [
     "friend"
    ]
@@ -304,7 +312,10 @@
     "Emotional distress"
    ],
    "nodes": {
-    "b": [
+    "b__fx": [
+     "F11"
+    ],
+    "b__text": [
      "F11"
     ]
    },
@@ -326,7 +337,10 @@
    ],
    "notes": [],
    "nodes": {
-    "a": [
+    "a__fx": [
+     "F25"
+    ],
+    "a__text": [
      "F25"
     ]
    },
@@ -421,13 +435,16 @@
     "Bereavement"
    ],
    "nodes": {
-    "a": [
-     "F08"
-    ],
     "a1": [
      "F08"
     ],
     "a2": [
+     "F08"
+    ],
+    "a__fx": [
+     "F08"
+    ],
+    "a__text": [
      "F08"
     ],
     "setup": [

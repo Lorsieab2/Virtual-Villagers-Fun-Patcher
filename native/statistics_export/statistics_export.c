@@ -24,6 +24,8 @@ enum {
     GAME_VV3 = 3,
     GAME_VV4 = 4,
     GAME_VV5 = 5,
+    /* Every MAX_LONG_PATH buffer is STATIC, never a local (64 KB each): this runs inside the game's save,
+       on the game's 1 MB stack, and calls the roster export (population_export.c) from there. */
     MAX_LONG_PATH = 32768
 };
 
@@ -216,7 +218,7 @@ static int build_output_paths(
     wchar_t *temporary,
     wchar_t *destination
 ) {
-    wchar_t module_path[MAX_LONG_PATH];
+    static wchar_t module_path[MAX_LONG_PATH];
     /* The export belongs with the SAVE, not with the executable.
        See native/shared/save_folder.h: this used to strip to the exe's own
        directory, which put exported logs in the install folder while the
@@ -1045,8 +1047,8 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
    right after the quit save (statistics_reconcile.inc), so the log shows
    the repaired counters. */
 static int write_statistics_file(int game_id, unsigned char *manager, int save_id, const char *village) {
-    wchar_t temporary[MAX_LONG_PATH];
-    wchar_t destination[MAX_LONG_PATH];
+    static wchar_t temporary[MAX_LONG_PATH];
+    static wchar_t destination[MAX_LONG_PATH];
     FILE *file;
     int written;
     int closed;

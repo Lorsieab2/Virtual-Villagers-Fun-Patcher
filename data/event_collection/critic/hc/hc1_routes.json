@@ -9572,7 +9572,30 @@
      "text": "moderate a discussion between believers, skeptics, and someone who claims to have met a spirit",
      "src": "L297",
      "if": {
-      "visited": "g_dev"
+      "all": [
+       {
+        "visited": "g_dev"
+       },
+       {
+        "not": {
+         "patch": "guardians_of_isola"
+        }
+       }
+      ]
+     }
+    },
+    {
+     "text": "moderate a discussion between the faithful, skeptics, and someone who claims to have met a spirit",
+     "src": "L297",
+     "if": {
+      "all": [
+       {
+        "visited": "g_dev"
+       },
+       {
+        "patch": "guardians_of_isola"
+       }
+      ]
      }
     },
     {
@@ -12878,5 +12901,8 @@
     }
    ]
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

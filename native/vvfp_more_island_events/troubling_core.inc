@@ -134,6 +134,17 @@ static void ts_piece(char *out, int cap, int key, int number) {
 
 static char ts_buf[4][ADV_PIECE_BYTES];
 
+/* `text` without its last sentence (the one that states the amount: it ends the piece in every language). */
+static void ts_cut_last_sentence(char *text) {
+    int n = lstrlenA(text), i;
+    for (i = n - 2; i > 0; --i) {
+        if ((text[i] == '.' || text[i] == '!' || text[i] == '?') && text[i + 1] == ' ') {
+            text[i + 1] = '\0';
+            return;
+        }
+    }
+}
+
 static const char *ts_one(int slot, int key, int number) {
     ts_piece(ts_buf[slot], ADV_PIECE_BYTES, key, number);
     return ts_buf[slot];
@@ -163,7 +174,10 @@ static void ts_compose(const adv_game *g) {
         p[0] = ts_one(0, DECREE[k], 0);
         p[1] = ts_one(1, TS_DECREE_2, 0);
         p[2] = ts_one(2, DEPART[k], ts.award[k]);
-        p[3] = k == TS_SCIENTISTS ? ts_one(3, TS_LOSS_SCIENTISTS, ts.award[k]) : NULL;
+        if (k == TS_SPIRITUAL && ts.award[k] == 0) {
+            ts_cut_last_sentence(ts_buf[2]);   /* no food to give: "Your village loses 0 food." is not said */
+        }
+        p[3] = k == TS_SCIENTISTS && ts.award[k] > 0 ? ts_one(3, TS_LOSS_SCIENTISTS, ts.award[k]) : NULL;
         p[4] = NULL;
         adv_popup(g, &ts.result[k], p);
     }
@@ -236,10 +250,16 @@ static int ts_begin(const ts_game *t, const adv_game *g) {
         ts.traveller[k] = list[TS_ADVISORS + k];
         ts.traveller_id[k] = adv_identity(t->g, ts.traveller[k]);
     }
-    /* The awards: the page says the full amount rolled, a loss too (the owner, 2026-11-13: "yeah show the full
-       amount"); the store stops at 0 (ts_effects). */
+    /* The awards: the page states the EXACT amount made (the owner, 2026-11-19: every result line exact, losses
+       too -- this replaces 2026-11-13's full roll): a loss is the roll, at most what the village has now, and
+       exactly that is taken (ts_effects); nothing to take, no loss sentence (ts_compose). */
     for (k = 0; k < TS_GROUPS; ++k) {
         ts.award[k] = adv_award_roll(t->g, TS_KIND[k], 1);
+        if (TS_SIGN[k] < 0) {
+            int stored = t->stored(TS_KIND[k]);
+            stored = stored < 0 ? 0 : stored;
+            ts.award[k] = ts.award[k] > stored ? stored : ts.award[k];
+        }
     }
     ts_compose(g);
     ts_find_tallest(g);

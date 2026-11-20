@@ -160,9 +160,17 @@
    ]
   },
   "hum16_coconut_knew": {
-   "filters": [],
-   "notes": [],
-   "nodes": {}
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1__fx": [
+     "F06"
+    ]
+   }
   },
   "hum17_freshly_dyed_mat": {
    "filters": [],
@@ -187,7 +195,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F25"
+    ],
+    "o1__text": [
      "F25"
     ]
    }
@@ -440,7 +451,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F13"
+    ],
+    "o1__text": [
      "F13"
     ],
     "setup": [

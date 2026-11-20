@@ -82,7 +82,10 @@
    ],
    "notes": [],
    "nodes": {
-    "b": [
+    "b__fx": [
+     "F25"
+    ],
+    "b__text": [
      "F25"
     ],
     "setup": [
@@ -132,8 +135,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "friend",
-    "subject"
+    "subject",
+    "friend"
    ]
   },
   "il072_good_spoon": {
@@ -166,8 +169,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "friend",
-    "subject"
+    "subject",
+    "friend"
    ]
   },
   "il076_same_story_every": {
@@ -185,7 +188,10 @@
    ],
    "notes": [],
    "nodes": {
-    "a": [
+    "a__fx": [
+     "F25"
+    ],
+    "a__text": [
      "F25"
     ]
    },

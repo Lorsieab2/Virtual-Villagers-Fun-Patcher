@@ -185,7 +185,7 @@ the partner search, the conception roll, the population limit, huts and live
 play are unchanged; children (under 280 age units) get no job turns at all.
 
 This is the only edit the new `vv4_birth_control` and `vv5_birth_control`
-rows make (off by default, on in Owner's Defaults). It supersedes the
+rows make (on by default, like the VV1-VV3 Birth Control rows). It supersedes the
 statement above that no VV4/VV5 Birth Control bytes are shipped: the historical
 VV4 candidate's age-gate edits stay rejected and unapplied, and apart from that
 one catch-up byte VV4 and VV5 remain the native reference.

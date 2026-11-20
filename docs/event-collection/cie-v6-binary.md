@@ -766,10 +766,36 @@ one the villager holds. Automatic lines (section 25): "unlike" `<R> no longer li
 
 Some outcomes are written only as instructions ("change hair color", "random like", "skill loss"). The effect is
 made, and the popup says what happened in a short plain line, in the style of the Island Events log's lines.
-**True changes only** (the owner, 2026-11-19): a food or tech line, and the `(award)` amount, are the change the
-game's limits let through (never below 0, never above CE_MAX_AMOUNT), counted through the pages' effects in order
-from the store as it stands when the pages are laid out (`cg_applied`): a village with no food is not told it loses
-food, and an award shows what is paid.
+**Exact amounts, true changes only** (the owner, 2026-11-19): every line of a change that has an amount states the
+amount the game really makes -- gains and losses alike -- after the game's limits:
+
+- food and tech (and the `(award)` amount): never below 0, never above CE_MAX_AMOUNT, counted through the pages'
+  effects in order from the store as it stands when the pages are laid out (`cg_applied`);
+- a cast villager's skill (0..100), health (1..100: a change never kills) and New Believers' Faith (up to 100),
+  counted from the villager as the earlier pages leave them (`cg_predicted`);
+- a damage: 0 when nothing finished in its list can be damaged, else the percent (at most 100).
+
+A village with 20 food that is to lose 40 is told "The village loses 20 food." and loses 20; a skill at 95 that is
+to gain 10 is told it gains 5; a change that changes nothing (no food to lose, a skill at 100, nothing to damage)
+has **no line**.
+
+**Applied = shown.** The amount counted at the layout (`cg_applied_fx`, by effect index) is BOTH what the line
+states AND what is made when the page is shown (`cg_told_amount`: the food / tech store is changed by exactly it, the
+skill or health set to the villager's value plus exactly it, Faith raised by exactly it). What really changed is read
+back as it is made (`cg_told`); should the village have moved between the layout and the showing (food eaten, a
+skill learned, so the store or the skill no longer holds the whole of it), the page's line is put right before the
+page is shown (`cg_fix_lines`: the stated line, whole, becomes the line of the true change, or goes when nothing
+changed) -- or, when that line was on a page already shown, the true line is added at the end of this one. A run
+restored from its file after a quit has its pages but not their counts (memory only): its changes are the rolls,
+through the game's limits, as before.
+
+**A group's change** (a `target` of the whole village or N random villagers) is written as it is made
+(`cg_group_line`, like section 39's lines): each member's change read back, then one line -- how many it changed and
+by how much (one amount when all alike, else the smallest to the largest), or the one villager's name when it
+changed only one. Nobody changed: no line.
+
+**Singular and plural.** "1 tech point" / "N tech points"; a good's word follows its number (`cg_good_words`:
+1 cutting tool, 2 cutting tools; 1 collectible, 2 collectibles; berry, coconut, blackberry); food stays "N food".
 
 JSON (v6): `"auto_text": true` on a popup node (node flags bit 0, section 2a). The node's text is followed by one
 line for each of the node's effects that has one, in effect order, each after a line break (`"\n"`; a node with no
@@ -781,32 +807,42 @@ the game lists it (`herbs`, `the dark`).
 
 | Effect | Line |
 |---|---|
-| food, not deferred, amount > 0 / < 0 | `The village gains food.` / `The village loses food.` |
-| tech, not deferred, amount > 0 / < 0 | `The village gains tech points.` / `The village loses tech points.` |
-| pay_award | the line of the award it pays (food or tech, as above) |
-| kill | `R dies.` |
-| vanish | `R disappears.` |
-| status (Heathen) | `R becomes a Heathen.` |
-| health (set) | `R's health changes.` |
-| preference, like / dislike | `R now likes W.` / `R now dislikes W.` |
-| skill, amount > 0 / < 0 | `R learns more about S.` / `R feels less sure of P S.` |
-| sick | `R falls sick.` |
-| celebrate, everyone / a role | `The village celebrates.` / `R celebrates.` |
-| mood, good / bad | `R is in a good mood.` / `R is in a bad mood.` |
-| health_change, > 0 / < 0 | `R feels better.` / `R feels worse.` |
-| skill_set, 100 / 0 / other | `R masters S.` / `R forgets everything about S.` / `R's S skill changes.` |
-| damage | `Something in the village is damaged.` |
-| appearance, the head only / the body (or both) | `R's hair changes color.` / `R's look changes.` |
-| die_unrecovered | `R dies; the body is not recovered.` |
-| baby_lost | `R's baby is lost.` |
-| old_look | `R looks older and more worn.` |
+The lines with an amount (`N` the amount made, never signed: the verb says which; `C` how many villagers, `L` the
+smallest change of a group's range); the full table is `CG_AUTO_LINES` (`story_graph.inc`):
 
-No line: `action`; a deferred food or tech (its `pay_award` gives it); an amount or change of 0; a skill the game
-does not have (roll -1); a random preference with no candidate. Identical lines are all kept.
+| Effect | Line |
+|---|---|
+| food, gain / loss | `The village gains N food.` / `The village loses N food.` |
+| tech, gain / loss | `The village gains N tech points.` / `The village loses N tech points.` (1: `1 tech point`) |
+| pay_award | the line of the award it pays (food or tech, as above), the amount paid |
+| health (set) | `R's health is now N.` |
+| health_change, gain / loss | `R gains N health.` / `R loses N health.` |
+| skill, gain / loss | `R gains N S skill.` / `R loses N S skill.` |
+| skill, the villager's best | `R gains N skill in what P does best.` / `R loses N skill in what P does best.` |
+| skill_set, 100 / 0 / other | `R masters S.` / `R loses all S skill.` / `R's S skill is now N.` |
+| faith (New Believers) | `R's Faith rises by N.` |
+| damage | `A building loses N% of its construction.` (A New Home, The Lost Children: `N percent`) |
+| change_age | `R is now N years old.` |
+| a group's skill | `C villagers each gain N S skill.` / `C villagers gain L to N S skill.` / `W gains N S skill.` (and "lose") |
+| a group's health_change | `C villagers each gain N health.` / `C villagers gain L to N health.` / `W gains N health.` |
+| a group's Faith, skill_set, health | `The Faith of C villagers rises by N each.` / `The S skill of C villagers is now N.` / `The health of C villagers is now N.` |
+| supply, trade (39) | `The village gains N W.` / `The village loses N W.` / `The village gives N W.` / `The village gets N W.` |
+| Village Solidarity | `Village Solidarity rises by N.` / `Village Solidarity falls by N.` |
+| group sickness, the event timer, a tech level (40, 41) | `N villagers become sick.` / `The next island event will come N hours later.` / `The village's W technology rises to level N.` |
+
+Lines with no amount keep their words: `R dies.`, `R celebrates.` (a good mood), `R shakes P head.` (a bad mood),
+`R's head changes.`, `R looks older.`, `R is cured.` and the rest of the table.
+
+No line: `action`; a deferred food or tech (its `pay_award` gives it); a change that changes nothing (an amount of
+0, or one the limits take wholly away); a skill the game does not have (roll -1); a random preference with no
+candidate. Identical lines are all kept.
 
 - **The words are those the walk chose**, so the engine's pages (section 6.6: laid out once the walk is done) hold
-  the real skill and word. A line is shown even when its change is then refused (the villager protected or gone
-  since): the page's "N changes could not be made" line says so, as for any text.
+  the real skill and word. A line whose change is then refused (the villager protected or gone since) is taken back
+  as the page is shown (`cg_fix_lines`), and the page's "N changes could not be made" line says so.
+- **Hand-written amounts.** An author's text that names a number the limits may cut (`"Your village loses 50
+  food."`) is story: the automatic line after it states what was really made, and is the one to trust; with
+  `(award)` the author's text itself shows the amount paid.
 - **Fit (Python, `walk`):** each effect's line at its widest -- of the lines it can give (each listed skill the game
   has, each sign of a range, every word of the game's list for a random preference), the one whose worst case is
   the longest (the first on a tie) -- so whatever Python accepts the engine can show.
@@ -1043,7 +1079,8 @@ only as far as the game's room allows, so the text says how many actually came:
   `sick`, `trait`. Never a death, a disappearance, an age, a skill, a like or dislike, a lower Faith.
 - **`faith` (code 38):** role; a = the Faith gained, 1..35 (vanilla +5..+35); b 0; no string. The game's
   FAITH_ADD `0x468020`: a Heathen whose Faith ends above 0 joins the tribe the game's own way (its message, role,
-  counters, puzzle check; below 5 becomes 55). Auto line "<R> feels closer to the tribe."
+  counters, puzzle check; below 5 becomes 55). Auto line "<R>'s Faith rises by <N>." with the Faith really gained
+  (Faith stops at 100: a villager at 100 has no line; a convert's rise to 55 is told as it is), section 25.
 - **`join` (code 39):** role; a = b = 0; no string. A Heathen joins: SetFaith `0x467F90`(20, 1), then
   `0x466880`(0), as The Defector. A believer already: nothing. Auto line "<R> joins the tribe."
 - **`apostasy` (code 40):** role (a believer's, never a Heathen's role); a = b = 0; no string. A believer becomes a

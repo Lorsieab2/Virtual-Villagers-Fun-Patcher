@@ -102,7 +102,7 @@
         "How to use: on a villager's Details screen, tick Parenting for villagers you want as parents and untick it for the rest.",
         "A baby is still not guaranteed: the game's usual chances, the population limit and huts still decide. Children are never involved.",
         "Live play, dropping villagers on each other, and pregnancies already started, are not affected.",
-        "Off by default; Owner's Defaults ticks it. Select All does not tick it."
+        "On by default, like Birth Control in the other games; Owner's Defaults and Select All tick it too."
       ]
     },
     {
@@ -290,7 +290,7 @@
     {
       "ids": ["vv1_island_event_filter_f01", "vv1_island_event_filter_f02", "vv1_island_event_filter_f03", "vv1_island_event_filter_f04", "vv1_island_event_filter_f05", "vv1_island_event_filter_f06", "vv1_island_event_filter_f07", "vv1_island_event_filter_f08", "vv1_island_event_filter_f09", "vv1_island_event_filter_f10", "vv1_island_event_filter_f11", "vv1_island_event_filter_f12", "vv1_island_event_filter_f13", "vv1_island_event_filter_f14", "vv1_island_event_filter_f15", "vv1_island_event_filter_f16", "vv1_island_event_filter_f17", "vv1_island_event_filter_f18", "vv1_island_event_filter_f19", "vv1_island_event_filter_f20", "vv1_island_event_filter_f21", "vv1_island_event_filter_f22", "vv1_island_event_filter_f23", "vv1_island_event_filter_f24", "vv1_island_event_filter_f25", "vv1_island_event_filter_f26", "vv1_island_event_filter_f27", "vv1_island_event_filter_f28", "vv2_island_event_filter_f01", "vv2_island_event_filter_f02", "vv2_island_event_filter_f03", "vv2_island_event_filter_f04", "vv2_island_event_filter_f05", "vv2_island_event_filter_f06", "vv2_island_event_filter_f07", "vv2_island_event_filter_f08", "vv2_island_event_filter_f09", "vv2_island_event_filter_f10", "vv2_island_event_filter_f11", "vv2_island_event_filter_f12", "vv2_island_event_filter_f13", "vv2_island_event_filter_f14", "vv2_island_event_filter_f15", "vv2_island_event_filter_f16", "vv2_island_event_filter_f17", "vv2_island_event_filter_f18", "vv2_island_event_filter_f19", "vv2_island_event_filter_f20", "vv2_island_event_filter_f21", "vv2_island_event_filter_f22", "vv2_island_event_filter_f23", "vv2_island_event_filter_f24", "vv2_island_event_filter_f25", "vv2_island_event_filter_f26", "vv2_island_event_filter_f27", "vv2_island_event_filter_f28", "vv3_island_event_filter_f01", "vv3_island_event_filter_f02", "vv3_island_event_filter_f03", "vv3_island_event_filter_f04", "vv3_island_event_filter_f05", "vv3_island_event_filter_f06", "vv3_island_event_filter_f07", "vv3_island_event_filter_f08", "vv3_island_event_filter_f09", "vv3_island_event_filter_f10", "vv3_island_event_filter_f11", "vv3_island_event_filter_f12", "vv3_island_event_filter_f13", "vv3_island_event_filter_f14", "vv3_island_event_filter_f15", "vv3_island_event_filter_f16", "vv3_island_event_filter_f17", "vv3_island_event_filter_f18", "vv3_island_event_filter_f19", "vv3_island_event_filter_f20", "vv3_island_event_filter_f21", "vv3_island_event_filter_f22", "vv3_island_event_filter_f23", "vv3_island_event_filter_f24", "vv3_island_event_filter_f25", "vv3_island_event_filter_f26", "vv3_island_event_filter_f27", "vv3_island_event_filter_f28", "vv4_island_event_filter_f01", "vv4_island_event_filter_f02", "vv4_island_event_filter_f03", "vv4_island_event_filter_f04", "vv4_island_event_filter_f05", "vv4_island_event_filter_f06", "vv4_island_event_filter_f07", "vv4_island_event_filter_f08", "vv4_island_event_filter_f09", "vv4_island_event_filter_f10", "vv4_island_event_filter_f11", "vv4_island_event_filter_f12", "vv4_island_event_filter_f13", "vv4_island_event_filter_f14", "vv4_island_event_filter_f15", "vv4_island_event_filter_f16", "vv4_island_event_filter_f17", "vv4_island_event_filter_f18", "vv4_island_event_filter_f19", "vv4_island_event_filter_f20", "vv4_island_event_filter_f21", "vv4_island_event_filter_f22", "vv4_island_event_filter_f23", "vv4_island_event_filter_f24", "vv4_island_event_filter_f25", "vv4_island_event_filter_f26", "vv4_island_event_filter_f27", "vv4_island_event_filter_f28", "vv5_island_event_filter_f01", "vv5_island_event_filter_f02", "vv5_island_event_filter_f03", "vv5_island_event_filter_f04", "vv5_island_event_filter_f05", "vv5_island_event_filter_f06", "vv5_island_event_filter_f07", "vv5_island_event_filter_f08", "vv5_island_event_filter_f09", "vv5_island_event_filter_f10", "vv5_island_event_filter_f11", "vv5_island_event_filter_f12", "vv5_island_event_filter_f13", "vv5_island_event_filter_f14", "vv5_island_event_filter_f15", "vv5_island_event_filter_f16", "vv5_island_event_filter_f17", "vv5_island_event_filter_f18", "vv5_island_event_filter_f19", "vv5_island_event_filter_f20", "vv5_island_event_filter_f21", "vv5_island_event_filter_f22", "vv5_island_event_filter_f23", "vv5_island_event_filter_f24", "vv5_island_event_filter_f25", "vv5_island_event_filter_f26", "vv5_island_event_filter_f27", "vv5_island_event_filter_f28"],
       "guide": [
-        "Off everywhere, Owner's Defaults too; Select All does not tick it: tick only the ones you want. In each game's Island Events section.",
+        "Off everywhere, Owner's Defaults too; Select All does not tick it: tick only the ones you want. In the Settings... window of each game's More Island Events and Creator row.",
         "A ticked filter keeps its content out of the new island events, before the random draw picks one.",
         "An outcome with that content is dropped where the event still makes sense; otherwise the event is skipped.",
         "Filters never hide a kind of person. Needs the Isola Grand Event Collection. The game's own events are unchanged. Not yet tested in play."
@@ -1103,6 +1103,24 @@
       ]
     },
     {
+      "ids": ["vv5_fog_of_doom_every_heathen_listens"],
+      "guide": [
+        "Off by default; on in Owner's Defaults; Select All does not tick it. Cast the Fog of Doom God Power first.",
+        "While its thick fog lasts, drag a believer of 14 or more onto a Heathen in an orange or red mask.",
+        "If that Heathen's Faith is below -10 they listen, just as a blue-masked Heathen does, and gain the same Faith.",
+        "From Faith -10 up they will not listen: only the Earthquake God Power raises their Faith further.",
+        "Natural fog and other weather do nothing. Blue-masked Heathens are unchanged. Not yet seen in a running game."
+      ]
+    },
+    {
+      "ids": ["vv5_fog_of_doom_no_restrictions"],
+      "guide": [
+        "Off by default and in Owner's Defaults; Select All does not tick it. Needs Fog of Doom Lets Every Heathen Listen (ticked with it).",
+        "In the Fog of Doom, orange- and red-masked Heathens listen whatever their Faith: no Earthquake is needed.",
+        "Natural fog still does nothing. Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv5_puddles_by_the_lake"],
       "guide": [
         "After The Lake has water, children still go \"Playing in puddles\" when it rains, on the lake's north-west sandy shore.",
@@ -1413,7 +1431,7 @@
   },
   "controls": {
     "partner_carry_percent": {"title": "A man may carry the baby by chance", "guide": ["In a couple's pregnancy of a new island event that allows it, how often the man carries the baby instead: 0 to 100 percent, 10 unless moved.", "Drag the slider or type the number. 0: never by chance; an event's own reason, or a choice the player makes, still can.", "He must be 18 or older and not expecting already; otherwise the woman carries as usual. Owner's Defaults: 10. Not yet tested in play."]},
-    "more_island_events_and_creator": {"title": "More Island Events and Creator", "guide": ["One tick for every island event the patcher adds: More Island Events and the Isola Grand Event Collection.", "Ticking it ticks both, with Story / Cheat Upgrades and Scrolling Popups; unticking it unticks both.", "Each can still be ticked on its own. Owner's Defaults, Select All and Classic VV Difficulty tick the whole row.", "The settings below it and the Custom Island Event Library belong to it."]},
+    "more_island_events_and_creator": {"title": "More Island Events and Creator", "guide": ["One tick for every island event the patcher adds: More Island Events and the Isola Grand Event Collection.", "Ticking it ticks both, with Story / Cheat Upgrades and Scrolling Popups; unticking it unticks both.", "Each can still be ticked on its own. Owner's Defaults, Select All and Classic VV Difficulty tick the whole row.", "Its Settings... button opens its own window: the partner-carry percent, the Custom Island Event Library, the content filters and Player Events."]},
     "island_event_content_filters": {
       "title": "Content Filters",
       "guide": [
@@ -1432,6 +1450,7 @@
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
         "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation, More Frequent Island Events,",
         "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Birth Control in The Tree of Life and New Believers,",
+        "Fog of Doom Lets Every Heathen Listen, No Restrictions on Fog of Doom Conversions,",
         "the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
       ]
     },
@@ -1446,7 +1465,7 @@
         "Up to 99 Cutting Tools/Soap/Cloth, The Golden Child May Be Born Female (50:50), Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped,",
         "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
         "Birth Control in The Tree of Life and New Believers, the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted,",
-        "Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
+        "Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors, both Fog of Doom patches."
       ]
     },
     "owners_defaults": {
@@ -1459,6 +1478,7 @@
         "That includes Story / Cheat Upgrades, Respecting the Legacy of Isola and 256 Villagers (Experimental), which uses its own save folder.",
         "It ticks the harder-game patches too, Classic VV Difficulty and 0.1-10x Tech Cost included, and sets both sliders to 2.",
         "Story / Cheat Upgrades cost Tech Points is off here (the upgrades are free). So is Island Events Scale With Stored Food and Tech Points.",
+        "No Restrictions on Fog of Doom Conversions is off here too.",
         "The island event controls: every Content Filter and No Safeguards for Island Events (and Additional Events too) are off here too; it does not change the population mode."
       ]
     },
@@ -1475,7 +1495,8 @@
         "The typeface Use Unicode Font (overrides in-game fonts) draws all of the game's text in: pick one of the fonts Windows has, or leave Segoe UI.",
         "It is written next to the game as VVFP Unicode Font.txt the next time you patch with Use Unicode Font ticked; patch again after changing it.",
         "Characters the typeface lacks come from Windows' other fonts, then the bundled open fonts (Noto, Unifont, Last Resort).",
-        "It does nothing while Render Unicode with In-Game Fonts is used instead."
+        "It does nothing while Render Unicode with In-Game Fonts is used instead.",
+        "The box is in the Settings... window beside each game's Use Unicode Font row; one typeface is shared by every game."
       ]
     },
     "meal_multiplier": {
@@ -1525,7 +1546,8 @@
         "How strongly the Village Solidarity score changes the odds of the new events and their endings: 0.1x to 10x in steps of 0.1, 1x (the normal strength) unless you move it.",
         "At 1x each point away from 50 adds 2% to a favoured event's or ending's own chance (double at 0 or 100); at 2x 4% a point, at 0.5x 1%.",
         "Nothing is ever forced and nothing else is made less likely.",
-        "It is written into each game the next time you patch with Village Solidarity ticked; patch again after changing it. It does nothing while Village Solidarity is not ticked."
+        "It is on the Difficulty Sliders page. It does nothing while Village Solidarity is not ticked.",
+        "It is written into each game the next time you patch with Village Solidarity ticked; patch again after changing it."
       ]
     },
     "tech_cost_multiplier": {
@@ -1895,7 +1917,7 @@
     "difficulty_sliders": {
       "title": "Difficulty Sliders",
       "guide": [
-        "Opens the page with every slider: Tech Cost, Hungrier Villagers, Sickness, More Frequent Island Events, Louder Wind Flutes and the five newer ones.",
+        "Opens the page with every slider: Tech Cost, Hungrier Villagers, Sickness, More Frequent Island Events, Louder Wind Flutes, Village Solidarity and the five newer ones.",
         "They are grouped by game, with each patch's name beside its slider. A slider is used only while its patch is ticked on the main page.",
         "Each reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game. A number saved above 10 is 10.",
         "One number is shared by every game that has the patch. Patch again after changing a slider."

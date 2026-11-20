@@ -286,6 +286,29 @@ def owner_titles() -> dict[str, dict[str, str]]:
 
 
 GUARDIANS_DOC = ROOT / "docs" / "event-collection" / "guardians-wording.md"
+GUARDIANS_IF = {"patch": "guardians_of_isola"}
+
+
+def guardians_split(cond) -> tuple:
+    """A pool item's "if" as (its own condition, "with" | "without" | None): "with" / "without" when it is shown only
+    with / only without Guardians of Isola Rewrite (the patch alone, or {"all": [..., the patch]})."""
+    nots = {"not": GUARDIANS_IF}
+    if cond == GUARDIANS_IF:
+        return None, "with"
+    if cond == nots:
+        return None, "without"
+    if isinstance(cond, dict) and list(cond) == ["all"] and isinstance(cond["all"], list):
+        for mark, mode in ((GUARDIANS_IF, "with"), (nots, "without")):
+            if mark in cond["all"]:
+                rest = [c for c in cond["all"] if c != mark]
+                return (rest[0] if len(rest) == 1 else ({"all": rest} if rest else None)), mode
+    return cond, None
+
+
+def guardians_cond(base, with_patch: bool) -> dict:
+    """`base` (or nothing) and Guardians of Isola Rewrite (with_patch) or its absence: a pool item's twin pair."""
+    mark = dict(GUARDIANS_IF) if with_patch else {"not": dict(GUARDIANS_IF)}
+    return mark if base is None else {"all": [base, mark]}
 
 
 @lru_cache(maxsize=None)

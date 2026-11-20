@@ -52,11 +52,16 @@
   },
   "hon02_stew_nobody": {
    "filters": [
-    "F07"
+    "F07",
+    "F20"
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F07",
+     "F20"
+    ],
+    "o1__text": [
      "F07"
     ]
    },
@@ -137,7 +142,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o2": [
+    "o2__fx": [
+     "F25"
+    ],
+    "o2__text": [
      "F25"
     ],
     "setup": [
@@ -216,10 +224,16 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
      "F20"
     ],
-    "o2": [
+    "o1__text": [
+     "F20"
+    ],
+    "o2__fx": [
+     "F20"
+    ],
+    "o2__text": [
      "F20"
     ]
    },
@@ -306,7 +320,10 @@
     "o1": [
      "F20"
     ],
-    "o2": [
+    "o2__fx": [
+     "F20"
+    ],
+    "o2__text": [
      "F20"
     ]
    },
@@ -363,10 +380,16 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
      "F20"
     ],
-    "o2": [
+    "o1__text": [
+     "F20"
+    ],
+    "o2__fx": [
+     "F20"
+    ],
+    "o2__text": [
      "F20"
     ]
    },
@@ -433,9 +456,17 @@
    ]
   },
   "hon35_do_i_snore": {
-   "filters": [],
-   "notes": [],
-   "nodes": {},
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o2__fx": [
+     "F06"
+    ]
+   },
    "speaks": [
     "subject",
     "friend"
@@ -476,7 +507,10 @@
     "o1": [
      "F20"
     ],
-    "o2": [
+    "o2__fx": [
+     "F20"
+    ],
+    "o2__text": [
      "F20"
     ]
    },
@@ -574,9 +608,17 @@
    ]
   },
   "hon50_lie_became_true": {
-   "filters": [],
-   "notes": [],
-   "nodes": {},
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1__fx": [
+     "F06"
+    ]
+   },
    "speaks": [
     "friend",
     "subject"
