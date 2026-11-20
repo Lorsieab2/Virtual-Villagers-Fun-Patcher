@@ -196,7 +196,10 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_village_solidarity")
                   # Birth Control in The Tree of Life and New Believers (new 2026-11-19: on in Owner's Defaults
                   # only); A New Home to The Secret City keep theirs on by default.
-                  or p in ("vv4_birth_control", "vv5_birth_control")})
+                  or p in ("vv4_birth_control", "vv5_birth_control")
+                  # Fog of Doom Lets Every Heathen Listen and No Restrictions on Fog of Doom Conversions (New
+                  # Believers, new 2026-11-19).
+                  or p in ("vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions")})
 
     def test_vv4_vv5_birth_control_is_on_in_owners_defaults_only(self) -> None:
         """New rows (2026-11-19), so the owner's rule for every new option: ON in Owner's Defaults, OFF in the normal
@@ -441,6 +444,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {f"vv{n}_village_solidarity" for n in range(1, 6)}
         # ...and Birth Control in The Tree of Life and New Believers (new 2026-11-19: on in Owner's Defaults only).
         held_back |= {"vv4_birth_control", "vv5_birth_control"}
+        # ...and Fog of Doom Lets Every Heathen Listen (new 2026-11-19: on in Owner's Defaults only) and its option No
+        # Restrictions on Fog of Doom Conversions (the owner: default off; off in Owner's Defaults too).
+        held_back |= {"vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions"}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)

@@ -1103,6 +1103,24 @@
       ]
     },
     {
+      "ids": ["vv5_fog_of_doom_every_heathen_listens"],
+      "guide": [
+        "Off by default; on in Owner's Defaults; Select All does not tick it. Cast the Fog of Doom God Power first.",
+        "While its thick fog lasts, drag a believer of 14 or more onto a Heathen in an orange or red mask.",
+        "If that Heathen's Faith is below -10 they listen, just as a blue-masked Heathen does, and gain the same Faith.",
+        "From Faith -10 up they will not listen: only the Earthquake God Power raises their Faith further.",
+        "Natural fog and other weather do nothing. Blue-masked Heathens are unchanged. Not yet seen in a running game."
+      ]
+    },
+    {
+      "ids": ["vv5_fog_of_doom_no_restrictions"],
+      "guide": [
+        "Off by default and in Owner's Defaults; Select All does not tick it. Needs Fog of Doom Lets Every Heathen Listen (ticked with it).",
+        "In the Fog of Doom, orange- and red-masked Heathens listen whatever their Faith: no Earthquake is needed.",
+        "Natural fog still does nothing. Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv5_puddles_by_the_lake"],
       "guide": [
         "After The Lake has water, children still go \"Playing in puddles\" when it rains, on the lake's north-west sandy shore.",
@@ -1432,6 +1450,7 @@
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
         "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation, More Frequent Island Events,",
         "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Birth Control in The Tree of Life and New Believers,",
+        "Fog of Doom Lets Every Heathen Listen, No Restrictions on Fog of Doom Conversions,",
         "the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
       ]
     },
@@ -1446,7 +1465,7 @@
         "Up to 99 Cutting Tools/Soap/Cloth, The Golden Child May Be Born Female (50:50), Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped,",
         "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
         "Birth Control in The Tree of Life and New Believers, the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted,",
-        "Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
+        "Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors, both Fog of Doom patches."
       ]
     },
     "owners_defaults": {
@@ -1459,6 +1478,7 @@
         "That includes Story / Cheat Upgrades, Respecting the Legacy of Isola and 256 Villagers (Experimental), which uses its own save folder.",
         "It ticks the harder-game patches too, Classic VV Difficulty and 0.1-10x Tech Cost included, and sets both sliders to 2.",
         "Story / Cheat Upgrades cost Tech Points is off here (the upgrades are free). So is Island Events Scale With Stored Food and Tech Points.",
+        "No Restrictions on Fog of Doom Conversions is off here too.",
         "The island event controls: every Content Filter and No Safeguards for Island Events (and Additional Events too) are off here too; it does not change the population mode."
       ]
     },

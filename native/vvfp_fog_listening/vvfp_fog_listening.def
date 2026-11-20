@@ -1,0 +1,6 @@
+LIBRARY "VVFP Fog Listening"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpFogListeningInstalled=_VvfpFogListeningInstalled@0
+    VvfpFogListeningCount=_VvfpFogListeningCount@0
+    VvfpFogListeningNoRestrictions=_VvfpFogListeningNoRestrictions@0
