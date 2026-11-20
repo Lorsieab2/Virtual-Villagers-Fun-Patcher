@@ -431,6 +431,14 @@ __declspec(dllexport) int __stdcall VvfpStoryTimeSkipNoticeShown(int game) {
     return game >= 1 && ce_notice_shown == game;
 }
 
+/* The custom-event path's state for "VVFP Island Events.dll" (Village Solidarity and the game's own events): the
+   count of popups it has filled (ce_custom_serial) times 2, plus 1 while a custom question of `game` waits for
+   its click.  Read before and after an event: a change, or the 1, means the popup was a Custom Island Event (or
+   another of this engine's events), never the game's own. */
+__declspec(dllexport) unsigned int __stdcall VvfpStoryCustomState(int game) {
+    return (ce_custom_serial << 1) | (unsigned int)(game >= 1 && ce_asked && ce_asked_game == game);
+}
+
 #ifdef VVFP_TEST
 /* Starts a skip as the purchase does, past the dialog and the prompts, at
    test tick `tick`.  Returns the first step's answer. */

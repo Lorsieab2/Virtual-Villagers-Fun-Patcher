@@ -620,6 +620,12 @@ static int ce_armed_is_notice;
    v1.35.66: "Island event 20 / Event: Time Skip / Changes: none"). */
 static int ce_notice_shown;
 
+/* How many popups the custom-event path has filled (a plain event, a question, a branching page), counted up at
+   each.  "VVFP Island Events.dll" reads it before and after a watched event (VvfpStoryCustomState): when it
+   moved, or a custom question was waiting for its click, the popup was this engine's -- whatever its title -- and
+   Village Solidarity takes no stock event's tag from it (the engine tags its own pages; the owner, 2026-11-20). */
+static unsigned int ce_custom_serial;
+
 /* Each game's Island Events Seen counter (its own eNumCrisis, the Village
    Statistics row) goes up by one in the island-event trigger just before it
    builds the event an armed custom event is delivered into -- every caller
@@ -2082,6 +2088,7 @@ static int ce_deliver(int game, char *text, int size) {
     ce_armed_is_notice = 0;
     ce_dead_firing = 0;
     ce_notice_shown = notice ? game : 0;
+    ++ce_custom_serial;
     if (ce_requeue_game == game) {
         ce_requeue_due = game;           /* the event it went ahead of comes next */
         ce_requeue_game = 0;
@@ -2599,6 +2606,7 @@ static int ce_choice_begin(int game, char *text, int size) {
     ce_armed = 0;
     ce_armed_is_choice = 0;
     ce_notice_shown = 0;              /* a player's own question, never the notice */
+    ++ce_custom_serial;
     if (ce_requeue_game == game) {
         ce_requeue_due = game;           /* the event it went ahead of comes next */
         ce_requeue_game = 0;

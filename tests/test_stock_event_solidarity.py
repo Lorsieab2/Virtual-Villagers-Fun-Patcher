@@ -125,9 +125,9 @@ class TheTable(unittest.TestCase):
         self.assertEqual(stock.tag_of(r, 2, "The Hole In The Sand", "Investigate the hole", {"sick", "sick2"}),
                          "LOWER")
         self.assertEqual(stock.tag_of(r, 2, "The Hole In The Sand", "Investigate the hole", {"sick"}), "NEUTRAL")
-        self.assertEqual(stock.tag_of(r, 1, "A Mysterious Crate", "Open it", set(), "a rotting wooden crate"),
-                         "LOWER")
-        self.assertEqual(stock.tag_of(r, 1, "A Mysterious Crate", "Open it", set(), "a small wooden crate"), "RAISE")
+        self.assertEqual(stock.tag_of(r, 1, "A Mysterious Crate", "Open it", {"hurt", "sick"}), "LOWER")
+        self.assertEqual(stock.tag_of(r, 1, "A Mysterious Crate", "Open it", {"food+"}), "RAISE")
+        self.assertFalse(any(r_.when.startswith("item:") for r_ in r))   # never the item's words: any language
         self.assertEqual(stock.tag_of(r, 3, "The Omen in the Clouds", "Warn the villagers", {"weather"}), "RAISE")
         self.assertEqual(stock.tag_of(r, 5, "Barrel O' Babies!", "", set()), "NEUTRAL")
         self.assertIsNone(stock.tag_of(r, 3, "The Aspiring Adventurer", "", set()))
@@ -206,6 +206,8 @@ class TheCompanion(unittest.TestCase):
         for game in range(1, 6):
             self.assertIn(f"every one of the {sum(rows[game].values())} rows moves the score by its own tag, "
                           "exactly once", result.stdout)
+        self.assertEqual(len(re.findall(r"^  ok   translated: ", result.stdout, re.M)), 6, result.stdout)
+        self.assertEqual(len(re.findall(r"no stock tag", result.stdout)), 2 * 2 + 3, result.stdout)
         self.assertIn("== ", result.stdout)
 
 

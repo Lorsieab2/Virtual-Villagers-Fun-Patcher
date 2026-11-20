@@ -43,7 +43,7 @@ def parse(text: str | None = None) -> list[Row]:
             raise ValueError(f"line {number}: unknown game {game!r}")
         if tag not in TAGS:
             raise ValueError(f"line {number}: the tag must be RAISE, LOWER or NEUTRAL, not {tag!r}")
-        if when not in WHENS and not (when.startswith("item:") and len(when) > 5):
+        if when not in WHENS:
             raise ValueError(f"line {number}: unknown WHEN {when!r}")
         if not title or title == "-":
             raise ValueError(f"line {number}: no title")
@@ -55,7 +55,7 @@ def parse(text: str | None = None) -> list[Row]:
     return rows
 
 
-def tag_of(rows: list[Row], game: int, title: str, answer: str, facts: set[str], item: str = "") -> str | None:
+def tag_of(rows: list[Row], game: int, title: str, answer: str, facts: set[str]) -> str | None:
     """The tag of the result shown -- the same rule the companion runs (stock_solidarity.inc): the first row of
     `game`, `title` and `answer` (spaces collapsed, a final "." dropped) whose WHEN holds; None when none does."""
     def words(s: str) -> str:
@@ -63,7 +63,7 @@ def tag_of(rows: list[Row], game: int, title: str, answer: str, facts: set[str],
     for row in rows:
         if row.game != game or words(row.title) != words(title) or words(row.answer) != words(answer):
             continue
-        if not row.when or row.when in facts or (row.when.startswith("item:") and row.when[5:] in item):
+        if not row.when or row.when in facts:
             return row.tag
     return None
 

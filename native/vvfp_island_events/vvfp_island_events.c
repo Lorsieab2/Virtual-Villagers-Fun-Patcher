@@ -147,6 +147,7 @@ static void more_village(const char *before);
 static int g_more_wrote;                  /* island_event_more.inc: the records this comparison wrote */
 /* stock_solidarity.inc: Village Solidarity moved by a stock event's result (the owner, 2026-11-20). */
 static void stock_solidarity(const struct snapshot *s);
+static void stock_begin(void);           /* ...and when a watched event begins: whose popup it is */
 
 static int readable(const void *at, size_t size) {
     MEMORY_BASIC_INFORMATION info;
@@ -702,6 +703,7 @@ static void __cdecl before_call(const unsigned int *frame, int index) {
             if (site->before != NULL) {
                 site->before(frame, &text);
             }
+            stock_begin();
             take(&g_snaps[0]);
         }
     } else if (g_watching && g_snaps[0].title[0] == '\0' && site->before != NULL

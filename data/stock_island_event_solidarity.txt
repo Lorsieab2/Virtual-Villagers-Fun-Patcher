@@ -12,8 +12,12 @@
 #
 # Columns (" | " between them):
 #   GAME    VV1 .. VV5
-#   TITLE   the event's title exactly as the game shows it (English)
-#   ANSWER  the button picked, as its label reads (a final "." dropped); "-" for an event with no choice
+#   TITLE   the event's title exactly as the game shows it in English
+#   ANSWER  the button picked, as its English label reads (a final "." dropped); "-" for an event with no choice
+#           Any language works: the companion turns the title and the label shown back into the game's own
+#           English through the game's string table (the English the exe holds, before any translation), so
+#           these are always the English words.  Only the game's own events count: a Custom Island Event (or any
+#           other event of the Story / Cheat Upgrades engine) that uses one of these titles is never tagged here.
 #   WHEN    "-" always; else what tells this result from the others behind the same title and answer, read from
 #           the village just before and just after the game applies it:
 #             food+ food-   the stored food went up / down        tech+ tech-  the tech points went up / down
@@ -21,7 +25,6 @@
 #             sick          a villager fell sick                  sick2        two or more villagers fell sick
 #             hurt          a villager lost health                healed       a villager gained health or was cured
 #             weather       the weather changed
-#             item:<word>   the item the popup names holds <word> (A New Home's crates, The Lost Children's sacks)
 #           Rows with the same GAME, TITLE and ANSWER are tried top to bottom; the first whose WHEN holds is the
 #           result shown.  Without a "-" row last, a result none of them matches moves nothing.
 #   TAG     RAISE, LOWER or NEUTRAL
@@ -82,12 +85,12 @@ VV1 | The Brass Compass | Use it to mash berries | - | RAISE | everyone's Farmin
 VV1 | The Brass Compass | Let the researchers have it | - | RAISE | tech points gained
 VV1 | The Furry Food | Remove the moldy pieces | - | LOWER | villagers fall sick (restored)
 VV1 | The Furry Food | Throw out all the food | - | LOWER | all stored food lost (restored)
-VV1 | A Mysterious Crate | Open it | item:weathered | NEUTRAL | tech points, some fall sick
-VV1 | A Mysterious Crate | Open it | item:rotting | LOWER | villagers bitten, sick and hurt
-VV1 | A Mysterious Crate | Open it | item:watertight | RAISE | infants join
-VV1 | A Mysterious Crate | Open it | item:fruit | LOWER | spiders: the opener badly hurt, can kill
-VV1 | A Mysterious Crate | Open it | item:sealed | RAISE | tech points
-VV1 | A Mysterious Crate | Open it | item:wooden | RAISE | stored food
+VV1 | A Mysterious Crate | Open it | hurt | LOWER | rotting (villagers bitten) or old fruit (spiders): the opener hurt, can kill
+VV1 | A Mysterious Crate | Open it | sick | NEUTRAL | badly weathered: tech points, some fall sick
+VV1 | A Mysterious Crate | Open it | tech+ | RAISE | carefully sealed: tech points
+VV1 | A Mysterious Crate | Open it | food+ | RAISE | wooden: stored food
+VV1 | A Mysterious Crate | Open it | joined | RAISE | watertight: infants join
+VV1 | A Mysterious Crate | Open it | - | NEUTRAL | watertight with no room: nothing
 VV1 | A Mysterious Crate | Leave it alone | - | NEUTRAL | nothing changes
 
 # ---- THE LOST CHILDREN ------------------------------------------------------------------------------------------
@@ -178,11 +181,11 @@ VV2 | The Love Note | Hide to catch the poet | - | RAISE | a baby is conceived
 VV2 | The White Pearl | Keep it for himself | - | NEUTRAL | his skills up
 VV2 | The White Pearl | Keep it for herself | - | NEUTRAL | her skills up
 VV2 | The White Pearl | Show it to the tribe | - | NEUTRAL | shared, a small tech loss
-VV2 | A Mysterious Sack | Open it | item:plastic | RAISE | stored food
-VV2 | A Mysterious Sack | Open it | item:sealed | RAISE | tech points
-VV2 | A Mysterious Sack | Open it | item:compromised | NEUTRAL | tech points, some fall sick
-VV2 | A Mysterious Sack | Open it | item:canvas | LOWER | mice bite: many sick and hurt
-VV2 | A Mysterious Sack | Open it | item:burlap | LOWER | fire ants: the opener badly hurt, can kill
+VV2 | A Mysterious Sack | Open it | hurt | LOWER | thick canvas (mice) or stained burlap (fire ants): the opener hurt, can kill
+VV2 | A Mysterious Sack | Open it | sick | NEUTRAL | somewhat compromised: tech points, some fall sick
+VV2 | A Mysterious Sack | Open it | tech+ | RAISE | carefully sealed: tech points
+VV2 | A Mysterious Sack | Open it | food+ | RAISE | thick plastic: stored food
+VV2 | A Mysterious Sack | Open it | - | NEUTRAL | nothing changed
 VV2 | A Mysterious Sack | Leave it alone | - | NEUTRAL | nothing changes
 VV2 | A Mysterious Vial | Drink the liquid | - | NEUTRAL | a new head, one skill up, or skills down
 VV2 | A Mysterious Vial | Pour it out | - | NEUTRAL | nothing changes

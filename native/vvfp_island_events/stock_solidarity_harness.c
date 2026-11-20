@@ -18,6 +18,10 @@
      4. Through the real brackets, exactly once per event shown: A New Home's encounter click, The Lost
         Children's two-choice click, and The Secret City's, The Tree of Life's and New Believers' presenter with
         the answer and OK inside it.
+     5. Any language: a stock event shown translated (the game's string table as "VVFP Translations.dll" leaves it)
+        moves the score by its English row's tag, once; words no row of the table reads as move nothing.
+     6. A Custom Island Event (the Story engine's popup) with a stock title and answer gets no stock tag; the game's
+        own event through the same routine, with that engine there, still does.
 
    Exit code 0 when every check passes. */
 #include "vvfp_island_events.c"
@@ -148,18 +152,12 @@ static void check_rows(void) {
     int i, rows = 0, right = 0;
     for (i = 0; i < STOCK_TAG_COUNT; ++i) {
         const struct stock_tag *row = &STOCK_TAGS[i];
-        char item[64];
         if (row->game != g_game) {
             continue;
         }
         ++rows;
         reset_village();
-        item[0] = '\0';
-        if (strncmp(row->when, "item:", 5) == 0) {
-            _snprintf(item, sizeof item, "a large %s thing", row->when + 5);
-            item[sizeof item - 1] = '\0';
-        }
-        begin(row->title, row->answer, item);
+        begin(row->title, row->answer, "");
         apply(row->when);
         compare(&g_snaps[0]);
         if (g_calls == 1 && g_last_tag == row->tag && strcmp(g_last_title, row->title) == 0) {
@@ -330,6 +328,189 @@ static void check_presenter(const char *title, const char *a, const char *b, int
     g_answer_self = 0;
 }
 
+/* ---- 5. Any language: a translated stock event still moves the score ----------------------------------------
+
+   The game's string table as "VVFP Translations.dll" leaves it: A New Home's and The Lost Children's rows point at
+   the translation (their English is what the executable on disk holds: g_stock_original), the later games' entries
+   keep their built-in English at +8 and the translation at +0xC.  The popup shows the translation. */
+static char g_fr_title[128], g_en_title[128], g_fr_answer[128], g_en_answer[128];
+
+static void put_row(unsigned int r, const char *now, const char *english) {
+    unsigned char *row = harness_address(STOCK_STRINGS[g_game].table + r * STOCK_STRINGS[g_game].stride);
+    memset(row, 0, STOCK_STRINGS[g_game].stride);
+    *(unsigned int *)row = 100 + r;
+    if (STOCK_STRINGS[g_game].sm) {
+        ((unsigned int *)row)[2] = (unsigned int)(uintptr_t)english;
+        ((unsigned int *)row)[3] = (unsigned int)(uintptr_t)now;
+    } else {
+        ((unsigned int *)row)[1] = (unsigned int)(uintptr_t)now;
+        g_stock_original[r] = (unsigned int)(uintptr_t)english;
+    }
+}
+
+static void clear_table(void) {
+    memset(harness_address(STOCK_STRINGS[g_game].table), 0, STOCK_STRINGS[g_game].rows * STOCK_STRINGS[g_game].stride);
+    memset(g_stock_original, 0, sizeof g_stock_original);
+    g_stock_originals = 1;
+}
+
+static void check_translated(const char *title, const char *fr_title, const char *answer_row_en,
+                             const char *answer_row_fr, const char *shown_answer, int want) {
+    int old = !STOCK_STRINGS[g_game].sm;
+    clear_table();
+    /* A New Home's and The Lost Children's event text: the title is its first line, after the game's padding. */
+    _snprintf(g_en_title, sizeof g_en_title, old ? "          %s \n\n\n\nThe words." : "%s", title);
+    _snprintf(g_fr_title, sizeof g_fr_title, old ? "          %s \n\n\n\nLes mots." : "%s", fr_title);
+    lstrcpynA(g_en_answer, answer_row_en, sizeof g_en_answer);
+    lstrcpynA(g_fr_answer, answer_row_fr, sizeof g_fr_answer);
+    put_row(3, g_fr_title, g_en_title);
+    put_row(7, g_fr_answer, g_en_answer);
+    reset_village();
+    begin(fr_title, shown_answer, "");
+    compare(&g_snaps[0]);
+    CHECK(g_calls == 1 && g_last_tag == want,
+          "translated: \"%s\" / \"%s\" (the table's \"%s\" / \"%s\") moves the score once, tag %d", fr_title,
+          shown_answer, title, answer_row_en, want);
+    /* The same words with no row of the table reading so: nothing (never a guess). */
+    clear_table();
+    reset_village();
+    begin(fr_title, shown_answer, "");
+    compare(&g_snaps[0]);
+    CHECK(g_calls == 0, "words no row of the game's table reads as move nothing");
+    clear_table();
+}
+
+static void check_translations(void) {
+    switch (g_game) {
+    case 1:
+        check_translated("The Old Drum", "Le Vieux Tambour", "Keep the drum to make music.",
+                         "Garder le tambour pour la musique.", "Garder le tambour pour la musique", 1);
+        break;
+    case 2:
+        check_translated("The Cursed Idol", "L'Idole maudite", "Make an offering of food",
+                         "Faire une offrande de nourriture", "Faire une offrande de nourriture", 2);
+        /* A row with the game's codes and a translation's select: "Agree ^ is the fastest". */
+        check_translated("The Fastest Runner", "Le Plus Rapide", "Agree ^ is the fastest",
+                         "Admettre qu'{*: il|elle} est le plus rapide", "Admettre qu'elle est le plus rapide", 3);
+        break;
+    case 3:
+        check_translated("The Hole in the Hut", "Le Trou dans la hutte", "Use beeswax", "Utiliser la cire",
+                         "Utiliser la cire", 2);
+        break;
+    case 4:
+        check_translated("The Calabash Instrument", "La Calebasse", "Fill it up to the first notch",
+                         "Remplir jusqu'au premier cran", "Remplir jusqu'au premier cran", 1);
+        break;
+    default:
+        check_translated("The Straw Hat", "Le Chapeau de paille", "Use it as a cooking strainer",
+                         "{name} s'en sert de passoire", "Kahu s'en sert de passoire", 1);
+        break;
+    }
+    g_stock_originals = 1;               /* (the table cleared: never the harness's own file) */
+}
+
+/* ---- 6. A Custom Island Event with a stock title and answer is not the game's own ----------------------------
+
+   "VVFP Story Upgrades.dll"'s VvfpStoryCustomState, stood in for: its count of popups the custom-event path
+   filled (x2) plus 1 while a custom question waits for its click. */
+static unsigned int g_story_serial;
+static int g_story_asked;
+static unsigned int __stdcall stub_custom_state(int game) {
+    (void)game;
+    return (g_story_serial << 1) | (unsigned int)(g_story_asked != 0);
+}
+
+static void deliver_custom_then_lose_food(void) {
+    ++g_story_serial;                     /* the custom-event path fills the popup */
+    *village_int("Food") -= 100;
+}
+
+static void custom_answer_then_lose_food(void) {
+    ++g_story_serial;
+    if (g_ctor_index >= 0) {
+        call_site(g_ctor_index, g_dialog, 0, 0, NULL);
+    }
+    call_site(1, g_dialog, 8, 2, NULL);
+    call_site(1, g_dialog, 8, 1, lose_food);
+}
+
+static void check_custom(void) {
+    const struct site *sites = GAME_SITES[g_game];
+    int k, click = -1;
+    g_custom_state = stub_custom_state;
+    g_story_serial = 5;
+    g_story_asked = 0;
+    if (g_game <= 2) {
+        /* A New Home's encounters, The Lost Children's two-choice events: a custom question's click (the
+           question was the engine's, waiting for its click when the click began). */
+        int site = g_game == 1 ? 1 : 2;
+        unsigned int question = g_game == 1 ? 0x74 : 0x7C, labels = g_game == 1 ? 0x4E92 : 0x4E9A;
+        const char *title = g_game == 1 ? "The Old Drum" : "The Cursed Idol";
+        const char *first = g_game == 1 ? "Keep the drum to make music" : "Make an offering of food";
+        memset(g_old_dialog, 0, sizeof g_old_dialog);
+        _snprintf((char *)g_old_dialog + question, 0x200, "            %s \n\n\n\nSome words.", title);
+        _snprintf((char *)g_old_dialog + labels, 0x100, "%s.", first);
+        *(unsigned int *)(g_old_dialog + 0x54) = 7;
+        *(unsigned int *)(g_old_dialog + 0x58) = 8;
+        g_sites[0] = &sites[site];
+        reset_village();
+        g_calls = 0;
+        g_story_asked = 1;
+        call_site(0, g_old_dialog, 8, 7, lose_food);
+        CHECK(g_calls == 0, "a Custom Island Event's question titled \"%s\", answered \"%s\": no stock tag", title,
+              first);
+        g_story_asked = 0;
+        g_calls = 0;
+        call_site(0, g_old_dialog, 8, 7, lose_food);
+        CHECK(g_calls == 1, "...the game's own \"%s\" with the Story engine there: tagged once", title);
+        /* A plain custom event filled into the island event's own popup (the constructor). */
+        g_sites[0] = &sites[0];
+        reset_village();
+        g_calls = 0;
+        begin("A Plague of Locusts", "", "");     /* the constructor's after() would name it; set directly */
+        stock_begin();
+        deliver_custom_then_lose_food();
+        g_more_entry = sites[0].entry;
+        compare(&g_snaps[0]);
+        CHECK(g_calls == 0, "a plain Custom Island Event with a stock title: no stock tag");
+        g_sites[0] = NULL;
+    } else {
+        for (k = 0; sites[k].entry != 0; ++k) {
+            if (sites[k].answer != NULL) click = k;
+        }
+        g_sites[0] = &sites[0];
+        g_sites[1] = &sites[click];
+        g_ctor_index = -1;
+        for (k = 0; sites[k].entry != 0; ++k) {
+            if (sites[k].entry == 0x417790u) {
+                g_sites[2] = &sites[k];
+                g_ctor_index = 2;
+            }
+        }
+        build_dialog(g_game == 3 ? "The Hole in the Hut" : g_game == 4 ? "The Calabash Instrument" : "The Straw Hat",
+                     g_game == 3 ? "Use beeswax" : g_game == 4 ? "Fill it up to the first notch" : "Wear it", "B");
+        reset_village();
+        g_calls = 0;
+        g_answer[0] = '\0';
+        g_answer_self = 0;
+        call_site(0, NULL, 0, 0, custom_answer_then_lose_food);
+        CHECK(g_calls == 0, "a Custom Island Event delivered by the presenter with a stock title and answer: no "
+                            "stock tag");
+        g_calls = 0;
+        g_answer[0] = '\0';
+        g_answer_self = 0;
+        call_site(0, NULL, 0, 0, answer_first_then_ok);
+        CHECK(g_calls == 1, "...the game's own event through the same presenter: tagged once");
+        g_sites[0] = g_sites[1] = g_sites[2] = NULL;
+        g_ctor_index = -1;
+        g_answer[0] = '\0';
+        g_answer_self = 0;
+    }
+    g_custom_state = NULL;
+    g_custom_looked = 0;
+    g_custom_before = 0;
+}
+
 int main(void) {
     static const char *const GAME_NAMES[GAMES + 1] = {
         "", "A New Home", "The Lost Children", "The Secret City", "The Tree of Life", "New Believers",
@@ -339,6 +520,7 @@ int main(void) {
     g_write_village = stub_write_village;
     g_score_tag = stub_tag;
     g_more_address = harness_address;
+    g_stock_originals = 1;               /* the executable's rows: the harness's tables (check_translations) */
     g_image = (unsigned char *)VirtualAlloc(NULL, 0x400000, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     g_world = (unsigned char *)VirtualAlloc(NULL, 0x40000, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     if (g_image == NULL || g_world == NULL) {
@@ -381,6 +563,8 @@ int main(void) {
                 break;
         default: check_presenter("The Straw Hat", "Wear it", "Use it as a cooking strainer", 3); break;
         }
+        check_translations();
+        check_custom();
         VirtualFree(g_array, 0, MEM_RELEASE);
     }
     printf("== %d check(s), %d failure(s) ==\n", checks, failures);
