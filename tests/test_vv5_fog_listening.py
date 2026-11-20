@@ -555,13 +555,17 @@ class Listening(unittest.TestCase):
             for role in range(12, 18):
                 for kind in ("orange", "red", "blue"):
                     with self.subTest(free=free, role=role, kind=kind):
+                        # The stock game's own handling of this Heathen (the companion not started: its site
+                        # holds the stock bytes): the Doctor and the Mommy have their own stock actions.
+                        stock = self.island(free=free, start=False)
+                        stock.weather(True, 4.0)
+                        sb, sh = stock.believer(1, devotion=90.0), stock.heathen(2, kind, -50, role=role)
+                        stock.drop(sb, sh)
                         v = self.island(free=free)
                         v.weather(True, 4.0)
                         believer, heathen = v.believer(1, devotion=90.0), v.heathen(2, kind, -50, role=role)
-                        if kind != "blue":
-                            self.refused(v, believer, heathen)
-                        else:
-                            v.drop(believer, heathen)              # the stock blue path, as without the patch
+                        v.drop(believer, heathen)
+                        self.assertEqual(v.actions, stock.actions, "the Fog changes nothing for a puzzle Heathen")
                         v.sermon_end(believer, heathen)
                         self.assertNotIn((heathen, LISTENING), v.actions, "a puzzle Heathen never listens")
                         self.assertEqual(v.faith(heathen), -50, "no Faith from a sermon")
