@@ -1359,8 +1359,8 @@ MOVE THE "PLAYING IN THE DIRT" SPOT (NEW BELIEVERS)
 In the stock game a child who plays in the dirt walks to a strip of ground
 that runs from the rainbow totem's side down across the river, so the child
 wanders through the water and ends up on the bank behind the research
-shelves. This patch makes it the flower patch east of the dirt path (the
-worn ground with the flowers, west of the flower rock; about 305 by 205, and
+shelves. This patch makes it the grass above the lake's north-west edge
+(never in the lake water, never on the Hollow Totem; about 256 by 205, and
 the child takes six random steps inside it). The game's own routine is
 recoded in its own bytes (no space is added);
 the action, its text, its sound and its length are as before. Nothing is
@@ -1481,12 +1481,13 @@ PUDDLE PLAY MOVES TO THE LAKE SHORE (NEW BELIEVERS)
 
 When it rains, children play in the puddles of the dry lake bed. Once The
 Lake holds water the normal game stops this, because they cannot swim. With
-this patch they keep playing when it rains, on the lake's north-west sandy
-shore (between the lake's west tip and the rocks with the red flower), never
-in the water. Before The Lake is filled nothing changes. Children "Playing
-in the dirt" play on that same sandy shore too, always, before and after
-The Lake is filled: each of their six steps goes to a random point along
-it. No other action changes. On by default. Cannot be used with Move the
+this patch they keep playing when it rains, on the big grass field above
+the lake's north-west edge and the sandy strip along its shore (between the
+river, the Hollow Totem and the lake), never in the water and never on the
+Hollow Totem. Before The Lake is filled nothing changes: they play in the
+dry lake bed's puddles. Children "Playing in the dirt" play on that same
+ground too, always, before and after The Lake is filled: each of their six
+steps goes to a random point of it. No other action changes. On by default. Cannot be used with Move the
 "Playing in the dirt" Spot (ticking one unticks the other).
 
 GUARDIANS OF ISOLA REWRITE (NEW BELIEVERS)
