@@ -45,6 +45,12 @@ HOSTS = {
     4: ROOT / "assets" / "origins" / "VVFP VV4 Origins Icons.dll",
     5: ROOT / "data" / "candidates" / "VVFP VV5 Task9 Origins Icons.dll",
 }
+# Other single-game companions, held to the same rule (the owner, 2026-11-18: no companion calls a getter that can
+# build the game object) though their hooks run only in play.  A file a branch does not have yet is skipped.
+OTHERS = {
+    4: (ROOT / "assets" / "cloth_sacks" / "VVFP VV4 Cloth Sacks.dll",
+        ROOT / "assets" / "empty_sources" / "VVFP VV4 Empty Sources.dll"),
+}
 LOADS = {0xB8, 0xB9, 0xBA, 0xBB, 0xBD, 0xBE, 0xBF, 0x68}   # mov r32, imm32 (not esp) / push imm32
 
 
@@ -76,6 +82,17 @@ class ShippedCompanionsNeverBuildTheGameObject(unittest.TestCase):
                 with self.subTest(dll=dll.name, getter=hex(getter)):
                     self.assertEqual(getter_loads(code, getter), [],
                                      f"{dll.name} calls the getter 0x{getter:X}: read 0x{word:X} instead")
+
+    def test_other_single_game_companions_call_no_game_object_getter_of_their_game(self):
+        for game, dlls in OTHERS.items():
+            for dll in dlls:
+                if not dll.is_file():
+                    continue
+                code = code_of(dll)
+                for getter, word in GETTERS[game].items():
+                    with self.subTest(dll=dll.name, getter=hex(getter)):
+                        self.assertEqual(getter_loads(code, getter), [],
+                                         f"{dll.name} calls the getter 0x{getter:X}: read 0x{word:X} instead")
 
     @unittest.skipUnless(all((STOCK_DIR / n).is_file() for n in EXES.values()), "the stock executables are absent")
     def test_each_address_is_that_games_building_getter_of_that_word(self):
