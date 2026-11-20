@@ -249,7 +249,8 @@ def vector_village(case: dict):
 BIND_ROLLS = {"gardening_vv3": (2, [0]), "gardening_vv3_plots": (2, [0]),
               "gaps_vv1_tribe": (0, [0]), "gaps_vv3_no_tribe": (0, [0]),
               "named_stranger_vv5": (0, [0]), "named_stranger_vv1": (0, [1]),   # the stranger's name (16)
-              "looks_vv1": (0, [0]), "looks_vv3": (0, [0]), "looks_vv5": (0, [0])}   # the subject among two
+              "looks_vv1": (0, [0]), "looks_vv3": (0, [0]), "looks_vv5": (0, [0]),   # the subject among two
+              **{f"auto_lines_best_vv{n}": (0, [0]) for n in range(1, 6)}}
 
 
 def installed(r, patches) -> None:

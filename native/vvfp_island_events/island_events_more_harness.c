@@ -172,6 +172,14 @@ static int __stdcall stub_notice_shown(int game) {
     return game >= 1 && game == g_notice_game;
 }
 
+/* A companion that keeps its event's one entry and says every popup is its own (VvfpMoreIslandEventsLogged in the
+   later games while its event is up; VvfpStoryGraphLogged). */
+static int __stdcall stub_ours(int game, const char *title) {
+    (void)game;
+    (void)title;
+    return 1;
+}
+
 static void begin(void) {
     g_outs = 0;
     g_village_outs = 0;
@@ -608,6 +616,49 @@ int main(void) {
                   && strstr(g_village_out[0], "Food:") == NULL,
                   "a food store refilled is a line (\"%s\"), and only what changed is written",
                   STORE[g_harness_game]);
+        }
+
+        /* 8. More Island Events' own event (and a branching Custom Island Event): its ending's effects bracketed by
+           VvfpIslandEventsGraphBegin / End while that companion answers "ours" to every popup (VvfpMoreIslandEventsLogged
+           does in the later games while its event is up).  The comparison is the entry's, so what changed comes back
+           -- never "Changes: none" (live v1.35.97: The Aspiring Adventurer +24144 tech points, The Troubling Signs'
+           food 264399 -> 252375 and its villagers gone, all logged "Changes: none"). */
+        {
+            static const char *const WHO[2] = { "More Island Events", "a branching Custom Island Event" };
+            int who;
+            for (who = 0; who < 2; ++who) {
+                char lines[4096];
+                int got;
+                if (who == 0) {
+                    g_more_logged = stub_ours;
+                    g_more_looked = 1;
+                } else {
+                    g_graph_logged = stub_ours;
+                    g_graph_looked = 1;
+                }
+                *(int *)food = 264399;
+                *(int *)tech = 1000;
+                g_outs = 0;
+                g_village_outs = 0;
+                CHECK(VvfpIslandEventsGraphBegin(g_harness_game) == 1, "%s's ending: the village taken", WHO[who]);
+                *(int *)tech += 24144;
+                *(int *)food = 252375;
+                slot(1)[present] = 0;
+                got = VvfpIslandEventsGraphEnd(g_harness_game, lines, (int)sizeof lines);
+                CHECK(got > 0 && strstr(lines, "  Village: Tech points 1000 -> 25144\n") != NULL
+                      && strstr(lines, "  Village: Food 264399 -> 252375\n") != NULL
+                      && strstr(lines, "  Ana: Gone\n") != NULL && g_outs == 0 && g_village_outs == 0,
+                      "...what it changed comes back as the entry's lines (\"Village: Tech points 1000 -> 25144\", "
+                      "\"Village: Food 264399 -> 252375\", \"Ana: Gone\"), no record of its own");
+                slot(1)[present] = 1;
+                begin();
+                *(int *)tech += 5;
+                compare(&g_snaps[0]);
+                CHECK(g_outs == 0 && g_village_outs == 0,
+                      "...and the game's own bracket around its popup still writes nothing");
+                g_more_logged = NULL;
+                g_graph_logged = NULL;
+            }
         }
 
         VirtualFree(g_array, 0, MEM_RELEASE);

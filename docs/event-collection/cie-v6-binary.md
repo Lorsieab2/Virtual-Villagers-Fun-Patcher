@@ -818,7 +818,7 @@ smallest change of a group's range); the full table is `CG_AUTO_LINES` (`story_g
 | health (set) | `R's health is now N.` |
 | health_change, gain / loss | `R gains N health.` / `R loses N health.` |
 | skill, gain / loss | `R gains N S skill.` / `R loses N S skill.` |
-| skill, the villager's best | `R gains N skill in what P does best.` / `R loses N skill in what P does best.` |
+| skill, the villager's best | `R gains N skill in what H does best.` / `R loses N skill in what H does best.` (`H` the villager's he/she, a subject pronoun; a group: `what they do best`) |
 | skill_set, 100 / 0 / other | `R masters S.` / `R loses all S skill.` / `R's S skill is now N.` |
 | faith (New Believers) | `R's Faith rises by N.` |
 | damage | `A building loses N% of its construction.` (A New Home, The Lost Children: `N percent`) |
@@ -1216,7 +1216,7 @@ B flags, B byte 3, i a, i b, H string, H last`):**
   skill at 50 or more, last H the skill name's string; 3 N villagers at random, last H = N, 1..255). Byte 3 and the
   last H are 0 on every other effect (change_age's cap aside). No automatic line from the compiler (the engine's).
 - **The best skill:** skill (9) and skill set (15) with `"best": true` in place of the skills: flags bit 32, the
-  string "best"; line "<R> gets better at what <P> does best.".
+  string "best"; line "<R> gains <N> skill in what <H> does best." (<H> the role's he/she).
 - **The event's new villagers:** `"$newest"` (role byte 253) and `"$previous"` (252), the villagers this event's
   new_villager or clone made, stand for a role in any villager effect, as a pregnant / nursing partner (a) and as
   new_villager's `copy_of`; no role is declared for them. new_villager also takes `"sex": "male" | "female"` (b;
