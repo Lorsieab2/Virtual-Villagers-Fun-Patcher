@@ -363,6 +363,17 @@ NEW_NAME = {
                     "effects": [{"do": "sex_change", "role": "subject"}]}},
 }
 AUTO_LIKES = ["likes:subject:ants", "likes:subject:crowds", "dislikes:subject:resting", "harmable:subject"]
+# cie-v6-binary.md 25: the best-skill lines name the villager's pronoun as a SUBJECT, "what he/she does best" (live
+# v1.35.97, The Teaching Day in A New Home: "gains 15 skill in what his does best"); a gain and a loss, a man and a
+# woman.
+BEST = {
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Teaching Day Test", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager", "min_age": 14}, "friend": {"kind": "villager", "min_age": 14}},
+    "start": "p",
+    "nodes": {"p": {"text": "(Name) teaches (friend) all day.", "auto_text": True,
+                    "effects": [{"do": "skill", "role": "subject", "best": True, "min": 5, "max": 10},
+                                {"do": "skill", "role": "friend", "best": True, "min": -10, "max": -5}]}},
+}
 
 
 def binding(spec: dict) -> dict:
@@ -485,6 +496,13 @@ def vector_cases() -> list[dict]:
            "facts": None} for n in range(1, 6)],
         {"name": "auto_lines_vv5", "graph": AUTO, "game": 5, "unicode": False, "rolls": [29, 40, 1, 4, 3],
          "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": None},
+    ] + [
+        # the best-skill lines' subject pronoun, he and she, in every game
+        {"name": f"auto_lines_best_vv{n}", "graph": BEST, "game": n, "unicode": False, "rolls": [3, 2],
+         "bindings": {"subject": {"name": "Bo" if n % 2 else "Ana", "sex": "m" if n % 2 else "f"},
+                      "friend": {"name": "Ana" if n % 2 else "Bo", "sex": "f" if n % 2 else "m"}},
+         "answers": [], "facts": None}
+        for n in range(1, 6)
     ] + [
         {"name": f"birth_then_die_vv{n}", "graph": BIRTH, "game": n, "unicode": False, "rolls": [],
          "bindings": {"mother": {"name": "Ana", "sex": "f"}, "friend": {"name": "Bo", "sex": "m"}},

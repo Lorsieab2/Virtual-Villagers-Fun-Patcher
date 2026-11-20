@@ -3290,7 +3290,9 @@ def _resolved_children(node: dict, ctx: Context, visited: tuple[str, ...]) -> li
 
 # ---- Automatic outcome lines (cie-v6-binary.md 25) ------------------------------------------------------------------
 #
-# <R> is the effect's role's name placeholder, <P> its his/her, <S> the skill's name and <W> the preference word as the
+# <R> is the effect's role's name placeholder, <P> its his/her (a possessive: "shakes <P> head"), <H> its he/she (a
+# subject: "what <H> does best" -- never <P> there, live v1.35.97: "in what his does best"; a group's line says "what
+# they do best"), <S> the skill's name and <W> the preference word as the
 # game lists them.  The keys and lines are pinned equal to story_graph.inc CG_AUTO_LINES (tests/test_cie_graph_v6.py).
 
 AUTO_LINES = {
@@ -3332,7 +3334,7 @@ AUTO_LINES = {
     "cure": "<R> is cured.",
     "young_look": "<R> looks younger.",
     "repair": "The damaged buildings are being repaired.",
-    "skill_best": "<R> gains <N> skill in what <P> does best.",
+    "skill_best": "<R> gains <N> skill in what <H> does best.",
     # the people effects (codes 28-33)
     "pregnant": "<R> is expecting a baby.",
     "nursing": "<R> is caring for a baby.",
@@ -3395,7 +3397,7 @@ AUTO_LINES = {
     # villager's name.  Added at the end: the lines above keep their places (their translation keys).
     "tech1+": "The village gains 1 tech point.",
     "tech1-": "The village loses 1 tech point.",
-    "skill_best-": "<R> loses <N> skill in what <P> does best.",
+    "skill_best-": "<R> loses <N> skill in what <H> does best.",
     "group_skill+": "<C> villagers each gain <N> <S> skill.",
     "group_skill-": "<C> villagers each lose <N> <S> skill.",
     "group_skill+r": "<C> villagers gain <L> to <N> <S> skill.",
@@ -3450,7 +3452,8 @@ def _auto_fill(key: str, role: str | None, skill: str = "", word: str = "", numb
         key = "tech1" + key[-1]
     line = AUTO_LINES[key]
     if role is not None:
-        line = line.replace("<R>", f"({role}.Name)").replace("<P>", f"({role}.his/her)")
+        line = (line.replace("<R>", f"({role}.Name)").replace("<P>", f"({role}.his/her)")
+                .replace("<H>", f"({role}.he/she)"))
     if other is not None:
         line = line.replace("<Q>", f"({other}.Name)")
     return line.replace("<S>", skill).replace("<W>", word).replace("<N>", str(abs(number or 0)))
@@ -5517,8 +5520,9 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             lo, hi, _w = village_args(e)              # 35: a fixed step or the weather (lo == hi) takes no roll
             return [lo + below(hi - lo + 1), 0]
         if do == "skill":
-            have = [s for s in e["skills"] if s in gm.skills]
-            va = gm.skills.index(have[below(len(have))]) if have else -1
+            # the villager's own highest skill: chosen when the effect is made, -2 and no roll (cg_roll_effect)
+            have = [] if e.get("best") else [s for s in e["skills"] if s in gm.skills]
+            va = -2 if e.get("best") else gm.skills.index(have[below(len(have))]) if have else -1
             if "set" in e:
                 return [va, e["set"]]
             return [va, e["min"] + below(e["max"] - e["min"] + 1)]

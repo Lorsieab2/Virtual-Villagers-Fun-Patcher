@@ -7437,7 +7437,9 @@ static int cg_award_before(const cg_history *h, int upto, int *kind, int *amount
    popup and the place in it its effects go with. */
 static int cg_group_in_question;       /* the first popup is shown in the answered question's own popup (14) */
 
-/* cie-v6-binary.md 25: the automatic outcome lines.  <R> the effect's role's name placeholder, <P> its his/her, <S>
+/* cie-v6-binary.md 25: the automatic outcome lines.  <R> the effect's role's name placeholder, <P> its his/her (a
+   possessive: "shakes <P> head"), <H> its he/she (a subject: "what <H> does best" -- never <P> there, live v1.35.97:
+   "in what his does best"; a group's line says "what they do best"), <S>
    the skill's name and <W> the preference word as the game lists them.  Pinned equal to src/vv_cie_graph.py
    AUTO_LINES by tests/test_cie_graph_v6.py. */
 static const char *const CG_AUTO_LINES[][2] = {
@@ -7478,7 +7480,7 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "cure", "<R> is cured." },
     { "young_look", "<R> looks younger." },
     { "repair", "The damaged buildings are being repaired." },
-    { "skill_best", "<R> gains <N> skill in what <P> does best." },
+    { "skill_best", "<R> gains <N> skill in what <H> does best." },
     { "pregnant", "<R> is expecting a baby." },
     { "nursing", "<R> is caring for a baby." },
     { "clone", "A double of <R> appears." },
@@ -7537,7 +7539,7 @@ static const char *const CG_AUTO_LINES[][2] = {
        one villager's name.  Added at the end: the lines above keep their places (their translation keys). */
     { "tech1+", "The village gains 1 tech point." },
     { "tech1-", "The village loses 1 tech point." },
-    { "skill_best-", "<R> loses <N> skill in what <P> does best." },
+    { "skill_best-", "<R> loses <N> skill in what <H> does best." },
     { "group_skill+", "<C> villagers each gain <N> <S> skill." },
     { "group_skill-", "<C> villagers each lose <N> <S> skill." },
     { "group_skill+r", "<C> villagers gain <L> to <N> <S> skill." },
@@ -7598,9 +7600,9 @@ static void cg_auto_add(char *out, int cap, const char *key, int role, const cha
             if (t[1] == 'N') {
                 wsprintfA(digits, "%d", number < 0 ? -number : number);   /* never signed: the verb says which */
             }
-            put = t[1] == 'R' || t[1] == 'P' || t[1] == 'Q' ? "(" : t[1] == 'S' ? skill : t[1] == 'W' ? word
-                : t[1] == 'N' ? digits : NULL;
-            tail = t[1] == 'R' || t[1] == 'Q' ? ".Name)" : t[1] == 'P' ? ".his/her)" : "";
+            put = t[1] == 'R' || t[1] == 'P' || t[1] == 'H' || t[1] == 'Q' ? "(" : t[1] == 'S' ? skill
+                : t[1] == 'W' ? word : t[1] == 'N' ? digits : NULL;
+            tail = t[1] == 'R' || t[1] == 'Q' ? ".Name)" : t[1] == 'P' ? ".his/her)" : t[1] == 'H' ? ".he/she)" : "";
         }
         if (put == NULL) {
             line[n++] = *t;
@@ -7611,7 +7613,7 @@ static void cg_auto_add(char *out, int cap, const char *key, int role, const cha
         }
         lstrcpyA(line + n, put);
         n += lstrlenA(put);
-        if (t[1] == 'R' || t[1] == 'P' || t[1] == 'Q') {
+        if (t[1] == 'R' || t[1] == 'P' || t[1] == 'H' || t[1] == 'Q') {
             lstrcpyA(line + n, t[1] == 'Q' ? oid : id);
             n += lstrlenA(t[1] == 'Q' ? oid : id);
             lstrcpyA(line + n, tail);

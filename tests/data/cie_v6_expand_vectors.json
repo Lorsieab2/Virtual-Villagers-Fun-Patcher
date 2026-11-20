@@ -6963,6 +6963,466 @@
    }
   },
   {
+   "name": "auto_lines_best_vv1",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Teaching Day Test",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     },
+     "friend": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) teaches (friend) all day.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "skill",
+        "role": "subject",
+        "best": true,
+        "min": 5,
+        "max": 10
+       },
+       {
+        "do": "skill",
+        "role": "friend",
+        "best": true,
+        "min": -10,
+        "max": -5
+       }
+      ]
+     }
+    }
+   },
+   "game": 1,
+   "unicode": false,
+   "rolls": [
+    3,
+    2
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Bo",
+     "sex": "m"
+    },
+    "friend": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [
+     [
+      -2,
+      8
+     ],
+     [
+      -2,
+      -8
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Bo teaches Ana all day.\nBo gains 8 skill in what he does best.\nAna loses 8 skill in what she does best."
+    ],
+    "titles": [
+     "The Teaching Day Test"
+    ],
+    "labels": [],
+    "rolls_used": 2,
+    "cieg_sha256": "f764d21cf5454fe153637fbde4fcf32f1f3a7a0d934354f4992769f6d9d0efa8"
+   }
+  },
+  {
+   "name": "auto_lines_best_vv2",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Teaching Day Test",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     },
+     "friend": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) teaches (friend) all day.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "skill",
+        "role": "subject",
+        "best": true,
+        "min": 5,
+        "max": 10
+       },
+       {
+        "do": "skill",
+        "role": "friend",
+        "best": true,
+        "min": -10,
+        "max": -5
+       }
+      ]
+     }
+    }
+   },
+   "game": 2,
+   "unicode": false,
+   "rolls": [
+    3,
+    2
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "friend": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [
+     [
+      -2,
+      8
+     ],
+     [
+      -2,
+      -8
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana teaches Bo all day.\nAna gains 8 skill in what she does best.\nBo loses 8 skill in what he does best."
+    ],
+    "titles": [
+     "The Teaching Day Test"
+    ],
+    "labels": [],
+    "rolls_used": 2,
+    "cieg_sha256": "f764d21cf5454fe153637fbde4fcf32f1f3a7a0d934354f4992769f6d9d0efa8"
+   }
+  },
+  {
+   "name": "auto_lines_best_vv3",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Teaching Day Test",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     },
+     "friend": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) teaches (friend) all day.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "skill",
+        "role": "subject",
+        "best": true,
+        "min": 5,
+        "max": 10
+       },
+       {
+        "do": "skill",
+        "role": "friend",
+        "best": true,
+        "min": -10,
+        "max": -5
+       }
+      ]
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [
+    3,
+    2
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Bo",
+     "sex": "m"
+    },
+    "friend": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [
+     [
+      -2,
+      8
+     ],
+     [
+      -2,
+      -8
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Bo teaches Ana all day.\nBo gains 8 skill in what he does best.\nAna loses 8 skill in what she does best."
+    ],
+    "titles": [
+     "The Teaching Day Test"
+    ],
+    "labels": [],
+    "rolls_used": 2,
+    "cieg_sha256": "f764d21cf5454fe153637fbde4fcf32f1f3a7a0d934354f4992769f6d9d0efa8"
+   }
+  },
+  {
+   "name": "auto_lines_best_vv4",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Teaching Day Test",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     },
+     "friend": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) teaches (friend) all day.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "skill",
+        "role": "subject",
+        "best": true,
+        "min": 5,
+        "max": 10
+       },
+       {
+        "do": "skill",
+        "role": "friend",
+        "best": true,
+        "min": -10,
+        "max": -5
+       }
+      ]
+     }
+    }
+   },
+   "game": 4,
+   "unicode": false,
+   "rolls": [
+    3,
+    2
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "friend": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [
+     [
+      -2,
+      8
+     ],
+     [
+      -2,
+      -8
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana teaches Bo all day.\nAna gains 8 skill in what she does best.\nBo loses 8 skill in what he does best."
+    ],
+    "titles": [
+     "The Teaching Day Test"
+    ],
+    "labels": [],
+    "rolls_used": 2,
+    "cieg_sha256": "f764d21cf5454fe153637fbde4fcf32f1f3a7a0d934354f4992769f6d9d0efa8"
+   }
+  },
+  {
+   "name": "auto_lines_best_vv5",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Teaching Day Test",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     },
+     "friend": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) teaches (friend) all day.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "skill",
+        "role": "subject",
+        "best": true,
+        "min": 5,
+        "max": 10
+       },
+       {
+        "do": "skill",
+        "role": "friend",
+        "best": true,
+        "min": -10,
+        "max": -5
+       }
+      ]
+     }
+    }
+   },
+   "game": 5,
+   "unicode": false,
+   "rolls": [
+    3,
+    2
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Bo",
+     "sex": "m"
+    },
+    "friend": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [
+     [
+      -2,
+      8
+     ],
+     [
+      -2,
+      -8
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Bo teaches Ana all day.\nBo gains 8 skill in what he does best.\nAna loses 8 skill in what she does best."
+    ],
+    "titles": [
+     "The Teaching Day Test"
+    ],
+    "labels": [],
+    "rolls_used": 2,
+    "cieg_sha256": "f764d21cf5454fe153637fbde4fcf32f1f3a7a0d934354f4992769f6d9d0efa8"
+   }
+  },
+  {
    "name": "birth_then_die_vv1",
    "graph": {
     "format": "vvfp-cie-graph",
