@@ -97,7 +97,24 @@ class ValueTests(unittest.TestCase):
 
     RANGES = {"vv1": [(0, 5000), (0, 800)], "vv2": [(0, 1500), (0, 2200), (0, 1000), (0, 800)],
               "vv3": [(0, 1000)] * 3 + [(0, 2)] * 3 + [(0, 3000)],
-              "vv4": [(0, 1000), (0, 6), (0, 99)], "vv5": [(0, 1000), (0, 800)]}
+              "vv4": [(0, 1000), (0, 99), (0, 99)], "vv5": [(0, 1000), (0, 800)]}
+    # What the game itself keeps: VV4's cutting tools are offered 0-99 but set to at most 6 unless
+    # "VVFP VV4 Supply Cap.dll" (Up to 99 Cutting Tools/Soap/Cloth) is loaded (the owner, 2026-11-18; 496d4667d).
+    KEPT = {("vv4", 1): 6}
+
+    def test_vv4_cutting_tools_reach_99_only_with_the_supply_cap_companion(self):
+        if not have_stock("vv4"):
+            self.skipTest("no stock executable")
+        for loaded, want in ((False, 6), (True, 99)):
+            s = story("vv4")
+            if loaded:
+                p = s.proc
+                p._api_GetModuleHandleW = lambda: (
+                    (0x10000000 if p.wstring(p.arg(0)) == "VVFP VV4 Supply Cap.dll" else 0)
+                    if p.arg(0) else 0x400000, 4)
+            with self.subTest(supply_cap=loaded):
+                ok, r, _ = s.apply(Event(values=[(1, 99)]))
+                self.assertEqual((r["refused"], i32(s.proc, 0x4D8618)), (0, want))
 
     def test_each_store_is_set_within_the_games_own_range_and_nothing_else_changes(self):
         for game in GAMES:
@@ -105,6 +122,7 @@ class ValueTests(unittest.TestCase):
                 continue
             for which, va, enable in self._fields(s := story(game)):
                 low, high = self.RANGES[game][which]
+                kept = self.KEPT.get((game, which), high)
                 with self.subTest(game=game, value=which):
                     if game == "vv3":
                         s.proc.put32(0x594844, 0)          # no tree planted yet
@@ -118,14 +136,14 @@ class ValueTests(unittest.TestCase):
                     for amount in (low, high, (low + high) // 2):
                         ok, r, _ = s.apply(Event(values=[(which, amount)]))
                         self.assertEqual(r["refused"], 0)
-                        self.assertEqual(i32(s.proc, va), amount)
+                        self.assertEqual(i32(s.proc, va), min(amount, kept))
                     after = s.proc.read(va - 64, 128)
                     self.assertEqual(before[:64] + before[68:], after[:64] + after[68:],
                                      "only the store itself is written")
                     for bad in (low - 1, high + 1):
                         ok, r, _ = s.apply(Event(values=[(which, bad)]))
                         self.assertEqual(r["refused"], 1, f"{bad} is outside {low}-{high}")
-                        self.assertEqual(i32(s.proc, va), (low + high) // 2)
+                        self.assertEqual(i32(s.proc, va), min((low + high) // 2, kept))
 
     def test_a_count_below_zero_is_an_amount_not_missing(self):
         """The game's own counts can go below 0 (The Lost Children's fish,
@@ -159,7 +177,7 @@ class ValueTests(unittest.TestCase):
                         self.assertEqual(i32(s.proc, out), now)
                         ok, r, _ = s.apply(Event(values=[(which, high)]))
                         self.assertEqual(r["refused"], 0, f"a count of {now} is replaced")
-                        self.assertEqual(i32(s.proc, va), high)
+                        self.assertEqual(i32(s.proc, va), min(high, self.KEPT.get((game, which), high)))
             self.assertEqual(s.proc.export("VvfpStoryProbeValue", s.n, len(self.RANGES[game]), out), 0xFFFFFFFF,
                              "no such amount")
 
@@ -761,7 +779,14 @@ def stub_clock(s):
     elif g == "vv2":
         s.proc.stub(0x403200, lambda q: (NOW, 0))
     else:
-        world = s.proc.alloc(0x100)
+        # The companion reads the game object's word and never calls its getter, which could build it (the owner,
+        # 2026-11-18; tests/test_story_host_callbacks_never_build.py pins that): the clock answers for the object
+        # the word holds -- the fixture's own VV4 / VV5 world, or one put there for VV3.
+        word = {"vv3": 0x4B309C, "vv4": 0x4CB51C, "vv5": 0x4DACE0}[g]
+        world = s.proc.u32(word)
+        if world == 0:
+            world = s.proc.alloc(0x13000)
+            s.proc.put32(word, world)
         getter(s, {"vv3": 0x428B60, "vv4": 0x41FE70, "vv5": 0x425950}[g], world)
         clock = {"vv3": 0x403330, "vv4": 0x403750, "vv5": 0x4036E0}[g]
         s.proc.stub(clock, lambda q: (NOW if q.reg("ecx") == world else 0, 0))
