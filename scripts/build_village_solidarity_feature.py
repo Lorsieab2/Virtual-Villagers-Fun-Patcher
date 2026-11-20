@@ -1,7 +1,7 @@
 """Write data/vv<N>_village_solidarity_feature.json: "Village Solidarity", all five games (the owner, 2026-11-17).
 
-The row ships "VVFP Village Solidarity.dll" (native/vvfp_village_solidarity), started by VVFP Startup.dll from its
-third word.  The village's 0-100 score (kept outside the save) is moved by the new events' pages tagged "solidarity"
+The row ships "VVFP Village Solidarity.dll" (native/vvfp_village_solidarity), started by VVFP More
+Companions.dll from the third word.  The village's 0-100 score (kept outside the save) is moved by the new events' pages tagged "solidarity"
 (raise / lower / neutral, src/vv_cie_graph.py) and changes ONLY the odds of the patcher's own events and endings
 (native/vvfp_story_upgrades asks the companion's factor).  Its strength is the row's slider (0.1x to 10x, 1 the
 normal strength), written beside the DLL as "VVFP Village Solidarity.txt" (src/vv_village_scores.py).  The Tech
@@ -55,8 +55,8 @@ DESCRIPTION = (
     "in their files. **Needs Story / Cheat Upgrades (on by default), which runs the new events; ticking this ticks "
     "it.** **Works the same in every population mode.** "
     "**On in Owner's Defaults; off in the normal defaults and in Select All.** The companions are \"" + DLL_NAME
-    + "\" and \"" + ISLAND_EVENTS_DLL + "\" (which reads the results of the game's own events), started by VVFP "
-    "Startup.dll; the save is never written."
+    + "\" (started by VVFP More Companions.dll) and \"" + ISLAND_EVENTS_DLL + "\" (which reads the results of the game's "
+    "own events, started by VVFP Startup.dll); the save is never written."
 )
 
 
@@ -157,7 +157,7 @@ def row(game: int, dll_sha: str) -> dict:
         "patches": [],
         "runtime_detours": [
             {"va": f"0x{va:06X}", "stock_bytes": stock, "routine": what,
-             "installed_by": f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, third word)"}
+             "installed_by": f"{DLL_NAME}, VvfpStartup (started by VVFP More Companions.dll, third word)"}
             for va, stock, what in sites
         ] + [
             {"va": f"{va:#x}", "stock_bytes": stock, "routine": what,

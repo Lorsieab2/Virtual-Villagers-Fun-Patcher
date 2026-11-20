@@ -7,8 +7,8 @@ tools or sacks on their own" (only a villager the player drops makes a sack) and
 harvesting with less than 3 fruit, so should the sacks" (no fruit check at the drop).  On by default (the owner,
 2026-11-18) and in Owner's Defaults.
 
-"VVFP VV4 Cloth Sacks.dll" (native/vvfp_vv4_cloth_sacks) does it at run time, started by VVFP Startup.dll from its
-second word; its source says what it changes and why.  tests/test_vv4_cloth_sacks.py proves it by emulation.
+"VVFP VV4 Cloth Sacks.dll" (native/vvfp_vv4_cloth_sacks) does it at run time, started by VVFP More
+Companions.dll from the third word; its source says what it changes and why.  tests/test_vv4_cloth_sacks.py proves it by emulation.
 
 One command after the DLL's source changes: this script builds it (scripts/build_vvfp_vv4_cloth_sacks.ps1)
 and pins it and the sack pictures by SHA-256.  --no-build pins what is already built.
@@ -35,7 +35,7 @@ ID = "vv4_cloth_sacks_for_yellow_fruit"
 NAME = "Cloth Sacks for Yellow Fruit"
 DLL_NAME = "VVFP VV4 Cloth Sacks.dll"
 DLL = ROOT / "assets" / "cloth_sacks" / DLL_NAME
-INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, third word)"
+INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP More Companions.dll, third word)"
 # (the shipped picture, the owner's art it is made from)
 PICTURES = (("vvfp_sack_empty.png", "sack_empty.png"),
             ("vvfp_sack_yellow_fruit_raw.png", "sack_yellow_fruit_raw.png"),
@@ -113,7 +113,7 @@ def description() -> str:
         "the villager's place at the pit is kept from the drop, so the pit cannot fill up while the sack is made. Only a villager you drop at the hut makes a sack: farmers who "
         "decide to farm by themselves never do, as they never harvest with a cutting tool. The sacks are drawn with Lorsieab2's art, the size of the game's other carried items: the empty sack, the sack of shaken fruit carried to the Cooking Pit and the sack of cooked fruit carried to the food bin, all three at one scale and standing on one line, so the sack itself is the same size in every state. Nothing is written to the save or anywhere else. "
         "**Needs no other patch.** **On by default (and in Owner's Defaults).** **Unverified in play: the effect "
-        f"has not been tested live.** The companion is \"{DLL_NAME}\", started by VVFP Startup.dll; if the DLL "
+        f"has not been tested live.** The companion is \"{DLL_NAME}\", started by VVFP More Companions.dll; if the DLL "
         "cannot be loaded, the stock game runs."
     )
 

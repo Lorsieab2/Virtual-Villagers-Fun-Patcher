@@ -3,8 +3,8 @@
 The owner (2026-11-17): storage for cutting tools, soap and cloth bolts goes from the stock cap of 6 up to 99, and the
 stacked pictures look exactly as with 6 when more are stored.  Off by default, on in Owner's Defaults.
 
-"VVFP VV4 Supply Cap.dll" (native/vvfp_vv4_supply_cap) does it at run time, started by VVFP Startup.dll from its
-second word; its source lists every site and why.  tests/test_vv4_supply_cap.py proves it by emulation.
+"VVFP VV4 Supply Cap.dll" (native/vvfp_vv4_supply_cap) does it at run time, started by VVFP More
+Companions.dll from the third word; its source lists every site and why.  tests/test_vv4_supply_cap.py proves it by emulation.
 
 One command after the DLL's source changes: this script builds it (scripts/build_vvfp_vv4_supply_cap.ps1) and pins
 it by SHA-256.  --no-build pins what is already built.
@@ -22,7 +22,7 @@ ID = "vv4_up_to_99_supplies"
 NAME = "Up to 99 Cutting Tools/Soap/Cloth"
 DLL_NAME = "VVFP VV4 Supply Cap.dll"
 DLL = ROOT / "assets" / "supply_cap" / DLL_NAME
-INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, third word)"
+INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP More Companions.dll, third word)"
 
 # (VA, stock bytes, written bytes or None for a jump, the routine)
 SITES = (
@@ -53,7 +53,7 @@ def description() -> str:
         "no other patch.** **Off by default; Owner's Defaults ticks it.** Without the patch, a save holding more "
         "than 6 keeps its count until the next use puts it back to 6, as the normal game does. **Unverified in "
         f"play: the effect has not been tested live.** The companion is \"{DLL_NAME}\", started by VVFP "
-        "Startup.dll; if the DLL cannot be loaded, the stock game runs."
+        "More Companions.dll; if the DLL cannot be loaded, the stock game runs."
     )
 
 

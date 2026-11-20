@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv4",
   "name": "Up to 99 Cutting Tools/Soap/Cloth",
-  "description": "Cutting tools and cloth bolts can be stored up to 99 instead of 6. They are still made 3 at a time (a villager at the fish skeleton makes 3 cutting tools, a villager storing finished cloth adds 3 bolts), and every use takes one as before; the count never goes above 99. The stock game also put the count back to 6 whenever one was used: no longer. Soap was never limited to 6 in the stock game, so it needs no change. The stacked pictures look exactly as with 6 when more are stored: the row of cutting tools shows at most 6, the Clothing Hut at most 6 bolts, and the soap at most 3 bars, as in the normal game. Pointing at the cutting tools or the Clothing Hut still shows how many there are (\"Cutting tools left: 23\"). The count is the game's own, saved in the save as before (a whole number, so 99 saves and loads as it is). **Needs no other patch.** **Off by default; Owner's Defaults ticks it.** Without the patch, a save holding more than 6 keeps its count until the next use puts it back to 6, as the normal game does. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP VV4 Supply Cap.dll\", started by VVFP Startup.dll; if the DLL cannot be loaded, the stock game runs.",
+  "description": "Cutting tools and cloth bolts can be stored up to 99 instead of 6. They are still made 3 at a time (a villager at the fish skeleton makes 3 cutting tools, a villager storing finished cloth adds 3 bolts), and every use takes one as before; the count never goes above 99. The stock game also put the count back to 6 whenever one was used: no longer. Soap was never limited to 6 in the stock game, so it needs no change. The stacked pictures look exactly as with 6 when more are stored: the row of cutting tools shows at most 6, the Clothing Hut at most 6 bolts, and the soap at most 3 bars, as in the normal game. Pointing at the cutting tools or the Clothing Hut still shows how many there are (\"Cutting tools left: 23\"). The count is the game's own, saved in the save as before (a whole number, so 99 saves and loads as it is). **Needs no other patch.** **Off by default; Owner's Defaults ticks it.** Without the patch, a save holding more than 6 keeps its count until the next use puts it back to 6, as the normal game does. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP VV4 Supply Cap.dll\", started by VVFP More Companions.dll; if the DLL cannot be loaded, the stock game runs.",
   "output_tag": "Up to 99 Supplies",
   "dependencies": [],
   "behavior_changes": [
@@ -33,35 +33,35 @@
       "stock_bytes": "B8060000003946047E03894604",
       "written_bytes": "B8630000003946047E03894604",
       "routine": "the cutting tools' produce 0x431400 (count += 3 at 0x43140F), its cap: mov eax, 6 -> 99",
-      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
+      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
     },
     {
       "va": "0x4368E2",
       "stock_bytes": "B8060000003946047E2D894604",
       "written_bytes": "B8630000003946047E2D894604",
       "routine": "the cloth's produce 0x436890 (count += 3 at 0x4368C2), its cap: mov eax, 6 -> 99",
-      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
+      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
     },
     {
       "va": "0x436A09",
       "stock_bytes": "83F8067E0AC7410406000000",
       "written_bytes": "83F8637E0AC7410463000000",
       "routine": "the tools' and cloth's use-up 0x4369F0 (count -= n), its clamp to 6 after each use -> 99",
-      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
+      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
     },
     {
       "va": "0x4314C8",
       "stock_bytes": "83C7013B7D047CC7",
       "written_bytes": "E9XXXXXXXX909090",
       "routine": "the cutting tools' stack draw 0x431480 (one sprite 0x18 per tool): the loop goes on while i < count and i < 6",
-      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
+      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
     },
     {
       "va": "0x430CA6",
       "stock_bytes": "33DB85ED7E3A8D642400",
       "written_bytes": "E9XXXXXXXX9090909090",
       "routine": "the Clothing Hut's draw 0x430C80 (one cloth_bolt sprite per bolt, bound ebp = the count): bounded by min(count, 6)",
-      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
+      "installed_by": "VVFP VV4 Supply Cap.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
     }
   ]
 }

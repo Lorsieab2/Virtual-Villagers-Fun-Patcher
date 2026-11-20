@@ -518,14 +518,14 @@ ISLAND_FREQUENCY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_more_frequent_island_events_feature.json" for n in range(1, 6))
 # Village Solidarity (all five games; on in Owner's Defaults only; the owner, 2026-11-17): the village's 0-100 score,
 # moved by the new events' tagged pages, changing only the odds of the patcher's own events; companion only, "VVFP
-# Village Solidarity.dll", started by VVFP Startup.dll from its second word, its strength (0.1x-10x) written beside it
+# Village Solidarity.dll", started by VVFP More Companions.dll (third word), its strength (0.1x-10x) written beside it
 # (src/vv_village_scores.py); scripts/build_village_solidarity_feature.py.
 VILLAGE_SOLIDARITY_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_village_solidarity_feature.json"
                                          for n in range(1, 6))
 # Cloth Sacks for Yellow Fruit (The Tree of Life; the owner, 2026-11-17; on by default since 2026-11-18): a
 # villager dropped under the Clothing Hut's awning makes a sack from a cloth bolt and brings 30 yellow fruit to the
 # food bin, like the cutting tool on the blackberries; companion only, "VVFP VV4 Cloth Sacks.dll", started by VVFP
-# Startup.dll from its second word;
+# More Companions.dll (third word);
 # scripts/build_vv4_cloth_sacks_features.py.
 CLOTH_SACKS_FEATURE_PATHS = (ROOT / "data" / "vv4_cloth_sacks_for_yellow_fruit_feature.json",
                              # Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life; the owner, 2026-11-17; off by

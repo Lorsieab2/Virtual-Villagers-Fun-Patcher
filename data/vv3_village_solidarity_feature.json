@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv3",
   "name": "Village Solidarity",
-  "description": "Gives each village a **Village Solidarity** score from 0 to 100, starting at 50. The patcher's new island events (the Isola Grand Event Collection, the Companion Anthology, More Island Events and your own Custom Island Events) can mark a page as raising, lowering or not changing it: songs and gatherings, fair resolutions, mutual aid, welcoming newcomers and feelings like happiness, trust, gratitude and hope raise it; unresolved conflicts, unfairness, broken promises and feelings like tension, distrust, resentment and fear lower it; solemn remembrance and quiet reflection leave it as it is. **The game's own island events move it too:** each of their results has its own tag -- gains, healing, newcomers and celebrations raise it; losses, sickness, deaths and disasters lower it; the rest leave it (the full list is on the Game Mechanics page) -- and those events and their chances stay exactly the game's own. Every raise and every lower moves it by the same 5 points. **The score only changes odds:** the higher it is, the more likely the new cooperative and celebration events and the cooperative endings of a chance split; the lower it is, the more likely the new repair, peace and apology events and the tense endings (at the normal strength each point away from 50 adds 2% to the favoured event's or ending's own chance weight, so 0 or 100 doubles it; nothing is ever forced and nothing else is made less likely). It never changes work, helping, idling, skills or health, and the game's own island events and their chances never change. The slider sets the strength, 0.1x to 10x (1x is normal). The Tech screen shows \"Village Solidarity: 62 / 100\" in the game's own font; the Game Mechanics page shows it too. The score is kept outside the save, in the save's own Village Scores file, and every change is written to the save's Village Solidarity log; Start Over clears both. Without this patch the events' marks are only words in their files. **Needs Story / Cheat Upgrades (on by default), which runs the new events; ticking this ticks it.** **Works the same in every population mode.** **On in Owner's Defaults; off in the normal defaults and in Select All.** The companions are \"VVFP Village Solidarity.dll\" and \"VVFP Island Events.dll\" (which reads the results of the game's own events), started by VVFP Startup.dll; the save is never written.",
+  "description": "Gives each village a **Village Solidarity** score from 0 to 100, starting at 50. The patcher's new island events (the Isola Grand Event Collection, the Companion Anthology, More Island Events and your own Custom Island Events) can mark a page as raising, lowering or not changing it: songs and gatherings, fair resolutions, mutual aid, welcoming newcomers and feelings like happiness, trust, gratitude and hope raise it; unresolved conflicts, unfairness, broken promises and feelings like tension, distrust, resentment and fear lower it; solemn remembrance and quiet reflection leave it as it is. **The game's own island events move it too:** each of their results has its own tag -- gains, healing, newcomers and celebrations raise it; losses, sickness, deaths and disasters lower it; the rest leave it (the full list is on the Game Mechanics page) -- and those events and their chances stay exactly the game's own. Every raise and every lower moves it by the same 5 points. **The score only changes odds:** the higher it is, the more likely the new cooperative and celebration events and the cooperative endings of a chance split; the lower it is, the more likely the new repair, peace and apology events and the tense endings (at the normal strength each point away from 50 adds 2% to the favoured event's or ending's own chance weight, so 0 or 100 doubles it; nothing is ever forced and nothing else is made less likely). It never changes work, helping, idling, skills or health, and the game's own island events and their chances never change. The slider sets the strength, 0.1x to 10x (1x is normal). The Tech screen shows \"Village Solidarity: 62 / 100\" in the game's own font; the Game Mechanics page shows it too. The score is kept outside the save, in the save's own Village Scores file, and every change is written to the save's Village Solidarity log; Start Over clears both. Without this patch the events' marks are only words in their files. **Needs Story / Cheat Upgrades (on by default), which runs the new events; ticking this ticks it.** **Works the same in every population mode.** **On in Owner's Defaults; off in the normal defaults and in Select All.** The companions are \"VVFP Village Solidarity.dll\" (started by VVFP More Companions.dll) and \"VVFP Island Events.dll\" (which reads the results of the game's own events, started by VVFP Startup.dll); the save is never written.",
   "output_tag": "Village Solidarity",
   "dependencies": [
     "vv3_story_cheat_upgrades"
@@ -42,19 +42,19 @@
       "va": "0x464C1D",
       "stock_bytes": "5F5E83C424C3",
       "routine": "the Tech screen draw 0x4649C0, its return",
-      "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
+      "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
     },
     {
       "va": "0x4652A8",
       "stock_bytes": "C744241001000000",
       "routine": "the Tech screen's constructor, before its technologies' loop",
-      "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
+      "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
     },
     {
       "va": "0x49E840",
       "stock_bytes": "40564600",
       "routine": "the Tech screen's vtable slot 3 (its handler 0x465640)",
-      "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
+      "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
     },
     {
       "va": "0x419b30",
