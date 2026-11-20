@@ -776,7 +776,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                ("fish in the net", net_food if _i32(data, PUZZLE_ENTRIES + 8 * 11) >= PUZZLE_THRESHOLDS[11] else 0,
                 "The fishing net"),
                ("fruit stomps", 3 if pit else 0, "The Cooking Pit fruit")],
-        catch_up_bonus=pit_bonus, closed_budget=fruit_budget)
+        catch_up_bonus=pit_bonus, closed_budget=fruit_budget,
+        fishing_trip="fish in the net",
+        fishing_unlock="fishing opens once Fishing Nets is solved (the piers fixed and the nets mended); it is not "
+                       "solved in this village yet.")
     ctx_ref.append(ctx)
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=base))

@@ -59,7 +59,7 @@ TITLE = "Game Mechanics"
 # Time away (catch-up) right after the sources (the owner, 2026-10-24: the most important topic, near the top).
 GROUPS = ("Vital statistics", "Village counts", "Time and units", "Sources", "Time away (catch-up)", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
           "Technologies, items and buildings",
-          "God powers", "Faith and Heathens", "Food earned", "Island events", "Death and graves", "Puzzles",
+          "God powers", "Faith and Heathens", "Food earned", "Tribal Chief: Directing work", "Island events", "Death and graves", "Puzzles",
           "Golden Child", "Hidden villager stats", "Hidden keys, clicks and cheats", "Chance and timers", "Other")
 DEATH = "Death and graves"            # src/vv_game_mechanics_death.py
 PUZZLES = "Puzzles"
