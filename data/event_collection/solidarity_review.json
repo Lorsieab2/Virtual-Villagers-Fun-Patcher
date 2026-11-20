@@ -1,0 +1,814 @@
+{
+ "adv19_too_quick": {
+  "o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "all_conundrums": {
+  "b5": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "all_inexplicable_idea": {
+  "b3": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "all_invention_showcase": {
+  "a5": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ],
+  "b3": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ],
+  "b7": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "all_its_alive": {
+  "a1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "all_secret_of_life": {
+  "b2_2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "all_v27_57_bell": {
+  "a": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "anexp72_costume_crown": {
+  "a1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "anhs07_embarrassing": {
+  "d1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "anjoy03_child_big_day": {
+  "c2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "anjoy13_dance_nobody": {
+  "d2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "arm49_speaking_staff": {
+  "setup": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "arm72_staff_given": {
+  "setup": [
+   "raise",
+   "read: a quarrel mended or a kindness between families brings the village together"
+  ]
+ },
+ "b023_rivals_spirit": {
+  "c2o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b041_dance_shared": {
+  "c1o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b092_shell_swap": {
+  "c2o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b097_bark_boat_race": {
+  "c1o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b109_washing_stones": {
+  "c1o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b127_festival_masks": {
+  "c1o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ],
+  "c2o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b153_love_charm_mix_up": {
+  "c2o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b167_elders_dance": {
+  "c1o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b169_chore_spirit": {
+  "c2o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b180_family_storm": {
+  "c2o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b184_mask_face": {
+  "c1o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b191_big_canoe": {
+  "c1o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b222_singing_boat": {
+  "c2o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b251_lightning_under": {
+  "c2o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b292_smoke_next_island": {
+  "c2o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b322_sky_lantern_came": {
+  "c2o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b324_hollow_log_drum": {
+  "c1o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b327_fall_festival": {
+  "c1o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ],
+  "c2o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "b345_games_hill": {
+  "c1o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "blf29_brightest_wrap": {
+  "o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "day16_wall_fell_down": {
+  "o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "div50_morning_path": {
+  "setup": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "fea04_praise_doesnt": {
+  "o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "hea31_laughing_visit": {
+  "o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "his01_festival_used": {
+  "o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "hon28_moon_follows": {
+  "o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "hum21_catch_season": {
+  "o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "hum24_slowest_sinking": {
+  "o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "hum49_fishing_their": {
+  "o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "hz004_argument_across": {
+  "a1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "hz005_mourn_as_we_do": {
+  "a1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "hz032_cannot_stop": {
+  "a1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "hz040_wonder_about_us": {
+  "a1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "hz068_distant_war": {
+  "c1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "hz082_game_watched": {
+  "a1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "hz089_boat_big_village": {
+  "c1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "hz092_do_they_sing": {
+  "c2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "hz097_do_they_know": {
+  "b1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "hz129_islands_might": {
+  "a1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "il046_too_old_this": {
+  "b": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "il140_giggles": {
+  "a": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "il162_almost_dance": {
+  "b": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "il171_chore_trade": {
+  "b": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "il195_before_dawn_club": {
+  "b": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "jus08_night_cool_down": {
+  "o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "jus42_pig_vote": {
+  "o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "jus46_matter_council": {
+  "o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "lbl116_healer_doubt": {
+  "e3": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "lif15_went_stayed": {
+  "o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "living_bank": {
+  "le_arc_bad_01": [
+   "lower",
+   "read: the outcome divides people or damages trust between villagers"
+  ],
+  "le_arc_bad_04": [
+   "lower",
+   "read: the outcome divides people or damages trust between villagers"
+  ],
+  "le_arc_bad_07": [
+   "lower",
+   "read: the outcome divides people or damages trust between villagers"
+  ],
+  "le_arc_bad_08": [
+   "lower",
+   "read: the outcome divides people or damages trust between villagers"
+  ],
+  "le_arc_bad_10": [
+   "lower",
+   "read: the outcome divides people or damages trust between villagers"
+  ],
+  "le_arc_good_09": [
+   "raise",
+   "read: the outcome is the whole village coming together (cooperation, culture, a birth or a reunion)"
+  ],
+  "le_arc_good_10": [
+   "raise",
+   "read: the outcome is the whole village coming together (cooperation, culture, a birth or a reunion)"
+  ],
+  "le_arc_rare_07": [
+   "raise",
+   "read: the outcome is the whole village coming together (cooperation, culture, a birth or a reunion)"
+  ],
+  "mc_aft_07_d1": [
+   "raise",
+   "read: the outcome is the whole village coming together (cooperation, culture, a birth or a reunion)"
+  ],
+  "mc_aft_12_c2": [
+   "lower",
+   "read: the outcome divides people or damages trust between villagers"
+  ],
+  "mc_aft_13_c1": [
+   "neutral",
+   "read: one villager or one family, not the village"
+  ],
+  "mc_isl_10_c2": [
+   "lower",
+   "read: families can no longer buy what they need"
+  ]
+ },
+ "lvlife20_rare_dye_vine": {
+  "a2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "lvppl08_among_heathens": {
+  "c2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "lvppl11_heathen_helped": {
+  "a1": [
+   "raise",
+   "read: a quarrel mended or a kindness between families brings the village together"
+  ]
+ },
+ "lvuns28_empty_temple": {
+  "a1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "mie_adventurer": {
+  "a9": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ],
+  "heal2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ],
+  "heal3": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my007_mask_changes": {
+  "c1o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my015_figure_tidal": {
+  "c3o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my017_woman_last_house": {
+  "c1o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my020_bridge_keeper": {
+  "c2o1": [
+   "raise",
+   "read: a quarrel mended or a kindness between families brings the village together"
+  ]
+ },
+ "my022_fisherman": {
+  "c4o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my027_river_returned": {
+  "c1o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my029_name_spoken_well": {
+  "c4o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my034_two_identical": {
+  "c3o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my036_empty_seat_feast": {
+  "c1o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my040_night_visitor": {
+  "c3o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my043_road_returning": {
+  "c2o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my050_sea_chest_two": {
+  "c2o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my071_visitor_final": {
+  "c3o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my095_basket_unknown": {
+  "c2o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my096_traveler_shadow": {
+  "c2o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my097_book_wrote_back": {
+  "c3o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my099_hidden_cup_rain": {
+  "c3o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my100_stranger_two": {
+  "c1o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ],
+  "c3o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ],
+  "c3o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my109_stranger_spoke": {
+  "c4o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "my112_guest_old_song": {
+  "c4o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "new104_charm_forgot": {
+  "c2o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "new112_watch_night": {
+  "c2o2": [
+   "raise",
+   "read: a quarrel mended or a kindness between families brings the village together"
+  ]
+ },
+ "new140_bench_sun": {
+  "c2o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "new141_trader_goods": {
+  "c3o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "new143_letter_across": {
+  "c3o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "new145_returning_exile": {
+  "c4o2": [
+   "raise",
+   "read: a quarrel mended or a kindness between families brings the village together"
+  ]
+ },
+ "new147_injured_visitor": {
+  "c3o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "new148_stranger_well": {
+  "c3o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "new150_visitor": {
+  "c3o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "new162_farmer_shy": {
+  "c3o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "new171_record_washed": {
+  "c3o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "new177_two_histories": {
+  "c3o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "new182_overworked": {
+  "c1o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "rm18_tree_fruit": {
+  "d2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "rm37_reef_fragile_edge": {
+  "d1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "rm58_hammering_next": {
+  "d2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "rm82_middle_sibling": {
+  "a2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "s004_two_hammocks": {
+  "c1o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "s009_elder_forgot_get": {
+  "c1o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "s011_second": {
+  "c2o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "s014_fog_walker": {
+  "c2o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "s038_prank_mirror": {
+  "c1o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "s055_fire_spirit_joke": {
+  "c1o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "s076_goat_followed": {
+  "c2o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "s088_stranger_took": {
+  "c2o2": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "s098_grand_copy": {
+  "c2o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "sss033_biggles_mask": {
+  "a": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "tim112_trading_dance": {
+  "e1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ],
+  "e4": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "trd03_bush_mender": {
+  "nothing": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "tt47_best_three_best": {
+  "o1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "vv2_cooking_contest": {
+  "a1_29_5": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "vv2_hospitals_most_difficult": {
+  "b1": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "vv2_veterinary_visitor": {
+  "e4": [
+   "neutral",
+   "read: one villager's or a few villagers' own moment, not the village's"
+  ]
+ },
+ "vv5_convert_who_missed_home": {
+  "b2": [
+   "raise",
+   "read: a quarrel mended or a kindness between families brings the village together"
+  ]
+ }
+}

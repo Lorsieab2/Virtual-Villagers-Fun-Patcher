@@ -813,6 +813,29 @@ static void adv_tell_vanished(int game, int index, const char *what) {
     }
 }
 
+/* VILLAGE SOLIDARITY (the owner, 2026-11-20: "add tags to every single event"): each ending of this companion's
+   events carries a tag (src/vv_solidarity_endings.py, the owner's rule; the same as the event's collection form in
+   data/event_collection/mie/), passed on ONCE, with the ending's effects, to "VVFP Village Solidarity.dll" -- only
+   when that companion is loaded and started for this game (VvfpVillageScoreTag: -1 and nothing otherwise).  Without
+   it nothing is called and nothing changes. */
+#define ADV_SOL_RAISE 1
+#define ADV_SOL_LOWER 2
+#define ADV_SOL_NEUTRAL 3
+#define ADV_SOL_TITLE 160
+
+typedef int (__stdcall *adv_sol_tag_fn)(int game, int score_id, int tag, const char *title);
+
+static char adv_sol_title[ADV_SOL_TITLE];   /* the event's title as shown (adv_log_event), "" none */
+
+static void adv_solidarity(int game, int tag) {
+    HMODULE module = GetModuleHandleA("VVFP Village Solidarity.dll");
+    adv_sol_tag_fn tag_fn = module != NULL ? (adv_sol_tag_fn)(void *)GetProcAddress(module, "VvfpVillageScoreTag")
+                                           : NULL;
+    if (tag_fn != NULL && tag >= ADV_SOL_RAISE && tag <= ADV_SOL_NEUTRAL) {
+        (void)tag_fn(game, 0, tag, adv_sol_title[0] != '\0' ? adv_sol_title : NULL);
+    }
+}
+
 /* The adventurer is still who the popup is about (the popup freezes the village, so always, short of a fault). */
 static int adv_same_hero(void) {
     const unsigned char *r;
@@ -876,6 +899,11 @@ static void adv_make_effects(void) {
     default:
         break;
     }
+    /* Village Solidarity: an award raises; a death, a disappearance or a villager leaving for another tribe (VV5:
+       turning Heathen) lowers; the injury, a skill or nothing is the adventurer's own (neutral). */
+    adv_solidarity(g->game, adv.effect[choice] == ADV_FX_AWARD ? ADV_SOL_RAISE
+                            : (adv.effect[choice] == ADV_FX_DIES || adv.effect[choice] == ADV_FX_DISAPPEARS
+                               || adv.effect[choice] == ADV_FX_JOINS) ? ADV_SOL_LOWER : ADV_SOL_NEUTRAL);
 }
 
 /* The answer and its effects at once (A New Home, The Secret City, The Tree of Life, New Believers). */

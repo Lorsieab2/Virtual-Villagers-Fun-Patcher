@@ -405,6 +405,25 @@ def role_spec(bank: Bank, rid: str, allow: bool, adults_only: bool = False) -> d
     return spec
 
 
+# Village Solidarity (the owner, 2026-11-20: "add tags to every single event"): each ending's tag -- an LE variant's
+# ending is an outcome archetype, an MC variant's an MC outcome -- from data/living_events/solidarity_tags.json
+# (scripts/tag_village_solidarity.py writes it by the owner's rule, src/vv_solidarity_endings.py).
+SOLIDARITY_TAGS = ROOT / "data" / "living_events" / "solidarity_tags.json"
+_SOLIDARITY: dict[str, str] | None = None
+
+
+def solidarity_tag(ident: str) -> str:
+    """The Village Solidarity tag of an archetype or an MC outcome (an untagged one fails the build)."""
+    global _SOLIDARITY
+    if _SOLIDARITY is None:
+        _SOLIDARITY = json.loads(SOLIDARITY_TAGS.read_text(encoding="utf-8")) if SOLIDARITY_TAGS.is_file() else {}
+    tag = _SOLIDARITY.get(ident)
+    if tag not in ("raise", "lower", "neutral"):
+        raise ValueError(f"{SOLIDARITY_TAGS.name}: {ident} has no Village Solidarity tag "
+                         f"(run python scripts/tag_village_solidarity.py)")
+    return tag
+
+
 def compose_le(bank: Bank, seed: dict, a: str, b: str, pers_a, pers_b, choices: list[tuple[str, str]],
                outcomes: list[tuple[str, str, str]], games: list[int]) -> tuple[dict, list[tuple[str, int, int]]]:
     """The variant's graph.  pers_a / pers_b: a personality id (fixed, a MIX), None (the doubled-word fix: no
@@ -449,7 +468,7 @@ def compose_le(bank: Bank, seed: dict, a: str, b: str, pers_a, pers_b, choices: 
     allow = {"first": False, "second": False}
     for arc in used_arcs:
         effects = archetype_effects(bank, arc, a, b, games)
-        node = {"text": plain(bank.arc[arc]["text"])}
+        node = {"text": plain(bank.arc[arc]["text"]), "solidarity": solidarity_tag(arc)}
         if effects:
             node["effects"] = effects
             node["auto_text"] = True
@@ -797,7 +816,7 @@ def compose_mc(bank: Bank, sit: dict, order: tuple[int, ...]) -> tuple[dict, lis
         kids = []
         for j, o in enumerate(ap["outcomes"]):
             name = f"o_{ap['letter'].lower()}{j + 1}"
-            node = {"text": t(o["text"])}
+            node = {"text": t(o["text"]), "solidarity": solidarity_tag(o["id"])}
             effects = []
             for e in o["effects"]:
                 e = dict(e)

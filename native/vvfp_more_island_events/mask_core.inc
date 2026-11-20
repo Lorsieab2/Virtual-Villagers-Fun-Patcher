@@ -290,6 +290,10 @@ static void mk_effects(int e) {
             }
         }
     }
+    /* Village Solidarity (adv_solidarity): every ending sends five villagers away for good (lower). */
+    if (mk.gone > 0) {
+        adv_solidarity(g->game, ADV_SOL_LOWER);
+    }
 }
 
 /* ---- As a dialog shows it (adv_flow) --------------------------------------------------------------------------- */

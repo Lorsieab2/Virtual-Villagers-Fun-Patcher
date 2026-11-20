@@ -211,6 +211,9 @@ static void climb_effects(int e) {
     default:
         break;
     }
+    /* Village Solidarity (adv_solidarity): the fall lowers, the summit (tech, a celebration) raises, the advice (a
+       skill of the climber's own) is neutral. */
+    adv_solidarity(g->game, e == CLIMB_E_FALL ? ADV_SOL_LOWER : e == CLIMB_E_SUMMIT ? ADV_SOL_RAISE : ADV_SOL_NEUTRAL);
 }
 
 /* ---- As a dialog shows it (adv_flow) --------------------------------------------------------------------------- */

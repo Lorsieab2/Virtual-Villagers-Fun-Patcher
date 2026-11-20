@@ -36,9 +36,30 @@ import vv_cie_graph as cg                # noqa: E402
 import vv_event_content as ec            # noqa: E402
 import vv_living_mixer as lm             # noqa: E402
 import vv_procedural as vp               # noqa: E402
+import vv_solidarity_endings as se       # noqa: E402
 from vv_procedural import Effect, Link, Piece, Slot  # noqa: E402
 
 COLLECTION = ROOT / "data" / "event_collection"
+# Village Solidarity (the owner, 2026-11-20: "add tags to every single event"): an outcome piece carries the tag of
+# the ending it was cut from (vp.solidarity_flags): a collection event's from its tag table
+# (scripts/tag_village_solidarity.py), a Living archetype's or MC outcome's from the Living table, a GO piece's by the
+# same rule read from its own text and effects (src/vv_solidarity_endings.py).
+_SOLIDARITY: dict | None = None
+
+
+def solidarity_for(eid: str, node_ids, text: str, effects: list[dict]) -> str:
+    """The tag of an outcome piece cut from event `eid`'s pages `node_ids` (the last tagged one: its ending)."""
+    global _SOLIDARITY
+    if _SOLIDARITY is None:
+        path = COLLECTION / "solidarity_tags.json"
+        _SOLIDARITY = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+    tagged = (_SOLIDARITY.get(eid) or {}).get("nodes") or {}
+    for n in reversed(list(node_ids)):
+        for key in (n, n[:-len("__fx")] if n.endswith("__fx") else None,
+                    n[:-len("__text")] if n.endswith("__text") else None):
+            if key and key in tagged:
+                return tagged[key]
+    return se.classify(text or "", effects)[0]
 OUT_DIR = ROOT / "assets" / "event_collection" / "pieces"
 NEVER_FILE = COLLECTION / "procedural_never_with.json"
 REPORT_FILE = ROOT / "docs" / "event-collection" / "procedural-pieces-report.json"
@@ -487,7 +508,9 @@ def event_pieces(path: Path, doc: dict, shared: dict) -> EventPieces | None:
             fs = {f for n in node_ids for f in tags.get(n, ())}
             t, nw, band = block_tags(" ".join(x for x in (text, label) if x), slots)
             flags = (vp.PF_DEADLY if any(e.code in vp.DEADLY_CODES for e in fx) else 0) \
-                | (vp.PF_BELIEVERS if vv5_only else 0) | (vp.PF_AUTO_LINES if auto and fx else 0)
+                | (vp.PF_BELIEVERS if vv5_only else 0) | (vp.PF_AUTO_LINES if auto and fx else 0) \
+                | (vp.solidarity_flags(solidarity_for(eid, node_ids, text, fx_list))
+                   if kind == vp.KIND_OUTCOME else 0)
             return Piece(pid, kind, mood, flags, gm, 0, 0, filters_of(fs), notes_of(fs), nw, t, text, label, slots,
                          1, fx, band, [], src=f"{path.relative_to(ROOT).as_posix()}")
 
@@ -680,7 +703,7 @@ def le_file(bank, cat: dict, never_pairs) -> tuple[list[Piece], list[tuple[str, 
             | ec._text_filters(arc["text"])
         tags = vp.TAG_INVALIDATING if "light" in arc["tags"] else 0
         flags = (vp.PF_DEADLY if any(e.code in vp.DEADLY_CODES for e in effects) else 0) \
-            | (vp.PF_AUTO_LINES if effects else 0)
+            | (vp.PF_AUTO_LINES if effects else 0) | vp.solidarity_flags(lm.solidarity_tag(aid))
         links = []
         n_group = sum(1 for x in bank.archetypes if x["group"] == arc["group"])
         w = max(1, min(1000, round(GROUP_LINK[arc["group"]] * 50 / n_group)))
@@ -899,7 +922,8 @@ def go_events() -> list[tuple[str, list[Piece], str]]:
             if tags & vp.TAG_ROMANCE and r["age_band"] == vp.AGE_BAND_ADULT:
                 tags |= vp.TAG_ADULT_ROMANCE
             flags = (vp.PF_DEADLY if any(e.code in vp.DEADLY_CODES for e in fx) else 0) \
-                | (vp.PF_BELIEVERS if games == [5] else 0) | (vp.PF_AUTO_LINES if fx else 0)
+                | (vp.PF_BELIEVERS if games == [5] else 0) | (vp.PF_AUTO_LINES if fx else 0) \
+                | (vp.solidarity_flags(se.classify(r["text"] or "", norm)[0]) if r["kind"] == vp.KIND_OUTCOME else 0)
             label = r["label"] or None
             if label and r["kind"] in (vp.KIND_SETUP, vp.KIND_APPROACH):
                 label = vp.title_case(label)
@@ -1320,7 +1344,10 @@ def _graph_pieces(eid: str, g: dict, mood: int, cat_filters: list[str]) -> list[
         fx = [encode_effect(e, idx) for e in o["effects"]]
         fs = set(cat_filters) | {f for n in o["nodes"] for f in tags.get(n, ())}
         links = [Link(f"{base}_a{i}", 1) for i, a in enumerate(sp.approaches) if key in a["outcomes"]]
-        flags = (vp.PF_DEADLY if any(e.code in vp.DEADLY_CODES for e in fx) else 0) | (vp.PF_AUTO_LINES if fx else 0)
+        sol = next((g["nodes"][n]["solidarity"] for n in reversed(o["nodes"])
+                    if g["nodes"].get(n, {}).get("solidarity")), None) or se.classify(o["text"] or "", o["effects"])[0]
+        flags = (vp.PF_DEADLY if any(e.code in vp.DEADLY_CODES for e in fx) else 0) | (vp.PF_AUTO_LINES if fx else 0) \
+            | vp.solidarity_flags(sol)
         pieces.append(Piece(f"{base}_o_{_pid(key)}", vp.KIND_OUTCOME, mood, flags, gm, 1, 0, filters_of(fs),
                             notes_of(fs), 0, 0, o["text"], None, slots, 1, fx, 0, links, src=f"bank {eid}"))
     return pieces
