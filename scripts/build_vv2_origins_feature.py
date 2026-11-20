@@ -1177,12 +1177,14 @@ def main() -> None:
             je detail_mastery
             cmp ebx, 2
             je detail_running
-            mov dword ptr [edx + 0x530], 360
-            mov dword ptr [edx + 0x534], 360
-            cmp dword ptr [edx + 0x540], 0
-            je detail_success
-            mov dword ptr [edx + 0x540], 318
-            jmp detail_success
+            # The age is MOVED: the lived age (+0x534, the life loop's cursor
+            # at 0x43BA92) and a running conception mark (+0x540) move by the
+            # same delta as the shown age (+0x530), so the life loop neither
+            # replays the years at once nor skips them, and a pregnancy stays
+            # as far along (the stock age change, VV1 0x419543-0x4195BE).
+            mov eax, 360
+            sub eax, dword ptr [edx + 0x530]
+            jmp shift_age
 
         detail_youth:
             mov eax, dword ptr [edx + 0x530]
@@ -1191,16 +1193,13 @@ def main() -> None:
             jge youth_ready
             mov eax, 100
         youth_ready:
-            mov dword ptr [edx + 0x530], eax
+            sub eax, dword ptr [edx + 0x530]
+        shift_age:
+            add dword ptr [edx + 0x530], eax
+            add dword ptr [edx + 0x534], eax
             cmp dword ptr [edx + 0x540], 0
-            je youth_not_pregnant
-            lea ecx, [eax - 1]
-            mov dword ptr [edx + 0x534], ecx
-            sub eax, 42
-            mov dword ptr [edx + 0x540], eax
-            jmp detail_success
-        youth_not_pregnant:
-            mov dword ptr [edx + 0x534], eax
+            je detail_success
+            add dword ptr [edx + 0x540], eax
             jmp detail_success
 
         detail_mastery:
@@ -1649,11 +1648,14 @@ def main() -> None:
             mov dword ptr [edx + 0x7F4], 100
             jmp wv_next
         wv_age:
-            mov dword ptr [edx + 0x530], 360
-            mov dword ptr [edx + 0x534], 360
+            # Moved, not written: see shift_age (the detail rows).
+            mov eax, 360
+            sub eax, dword ptr [edx + 0x530]
+            add dword ptr [edx + 0x530], eax
+            add dword ptr [edx + 0x534], eax
             cmp dword ptr [edx + 0x540], 0
             je wv_next
-            mov dword ptr [edx + 0x540], 318
+            add dword ptr [edx + 0x540], eax
         wv_next:
             add edx, 0xE48C
             dec ecx

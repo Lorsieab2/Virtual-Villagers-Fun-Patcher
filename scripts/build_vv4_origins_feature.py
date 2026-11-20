@@ -1345,8 +1345,14 @@ def main() -> None:
             je mastery
             cmp ebx, 2
             je running
-            mov dword ptr [edx + 0x1B8C], 360
-            jmp detail_success
+            # The age is MOVED: the lived age (+0x1C3C, the life tick's cursor
+            # at 0x46846D) and a running conception mark (+0x1C4C) move by the
+            # same delta as the shown age (+0x1B8C), so the tick neither
+            # replays the years at once nor skips them, and a pregnancy stays
+            # as far along (the stock age change, VV1 0x419543-0x4195BE).
+            mov eax, 360
+            sub eax, dword ptr [edx + 0x1B8C]
+            jmp shift_age
         detail_appearance:
             cmp dword ptr [0x4D6F88], 5000
             jb detail_insufficient
@@ -1361,7 +1367,13 @@ def main() -> None:
             jge youth_ready
             mov eax, 100
         youth_ready:
-            mov dword ptr [edx + 0x1B8C], eax
+            sub eax, dword ptr [edx + 0x1B8C]
+        shift_age:
+            add dword ptr [edx + 0x1B8C], eax
+            add dword ptr [edx + 0x1C3C], eax
+            cmp dword ptr [edx + 0x1C4C], 0
+            je detail_success
+            add dword ptr [edx + 0x1C4C], eax
             jmp detail_success
         mastery:
             push esi
