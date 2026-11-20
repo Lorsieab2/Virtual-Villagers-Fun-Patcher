@@ -7,10 +7,12 @@ changed. The table is `scripts/food_tech_additions.py` ADDITIONS (generated into
 it as they write, and the Grand collection's files carry it directly.
 
 Sizes: small food is the collection's small scaled amount (design A3); a loss is the same range negated.
-Totals: food gain 19, food loss 2, tech gain 115, tech loss 7 (143 effects).
+Totals: food gain 19, food loss 2, tech gain 114, tech loss 7 (142 effects).
+(`all_v20_d2_no_such` a1's tech gain was removed: the owner, Q13 2026-11-19, keeps only the newer outcome pass's
+gain there, normal and half the time.)
 
 
-## Grand collection (V28) (40)
+## Grand collection (V28) (39)
 
 | Event | Node | Effect | Why (the outcome's text) |
 |---|---|---|---|
@@ -26,7 +28,6 @@ Totals: food gain 19, food loss 2, tech gain 115, tech loss 7 (143 effects).
 | `all_secret_of_life` | a4_2 | tech gain small (scaled) | The healers test the fibers safely and discover a useful way to bind splints. |
 | `all_secret_of_life` | b5_2 | tech gain small (scaled) | the discovery of a way to extinguish flames. (Subject) begins taking notes |
 | `all_secret_of_life` | c6_2 | tech gain small (scaled) | discovers an ingenious tensioned-vine mechanism. "It doesn't live," the builder says, "but it could lift water." |
-| `all_v20_d2_no_such` | a1 | tech gain normal (scaled) | It works; the village celebrates a major medical discovery. |
 | `all_v20_r1_should_not` | a1 | tech loss small (scaled) | The object is smashed. Researchers lament the lost evidence |
 | `all_v20_r1_should_not` | a4 | tech gain small (scaled) | A useful component inspires a new island-made tool. |
 | `all_v20_r1_should_not` | b1 | tech gain small (scaled) | (Finder) discovers a practical function; craftspeople attempt to imitate it using island materials. |

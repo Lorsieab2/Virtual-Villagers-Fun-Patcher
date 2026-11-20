@@ -105,7 +105,8 @@ ADDITIONS: list[tuple[str, str, tuple[str, bool], str, str]] = [
     ("all_secret_of_life", "a4_2", TG, "small", "The healers test the fibers safely and discover a useful way to bind splints."),
     ("all_secret_of_life", "b5_2", TG, "small", "the discovery of a way to extinguish flames. (Subject) begins taking notes"),
     ("all_secret_of_life", "c6_2", TG, "small", "discovers an ingenious tensioned-vine mechanism. \"It doesn't live,\" the builder says, \"but it could lift water.\""),
-    ("all_v20_d2_no_such", "a1", TG, "normal", "It works; the village celebrates a major medical discovery."),
+    # all_v20_d2_no_such a1: the owner (Q13, 2026-11-19) keeps only the newer outcome pass's tech gain (normal, half
+    # the time; data/event_collection/outcome_effects/base.txt), so this 100% row is gone.
     ("all_v20_r1_should_not", "a1", TL, "small", "The object is smashed. Researchers lament the lost evidence"),
     ("all_v20_r1_should_not", "a4", TG, "small", "A useful component inspires a new island-made tool."),
     ("all_v20_r1_should_not", "b1", TG, "small", "(Finder) discovers a practical function; craftspeople attempt to imitate it using island materials."),

@@ -2495,7 +2495,7 @@ Between Life and Death (all_v20_between_life) | a1_n | HEALTH UP (patient) (50%)
 The Child Who Corrected the Masters (all_v20_d10_child) | b1 | TECH GAIN large (50%) | "The masters later discover the child was right"
 Two Lives, One Decision (all_v20_d1_two_lives) | b1 | HEALTH UP (parent) (50%) | "Both recover against expectation"
 Two Lives, One Decision (all_v20_d1_two_lives) | c27 | HEALTH UP (parent) (50%) | "(parent.his/her) condition unexpectedly improves"
-The Treatment That Does Not Exist (all_v20_d2_no_such) | a1 | TECH GAIN normal (100%, already the outcome's own: Collection food and tech where the text fits, 2026-11-15) | "the village celebrates a major medical discovery"
+The Treatment That Does Not Exist (all_v20_d2_no_such) | a1 | TECH GAIN normal (50%) | "the village celebrates a major medical discovery"
 The Treatment That Does Not Exist (all_v20_d2_no_such) | a2 | HEALTH UP (patient) (50%) | "It relieves symptoms"
 The Treatment That Does Not Exist (all_v20_d2_no_such) | b1 | TECH GAIN normal (50%) | "A fatal flaw is discovered before anyone is harmed"
 The Experimental Cure (all_v20_d3_cure) | a3 | TECH GAIN normal (50%) | "the researchers learn about the illness"
