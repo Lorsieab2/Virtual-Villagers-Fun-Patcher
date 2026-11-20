@@ -105,10 +105,12 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # 0x4093E0 ripple-thunk hook and the never-read .vv1md scratch slots removed).  This test passes at
     # 239f8b73, before that merge, and fails with these values from dc3216f1, the merge, onward; the head
     # look changes no VV1 Origins byte.
+    # Re-pinned for the Origins doublers' scope (#805, merged at e09e40511): the only manifest change is the Origins
+    # payload at 0x56900 ("after" bytes); no offset is added or removed.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "7C14F65C87653CB24FCDCB40FB467AC1841639698EAF388CE9C25FC60DE2F72F",
-        "collection_progression": "EF5AC37A682AD8A29AE383A95724F1FAF6923BE4974D3765D9CEF6C3890A1003",
-        "immediate_fixed": "EF5AC37A682AD8A29AE383A95724F1FAF6923BE4974D3765D9CEF6C3890A1003",
+        "stock": "F8ECD9CDD66F493F40344BA880B9D48DE04C633E1252BD7E5644BF3F0B17A0CA",
+        "collection_progression": "03C348D7E81DFF29C2C4DB0F0BE1B6A2EAC6F2638438B056AAD260D60CF4ACD8",
+        "immediate_fixed": "03C348D7E81DFF29C2C4DB0F0BE1B6A2EAC6F2638438B056AAD260D60CF4ACD8",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}

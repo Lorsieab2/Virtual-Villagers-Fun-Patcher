@@ -159,11 +159,15 @@ class KeptListDone(unittest.TestCase):
         self.assertEqual(entry.verified, gm.CODE)
 
     def test_the_patchers_rows(self) -> None:
-        self.assertIn("5 real-life seconds after it is bought", _entry("Island Event").text)
+        self.assertIn("5 real-life seconds (real time, the same at every speed) after it is bought",
+                      _entry("Island Event").text)
         self.assertIn("below 80 health is brought to 100", _entry("Full Heal").text)
         self.assertIn("450,000", _entry("Change Appearance for All").text)
-        self.assertIn("Research is a work step", _entry("Tech Point Doubler").text)
-        self.assertIn("fish, the fisher's crab and the chief's Grant Food are not", _entry("Food Point Doubler").text)
+        # PR #805 (4648d5680, 3b5990488): The Secret City's doublers cover research, fish and crabs.
+        self.assertIn("the tech points research earns are doubled (with the chief's, Magic's, the potion's and the "
+                      "fire's extra points)", _entry("Tech Point Doubler").text)
+        self.assertIn("the food gathered from food sources is doubled (fruit, honey, fish, crabs and mushrooms, with "
+                      "the chief's bonuses), and so is the chief's grant of food", _entry("Food Point Doubler").text)
         self.assertIn("a running dislike is taken away for free", _entry("Grant Running").text)
 
     def test_every_tip_pop_up_says_how_it_comes(self) -> None:
