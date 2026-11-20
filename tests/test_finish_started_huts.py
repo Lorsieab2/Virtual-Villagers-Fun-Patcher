@@ -474,6 +474,10 @@ class DescriptionTests(unittest.TestCase):
                        "above those numbers too, they never start one by themselves"):
             self.assertIn(phrase, text)
         self.assertNotIn("may start it themselves", text)
+        # The owner (2026-11-20): Builder Action Fixes alone leaves the first hut (9) as the original game has it;
+        # with Builders Fix Huts When Idle no population hut is started by nobody's drop.
+        self.assertIn("builders may still start it from nothing, as in the original game", text)
+        self.assertIn("they never start any population hut, the first one included", text)
 
     def test_builders_fix_huts_when_idle(self):
         numbers = {"vv1": ("15 villagers", "at 28"), "vv2": ("21 villagers", "at 46")}
@@ -484,11 +488,14 @@ class DescriptionTests(unittest.TestCase):
                                "dropped a villager on it at least once", "whatever the population",
                                "**Runs on the Origins-exclusive base"):
                     self.assertIn(phrase, row["description"])
-                # PR #807: no population hut is started by nobody's drop, in either game
-                self.assertIn({"vv1": "never start a population hut by themselves, whatever the population",
-                               "vv2": "start the second or third population hut only after you have dropped"}[game],
-                              row["description"])
+                # PR #807 and the owner (2026-11-20): no population hut is started by nobody's drop, in either
+                # game, the first one included -- both rows say so in the same words.
+                self.assertIn("never start any population hut by themselves, the first one included, whatever the "
+                              "population", row["description"])
                 self.assertNotIn("may start it themselves", row["description"])
+                if game == "vv1":
+                    self.assertIn("on its own it still lets builders start the first hut, as in the original game",
+                                  row["description"])
 
 
 if __name__ == "__main__":

@@ -169,7 +169,7 @@
       "ids": ["vv1_builder_action_fixes"],
       "guide": [
         "Builders try to build more often when food is plentiful (400 or more), about three times in four.",
-        "New population huts: drop a villager on the second or third hut once, and builders will finish it whatever the population.",
+        "New population huts: drop a villager on the second or third hut once, and builders finish it at any population. The first hut may still start as in the original game.",
         "What gets built, and in what order, stays the game's own.",
         "Works together with Builders Fix Huts When Idle if you tick both."
       ]
@@ -797,7 +797,7 @@
       "guide": [
         "Builders do building work first: when there is a hut or project to work on, they go to it (about three times in four).",
         "With nothing to build, an idle builder examines and fixes a hut that stands, which trains Building.",
-        "New population huts: drop a villager on the second or third hut once, and builders will finish it whatever the population.",
+        "New population huts: builders never start one on their own, the first one included. Drop a villager on it once, and builders will finish it whatever the population.",
         "Food levels no longer stop builders from their hut work.",
         "Also adds the Origins Upgrades buttons to the Tech and Villager Details screens."
       ]

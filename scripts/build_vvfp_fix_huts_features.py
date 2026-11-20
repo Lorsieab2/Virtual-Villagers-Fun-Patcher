@@ -87,9 +87,10 @@ SHARE = {
 # by population alone; see "Huts need a manual start" in
 # native/vvfp_fix_huts/vvfp_fix_huts.c.
 _MANUAL = (
-    " With this patch builders start the second or third population hut only after you have dropped "
-    "a villager on it at least once, and from then on they finish it whatever the population. This "
-    "holds every time the game chooses, not only three times in four."
+    " With this patch builders never start any population hut by themselves, the first one included, "
+    "whatever the population: they work on one only once you have dropped a villager on it at least once, "
+    "and from then on they finish it whatever the population. This holds every time the game chooses, not "
+    "only three times in four."
 )
 HUTS = {
     "vv1": (
@@ -98,10 +99,12 @@ HUTS = {
         "but its builders will not work on the second hut until there are more than 22 villagers, nor on "
         "the third until there are more than 45 -- and above those numbers they start one on their own, "
         "while a hut they have already started is abandoned whenever the population falls back to 22 (or "
-        "45) or below. With this patch builders never start a population hut by themselves, whatever the "
-        "population: they work on one only once you have dropped a villager on it at least once, and from then "
-        "on they finish it whatever the population. This holds every time the game chooses, not only three "
-        "times in four. Builder Action Fixes makes the same change in the executable."
+        "45) or below. With this patch builders never start any population hut by themselves, the first one "
+        "included, whatever the population: they work on one only once you have dropped a villager on it at "
+        "least once, and from then on they finish it whatever the population. This holds every time the game "
+        "chooses, not only three times in four. Builder Action Fixes makes the same change for the second and "
+        "third huts in the executable; on its own it still lets builders start the first hut, as in the "
+        "original game."
     ),
     "vv2": (
         " The new population huts also change. The normal game has a hidden rule here: it shows the "
