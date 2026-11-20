@@ -69331,8 +69331,8 @@
     "vv5"
    ],
    "mechanism": "d",
-   "context": "VVFP Fog Listening.dll (the status line, once per village, when a Heathen in an orange or red mask with Faith -10 or more is dropped on in the Fog of Doom)",
-   "notes": "a patcher message shown by the game; %s is the Heathen's name (keep it); with the name at most 254 bytes",
+   "context": "VVFP Fog Listening.dll (the popup, once per village, when a Heathen in an orange or red mask with Faith -10 or more is dropped on in the Fog of Doom)",
+   "notes": "a patcher message shown by the game in a popup; %s is the Heathen's name (keep it); at most 511 bytes",
    "route": "key"
   },
   {
@@ -69342,8 +69342,19 @@
     "vv5"
    ],
    "mechanism": "d",
-   "context": "VVFP Fog Listening.dll (the same message with Guardians of Isola Rewrite installed)",
-   "notes": "a patcher message shown by the game; %s is the Heathen's name (keep it); with the name at most 254 bytes",
+   "context": "VVFP Fog Listening.dll (the same popup with Guardians of Isola Rewrite installed)",
+   "notes": "a patcher message shown by the game in a popup; %s is the Heathen's name (keep it); at most 511 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_fog_notice.FOG_NOTICE_TITLE.s0",
+   "english": "Fog of Doom",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll (the title of Fog of Doom Lets Every Heathen Listen's popup: the God Power's name)",
+   "notes": "a patcher message shown by the game (the title of the popup, one line)",
    "route": "key"
   },
   {

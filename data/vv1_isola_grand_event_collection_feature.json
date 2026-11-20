@@ -984,7 +984,7 @@
     {
       "source": "assets/event_collection/vv1/living-st_antholog.pak",
       "destination": "Events/st_antholog.pak",
-      "sha256": "E5B476B28A5309584F0152CA8909E80DCB997E9F57C2F6D764163938CFA7EA51"
+      "sha256": "3A4BC05386EE9E4AB5AA56E246F659CB755E48059A20EF5C18890F50AA998F3D"
     },
     {
       "source": "assets/event_collection/vv1/living-st_armor45.pak",
@@ -1269,7 +1269,7 @@
     {
       "source": "assets/event_collection/vv1/living-st_v28.pak",
       "destination": "Events/st_v28.pak",
-      "sha256": "64EC3732B23F0F5BDBC1358EC9633D4D001B710946B1C0948E763C69A9D541DF"
+      "sha256": "E73C0F0C651512C08DADFE79FED9D24DAE63D87A441213B49ECAF7EA92511300"
     },
     {
       "source": "assets/event_collection/adv01_three_people.cieg",
@@ -1699,7 +1699,7 @@
     {
       "source": "assets/event_collection/all_v20_d2_no_such.cieg",
       "destination": "Events/86.cieg",
-      "sha256": "974BAE9796F9560EE7800275DB9DB0E7539F699545B63D0AB15B30F409FF9D43"
+      "sha256": "CBD716AD841A81137E74A7EF4A659E1AF282033FBE9B8D1481C3A2DF198028C0"
     },
     {
       "source": "assets/event_collection/all_v20_d3_cure.cieg",
@@ -2229,7 +2229,7 @@
     {
       "source": "assets/event_collection/anage22_festival.cieg",
       "destination": "Events/192.cieg",
-      "sha256": "A5A9C6D05A34E0D095939656C2CA7B4ABB413DFE81D0F161A5E38AACF87E3AC7"
+      "sha256": "399136DBCA7C9537609A46D38C54AA616BCD3C16C8700EBF41A6637E965CC835"
     },
     {
       "source": "assets/event_collection/anage23_return.cieg",
@@ -22539,7 +22539,7 @@
     {
       "source": "assets/event_collection/vv1_v14_05_lesson.cieg",
       "destination": "Events/4331.cieg",
-      "sha256": "00D4FDD379A28330C865E0404DB324F0FBE79F3356D03B57BDEA5C2CB4AF1756"
+      "sha256": "11C0E9294D99510408266E57A399160159F639167C08A35D9BE70C7A3E6777D6"
     },
     {
       "source": "assets/event_collection/vv1_v14_06_song_isola.cieg",
@@ -22549,7 +22549,7 @@
     {
       "source": "assets/event_collection/vv1_v14_07_instrument.cieg",
       "destination": "Events/4333.cieg",
-      "sha256": "C667CA11C6F1CA3BC65AD1878D2ED9CA7F329A29C2B4B8C7563644789BFE21B4"
+      "sha256": "5DE002F63CED967A7B54732277EB87CBB49C3ABDAF7156CA634E93FD3E9A2771"
     },
     {
       "source": "assets/event_collection/vv1_v14_08_tiny.cieg",
@@ -22589,7 +22589,7 @@
     {
       "source": "assets/event_collection/vv1_v14_15_little.cieg",
       "destination": "Events/4341.cieg",
-      "sha256": "A2E13DD71F3A95A13E5A353526FAC44ECBAADEFA3A25A3E0001EE76AEF027000"
+      "sha256": "ED78C566FF44F5C43BD27F895AA72F756D91F359A22BEC298C76A035BE34360D"
     },
     {
       "source": "assets/event_collection/vv1_v14_16_child_who.cieg",

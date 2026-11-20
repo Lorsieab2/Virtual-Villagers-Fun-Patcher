@@ -185,6 +185,9 @@ PATCHER_READ_FOLDERS: tuple[str, ...] = (
     # scripts/build_event_collection_features.py).  Short names (the owner, 2026-11-19): no "Path too long" when a
     # patched game is copied or unzipped.
     "Events/",
+    # Player Events (src/vv_player_events.py install): the AI prompt, the owner's reference files, the install report
+    # and copies of the player's event files, written there for the player to read.
+    "Player Events/",
 )
 
 # The same folder under its name up to v1.35.97's path fix, with the long file names it held ("<id>.cieg",
@@ -207,6 +210,15 @@ PATCHER_SETTINGS: frozenset[str] = frozenset({
     "VVFP Unicode Font.txt",
     # Village Solidarity's strength (the row's slider), beside "VVFP Village Solidarity.dll".
     "VVFP Village Solidarity.txt",
+    # Hungrier Villagers' meal multiplier ("VVFP Meal Scale.dll"), the third word's companion list ("VVFP More
+    # Companions.dll") and the 0.1x-10x sliders' numbers (src/vv_fun_patcher.py RUNTIME_SLIDERS).
+    "VVFP Meal Scale.txt",
+    "VVFP More Companions.txt",
+    "VVFP Collectible Frequency.txt",
+    "VVFP Food Gain.txt",
+    "VVFP Tech Gain.txt",
+    "VVFP Skill Success.txt",
+    "VVFP Age Speed.txt",
 })
 
 _IN_PLACE = {key.casefold() for key in GAME_READS_IN_PLACE}

@@ -48,32 +48,49 @@ PLAYER_FOLDER = ROOT / "Player Events"                     # the patcher's own f
 # in "Player Events", in the patcher and in each patched game.
 DEFAULTS_FOLDER = PLAYER_FOLDER
 OWNER_DOCS = ROOT / "docs" / "more-island-events"
-PROMPT_NAME = "Player Events - AI Prompt.txt"
-TONE_NAME = "Island Event Tone Reference - Lorsieab2's Handwritten Events.txt"
-TONE_SOURCE = OWNER_DOCS / TONE_NAME
+# Short, readable names in "Player Events" (the owner, 2026-11-19: a file in a subfolder gets a short name that still
+# says what it is; no "Path too long" when a patched game is copied).  The owner's originals keep their own names in
+# docs/more-island-events (OWNER_SOURCE_NAMES); the shipped copies are byte for byte the same.
+PROMPT_NAME = "AI Prompt.txt"
+TONE_NAME = "Tone Reference.txt"
 # The owner's style guide (from Lorsieab2's own edits): every added event follows it, except the owner's handwritten
 # ones; shipped byte for byte beside the prompt and the tone reference.
-STYLE_NAME = "Isola Island Event Style Guide.txt"
-STYLE_SOURCE = OWNER_DOCS / STYLE_NAME
+STYLE_NAME = "Style Guide.txt"
 # The owner's default lists (2026-11-15: "ship these outcome files and themes files in the patcher as default"), byte
 # for byte: every theme of the added events (the "favour these themes" picker offers them) and every kind of outcome.
-THEMES_NAME = "Island Event Themes - All Added Events.txt"
-OUTCOMES_NAME = "Island Event Outcomes - Every Kind.txt"
+THEMES_NAME = "Event Themes.txt"
+OUTCOMES_NAME = "Event Outcomes.txt"
 # The owner's 20 rewritten events (S001-S020): the format and style example the AI prompt names.  Reference only:
 # never compiled or installed as playable events.
-EXAMPLE_NAME = "Example Events - Lorsieab2 (S001-S020).txt"
+EXAMPLE_NAME = "Example Events (S001-S020).txt"
 OWNER_FILES = (TONE_NAME, STYLE_NAME, THEMES_NAME, OUTCOMES_NAME, EXAMPLE_NAME)   # byte for byte (docs/more-island-events)
+# Each shipped file's original in docs/more-island-events, under the owner's own name.
+OWNER_SOURCE_NAMES = {
+    TONE_NAME: "Island Event Tone Reference - Lorsieab2's Handwritten Events.txt",
+    STYLE_NAME: "Isola Island Event Style Guide.txt",
+    THEMES_NAME: "Island Event Themes - All Added Events.txt",
+    OUTCOMES_NAME: "Island Event Outcomes - Every Kind.txt",
+    EXAMPLE_NAME: "Example Events - Lorsieab2 (S001-S020).txt",
+}
+TONE_SOURCE = OWNER_DOCS / OWNER_SOURCE_NAMES[TONE_NAME]
+STYLE_SOURCE = OWNER_DOCS / OWNER_SOURCE_NAMES[STYLE_NAME]
+# The names an older patcher gave the same files in a game's "Player Events" folder: a new install removes them.
+LEGACY_INSTALLED_NAMES = ("Player Events - AI Prompt.txt",) + tuple(OWNER_SOURCE_NAMES.values())
+
+
+def owner_source(name: str) -> Path:
+    """The owner's original of the shipped file `name`, in docs/more-island-events."""
+    return OWNER_DOCS / OWNER_SOURCE_NAMES.get(name, name)
 
 
 def shipped_file(name: str) -> Path:
-    """One of the owner's shipped files: the "Player Events" copy, else docs/more-island-events."""
+    """One of the owner's shipped files: the "Player Events" copy, else its original in docs/more-island-events."""
     shipped = DEFAULTS_FOLDER / name
-    return shipped if shipped.is_file() else OWNER_DOCS / name
+    return shipped if shipped.is_file() else owner_source(name)
 
 
 def style_guide() -> Path:
     return shipped_file(STYLE_NAME)
-
 
 def default_themes(path: Path | None = None) -> list[str]:
     """The themes of the owner's themes file, as short phrases for the picker: each list line split at its commas,
@@ -2962,7 +2979,7 @@ def compile_folder(game: int, folder: Path, settings: Settings) -> tuple[dict[st
     cap = VV1_ID_MAX if game == 1 else ID_MAX
     number = 0                       # the player's events are "p1.cieg", "p2.cieg"...: short names, never a path
     for path in sorted(folder.glob("*.txt"), key=lambda p: p.name.lower()):
-        if path.name in (RULES_NAME, PROMPT_NAME) + OWNER_FILES:
+        if path.name in (RULES_NAME, PROMPT_NAME) + OWNER_FILES + LEGACY_INSTALLED_NAMES:
             continue
         items, file_problems = parse_file(path)
         report.skipped += [str(p) for p in file_problems]
@@ -3100,9 +3117,12 @@ def install_references(game: int, files_dir: Path, settings: Settings, root: Pat
     Files\\Player Events"."""
     shown = files_dir / INSTALLED_FOLDER
     shown.mkdir(parents=True, exist_ok=True)
+    for old in LEGACY_INSTALLED_NAMES:                # an older patcher's long names for the same files
+        if (shown / old).is_file():
+            (shown / old).unlink()
     (shown / PROMPT_NAME).write_text(ai_prompt(game, settings, read_rules(game, root)), encoding="utf-8")
     ref = reference_file(settings)
-    if ref.is_file() and ref != default_reference() and ref.name not in OWNER_FILES:
+    if ref.is_file() and ref != default_reference() and ref.name not in OWNER_FILES + LEGACY_INSTALLED_NAMES:
         shutil.copyfile(ref, shown / ref.name)
     for name in OWNER_FILES:
         if shipped_file(name).is_file():

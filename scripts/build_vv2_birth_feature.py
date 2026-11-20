@@ -323,7 +323,7 @@ def main() -> None:
     removed = len(composition) - len(kept)
 
     feature["composition_patches"][ORIGINS_ID] = kept + _patches(source)
-    MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
 
     print(f"updated {MANIFEST.relative_to(ROOT)}")
     if removed:

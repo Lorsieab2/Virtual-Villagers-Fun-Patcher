@@ -985,7 +985,7 @@
     {
       "source": "assets/event_collection/vv4/living-st_antholog.pak",
       "destination": "Events/st_antholog.pak",
-      "sha256": "CAE238A5E64D634C0DAA10D416A83F772FCEE6E17F485622E5E8A7C0FD240EDC"
+      "sha256": "9C308833319E5E15E2C7C7D7F1C161AC37B4406942921655D7EC2EDB3A3B2B4B"
     },
     {
       "source": "assets/event_collection/vv4/living-st_armor45.pak",
@@ -1275,7 +1275,7 @@
     {
       "source": "assets/event_collection/vv4/living-st_v28.pak",
       "destination": "Events/st_v28.pak",
-      "sha256": "FA84E7BB24A646171E80B0244204FAF97CA37238ADE5C2994CCC46A6877A9844"
+      "sha256": "C88C9B17D63BC29C5216A12698288C041E39BEACF969AB8DCC9AC5A83DFA1340"
     },
     {
       "source": "assets/event_collection/adv01_three_people.cieg",
@@ -1705,7 +1705,7 @@
     {
       "source": "assets/event_collection/all_v20_d2_no_such.cieg",
       "destination": "Events/86.cieg",
-      "sha256": "974BAE9796F9560EE7800275DB9DB0E7539F699545B63D0AB15B30F409FF9D43"
+      "sha256": "CBD716AD841A81137E74A7EF4A659E1AF282033FBE9B8D1481C3A2DF198028C0"
     },
     {
       "source": "assets/event_collection/all_v20_d3_cure.cieg",
@@ -2235,7 +2235,7 @@
     {
       "source": "assets/event_collection/anage22_festival.cieg",
       "destination": "Events/192.cieg",
-      "sha256": "A5A9C6D05A34E0D095939656C2CA7B4ABB413DFE81D0F161A5E38AACF87E3AC7"
+      "sha256": "399136DBCA7C9537609A46D38C54AA616BCD3C16C8700EBF41A6637E965CC835"
     },
     {
       "source": "assets/event_collection/anage23_return.cieg",

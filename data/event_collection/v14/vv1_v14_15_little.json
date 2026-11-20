@@ -57,7 +57,7 @@
   "scene__fx": {
    "name": "The Little Healer",
    "src": "L7753-7755",
-   "text": "An elder struggles beneath a heavy basket. The Golden Child helps the elder sit in the shade, fetches water, and calls a healer rather than pretending he can cure everything. The healer praises his judgment.",
+   "text": "An elder struggles beneath a heavy basket. The Golden Child helps the elder sit in the shade, fetches water, and calls a healer rather than pretending (child.he/she) can cure everything. The healer praises (child.his/her) judgment.",
    "effects": [
     {
      "do": "health_change",

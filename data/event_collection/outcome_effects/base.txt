@@ -2492,7 +2492,9 @@ v20/all_v20_between_life.json | a1_n | HEALTH UP (patient) (50%) | "(patient.he/
 v20/all_v20_d10_child.json | b1 | TECH GAIN large (50%) | "The masters later discover the child was right" | {"do":"tech","size":"large","scaled":true}
 v20/all_v20_d1_two_lives.json | b1 | HEALTH UP (parent) (50%) | "Both recover against expectation" | {"do":"health_change","role":"parent","min":15,"max":30}
 v20/all_v20_d1_two_lives.json | c27 | HEALTH UP (parent) (50%) | "(parent.his/her) condition unexpectedly improves" | {"do":"health_change","role":"parent","min":15,"max":30}
-v20/all_v20_d2_no_such.json | a1 | TECH GAIN normal (50%) | "the village celebrates a major medical discovery" | {"do":"tech","size":"normal","scaled":true}
+# Not applied: a1 already holds this tech gain as its own effect (100%, scripts/food_tech_additions.py, 2026-11-15),
+# and an outcome's own effects stay on both copies; the merge of #821 left it on a1__text too.
+# v20/all_v20_d2_no_such.json | a1 | TECH GAIN normal (50%) | "the village celebrates a major medical discovery" | {"do":"tech","size":"normal","scaled":true}
 v20/all_v20_d2_no_such.json | a2 | HEALTH UP (patient) (50%) | "It relieves symptoms" | {"do":"health_change","role":"patient","min":15,"max":30}
 v20/all_v20_d2_no_such.json | b1 | TECH GAIN normal (50%) | "A fatal flaw is discovered before anyone is harmed" | {"do":"tech","size":"normal","scaled":true}
 v20/all_v20_d3_cure.json | a3 | TECH GAIN normal (50%) | "the researchers learn about the illness" | {"do":"tech","size":"normal","scaled":true}

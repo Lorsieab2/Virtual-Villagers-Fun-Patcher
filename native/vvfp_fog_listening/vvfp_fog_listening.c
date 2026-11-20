@@ -48,12 +48,18 @@
    Companions.dll (the third word, native/shared/startup_companions_3.h).  No debug output.
 
    THE NOTICE.  The owner (2026-11-19): when the Fog of Doom is on and the Faith limit turns a drop away (the main
-   row without No Restrictions), the game's status line says "The fog hides you, but <Name> still won't listen.
-   Something stronger may stir them." (with the Guardians of Isola rewrite: "... <Name> is still wary. Perhaps
-   another approach may convince them."), <Name> the Heathen's whole name (long_name.h), the words through VVFP
-   Translations.dll.  Only once per village, ever: a small file in the slot's own data folder marks it shown, kept
-   across quitting; Start Over deletes the save's folder, so the next village is told again.  Never for a blue
-   Heathen, natural fog, no fog, or with No Restrictions. */
+   row without No Restrictions), a popup like the game's normal ones says "The fog hides you, but <Name> still
+   won't listen. Something stronger may stir them." (with the Guardians of Isola rewrite: "... <Name> is still wary.
+   Perhaps another approach may convince them."), <Name> the Heathen's whole name (long_name.h), the words through
+   VVFP Translations.dll.  This companion only keeps the notice waiting (one at a time) and composes its words;
+   "VVFP Story Upgrades.dll" (story_fog_notice.inc) shows it the way it shows Popup When Believers Become
+   Heathens' popup -- the game's own island-event popup window with its OK, only when no other popup or event is
+   showing or on its way and the game is running -- asks VvfpFogNoticePending each frame and calls
+   VvfpFogNoticeTaken once it is armed.  Only once per village, ever: Taken makes a small file in the slot's own data
+   folder, kept across quitting; Start Over deletes the save's folder (and VvfpStoryVillageReset drops a notice
+   still waiting), so the next village is told again.  A notice still waiting at a quit was never shown, so the
+   next refusal makes it again.  Never for a blue Heathen, natural fog, no fog, an unknown slot, or with No
+   Restrictions. */
 #include <windows.h>
 #include <string.h>
 #include "../shared/install_sites.h"
@@ -84,11 +90,10 @@ static const unsigned char SITE_STOCK[24] = {
 };
 
 #define FL_STRINGS 0x5240A8u            /* the game's string table (entry pointers by id) */
-#define FL_SAY 0x44F0B0u                /* the status line's text: thiscall (text), copies it, shows it 5 seconds */
-#define FL_STATUS_LINE 0x520F68u
 #define FL_NAME 0x1B9C                  /* the villager's name field */
 #define FL_NAME_FIELD 0x19
-#define FL_TEXT_CAP 255                 /* the status line's own copy limit (0x44F0B5) */
+#define FL_WORDS_CAP 512                /* a translation of the words, at most */
+#define FL_WHOLE_NAME 512               /* a whole name, at most */
 #define FL_NOTICE_LINE "Virtual Villagers Fun Patcher - the Fog of Doom notice was shown in this village.\r\n"
 
 /* The owner's words (2026-11-19); %s is the Heathen's whole name. */
@@ -100,10 +105,11 @@ static const char WARY_EN[] =
 static int g_installed;
 static int g_no_limit;                  /* "No Restrictions on Fog of Doom Conversions" is shipped */
 static unsigned int g_listened;         /* masked Heathens let listen this session (the tests read it) */
-static unsigned int g_notices;          /* notices shown this session (the tests read it) */
+static unsigned int g_notices;          /* notices handed over to be shown this session (the tests read it) */
+static int g_waiting_slot;              /* the slot of the notice waiting to be shown, 0 when none */
+static char g_waiting_name[FL_WHOLE_NAME];
 
 typedef unsigned char (__fastcall *fl_fog_fn)(void *weather);
-typedef void (__fastcall *fl_say_fn)(void *line, void *edx, const char *text);
 
 /* "No Restrictions on Fog of Doom Conversions" is shipped: its file is in the patcher's folder.  Any failure reads
    as not shipped: the Faith condition stays. */
@@ -164,37 +170,78 @@ static int fl_notice_path(wchar_t *out, int slot) {
     return vv_ps_data_file_w(out, L"Fog of Doom", name, VV_PS_RESERVE);
 }
 
-/* The village's first refusal (the owner, 2026-11-19: once per village, kept across quitting, Start Over resets
-   it): the message on the game's status line, the same line and routine the game's own short feedback uses
-   (0x44F0B0 on 0x520F68: copied, shown 5 seconds), then the slot's notice file.  Nothing when the file is already
-   there, the slot is not known, or the file cannot be made (never shown again and again). */
+/* The village's first refusal: the notice is kept waiting, with the Heathen's whole name, for the Story companion
+   to show.  Nothing when one is waiting already, the slot is not known, or this village was told before. */
 static void fl_notice(const unsigned char *heathen) {
     wchar_t path[MAX_PATH];
-    char field[FL_NAME_FIELD + 1], text[FL_TEXT_CAP];
-    const char *name, *words;
-    HANDLE file;
-    DWORD wrote;
-    if (!fl_notice_path(path, vv_game_save_slot(FL_GAME)) || GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
+    char field[FL_NAME_FIELD + 1];
+    int slot = vv_game_save_slot(FL_GAME);
+    if (g_waiting_slot != 0 || !fl_notice_path(path, slot) || GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
         return;
     }
-    file = CreateFileW(path, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (file == INVALID_HANDLE_VALUE) {
-        return;
-    }
-    (void)WriteFile(file, FL_NOTICE_LINE, (DWORD)(sizeof FL_NOTICE_LINE - 1), &wrote, NULL);
-    CloseHandle(file);
     memcpy(field, heathen + FL_NAME, FL_NAME_FIELD);
     field[FL_NAME_FIELD] = '\0';
-    name = vv_long_name(field);
-    words = fl_isola()
-        ? vvfp_tr("vvfp.fog_listening/vvfp_fog_listening.WARY_EN.s0", WARY_EN, FL_TEXT_CAP)
-        : vvfp_tr("vvfp.fog_listening/vvfp_fog_listening.WONT_LISTEN_EN.s0", WONT_LISTEN_EN, FL_TEXT_CAP);
-    if (lstrlenA(words) + lstrlenA(name) >= FL_TEXT_CAP) {
-        return;                         /* never cut: a translation too long for the line shows nothing */
+    lstrcpynA(g_waiting_name, vv_long_name(field), (int)sizeof g_waiting_name);
+    g_waiting_slot = slot;
+}
+
+/* For "VVFP Story Upgrades.dll" (story_fog_notice.inc), every frame: 1 with the popup's words in `out` (`cap`
+   bytes, at least 1,024) while a notice of the village in play waits; 0 otherwise (a notice of another slot's
+   village is dropped). */
+int __stdcall VvfpFogNoticePending(int game, char *out, int cap) {
+    const char *words;
+    int found = 0;
+    __try {
+        if (game != FL_GAME || g_waiting_slot == 0 || out == NULL || cap < 1024) {
+            return 0;
+        }
+        if (vv_game_save_slot(FL_GAME) != g_waiting_slot) {
+            g_waiting_slot = 0;         /* the player went to another village: it was that one's */
+            return 0;
+        }
+        words = fl_isola()
+            ? vvfp_tr("vvfp.fog_listening/vvfp_fog_listening.WARY_EN.s0", WARY_EN, FL_WORDS_CAP)
+            : vvfp_tr("vvfp.fog_listening/vvfp_fog_listening.WONT_LISTEN_EN.s0", WONT_LISTEN_EN, FL_WORDS_CAP);
+        if (lstrlenA(words) + lstrlenA(g_waiting_name) >= cap) {
+            return 0;                   /* cannot happen: at most 511 + 511 bytes in 1,024 */
+        }
+        wsprintfA(out, words, g_waiting_name);
+        found = 1;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        found = 0;
     }
-    wsprintfA(text, words, name);
+    return found;
+}
+
+/* For "VVFP Story Upgrades.dll": the popup is armed (the game's own trigger shows it), so the village is marked
+   as told and the notice is no longer waiting. */
+void __stdcall VvfpFogNoticeTaken(int game) {
+    wchar_t path[MAX_PATH];
+    HANDLE file;
+    DWORD wrote;
+    if (game != FL_GAME || g_waiting_slot == 0) {
+        return;
+    }
+    __try {
+        if (fl_notice_path(path, g_waiting_slot)) {
+            file = CreateFileW(path, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+            if (file != INVALID_HANDLE_VALUE) {
+                (void)WriteFile(file, FL_NOTICE_LINE, (DWORD)(sizeof FL_NOTICE_LINE - 1), &wrote, NULL);
+                CloseHandle(file);
+            }
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    g_waiting_slot = 0;
     ++g_notices;
-    ((fl_say_fn)FL_SAY)((void *)FL_STATUS_LINE, NULL, text);
+}
+
+/* For "VVFP Story Upgrades.dll" (VvfpStoryVillageReset): Start Over or a deleted tribe; a notice still waiting was
+   that village's. */
+void __stdcall VvfpFogNoticeVillageReset(int game) {
+    if (game == FL_GAME) {
+        g_waiting_slot = 0;
+    }
 }
 
 /* 1 when a believer dropped on this orange- or red-masked Heathen starts the stock listening. */
@@ -255,7 +302,7 @@ unsigned int __stdcall VvfpFogListeningCount(void) {
     return g_listened;
 }
 
-/* How many notices were shown this session (for the tests' emulation). */
+/* How many notices were handed over to be shown this session (for the tests' emulation). */
 unsigned int __stdcall VvfpFogListeningNotices(void) {
     return g_notices;
 }

@@ -58,16 +58,29 @@
    ]
   },
   "a1": {
-   "type": "branch",
-   "name": "The 50 percent chance",
-   "children": [
+   "text": "It works; the village celebrates a major medical discovery.",
+   "src": "L8974",
+   "effects": [
     {
-     "next": "a1__fx"
+     "do": "celebrate",
+     "who": "all",
+     "src": "L8974"
     },
     {
-     "next": "a1__text"
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L8974"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8974"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "type": "branch",
@@ -193,56 +206,6 @@
      "weight": 20
     }
    ]
-  },
-  "a1__fx": {
-   "text": "It works; the village celebrates a major medical discovery.",
-   "src": "L8974",
-   "effects": [
-    {
-     "do": "celebrate",
-     "who": "all",
-     "src": "L8974"
-    },
-    {
-     "do": "health_change",
-     "role": "patient",
-     "min": 10,
-     "max": 30,
-     "src": "L8974"
-    },
-    {
-     "do": "tech",
-     "size": "normal",
-     "scaled": true,
-     "src": "L8974"
-    }
-   ],
-   "auto_text": true
-  },
-  "a1__text": {
-   "text": "It works; the village celebrates a major medical discovery.",
-   "src": "L8974",
-   "effects": [
-    {
-     "do": "celebrate",
-     "who": "all",
-     "src": "L8974"
-    },
-    {
-     "do": "health_change",
-     "role": "patient",
-     "min": 10,
-     "max": 30,
-     "src": "L8974"
-    },
-    {
-     "do": "tech",
-     "size": "normal",
-     "scaled": true,
-     "src": "L8974"
-    }
-   ],
-   "auto_text": true
   },
   "a2__fx": {
    "text": "It relieves symptoms but does not cure the illness.",

@@ -429,19 +429,9 @@ class Emulated(unittest.TestCase):
     # -- The Secret City -------------------------------------------------------------------------------------
     TECH3 = 0x582618
 
-    def vv3_condition(self, exe: bytes, entry: int, levels: dict, found: int = 7, records: int = 10) -> int:
+    def vv3_condition(self, exe: bytes, entry: int, levels: dict, found: int = 7) -> int:
         m = Machine(exe)
         m.hooks[0x45D460] = (found, 0x10)                                        # the villager picker
-        # The always-applied safety patch's cave behind 0x41580C (Beans / Tablet): its record count.
-        jump = exe[0x41580C - BASE:0x41580C - BASE + 5]
-        if jump[0] == 0xE9:
-            cave = 0x41580C + 5 + struct.unpack("<i", jump[1:])[0]
-            image = pefile.PE(data=exe).get_memory_mapped_image()
-            md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
-            for ins in md.disasm(image[cave - BASE:cave - BASE + 32], cave):
-                if ins.mnemonic == "call":
-                    m.hooks[int(ins.op_str, 16)] = (records, 0)
-                    break
         for index in range(7):
             m.put(self.TECH3 + 4 * index, levels.get(index, 1))
         return m.run(entry, [RETURN]) & 0xFF
@@ -468,10 +458,11 @@ class Emulated(unittest.TestCase):
             for entry in (0x4157E0, 0x4159B0, 0x415C40, 0x4171D0):
                 with self.subTest(mode=mode, row=row, entry=hex(entry)):
                     self.assertEqual(self.vv3_condition(exe, entry, {0: 0, 1: 3, 2: 0}, found=0), 0)
-            with self.subTest(mode=mode, row=row, check="records"):
-                # Beans / Tablet: the safety patch's record check still refuses when no record is left.
-                self.assertEqual(self.vv3_condition(exe, 0x4157E0, {0: 0}, records=0x100), 0)
-                self.assertEqual(self.vv3_condition(exe, 0x4157E0, {0: 0}, records=10), 1)
+            with self.subTest(mode=mode, row=row, check="shared level test"):
+                # Beans / Tablet make no villager, so no record guard sits on their condition (536d34f42 retired the
+                # wrong 0x1580C site): the shared level test 0x41580C..0x415816 the row jumps into keeps the stock
+                # bytes in every build.
+                self.assertEqual(pefile.PE(data=exe).get_data(0x1580C, 11), stock_bytes(3)[0x1580C:0x1580C + 11])
 
     def test_vv3_tablet_raise_is_plus_one_up_to_three(self) -> None:
         for mode, row, exe in self.builds(3):
