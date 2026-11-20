@@ -107,7 +107,14 @@ class Puzzles(unittest.TestCase):
 
     def test_the_dendrology_needs(self) -> None:
         self.assertEqual(entry("Pruning the Tree").subs, (("Binding the branch needs Dendrology level 2.", gm.CODE),))
-        self.assertEqual(entry("Purify Tree").subs, (("Purifying the tree needs Dendrology level 3.", gm.CODE),))
+        # Purify Tree's second line is Fix Vanilla Bugs' effect-timer fix (2a8bb59ce: only the autosave keeps the
+        # glow and the clean body, they pause with the game, and a bath in the rain cleans), not a Dendrology need.
+        subs = entry("Purify Tree").subs
+        self.assertEqual(subs[0], ("Purifying the tree needs Dendrology level 3.", gm.CODE))
+        self.assertEqual(len(subs), 2)
+        self.assertTrue(subs[1][0].startswith('With the patcher ("Fix Vanilla Bugs"'), subs[1][0])
+        self.assertIn("the 10-minute autosave no longer ends them", subs[1][0])
+        self.assertEqual(subs[1][1], gm.RUNNING)
 
 
 class Buildings(unittest.TestCase):
@@ -145,14 +152,18 @@ class Items(unittest.TestCase):
 
 class Patcher(unittest.TestCase):
     def test_the_doublers_say_what_they_skip(self) -> None:
+        # v1.35.97's doublers (PR #805) are whitelists: scripts/build_vv4_origins_feature.py
+        # TECH_DOUBLER_ELIGIBLE_RETURNS (research, the Lab Equipment bonus, the fire's point, duplicate collectibles)
+        # and FOOD_DOUBLER_ELIGIBLE_RETURNS; the lines follow them (3b5990488).
         tech = entry("Tech Point Doubler")
-        self.assertIn("research is on that list -- the researcher's points, the Lab Equipment bonus and the Fire "
-                      "Pit's +1", tech.text)
+        self.assertIn("the tech points research earns are doubled (with the Lab Equipment bonus and the fire's extra "
+                      "point), and so are duplicate collectibles; island events, rewards, purchases and cheats are not",
+                      tech.text)
         self.assertNotIn("every positive tech-point gain the villagers earn is doubled", tech.text)
         food = entry("Food Point Doubler")
-        self.assertIn("every farming trip is on that list -- blackberry picks and harvests, the Cooking Pit fruit, "
-                      "fish and the Golden Fish", food.text)
-        self.assertIn("it doubles mushrooms, crabs", food.text)
+        self.assertIn("doubled after Food Mastery (blackberry bushes, cutting-tool berries, yellow breadfruit, fish, "
+                      "golden fish, crabs and mushrooms); island events, rewards, purchases and cheats are not",
+                      food.text)
         self.assertEqual((tech.verified, food.verified), (gm.CODE, gm.CODE))
 
     def test_running_for_all_needs_a_free_like(self) -> None:
@@ -173,7 +184,9 @@ class Patcher(unittest.TestCase):
         unconfirmed = [e.name for e in items.entries() if e.kind == items.PATCHER and e.verified is False]
         self.assertEqual(unconfirmed, [])
         self.assertIn("heads by hair colour", entry("Change Appearance for All").text)
-        self.assertIn("5 real-life seconds after it is bought", entry("Island Event").text)
+        # the time names its clock (3b5990488, the Game Mechanics rule: every time says which clock)
+        self.assertIn("5 real-life seconds (real time, the same at every speed) after it is bought",
+                      entry("Island Event").text)
         self.assertIn("brings 3 children", entry("Barrel of Babies").text)
 
 

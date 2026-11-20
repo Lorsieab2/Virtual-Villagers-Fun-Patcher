@@ -397,10 +397,12 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # rows (v1.35.70), and for resetting corrupted skills.  Re-pinned when its masks
         # learned to follow a sex change and Change Appearance gained "Change sex..."
         # (native/shared/sex_change.h, sex_change_ui.h), and again when it was rebuilt on the merged shared headers
-        # of v1.35.97 (round 5: the gender presentation; the Golden Child option 1 leaves it as it was).
+        # of v1.35.97 (round 5: the gender presentation; the Golden Child option 1 leaves it as it was), and again
+        # when the merge's companions were rebuilt (181a51614; scripts/build_vv2_origins_icons.ps1 rebuilds it
+        # byte-identical).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "B94FC824D662095A2520B97FCA8C829336BE863FBD45BF994E5D6054D83E6F4B",
+            "C323502A57F51868C965E764F4C60B2AFB15E9673B7A48C5D8FF6BBA6E93F9C9",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

@@ -152,7 +152,11 @@ class RemainingList(unittest.TestCase):
         self.assertIn("Faith is set to 25 to 59", entry("The Heathen Builder").text)
         self.assertIn("With Research 88 or more", entry("The Heathen Scientist").text)
         self.assertIn("gains 30 Faith", entry("The Heathen Scientist").text)
-        self.assertTrue(entry("The Tribute Statue").subs[0][0].startswith("DEAD (never runs)"))
+        # The stock +1 Divine Energy step is still never asked for in the normal game, and Fix Vanilla Bugs now asks
+        # for it after each polish (10e99038a), so the line says both instead of a bare "DEAD (never runs)".
+        statue = entry("The Tribute Statue").subs[0][0]
+        self.assertIn("in the normal game no action ever asks for that step", statue)
+        self.assertIn('Fixed by With the patcher ("Fix Vanilla Bugs"', statue)
         self.assertIn("the builder's after The Heathen Builder", entry("The Heathen Chief").subs[0][0])
         self.assertIn("\"Starting a fire\" with both in gives the third", entry("The fire pit").subs[0][0])
         self.assertFalse([e.name for e in items.entries() if e.verified is False])

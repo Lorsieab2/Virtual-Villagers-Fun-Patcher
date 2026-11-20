@@ -25,9 +25,13 @@ from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
 STOCK_SHA = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 # Re-pinned for the VV3 slot counter's active-flag BYTE test (safety row 0x7B318): the parents
 # differ from main 5aa370fc's only in the PE CheckSum (0x160) and the operand-size byte 0x7B326.
+# Re-pinned (v1.35.97) for 536d34f42's VV3 safety rows (the amber Mysterious Vial's room guard on its own
+# condition, no Crystal site on another event: rows 0x1580C/0x175A5/0x178DA/0x191EF/0xB4390-0xB43D0, every patched
+# game's automatic:safety); the two candidate inputs are unchanged since 72668c206 and the header and 0xA38C3 hook
+# preimages still hold.
 PARENTS = {
-    "collection_progression": "39CF2682D93C29D16F81935FE9DD5085E63DF3CE70F7A5FDFE9AFDBD1EBA6F9F",
-    "immediate_fixed": "DC9C703FF58A106BE64B86DD4455B187FAD0D7F9B45C901978E0D5F493A376DD",
+    "collection_progression": "73E901906C0B5F0A2153FD247F6BD0C73204724E753AFDF3AFF2F143F5B76CE5",
+    "immediate_fixed": "BFB615A2B65C7B1A4861C1BB620BB40340739F7AC2C4F2225B91C09FB72ED879",
 }
 PAGE_RAW, PAGE_RVA, PAGE_VA, PAGE_SIZE = 0xCC000, 0x2E0000, 0x6E0000, 0x1000
 HOOK_RAW = 0xA38C3

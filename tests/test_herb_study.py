@@ -249,8 +249,19 @@ class Rows(unittest.TestCase):
                 listed = {d["va"] for d in row["runtime_detours"] if d["installed_by"].startswith("VVFP Herb Study.dll")}
                 self.assertEqual(listed, sites)
                 self.assertIn("VVFP Herb Study.dll", row["description"])
-        self.assertIn("VVFP Herb Study.dll", vfp.STARTUP_LOADER_COMPANIONS_2)
-        self.assertIn('"VVFP Herb Study.dll"', (ROOT / "native/shared/startup_companions_2.h").read_text(encoding="utf-8"))
+        # The second startup word filled at the v1.35.97 merge, so the herb study moved to the third word, which
+        # "VVFP More Companions.dll" starts (vv_fun_patcher.STARTUP_LOADER_COMPANIONS_3, its comment says so).
+        self.assertIn("VVFP Herb Study.dll", vfp.STARTUP_LOADER_COMPANIONS_3)
+        self.assertNotIn("VVFP Herb Study.dll", vfp.STARTUP_LOADER_COMPANIONS_2)
+        self.assertIn('"VVFP Herb Study.dll"', (ROOT / "native/shared/startup_companions_3.h").read_text(encoding="utf-8"))
+        for game in expected:
+            with self.subTest(game=game, starter="VVFP More Companions.dll"):
+                # a third-word companion only starts when the build also ships its starter (attached at patch time)
+                shipped = vfp._attach_more_companions([vfp.Record(rows[f"{game}_fix_vanilla_bugs"])])
+                self.assertIn("VVFP More Companions.dll",
+                              {c["destination"] for c in shipped[0].raw["companion_files"]})
+                self.assertTrue(vfp._startup_loader_mask_3(shipped)
+                                & (1 << vfp.STARTUP_LOADER_COMPANIONS_3.index("VVFP Herb Study.dll")))
         self.assertIn("assets/herb_study/VVFP Herb Study.dll",
                       (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8"))
 
