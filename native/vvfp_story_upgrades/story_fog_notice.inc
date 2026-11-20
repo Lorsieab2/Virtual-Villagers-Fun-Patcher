@@ -10,11 +10,12 @@
    (story_notice_arm), armed only when the slot is free and the game's trigger will show it at once -- never during
    a time skip or its closing popup, an island event's popup, a pick or custom event on its way, or while the game
    is not running -- kept apart from the island events (not counted, not logged, the next island event keeps its
-   time).  Once armed the companion is told (VvfpFogNoticeTaken), which marks the village as told.  The title is
-   the God Power's own name, "Fog of Doom" (its translation row is ...FOG_NOTICE_TITLE.s0). */
+   time).  Once armed the companion is told (VvfpFogNoticeTaken), which marks the village as told.  No title: the
+   owner (2026-11-19), it "doesn't need to have a title".  New Believers draws an island event's title as its own
+   string (the adapter's title_separate), never inside the text, so the text is composed without a title line and
+   the title string is empty. */
 
 #define FOG_NOTICE_GAME 5
-#define FOG_NOTICE_TITLE "Fog of Doom"
 
 typedef int (__stdcall *fog_pending_fn)(int game, char *out, int cap);
 typedef void (__stdcall *fog_taken_fn)(int game);
@@ -52,8 +53,7 @@ static void fog_notice_tick(int game) {
         || fog_notice_event.text[0] == '\0') {
         return;
     }
-    lstrcpynA(fog_notice_event.title, vvfp_tr("vvfp.story/story_fog_notice.FOG_NOTICE_TITLE.s0", FOG_NOTICE_TITLE,
-                                              sizeof fog_notice_event.title), sizeof fog_notice_event.title);
+    /* (fog_notice_event.title stays empty: no title.) */
     if (story_notice_arm(game, &fog_notice_event) && fog_taken_export != NULL) {
         fog_taken_export(FOG_NOTICE_GAME);     /* armed: the game's own trigger shows it */
     }

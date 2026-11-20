@@ -480,7 +480,6 @@ static const char *const TR_KEY_STEMS[] = {
     "vvfp.story/story_faith_notice.faith_notice_reasons.s1",
     "vvfp.story/story_faith_notice.faith_notice_reasons.s2",
     "vvfp.story/story_faith_notice.faith_notice_reasons.s3",
-    "vvfp.story/story_fog_notice.FOG_NOTICE_TITLE.s0",
     "vvfp.story/story_more_events.sm_fill_more.s0",
     "vvfp.story/story_more_events.sm_refusal.s0",
     "vvfp.story/story_more_events.sm_refusal_of.s0",

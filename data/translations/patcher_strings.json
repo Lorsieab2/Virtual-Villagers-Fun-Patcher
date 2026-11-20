@@ -69347,17 +69347,6 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_fog_notice.FOG_NOTICE_TITLE.s0",
-   "english": "Fog of Doom",
-   "games": [
-    "vv5"
-   ],
-   "mechanism": "d",
-   "context": "VVFP Story Upgrades.dll (the title of Fog of Doom Lets Every Heathen Listen's popup: the God Power's name)",
-   "notes": "a patcher message shown by the game (the title of the popup, one line)",
-   "route": "key"
-  },
-  {
    "stem": "vvfp.story/story_graph.cg_load.s37",
    "english": "its title variants do not fit in the file",
    "games": [
