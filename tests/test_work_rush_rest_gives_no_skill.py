@@ -28,7 +28,10 @@ def harness(game: int):
         fe = importlib.import_module(f"farmers_emulation_vv{game}")
     except Exception as e:                 # pragma: no cover
         raise unittest.SkipTest(f"no emulator: {e}")
-    if not fe.STOCK.is_file() or (hasattr(fe, "CMAP") and not fe.CMAP.is_file()):
+    # New Believers' emulator reads its walk map and animations from research/game-data/vv5 (the game's own
+    # Assets files, copied there, never committed) and says whether they are all there with available().
+    if (not fe.STOCK.is_file() or (hasattr(fe, "CMAP") and not fe.CMAP.is_file())
+            or (hasattr(fe, "available") and not fe.available())):
         raise unittest.SkipTest("needs the stock executable and research/game-data")
     return fe
 

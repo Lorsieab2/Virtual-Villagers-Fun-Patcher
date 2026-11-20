@@ -140,7 +140,7 @@ ROLES: name1=18+ name2=18+
 REVIEW: ok
 
 BLF-26
-DESC: At the feast for the Guardians, a believer sees an Isolan from outside the village watching: invite them, or leave them be.
+DESC: At a great feast, a believer sees an Isolan from outside the village watching: invite them, or leave them be.
 ROLES: name1=18+ name2=stranger
 FIX L1: 1=2
 FIX L2: 1=2

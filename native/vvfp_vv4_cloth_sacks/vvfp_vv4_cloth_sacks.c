@@ -130,7 +130,7 @@
 #define MAP 0x6C4658u
 #define AREA_AT 0x46C410u            /* thiscall(map; x, y): the drop area there (the drop dispatcher's) */
 #define HUT_AREA 0x12               /* the Clothing Hut's (its handler 0x46F600, registered at 0x46FA8E) */
-#define GAME_GET 0x41FE70u           /* the game object */
+#define GAME_WORD 0x4CB51Cu          /* where the getter 0x41FE70 keeps the game object; 0 = not built yet */
 #define G_BERRIES 0x170F8u           /* the blackberries the harvest's credit reads */
 #define JOB_EVENT 0x4642F0u          /* thiscall(job; event) */
 #define HARVEST_CREDIT 14            /* the cutting-tool harvest's credit (0x4644EE) */
@@ -258,7 +258,11 @@ typedef char (__fastcall *taken_fn)(void *self, void *unused, int lock);
 typedef char (__fastcall *do_action_fn)(void *self, void *unused, int action, void *block);
 typedef int *(__fastcall *position_fn)(void *self, void *unused, int *out);
 typedef int (__fastcall *area_fn)(void *self, void *unused, int x, int y);
-typedef unsigned char *(__cdecl *game_get_fn)(void);
+/* The game object, or NULL while it is not built: read from its word, never the getter 0x41FE70, which BUILDS it
+   when the word is 0 (the owner, 2026-11-18: no companion calls a getter that can build the game object). */
+static unsigned char *game_object(void) {
+    return *(unsigned char *volatile *)(UINT_PTR)GAME_WORD;
+}
 typedef void (__fastcall *event_fn)(void *self, void *unused, int event);
 typedef void (__fastcall *step1_fn)(void *self, void *unused, int arg);
 typedef void (__fastcall *step0_fn)(void *self, void *unused);
@@ -525,7 +529,7 @@ static int __cdecl on_event(unsigned char *job, int event) {
                Mastery inside 0x41D920, the Origins Food Doubler's wrapper, which doubles writer calls by their
                stock return address, PR #805) acts on the sack exactly as on a cutting-tool harvest, once.  What it
                paid is then taken from the tree. */
-            unsigned char *game = ((game_get_fn)(UINT_PTR)GAME_GET)();
+            unsigned char *game = game_object();         /* NULL: not ready, nothing paid */
             int left = fruit_left(), saved, stand_in, paid;
             if (game != NULL) {
                 saved = *(int *)(game + G_BERRIES);

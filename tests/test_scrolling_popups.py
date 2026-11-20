@@ -134,6 +134,9 @@ def sites(game: int) -> list[tuple[int, str]]:
     if game in BUILDER.WHOLE_SITES:
         whole_sites, whole_fn = BUILDER.WHOLE_SITES[game]
         out += [(va, BUILDER.call_bytes(va, whole_fn)) for va in whole_sites]
+    if game in BUILDER.TIP_LOOKUP:
+        lookup_sites, lookup = BUILDER.TIP_LOOKUP[game]
+        out += [(va, BUILDER.call_bytes(va, lookup)) for va in lookup_sites]
     out.append(BUILDER.TAIL[game])            # the frame draw's tail: 13 / 14 bytes, not a call
     return out
 
@@ -181,6 +184,9 @@ class TheRows(unittest.TestCase):
             if game in BUILDER.WHOLE_SITES:
                 for va in (*BUILDER.WHOLE_SITES[game][0], BUILDER.WHOLE_SITES[game][1]):
                     self.assertIn(f"0x{va:X}u", row)
+            if game in BUILDER.TIP_LOOKUP:
+                for va in (*BUILDER.TIP_LOOKUP[game][0], BUILDER.TIP_LOOKUP[game][1]):
+                    self.assertIn(f"0x{va:X}u", shifts)
             if game in BUILDER.SITES:
                 _ctor, draw, justify, size, sizer = BUILDER.SITES[game]
                 classes = header.split(f"static const sp_class SP_VV{game}_CLASSES[] = {{")[1].split("};")[0]
@@ -614,6 +620,17 @@ TIP_LONG = b"\n".join(b"Tip line %d: drag a villager onto the garden to teach th
                       for n in range(1, 41))
 TIP_SHORT = b"Click on a villager and drag them\nto the farm to make them a farmer."
 TIP_WIDE = b"A tip with a line far too wide: " + b"Supercalifragilisticexpialidocious " * 6 + b"\nSecond line."
+TIP_WORD = b"A tip with one word far too wide: " + b"Supercalifragilisticexpialidocious" * 4 + b"\nSecond line."
+# The later three's welcome tips (the tutorial's first), as their string tables give them.
+WELCOME = {
+    4: (b"Welcome to Virtual Villagers: The Tree Of Life\n\nRelief replaces panic as the villagers realize \nthat "
+        b"they have been granted success in their \nquest for answers.  They are certain that they \nhave been led to "
+        b"this forsaken, dying tree. As \nthey pray for continued guidance, they begin to \nseek a way to save it . . . "
+        b"and all of Isola!\n"),
+    5: (b"Welcome to Virtual Villagers: New Believers\n\nOh no! Your villagers have been captured by a tribe \n"
+        b" of Native Isolans. To survive here in the heart of Isola, they'll need \n"
+        b" to learn from one another and help each other regain some hope and faith.\n"),
+}
 
 
 @unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and HAVE_IMAGES and TEST_DLL.is_file(),
@@ -693,10 +710,70 @@ class TheTip(unittest.TestCase):
                 self.assertEqual(d.panel(), (left, top, right, bottom))
                 self.assertTrue(d.click((left + right) // 2, bottom - 20))
 
-    def test_a_wide_tip_scrolls_sideways(self) -> None:
+    def test_a_wide_tip_wraps_in_the_box(self) -> None:
+        """The owner (2026-11-19): text wraps normally, no sideways scrolling unless one word is wider than the box.
+        The later three's tip asked wider than the screen wraps its text narrower by what its panel is capped by; A New
+        Home's and The Lost Children's tip is handed its text with each line wider than the box broken at its spaces
+        (their constructor makes the panel as wide as the widest line), so the game itself asks for a panel that fits."""
         for game, d in self.tips.items():
             with self.subTest(game=game):
+                w, h = d.g["screen"]
                 d.make_tip(TIP_WIDE)
+                if game in (1, 2):
+                    self.assertLessEqual(d.stock_width, w - 32)
+                else:
+                    self.assertGreater(d.stock_width, w)
+                    self.assertGreater(d.size_requests[-1], d.stock_height)  # the lines the narrower text adds
+                self.assertLessEqual(d.width_requests[-1], w - 32)
+                before = d.companion_export("VvfpScrollingPopupsTestScrolled")
+                blits = d.draw_box()
+                left, top, right, bottom = d.panel()
+                self.assertTrue(0 <= left and right <= w and 0 <= top and bottom <= h)
+                self.assertEqual(d.companion_export("VvfpScrollingPopupsTestScrolled"), before)   # drawn as the game
+                self.assertFalse(d.art_blits(blits))                                            # draws it: no bar
+                rows = self.body_rows(d, blits)
+                self.assertGreater(len({b[3][1] for b in rows}), 2)
+                for b in rows:
+                    self.assertGreaterEqual(b[3][0], left)
+                    self.assertLessEqual(b[3][0] + b[1][2], right)
+
+    def test_a_tutorial_tip_keeps_the_games_width(self) -> None:
+        """The later three's tutorial tips (the welcome: The Tree of Life eTTipStandAloneWelcome 0x2CF, New Believers
+        0x2BF), made on the village screen: the game asks for the screen's whole width and a little more and puts
+        the text at a fixed x on the screen; the companion leaves it as the game draws it (live 2026-11-19: it was
+        capped, its text cut at both sides and scrolled sideways, one line high in New Believers)."""
+        import scrolling_popups_emulation as spe
+        for game, tid in ((4, 0x2CF), (5, 0x2BF)):
+            d = self.tips[game]
+            with self.subTest(game=game):
+                w, h = d.g["screen"]
+                old = spe.TIP_ID, spe.TIPS[f"vv{game}"], d.app
+                spe.TIP_ID = tid
+                spe.TIPS[f"vv{game}"] = dict(old[1], args=lambda text_va: (tid, 0, 0, 0, 0))
+                d.app = d._object({0x24: (lambda a: 0, 0)})                     # the village screen
+                d.put(d.g["app"], d.app)
+                try:
+                    d.make_tip(WELCOME[game])
+                    self.assertGreater(d.stock_width, w)                          # the game's own width
+                    self.assertEqual(d.width_requests[-1], d.stock_width)
+                    self.assertEqual(d.size_requests[-1], d.stock_height)
+                    before = d.companion_export("VvfpScrollingPopupsTestScrolled")
+                    blits = d.draw_box()
+                    self.assertEqual(d.companion_export("VvfpScrollingPopupsTestScrolled"), before)   # not scrolled
+                    self.assertFalse(d.art_blits(blits))                                            # no bar
+                    rows = self.body_rows(d, blits)
+                    self.assertGreaterEqual(len({b[3][1] for b in rows}), 3)
+                    for b in rows:                                                 # every line whole on the screen
+                        self.assertGreaterEqual(b[3][0], 0)
+                        self.assertLessEqual(b[3][0] + b[1][2], w)
+                finally:
+                    spe.TIP_ID, spe.TIPS[f"vv{game}"], d.app = old
+                    d.put(d.g["app"], d.app)
+
+    def test_a_tip_with_a_word_wider_than_the_box_scrolls_sideways(self) -> None:
+        for game, d in self.tips.items():
+            with self.subTest(game=game):
+                d.make_tip(TIP_WORD)
                 self.assertGreater(d.stock_width, d.g["screen"][0])
                 blits = d.draw_box()
                 left, top, right, bottom = d.panel()
@@ -720,6 +797,11 @@ EVENT_SHORT = b"Your villagers find a basket of fruit\nwashed up on the shore."
 EVENT_LONG = b"\n".join(b"%d. The storm washes things ashore." % n for n in range(1, 40))
 EVENT_RESULT = b"\n".join(b"%d. The whale swims free." % n for n in range(1, 16))
 EVENT_WIDE = b"A name far too wide: " + b"Kalahuna-Supercalifragilistic" * 4 + b"\nSecond line."
+# A New Home's The Mysterious Face, "Get a closer look." (its string table's text: * the villager, ^ he or she).
+FACE_RESULT = (b"                    Get a closer look.\n\n\n\n\n\nAs  *  approaches  the  mysterious  visage,\n^ realizes "
+               b"it`s only a shy, confused\nperson   who   seems  lost.   *   manages\nto gain the odd stranger's trust "
+               b"and welcomes\nthe newcomer to the village. As it turns out, \nthis lost soul is a master farmer and "
+               b"will  be  a\nboon to the village.")
 
 
 @unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and HAVE_IMAGES and TEST_DLL.is_file(),
@@ -820,6 +902,25 @@ class TheOldIslandEvents(unittest.TestCase):
                     self.assertEqual(d.panel(), panel)              # no re-size: the result scrolls in the panel
                     self.assertEqual(d.scroll(), (0, 0))
                     self.assertGreater(v["content_h"], v["box_h"])
+
+    def test_a_line_wider_than_the_box_wraps(self) -> None:
+        """Live 2026-11-19 (A New Home, The Mysterious Face's result with a full name): the stock text's hand-spaced
+        lines ran past the box and the text scrolled sideways.  The owner: text wraps normally, no sideways scrolling
+        unless one word is wider than the box.  A line wider than the box wraps; every other line stays as it is."""
+        result = FACE_RESULT.replace(b"*", b"Aisha Kantigi").replace(b"^", b"she")
+        for game, d in self.games.items():
+            for kind in ("choice", "crate"):
+                with self.subTest(game=game, kind=kind):
+                    d.make_event(kind, EVENT_SHORT, result)
+                    d.show_result()
+                    v = self.check(d, d.draw(), 1, 0)                 # scrolled up and down only
+                    self.assertLessEqual(v["content_w"], v["box_w"])
+                    # the stock text with a short name fits: drawn as the game draws it
+                    d.make_event(kind, FACE_RESULT.replace(b"*", b"Bo").replace(b"^", b"he"))
+                    before = d.companion_export("VvfpScrollingPopupsTestScrolled")
+                    blits = d.draw()
+                    self.assertEqual(d.companion_export("VvfpScrollingPopupsTestScrolled"), before)
+                    self.assertFalse(d.art_blits(blits))
 
     def test_a_wide_line_scrolls_sideways(self) -> None:
         for game, d in self.games.items():
@@ -1294,8 +1395,11 @@ class BothWays(unittest.TestCase):
             with self.subTest(game=game):
                 # The Tree of Life's and New Believers' tips lay out only part of some long texts with a very wide
                 # line (their own height formula and the stock draw stop at the same line: the companion shows
-                # what the game lays out); each game gets a tall and wide text its tip lays out whole.
-                d.make_tip(TIP_LONG + b"\n" + (WORD if game == 4 else TIP_WIDE))
+                # what the game lays out); each game gets a tall and wide text its tip lays out whole.  The later
+                # three's tips wrap a wide line of words (TheTip): their wide text is one word wider than the box
+                # (New Believers' paragraph runs single line breaks on: twice the lines to be taller than its screen).
+                wide = {1: TIP_WORD, 2: TIP_WORD, 3: TIP_WORD, 4: WORD, 5: TIP_LONG + b"\n" + TIP_WORD}[game]
+                d.make_tip(TIP_LONG + b"\n" + wide)
                 self.both_ways(d, d.draw_box, [d.child_rect(c) for c in d.children],
                                picture=f"vv{game}_tip_both.png")
 

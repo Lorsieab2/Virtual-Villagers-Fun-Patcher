@@ -318,8 +318,9 @@ class VillageSolidarityTag(unittest.TestCase):
         self.assertEqual(nodes["c1o2"]["solidarity"], "lower")
         self.assertNotIn("solidarity", nodes["c2o1"])
         flags = self.node_flags(c.cieg)
-        self.assertEqual(flags["c1o1"], 2)          # raise: code 1 in bits 1-2
-        self.assertEqual(flags["c1o2"], 4)          # lower: code 2
+        # bits 2-3 (cie-v6-binary.md 44; vv_cie_graph NODE_SOLIDARITY_SHIFT 2, story_graph.inc CG_NODE_SOLIDARITY 12)
+        self.assertEqual(flags["c1o1"], 4)          # raise: code 1 in bits 2-3
+        self.assertEqual(flags["c1o2"], 8)          # lower: code 2
         self.assertEqual(flags["c2o1"], 0)
         back = cie.decompile_graph(c.cieg)
         self.assertEqual(back["nodes"]["c1o1"]["solidarity"], "raise")
@@ -327,7 +328,7 @@ class VillageSolidarityTag(unittest.TestCase):
         self.assertNotIn("solidarity", back["nodes"]["c2o1"])
         neutral = compiled(SIMPLE.replace("* Outcome B: The coconut rolls into the sea.\n",
                                           "* Outcome B: The coconut rolls into the sea.\n  Solidarity: neutral\n"))
-        self.assertEqual(self.node_flags(neutral.cieg)["c1o2"], 6)
+        self.assertEqual(self.node_flags(neutral.cieg)["c1o2"], 12)     # neutral: code 3 in bits 2-3
 
     def test_the_tag_round_trips_through_the_full_format(self):
         it = one(self.TAGGED)

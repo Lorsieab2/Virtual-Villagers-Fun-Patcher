@@ -99,6 +99,23 @@ Without the patch, and in every other game, the words are unchanged. `scripts/fo
 | `lvuns31_price_legend` | page (c2) | Believers maintain | The faithful maintain |
 | `lvuns34_god_may_have` | page (b1) | Believers continue | The faithful continue |
 | `lvuns37_unproven` | page (c2) | A believer explains | A villager of faith explains |
+| `hc1_routes` | pool TASK item (L297; a twin item shown only with the patch) | between believers, | between the faithful, |
+| `hc2_pleas` | pool TASK item (L297; a twin item shown only with the patch) | between believers, | between the faithful, |
+| `hc3_disasters` | pool TASK item (L297; a twin item shown only with the patch) | between believers, | between the faithful, |
+| `hc4_noises` | pool TASK item (L297; a twin item shown only with the patch) | between believers, | between the faithful, |
+| `hc5_victories` | pool TASK item (L297; a twin item shown only with the patch) | between believers, | between the faithful, |
+| `hc6_sabotage` | pool TASK item (L297; a twin item shown only with the patch) | between believers, | between the faithful, |
+| `lcb07_song_stars` | Pick Island Event description | a believer each | a villager of faith each |
+| `lcf22_where_does_faith` | Pick Island Event description | a believer debate | a person of faith debate |
+| `lcf25_atheist_ceremony` | choice (setup, to o2; a twin choice shown only with the patch) | Let a Believer Lead | Let the Faithful Lead |
+| `lcf25_atheist_ceremony` | page (o1) | The believers add | The faithful add |
+| `lcf25_atheist_ceremony` | Pick Island Event description | let a believer lead | let the faithful lead |
+| `lcf29_child_asks` | Pick Island Event description | a believer why | a person of faith why |
+
+The owner's approved wordings of 2026-11-19 are the last twelve rows (the Harshest Critic's TASK item in all six of its
+files, lcb07, lcf22, lcf25 and lcf29). A pool item, like a choice, keeps its text shown only without the patch and gets
+a twin with the same condition shown only with it (`{"all": [its condition, {"patch": "guardians_of_isola"}]}`); the
+game draws among the items whose condition holds, so exactly one of the two is ever in the draw.
 
 Grammar (the owner, 2026-11-16: "fix any grammar mistakes automatically"): every replaced sentence was read whole for
 verb agreement, articles and capitals. Each keeps its number ("The faithful maintain", "Some of the faithful
@@ -110,6 +127,30 @@ The Living Event Engine's bank (the mixer's variants, `src/vv_living_mixer.py` G
 ritual." (its page and its New Believers row's Guardians description) and the choice "Ask a skeptic and a believer
 to compare interpretations." -> "Ask a skeptic and a villager of faith to compare interpretations." (a choice shown
 only without the patch, and its twin only with it). The MIX title "TWO BELIEVERS DISAGREE ..." is never shown.
+
+## No Guardians as the villagers' name (the owner, 2026-11-19)
+
+The owner: "don't use 'Guardians' to refer to our villagers. You can use it in other contexts like 'stone guardian,
+guardian of a child, guardians of the village' etc". No event text (title, page, choice, pool item, Pick Island Event
+description, and every Guardians of Isola Rewrite form above) calls the tribe, the believers or the villagers "the
+Guardians"; no pair above makes such a text. Every event text across the collection, More Island Events and Story
+Upgrades was read for "guardian"; only these three events used it as the villagers' name, and each is changed in every
+game and with or without the patch (a title through `docs/event-collection/owner-title-changes.md`, its two new
+titles approved by the owner on 2026-11-19; a page through `scripts/food_tech_additions.py` TEXT_EDITS):
+
+| Event | Where | Before | After |
+|---|---|---|---|
+| blf26_isolan_feast | page (setup) | The village is holding a feast for the Guardians, | The village is holding a feast for the whole tribe, |
+| blf26_isolan_feast | Pick Island Event description (and its Guardians form) | At the feast for the Guardians, | At a great feast, |
+| vv5_the_guardians_disagreement | title (and its question page's name) | The Guardians' Disagreement | The Villagers' Disagreement |
+| lvauth18_guardians | title (shown only with the patch) | The Guardians' Council | The Two Communities' Council |
+
+(The ids here are not in backticks: these rows are not Guardians of Isola Rewrite pairs.) Every other "guardian" in
+the events is an ordinary use the owner keeps: a child's guardian(s), a pet's guardian, a guardian spirit, sea or
+unseen guardians, the river guardians (lch27, lcj19), the guardian dance (lcc41), the carved Ugliest Guardian (V17),
+the Fierce Little Guardian (V27-31), the Harshest Critic's "guardian of the nursery" and similar job names, a
+guardian in a story (my066, my069, my093, my102) and the machine guardians (hz079). `tests/test_no_guardians_name.py`
+fails if any event text uses Guardian(s) as a name for the people.
 
 ## More Island Events (New Believers)
 

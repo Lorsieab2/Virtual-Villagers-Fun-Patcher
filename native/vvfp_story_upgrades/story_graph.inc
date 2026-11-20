@@ -5491,17 +5491,90 @@ static void cg_merge_result(ce_result *into, const ce_result *r) {
     }
 }
 
-static void cg_amount(const ce_adapter *a, int food, int amount, ce_result *r) {
+/* ---- The amounts a page states (the owner, 2026-11-19: every result line exact, gains and losses) --------------
+
+   Each food, tech, skill, health, Faith or damage change has its amount counted when its page is laid out
+   (cg_group: the game's own limits, against the village as it is then), and that count is BOTH what the page's
+   automatic line states AND what is made when the page is shown (cg_told_amount) -- so the two cannot differ.  What
+   really changed is read back as it is made (cg_told); should the village have moved in between (food eaten, a skill
+   learned, so the store or the skill no longer holds the whole of it), the line is put right on the page before it
+   is shown (cg_fix_lines) -- or, when that line was on a page already shown, the true line is added. */
+static int cg_applied_fx[CG_MAX_FX];        /* each effect's stated change (cg_group), by fx index */
+static unsigned char cg_applied_known[CG_MAX_FX];
+static unsigned __int64 cg_applied_run;     /* the run (its purchase, cg.when) they were counted for */
+static int cg_fx_now = -1;                  /* the effect being made (cg_make_effects): its fx index */
+#define CG_FIXES 16
+static struct {
+    const unsigned char *e;
+    int fx, kind, actual;
+} cg_fixes[CG_FIXES];                       /* the display's lines to put right (cg_show) */
+static int cg_fix_count;
+#define CG_FAITH_OFF5 0x1CF0u               /* New Believers' Faith, -100..100 (src/vv_game_mechanics_faith_vv5.py) */
+
+/* Whether the effect being made has its stated amount (a run restored from its file after a quit has its pages
+   from the file but not their counts: the rolled amount is made through the game's limits, as before). */
+static int cg_told_known(void) {
+    return cg_fx_now >= 0 && cg_fx_now < CG_MAX_FX && cg_applied_known[cg_fx_now] && cg_applied_run == cg.when;
+}
+
+/* The amount to make: the one the page states, else the roll. */
+static int cg_told_amount(int rolled) {
+    return cg_told_known() ? cg_applied_fx[cg_fx_now] : rolled;
+}
+
+/* What effect `e` (the one being made; `kind` the award's, for pay_award) really changed: when that is not what
+   its page states, its line is put right (only on a page with automatic lines). */
+static void cg_told(const unsigned char *e, int kind, int actual) {
+    int k;
+    if (e == NULL || !cg_after_on || !cg_told_known()) {
+        return;
+    }
+    switch (e[0]) {
+    case CGE_FOOD: case CGE_TECH: case CGE_PAY: case CGE_SKILL: case CGE_HEALTH_CHANGE: case CGE_FAITH:
+    case CGE_DAMAGE:
+        break;
+    default:
+        return;                        /* no amount stated */
+    }
+    for (k = 0; k < cg_fix_count && cg_fixes[k].fx != cg_fx_now; ++k) {
+    }
+    if (cg_applied_fx[cg_fx_now] == actual) {
+        if (k < cg_fix_count) {        /* the last word: as stated after all */
+            cg_fixes[k] = cg_fixes[--cg_fix_count];
+        }
+        return;
+    }
+    if (k >= CG_FIXES) {
+        return;
+    }
+    cg_fixes[k].e = e;
+    cg_fixes[k].fx = cg_fx_now;
+    cg_fixes[k].kind = kind;
+    cg_fixes[k].actual = actual;
+    if (k == cg_fix_count) {
+        ++cg_fix_count;
+    }
+}
+
+/* Food (`food` 1) or tech changed by `amount` (the one the page states), and what really changed told (cg_told). */
+static void cg_amount(const ce_adapter *a, int food, int amount, ce_result *r, const unsigned char *e, int kind) {
     unsigned int cap = food ? CAP_FOOD : CAP_TECH;
+    int (*now)(void) = food ? a->food : a->tech;
+    int before = 0;
     if (!(a->caps & cap)) {
         ce_refuse(r, CE_WHY_OTHER);
+        cg_told(e, kind, 0);
         return;
+    }
+    if (now != NULL) {
+        before = now();
     }
     if (amount > 0) {
         (food ? a->change_food : a->change_tech)(CE_AMOUNT_ADD, amount);
     } else if (amount < 0) {
         (food ? a->change_food : a->change_tech)(CE_AMOUNT_SUBTRACT, -amount);
     }
+    cg_told(e, kind, now != NULL ? now() - before : amount);
 }
 
 /* The preference's index by the game's own word, -1 when the game has none. */
@@ -5744,17 +5817,28 @@ static int cg_structure_listed(int game, const char *list, int k) {
 /* "damage": one finished structure the effect names (drawn among them by the game's random routine as it is made)
    loses `percent` of its building work -- the states only a normal construction passes through
    (native/shared/structure_damage.h); none finished: nothing.  Nobody is hurt. */
-static void cg_damage(const ce_adapter *a, int game, const unsigned char *e, int percent) {
+/* How many finished structures effect `e`'s list names (none: a damage changes nothing). */
+static int cg_damage_candidates(int game, const unsigned char *e, int *candidates) {
     const char *list = cg_s(&cg_g, cg_u16(e + 12));
-    int candidates[SD_MAX_STRUCTURES], n = 0, k;
-    char line[160];
+    int n = 0, k;
     for (k = 0; k < sd_structures(game) && k < SD_MAX_STRUCTURES; ++k) {
         if (cg_structure_finished(game, k) && cg_structure_listed(game, list, k)) {
-            candidates[n++] = k;
+            if (candidates != NULL) {
+                candidates[n] = k;
+            }
+            ++n;
         }
     }
+    return n;
+}
+
+/* The percent damaged (0: nothing was). */
+static int cg_damage(const ce_adapter *a, int game, const unsigned char *e, int percent) {
+    int candidates[SD_MAX_STRUCTURES], n, k;
+    char line[160];
+    n = cg_damage_candidates(game, e, candidates);
     if (n == 0 || percent < 1) {
-        return;
+        return 0;
     }
     k = candidates[ce_random_below(a, n)];
     if (percent > 100) {
@@ -5776,6 +5860,7 @@ static void cg_damage(const ce_adapter *a, int game, const unsigned char *e, int
     if (lstrlenA(cg_extra_lines) + lstrlenA(line) < (int)sizeof cg_extra_lines) {
         lstrcatA(cg_extra_lines, line);
     }
+    return percent;
 }
 
 /* The villagers this event made last (new_villager, clone), the newest first: role bytes 253 and 252.  Memory only:
@@ -5942,12 +6027,12 @@ static unsigned char *cg_target(const ce_adapter *a, int who, int *index) {
    C4_SUPPLY_*) changed by `delta` (the walk's roll), kept within 0..6 (99 with Up to 99 Cutting Tools/Soap/Cloth;
    soap always 99) and never below 0.  Nothing in another game, and nothing before the supply's own puzzle is solved
    (the event's words are then story only).  The change has one line in the event's log entry. */
-static void cg_supply(int game, const unsigned char *e, int delta) {
+static int cg_supply(int game, const unsigned char *e, int delta) {
     int item = c4_supply_item(cg_s(&cg_g, cg_u16(e + 12))), big, before = 0, after = 0;
     int *count;
     char line[96];
     if (game != 4 || item < 0 || delta == 0 || !cg_puzzle_solved(game, C4_SUPPLY_PUZZLES[item])) {
-        return;
+        return 0;
     }
     big = c4_supply_cap_installed();
 #ifdef VVFP_TEST
@@ -5961,15 +6046,16 @@ static void cg_supply(int game, const unsigned char *e, int delta) {
         after = c4_supply_after(before, delta, c4_supply_cap(item, big));
         *count = after;
     } __except (EXCEPTION_EXECUTE_HANDLER) {
-        return;
+        return 0;
     }
     if (after == before) {
-        return;
+        return 0;
     }
     wsprintfA(line, "  %s: %d -> %d\n", C4_SUPPLY_NAMES[item], before, after);
     if (lstrlenA(cg_extra_lines) + lstrlenA(line) < (int)sizeof cg_extra_lines) {
         lstrcatA(cg_extra_lines, line);
     }
+    return after - before;             /* what really changed: its line's amount */
 }
 
 #include "story_graph_village.inc"   /* cie-v6-binary.md 39-41: goods, trades, group behaviours, the village */
@@ -6590,6 +6676,98 @@ static void cg_repair(const ce_adapter *a, int game, const unsigned char *e) {
 static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, int va, int vb, ce_result *r,
                          int role, unsigned char *record, int index, const char *name);
 
+/* ---- A group's change in one line (the owner, 2026-11-19: every amount exact) ---------------------------------
+   A skill, health or Faith change to a group is read back for each member as it is made; the page then says how
+   many it changed and by how much -- one amount when all were changed alike, else the smallest to the largest --
+   or names the one villager it changed.  Nobody changed: no line.  Only on a page with automatic lines. */
+static struct {
+    int count, low, high, sign, skill, same_skill;
+    char one[CE_NAME_BYTES];
+} cg_grp;
+
+static int cg_group_counted(const unsigned char *e) {
+    return e[0] == CGE_SKILL || e[0] == CGE_HEALTH_CHANGE || e[0] == CGE_FAITH || e[0] == CGE_SKILL_SET
+           || e[0] == CGE_HEALTH;
+}
+
+/* The skill a member's change is to (their best for a "best" one), -1 for health or Faith. */
+static int cg_group_skill(const ce_adapter *a, const unsigned char *e, const unsigned char *rec, int va) {
+    if (e[0] != CGE_SKILL && e[0] != CGE_SKILL_SET) {
+        return -1;
+    }
+    return (e[2] & CG_SKILL_BEST) ? cg_best_skill(a, rec) : va;
+}
+
+static int cg_group_value(const ce_adapter *a, int game, const unsigned char *e, const unsigned char *rec, int k) {
+    switch (e[0]) {
+    case CGE_SKILL: case CGE_SKILL_SET:
+        if (k < 0 || k >= a->skill_count) {
+            return 0;
+        }
+        return a->skills_float ? (int)*(const float *)(rec + a->off_skills + 4u * (unsigned int)k)
+                               : *(const int *)(rec + a->off_skills + 4u * (unsigned int)k);
+    case CGE_HEALTH: case CGE_HEALTH_CHANGE:
+        return cg_health_now(game, rec);
+    default:
+        return game == 5 ? *(const int *)(rec + CG_FAITH_OFF5) : 0;
+    }
+}
+
+/* One member's change `d` (now `after`): counted when it changed (a "set": when it holds the value set). */
+static void cg_group_count(const unsigned char *e, int d, int after, int va, int vb, const char *who, int k) {
+    int set = e[0] == CGE_SKILL_SET || e[0] == CGE_HEALTH;
+    int target = e[0] == CGE_SKILL_SET ? (vb < 0 ? 0 : (vb > 100 ? 100 : vb)) : va;
+    int size = set ? target : (d < 0 ? -d : d);
+    if (set ? after != target : d == 0) {
+        return;
+    }
+    if (cg_grp.count == 0) {
+        cg_grp.low = cg_grp.high = size;
+        cg_grp.sign = d < 0 ? -1 : 1;
+        cg_grp.skill = k;
+        cg_grp.same_skill = 1;
+        lstrcpynA(cg_grp.one, who, sizeof cg_grp.one);
+    } else {
+        cg_grp.low = size < cg_grp.low ? size : cg_grp.low;
+        cg_grp.high = size > cg_grp.high ? size : cg_grp.high;
+        cg_grp.same_skill &= k == cg_grp.skill;
+    }
+    ++cg_grp.count;
+}
+
+/* The group's one line after the page's words (village.inc cg_after_line_ex). */
+static void cg_group_line(const ce_adapter *a, const unsigned char *e, int va) {
+    char key[40];
+    const char *stem, *skill = "";
+    int set = e[0] == CGE_SKILL_SET || e[0] == CGE_HEALTH;
+    int best = (e[0] == CGE_SKILL || e[0] == CGE_SKILL_SET) && (e[2] & CG_SKILL_BEST);
+    (void)va;
+    if (!cg_group_counted(e) || cg_grp.count == 0) {
+        return;
+    }
+    if (cg_grp.skill >= 0 && cg_grp.skill < a->skill_count && (cg_grp.count == 1 || cg_grp.same_skill)) {
+        skill = a->skill_names[cg_grp.skill];
+    }
+    switch (e[0]) {
+    case CGE_SKILL: stem = best ? "best" : "skill"; break;
+    case CGE_HEALTH_CHANGE: stem = "health_change"; break;
+    case CGE_FAITH: stem = "faith"; break;
+    case CGE_SKILL_SET: stem = best && cg_grp.count > 1 && !cg_grp.same_skill ? "set_best" : "set"; break;
+    default: stem = "health"; break;
+    }
+    if (set) {
+        wsprintfA(key, "%s_%s", cg_grp.count == 1 ? "group1" : "group", stem);
+        if (cg_grp.count == 1 && lstrcmpA(stem, "set_best") == 0) {
+            lstrcpyA(key, "group1_set");
+        }
+        cg_after_line_ex(key, cg_grp.one, skill, cg_grp.high, cg_grp.count, 0);
+        return;
+    }
+    wsprintfA(key, "%s_%s%s%s", cg_grp.count == 1 ? "group1" : "group", stem, cg_grp.sign > 0 ? "+" : "-",
+              cg_grp.count > 1 && cg_grp.low != cg_grp.high ? "r" : "");
+    cg_after_line_ex(key, cg_grp.one, skill, cg_grp.high, cg_grp.count, cg_grp.low);
+}
+
 /* A group effect (role byte 254): every living, listed villager the selector takes (New Believers: believers only;
    never The Secret City's stand-in; a harmful effect never a protected or never-harmed villager), each changed as
    one cast villager would be, with the same rolls; N random ones drawn by the game's own random routine. */
@@ -6617,6 +6795,7 @@ static void cg_group_effect(const ce_adapter *a, int game, const unsigned char *
         }
         pick[n++] = i;
     }
+    cg_grp.count = 0;
     want = e[3] == CG_GROUP_RANDOM ? (int)cg_u16(e + 14) : n;
     if (want > n) {
         want = n;
@@ -6654,8 +6833,22 @@ static void cg_group_effect(const ce_adapter *a, int game, const unsigned char *
             cg_effect_on(a, game, e, ha, hb, r, -1, rec, pick[i], who);
             continue;
         }
+        if (cg_group_counted(e)) {
+            /* each member's change, read back, for the group's one line (cg_group_line) */
+            int k = cg_group_skill(a, e, rec, va), before = cg_group_value(a, game, e, rec, k), after;
+            const unsigned char *now_rec;
+            cg_effect_on(a, game, e, va, vb, r, -1, rec, pick[i], who);
+            now_rec = a->record(pick[i]);
+            if (now_rec == NULL || !a->listed(now_rec)) {
+                continue;
+            }
+            after = cg_group_value(a, game, e, now_rec, k);
+            cg_group_count(e, after - before, after, va, vb, who, k);
+            continue;
+        }
         cg_effect_on(a, game, e, va, vb, r, -1, rec, pick[i], who);
     }
+    cg_group_line(a, e, va);
 }
 
 /* One effect on one villager (`record`, record `index`, `name` for the log): a cast role's (`role`), or a group's
@@ -6664,6 +6857,11 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
                          int role, unsigned char *record, int index, const char *name) {
     ce_result one;
     ce_change *c;
+    int told_skill = -1, told_health = 0, told_before = 0;   /* a stated amount's change, read back (cg_told) */
+    if (role >= 0) {
+        cg_told(e, -1, 0);             /* nothing made unless it is (a refusal below takes its line back); a change
+                                          made says so again (cg_told keeps the last word) */
+    }
     if (cg_g.version >= 6 && record != NULL && cg_heathen(game, record) && !cg_heathen_effect_ok(e)) {
         /* A Heathen however reached (an alias or "other" role standing for a heathen_ok one): vanilla's own list
            only, as the load checks a Heathen's own role (Codex, #771). */
@@ -6807,7 +7005,7 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
     if (e[0] == CGE_FAITH || e[0] == CGE_JOIN || e[0] == CGE_APOSTASY) {
         /* New Believers' Faith through the game's own routines (never the fields): they convert as the game
            converts, with its message, role, counters and puzzle check (cie-v6-binary.md 33c). */
-        int was;
+        int was, amount = (int)cg_u32(e + 4), faith_was = 0;
         if (game != 5) {
             return;                    /* only New Believers has Faith: nothing */
         }
@@ -6815,9 +7013,17 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
         if ((e[0] == CGE_JOIN && !was) || (e[0] == CGE_APOSTASY && was)) {
             return;                    /* a believer already / a Heathen already: nothing */
         }
+        if (e[0] == CGE_FAITH && role >= 0) {
+            amount = cg_told_amount(amount);   /* exactly what the page states (after the game's clamp at 100) */
+            if (amount <= 0) {
+                cg_told(e, -1, 0);
+                return;                /* at 100 already: nothing to raise */
+            }
+        }
+        faith_was = *(const int *)(record + CG_FAITH_OFF5);
         __try {
             if (e[0] == CGE_FAITH) {
-                TC1(0x468020u, record, (int)cg_u32(e + 4));
+                TC1(0x468020u, record, amount);
             } else if (e[0] == CGE_JOIN) {
                 TC2(0x467F90u, record, 20, 1);
                 TC1(0x466880u, record, 0);
@@ -6827,7 +7033,13 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
             }
         } __except (EXCEPTION_EXECUTE_HANDLER) {
             ce_refuse(r, CE_WHY_OTHER);
+            if (e[0] == CGE_FAITH && role >= 0) {
+                cg_told(e, -1, 0);
+            }
             return;
+        }
+        if (e[0] == CGE_FAITH && role >= 0) {
+            cg_told(e, -1, *(const int *)(record + CG_FAITH_OFF5) - faith_was);   /* what really changed */
         }
         if (was != cg_heathen(game, record)) {
             cg_tell_faith(game, index);
@@ -6947,8 +7159,14 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
         }
         now = a->skills_float ? (int)*(const float *)(record + a->off_skills + 4u * (unsigned int)va)
                               : *(const int *)(record + a->off_skills + 4u * (unsigned int)va);
-        value = now + vb;
-        c->skills[va] = value > 100 ? 100 : (value < 0 ? 0 : value);
+        told_skill = va;
+        told_before = now;
+        value = now + (role >= 0 ? cg_told_amount(vb) : vb);   /* a cast villager: exactly what the page states */
+        value = value > 100 ? 100 : (value < 0 ? 0 : value);
+        if ((vb > 0 && value < now) || (vb < 0 && value > now)) {
+            value = now;               /* a value outside 0..100 already: a gain never lowers it, a loss never raises it */
+        }
+        c->skills[va] = value;
         break;
     }
     case CGE_SICK:
@@ -6971,12 +7189,22 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
         break;
     }
     case CGE_HEALTH_CHANGE: {
-        int value = cg_health_now(game, record) + va;
+        int now = cg_health_now(game, record);
+        int value = now + (role >= 0 ? cg_told_amount(va) : va);   /* a cast villager: exactly what the page states */
         if (a->set_health == NULL) {
             ce_refuse(r, CE_WHY_OTHER);
+            if (role >= 0) {
+                cg_told(e, -1, 0);
+            }
             return;
         }
-        c->health = value < 1 ? 1 : (value > CE_HEALTH_MAX ? CE_HEALTH_MAX : value);   /* never kills */
+        value = value < 1 ? 1 : (value > CE_HEALTH_MAX ? CE_HEALTH_MAX : value);   /* never kills */
+        if ((va > 0 && value < now) || (va < 0 && value > now)) {
+            value = now;               /* above the top already: a gain never lowers it */
+        }
+        c->health = value;
+        told_health = 1;
+        told_before = now;
         break;
     }
     case CGE_SKILL_SET:
@@ -7017,6 +7245,17 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
     }
     ce_apply(a, &cg_one, &one);
     cg_merge_result(r, &one);
+    if (role >= 0 && (told_skill >= 0 || told_health)) {
+        /* what really changed, read back: the page's line says it (cg_told) */
+        const unsigned char *now_rec = a->record(index);
+        int after = told_before;
+        if (now_rec != NULL && a->listed(now_rec)) {
+            after = told_health ? cg_health_now(game, now_rec)
+                  : a->skills_float ? (int)*(const float *)(now_rec + a->off_skills + 4u * (unsigned int)told_skill)
+                                    : *(const int *)(now_rec + a->off_skills + 4u * (unsigned int)told_skill);
+        }
+        cg_told(e, -1, after - told_before);
+    }
     if (e[0] == CGE_APPEARANCE) {
         cg_extra_add(name, "'s look changed.");
     }
@@ -7039,16 +7278,16 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
             *award_kind = e[0] == CGE_FOOD ? 0 : 1;
             *award = va;               /* given by a later "pay_award" */
         } else {
-            cg_amount(a, e[0] == CGE_FOOD, va, r);
+            cg_amount(a, e[0] == CGE_FOOD, cg_told_amount(va), r, e, -1);   /* exactly what the page states */
         }
         return;
     case CGE_PAY:
         if (*award_kind >= 0) {
-            cg_amount(a, *award_kind == 0, *award, r);
+            cg_amount(a, *award_kind == 0, cg_told_amount(*award), r, e, *award_kind);
         }
         return;
     case CGE_DAMAGE:
-        cg_damage(a, game, e, va);
+        cg_told(e, -1, cg_damage(a, game, e, va));
         return;
     case CGE_REPAIR:
         cg_repair(a, game, e);
@@ -7087,9 +7326,11 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         return;
     case CGE_SUPPLY:
         if (c4_supply_item(cg_s(&cg_g, cg_u16(e + 12))) >= 0) {
-            cg_supply(game, e, va);        /* 38: The Tree of Life's three supplies, as PR #806 made them */
-            if (va != 0) {
-                cg_after_line(va > 0 ? "supply+" : "supply-", cg_s(&cg_g, cg_u16(e + 12)), va);
+            /* 38: The Tree of Life's three supplies, as PR #806 made them; the line says what really changed (the
+               cap, never below 0, nothing before the puzzle) */
+            int done = cg_supply(game, e, va);
+            if (done != 0) {
+                cg_after_line(done > 0 ? "supply+" : "supply-", cg_s(&cg_g, cg_u16(e + 12)), done);
             }
         } else {
             cg_supply_any(a, game, cg_s(&cg_g, cg_u16(e + 12)), va);   /* 39 */
@@ -7195,7 +7436,6 @@ static int cg_award_before(const cg_history *h, int upto, int *kind, int *amount
    an award it defers is the (award) of its own text -- then its text, appended or new), and for each node the
    popup and the place in it its effects go with. */
 static int cg_group_in_question;       /* the first popup is shown in the answered question's own popup (14) */
-static int cg_applied_fx[CG_MAX_FX];   /* each food / tech effect's true change (cg_group), for its automatic line */
 
 /* cie-v6-binary.md 25: the automatic outcome lines.  <R> the effect's role's name placeholder, <P> its his/her, <S>
    the skill's name and <W> the preference word as the game lists them.  Pinned equal to src/vv_cie_graph.py
@@ -7246,7 +7486,7 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "lose_name", "<R> forgets <P> name." },
     { "change_name", "<R> is now called <W>." },
     { "change_age", "<R> is now <N> years old." },
-    { "faith", "<R> feels closer to the tribe." },
+    { "faith", "<R>'s Faith rises by <N>." },
     { "join", "<R> joins the tribe." },
     { "apostasy", "<R> becomes a Heathen." },
     { "presentation", "<R>'s gender presentation changes." },
@@ -7292,6 +7532,38 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "weather_rain", "It starts to rain." },
     { "weather_storm", "A storm rolls in." },
     { "weather_fog", "Fog rolls in." },
+    /* The owner (2026-11-19): every amount exact, singular and plural.  A group's change is written as it is made
+       (cg_group_effect): <C> how many villagers it changed, <N> the change (<L> to <N> when they differ), <W> the
+       one villager's name.  Added at the end: the lines above keep their places (their translation keys). */
+    { "tech1+", "The village gains 1 tech point." },
+    { "tech1-", "The village loses 1 tech point." },
+    { "skill_best-", "<R> loses <N> skill in what <P> does best." },
+    { "group_skill+", "<C> villagers each gain <N> <S> skill." },
+    { "group_skill-", "<C> villagers each lose <N> <S> skill." },
+    { "group_skill+r", "<C> villagers gain <L> to <N> <S> skill." },
+    { "group_skill-r", "<C> villagers lose <L> to <N> <S> skill." },
+    { "group1_skill+", "<W> gains <N> <S> skill." },
+    { "group1_skill-", "<W> loses <N> <S> skill." },
+    { "group_best+", "<C> villagers each gain <N> skill in what they do best." },
+    { "group_best-", "<C> villagers each lose <N> skill in what they do best." },
+    { "group_best+r", "<C> villagers gain <L> to <N> skill in what they do best." },
+    { "group_best-r", "<C> villagers lose <L> to <N> skill in what they do best." },
+    { "group1_best+", "<W> gains <N> <S> skill." },
+    { "group1_best-", "<W> loses <N> <S> skill." },
+    { "group_health_change+", "<C> villagers each gain <N> health." },
+    { "group_health_change-", "<C> villagers each lose <N> health." },
+    { "group_health_change+r", "<C> villagers gain <L> to <N> health." },
+    { "group_health_change-r", "<C> villagers lose <L> to <N> health." },
+    { "group1_health_change+", "<W> gains <N> health." },
+    { "group1_health_change-", "<W> loses <N> health." },
+    { "group_faith+", "The Faith of <C> villagers rises by <N> each." },
+    { "group_faith+r", "The Faith of <C> villagers rises by <L> to <N>." },
+    { "group1_faith+", "<W>'s Faith rises by <N>." },
+    { "group_set", "The <S> skill of <C> villagers is now <N>." },
+    { "group_set_best", "The best skill of <C> villagers is now <N>." },
+    { "group1_set", "<W>'s <S> skill is now <N>." },
+    { "group_health", "The health of <C> villagers is now <N>." },
+    { "group1_health", "<W>'s health is now <N>." },
 };
 
 /* Line `key`'s words, NULL when the table has none. */
@@ -7356,34 +7628,41 @@ static void cg_auto_add(char *out, int cap, const char *key, int role, const cha
     }
 }
 
-/* Node `n`'s automatic lines after `out` (its text, the award filled in): one for each effect that has one, from the
-   walk's rolls (fx index `fx` its first), the award as it stands (src/vv_cie_graph.py auto_line_options). */
-static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n, int fx, int award_kind, int award,
-                          char *out, int cap) {
+/* The food / tech line's key for a change of `v` (`food` 1 food, 0 tech): "1 tech point", else "N tech points". */
+static const char *cg_amount_key(int food, int v) {
+    if (food) {
+        return v > 0 ? "food+" : "food-";
+    }
+    if (v == 1 || v == -1) {
+        return v > 0 ? "tech1+" : "tech1-";
+    }
+    return v > 0 ? "tech+" : "tech-";
+}
+
+/* Effect `e`'s automatic line (fx index `fx`) after `out`: the walk's rolls, the amount the page states
+   (cg_applied_fx: the change it really makes, the one cg_make_effects then makes), the award as it stands. */
+static void cg_auto_one(int game, const cg_history *h, const unsigned char *e, int fx, int award_kind, int award,
+                        char *out, int cap) {
     const ce_adapter *a = ce_adapter_for(game);
-    int k;
-    for (k = 0; k < cg_fx_count(n); ++k, ++fx) {
-        const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
+    {
         int va = fx < CG_MAX_FX ? h->fx_a[fx] : 0, vb = fx < CG_MAX_FX ? h->fx_b[fx] : 0;
         int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
         int role = e[1] == CG_ROLE_ALIAS_ALL ? -1 : (int)e[1];
+        int told = fx < CG_MAX_FX ? cg_applied_fx[fx] : 0;   /* the amount stated (cg_group) */
         char word[48];
         if (e[1] == CG_ROLE_GROUP || e[1] == CG_ROLE_NEWEST || e[1] == CG_ROLE_NEWEST2) {
-            continue;                  /* no role to name: the author's text tells it */
+            return;                    /* no role to name: the group's line is written as it is made */
         }
         const char *skill = a != NULL && va >= 0 && va < a->skill_count ? a->skill_names[va] : NULL;
         switch (e[0]) {
         case CGE_FOOD: case CGE_TECH:
-            va = fx < CG_MAX_FX ? cg_applied_fx[fx] : va;      /* the true change (cg_group): none, no line */
-            if (!(e[2] & 2u) && va != 0) {
-                cg_auto_add(out, cap, e[0] == CGE_FOOD ? (va > 0 ? "food+" : "food-") : (va > 0 ? "tech+" : "tech-"),
-                            -1, "", "", va, -1);
+            if (!(e[2] & 2u) && told != 0) {   /* the true change (cg_group): none, no line */
+                cg_auto_add(out, cap, cg_amount_key(e[0] == CGE_FOOD, told), -1, "", "", told, -1);
             }
             break;
         case CGE_PAY:
             if (award_kind >= 0 && award != 0) {
-                cg_auto_add(out, cap, award_kind == 0 ? (award > 0 ? "food+" : "food-") : (award > 0 ? "tech+" : "tech-"),
-                            -1, "", "", award, -1);
+                cg_auto_add(out, cap, cg_amount_key(award_kind == 0, award), -1, "", "", award, -1);
             }
             break;
         case CGE_KILL: cg_auto_add(out, cap, (e[2] & CG_LINE_OTHER) ? "kill_injuries" : "kill", role, "", "", 0, -1); break;
@@ -7398,7 +7677,11 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
         case CGE_OLD_LOOK: cg_auto_add(out, cap, "old_look", role, "", "", 0, -1); break;
         case CGE_YOUNG_LOOK: cg_auto_add(out, cap, "young_look", role, "", "", 0, -1); break;
         case CGE_CURE: cg_auto_add(out, cap, "cure", role, "", "", 0, -1); break;
-        case CGE_FAITH: cg_auto_add(out, cap, "faith", role, "", "", 0, -1); break;
+        case CGE_FAITH:
+            if (told > 0) {            /* New Believers only, after the game's clamp at 100 (cg_group) */
+                cg_auto_add(out, cap, "faith", role, "", "", told, -1);
+            }
+            break;
         case CGE_JOIN: cg_auto_add(out, cap, "join", role, "", "", 0, -1); break;
         case CGE_APOSTASY: cg_auto_add(out, cap, "apostasy", role, "", "", 0, -1); break;
         case CGE_REPAIR: cg_auto_add(out, cap, "repair", -1, "", "", 0, -1); break;
@@ -7450,12 +7733,16 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
             break;
         }
         case CGE_PRESENTATION: cg_auto_add(out, cap, "presentation", role, "", "", 0, -1); break;
-        case CGE_DAMAGE: cg_auto_add(out, cap, "damage", -1, "", "", va, -1); break;
+        case CGE_DAMAGE:
+            if (told > 0) {            /* none finished: nothing is damaged (cg_group) */
+                cg_auto_add(out, cap, "damage", -1, "", "", told, -1);
+            }
+            break;
         case CGE_CELEBRATE: cg_auto_add(out, cap, role < 0 ? "celebrate_all" : "celebrate", role, "", "", 0, -1); break;
         case CGE_MOOD: cg_auto_add(out, cap, lo > 0 ? "mood+" : "mood-", role, "", "", 0, -1); break;
         case CGE_HEALTH_CHANGE:
-            if (va != 0) {
-                cg_auto_add(out, cap, va > 0 ? "health_change+" : "health_change-", role, "", "", va, -1);
+            if (told != 0) {           /* after the 1..100 clamp (cg_group) */
+                cg_auto_add(out, cap, told > 0 ? "health_change+" : "health_change-", role, "", "", told, -1);
             }
             break;
         case CGE_APPEARANCE:
@@ -7478,10 +7765,11 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
                                                         : ((e[2] & 4u) ? "dislike" : "like"), role, "", word, 0, -1);
             break;
         case CGE_SKILL:
-            if (va == -2 && vb > 0) {
-                cg_auto_add(out, cap, "skill_best", role, "", "", vb, -1);
-            } else if (skill != NULL && vb != 0) {
-                cg_auto_add(out, cap, vb > 0 ? "skill+" : "skill-", role, skill, "", vb, -1);
+            /* after the 0..100 clamp (cg_group) */
+            if (va == -2 && told != 0) {
+                cg_auto_add(out, cap, told > 0 ? "skill_best" : "skill_best-", role, "", "", told, -1);
+            } else if (skill != NULL && told != 0) {
+                cg_auto_add(out, cap, told > 0 ? "skill+" : "skill-", role, skill, "", told, -1);
             }
             break;
         case CGE_SKILL_SET:
@@ -7492,6 +7780,16 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
         default:
             break;                     /* action: no line */
         }
+    }
+}
+
+/* Node `n`'s automatic lines after `out` (its text, the award filled in): one for each effect that has one, from the
+   walk's rolls (fx index `fx` its first), the award as it stands (src/vv_cie_graph.py auto_line_options). */
+static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n, int fx, int award_kind, int award,
+                          char *out, int cap) {
+    int k;
+    for (k = 0; k < cg_fx_count(n); ++k, ++fx) {
+        cg_auto_one(game, h, cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k), fx, award_kind, award, out, cap);
     }
 }
 
@@ -7512,6 +7810,80 @@ static int cg_applied(long long *store, int v) {
 }
 
 
+/* A cast villager's skill, health or Faith as the pages' changes leave it (cg_group), so a second change to the
+   same one is counted from the first's result. */
+#define CG_SIM 24
+static struct {
+    int who, what, value;
+} cg_sim[CG_SIM];
+static int cg_sim_n;
+
+/* The change effect `e` (rolls va, vb) makes to its cast villager's skill, health or Faith within the game's limits
+   (skills 0..100, health 1..100 -- it never kills -- and New Believers' Faith up to 100), against the villager as
+   the earlier pages leave them: what its page states and then makes.  Nobody bound: the roll. */
+static int cg_predicted(const ce_adapter *a, int game, const unsigned char *e, int va, int vb) {
+    int rolled = e[0] == CGE_SKILL ? vb : e[0] == CGE_HEALTH_CHANGE ? va : (game == 5 ? (int)cg_u32(e + 4) : 0);
+    int who, what, now, d = rolled, lo, hi, after, i;
+    const unsigned char *record;
+    if (a == NULL || e[1] == CG_ROLE_GROUP || e[1] == CG_ROLE_NEWEST || e[1] == CG_ROLE_NEWEST2
+        || e[1] == CG_ROLE_ALIAS_ALL) {
+        return rolled;
+    }
+    who = cg_resolve_role(e[1]);
+    record = who >= 0 ? cg_villager(a, who) : NULL;
+    if (record == NULL) {
+        return rolled;
+    }
+    switch (e[0]) {
+    case CGE_SKILL:
+        what = va == -2 ? cg_best_skill(a, record) : va;
+        if (!(a->caps & CAP_SKILLS) || what < 0 || what >= a->skill_count) {
+            return 0;                  /* a skill this villager cannot have: nothing */
+        }
+        now = a->skills_float ? (int)*(const float *)(record + a->off_skills + 4u * (unsigned int)what)
+                              : *(const int *)(record + a->off_skills + 4u * (unsigned int)what);
+        lo = 0;
+        hi = 100;
+        break;
+    case CGE_HEALTH_CHANGE:
+        if (a->set_health == NULL) {
+            return 0;
+        }
+        what = 100;
+        now = cg_health_now(game, record);
+        lo = 1;
+        hi = CE_HEALTH_MAX;
+        break;
+    default:                           /* CGE_FAITH */
+        if (game != 5) {
+            return 0;                  /* only New Believers has Faith */
+        }
+        what = 101;
+        now = *(const int *)(record + CG_FAITH_OFF5);
+        lo = -100;
+        hi = 100;
+        break;
+    }
+    for (i = 0; i < cg_sim_n && !(cg_sim[i].who == who && cg_sim[i].what == what); ++i) {
+    }
+    if (i < cg_sim_n) {
+        now = cg_sim[i].value;
+    }
+    after = now + d;
+    after = after < lo ? lo : (after > hi ? hi : after);
+    if ((d > 0 && after < now) || (d < 0 && after > now)) {
+        after = now;                   /* outside the limits already: never moved the wrong way */
+    }
+    if (i == cg_sim_n && cg_sim_n < CG_SIM) {
+        cg_sim[cg_sim_n].who = who;
+        cg_sim[cg_sim_n++].what = what;
+    }
+    if (i < CG_SIM) {
+        cg_sim[i].value = after;
+    }
+    return after - now;
+}
+
 static void cg_group(int game, const cg_history *h, int from) {
     static char text[CG_RAW_BYTES];
     int award_kind = -1, award = 0, fx, k, i, first_text = -1;
@@ -7519,6 +7891,11 @@ static void cg_group(int game, const cg_history *h, int from) {
     if (from == 0) {
         cg_pre_n = 0;                  /* a new event: nothing drawn for it yet */
     }
+    if (from == 0 || cg_applied_run != cg.when) {
+        memset(cg_applied_known, 0, sizeof cg_applied_known);   /* another run's counts are never this one's */
+        cg_applied_run = cg.when;
+    }
+    cg_sim_n = 0;
     const ce_adapter *ad = ce_adapter_for(game);
     long long store[2];                /* the food and tech the pages' changes are made to, as each page leaves them */
     store[0] = ad != NULL && ad->food != NULL ? ad->food() : 0;
@@ -7544,13 +7921,21 @@ static void cg_group(int game, const cg_history *h, int from) {
                 award_kind = e[0] == CGE_FOOD ? 0 : 1;
                 award = va;
             } else if (e[0] == CGE_FOOD || e[0] == CGE_TECH) {
-                va = cg_applied(&store[e[0] == CGE_FOOD ? 0 : 1], va);
+                va = ad != NULL && !(ad->caps & (e[0] == CGE_FOOD ? CAP_FOOD : CAP_TECH)) ? 0
+                     : cg_applied(&store[e[0] == CGE_FOOD ? 0 : 1], va);
             } else if (e[0] == CGE_PAY && award_kind >= 0) {
-                paid = va = cg_applied(&store[award_kind], award);
+                paid = va = ad != NULL && !(ad->caps & (award_kind == 0 ? CAP_FOOD : CAP_TECH)) ? 0
+                            : cg_applied(&store[award_kind], award);
                 paid_here = 1;
+            } else if (e[0] == CGE_SKILL || e[0] == CGE_HEALTH_CHANGE || e[0] == CGE_FAITH) {
+                va = cg_predicted(ad, game, e, va, fx < CG_MAX_FX ? h->fx_b[fx] : 0);
+            } else if (e[0] == CGE_DAMAGE) {
+                /* none finished in its list: nothing is damaged; else the roll, at most all of it */
+                va = cg_damage_candidates(game, e, NULL) == 0 || va < 1 ? 0 : (va > 100 ? 100 : va);
             }
             if (fx < CG_MAX_FX) {
-                cg_applied_fx[fx] = va;
+                cg_applied_fx[fx] = va;    /* what the page states, and then makes (cg_told_amount) */
+                cg_applied_known[fx] = 1;
             }
         }
         /* the award as it is really given: paid here, what was paid; else what paying it now would give */
@@ -8003,6 +8388,56 @@ __declspec(dllexport) int __stdcall VvfpStoryGraphLogged(int game, const char *t
     return 1;
 }
 
+/* Each stated amount the village no longer allowed in full when it was made (cg_told: the store or the skill moved
+   between the page's layout and its showing) put right in the page's words `text`: the line that states it becomes
+   the line of what really changed -- none when nothing did -- or, when that line was on a page shown before, the
+   true line is added at the end. */
+static void cg_fix_lines(const ce_adapter *a, int game, char *text, int cap) {
+    static char raw[512], was[1024], now[1024], out[CG_RAW_BYTES];
+    int f;
+    for (f = 0; f < cg_fix_count; ++f) {
+        int fx = cg_fixes[f].fx, stated = cg_applied_fx[fx], n, len = lstrlenA(text), at = -1, i;
+        raw[0] = '\0';
+        cg_auto_one(game, &cg.path, cg_fixes[f].e, fx, cg_fixes[f].kind, stated, raw, (int)sizeof raw);
+        cg_expand(raw, was, (int)sizeof was, CG_EXPAND_REAL, a->name_room, -1, 0);
+        cg_applied_fx[fx] = cg_fixes[f].actual;
+        raw[0] = '\0';
+        cg_auto_one(game, &cg.path, cg_fixes[f].e, fx, cg_fixes[f].kind, cg_fixes[f].actual, raw, (int)sizeof raw);
+        cg_applied_fx[fx] = stated;
+        cg_expand(raw, now, (int)sizeof now, CG_EXPAND_REAL, a->name_room, -1, 0);
+        n = lstrlenA(was);
+        for (i = 0; n > 0 && i + n <= len && at < 0; ++i) {
+            /* the stated line, whole: at a line's start, to its end */
+            if ((i == 0 || text[i - 1] == '\n') && (text[i + n] == '\0' || text[i + n] == '\n')
+                && memcmp(text + i, was, (size_t)n) == 0) {
+                at = i;
+            }
+        }
+        if (at >= 0) {
+            int from = at, to = at + n;
+            if (now[0] == '\0') {
+                /* nothing changed: the line goes, with its line break */
+                if (from > 0) {
+                    --from;
+                } else if (text[to] == '\n') {
+                    ++to;
+                }
+            }
+            if (len - (to - from) + lstrlenA(now) + 1 < (int)sizeof out && len - (to - from) + lstrlenA(now) < cap) {
+                memcpy(out, text, (size_t)from);
+                lstrcpyA(out + from, now);
+                lstrcatA(out, text + to);
+                lstrcpynA(text, out, cap);
+            }
+        } else if (now[0] != '\0' && len + 1 + lstrlenA(now) + 1 < cap) {
+            if (len > 0) {
+                lstrcatA(text, "\n");
+            }
+            lstrcatA(text, now);
+        }
+    }
+}
+
 /* The effects display `k` makes, each once: every node of its jobs, in the history's order, the award's state
    and the rolls as the walk left them. */
 static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) {
@@ -8013,6 +8448,7 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
     cg_count_page[0] = cg_count_page[1] = 0;
     cg_count_page_any[0] = cg_count_page_any[1] = 0;
     cg_after[0] = '\0';
+    cg_fix_count = 0;
     cg.gone_at[k] = cg.gone;
     memcpy(cg.identity_at[k], cg.identity, sizeof cg.identity);
     {
@@ -8030,7 +8466,9 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
         for (e = 0; e < cg_fx_count(n); ++e, ++fx) {
             const unsigned char *eff = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + e);
             int va = fx < CG_MAX_FX ? h->fx_a[fx] : 0, vb = fx < CG_MAX_FX ? h->fx_b[fx] : 0;
+            cg_fx_now = fx;            /* its stated amount (cg_told_amount) */
             cg_effect(a, game, eff, va, vb, &award_kind, &award, r);
+            cg_fx_now = -1;
         }
         /* Village Solidarity: once per run (its purchase time) and page (its place on the path, its node). */
         cg_sol_reached(game, n, cg_s(&cg_g, (unsigned int)cg_g.base_title), cg.when,
@@ -8068,11 +8506,13 @@ static void cg_show(const ce_adapter *a, int game, int k, char *text, int size) 
     cg_display_title(k, cg_shown_title, sizeof cg_shown_title);   /* 14: the title in force on this page */
     lstrcpynA(ce_armed_event.title, cg_shown_title, sizeof ce_armed_event.title);   /* the later games draw it */
     su_title_whole = cg_shown_title;   /* ... whole (story_objects.inc ce_deliver_object) */
-    if (cg_after[0] != '\0') {
-        /* the lines of the effects made just now, after the page's words (village.inc cg_after_line) */
+    if (cg_after[0] != '\0' || cg_fix_count > 0) {
+        /* the lines of the effects made just now, after the page's words (village.inc cg_after_line); a stated
+           amount the village no longer allowed put right first (cg_fix_lines) */
         static char shown[CG_RAW_BYTES];
         lstrcpynA(shown, cg_display(k), (int)sizeof shown);
-        if (lstrlenA(shown) + 1 + lstrlenA(cg_after) + 1 < (int)sizeof shown) {
+        cg_fix_lines(a, game, shown, (int)sizeof shown);
+        if (cg_after[0] != '\0' && lstrlenA(shown) + 1 + lstrlenA(cg_after) + 1 < (int)sizeof shown) {
             if (shown[0] != '\0') {
                 lstrcatA(shown, "\n");
             }

@@ -121,6 +121,18 @@ FILES = [
     # Fix Vanilla Bugs (The Tree of Life): after The Frog Rescue the frogs leap all along the river's blue water.
     "assets/vv4_frogs/VVFP VV4 Frogs.dll",
     "assets/herb_study/VVFP Herb Study.dll",
+    # Fix Vanilla Bugs (The Tree of Life): the owner's redrawn broken-pier holes, drawn in place of sprites 104-113.
+    "assets/vv4_pier_holes/VVFP VV4 Pier Holes.dll",
+    "assets/vv4_pier_holes/vvfp_northPierHoleEast.png",
+    "assets/vv4_pier_holes/vvfp_northPierHoleMidNorth.png",
+    "assets/vv4_pier_holes/vvfp_northPierHoleMidSouth.png",
+    "assets/vv4_pier_holes/vvfp_northPierHoleSouthEast.png",
+    "assets/vv4_pier_holes/vvfp_northPierHoleWest.png",
+    "assets/vv4_pier_holes/vvfp_southPierHoleEast.png",
+    "assets/vv4_pier_holes/vvfp_southPierHoleNorthEast.png",
+    "assets/vv4_pier_holes/vvfp_southPierHoleNorthWest.png",
+    "assets/vv4_pier_holes/vvfp_southPierHoleSouthEast.png",
+    "assets/vv4_pier_holes/vvfp_southPierHoleSouthWest.png",
     # Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse.
     "assets/push_clouds/VVFP Push Clouds.dll",
     # Popup When Believers Become Heathens (New Believers): counts the believers the Faith drift turns Heathen.
@@ -786,6 +798,8 @@ FILES = [
     "src/vv_game_mechanics_vv3.py",
     "src/vv_game_mechanics_vv4.py",
     "src/vv_game_mechanics_vv5.py",
+    # The Secret City's Tribal Chief (Directing work), imported by vv_game_mechanics_vv3.
+    "src/vv_game_mechanics_chief_vv3.py",
     "src/vv_game_mechanics_powers_vv5.py",
     "src/vv_game_mechanics_life.py",
     "src/vv_game_mechanics_nursery.py",

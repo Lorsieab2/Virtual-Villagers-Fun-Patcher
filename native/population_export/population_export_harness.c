@@ -724,6 +724,19 @@ static void run_vv1(write_population_t write) {
     VirtualFree(image, 0, MEM_RELEASE);
 }
 
+#define SMALL_STACK (256u * 1024u)
+static write_population_t g_write;
+
+static DWORD WINAPI run_all(LPVOID unused) {
+    size_t i;
+    (void)unused;
+    for (i = 0; i < sizeof GAMES / sizeof GAMES[0]; ++i) {
+        run_game(&GAMES[i], g_write);
+    }
+    run_vv1(g_write);
+    return 0;
+}
+
 int main(int argc, char **argv) {
     harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     HMODULE dll;
@@ -759,10 +772,22 @@ int main(int argc, char **argv) {
         CHECK(loaded == 3, "the three stand-in companions are loaded");
         g_kept_stubs = loaded == 3;
     }
-    for (i = 0; i < sizeof GAMES / sizeof GAMES[0]; ++i) {
-        run_game(&GAMES[i], write);
+    /* Every export runs on a thread whose stack is only SMALL_STACK: the game calls the roster from inside its
+       save, already deep in its own 1 MB stack (The Lost Children's save routine alone holds a 193 KB frame).
+       The exporter once kept about 700 KB of path buffers on the stack and overflowed here. */
+    g_write = write;
+    {
+        HANDLE thread = CreateThread(NULL, SMALL_STACK, run_all, NULL, STACK_SIZE_PARAM_IS_A_RESERVATION, NULL);
+        DWORD code = 0;
+        CHECK(thread != NULL, "start the small-stack thread");
+        if (thread != NULL) {
+            WaitForSingleObject(thread, INFINITE);
+            GetExitCodeThread(thread, &code);
+            CloseHandle(thread);
+            CHECK(code == 0, "the exports ran within a %u KB stack", SMALL_STACK / 1024u);
+        }
     }
-    run_vv1(write);
+    (void)i;
     printf("\n%d failure(s)\n", g_failures);
     return g_failures ? 1 : 0;
 }

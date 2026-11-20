@@ -19,6 +19,11 @@ CHILD = r"""
 import json, sys, tkinter
 from pathlib import Path
 sys.path.insert(0, sys.argv[1])
+_toplevel_init = tkinter.Toplevel.__init__
+def _withdrawn(self, *args, **kwargs):          # the settings window and the library never show on the screen
+    _toplevel_init(self, *args, **kwargs)
+    self.withdraw()
+tkinter.Toplevel.__init__ = _withdrawn
 import vv_fun_patcher_gui as gui
 gui.SETTINGS = Path(sys.argv[2])  # absent: a fresh install
 try:
@@ -50,7 +55,12 @@ for master, ticked, joined in getattr(app, "_mie_creator_rows", []):
 # each game's Custom Island Event Library button opens that game's library (Codex, #775)
 import vv_save_backup
 out["libraries"] = []
-for build, button in getattr(app, "_mie_creator_libraries", []):
+# (the button is in the row's Settings window, the owner, 2026-11-19)
+for settings, key in getattr(app, "_patch_settings_buttons", []):
+    settings.invoke()
+    app.update()
+    holder = app._patch_settings_windows[key]
+    build, button = holder.library
     before = set(app.winfo_children())
     button.invoke()
     app.update()
@@ -62,6 +72,8 @@ for build, button in getattr(app, "_mie_creator_libraries", []):
                              "shown": lib.titles[max(0, lib.game_box.current())],
                              "folders": [str(f) for f in lib.folders], "expected": [str(f) for f in expected]})
     window.destroy()
+    holder.close()
+    app.update()
 app.destroy()
 print(json.dumps(out))
 """

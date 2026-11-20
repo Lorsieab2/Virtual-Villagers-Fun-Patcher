@@ -154,8 +154,13 @@ class PolishingPaysTheEnergy(unittest.TestCase):
         feature = next(f for f in json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))["fun_patches"]
                        if f["id"] == FEATURE_ID)
         rows = [(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
-                for p in feature["patches"][-len(FIXES):]]
-        self.assertEqual(rows, list(FIXES))
+                for p in feature["patches"]]
+        # The Nursery foundation caption's row (tests/test_vv5_nursery_foundation_caption.py) comes after this fix.
+        from test_vv5_nursery_foundation_caption import foundation_caption_fixes
+        caption = list(foundation_caption_fixes())
+        self.assertEqual(rows[-len(caption):], caption)
+        rows = rows[:-len(caption)]
+        self.assertEqual(rows[-len(FIXES):], list(FIXES))
         self.assertIn("Polishing the statue", feature["description"])
 
     def test_the_bytes_are_stock_where_the_row_writes(self) -> None:

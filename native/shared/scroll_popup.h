@@ -99,6 +99,23 @@ typedef struct sp_shift {
     int mode;
     unsigned int yfield, text_a, text_b, flag, font_mgr;
     int text_top;
+    /* A tip that asks for more width than the screen holds (the later three's tutorial tips ask for the screen's
+       whole width and more: The Secret City 0x23A + 0x48 wide, The Tree of Life 0x2FA + 0x48, New Believers 0x3EC
+       + 0x48): its text (the pointer at `wrap_text`, in the font of the text manager at `font_mgr`) is wrapped at the
+       width at `wrap_w`, which the constructor measured its height at with `wrap_height_fn` (font; text, width, float
+       scale) ret 0xC.  0: not such a tip.  A tutorial tip (the byte at `tutorial` set and the dword at `tutorial_on`
+       0) places its text at a fixed x the game chose to keep the whole text on the screen (The Tree of Life 0x12,
+       New Believers 0x0A): only its frame runs past the screen's sides, so its width is kept as the game asks. */
+    unsigned int wrap_text, wrap_w, wrap_height_fn;
+    unsigned int tutorial, tutorial_on;
+    int tutorial_is;              /* the dword's value that makes it a tutorial tip (The Lost Children: 1) */
+    /* A New Home's and The Lost Children's tips draw their text's '\n' lines centred, the panel as wide as the widest
+       line: the text comes from the string table, `call lookup_fn` (thiscall(text manager; id) ret 4, esi = the tip)
+       at `lookup_sites` (the constructor's, which measures it, and the body draw's).  Both calls call the companion,
+       which hands over the text with each line wider than the box broken at its spaces; the box: the screen's width
+       capped as the size site caps it (the panel picture's cells are `lookup_cell` wide), less `side` each side. */
+    unsigned int lookup_fn, lookup_sites[2];
+    int lookup_cell;
 } sp_shift;
 #define SP_SHIFT_ASKED 0
 #define SP_SHIFT_MEASURED 1
@@ -195,7 +212,8 @@ typedef struct sp_game {
 /* The tips (theTipDialog: tutorial and notices), all five games: the box 0x24 from the sides, 0x0A below the top
    (a tutorial tip's text starts 0x24 - 0x1A below it), above twice the OK button's height. */
 static const sp_shift SP_VV1_SHIFTS[] = {
-    {0x481AD0u, 0x436006u, 0x40C760u, {0x89, 0x46, 0x70}, 0x6Cu, 2, 0x0A, 0x24, 20},
+    {0x481AD0u, 0x436006u, 0x40C760u, {0x89, 0x46, 0x70}, 0x6Cu, 2, 0x0A, 0x24, 20,
+     SP_SHIFT_ASKED, 0, 0, 0, 0, 0x68u, 0, 0, 0, 0, 0, 0, 0, 0x433970u, {0x435F37u, 0x4362F7u}, 64},
     /* A New Home's island events: plain (0x4286B0), encounter / two choices (0x41A460), crate / visitor (0x42D0E0). */
     {0x459AE4u, 0x428830u, 0x40C760u, {0x50, 0x8B, 0xCE}, 0, 0, 0, 0x0C, 20,
      SP_SHIFT_MEASURED, 0x6Cu, 0x277Fu, 0, 0, 0x50ACu, 0x23},
@@ -205,7 +223,8 @@ static const sp_shift SP_VV1_SHIFTS[] = {
      SP_SHIFT_MEASURED, 0x6Cu, 0x74u, 0x2783u, 0x50u, 0x50B0u, 0x23},
 };
 static const sp_shift SP_VV2_SHIFTS[] = {
-    {0x48FAC8u, 0x443D86u, 0x40D140u, {0x00, 0x00, 0x00}, 0x74u, 2, 0x0A, 0x24, 20},
+    {0x48FAC8u, 0x443D86u, 0x40D140u, {0x00, 0x00, 0x00}, 0x74u, 2, 0x0A, 0x24, 20,
+     SP_SHIFT_ASKED, 0, 0, 0, 0, 0x70u, 0, 0, 0, 0, 0x4Cu, 0x38u, 1, 0x441680u, {0x443C3Du, 0x4442D5u}, 64},
     /* The Lost Children's island events: plain (0x4348E0), two choices A (0x422380) and B, sacks and vials
        (0x439DD0). */
     {0x476DF8u, 0x434A6Bu, 0x40D140u, {0x50, 0x8B, 0xCE}, 0, 0, 0, 0x0C, 20,
@@ -215,9 +234,12 @@ static const sp_shift SP_VV2_SHIFTS[] = {
     {0x476F30u, 0x439FA4u, 0x40D140u, {0x52, 0x8B, 0xCE}, 0, 0, 0, 0x0C, 20,
      SP_SHIFT_MEASURED, 0x6Cu, 0x74u, 0x2783u, 0x50u, 0x50B0u, 0x23},
 };
-static const sp_shift SP_VV3_SHIFTS[] = {{0x47F454u, 0x41DFF1u, 0x40DDD0u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20}};
-static const sp_shift SP_VV4_SHIFTS[] = {{0x48D47Cu, 0x41B4B9u, 0x40DE20u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20}};
-static const sp_shift SP_VV5_SHIFTS[] = {{0x49868Cu, 0x41BD13u, 0x40E310u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20}};
+static const sp_shift SP_VV3_SHIFTS[] = {{0x47F454u, 0x41DFF1u, 0x40DDD0u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20,
+                                          SP_SHIFT_ASKED, 0, 0, 0, 0, 0x70u, 0, 0x58u, 0x5Cu, 0x402480u, 0x4Cu, 0x38u}};
+static const sp_shift SP_VV4_SHIFTS[] = {{0x48D47Cu, 0x41B4B9u, 0x40DE20u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20,
+                                          SP_SHIFT_ASKED, 0, 0, 0, 0, 0x70u, 0, 0x58u, 0x5Cu, 0x4026E0u, 0x4Cu, 0x38u}};
+static const sp_shift SP_VV5_SHIFTS[] = {{0x49868Cu, 0x41BD13u, 0x40E310u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20,
+                                          SP_SHIFT_ASKED, 0, 0, 0, 0, 0x70u, 0, 0x58u, 0x5Cu, 0x402690u, 0x4Cu, 0x38u}};
 
 /* The Secret City: the island-event dialog 0x4192F0. */
 static const sp_class SP_VV3_CLASSES[] = {

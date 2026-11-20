@@ -461,7 +461,8 @@ class Answers(unittest.TestCase):
         m = low[1] // 1000                                   # the game's own factor: 1,000 tech at the bottom
         self.assertGreaterEqual(m, 1)
         self.assertEqual(low, [200 * m, 1000 * m, 200 * m, 1000 * m])
-        highs = standard()                                    # the page says the full roll, whatever is stored
+        highs = standard()                                    # the full roll when the village has it
+        highs.set_stores(10 ** 6, 10 ** 6)
         self.assertTrue(highs.open(awards=(TOP, TOP, TOP, TOP)))
         self.assertEqual(highs.ts_state()[11:15], [600 * m, 2000 * m, 600 * m, 2000 * m])
         # Each answer's store change.
@@ -475,17 +476,28 @@ class Answers(unittest.TestCase):
             amount = v.ts_state()[11 + g]
             df, dt = expect[g]
             self.assertEqual(v.stores(), (max(0, food + df * amount), max(0, tech + dt * amount)), g)
-        # A low store (the owner, 2026-11-13: "yeah show the full amount"): the page says the full roll, the store
-        # ends at 0.
+        # A low store (the owner, 2026-11-19: every result line exact, replacing 2026-11-13's full roll): the page
+        # says what the village had, and exactly that is taken; nothing to take: no loss sentence at all.
         for g, stores in ((0, (150, 5000)), (3, (1000, 700))):
             v = standard()
             v.set_stores(*stores)
             self.assertTrue(v.open(awards=(TOP, TOP, TOP, TOP)))
-            full = (600 if g == 0 else 2000) * m
-            self.assertEqual(v.ts_state()[11 + g], full)
-            self.assertIn(f"loses {full} ", " ".join(v.ts_pages(1 + g)))
+            had = stores[0 if g == 0 else 1]
+            self.assertEqual(v.ts_state()[11 + g], had)
+            text = " ".join(v.ts_pages(1 + g))
+            self.assertIn(f"loses {had} ", text)
+            self.assertNotIn(f"loses {(600 if g == 0 else 2000) * m} ", text)
             v.play(g)
             self.assertEqual(v.stores()[0 if g == 0 else 1], 0)
+        for g, stores in ((0, (0, 5000)), (3, (1000, 0))):
+            v = standard()
+            v.set_stores(*stores)
+            self.assertTrue(v.open(awards=(TOP, TOP, TOP, TOP)))
+            text = " ".join(v.ts_pages(1 + g))
+            self.assertNotIn("loses", text)
+            self.assertIn("salvation." if g == 0 else "inconsistent results.", text)
+            v.play(g)
+            self.assertEqual(v.stores(), stores)
 
     def test_one_entry_and_nothing_at_a_save_before_the_last_page(self) -> None:
         v = standard()

@@ -39,7 +39,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F26"
+    ],
+    "o1__text": [
      "F26"
     ],
     "setup": [
@@ -73,9 +76,17 @@
    ]
   },
   "adv04_half_advice": {
-   "filters": [],
-   "notes": [],
-   "nodes": {},
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1__fx": [
+     "F06"
+    ]
+   },
    "speaks": [
     "friend"
    ]
@@ -165,7 +176,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F25"
+    ],
+    "o1__text": [
      "F25"
     ]
    },
@@ -316,7 +330,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F25"
+    ],
+    "o1__text": [
      "F25"
     ],
     "setup": [
@@ -358,7 +375,10 @@
     "Disappearance"
    ],
    "nodes": {
-    "o2": [
+    "o2__fx": [
+     "F04"
+    ],
+    "o2__text": [
      "F04"
     ]
    }

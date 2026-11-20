@@ -25,7 +25,8 @@ import unittest
 from pathlib import Path
 
 from unicorn import UC_HOOK_CODE
-from unicorn.x86_const import UC_X86_REG_EAX, UC_X86_REG_ECX, UC_X86_REG_EIP, UC_X86_REG_ESP
+from unicorn.x86_const import (UC_X86_REG_DS, UC_X86_REG_EAX, UC_X86_REG_ECX, UC_X86_REG_EIP, UC_X86_REG_ES,
+                               UC_X86_REG_ESP, UC_X86_REG_FS, UC_X86_REG_GDTR, UC_X86_REG_SS)
 
 import test_builders_decision_roll as harness
 from test_builders_decision_roll import HALT, ROWS, STOCK_ABSENT, STOCK_PRESENT, TEST_BUILD_ABSENT, TEST_BUILDS_PRESENT, VILLAGE
@@ -52,7 +53,10 @@ class _StoryWorker(install.EarlyWorker):
     """The Story DLL's own kernel32 calls on its install, answered as at game start: no sidecar file yet."""
 
     ANSWERS = {"CreateFileW": (28, 0xFFFFFFFF), "CreateFileA": (28, 0xFFFFFFFF), "GetTickCount": (0, 100000),
-               "MultiByteToWideChar": (24, 0)}
+               "MultiByteToWideChar": (24, 0),
+               # no Documents folder found: the install's save-folder lookups take their "nothing yet" path
+               "SHGetFolderPathA": (20, 0x80004005), "SHGetFolderPathW": (20, 0x80004005),
+               "SHGetSpecialFolderPathA": (16, 0), "SHGetSpecialFolderPathW": (16, 0)}
 
     def _import(self, name: str) -> None:
         if name in self.ANSWERS:
@@ -77,7 +81,27 @@ def story_world() -> _StoryWorker:
         ROWS["vv5"], install.world = saved_rows, saved_world
         install._DEFAULT_EXE.pop(("vv5", "stock"), None)
     m.__class__ = _StoryWorker
+    _thread_block(m)
     return m
+
+
+TEB, GDT = 0x0D000000, 0x0D010000   # free in the harness's layout (below HALT 0x0E000000)
+
+
+def _thread_block(m: _StoryWorker) -> None:
+    """A thread block for the C runtime's exception frames: the Story DLL's install now reaches __try code, which
+    reads fs:[0].  fs is a GDT data segment based at TEB, as in tests/farmers_emulation_vv4.py."""
+    mu = m.mu
+    mu.mem_map(TEB, 0x1000)
+    mu.mem_map(GDT, 0x1000)
+    mu.mem_write(TEB, struct.pack("<7I", 0xFFFFFFFF, harness.STACK_TOP, harness.STACK_TOP - 0x40000, 0, 0, 0, TEB))
+    mu.mem_write(GDT + 8, struct.pack("<Q", 0xFFF | ((TEB & 0xFFFFFF) << 16) | (0x92 << 40) | (0x4 << 52)
+                                      | (((TEB >> 24) & 0xFF) << 56)))
+    mu.mem_write(GDT + 16, struct.pack("<Q", 0xFFFF | (0x92 << 40) | (0xF << 48) | (0xC << 52)))
+    mu.reg_write(UC_X86_REG_GDTR, (0, GDT, 0x20, 0))
+    mu.reg_write(UC_X86_REG_FS, 1 << 3)
+    for flat in (UC_X86_REG_SS, UC_X86_REG_DS, UC_X86_REG_ES):     # the flat data segment, once a GDT is loaded
+        mu.reg_write(flat, 2 << 3)
 
 
 def save_path_while_building(m: _StoryWorker) -> dict:

@@ -14,10 +14,10 @@ FEATURE = {game: f"vv{game}{scores.SOLIDARITY_ROW_SUFFIX}" for game in range(1, 
 
 RULES = (f"{scores.SOLIDARITY_NAME}: 0 to 100, 50 at the start. A new event's page marked to raise it adds "
          f"{scores.STEP}, one marked to lower it takes {scores.STEP} away, a quiet page leaves it. It only changes "
-         "odds: above 50 the new cooperative and celebration events and the cooperative endings are more likely, "
-         "below 50 the new repair, peace and apology events and the tense endings (at the normal strength 2% more "
-         "of their own chance for each point away from 50, so double at 0 or 100). The game's own island events, "
-         "work, skills and health never change")
+         "chance weights: above 50 the new cooperative and celebration events and the cooperative endings, below 50 "
+         "the new repair, peace and apology events and the tense endings, each get 2% more of their own chance "
+         "weight for each point away from 50 at the normal strength (double at 0 or 100); no other weight changes. "
+         "The game's own island events, work, skills and health never change")
 
 
 def lines(village: gm.Village) -> list[tuple[str, object]]:

@@ -116,9 +116,17 @@
    ]
   },
   "wd12_what_bat_doing": {
-   "filters": [],
-   "notes": [],
-   "nodes": {},
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "a__fx": [
+     "F06"
+    ]
+   },
    "speaks": [
     "friend",
     "subject"
@@ -310,7 +318,10 @@
    ],
    "notes": [],
    "nodes": {
-    "b": [
+    "b__fx": [
+     "F25"
+    ],
+    "b__text": [
      "F25"
     ]
    }
@@ -416,9 +427,15 @@
    }
   },
   "wd50_what_seabird": {
-   "filters": [],
+   "filters": [
+    "F20"
+   ],
    "notes": [],
-   "nodes": {}
+   "nodes": {
+    "a__fx": [
+     "F20"
+    ]
+   }
   }
  }
 }

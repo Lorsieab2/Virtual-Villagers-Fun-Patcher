@@ -1,7 +1,7 @@
 {
  "format": "vvfp-cie-graph",
  "version": 6,
- "title": "The Guardians' Disagreement",
+ "title": "The Villagers' Disagreement",
  "games": [
   5
  ],
@@ -41,7 +41,7 @@
  "nodes": {
   "question": {
    "type": "question",
-   "name": "The Guardians' Disagreement",
+   "name": "The Villagers' Disagreement",
    "src": "L8020",
    "text": "Two respected villagers disagree over what it means to protect Isola: guarding its traditions or allowing them to change.",
    "choices": [

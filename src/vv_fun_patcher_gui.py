@@ -193,8 +193,19 @@ MIE_CREATOR_ROWS = ("more_island_events", "isola_grand_event_collection")
 MIE_CREATOR_NOTE = (
     "Every island event the patcher adds, in one row: ticking it ticks More Island Events and the Isola Grand Event "
     "Collection below (each can still be unticked on its own). Needs Story / Cheat Upgrades and Scrolling Popups; "
-    "ticking it ticks them. Owner's Defaults, Select All and Classic VV Difficulty tick the whole row. Write your "
-    "own events with the Custom Island Event Library below.")
+    "ticking it ticks them. Owner's Defaults, Select All and Classic VV Difficulty tick the whole row. Its "
+    "Settings... button holds the content filters, the partner-carry setting, the Custom Island Event Library and "
+    "Player Events.")
+# Each patch's own settings (the owner, 2026-11-19: "the patches should be the focus, any auxiliary settings go in
+# separate button-hidden menus next to the respective patches"): a row with settings shows one "Settings..." button
+# beside its "?", and the button opens a window of its own (held the Windows way, _hold) with that patch's sliders,
+# filters and tools.  The settings keep their variables and their keys in the settings file.
+PATCH_SETTINGS_BUTTON = "Settings..."
+# Main-list rows with a Settings window, by the id after "vvN_": the App method that fills the window and the "?"
+# guides in it (the More Island Events and Creator row has its own, _build_mie_creator).
+PATCH_SETTINGS_ROWS = {
+    "unicode_font": ("_fill_unicode_font_settings", ("unicode_font",)),
+}
 # No Safeguards for Island Events (and Additional Events too) sits under Classic VV Difficulty in the main list (the
 # owner, 2026-11-15), with its title colour -- never ticked by it (off everywhere).
 NO_SAFEGUARDS_TAIL = "island_events_any_time"
@@ -276,8 +287,6 @@ def island_event_advisory(patch_id: str) -> tuple[str, bool] | None:
     return ISLAND_EVENT_ADVISORIES.get(tail)
 
 
-# Birth Control rows new in The Tree of Life and New Believers (catch-up babies only): on in Owner's Defaults only.
-VV4_VV5_BIRTH_CONTROL_IDS = ["vv4_birth_control", "vv5_birth_control"]
 # Fog of Doom Lets Every Heathen Listen and its modifier No Restrictions on Fog of Doom Conversions (New Believers).
 FOG_LISTENING_ID = "vv5_fog_of_doom_every_heathen_listens"
 FOG_NO_RESTRICTIONS_ID = "vv5_fog_of_doom_no_restrictions"
@@ -406,10 +415,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Village Solidarity (all five games; the owner, 2026-11-17): off by default and in Select All, on in Owner's
     # Defaults.
     + ["vv%d_village_solidarity" % game for game in range(1, 6)]
-    # Birth Control (The Tree of Life, New Believers; new 2026-11-19): a new option, so "ON in Owner's Defaults and
-    # OFF everywhere else" -- off here and in Select All.  A New Home to The Secret City keep their Birth Control
-    # rows on by default, as before.
-    + VV4_VV5_BIRTH_CONTROL_IDS
+    # Birth Control (The Tree of Life, New Believers; new 2026-11-19) is NOT here: the owner (2026-11-19) wants it
+    # on by default like A New Home to The Secret City's Birth Control rows, and ticked by Owner's Defaults and
+    # Select All.
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -500,8 +508,6 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + ONE_TIME_COLLECTIBLES_IDS
     # Village Solidarity: on in Owner's Defaults only (the owner, 2026-11-17).
     + ["vv%d_village_solidarity" % game for game in range(1, 6)]
-    # Birth Control in The Tree of Life and New Believers: on in Owner's Defaults only.
-    + VV4_VV5_BIRTH_CONTROL_IDS
     # Fog of Doom Lets Every Heathen Listen: on in Owner's Defaults only; No Restrictions on Fog of Doom Conversions
     # off everywhere (the owner, 2026-11-19).
     + [FOG_LISTENING_ID, FOG_NO_RESTRICTIONS_ID]
@@ -679,6 +685,9 @@ DIFFICULTY_SLIDERS = (
     ("louder_flutes_var", LOUDER_FLUTES_MULTIPLIER_RANGE, "louder_flutes_multiplier", "_louder_wind_flutes"),
     ("island_frequency_var", ISLAND_FREQUENCY_MULTIPLIER_RANGE, "island_frequency_multiplier",
      "_more_frequent_island_events"),
+    # Village Solidarity's strength (the owner's v1.35.97 decision: on this page, 0.1x to 10x); its settings key
+    # stays "village_solidarity_strength".
+    ("solidarity_var", RUNTIME_SLIDER_RANGE, "village_solidarity_strength", "_village_solidarity"),
 ) + tuple((None, RUNTIME_SLIDER_RANGE, f"{slider.key}_multiplier", slider.row_suffix) for slider in RUNTIME_SLIDERS)
 
 
@@ -1697,6 +1706,13 @@ class App(tk.Tk):
             # "A man may carry the baby by chance" (the owner, 2026-11-16): 0 to 100 percent, 10 unless moved; the
             # slider and its box in every game's Island Events section share it.
             self.partner_carry_var = tk.IntVar(value=PARTNER_CARRY_DEFAULT)
+            # Use Unicode Font's typeface (the owner, 2026-11-01: "a font picker defaulting to Segoe UI"), made
+            # before the settings are read so the saved face is the one shown (it was made after, and reset).
+            self.unicode_font_var = tk.StringVar(value=UNICODE_FONT_DEFAULT_FACE)
+            # Village Solidarity's strength (the owner, 2026-11-17: the new sliders' range, 0.1x to 10x, 1x normal;
+            # only used with that row ticked): on the Difficulty Sliders page, written beside its companion at the
+            # next patch.  Made before the settings are read so the saved strength is the one shown.
+            self.solidarity_var = tk.DoubleVar(value=float(vv_village_scores.STRENGTH_DEFAULT))
             # The 0.1x-10x sliders (all five games; the owner, 2026-11-17): 1 unless moved; each written beside its
             # companion.
             self.runtime_slider_vars = {slider.key: tk.DoubleVar(value=RUNTIME_SLIDER_DEFAULT)
@@ -1994,20 +2010,8 @@ class App(tk.Tk):
         ).pack(side="left")
         self._help_button(selection_group, "patch_selection_settings").pack(side="left", padx=(2, 0))
         # Use Unicode Font (overrides in-game fonts): the typeface it draws with (the owner, 2026-11-01:
-        # "a font picker defaulting to Segoe UI").  Written beside the companion at the next patch.
-        font_group = ttk.Frame(fun_settings)
-        font_group.pack(side="left", padx=(0, 16))
-        ttk.Label(font_group, text="Unicode Font:").pack(side="left", padx=(0, 4))
-        self.unicode_font_var = tk.StringVar(value=UNICODE_FONT_DEFAULT_FACE)
-        try:
-            families = sorted({f for f in tkfont.families(self) if f and not f.startswith("@")}, key=str.casefold)
-        except tk.TclError:
-            families = [UNICODE_FONT_DEFAULT_FACE]
-        unicode_font_box = ttk.Combobox(font_group, textvariable=self.unicode_font_var, values=families, width=28)
-        unicode_font_box.pack(side="left")
-        unicode_font_box.bind("<<ComboboxSelected>>", lambda _e: self._unicode_font_changed())
-        unicode_font_box.bind("<FocusOut>", lambda _e: self._unicode_font_changed())
-        self._help_button(font_group, "unicode_font").pack(side="left", padx=(2, 0))
+        # "a font picker defaulting to Segoe UI").  Written beside the companion at the next patch.  Its box is in
+        # the Settings window beside each game's Use Unicode Font row (_fill_unicode_font_settings).
         # The multiplier sliders live on their own page, Difficulty Sliders (the owner, 2026-11-18): the patch rows
         # stay here, and this button opens the page (_open_difficulty_sliders).
         sliders_group = ttk.Frame(fun_settings)
@@ -2024,20 +2028,10 @@ class App(tk.Tk):
             variable = self.runtime_slider_vars[slider.key]
             variable.trace_add("write", lambda *_args, key=slider.key: self._runtime_slider_changed(key))
             self._runtime_slider_changed(slider.key)    # the saved number, loaded before the window was built
-        # Village Solidarity's slider: kept on the main settings row for now; TODO move it to the Difficulty
-        # Sliders page (the owner's v1.35.97 post-merge item).
-        # Village Solidarity's strength (the owner, 2026-11-17: the new sliders' range, 0.1x to 10x, 1x normal; only
-        # used with that row ticked).  Set in the patcher at once and written beside its companion at the next patch.
-        solidarity_group = ttk.Frame(fun_settings)
-        solidarity_group.pack(side="left", padx=(16, 0))
-        ttk.Label(solidarity_group, text="Village Solidarity strength:").pack(side="left", padx=(0, 4))
-        self.solidarity_var = tk.DoubleVar(value=float(vv_village_scores.STRENGTH_DEFAULT))
-        self.solidarity_scale = tk.Scale(
-            solidarity_group, variable=self.solidarity_var, orient="horizontal",
-            from_=vv_village_scores.STRENGTH_MIN_TENTHS / 10, to=vv_village_scores.STRENGTH_MAX_TENTHS / 10,
-            resolution=0.1, length=120, showvalue=True, command=lambda _value: self._solidarity_changed())
-        self.solidarity_scale.pack(side="left")
-        self._help_button(solidarity_group, "village_solidarity_strength").pack(side="left", padx=(2, 0))
+        # Village Solidarity's strength is on the Difficulty Sliders page (the owner's v1.35.97 decision); what the
+        # patch writes follows it however it is moved.
+        # (the saved number was set for the patch when the settings were read)
+        self.solidarity_var.trace_add("write", lambda *_args: self._solidarity_changed())
         # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
         # when it no longer fits; the row asks only for its widest setting, so it never widens the page.
         vv_genealogy_window.flow_row(fun_settings, natural=False)
@@ -2079,6 +2073,9 @@ class App(tk.Tk):
                 vv_how_to_use.guide(key, label)
                 self.help_keys.add(key)
                 kind = None if shared else island_event_section_kind(patch.id)
+                settings = PATCH_SETTINGS_ROWS.get(patch.id.split("_", 1)[-1])
+                if settings is not None:
+                    self._register_patch_settings(patch.id, label, getattr(self, settings[0]), settings[1])
                 if kind == "filter":
                     island_filters.append(patch)
                 elif kind == "row":
@@ -2159,78 +2156,167 @@ class App(tk.Tk):
 
     def _build_island_events_section(self, page, game_name: str, island_rows: list, filters: list,
                                      styles) -> None:
-        """The game's Island Events section (the owner, 2026-11-15): the island-event rows (More Island Events, the
-        Isola Grand Event Collection, Content Notes) in a list of their own, then the content filters
-        as a grid of ticks.  Its rows are the same rows as everywhere: the same variables, guides and rules."""
+        """The game's Island Events section (the owner, 2026-11-15): the More Island Events and Creator row, then the
+        island-event rows (More Island Events, the Isola Grand Event Collection, Content Notes) in a list of their
+        own.  Its rows are the same rows as everywhere: the same variables, guides and rules.  The row's settings --
+        the content filters, the partner-carry setting, the Custom Island Event Library and Player Events -- are in
+        its Settings window (the owner, 2026-11-19: "the patches should be the focus")."""
         requirement_font, description_font, background = styles
         box = ttk.LabelFrame(page, text=f"Island Events ({game_name})", padding=(8, 4, 8, 6))
         box.pack(fill="x", pady=(8, 0))
         order = {tail: k for k, tail in enumerate(ISLAND_EVENT_SECTION_ROWS)}
         island_rows = sorted(island_rows, key=lambda r: order.get(r[0].id.split("_", 1)[1], len(order)))
         joined = [r[0].id for r in island_rows if r[0].id.split("_", 1)[1] in MIE_CREATOR_ROWS]
+        ids = [r[0].id for r in island_rows] + [p.id for p in filters]
+        game = next((int(i[2]) for i in ids if len(i) > 3 and i[:2] == "vv" and i[2] in "12345"), None)
+        settings_key = f"vv{game}_mie"
+        if game is not None:
+            self._register_patch_settings(
+                settings_key, f"{MIE_CREATOR_NAME} ({game_name})",
+                lambda frame, g=game, n=game_name, j=tuple(joined), f=tuple(filters):
+                    self._fill_mie_settings(frame, g, n, j, f, requirement_font),
+                ("partner_carry_percent", "custom_island_event_library", "island_event_content_filters"))
         if joined:
-            self._build_mie_creator(box, game_name, joined, requirement_font)
+            self._build_mie_creator(box, game_name, joined, requirement_font, settings_key)
+        elif game is not None and filters:
+            head = ttk.Frame(box)
+            head.pack(fill="x", pady=(2, 2))
+            self._settings_button(head, settings_key).pack(side="left")
         if island_rows:
             listing = VirtualList(
                 box, island_rows,
                 lambda frame, row, styles=styles: self._build_patch_row(frame, row, styles),
             )
             listing.pack(fill="x", padx=(20 if joined else 0, 0))
+
+    def _register_patch_settings(self, key: str, title: str, fill, help_keys=()) -> None:
+        """A patch's Settings window: its title and what fills it (`fill(frame)`), opened by _open_patch_settings.
+        Its "?" guides are checked now, while the window is built, as every "?" on the page is."""
+        for help_key in help_keys:
+            vv_how_to_use.guide(help_key)
+            self.help_keys.add(help_key)
+        if not hasattr(self, "_patch_settings"):
+            self._patch_settings = {}
+        self._patch_settings[key] = (title, fill)
+
+    def _settings_button(self, parent, key: str):
+        """The "Settings..." button beside a patch's "?": opens that patch's own settings window."""
+        return ttk.Button(parent, text=PATCH_SETTINGS_BUTTON, command=lambda: self._open_patch_settings(key))
+
+    def _open_patch_settings(self, key: str) -> tk.Toplevel:
+        """A patch's Settings window (one per patch; a second click brings it forward).  It holds the patcher the
+        Windows way while open (_hold, as every dialog), and everything in it saves as it did on the main page."""
+        windows = getattr(self, "_patch_settings_windows", None)
+        if windows is None:
+            windows = self._patch_settings_windows = {}
+        existing = windows.get(key)
+        if existing is not None and existing.winfo_exists():
+            existing.deiconify()
+            existing.lift()
+            existing.focus_set()
+            return existing
+        title, fill = self._patch_settings[key]
+        dialog, frame = self._scrolling_dialog(f"{title} - {PATCH_SETTINGS_BUTTON.rstrip('.')}")
+        windows[key] = dialog
+        ttk.Label(frame, text=title, font=("Segoe UI", 10, "bold"), wraplength=640).pack(anchor="w")
+        closers = []                    # what must happen before the window goes (Player Events saves its boxes)
+        dialog._vvfp_closers = closers
+        fill(frame)
+
+        def close() -> None:
+            for closer in closers:
+                try:
+                    closer()
+                except (tk.TclError, OSError):
+                    pass
+            dialog.destroy()
+
+        buttons = ttk.Frame(frame)
+        buttons.pack(fill="x", pady=(14, 0))
+        ttk.Button(buttons, text="Close", command=close).pack(side="right")
+        dialog.protocol("WM_DELETE_WINDOW", close)
+        dialog.bind("<Escape>", lambda _event: close())
+        dialog.close = close
+        dialog.grab_set()                       # the patcher's _hold: the Windows way
+        return dialog
+
+    def _fill_unicode_font_settings(self, frame) -> None:
+        """Use Unicode Font's typeface (one face shared by every game that has the patch)."""
+        font_group = ttk.Frame(frame)
+        font_group.pack(fill="x", pady=(8, 0))
+        ttk.Label(font_group, text="Unicode Font:").pack(side="left", padx=(0, 4))
+        try:
+            families = sorted({f for f in tkfont.families(self) if f and not f.startswith("@")}, key=str.casefold)
+        except tk.TclError:
+            families = [UNICODE_FONT_DEFAULT_FACE]
+        unicode_font_box = ttk.Combobox(font_group, textvariable=self.unicode_font_var, values=families, width=28)
+        unicode_font_box.pack(side="left")
+        unicode_font_box.bind("<<ComboboxSelected>>", lambda _e: self._unicode_font_changed())
+        unicode_font_box.bind("<FocusOut>", lambda _e: self._unicode_font_changed())
+        self._help_button(font_group, "unicode_font").pack(side="left", padx=(2, 0))
+        # a face typed and the window closed at once is taken too, as leaving the box takes it
+        getattr(frame.winfo_toplevel(), "_vvfp_closers", []).append(self._unicode_font_changed)
+
+    def _fill_mie_settings(self, frame, game: int, game_name: str, joined: tuple, filters: tuple,
+                           requirement_font) -> None:
+        """The More Island Events and Creator row's settings: "A man may carry the baby by chance", the game's Custom
+        Island Event Library, the content filters and Player Events, each saved as it was on the main page."""
+        if any(i.endswith("_more_island_events") for i in joined):
+            self._build_partner_carry(frame)
         if joined:
-            inner = ttk.Frame(box)
-            inner.pack(fill="x", padx=(20, 0))
-            if any(i.endswith("_more_island_events") for i in joined):
-                self._build_partner_carry(inner)
-            # The event creator (the owner, 2026-11-16: under "More Island Events and Creator").
-            creator = ttk.Frame(inner)
-            creator.pack(fill="x", pady=(6, 0))
+            # The event creator (the owner, 2026-11-16: with "More Island Events and Creator").
+            creator = ttk.Frame(frame)
+            creator.pack(fill="x", pady=(8, 0))
             # this game's library (Codex, #775): its own events and save folder, not the first game's
-            build = self._build_of_game(int(joined[0][2]))
+            build = self._build_of_game(game)
             library = ttk.Button(creator, text="Custom Island Event Library...",
                                  command=lambda b=build: vv_cie_library_window.open_cie_library(self, b))
             library.pack(side="left")
-            self._mie_creator_libraries = getattr(self, "_mie_creator_libraries", []) + [(build, library)]
+            frame.winfo_toplevel().library = (build, library)
             self._help_button(creator, "custom_island_event_library").pack(side="left", padx=(2, 0))
-        if not filters:
-            self._build_player_events(box, island_rows, filters, requirement_font)
-            return
-        head = ttk.Frame(box)
-        head.pack(fill="x", pady=(8, 2))
-        ttk.Label(head, text="Content filters (added events only)", font=requirement_font).pack(side="left")
-        self._help_button(head, "island_event_content_filters").pack(side="left", padx=(4, 0))
-        ttk.Label(box, text=ISLAND_EVENT_FILTERS_NOTE, wraplength=640, justify="left").pack(anchor="w", pady=(0, 4))
-        grid = ttk.Frame(box)
-        grid.pack(fill="x")
-        filters = sorted(filters, key=lambda p: p.id)
-        half = (len(filters) + 1) // 2
-        for k, patch in enumerate(filters):
-            # A tick and its words beside it, wrapped to the column (a long name never runs off the page); a click
-            # on the words ticks it too.
-            cell = ttk.Frame(grid)
-            cell.grid(row=k % half, column=k // half, sticky="nw", padx=(0, 12), pady=1)
-            variable = self.fun_patch_vars[patch.id]
-            ttk.Checkbutton(cell, variable=variable, command=self._fun_patch_changed).pack(side="left", anchor="n")
-            words = ttk.Label(cell, text=patch.name.removeprefix("Content Filter: "), wraplength=270,
-                              justify="left")
-            words.pack(side="left", anchor="n")
-            words.bind("<Button-1>", lambda _e, v=variable: (v.set(not v.get()), self._fun_patch_changed()))
-        self._build_player_events(box, island_rows, filters, requirement_font)
+        if filters:
+            head = ttk.Frame(frame)
+            head.pack(fill="x", pady=(10, 2))
+            ttk.Label(head, text="Content filters (added events only)", font=requirement_font).pack(side="left")
+            self._help_button(head, "island_event_content_filters").pack(side="left", padx=(4, 0))
+            ttk.Label(frame, text=ISLAND_EVENT_FILTERS_NOTE, wraplength=640, justify="left").pack(anchor="w",
+                                                                                                  pady=(0, 4))
+            grid = ttk.Frame(frame)
+            grid.pack(fill="x")
+            filters = sorted(filters, key=lambda p: p.id)
+            half = (len(filters) + 1) // 2
+            for k, patch in enumerate(filters):
+                # A tick and its words beside it, wrapped to the column (a long name never runs off the window); a
+                # click on the words ticks it too.
+                cell = ttk.Frame(grid)
+                cell.grid(row=k % half, column=k // half, sticky="nw", padx=(0, 12), pady=1)
+                variable = self.fun_patch_vars[patch.id]
+                ttk.Checkbutton(cell, variable=variable, command=self._fun_patch_changed).pack(side="left",
+                                                                                             anchor="n")
+                words = ttk.Label(cell, text=patch.name.removeprefix("Content Filter: "), wraplength=270,
+                                  justify="left")
+                words.pack(side="left", anchor="n")
+                words.bind("<Button-1>", lambda _e, v=variable: (v.set(not v.get()), self._fun_patch_changed()))
+        self._build_player_events(frame, game, requirement_font)
 
-    def _build_player_events(self, box, island_rows: list, filters: list, requirement_font) -> None:
+    def _build_player_events(self, box, game: int, requirement_font) -> None:
         """Player Events (src/vv_player_events_ui.py): the player's own event files, the AI prompt and the tone
-        reference, at the end of the game's Island Events section."""
-        ids = [r[0].id for r in island_rows] + [p.id for p in filters]
-        game = next((int(i[2]) for i in ids if len(i) > 3 and i[:2] == "vv" and i[2] in "12345"), None)
-        if game is None:
-            return
-        # Built only when asked for: its forty-odd controls would otherwise sit on every game's tab (the page
-        # height guard, tests/test_gui_page_height.py).  Its settings live in its own file, so a patch made
-        # without opening it installs what was chosen last time.
+        reference, at the end of the More Island Events and Creator row's Settings window."""
+        # Built only when asked for: its forty-odd controls are long.  Its settings live in its own file, so a
+        # patch made without opening it installs what was chosen last time.
         holder = ttk.Frame(box)
         holder.pack(fill="x", pady=(10, 0))
         head = ttk.Frame(holder)
         head.pack(fill="x")
         ttk.Label(head, text="Player Events", font=requirement_font).pack(side="left")
+        window = box.winfo_toplevel()
+
+        def forget() -> None:
+            # The window is going: its boxes are written now, and the patch reads the files (_save_player_events).
+            section = self.player_event_sections.pop(game, None)
+            if section is not None:
+                section.save_rules()
+                section.save()
 
         def show() -> None:
             head.destroy()
@@ -2240,6 +2326,8 @@ class App(tk.Tk):
             except OSError as exc:
                 ttk.Label(holder, text=f"Player Events could not open their folder: {exc}",
                           wraplength=640).pack(anchor="w")
+                return
+            getattr(window, "_vvfp_closers", []).append(forget)
 
         ttk.Button(head, text="Show Player Events...", command=show).pack(side="left", padx=(8, 0))
 
@@ -2253,7 +2341,8 @@ class App(tk.Tk):
                 continue
         return None
 
-    def _build_mie_creator(self, box, game_name: str, joined: list[str], requirement_font) -> None:
+    def _build_mie_creator(self, box, game_name: str, joined: list[str], requirement_font,
+                           settings_key: str) -> None:
         """The game's "More Island Events and Creator" row: one tick for every added island event -- ticked while
         any of its rows is, and ticking or unticking it ticks or unticks them all (their prerequisites follow as
         for any tick).  Its rows below keep their own ticks, defaults and rules."""
@@ -2277,6 +2366,9 @@ class App(tk.Tk):
         ttk.Checkbutton(head, text=f"{MIE_CREATOR_NAME} ({game_name})", variable=master,
                         command=ticked).pack(side="left")
         self._help_button(head, "more_island_events_and_creator").pack(side="left", padx=(4, 0))
+        settings = self._settings_button(head, settings_key)
+        settings.pack(side="left", padx=(4, 0))
+        self._patch_settings_buttons = getattr(self, "_patch_settings_buttons", []) + [(settings, settings_key)]
         ttk.Label(box, text=MIE_CREATOR_NOTE, wraplength=620, justify="left",
                   font=requirement_font).pack(anchor="w", pady=(0, 4))
         # each game's row: its tick, what a click on it does, and the rows it ticks
@@ -2288,7 +2380,10 @@ class App(tk.Tk):
         slider and a box to type in, 0 to 100 percent, 10 unless moved (Owner's Defaults 10 too).  0: never by
         chance (an event's own reason, or a choice, still can)."""
         group = ttk.Frame(box)
-        group.pack(fill="x", pady=(6, 0))
+        group.pack(fill="x", pady=(8, 0))
+        # a number typed and the window closed at once is kept within 0 to 100 and saved, as leaving the box does
+        getattr(box.winfo_toplevel(), "_vvfp_closers", []).append(
+            lambda: (self.partner_carry_var.set(self._partner_carry()), self._save_settings()))
         ttk.Label(group, text="A man may carry the baby by chance (%):").pack(side="left", padx=(0, 4))
         tk.Scale(group, variable=self.partner_carry_var, orient="horizontal", from_=PARTNER_CARRY_RANGE[0],
                  to=PARTNER_CARRY_RANGE[-1], resolution=1, length=160, showvalue=False,
@@ -2321,6 +2416,9 @@ class App(tk.Tk):
             button.configure(style=title_style)
         button.pack(side="left")
         self._help_button(patch_row, key, label).pack(side="left", padx=(4, 0))
+        if patch.id in getattr(self, "_patch_settings", {}):
+            # its settings in a window of their own, enabled whether or not the row is ticked (as they were)
+            self._settings_button(patch_row, patch.id).pack(side="left", padx=(4, 0))
         line = 1
         big = island_event_big_warning(patch.id)
         if big is not None:
