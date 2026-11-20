@@ -269,7 +269,10 @@ FAKE = 0x0EB00000
 def fake_solidarity(p, factor_high: int, factor_low: int, tags: list, hook: bool = True) -> None:
     """"VVFP Village Solidarity.dll" stood in for: its factor per side and every tag the engine passes on."""
     from unicorn import UC_HOOK_CODE
-    stubs = {n: p.alloc(16) for n in ("Factor", "Tag")}
+    stubs = {n: p.alloc(16) for n in ("Factor", "Tag", "Get")}
+
+    def get(pr):
+        return 45, 8                                   # the score before: a raise or lower then reads 50
 
     def factor(pr):
         favour = pr.arg(2)
@@ -280,6 +283,7 @@ def fake_solidarity(p, factor_high: int, factor_low: int, tags: list, hook: bool
         return 50, 16
     p.stub(stubs["Factor"], factor)
     p.stub(stubs["Tag"], tag)
+    p.stub(stubs["Get"], get)
     for va in stubs.values() if hook else ():         # a Run traces only its stubs' addresses
         p.mu.hook_add(UC_HOOK_CODE, p._on_code, begin=va, end=va)
     prior_module, prior_proc = p.api_handlers.get("GetModuleHandleA"), p.api_handlers.get("GetProcAddress")
@@ -290,7 +294,8 @@ def fake_solidarity(p, factor_high: int, factor_low: int, tags: list, hook: bool
 
     def proc(pr):
         if pr.arg(0) == FAKE:
-            return {"VvfpVillageScoreFactor": stubs["Factor"], "VvfpVillageScoreTag": stubs["Tag"]}.get(
+            return {"VvfpVillageScoreFactor": stubs["Factor"], "VvfpVillageScoreTag": stubs["Tag"],
+                    "VvfpVillageScoreGet": stubs["Get"]}.get(
                 pr.cstring(pr.arg(1)), 0), 8
         return prior_proc(pr) if prior_proc else (0, 8)
     p.api_handlers["GetModuleHandleA"] = module
@@ -347,6 +352,17 @@ if HAVE_EMULATOR:
             self.assertEqual(tags, [(2, "A Shared Evening")])
             end, tags = self.ending("vv4", 2, (1000, 1000))
             self.assertEqual(tags, [])                                        # an untagged ending moves nothing
+
+        def test_the_popup_says_the_change(self) -> None:
+            # The owner (2026-11-18): the popup says the change made, after the clamp (45 -> 50 here: 5).
+            for game in ("vv1", "vv4"):
+                with self.subTest(game=game):
+                    run = V6(game)
+                    fake_solidarity(run.p, 1000, 1000, [])
+                    run.rolls([0] * 64)
+                    self.assertIsNone(run.queue6(compiled(GRAPH)))
+                    text = " ".join(" ".join(t for _kind, t, _labels in run.walk_through()).split())
+                    self.assertIn("Village Solidarity rises by 5.", text)
 
     from test_collection_trigger import Roll  # noqa: E402
 
