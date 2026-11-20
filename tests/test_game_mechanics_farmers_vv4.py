@@ -6,7 +6,7 @@ and the scene's mouse hotspot list) over the game's own map, research/game-data/
 game's Assets folder; never committed).  Without the executable or the map the emulation tests skip (CI).
 
 The full re-measurement of TRIP_SAMPLES (1,200 trips, a few minutes) and six of LIVE_CYCLE's 36 runs of 24
-emulated hours (about 7 minutes each) run only with VVFP_RELEASE=1 (every run: also VVFP_FARMERS_CYCLE=all).
+emulated hours (about 7 minutes each) run only with --release or VVFP_RELEASE=1 (every run: also VVFP_FARMERS_CYCLE=all).
 """
 from __future__ import annotations
 
@@ -248,7 +248,7 @@ class LiveTripTests(unittest.TestCase):
                     self.assertGreaterEqual(frames * SECONDS, low - 1e-6)
                     self.assertLessEqual(frames * SECONDS, high + 1e-6)
 
-    @unittest.skipUnless(RELEASE, "release-only (slow): run with VVFP_RELEASE=1")
+    @unittest.skipUnless(RELEASE, "release-only (slow): run with --release or VVFP_RELEASE=1")
     def test_the_trip_samples_re_measure_exactly(self):
         for key, (n, mean, low, high) in vv4.TRIP_SAMPLES.items():
             trips = fe.bin_trips(KEY_ACTION[key], 400, seed=11, farming=89)
@@ -458,7 +458,7 @@ class CatchUpTests(unittest.TestCase):
                 self.assertEqual(food - v.food(), eaten)
 
 
-@unittest.skipUnless(HAVE and RELEASE, "release-only (slow): run with VVFP_RELEASE=1")
+@unittest.skipUnless(HAVE and RELEASE, "release-only (slow): run with --release or VVFP_RELEASE=1")
 class LiveCycleTests(unittest.TestCase):
     """LIVE_CYCLE pools 36 runs of 24 emulated hours (about 7 minutes each on one core); this re-runs the seed-1 run
     of each source at Farming 100 and 20 and checks its count exactly (set VVFP_FARMERS_CYCLE=all for every run)."""

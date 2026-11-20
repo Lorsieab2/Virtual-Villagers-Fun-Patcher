@@ -318,6 +318,14 @@ def release_run(config) -> bool:
     return bool(config.getoption("--release")) or os.environ.get("VVFP_RELEASE") == "1"
 
 
+def pytest_configure(config):
+    # Some files decide at import whether to run their slow measurements from VVFP_RELEASE alone
+    # (tests/test_game_mechanics_farmers_vv1..vv5.py): --release sets it before any test file is imported, so
+    # `pytest --release` (and scripts/run_tests_parallel.py) runs them too.
+    if config.getoption("--release"):
+        os.environ["VVFP_RELEASE"] = "1"
+
+
 def pytest_collection_modifyitems(config, items):
     if release_run(config):
         return

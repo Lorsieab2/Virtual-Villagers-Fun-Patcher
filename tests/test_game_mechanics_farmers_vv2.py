@@ -7,7 +7,7 @@ from a grown village's state (research/game-data/vv2/grown_village.ldw: the owne
 never committed); those tests skip without it.
 
 The full re-measurement of TRIP_SAMPLES (1,600 trips, several minutes) and a scheduler run run only with
-VVFP_RELEASE=1.
+--release or VVFP_RELEASE=1.
 """
 from __future__ import annotations
 
@@ -153,7 +153,7 @@ class LiveTripTests(unittest.TestCase):
                     self.assertGreaterEqual(seconds, low - 0.005)    # the span is rounded to 0.01 s
                     self.assertLessEqual(seconds, high + 0.005)
 
-    @unittest.skipUnless(RELEASE, "release-only (slow): run with VVFP_RELEASE=1")
+    @unittest.skipUnless(RELEASE, "release-only (slow): run with --release or VVFP_RELEASE=1")
     def test_the_trip_samples_re_measure_exactly(self):
         for key, (n, mean, low, high) in vv2.TRIP_SAMPLES.items():
             job = fe.FISH if key == "big catches" else JOBS[key]
@@ -214,7 +214,7 @@ class LiveTripTests(unittest.TestCase):
         self.assertEqual(v.run_trip(fe.FISH)[0], -1)
         self.assertEqual(v.food_log, [])
 
-    @unittest.skipUnless(RELEASE, "release-only (slow): run with VVFP_RELEASE=1")
+    @unittest.skipUnless(RELEASE, "release-only (slow): run with --release or VVFP_RELEASE=1")
     def test_the_scheduler_at_farming_100(self):
         # 4 real-life hours of a Farming-preference farmer at Farming 100, coconuts pinned: within 5% of LIVE_CYCLE.
         v = _village(seed=21)

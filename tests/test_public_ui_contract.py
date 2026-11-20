@@ -94,9 +94,7 @@ class PublicUiContractTests(unittest.TestCase):
         gui = (ROOT / "src/vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         self.assertIn("load_fun_patches()", source)
         self.assertIn("load_public_fun_patches()", gui)
-        # The VV2 stale-pin lane is unrelated to this VV3-VV5 containment test.
-        with patch.object(patcher, "_certified_vv2_full_mastery_record", return_value=None):
-            records = patcher.load_fun_patches()
+        records = patcher.load_fun_patches()
         ids = {record.id for record in records}
         self.assertNotIn(patcher.VV4_FULL_HEAL_CANDIDATE_ID, ids)
 
@@ -155,7 +153,6 @@ class PublicUiContractTests(unittest.TestCase):
                 patch.object(patcher, "ORIGINS_VILLAGE_WIDE_FEATURE_PATHS", []),
                 patch.object(patcher, "STATISTICS_FEATURES_PATH", root / "missing-statistics.json"),
                 patch.object(patcher, "_validate_vv3_individual_full_mastery_candidate", return_value=None),
-                patch.object(patcher, "_certified_vv2_full_mastery_record", return_value=None),
             ):
                 records = patcher._load_fun_patch_records()
             self.assertNotIn(patcher.VV3_FULL_HEAL_CANDIDATE_ID, {record.id for record in records})

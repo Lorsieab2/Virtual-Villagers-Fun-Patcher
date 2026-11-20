@@ -1089,11 +1089,9 @@ def _strict_manifest_value_equal(actual: Any, expected: Any) -> bool:
     return actual == expected
 
 
-VV2_FULL_MASTERY_CANDIDATE_PATHS = {
-    "manifest": ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate.json",
-    "map": ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate_map.json",
-    "dll": ROOT / "data" / "candidates" / "VVFP VV2 Full Mastery Candidate.dll",
-}
+# The certified VV2 Full Mastery parent (data/candidates/vv2_full_mastery_all_candidate.json and its map
+# data/candidates/vv2_full_mastery_all_candidate_map.json): the selected-villager record's parent chain must name these
+# digests (_certified_vv2_individual_full_mastery_record).
 VV2_FULL_MASTERY_MANIFEST_SHA256 = "92A782FD2CC30B5ABD24D303F88DF93A1B9EB3BD00AEDF92F4B8527E9A5A8751"
 VV2_FULL_MASTERY_MAP_SHA256 = "6962AE172D0FD39974EB9E2BE1873EE9C4D701F1DD74A2CC5AF161FE8708817C"
 VV2_FULL_MASTERY_CERTIFIED_SHA256 = {
@@ -2953,87 +2951,6 @@ def load_hidden_vv3_individual_full_mastery_candidate() -> FunPatch:
     if manifest is None:
         raise PatcherError("VV3 individual Full Mastery candidate metadata is unavailable.")
     return FunPatch(manifest)
-
-
-def _certified_vv2_full_mastery_record() -> dict[str, Any] | None:
-    manifest_bytes = VV2_FULL_MASTERY_CANDIDATE_PATHS["manifest"].read_bytes()
-    manifest_digest = source_text_sha256(manifest_bytes)
-    if manifest_digest != VV2_FULL_MASTERY_MANIFEST_SHA256:
-        raise PatcherError("VV2 Full Mastery manifest bytes are not the certified record.")
-    manifest = json.loads(manifest_bytes.decode("utf-8"))
-    if not manifest.get("enabled", True):
-        return None
-    if (
-        manifest.get("id") != "vv2_full_mastery_all_stage_a_candidate"
-        or manifest.get("catalog_hidden") is not False
-        or manifest.get("supported_modes") != VV2_FULL_MASTERY_STATIC_ACCEPTANCE["allowed_modes"]
-        or manifest.get("rejected_modes") != VV2_FULL_MASTERY_STATIC_ACCEPTANCE["rejected_modes"]
-    ):
-        raise PatcherError("VV2 Full Mastery catalog or mode metadata is not certified.")
-    if manifest.get("source_commit") != VV2_FULL_MASTERY_STATIC_ACCEPTANCE["implementation_commit"]:
-        raise PatcherError("VV2 Full Mastery source commit is not the certified implementation.")
-    if manifest.get("implementation_commit") != VV2_FULL_MASTERY_STATIC_ACCEPTANCE["implementation_commit"]:
-        raise PatcherError("VV2 Full Mastery implementation commit is not certified.")
-    if manifest.get("audit_commit") is not None or manifest.get("acceptance_commit") is not None:
-        raise PatcherError("VV2 Full Mastery uses circular legacy provenance fields.")
-    static_acceptance = manifest.get("static_acceptance")
-    if static_acceptance != VV2_FULL_MASTERY_STATIC_ACCEPTANCE:
-        raise PatcherError("VV2 Full Mastery static acceptance evidence is not certified.")
-    map_bytes = VV2_FULL_MASTERY_CANDIDATE_PATHS["map"].read_bytes()
-    map_digest = source_text_sha256(map_bytes)
-    if map_digest != VV2_FULL_MASTERY_MAP_SHA256:
-        raise PatcherError("VV2 Full Mastery map bytes are not the certified record.")
-    artifact_map = json.loads(map_bytes.decode("utf-8"))
-    if artifact_map.get("catalog_enabled") is not True:
-        raise PatcherError("VV2 Full Mastery map catalog gate is not enabled.")
-    if artifact_map.get("source_commit") != VV2_FULL_MASTERY_STATIC_ACCEPTANCE["implementation_commit"]:
-        raise PatcherError("VV2 Full Mastery map source commit is not certified.")
-    if artifact_map.get("implementation_commit") != VV2_FULL_MASTERY_STATIC_ACCEPTANCE["implementation_commit"]:
-        raise PatcherError("VV2 Full Mastery map implementation commit is not certified.")
-    if artifact_map.get("static_acceptance") != VV2_FULL_MASTERY_STATIC_ACCEPTANCE:
-        raise PatcherError("VV2 Full Mastery map static acceptance evidence is not certified.")
-    for label in (
-        "section",
-        "entry",
-        "walker",
-        "telemetry",
-        "confirmation",
-        "menu_resolver",
-        "result_preflight",
-        "result_resolver",
-    ):
-        actual = artifact_map[f"{label}_sha256"]
-        expected = VV2_FULL_MASTERY_CERTIFIED_SHA256[label]
-        if actual != expected:
-            raise PatcherError(
-                f"Certified VV2 Full Mastery {label} artifact hash mismatch: "
-                f"expected {expected}, got {actual}."
-            )
-    source = artifact_map.get("source", {})
-    if source.get("sha256") != VV2_FULL_MASTERY_CERTIFIED_SHA256["source"] or source.get("size") != 724992:
-        raise PatcherError("VV2 Full Mastery stock source fingerprint mismatch.")
-    companion = artifact_map.get("companion", {})
-    if companion.get("size") != 109056 or companion.get("sha256") != VV2_FULL_MASTERY_CERTIFIED_SHA256["dll"]:
-        raise PatcherError("VV2 Full Mastery companion size/hash mismatch.")
-    rendered = artifact_map.get("rendered_candidates", {})
-    for mode, expected in VV2_FULL_MASTERY_STATIC_ACCEPTANCE["rendered_candidates"].items():
-        actual = rendered.get(mode, {})
-        if any(actual.get(key) != value for key, value in expected.items()):
-            raise PatcherError(f"VV2 Full Mastery {mode} composition identity mismatch.")
-    dll_digest = hashlib.sha256(
-        VV2_FULL_MASTERY_CANDIDATE_PATHS["dll"].read_bytes()
-    ).hexdigest().upper()
-    if dll_digest != VV2_FULL_MASTERY_CERTIFIED_SHA256["dll"]:
-        raise PatcherError(
-            "Certified VV2 Full Mastery DLL hash mismatch: "
-            f"expected {VV2_FULL_MASTERY_CERTIFIED_SHA256['dll']}, got {dll_digest}."
-        )
-    contract = manifest.get("transaction_contract", {})
-    if contract.get("command") != 7 or contract.get("price") != 1_000_000:
-        raise PatcherError("VV2 Full Mastery Buy contract is not certified.")
-    if contract.get("ownership") is not None or "remove" in contract:
-        raise PatcherError("VV2 Full Mastery must remain Buy-only with no Remove.")
-    return manifest
 
 
 def _certified_vv2_individual_full_mastery_record() -> dict[str, Any] | None:

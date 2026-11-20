@@ -70,22 +70,21 @@ typedef struct {
 typedef struct {
     unsigned int table, count, stride;  /* VV1/VV2 rows {id, text, ...}; VV3-VV5 entries {id, name, built-in, loaded} */
     unsigned int site, cookie;          /* VV3: the epilogue `add esp, 0xC8`; VV4/VV5: the cookie-check call, the check */
-    unsigned int singleton;             /* VV3-VV5: the string table object's pointer (0 until it is made) */
     int before, length, around_n;       /* the stock bytes: around_n of them from site - before; the site's length */
     unsigned char around[16];
 } tf_game;
 
 static const tf_game GAMES[6] = {
     { 0 },
-    { 0x487208u, 0x275u, 0x14u, 0, 0, 0, 0, 0, 0, { 0 } },
-    { 0x496300u, 0x36Cu, 12u, 0, 0, 0, 0, 0, 0, { 0 } },
+    { 0x487208u, 0x275u, 0x14u, 0, 0, 0, 0, 0, { 0 } },
+    { 0x496300u, 0x36Cu, 12u, 0, 0, 0, 0, 0, { 0 } },
     /* pop esi; mov eax, ebp; pop ebp; [add esp, 0xC8]; ret; nop */
-    { 0x4AB990u, 0x4BAu, 16u, 0x42F6A5u, 0, 0x593A74u, 4, 6, 12,
+    { 0x4AB990u, 0x4BAu, 16u, 0x42F6A5u, 0, 4, 6, 12,
       { 0x5E, 0x8B, 0xC5, 0x5D, 0x81, 0xC4, 0xC8, 0x00, 0x00, 0x00, 0xC3, 0x90 } },
     /* pop ebp; xor ecx, esp; [call cookie]; add esp, 0xCC; ret; int3 */
-    { 0x4C41F8u, 1338u, 16u, 0x44D92Eu, 0x47108Du, 0x4DFF28u, 3, 5, 16,
+    { 0x4C41F8u, 1338u, 16u, 0x44D92Eu, 0x47108Du, 3, 5, 16,
       { 0x5D, 0x33, 0xCC, 0xE8, 0x5A, 0x37, 0x02, 0x00, 0x81, 0xC4, 0xCC, 0x00, 0x00, 0x00, 0xC3, 0xCC } },
-    { 0x4D31F0u, 1409u, 16u, 0x450C3Eu, 0x47C00Du, 0x525704u, 3, 5, 16,
+    { 0x4D31F0u, 1409u, 16u, 0x450C3Eu, 0x47C00Du, 3, 5, 16,
       { 0x5D, 0x33, 0xCC, 0xE8, 0xCA, 0xB3, 0x02, 0x00, 0x81, 0xC4, 0xCC, 0x00, 0x00, 0x00, 0xC3, 0xCC } },
 };
 
@@ -477,10 +476,9 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     g_installed = 1;
     g_caption_installed = (game == 4 && n == 3);
     g_lab_installed = lab;
-    /* the string table was already made (never at game start): fix it now */
-    if (tf_readable((const void *)(UINT_PTR)g->singleton, 4) && *(const unsigned int *)(UINT_PTR)g->singleton != 0) {
-        tf_after_loader_c();
-    }
+    /* Nothing more here: both callers (VVFP Startup.dll and VVFP Translations.dll) start this companion before
+       WinMain, when the string table has not been made, so the loader's own end (the site above) fixes it.  The
+       game's data is never read here (tests/test_startup_loader.py audits every access before WinMain). */
 }
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
