@@ -26,21 +26,42 @@ static char cg_after[1024];
 static int cg_after_on;
 static const char *cg_auto_text(const char *key);   /* story_graph.inc */
 
-static void cg_after_line(const char *key, const char *word, int number) {
+/* A good's words for `number` of it, one or many (the owner, 2026-11-19: "1 tech point", "2 tech points"); other
+   words as they are. */
+static const char *cg_good_words(const char *word, int number) {
+    static const char *const WORDS[][3] = {
+        { "tech", "tech point", "tech points" }, { "collectible", "collectible", "collectibles" },
+        { "cutting_tools", "cutting tool", "cutting tools" }, { "berries", "berry", "berries" },
+        { "coconuts", "coconut", "coconuts" }, { "blackberries", "blackberry", "blackberries" },
+    };
+    int k;
+    for (k = 0; word != NULL && k < (int)(sizeof WORDS / sizeof WORDS[0]); ++k) {
+        if (lstrcmpA(word, WORDS[k][0]) == 0) {
+            return WORDS[k][number == 1 || number == -1 ? 1 : 2];
+        }
+    }
+    return word;
+}
+
+/* Line `key` after the page's words: <N> `number` (never signed: the verb says which), <W> `word`, <S> `skill`,
+   <C> `count` and <L> `low`. */
+static void cg_after_line_ex(const char *key, const char *word, const char *skill, int number, int count, int low) {
     char line[160], digits[16];
     const char *t = cg_auto_text(key);
     int n = 0;
     if (!cg_after_on || t == NULL) {
         return;
     }
-    if (word != NULL && lstrcmpA(word, "tech") == 0) {
-        word = "tech points";      /* the owner: a good's words as the game says them */
-    }
+    word = cg_good_words(word, number);
     for (; *t != '\0' && n < (int)sizeof line - 1; ++t) {
         const char *put = NULL;
-        if (t[0] == '<' && (t[1] == 'N' || t[1] == 'W') && t[2] == '>') {
-            wsprintfA(digits, "%d", number < 0 ? -number : number);
-            put = t[1] == 'N' ? digits : word;
+        if (t[0] == '<' && (t[1] == 'N' || t[1] == 'W' || t[1] == 'S' || t[1] == 'C' || t[1] == 'L') && t[2] == '>') {
+            int v = t[1] == 'C' ? count : t[1] == 'L' ? low : number;
+            wsprintfA(digits, "%d", v < 0 ? -v : v);
+            put = t[1] == 'W' ? word : t[1] == 'S' ? skill : digits;
+            if (put == NULL) {
+                put = "";
+            }
         }
         if (put == NULL) {
             line[n++] = *t;
@@ -58,6 +79,10 @@ static void cg_after_line(const char *key, const char *word, int number) {
         }
         lstrcatA(cg_after, line);
     }
+}
+
+static void cg_after_line(const char *key, const char *word, int number) {
+    cg_after_line_ex(key, word, "", number, 0, 0);
 }
 
 static int cg_prefix(const char *s, const char *prefix) {
@@ -356,7 +381,7 @@ static int cg_good_change(const ce_adapter *a, int game, const cg_good_def *d, i
     __try {
         switch (d->kind) {
         case CGG_FOOD: case CGG_TECH:
-            cg_amount(a, d->kind == CGG_FOOD, delta, &scratch);
+            cg_amount(a, d->kind == CGG_FOOD, delta, &scratch, NULL, -1);   /* its own line below */
             done = delta;
             break;
         case CGG_VALUE:
