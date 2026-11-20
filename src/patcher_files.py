@@ -195,6 +195,15 @@ PATCHER_SETTINGS: frozenset[str] = frozenset({
     "VVFP Unicode Font.txt",
     # Village Solidarity's strength (the row's slider), beside "VVFP Village Solidarity.dll".
     "VVFP Village Solidarity.txt",
+    # Hungrier Villagers' meal multiplier ("VVFP Meal Scale.dll"), the third word's companion list ("VVFP More
+    # Companions.dll") and the 0.1x-10x sliders' numbers (src/vv_fun_patcher.py RUNTIME_SLIDERS).
+    "VVFP Meal Scale.txt",
+    "VVFP More Companions.txt",
+    "VVFP Collectible Frequency.txt",
+    "VVFP Food Gain.txt",
+    "VVFP Tech Gain.txt",
+    "VVFP Skill Success.txt",
+    "VVFP Age Speed.txt",
 })
 
 _IN_PLACE = {key.casefold() for key in GAME_READS_IN_PLACE}
