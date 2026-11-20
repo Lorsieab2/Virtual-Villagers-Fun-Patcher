@@ -4,3 +4,4 @@ EXPORTS
     VvfpFogListeningInstalled=_VvfpFogListeningInstalled@0
     VvfpFogListeningCount=_VvfpFogListeningCount@0
     VvfpFogListeningNoRestrictions=_VvfpFogListeningNoRestrictions@0
+    VvfpFogListeningNotices=_VvfpFogListeningNotices@0

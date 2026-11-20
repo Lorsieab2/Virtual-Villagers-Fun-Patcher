@@ -70,7 +70,8 @@ DEFAULT_OFF = frozenset({"vv4_learning_never_fails", "vv4_everyone_collects_like
                          "vv4_collectibles_stay_collected", "vv4_island_events_scale_with_population",
                          "vv4_island_events_scale_with_stored_amounts", "vv4_more_island_events",
                          "vv4_scrolling_popups", "vv4_isola_grand_event_collection", "vv4_gender_presentation",
-                          "vv4_more_frequent_island_events", "vv4_village_solidarity", "vv4_up_to_99_supplies", "vv4_birth_control",
+                          "vv4_more_frequent_island_events", "vv4_village_solidarity", "vv4_up_to_99_supplies",
+                          # (Birth Control is on by default, as in the other games: the owner, 2026-11-19, #829)
                           # the 0.1x-10x sliders (#799) and One-Time Collectibles Appear Again (#800): off by default
                           "vv4_collectible_frequency", "vv4_food_gain", "vv4_tech_gain", "vv4_skill_success",
                           "vv4_age_speed", "vv4_one_time_collectibles_again"}) | frozenset(  # the island events' content controls (the owner, 2026-11-15)

@@ -58,13 +58,40 @@ NOW = 50_000
 TWO_HOURS = 0x1C20
 
 KINDS = {"blue": (0, 0), "orange": (1, 0), "red": (0, 1)}
+NAME = 0x1B9C
+SAY, STATUS_LINE = 0x44F0B0, 0x520F68              # the status line's text routine and the line
+SAVE_MANAGER, SAVE_SLOT_FIELD = 0x4DACE0, 0x17D80  # native/shared/game_save_slot.h
+STRINGS = 0x5240A8
+WONT = "The fog hides you, but {} still won't listen. Something stronger may stir them."
+WARY = "The fog hides you, but {} is still wary. Perhaps another approach may convince them."
 
 
 class Island(Machine):
     """The rendered game and the companion; the game's drop handler and sermon end, with stand-ins around them."""
 
-    def __init__(self, exe: bytes, *, big: bool = False, free: bool = False):
+    def __init__(self, exe: bytes, *, big: bool = False, free: bool = False, files: dict | None = None,
+                 slot: int = 1, isola: bool = False):
         super().__init__(exe, DLL, present=(FLAG,) if free else ())
+        self.free = free
+        self.files = {} if files is None else files     # the disk, by lower-cased path (shared across "restarts")
+        self.said: list[str] = []
+        self._handles: dict[int, str] = {}
+        manager = self.alloc(0x18000)
+        self.put32(SAVE_MANAGER, manager)
+        self.put32(manager + SAVE_SLOT_FIELD, slot)
+        if isola:
+            text = self.alloc(0x40)
+            self.write(text, b"A villager has left the tribe!\0")
+            entry = self.alloc(0x20)
+            self.put32(entry, 0x48)
+            self.put32(entry + 8, text)
+            self.put32(STRINGS + 4 * 0x48, entry)
+        self.stub(SAY, self._say)
+        for name, fn in (("SHGetSpecialFolderPathW", self._docs), ("GetFileAttributesW", self._attributes),
+                         ("CreateFileW", self._create), ("WriteFile", self._write_file),
+                         ("CloseHandle", lambda p: (1, 4)), ("CreateDirectoryW", lambda p: (1, 8)),
+                         ("wsprintfW", self._wsprintf_w)):
+            self.api_handlers[name] = fn
         self.records = BIG_RECORDS if big else STOCK_RECORDS
         self.actions: list[tuple[int, int]] = []
         self.converted: list[int] = []
@@ -91,6 +118,69 @@ class Island(Machine):
         self.actions.append((p.reg("ecx"), p.arg(0)))
         return 0, 8
 
+    # ---- the status line and the disk ------------------------------------------------------------------------
+    def _say(self, p):
+        self.said.append((p.reg("ecx"), p.cstring(p.arg(0))))
+        return 0, 4
+
+    def _wsprintf_w(self, p):
+        """wsprintfW (cdecl): the %d / %s / %ls / %hs the companion's names use."""
+        fmt, out, arg, i = p.wstring(p.arg(1)), [], 2, 0
+        while i < len(fmt):
+            if fmt[i] == "%":
+                spec = fmt[i + 1:i + 3]
+                if spec.startswith("d"):
+                    out.append(str(struct.unpack("<i", struct.pack("<I", p.arg(arg)))[0]))
+                    i += 2
+                elif spec.startswith("hs"):
+                    out.append(p.cstring(p.arg(arg)))
+                    i += 3
+                elif spec.startswith("ls"):
+                    out.append(p.wstring(p.arg(arg)))
+                    i += 3
+                elif spec.startswith("s"):
+                    out.append(p.wstring(p.arg(arg)))
+                    i += 2
+                else:
+                    raise AssertionError(f"wsprintfW format {fmt!r}")
+                arg += 1
+                continue
+            out.append(fmt[i])
+            i += 1
+        text = "".join(out)
+        p.write(p.arg(0), text.encode("utf-16-le") + b"\0\0")
+        return len(text), 0
+
+    def _docs(self, p):
+        p.write(p.arg(1), "C:\\Docs".encode("utf-16-le") + b"\0\0")
+        return 1, 16
+
+    def _attributes(self, p):
+        path = p.wstring(p.arg(0))
+        if path.lower() in self.files or (self.free and path.endswith(FLAG)):
+            return 0x20, 4
+        return 0xFFFFFFFF, 4
+
+    def _create(self, p):
+        path, disposition = p.wstring(p.arg(0)).lower(), p.arg(4)
+        if disposition != 1 or path in self.files:          # only CREATE_NEW of a file that is not there
+            return 0xFFFFFFFF, 28
+        self.files[path] = b""
+        handle = 0x7000 + len(self._handles)
+        self._handles[handle] = path
+        return handle, 28
+
+    def _write_file(self, p):
+        handle, data, size, wrote = p.arg(0), p.arg(1), p.arg(2), p.arg(3)
+        path = self._handles[handle]
+        self.files[path] += p.read(data, size)
+        if wrote:
+            p.put32(wrote, size)
+        return 1, 20
+
+    def notices(self) -> list[str]:
+        return [path for path in self.files if path.endswith(".dat") and "fog of doom notice" in path]
+
     def _convert(self, p):
         self.converted.append(p.reg("ecx"))
         p.write(p.reg("ecx") + FACTION, b"\0")
@@ -107,10 +197,11 @@ class Island(Machine):
         self.write(record + SKILLS + 4 * DEVOTION, struct.pack("<f", devotion))
         return record
 
-    def heathen(self, index: int, kind: str, faith: int, role: int = 0) -> int:
+    def heathen(self, index: int, kind: str, faith: int, role: int = 0, name: bytes = b"Kaimana Nalu") -> int:
         orange, red = KINDS[kind]
         record = self.record(index)
         self.write(record, bytes(STRIDE))
+        self.write(record + NAME, name + b"\0")
         self.put32(record + AGE, 400)
         self.write(record + FACTION, b"\x01")
         self.write(record + ORANGE, bytes([orange]))
@@ -206,14 +297,11 @@ class TheRows(unittest.TestCase):
         pe = pefile.PE(str(DLL))
         names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
         self.assertEqual(names, ["VvfpFogListeningCount", "VvfpFogListeningInstalled",
-                                 "VvfpFogListeningNoRestrictions", "VvfpStartup"])
+                                 "VvfpFogListeningNoRestrictions", "VvfpFogListeningNotices", "VvfpStartup"])
         imports = {i.name.decode() for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name}
         self.assertEqual(imports & {"LoadLibraryA", "LoadLibraryW", "OutputDebugStringA", "OutputDebugStringW",
                                     "MessageBoxA", "MessageBoxW", "CreateFileA", "DeleteFileW", "MoveFileW",
                                     "RegSetValueExW", "Sleep", "CreateThread"}, set())
-        source_calls = (ROOT / "native" / "vvfp_fog_listening" / "vvfp_fog_listening.c").read_text(encoding="utf-8")
-        for call in ("CreateFile", "WriteFile", "DeleteFile"):
-            self.assertNotIn(call, source_calls, "it writes no file (the static C library's imports aside)")
         source = (ROOT / "native" / "vvfp_fog_listening" / "vvfp_fog_listening.c").read_text(encoding="utf-8")
         self.assertNotIn("OutputDebugString", source)
 
@@ -222,9 +310,9 @@ class TheRows(unittest.TestCase):
 class Listening(unittest.TestCase):
     maxDiff = None
 
-    def island(self, mode="collection_progression", *, big=False, free=False, start=True) -> Island:
+    def island(self, mode="collection_progression", *, big=False, free=False, start=True, **kw) -> Island:
         rows = [ROW] + ([FREE] if free else []) + (["vv5_population_256"] if big else [])
-        v = Island(render(5, with_requirements(5, rows), mode), big=big, free=free)
+        v = Island(render(5, with_requirements(5, rows), mode), big=big, free=free, **kw)
         if start:
             v.export("VvfpStartup", 5, 0)
             self.assertEqual(v.export("VvfpFogListeningInstalled"), 1)
@@ -239,6 +327,69 @@ class Listening(unittest.TestCase):
     def refused(self, v: Island, believer: int, heathen: int) -> None:
         self.assertEqual(v.drop(believer, heathen), 1, "the drop is handled, as in the stock game")
         self.assertEqual(v.actions, [], "nothing happens, as for a masked Heathen in the stock game")
+
+    # ---- the notice -------------------------------------------------------------------------------------------
+    def test_the_first_refusal_in_a_village_says_why_once(self):
+        for mode in MODES:
+            for kind in ("orange", "red"):
+                with self.subTest(mode=mode, kind=kind):
+                    v = self.island(mode)
+                    v.weather(True, 4.0)
+                    self.refused(v, v.believer(1), v.heathen(2, kind, -10, name=b"Kaimana Nalu"))
+                    self.assertEqual(v.said, [(STATUS_LINE, WONT.format("Kaimana Nalu"))],
+                                     "the game's own status line, once, with the Heathen's name")
+                    self.assertEqual(len(v.notices()), 1)
+                    self.assertIn("\\virtual villagers fun patcher\\save 1\\data\\fog of doom\\", v.notices()[0])
+                    v.actions.clear()
+                    self.refused(v, v.believer(3), v.heathen(4, kind, 0, name=b"Other"))
+                    self.assertEqual(len(v.said), 1, "never again in that village")
+                    self.assertEqual(v.export("VvfpFogListeningNotices"), 1)
+
+    def test_with_guardians_of_isola_the_wary_words(self):
+        v = self.island(isola=True)
+        v.weather(True, 4.0)
+        self.refused(v, v.believer(1), v.heathen(2, "red", 5, name=b"Lani"))
+        self.assertEqual(v.said, [(STATUS_LINE, WARY.format("Lani"))])
+
+    def test_the_notice_survives_quitting_and_start_over_resets_it(self):
+        files: dict = {}
+        v = self.island(files=files)
+        v.weather(True, 4.0)
+        self.refused(v, v.believer(1), v.heathen(2, "orange", -3))
+        self.assertEqual(len(v.said), 1)
+        again = self.island(files=files)                   # the game quit and started again: the same disk
+        again.weather(True, 4.0)
+        self.refused(again, again.believer(1), again.heathen(2, "orange", -3))
+        self.assertEqual(again.said, [], "kept across quitting")
+        other = self.island(files=files, slot=2)            # another slot's village has its own
+        other.weather(True, 4.0)
+        self.refused(other, other.believer(1), other.heathen(2, "red", -1, name=b"Mele"))
+        self.assertEqual(other.said, [(STATUS_LINE, WONT.format("Mele"))])
+        # Start Over: native/shared/save_reset.c deletes the slot's whole "Virtual Villagers Fun Patcher\Save 1"
+        # folder (START OVER WIPES THE WHOLE SAVE).
+        for path in [p for p in files if "\\virtual villagers fun patcher\\save 1\\" in p]:
+            del files[path]
+        fresh = self.island(files=files)
+        fresh.weather(True, 4.0)
+        self.refused(fresh, fresh.believer(1), fresh.heathen(2, "red", -10, name=b"Keoni"))
+        self.assertEqual(fresh.said, [(STATUS_LINE, WONT.format("Keoni"))], "a new village is told again")
+        self.assertEqual(len([p for p in files if "save 2" in p]), 1, "slot 2's mark untouched")
+
+    def test_no_notice_for_blue_natural_fog_no_fog_listening_or_no_restrictions(self):
+        cases = (("blue", True, 4.0, 0, False), ("red", True, 1.0, 0, False), ("red", False, 0.0, 0, False),
+                 ("orange", True, 4.0, -11, False), ("orange", True, 4.0, 0, True), ("red", True, 1.0, 0, True))
+        for kind, fog, thickness, faith, free in cases:
+            with self.subTest(kind=kind, fog=fog, thickness=thickness, faith=faith, free=free):
+                v = self.island(free=free)
+                v.weather(fog, thickness)
+                v.drop(v.believer(1), v.heathen(2, kind, faith))
+                self.assertEqual((v.said, v.notices()), ([], []))
+
+    def test_no_slot_known_no_notice(self):
+        v = self.island(slot=0)
+        v.weather(True, 4.0)
+        self.refused(v, v.believer(1), v.heathen(2, "red", 0))
+        self.assertEqual((v.said, v.notices()), ([], []))
 
     def test_the_fog_of_doom_lets_masked_heathens_below_minus_ten_listen_in_every_mode(self):
         for mode in MODES:

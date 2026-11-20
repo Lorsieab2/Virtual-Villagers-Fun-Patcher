@@ -1,4 +1,4 @@
-LIBRARY "VVFP Village Solidarity"
+LIBRARY "VVFP Village Solidarity.test.dll"
 EXPORTS
     VvfpStartup=_VvfpStartup@8
     VvfpVillageScoreGet=_VvfpVillageScoreGet@8

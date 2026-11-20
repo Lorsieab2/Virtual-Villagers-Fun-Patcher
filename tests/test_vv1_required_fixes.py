@@ -561,18 +561,29 @@ class VV1RequiredFixTests(unittest.TestCase):
             )
             start = index + 1
 
-        self.assertTrue(
-            {0x428194, 0x41A378, 0x42BB18} <= excluded,
-            "tech doubler must exclude the native Island Event return "
+        # The doublers are a whitelist now (#805): the compared return
+        # addresses are the callers that ARE doubled (research; the gathered
+        # food sources and the Golden Child's +150), and every other caller
+        # falls through to the native add.  So each eligible return must be
+        # compared, and the Island Event, story-puzzle and milestone returns
+        # must never be (comparing one would make it eligible).
+        compared = excluded
+        tech_eligible = {0x43B318, 0x43B333, 0x43B350}
+        food_eligible = {0x43AD91, 0x43AED2, 0x43AF41, 0x43AF93, 0x43AFFC, 0x43B0A0}
+        self.assertLessEqual(tech_eligible | food_eligible, compared,
+                             "the doublers must compare every eligible research / food return")
+        self.assertFalse(
+            {0x428194, 0x41A378, 0x42BB18} & compared,
+            "tech doubler must leave the native Island Event return "
             "(0x428194), the story-puzzle dispatcher's tech award "
-            "(0x41A378), and the milestone dialog's tech award (0x42BB18)",
+            "(0x41A378), and the milestone dialog's tech award (0x42BB18) native",
         )
-        self.assertTrue(
-            {0x4281DA, 0x419459, 0x419F14, 0x42B86A} <= excluded,
-            "food doubler must exclude the native Island Event return "
+        self.assertFalse(
+            {0x4281DA, 0x419459, 0x419F14, 0x42B86A} & compared,
+            "food doubler must leave the native Island Event return "
             "(0x4281DA), both story-puzzle dispatcher food awards "
             "(0x419459, 0x419F14), and the milestone dialog's food "
-            "award (0x42B86A)",
+            "award (0x42B86A) native",
         )
 
     def test_vv1_change_appearance_gates_charge_on_confirmed_result(self) -> None:

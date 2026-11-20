@@ -1109,6 +1109,7 @@
         "While its thick fog lasts, drag a believer of 14 or more onto a Heathen in an orange or red mask.",
         "If that Heathen's Faith is below -10 they listen, just as a blue-masked Heathen does, and gain the same Faith.",
         "From Faith -10 up they will not listen: only the Earthquake God Power raises their Faith further.",
+        "The first time that happens in a village, the message line says so (once per village; Start Over resets it).",
         "Natural fog and other weather do nothing. Blue-masked Heathens are unchanged. Not yet seen in a running game."
       ]
     },
