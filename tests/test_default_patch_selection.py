@@ -193,7 +193,10 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or "_island_event_filter_f" in p
                   or p.endswith("_island_events_any_time")
                   # Village Solidarity (the owner, 2026-11-17: on in Owner's Defaults only).
-                  or p.endswith("_village_solidarity")})
+                  or p.endswith("_village_solidarity")
+                  # Fog of Doom Lets Every Heathen Listen and No Restrictions on Fog of Doom Conversions (New
+                  # Believers, new 2026-11-19).
+                  or p in ("vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions")})
 
     def test_birth_control_is_on_by_default_in_all_five_games(self) -> None:
         """The owner (2026-11-19): the new The Tree of Life and New Believers Birth Control rows are ON BY DEFAULT,
@@ -436,6 +439,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {f"vv{n}_island_events_any_time" for n in range(1, 6)}
         # ...and Village Solidarity (the owner, 2026-11-17: on in Owner's Defaults, off everywhere else).
         held_back |= {f"vv{n}_village_solidarity" for n in range(1, 6)}
+        # ...and Fog of Doom Lets Every Heathen Listen (new 2026-11-19: on in Owner's Defaults only) and its option No
+        # Restrictions on Fog of Doom Conversions (the owner: default off; off in Owner's Defaults too).
+        held_back |= {"vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions"}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)
