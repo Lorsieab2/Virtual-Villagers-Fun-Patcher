@@ -1087,7 +1087,8 @@ static int sp_any_wide(void *font, const char *p, const char *pe, int width) {
     return 0;
 }
 
-static const char *sp_fit(void *font, const char *text, int width) {
+/* `keep_first`: the first line is kept as it is (an island event's: drawn on its own); 0: every line (a tip's). */
+static const char *sp_fit_lines(void *font, const char *text, int width, int keep_first) {
     const char *first, *p, *pe, *w, *ws;
     char *out, *o, *line;
     unsigned int hash;
@@ -1096,13 +1097,16 @@ static const char *sp_fit(void *font, const char *text, int width) {
     if (font == NULL || text == NULL || width <= 0 || g_game->width_fn == 0) {
         return NULL;
     }
-    for (first = text; *first != 0 && *first != '\n'; ++first) {
-    }
-    if (*first == 0) {
-        return NULL;                        /* one line */
+    first = text - 1;                       /* the kept part ends at first + 1 */
+    if (keep_first) {
+        for (first = text; *first != 0 && *first != '\n'; ++first) {
+        }
+        if (*first == 0) {
+            return NULL;                    /* one line */
+        }
     }
     len = lstrlenA(text);
-    hash = sp_hash(text);
+    hash = sp_hash(text) ^ (keep_first ? 0x5A5A5A5Au : 0u);
     for (k = 0; k < 2; ++k) {
         m = &g_fit[k];
         if (m->hash == hash && m->len == len && m->width == width && m->font == font) {
@@ -1168,10 +1172,55 @@ static const char *sp_fit(void *font, const char *text, int width) {
     return out;
 }
 
+static const char *sp_fit(void *font, const char *text, int width) {
+    return sp_fit_lines(font, text, width, 1);
+}
+
 /* A measured island-event dialog's font (its text manager's). */
 static void *sp_shift_font(const sp_shift *s, const unsigned char *dialog) {
     const unsigned char *manager = *(const unsigned char *const *)(dialog + s->font_mgr);
     return manager != NULL ? *(void *const *)manager : NULL;
+}
+
+/* ---- A New Home's and The Lost Children's tips: lines wider than the box wrap (scroll_popup.h lookup_sites) ---- */
+static const sp_shift *g_lookup_shift;
+static unsigned int g_lookup_fn;
+
+static int sp_cap(int limit, int cell);
+static int sp_screen_w(void);
+
+/* The text the tip at `dialog` is given (from the stub after the string table's lookup): every line wider than the
+   box broken at its spaces (sp_fit_lines), so the panel the constructor makes as wide as the widest line fits the
+   screen and the text never scrolls sideways (a word wider than the box alone on its line excepted).  A tutorial
+   tip's paragraph is the game's own. */
+static const char *__stdcall sp_tip_text(const unsigned char *dialog, const char *text) {
+    __try {
+        const sp_shift *s = g_lookup_shift;
+        const char *fit;
+        int w;
+        if (s == NULL || dialog == NULL || text == NULL) {
+            return text;
+        }
+        if (s->tutorial != 0 && dialog[s->tutorial] != 0 && *(const int *)(dialog + s->tutorial_on) == s->tutorial_is) {
+            return text;
+        }
+        w = sp_cap(sp_screen_w() - 2 * SP_MARGIN, s->lookup_cell) - 2 * s->side;
+        fit = sp_fit_lines(sp_shift_font(s, dialog), text, w, 0);
+        return fit != NULL ? fit : text;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return text;
+}
+
+__declspec(naked) static void sp_lookup_stub(void) {
+    __asm {
+        push dword ptr [esp + 4]            /* the string id (ecx: the text manager) */
+        call dword ptr [g_lookup_fn]        /* ret 4 */
+        push eax
+        push esi                            /* the tip */
+        call sp_tip_text
+        ret 4
+    }
 }
 
 /* A text's size as the justified paragraph lays it out in a box `w` wide: the content's width (the box, or its
@@ -1726,7 +1775,7 @@ static int sp_tip_narrow(const sp_shift *s, unsigned char *popup, unsigned int *
     const char *text;
     void *font, *holder = sp_holder();
     int cap_w, over, old_w, new_w, widest, old_h, new_h;
-    if (s->tutorial != 0 && popup[s->tutorial] != 0 && *(const int *)(popup + s->tutorial_on) == 0) {
+    if (s->tutorial != 0 && popup[s->tutorial] != 0 && *(const int *)(popup + s->tutorial_on) == s->tutorial_is) {
         return 1;
     }
     if (s->wrap_w == 0 || s->wrap_height_fn == 0 || holder == NULL) {
@@ -2793,6 +2842,16 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         sp_call_bytes(stock[count], s->size_site, s->sizer);
         vvfp_site_branch(&w[count], s->size_site, 5, stock[count], 0xE8, (const void *)sp_size_stub);
         ++count;
+        if (s->lookup_fn != 0) {
+            /* A New Home, The Lost Children: the tip's string-table lookups (constructor, body draw) */
+            for (k = 0; k < 2; ++k) {
+                sp_call_bytes(stock[count], s->lookup_sites[k], s->lookup_fn);
+                vvfp_site_branch(&w[count], s->lookup_sites[k], 5, stock[count], 0xE8, (const void *)sp_lookup_stub);
+                ++count;
+            }
+            g_lookup_shift = s;
+            g_lookup_fn = s->lookup_fn;
+        }
     }
     if (g->shift_count > 0) {
         static const unsigned char tail5[13] = {0x8B, 0x16, 0x5F, 0x8B, 0xCE, 0x5E, 0x5B, 0x83, 0xC4, 0x04,

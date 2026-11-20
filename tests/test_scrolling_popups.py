@@ -134,6 +134,9 @@ def sites(game: int) -> list[tuple[int, str]]:
     if game in BUILDER.WHOLE_SITES:
         whole_sites, whole_fn = BUILDER.WHOLE_SITES[game]
         out += [(va, BUILDER.call_bytes(va, whole_fn)) for va in whole_sites]
+    if game in BUILDER.TIP_LOOKUP:
+        lookup_sites, lookup = BUILDER.TIP_LOOKUP[game]
+        out += [(va, BUILDER.call_bytes(va, lookup)) for va in lookup_sites]
     out.append(BUILDER.TAIL[game])            # the frame draw's tail: 13 / 14 bytes, not a call
     return out
 
@@ -181,6 +184,9 @@ class TheRows(unittest.TestCase):
             if game in BUILDER.WHOLE_SITES:
                 for va in (*BUILDER.WHOLE_SITES[game][0], BUILDER.WHOLE_SITES[game][1]):
                     self.assertIn(f"0x{va:X}u", row)
+            if game in BUILDER.TIP_LOOKUP:
+                for va in (*BUILDER.TIP_LOOKUP[game][0], BUILDER.TIP_LOOKUP[game][1]):
+                    self.assertIn(f"0x{va:X}u", shifts)
             if game in BUILDER.SITES:
                 _ctor, draw, justify, size, sizer = BUILDER.SITES[game]
                 classes = header.split(f"static const sp_class SP_VV{game}_CLASSES[] = {{")[1].split("};")[0]
@@ -705,15 +711,19 @@ class TheTip(unittest.TestCase):
 
     def test_a_wide_tip_wraps_in_the_box(self) -> None:
         """The owner (2026-11-19): text wraps normally, no sideways scrolling unless one word is wider than the box.
-        The later three's tip asked wider than the screen wraps its text narrower by what its panel is capped by."""
-        for game in (3, 4, 5):
-            d = self.tips[game]
+        The later three's tip asked wider than the screen wraps its text narrower by what its panel is capped by; A New
+        Home's and The Lost Children's tip is handed its text with each line wider than the box broken at its spaces
+        (their constructor makes the panel as wide as the widest line), so the game itself asks for a panel that fits."""
+        for game, d in self.tips.items():
             with self.subTest(game=game):
                 w, h = d.g["screen"]
                 d.make_tip(TIP_WIDE)
-                self.assertGreater(d.stock_width, w)
+                if game in (1, 2):
+                    self.assertLessEqual(d.stock_width, w - 32)
+                else:
+                    self.assertGreater(d.stock_width, w)
+                    self.assertGreater(d.size_requests[-1], d.stock_height)  # the lines the narrower text adds
                 self.assertLessEqual(d.width_requests[-1], w - 32)
-                self.assertGreater(d.size_requests[-1], d.stock_height)      # the lines the narrower text adds
                 before = d.companion_export("VvfpScrollingPopupsTestScrolled")
                 blits = d.draw_box()
                 left, top, right, bottom = d.panel()
@@ -762,7 +772,7 @@ class TheTip(unittest.TestCase):
     def test_a_tip_with_a_word_wider_than_the_box_scrolls_sideways(self) -> None:
         for game, d in self.tips.items():
             with self.subTest(game=game):
-                d.make_tip(TIP_WIDE if game in (1, 2) else TIP_WORD)
+                d.make_tip(TIP_WORD)
                 self.assertGreater(d.stock_width, d.g["screen"][0])
                 blits = d.draw_box()
                 left, top, right, bottom = d.panel()
@@ -1387,7 +1397,7 @@ class BothWays(unittest.TestCase):
                 # what the game lays out); each game gets a tall and wide text its tip lays out whole.  The later
                 # three's tips wrap a wide line of words (TheTip): their wide text is one word wider than the box
                 # (New Believers' paragraph runs single line breaks on: twice the lines to be taller than its screen).
-                wide = {1: TIP_WIDE, 2: TIP_WIDE, 3: TIP_WORD, 4: WORD, 5: TIP_LONG + b"\n" + TIP_WORD}[game]
+                wide = {1: TIP_WORD, 2: TIP_WORD, 3: TIP_WORD, 4: WORD, 5: TIP_LONG + b"\n" + TIP_WORD}[game]
                 d.make_tip(TIP_LONG + b"\n" + wide)
                 self.both_ways(d, d.draw_box, [d.child_rect(c) for c in d.children],
                                picture=f"vv{game}_tip_both.png")
