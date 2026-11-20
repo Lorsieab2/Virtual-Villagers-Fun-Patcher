@@ -247,6 +247,10 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Change Sex and Gender Presentation (all five games; the owner, 2026-11-15): every new option "ON in Owner's
     # Defaults and OFF everywhere else" -- off here and in Select All.
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
+    # Every Island Event Can Happen (A New Home, The Lost Children, The Secret City, New Believers; the owner,
+    # 2026-11-17): off by default, on in Owner's Defaults, which ticks it like every default-off patch it does not
+    # name.
+    + ["vv%d_every_island_event_can_happen" % game for game in (1, 2, 3, 5)]
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]

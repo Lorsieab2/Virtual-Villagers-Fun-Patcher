@@ -35,6 +35,7 @@ EXPORTS
     VvfpStoryProbeTitlesLoaded=_VvfpStoryProbeTitlesLoaded@12
     VvfpStoryProbeTitleSet=_VvfpStoryProbeTitleSet@12
     VvfpStoryProbeTitleOf=_VvfpStoryProbeTitleOf@8
+    VvfpStoryProbeRequires=_VvfpStoryProbeRequires@8
     VvfpStoryProbeTitleCount=_VvfpStoryProbeTitleCount@0
     VvfpStoryProbeObject=_VvfpStoryProbeObject@0
     VvfpStoryProbeSizes=_VvfpStoryProbeSizes@4
@@ -172,3 +173,4 @@ EXPORTS
     VvfpStoryProbeLivingReset=_VvfpStoryProbeLivingReset@8
     VvfpStoryProbeSetRollTail=_VvfpStoryProbeSetRollTail@4
     VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16
+    VvfpStoryProbeFirstMarks=_VvfpStoryProbeFirstMarks@0

@@ -9540,6 +9540,62 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.story/vvfp_story_upgrades.event_requires.every_event",
+   "english": "nothing beyond an island event being possible",
+   "games": [
+    "vv1",
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/vvfp_story_upgrades.event_requires.vv3_science_low",
+   "english": "a villager the event can be about, and Science technology below level 2",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/vvfp_story_upgrades.event_requires.vv3_science_high",
+   "english": "a villager the event can be about, and Science technology level 2 or more",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/vvfp_story_upgrades.event_requires.vv3_tablet_research",
+   "english": "a villager the event can be about, Science technology level 2 or more, and Alchemy technology below level 3",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/vvfp_story_upgrades.event_requires.vv3_medicine",
+   "english": "a villager the event can be about, and Medicine technology level 2 or more",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.story/vvfp_story_upgrades.story_pick_island_event.s5",
    "english": "Pick Island Event",
    "games": [
