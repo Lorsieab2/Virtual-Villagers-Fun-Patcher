@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "../shared/patcher_files.h"
 #include "../shared/install_sites.h"   /* every site written, or none */
@@ -144,6 +145,9 @@ static size_t more_villager_changes(int i, const unsigned char *live, char *chan
 static void more_arrival(const unsigned char *record, char *out, size_t size);
 static void more_village(const char *before);
 static int g_more_wrote;                  /* island_event_more.inc: the records this comparison wrote */
+/* stock_solidarity.inc: Village Solidarity moved by a stock event's result (the owner, 2026-11-20). */
+static void stock_solidarity(const struct snapshot *s);
+static void stock_begin(void);           /* ...and when a watched event begins: whose popup it is */
 
 static int readable(const void *at, size_t size) {
     MEMORY_BASIC_INFORMATION info;
@@ -368,7 +372,11 @@ static void compare(struct snapshot *s) {
     char before[2 * TITLE_MAX + TEXT_MAX + 64];
     char changes[2048];
     size_t at;
-    if (writer() == NULL || s->count == 0 || time_skip_notice(s) || graph_logged_by_story(s)) {
+    if (s->count == 0 || time_skip_notice(s) || graph_logged_by_story(s)) {
+        return;
+    }
+    stock_solidarity(s);                  /* score only, with or without the log */
+    if (writer() == NULL) {
         return;
     }
     count = g_layout->enumerate(now, MAX_VILLAGERS);
@@ -638,6 +646,7 @@ static void event_text(const char *text, size_t cap, struct snapshot_text *out) 
 
 #include "island_event_games.inc"         /* the five games' layouts and sites */
 #include "island_event_more.inc"          /* a newcomer's sex and age, titles, masks, the village */
+#include "stock_solidarity.inc"           /* Village Solidarity moved by a stock event's result */
 
 #define MAX_SITES 16
 #define RETURNS 256                       /* far beyond any nesting the games make */
@@ -694,6 +703,7 @@ static void __cdecl before_call(const unsigned int *frame, int index) {
             if (site->before != NULL) {
                 site->before(frame, &text);
             }
+            stock_begin();
             take(&g_snaps[0]);
         }
     } else if (g_watching && g_snaps[0].title[0] == '\0' && site->before != NULL
@@ -781,9 +791,12 @@ static int install(int game) {
     unsigned char *code;
     SIZE_T size;
     int count, i;
+    /* Shipped by the Island Events log row (its records need the Parentage Export) or by Village Solidarity's
+       (stock_solidarity.inc: the game's own events move the score; "VVFP Startup.dll" starts that companion later,
+       so its file beside this one is what tells). */
     if (game < 1 || game > GAMES || GAME_SITES[game] == NULL || GAME_LAYOUTS[game] == NULL
-        || writer() == NULL) {
-        return 0;                         /* nothing to write to: nothing installed */
+        || (writer() == NULL && !vvfp_patcher_file_exists("VVFP Village Solidarity.dll"))) {
+        return 0;                         /* nothing to write to, no score to move: nothing installed */
     }
     sites = GAME_SITES[game];
     for (count = 0; sites[count].entry != 0; ++count) {

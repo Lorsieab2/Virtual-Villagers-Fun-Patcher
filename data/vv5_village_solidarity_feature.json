@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv5",
   "name": "Village Solidarity",
-  "description": "Gives each village a **Village Solidarity** score from 0 to 100, starting at 50. The patcher's new island events (the Isola Grand Event Collection, the Companion Anthology, More Island Events and your own Custom Island Events) can mark a page as raising, lowering or not changing it: songs and gatherings, fair resolutions, mutual aid, welcoming newcomers and feelings like happiness, trust, gratitude and hope raise it; unresolved conflicts, unfairness, broken promises and feelings like tension, distrust, resentment and fear lower it; solemn remembrance and quiet reflection leave it as it is. Every raise and every lower moves it by the same 5 points. **The score only changes odds:** the higher it is, the more likely the new cooperative and celebration events and the cooperative endings of a chance split; the lower it is, the more likely the new repair, peace and apology events and the tense endings (at the normal strength each point away from 50 adds 2% to the favoured event's or ending's own chance weight, so 0 or 100 doubles it; nothing is ever forced and nothing else is made less likely). It never changes work, helping, idling, skills or health, and the game's own island events and their chances never change. The slider sets the strength, 0.1x to 10x (1x is normal). The Tech screen shows \"Village Solidarity: 62 / 100\" in the game's own font; the Game Mechanics page shows it too. The score is kept outside the save, in the save's own Village Scores file, and every change is written to the save's Village Solidarity log; Start Over clears both. Without this patch the events' marks are only words in their files. **Needs Story / Cheat Upgrades (on by default), which runs the new events; ticking this ticks it.** **The score moves only when new events with marked pages happen: tick the Isola Grand Event Collection or More Island Events, or write your own Custom Island Events.** **Works the same in every population mode.** **On in Owner's Defaults; off in the normal defaults and in Select All.** The companion is \"VVFP Village Solidarity.dll\", started by VVFP Startup.dll; the save is never written.",
+  "description": "Gives each village a **Village Solidarity** score from 0 to 100, starting at 50. The patcher's new island events (the Isola Grand Event Collection, the Companion Anthology, More Island Events and your own Custom Island Events) can mark a page as raising, lowering or not changing it: songs and gatherings, fair resolutions, mutual aid, welcoming newcomers and feelings like happiness, trust, gratitude and hope raise it; unresolved conflicts, unfairness, broken promises and feelings like tension, distrust, resentment and fear lower it; solemn remembrance and quiet reflection leave it as it is. **The game's own island events move it too:** each of their results has its own tag -- gains, healing, newcomers and celebrations raise it; losses, sickness, deaths and disasters lower it; the rest leave it (the full list is on the Game Mechanics page) -- and those events and their chances stay exactly the game's own. Every raise and every lower moves it by the same 5 points. **The score only changes odds:** the higher it is, the more likely the new cooperative and celebration events and the cooperative endings of a chance split; the lower it is, the more likely the new repair, peace and apology events and the tense endings (at the normal strength each point away from 50 adds 2% to the favoured event's or ending's own chance weight, so 0 or 100 doubles it; nothing is ever forced and nothing else is made less likely). It never changes work, helping, idling, skills or health, and the game's own island events and their chances never change. The slider sets the strength, 0.1x to 10x (1x is normal). The Tech screen shows \"Village Solidarity: 62 / 100\" in the game's own font; the Game Mechanics page shows it too. The score is kept outside the save, in the save's own Village Scores file, and every change is written to the save's Village Solidarity log; Start Over clears both. Without this patch the events' marks are only words in their files. **Needs Story / Cheat Upgrades (on by default), which runs the new events; ticking this ticks it.** **Works the same in every population mode.** **On in Owner's Defaults; off in the normal defaults and in Select All.** The companions are \"VVFP Village Solidarity.dll\" and \"VVFP Island Events.dll\" (which reads the results of the game's own events), started by VVFP Startup.dll; the save is never written.",
   "output_tag": "Village Solidarity",
   "dependencies": [
     "vv5_story_cheat_upgrades"
@@ -15,10 +15,11 @@
     "Story / Cheat Upgrades (native/vvfp_story_upgrades/story_graph.inc) asks the companion (VvfpVillageScoreTag) when a branching event reaches a page tagged \"solidarity\" (the .cieg node flags' bits 1-2: 1 raise, 2 lower, 3 neutral): raise +5, lower -5, neutral 0, clamped to 0..100.",
     "At a weighted chance split, a branch whose next page is tagged \"raise\" (a cooperative ending) has its weight multiplied by the companion's factor for a high score, one tagged \"lower\" (a tense ending) by the factor for a low score (VvfpVillageScoreFactor, per mille: 1000 + 2 x the strength in tenths x the score's distance from 50 on that side, else 1000).",
     "The rare collection draw after a natural island event (story_collection.inc) multiplies a collection event's draw weight the same way when its manifest marks it \"cooperative\" (a high score) or \"repair\" (a low score); every other candidate keeps its weight.",
+    "The game's own island events move the score too: \"VVFP Island Events.dll\" (its existing comparison of each event, native/vvfp_island_events/stock_solidarity.inc) looks the result shown up in the owner's table (data/stock_island_event_solidarity.txt: the title, the answer, and what the result did to the village where one answer has several results) and calls VvfpVillageScoreTag once with its tag. It reads the result after the game applied it; nothing runs before the game's own routine.",
     "The Tech screen draw is spliced to show \"Village Solidarity: <score> / 100\" in the game's own font (translated through VVFP Translations.dll): native/vvfp_village_solidarity/counter_vv5.inc."
   ],
   "explicit_non_changes": [
-    "The game's own island events and their chances never change: the Story companion's rare roll is the only draw the factor touches, and it is never in place of a natural event.",
+    "The game's own island events and their chances never change: the Story companion's rare roll is the only draw the factor touches, and it is never in place of a natural event; the game's own events only move the score, read after their results are applied.",
     "Nothing changes work, helping, idling, skills, health, food or tech: real effects of an event stay exactly as the event gives them.",
     "Nothing is written to the save or to a villager record; the Tech screen splices are made at run time only after every site holds its stock bytes, all or none."
   ],
@@ -28,6 +29,11 @@
       "source": "assets/village_solidarity/VVFP Village Solidarity.dll",
       "destination": "VVFP Village Solidarity.dll",
       "sha256": "CD78F3F39812A9B52AF1783FE47C5E793612FE55053E105388C8385067F26BD7"
+    },
+    {
+      "source": "assets/island_events/VVFP Island Events.dll",
+      "destination": "VVFP Island Events.dll",
+      "sha256": "7B106BA057FB0D25B92BBE55FDB956F7C2DAECF8363234252EC00381E6FC103D"
     }
   ],
   "patches": [],
@@ -49,6 +55,18 @@
       "stock_bytes": "F0154400",
       "routine": "the Tech screen's vtable slot 3 (its handler 0x4415F0)",
       "installed_by": "VVFP Village Solidarity.dll, VvfpStartup (started by VVFP Startup.dll, third word)"
+    },
+    {
+      "va": "0x418870",
+      "stock_bytes": "6AFF68DB154900",
+      "routine": "the island event presenter: picks, shows and applies the event (a Custom Island Event too)",
+      "installed_by": "VVFP Island Events.dll, VvfpStartup"
+    },
+    {
+      "va": "0x418720",
+      "stock_bytes": "837C240408",
+      "routine": "the event dialog's button handler (OK, or a custom event's answer, applies it)",
+      "installed_by": "VVFP Island Events.dll, VvfpStartup"
     }
   ]
 }

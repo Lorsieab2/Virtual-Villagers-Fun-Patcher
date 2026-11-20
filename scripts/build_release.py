@@ -819,6 +819,9 @@ FILES = [
     "src/vv_game_mechanics_no_safeguards.py",
     "src/vv_game_mechanics_solidarity.py",
     "src/vv_village_scores.py",
+    # Village Solidarity and the games' own island events: the owner's tag of every result (the GM line counts them).
+    "src/vv_stock_event_solidarity.py",
+    "data/stock_island_event_solidarity.txt",
     # Isola Grand Event Collection on the Game Mechanics pages, and its index of sections and deadly events.
     "src/vv_game_mechanics_collection.py",
     "data/event_collection_index.json",
