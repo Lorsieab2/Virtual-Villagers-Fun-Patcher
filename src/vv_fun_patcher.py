@@ -13564,6 +13564,9 @@ STARTUP_LOADER_COMPANIONS_3 = (
     # Fog of Doom Lets Every Heathen Listen (New Believers): in the Fog of Doom, a believer dropped on a Heathen in
     # the orange or red mask with Faith below -10 starts the stock listening.
     "VVFP Fog Listening.dll",
+    # Fix Vanilla Bugs (The Tree of Life): the broken piers' ten hole sprites drawn from the owner's redrawn pictures
+    # (separate files in Images) instead of the stock ones (second word full: placed here at the v1.35.97 merge).
+    "VVFP VV4 Pier Holes.dll",
 )
 MORE_COMPANIONS_DLL = "VVFP More Companions.dll"
 MORE_COMPANIONS_CHOICE_FILE = "VVFP More Companions.txt"
