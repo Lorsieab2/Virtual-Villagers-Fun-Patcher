@@ -10,19 +10,19 @@
   "artifacts": [
     {
       "path": "data/candidates/vv2_full_mastery_all_candidate.json",
-      "sha256": "FE1215A105C1EA20B50ACAA44FFCB17870C133AA8A58E106AE9081718E346B86"
+      "sha256": "92A782FD2CC30B5ABD24D303F88DF93A1B9EB3BD00AEDF92F4B8527E9A5A8751"
     },
     {
       "path": "data/candidates/vv2_full_mastery_all_candidate_map.json",
-      "sha256": "7B189CAED82C469851C9C866AE1452B79F8514CDA950A2500AEE6C183D3579FA"
+      "sha256": "6962AE172D0FD39974EB9E2BE1873EE9C4D701F1DD74A2CC5AF161FE8708817C"
     },
     {
       "path": "data/candidates/vv2_individual_full_mastery_candidate.json",
-      "sha256": "A2E5BDB06F3D473E55BB1CBE7EF23E755145C1755B65A0B40AFB03B755EE9FEA"
+      "sha256": "69F0F87B9411A8E7C58BCCB381686E47689302E898ED7E621834DDFAE8F4C6D1"
     },
     {
       "path": "data/candidates/vv2_individual_full_mastery_candidate_map.json",
-      "sha256": "646491CFC46C5639D770F6A92A421847643B3B8EAA1642C0EA340FE9D87CB49A"
+      "sha256": "658169866A60E995201C1410DC959945D2BB36D26A05FB046C34B587078A24CF"
     },
     {
       "path": "data/candidates/vv2_individual_grant_running_binding.json",
@@ -86,11 +86,11 @@
     },
     {
       "path": "data/candidates/vv4_full_heal_cure_all_candidate.json",
-      "sha256": "E80807B59AF6A859B5BE7D68A7E40D1D0F56118254A181EFEF9CA7D37D02D148"
+      "sha256": "BDF3E7BA4F02219F57CDF4A0239485C335AE5D3FCC798A653B71C6E97A0D5C3B"
     },
     {
       "path": "data/candidates/vv4_full_heal_cure_all_candidate_map.json",
-      "sha256": "E175D177A8AF3C3C6E0E2FC57FA5942456FFEE3BFCCB456E44486D6891195D1C"
+      "sha256": "0961E008B3E635622BBF294D3F484B445F9E1AE8B989F20AA0F7149DAEDB70DC"
     },
     {
       "path": "data/candidates/vv4_full_mastery_all_candidate.json",
@@ -98,11 +98,11 @@
     },
     {
       "path": "data/candidates/vv5_individual_running_candidate.json",
-      "sha256": "895FE6F51E4753B8F9FB0535CCD63C0B0BFAD525E151DC7FE341E629932F9526"
+      "sha256": "3428B76561848DF6B85DB3FE95DFC20DCD36E711A086CC29EA1B18ADB6C22044"
     },
     {
       "path": "data/candidates/vv5_individual_running_candidate_map.json",
-      "sha256": "C6297EF0BAA975CC2CA605A9885C3CE4A8FB6449F77ACC72157F34F50B1440C0"
+      "sha256": "B8D8312894BDF4E9CE312067C3DB137A2FA0F6FF82760B61C98F5D0613E8B669"
     },
     {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
