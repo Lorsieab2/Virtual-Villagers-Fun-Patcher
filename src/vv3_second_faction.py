@@ -131,10 +131,16 @@ def _candidates(save_folder: Path, slot: int, base: str) -> list[Path]:
     folders = [save_folder]
     backups = save_folder / "Backups"
     if backups.is_dir():
-        # Only the backups ("Backup <date>..."): never a slot's files Copy Player Slot set aside
-        # ("Replaced by copy ..."), which are another village's.
-        folders += sorted((p for p in backups.iterdir() if p.is_dir() and p.name.startswith("Backup ")),
-                          reverse=True)
+        # Only the backups (an older build's "Backup <date>...", this build's named in the Backups index):
+        # never a slot's files Copy Player Slot set aside ("Replaced by copy ..."), which are another village's.
+        import vv_save_backup as backup                    # function-level: it imports this module
+        index = backup.backups_index(backups)
+        found = []
+        for p in backups.iterdir():
+            entry = backup._backup_entry(index, p.name) if p.is_dir() else None
+            if entry is not None:
+                found.append((entry[0], entry[1], p))
+        folders += [p for _when, _order, p in sorted(found, reverse=True)]
     return [folder / f"{base}{number}.ldw" for folder in folders for number in (slot, slot + 20, slot + 40)
             if (folder / f"{base}{number}.ldw").is_file()]
 

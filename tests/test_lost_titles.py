@@ -242,7 +242,7 @@ class TheAlapaiCase(unittest.TestCase):
                 self.assertEqual(info.file_titles(v.folder, game, 1)[("Alapai", 3, 2)], "Moon Mother")
                 # Backed up first, and one Repair record.
                 backup = Path(result.backup.backup_folder)
-                self.assertIn(lt.BACKUP_LABEL, backup.name)
+                self.assertIn(lt.BACKUP_LABEL, lt.vv_save_backup.backup_label(backup))
                 self.assertTrue((backup / v.save.name).is_file())
                 self.assertFalse((backup / DATA / "Custom Titles").exists())       # it was not there yet
                 text = v.repairs()

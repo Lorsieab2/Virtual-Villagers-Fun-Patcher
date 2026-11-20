@@ -136,7 +136,7 @@ class Base(unittest.TestCase):
 
     def backups(self, folder: Path) -> list[str]:
         place = folder / "Backups"
-        return sorted(p.name for p in place.iterdir()) if place.is_dir() else []
+        return sorted(p.name for p in place.iterdir() if p.name != backup.BACKUPS_INDEX) if place.is_dir() else []
 
     def occupy(self, game, folder: Path, slot: int, name: str) -> dict[str, bytes]:
         """Slot ``slot`` given a village of its own (``name``) with its logs and patcher files, in both
@@ -245,7 +245,7 @@ class CopyTests(Base):
                                "Virtual Villagers 3 Second Faction - Save 3.dat").read_bytes()
                     self.assertEqual(struct.unpack_from("<I", faction, 12)[0], 3)
                 # Backed up first, labelled and listed as such.
-                self.assertTrue(result.backup.backup_folder.name.endswith("(before copy)"))
+                self.assertEqual(result.backup.backup_folder.name, "2026-10-31 1200")
                 listed = backup.list_backups(folder)
                 self.assertEqual(len(listed), 1)
                 self.assertTrue(listed[0].before_copy)
@@ -270,7 +270,7 @@ class CopyTests(Base):
                 before = self.snapshot(folder)
                 result = cs.copy_slot(game, folder, 1, 2, "Copied", processes=FakeProcesses(), now=NOW)
                 self.assertEqual(result.overwritten, "Old Village")
-                aside = folder / "Backups" / "Replaced by copy 2026-10-31 12-00-00 - Save 2 - Old Village"
+                aside = folder / "Backups" / "2026-10-31 1200 S2"          # its full name in the Backups index
                 self.assertEqual(result.set_aside, aside)
                 # Every file of the old village is in the set-aside folder, byte for byte, its path kept.
                 for rel, data in theirs.items():
@@ -298,7 +298,7 @@ class CopyTests(Base):
                     self.assertEqual(after.get(name), data, name)
                 # The set-aside folder is never offered as a backup, and nothing reads it.
                 self.assertEqual([b.path.name for b in backup.list_backups(folder)],
-                                 ["Backup 2026-10-31 12-00-00 (before copy)"])
+                                 ["2026-10-31 1200"])
                 import vv3_second_faction as faction
                 self.assertFalse(any(aside in p.parents for p in faction._candidates(
                     folder, 2, game.save_path(folder, 2).name[:-len("2.ldw")])))
@@ -319,7 +319,7 @@ class CopyTests(Base):
                     cs.copy_slot(game, folder, 1, 2, "Copied", processes=FakeProcesses(), now=NOW, _fail_after=fail)
                 self.assertEqual(self.snapshot(folder), before)
                 self.assertEqual({p: os.stat(folder / p).st_mtime_ns for p in before}, times)
-                aside = folder / "Backups" / "Replaced by copy 2026-10-31 12-00-00 - Save 2 - Old Village"
+                aside = folder / "Backups" / "2026-10-31 1200 S2"          # its full name in the Backups index
                 self.assertFalse(aside.exists())
 
     def test_leftovers_of_an_empty_slot_are_set_aside(self) -> None:
@@ -509,7 +509,7 @@ class ConfirmationTests(Base):
             window.replace_text(folder, source, 2, "Old Village", "Copied", NOW),
             f"Save 2 holds the Old Village village. It will be replaced by a copy of {old} (Save 1), named "
             f"Copied. The whole save folder ({folder}) is backed up first, and Old Village's files are kept in "
-            "Backups\\Replaced by copy 2026-10-31 12-00-00. Replace it?")
+            "Backups\\2026-10-31 1200 S2. Replace it?")
         self.assertEqual(
             window.empty_text(folder, source, 3, "Copied", NOW),
             f"Save 3 is empty. It will get a copy of {old} (Save 1), named Copied. The whole save folder "
@@ -519,10 +519,12 @@ class ConfirmationTests(Base):
             window.empty_text(folder, source, 3, "Copied", NOW, [leftover]),
             f"Save 3 is empty. It will get a copy of {old} (Save 1), named Copied. The whole save folder "
             f"({folder}) is backed up first. Leftover files from an earlier village in Save 3 are kept in "
-            "Backups\\Replaced by copy 2026-10-31 12-00-00.\n\n"
+            "Backups\\2026-10-31 1200 S3.\n\n"
             f"  {OWN}\\Save 3\\Data\\x - Save 3.dat\n\nCopy it?")
         self.assertEqual(cs.BACKUP_LABEL, "(before copy)")
         self.assertEqual(cs.set_aside_folder(folder, NOW, 2, "Old Village").name,
+                         "2026-10-31 1200 S2")
+        self.assertEqual(backup.backups_index(folder / "Backups")["2026-10-31 1200 s2"][3],
                          "Replaced by copy 2026-10-31 12-00-00 - Save 2 - Old Village")
         self.assertEqual(window.TITLE, "Copy Player Slot")
 

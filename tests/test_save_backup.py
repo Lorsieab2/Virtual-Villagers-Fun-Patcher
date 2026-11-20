@@ -173,7 +173,7 @@ class CopyTests(TempDocuments):
         old = write(folder / "Backups" / "Backup 2020-01-01 00-00-00" / "old.ldw", b"old")
         result = backup.copy_save_folder(folder, NOW)
         self.assertEqual(
-            result.backup_folder, folder / "Backups" / "Backup 2026-10-04 13-05-22"
+            result.backup_folder, folder / "Backups" / "2026-10-04 1305"
         )
         expected = sorted(
             p.relative_to(folder)
@@ -212,12 +212,12 @@ class CopyTests(TempDocuments):
 
     def test_an_existing_backup_is_never_overwritten(self) -> None:
         folder = self.save_folder()
-        taken = folder / "Backups" / "Backup 2026-10-04 13-05-22"
+        taken = folder / "Backups" / "2026-10-04 1305"
         sentinel = write(taken / "Virtual Villagers - The Secret City1.ldw", b"keep me")
         first = backup.copy_save_folder(folder, NOW)
-        self.assertEqual(first.backup_folder.name, "Backup 2026-10-04 13-05-22 (2)")
+        self.assertEqual(first.backup_folder.name, "2026-10-04 1305 2")
         second = backup.copy_save_folder(folder, NOW)
-        self.assertEqual(second.backup_folder.name, "Backup 2026-10-04 13-05-22 (3)")
+        self.assertEqual(second.backup_folder.name, "2026-10-04 1305 3")
         self.assertEqual(sentinel.read_bytes(), b"keep me")
         self.assertEqual(len(list(taken.iterdir())), 1)
 
@@ -246,7 +246,7 @@ class CopyTests(TempDocuments):
                 backup.copy_save_folder(folder, NOW)
         self.assertIn("NOT a usable backup", str(caught.exception))
         backups = sorted(p.name for p in (folder / "Backups").iterdir())
-        self.assertEqual(backups, ["Backup 2026-10-04 13-05-22 INCOMPLETE"])
+        self.assertEqual(backups, ["2026-10-04 1305 INCOMPLETE"])
         # Nothing in the save folder itself was harmed.
         self.assertEqual(len(backup.files_to_back_up(folder)), 5)
 
@@ -813,8 +813,9 @@ class RestoreTests(RestoreBase):
         self.assertEqual(self.snapshot(folder), wanted)
         self.assertIn(Path(LOGS, "Births and Conceptions",
                            "Virtual Villagers 3 Births and Conceptions Log 3.txt"), result.plan.remove)
-        self.assertEqual(result.before_restore.backup_folder.name,
-                         "Backup 2026-02-01 08-00-00 (before restore)")
+        self.assertEqual(result.before_restore.backup_folder.name, "2026-02-01 0800")
+        self.assertEqual([i.suffix for i in backup.list_backups(folder)
+                          if i.path == result.before_restore.backup_folder], ["(before restore)"])
         safety = result.before_restore.backup_folder
         self.assertEqual(
             {str(r): (safety / r).read_bytes() for r in backup.files_to_back_up(safety)}, present
@@ -822,6 +823,9 @@ class RestoreTests(RestoreBase):
         # No earlier backup was touched.
         after = self.backups_snapshot(folder)
         for key, value in backups_before.items():
+            if key == backup.BACKUPS_INDEX:
+                self.assertTrue(after[key].startswith(value), "the index is only added to")
+                continue
             self.assertEqual(after[key], value)
         # ...and the restore can itself be undone.
         backup.restore_backup(folder, safety, None, FakeProcesses(), datetime(2026, 2, 1, 8, 0, 1))
@@ -985,6 +989,7 @@ class RestoreTests(RestoreBase):
         keep = self.backups_snapshot(folder)
         backup.delete_backup(folder, first.backup_folder)
         after = self.backups_snapshot(folder)
+        after.pop(backup.BACKUPS_INDEX, None)          # the index lists what is there (vv_save_backup)
         self.assertEqual(after, {k: v for k, v in keep.items() if k.startswith(second.backup_folder.name)})
 
     def test_a_restore_never_writes_into_any_backup(self) -> None:
@@ -997,6 +1002,9 @@ class RestoreTests(RestoreBase):
         self.restore(folder, other.backup_folder, slot=None, now=datetime(2026, 2, 1, 8, 0, 9))
         after = self.backups_snapshot(folder)
         for key, value in keep.items():
+            if key == backup.BACKUPS_INDEX:
+                self.assertTrue(after[key].startswith(value), "the index is only added to")
+                continue
             self.assertEqual(after[key], value, key)
 
 
@@ -1071,8 +1079,9 @@ class CodexFollowUpTests(RestoreBase):
 
         with mock.patch.object(backup, "_copy_one", side_effect=watch):
             made = backup.copy_save_folder(folder, NOW)
-        self.assertTrue(all(name.endswith(" (in progress)") for name in seen))
-        self.assertEqual(made.backup_folder.name, "Backup 2026-10-04 13-05-22")
+        # Made under its own short name, listed only once its line is in the Backups index.
+        self.assertEqual(set(seen), {"2026-10-04 1305"})
+        self.assertEqual(made.backup_folder.name, "2026-10-04 1305")
         self.assertEqual([i.path for i in backup.list_backups(folder)], [made.backup_folder])
 
     def test_a_briefly_held_folder_is_still_given_its_name(self) -> None:
@@ -1088,7 +1097,7 @@ class CodexFollowUpTests(RestoreBase):
 
         with mock.patch.object(backup, "DELETE_RETRY_SECONDS", 0),              mock.patch.object(Path, "rename", held_once):
             made = backup.copy_save_folder(folder, NOW)
-        self.assertEqual(made.backup_folder.name, "Backup 2026-10-04 13-05-22")
+        self.assertEqual(made.backup_folder.name, "2026-10-04 1305")
         self.assertTrue(made.backup_folder.is_dir())
 
     def test_a_second_failed_backup_in_one_second_is_still_set_aside(self) -> None:
@@ -1098,8 +1107,7 @@ class CodexFollowUpTests(RestoreBase):
                 with self.assertRaises(backup.BackupError):
                     backup.copy_save_folder(folder, NOW)
         names = sorted(p.name for p in (folder / "Backups").iterdir())
-        self.assertEqual(names, ["Backup 2026-10-04 13-05-22 INCOMPLETE",
-                                 "Backup 2026-10-04 13-05-22 INCOMPLETE (2)"])
+        self.assertEqual(names, ["2026-10-04 1305 INCOMPLETE", "2026-10-04 1305 INCOMPLETE (2)"])
         self.assertEqual(backup.list_backups(folder), [])
 
     def test_a_backup_whose_times_cannot_be_kept_fails_safely(self) -> None:

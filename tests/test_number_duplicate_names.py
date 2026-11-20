@@ -272,7 +272,7 @@ class Automatically(InTheSaveAndTheLogs):
         self.assertEqual(sorted(want.renames.values()), ["Soda I", "Soda II"])
         result, wanted = nn.number_names(self.folder, 3, 1, processes=NoGame(), now=NOW, automatic=True)
         self.assertTrue(Path(result.backup.backup_folder).is_dir())
-        self.assertIn("before numbering names", str(result.backup.backup_folder))
+        self.assertIn("before numbering names", nn.vv_save_backup.backup_label(Path(result.backup.backup_folder)))
         record = self.repairs()
         self.assertIn("Repair 1\r\n", record)
         self.assertIn("Number villagers who share a name automatically", record)

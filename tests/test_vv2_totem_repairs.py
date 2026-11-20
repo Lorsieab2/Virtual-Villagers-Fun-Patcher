@@ -311,7 +311,7 @@ class GiveTotems(unittest.TestCase):
         self.assertIn("  Totem given: Azizi Kalama (head 27, body 16), a living Esteemed Elder: a totem (", text)
         self.assertIn(", record 9\r\n", text)
         backup = Path(result.backup.backup_folder)
-        self.assertIn(vt.BACKUP_GIVE, backup.name)
+        self.assertIn(vt.BACKUP_GIVE, vt.vv_save_backup.backup_label(backup))
         self.assertEqual((backup / v.save.name).read_bytes(), before)
         [copy] = vt.tools.copies.kept_copies(v.folder, v.save, vt.COPY_GIVE)
         self.assertEqual(copy.read_bytes(), before)

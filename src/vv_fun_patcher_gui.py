@@ -4443,7 +4443,7 @@ class App(tk.Tk):
             frame,
             text=(
                 "Each folder is copied into a new dated folder inside it: "
-                "<save folder>\\Backups\\Backup <date and time>. "
+                "<save folder>\\Backups\\<date and time> (listed below with its label). "
                 "If the game is running it is paused for the copy and then "
                 "resumes by itself. These games save when you quit normally "
                 "and autosave every 10 real-life minutes while running (even "
@@ -4620,7 +4620,7 @@ class App(tk.Tk):
             text=(
                 "Newest first. The game must be closed: quit it from its own menu "
                 "before restoring. Your saves as they are now are backed up first, "
-                "as \"Backup <date> (before restore)\", so a restore can be undone."
+                "listed as \"(before restore)\", so a restore can be undone."
             ),
             wraplength=700,
             justify="left",
@@ -4883,7 +4883,7 @@ class App(tk.Tk):
                 "Changes the tribe's name inside its save. The game must be "
                 "closed: it saves when you quit it, which would put the old "
                 "name back. The save folder is backed up first, into "
-                "<save folder>\\Backups\\Backup <date and time> (before rename), "
+                "<save folder>\\Backups\\<date and time> (listed as \"before rename\"), "
                 "and the patcher's logs get one line noting the new name."
             ),
             wraplength=560,
@@ -5125,7 +5125,7 @@ class App(tk.Tk):
                 "without asking: everything confirmed wrong is put right, backed up "
                 "and listed in the Repairs log. Nothing is repaired now. The game "
                 "must be closed. The save folder is backed up first, into <save "
-                "folder>\\Backups\\Backup <date and time> (before repair re-arm). "
+                "folder>\\Backups\\<date and time> (listed as \"before repair re-arm\"). "
                 "One thing is done before the checklist opens, and stays done if you "
                 "then cancel: when the village gives arriving villagers their own new "
                 "last name automatically (the last-names setting, on by default), each "

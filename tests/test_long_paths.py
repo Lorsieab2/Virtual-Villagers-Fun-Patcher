@@ -150,12 +150,19 @@ class LongSaveFolder(tl.FolderTest):
             self.assertEqual({str(p) for p in listed},
                              {k for k in before if not k.startswith("Backups\\")})
             made = backup.copy_save_folder(self.folder, NOW)
-            copied = every_file(made.backup_folder)
+            # The backup's folder has a short name; its date and label are in the Backups index.
+            self.assertEqual(made.backup_folder.name, "2026-11-20 1200")
+            # Nothing in the backup runs past 259: a long file is kept under a short name in its Long Paths
+            # folder, at its own place for the list and the restore.
+            for p in lp.walk(made.backup_folder):
+                self.assertFalse(lp.too_long(p), str(p))
+            copied = {str(k): lp.read_bytes(v) for k, v in backup.backup_contents(made.backup_folder).items()}
+            self.assertEqual(set(copied), {str(p) for p in listed})
             for rel in OLD_COPIES:
                 self.assertEqual(copied[rel], before[rel], "the long copy is in the backup, byte for byte")
-                self.assertTrue(lp.too_long(made.backup_folder / rel))
             [info] = [i for i in backup.list_backups(self.folder) if i.path == made.backup_folder]
             self.assertEqual(info.file_count, len(listed))
+            self.assertEqual((info.when, info.suffix), (NOW, ""))
             # The long files change and go; the restore puts them back.
             first = self.old[OLD_COPIES[0]]
             lp.extended(first).write_bytes(b"changed")
@@ -181,7 +188,10 @@ class LongSaveFolder(tl.FolderTest):
             # The backup Repair made first holds the long copies too.
             backups = backup.list_backups(self.folder)
             self.assertTrue(backups)
-            self.assertTrue(all(lp.is_file(backups[0].path / rel) for rel in OLD_COPIES))
+            held = backup.backup_contents(backups[0].path)
+            self.assertTrue(all(lp.is_file(held[Path(rel)]) for rel in OLD_COPIES))
+            self.assertFalse(any(lp.too_long(p) for p in lp.walk(backups[0].path)))
+            self.assertEqual(backups[0].suffix, tools.BACKUP_LABEL)
             # Check Saves & Logs' reading of the copies: the long ones and the new one, at any length.
             log = self.folder / LOGS / "Save 1" / "Births and Conceptions" / \
                 "Virtual Villagers 1 Births and Conceptions Log 1.txt"
@@ -258,6 +268,29 @@ class Budget(unittest.TestCase):
         save_folder = "C:\\Users\\A Player With A Long Name\\OneDrive - Household\\Documents\\LDW\\" \
                       "Virtual Villagers - The Tree of Life - Modded 256 Test"
         self.assertLessEqual(len(save_folder) + 1 + copies.COPY_RELATIVE_MAX, 259)
+
+    def test_every_backed_up_file_fits_the_budget(self) -> None:
+        """Back Up Saves: a backup's folder is "Backups\\<yyyy-mm-dd hhmm>[ <n>]" (Copy Player Slot's replaced
+        files "Backups\\<yyyy-mm-dd hhmm> S<slot>[ <n>]"): the patcher's deepest file (118 characters) is at
+        most 148 deep there.  And a file that would still run past 259 in a backup (an older build's long
+        copy) is kept under "Long Paths (Fun Patcher)\\<n> <name, at most 40>": at most 100 deep."""
+        when = datetime(2026, 11, 20, 23, 59)
+        deepest = len(f"{layout.SAVES}\\Save 1\\{layout.SAVE_LOGS}\\Births and Conceptions\\"
+                      "Virtual Villagers 3 Births and Conceptions Log 1.txt")
+        backup_dir = len(f"{backup.BACKUPS_FOLDER}\\{backup.short_backup_name(when, 999)}\\")
+        aside_dir = len(f"{backup.BACKUPS_FOLDER}\\{when:%Y-%m-%d %H%M} S5 999\\")
+        self.assertLessEqual(backup_dir + deepest, 148)
+        self.assertLessEqual(aside_dir + deepest, 148)
+        stored = backup._long_path_name(999999, "Virtual Villagers 1 " + "x" * 300 + ".dat")
+        self.assertLessEqual(len(stored), 47)
+        long_place = backup_dir + len(backup.LONG_PATHS) + 1 + len(stored)
+        self.assertLessEqual(long_place, 100)
+        # The owner's longest save folder (OneDrive Documents, "... Modded 256 LiveCheck97 IF NoBC") fits
+        # every backed-up file of the patcher's own; any save folder up to 158 characters fits the Long Paths.
+        owners = "C:\\Users\\Owner\\OneDrive\\Documents\\LDW\\" \
+                 "Virtual Villagers - The Tree of Life - Modded 256 LiveCheck97 IF NoBC"
+        self.assertLessEqual(len(owners) + 1 + backup_dir + deepest, 259)
+        self.assertLessEqual(158 + 1 + long_place, 259)
 
     def test_short_names_stay_readable(self) -> None:
         self.assertEqual(copies.short_name("Virtual Villagers 1 Parentage Records - Save 1.dat"),
