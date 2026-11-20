@@ -77,12 +77,25 @@ class GodPowers(unittest.TestCase):
                  if name not in ("Revive", "Sunshine", "Tempest", "Time Warp", "Grant Youth")]
         words += ["0x422EB0", "0x4234A0", "0x498840", "0x4CA000", "Divine Energy", "Spell"]
         data = ROOT / "data"
+        # Rows that name a power or Divine Energy without changing any power's cost, range, duration, odds or
+        # targets: the two Fog of Doom conversion rows change what a Heathen does while the fog is over the island
+        # (Game Mechanics: Faith, which names both).
+        fog_rows = ("vv5_fog_of_doom_every_heathen_listens_feature.json", "vv5_fog_of_doom_no_restrictions_feature.json")
         for path in [data / "builds.json"] + sorted(data.glob("vv5_*_feature.json")):
+            if path.name in fog_rows:
+                continue
             for row in strings(json.loads(path.read_text(encoding="utf-8"))):
                 if row.endswith(".cieg"):
                     continue    # an island event file's name (sss043_spell_worked.cieg): a story, not a God Power
                 for word in words:
                     if word.lower() not in row.lower():
+                        continue
+                    if word == "Divine Energy" and any(said in row for said in (
+                            # Fix Vanilla Bugs' statue polish (the game's own +1 Divine Energy step, which no action
+                            # asked for): it adds energy, it changes no power (Game Mechanics: Items).
+                            "Polishing the statue", "work event 40 (+1 Divine Energy",
+                            # The Age Speed slider (#799): energy counted per year of age follows the age clock.
+                            "faith and Divine Energy, counted per year of age, follow too")):
                         continue
                     self.assertIn("Reanimate", row, f"{path.name}: {word}: {row[:160]}")
 
