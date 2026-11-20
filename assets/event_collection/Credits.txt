@@ -5301,4 +5301,4 @@ THE LIVING EVENT ENGINE (source: Isola_ALL_IN_ONE_Modular_Living_Event_Engine.tx
 
 CREDITS: Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).
 
-Its situation seeds, roles, personalities, approaches and outcomes (the Living Engine bank, lines 23812-25133) and its authored situations and outcomes (MC, lines 25134-26616) are combined by the patcher into the events in living-*.pak; the same credit covers both.
+Its situation seeds, roles, personalities, approaches and outcomes (the Living Engine bank, lines 23812-25133) and its authored situations and outcomes (MC, lines 25134-26616) are combined by the patcher into the events in *.pak; the same credit covers both.

@@ -4,7 +4,7 @@
     Select All, not in Classic VV Difficulty, needing Story / Cheat Upgrades and Scrolling Popups -- each said in
     bold, both ticked by Owner's Defaults and by ticking the row -- and pinning every file
     it ships (the shipped rows are what the build makes now);
-  * the files: "<game folder>\\Virtual Villagers Fun Patcher Files\\Island Event Collection\\" (src/patcher_files.py),
+  * the files: "<game folder>\\Virtual Villagers Fun Patcher Files\\Events\\" (src/patcher_files.py),
     each game's own manifest.txt and .cieg files, and the credits;
   * the credits: the source's ledger (lines 1-91) and every section's credit block, byte for byte the frozen source's;
   * the build on a fixture event (tests/data/cie_v6_gardening.json, The Gardening Contest): compiled, listed only in
@@ -154,8 +154,8 @@ class TheRows(unittest.TestCase):
             self.assertEqual(row["patches"], [])
             names = [item["destination"] for item in row["companion_files"]]
             # one manifest per source section and per living series (living-pack.md 1)
-            self.assertTrue(any(n.startswith("Island Event Collection/manifest-") and n.endswith(".txt") for n in names))
-            self.assertIn(f"Island Event Collection/{build.CREDITS_NAME}", names)
+            self.assertTrue(any(n.startswith("Events/") and n.endswith(".lst") for n in names))
+            self.assertIn(f"Events/{build.CREDITS_NAME}", names)
             for item in row["companion_files"]:
                 with self.subTest(game=game, file=item["destination"]):
                     data = (ROOT / item["source"]).read_bytes()
@@ -219,7 +219,9 @@ class TheBuild(unittest.TestCase):
                 self.assertEqual(list((assets / f"vv{game}").glob("manifest-*.txt")), [])   # no event: no manifest
                 self.assertEqual(len(rows[game]["companion_files"]), 1)                    # the credits
             files = {i["destination"]: i for i in rows[3]["companion_files"]}
-            item = files["Island Event Collection/vv3_gardening_contest.cieg"]
+            number = build.file_numbers(["vv3_gardening_contest"])["vv3_gardening_contest"]
+            self.assertEqual(line[0].split("\t")[10], str(number))           # its file column: "<number>.cieg"
+            item = files[f"Events/{number}.cieg"]
             self.assertEqual(item["sha256"], hashlib.sha256(cieg.read_bytes()).hexdigest().upper())
             self.assertIn("1 events in this game", rows[3]["description"])
             self.assertIn(b"The Gardening Contest (source lines 3043-3096):", docs.read_bytes())

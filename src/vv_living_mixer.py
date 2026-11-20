@@ -1,5 +1,5 @@
 """The Living Event Engine's mixer: the owner's bank (data/living_events/bank.json) composed into ordinary version 6
-graphs at build time, and packed per game as "Island Event Collection\\living.pak" (docs/event-collection/
+graphs at build time, and packed per game as "Events\\<group>.pak" (docs/event-collection/
 living-pack.md, VLEP v1).
 
 * K variants per active seed (LE 120, MC 95; MJ is held), deterministic (each seed's own random stream, seeded from

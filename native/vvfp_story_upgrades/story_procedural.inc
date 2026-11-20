@@ -1,4 +1,4 @@
-/* ---- Procedural island events: composed at draw time from pieces-<group>.pcb (v1.35.97) ----------------------
+/* ---- Procedural island events: composed at draw time from <group>.pcb (v1.35.97) ----------------------
 
    The owner (2026-11-15): "so everything has a chance of showing up and can be mixed with anything. procedural
    generation."  docs/event-collection/procedural-pieces.md is the contract: the VPCB v1 piece files the data side
@@ -220,7 +220,7 @@ static int pc_compatible(const unsigned char *a, const unsigned char *b) {
     return (pc_u32(a + 24) & pc_u32(b + 28)) == 0u && (pc_u32(b + 24) & pc_u32(a + 28)) == 0u;
 }
 
-/* The group `g` (pieces-<name>.pcb) read into pc_buf and checked; 1 when it is there. */
+/* The group `g` (<name>.pcb) read into pc_buf and checked; 1 when it is there. */
 static int pc_load(int g) {
     unsigned int size = 0;
     if (g < 0 || g >= pc_group_count) {
@@ -250,7 +250,7 @@ static int pc_load(int g) {
     {
         char leaf[PC_GROUP_BYTES + 16];
         wchar_t path[VVFP_PATCHER_FILES_PATH_CAP];
-        wsprintfA(leaf, "pieces-%s.pcb", pc_groups[g].name);
+        wsprintfA(leaf, "%s.pcb", pc_groups[g].name);
         if (sc_path(path, leaf) == 0 || !sc_read_w(path, pc_buf, PC_FILE_MAX, &size)) {
             sc_problem("A procedural events' pieces file could not be read (or is past 1 MB): skipped.");
             return 0;
@@ -275,7 +275,7 @@ static int pc_setups(int game, unsigned int filters) {
     return n;
 }
 
-/* Every pieces-<group>.pcb of the collection's folder, each weighed by its usable setups (section 4).  The count. */
+/* Every <group>.pcb of the collection's folder, each weighed by its usable setups (section 4).  The count. */
 static int pc_index(int game) {
     unsigned int filters = sc_filters_on(game);
     int g;
@@ -297,25 +297,15 @@ static int pc_index(int game) {
         wchar_t pattern[VVFP_PATCHER_FILES_PATH_CAP];
         WIN32_FIND_DATAW found;
         HANDLE find;
-        if (sc_path(pattern, "pieces-*.pcb") == 0
+        if (sc_path(pattern, "*.pcb") == 0
             || (find = FindFirstFileW(pattern, &found)) == INVALID_HANDLE_VALUE) {
             return 0;
         }
         do {
             char name[PC_GROUP_BYTES];
-            int n = 0, ok = 1, k;
-            const wchar_t *w = found.cFileName + 7;          /* past "pieces-" */
-            for (k = 0; w[k] != L'\0' && !(w[k] == L'.' && lstrcmpiW(w + k, L".pcb") == 0); ++k) {
-                wchar_t c = w[k];
-                if (n + 1 >= 25 || !((c >= L'a' && c <= L'z') || (c >= L'0' && c <= L'9') || c == L'_')) {
-                    ok = 0;
-                    break;
-                }
-                name[n++] = (char)c;
-            }
-            name[n] = '\0';
-            if (!ok || n == 0 || (found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-                sc_problem("A procedural events' pieces file's name is not pieces-<letters, digits or _>.pcb: skipped.");
+            if (!sc_group_of(found.cFileName, L".pcb", name, PC_GROUP_BYTES)
+                || (found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+                sc_problem("A procedural events' pieces file's name is not <letters, digits or _>.pcb: skipped.");
                 continue;
             }
             if (!story_grow((void **)&pc_groups, &pc_group_cap, pc_group_count + 1, sizeof(pc_group))) {

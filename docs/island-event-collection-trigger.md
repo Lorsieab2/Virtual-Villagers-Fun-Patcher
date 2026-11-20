@@ -69,7 +69,7 @@ Pick Island Event and Custom Island Events (player-chosen) ignore the 61 and the
 ## The files
 
 `scripts/build_event_collection_features.py` compiles every event under `data/event_collection/`
-and writes, for each game, `Virtual Villagers Fun Patcher Files\Island Event Collection\` with the
+and writes, for each game, `Virtual Villagers Fun Patcher Files\Events\` with the
 game's `.cieg` files, `manifest.txt` (`id<TAB>title<TAB>games<TAB>draw weight<TAB>series<TAB>credit`)
 and `Credits.txt` (the source's credit ledger, lines 1-91, and every
 section's credit block, verbatim; then each event's own credit).

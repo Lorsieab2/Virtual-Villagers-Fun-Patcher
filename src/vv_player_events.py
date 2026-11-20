@@ -1,5 +1,5 @@
 """Player Events (v1.35.97; the owner, 2026-11-15): island events and procedural mixer pieces a player writes in plain
-text files, checked and compiled at patch time into the game's "Island Event Collection".
+text files, checked and compiled at patch time into the game's "Events" folder (the collection's).
 
 The owner: "if the player wants to add more they add text files to the mixer/additional events folders/sections in
 the patcher in each game. or the event creator there accommodates them." and "in that patcher section, add a default
@@ -121,16 +121,16 @@ def theme_hit(themes: Iterable[str], favour: Iterable[str]) -> bool:
 RULES_NAME = "Your Rules and Themes.txt"
 SETTINGS_NAME = "Player Events Settings.json"
 FORMAT_DOC = ROOT / "docs" / "player-events-format.md"
-COLLECTION_FOLDER = "Island Event Collection"
+COLLECTION_FOLDER = "Events"                               # the collection's folder (short names: no "Path too long")
 PATCHER_FILES = "Virtual Villagers Fun Patcher Files"
 INSTALLED_FOLDER = "Player Events"                         # beside the collection, in the game's patcher folder
 GAME_NAMES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
               5: "New Believers"}
 ID_PREFIX = "pl_"
-GROUP_PREFIX = "pl_"                 # a player file's group: manifest-pl_<x>.txt, pieces-pl_<x>.pcb, pl_<x>_<n>.cieg
+GROUP_PREFIX = "pl_"                 # a player file's group: pl_<x>.lst, pl_<x>.pcb; its events p<n>.cieg
 VV1_ID_MAX = 22
 ID_MAX = 30
-GROUP_NAME_MAX = 9                   # "manifest-<group>.txt" within VV1's 22-character file names (the collection's rule)
+GROUP_NAME_MAX = 9                   # a group's name, as short as the collection's own (its manifest "<group>.lst")
 THEME_FAVOUR = 3                     # a favoured theme's events and pieces weigh this much more in the draw
 MAX_DRAW_WEIGHT = cie.MAX_WEIGHT
 GUARDIANS_PATCH = "guardians_of_isola"
@@ -2921,7 +2921,8 @@ def group_name(stem: str, taken: set[str]) -> tuple[str, str]:
     return name, note
 
 
-def manifest_line(game: int, c: Compiled) -> str:
+def manifest_line(game: int, c: Compiled, file: str = "") -> str:
+    """The event's manifest row; `file` (column 11) names its compiled file "<file>.cieg" (else its id does)."""
     title = " ".join(cie.event_title(c.graph, game).split())
     extra = ["", ""]
     if game == 5:
@@ -2929,7 +2930,7 @@ def manifest_line(game: int, c: Compiled) -> str:
         extra = [alt if alt != title else "", ""]
     clean = lambda s: " ".join(str(s).replace("\t", " ").split())   # noqa: E731
     return "\t".join([c.id, clean(title), ",".join(map(str, c.games)), str(c.weight), clean(c.series),
-                      clean(c.credit), clean(c.description)[:150]] + extra)
+                      clean(c.credit), clean(c.description)[:150]] + extra + (["", file] if file else []))
 
 
 @dataclass
@@ -2950,6 +2951,7 @@ def compile_folder(game: int, folder: Path, settings: Settings) -> tuple[dict[st
     taken: set[str] = set()
     used_ids: set[str] = set()
     cap = VV1_ID_MAX if game == 1 else ID_MAX
+    number = 0                       # the player's events are "p1.cieg", "p2.cieg"...: short names, never a path
     for path in sorted(folder.glob("*.txt"), key=lambda p: p.name.lower()):
         if path.name in (RULES_NAME, PROMPT_NAME) + OWNER_FILES:
             continue
@@ -3014,11 +3016,12 @@ def compile_folder(game: int, folder: Path, settings: Settings) -> tuple[dict[st
             if game not in c.games:
                 continue
             c.weight = min(MAX_DRAW_WEIGHT, c.weight * m)
-            out[f"{ident}.cieg"] = c.cieg
-            rows.append(manifest_line(game, c))
+            number += 1
+            out[f"{PLAYER_FILE_PREFIX}{number}.cieg"] = c.cieg
+            rows.append(manifest_line(game, c, f"{PLAYER_FILE_PREFIX}{number}"))
             report.installed.append(f"{path.name}: {c.title}")
         if len(rows) > 2:
-            out[f"manifest-{group}.txt"] = ("\n".join(rows) + "\n").encode("utf-8")
+            out[f"{group}{MANIFEST_EXT}"] = ("\n".join(rows) + "\n").encode("utf-8")
         if pieces:
             data, probs = compile_pieces(pieces, game, mult)
             report.skipped += [str(p) for p in probs if p.kind == "problem"]
@@ -3026,22 +3029,28 @@ def compile_folder(game: int, folder: Path, settings: Settings) -> tuple[dict[st
                              for p in probs if p.kind == "flavor"]
             report.notes += [str(p) for p in probs if p.kind == "note"]
             if data:
-                out[f"pieces-{group}.pcb"] = data
+                out[f"{group}.pcb"] = data
                 report.pieces += len(pieces)
     return out, report
 
 
+PLAYER_FILE_PREFIX = "p"             # a player's event file: "p<n>.cieg" (the collection's own are "<n>.cieg")
+MANIFEST_EXT = ".lst"                # a group's manifest: "<group>.lst" (story_collection.inc SC_MANIFEST_EXT)
+_OWNED = re.compile(rf"(?i)^(?:{GROUP_PREFIX}[a-z0-9_]*\.(?:lst|pcb)|{PLAYER_FILE_PREFIX}\d+\.cieg"
+                    # ... and the names an older patcher gave them
+                    rf"|manifest-{GROUP_PREFIX}[a-z0-9_]*\.txt|pieces-{GROUP_PREFIX}[a-z0-9_]*\.pcb"
+                    rf"|{ID_PREFIX}[a-z0-9_]*\.cieg)$")
+
+
 def _owned(name: str) -> bool:
-    low = name.lower()
-    return (low.startswith(f"manifest-{GROUP_PREFIX}") and low.endswith(".txt")) or \
-        (low.startswith(f"pieces-{GROUP_PREFIX}") and low.endswith(".pcb")) or \
-        (low.startswith(ID_PREFIX) and low.endswith(".cieg"))
+    """A file of the collection's folder that Player Events wrote (now or under an older patcher's names)."""
+    return _OWNED.match(name) is not None
 
 
 def install(game: int, game_folder_path: Path, source: Path | None = None, settings: Settings | None = None,
             root: Path | None = None) -> InstallReport:
-    """Write the game's player events into "<game folder>\\Virtual Villagers Fun Patcher Files\\Island Event
-    Collection" (this patcher's own earlier files there replaced; nothing else touched), and the AI prompt, the tone
+    """Write the game's player events into "<game folder>\\Virtual Villagers Fun Patcher Files\\Events" (this
+    patcher's own earlier files there replaced; nothing else touched), and the AI prompt, the tone
     reference and a copy of the player's files into "...\\Player Events"."""
     source = source or game_folder(game, root)
     settings = settings or load_settings(game, root)

@@ -72592,6 +72592,34 @@
    "mechanism": "b",
    "context": "Game Mechanics window (the tick box beside Auto-refresh: show only the vital statistics and numbers)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_collection.sc_index.s0",
+   "english": "A collection manifest's name is not <letters, digits or _>.lst: skipped.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_index.s2",
+   "english": "A procedural events' pieces file's name is not <letters, digits or _>.pcb: skipped.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
   }
  ]
 }

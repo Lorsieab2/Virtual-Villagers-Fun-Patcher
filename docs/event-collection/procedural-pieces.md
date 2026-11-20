@@ -7,12 +7,12 @@ side writes and the engine (and its Python twin, which must make exactly the sam
 
 ## 1. Files
 
-`<game folder>\Virtual Villagers Fun Patcher Files\Island Event Collection\pieces-<group>.pcb`
+`<game folder>\Virtual Villagers Fun Patcher Files\Events\<group>.pcb`
 
 - `<group>`: `[a-z0-9_]`, at most 24 characters. One file per topic (or topic and mood); a file holds every kind of
   piece its events need, so most compositions use one file.
 - Sanity limit: 1 MB a file. A file past it, damaged (CRC, offsets, counts) or of another version is skipped whole
-  and logged once in `Island Event Collection\Problems.txt`; the other files still work.
+  and logged once in `Events\Problems.txt`; the other files still work.
 - All numbers little-endian. Strings are ASCII (the games' text set: letters, digits, space, `. , ! ? : - ' "` and
   the placeholders below), NUL-ended, in one string table; a string reference is a u32 offset into it,
   `0xFFFFFFFF` = none.
@@ -225,7 +225,7 @@ holds, and (flags bit 1) the game is New Believers or the flag is clear.
 
 ## 4. In the draw
 
-Procedural events are one more source in the natural draw: each `pieces-<group>.pcb` counts as a file whose weight is
+Procedural events are one more source in the natural draw: each `<group>.pcb` counts as a file whose weight is
 its usable setups' count (the static and living files keep theirs), so the owner's equal odds per event hold among
 the sources; in the draw's one weighted pick they come after More Island Events' events and the collection's files,
 in the order the folder lists them. Pick Island Event and the library list each usable setup as one row

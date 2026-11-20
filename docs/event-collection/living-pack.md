@@ -12,9 +12,11 @@ ASCII.
 ## 1. What ships
 
 - **Split files (the owner, 2026-11-15; the engine's layout, feat/97-island-events-ui 70df06497).** In
-  `"<game folder>\Virtual Villagers Fun Patcher Files\Island Event Collection\"`: every static event's
-  `<id>.cieg`; one `manifest-<group>.txt` per source section and one per living series (the line format below,
-  `#` comments; at most 1 MB and 4,096 rows a file, a series never split across files); one `living-<group>.pak`
+  `"<game folder>\Virtual Villagers Fun Patcher Files\Events\"` (short names, the owner 2026-11-19: no "Path too
+  long"; the repository keeps the long names under `assets/event_collection/`): every static event's
+  `<number>.cieg` (`data/event_collection/file_numbers.tsv`, named in its row's file column); one `<group>.lst`
+  (`manifest-<group>.txt` here) per source section and one per living series (the line format below,
+  `#` comments; at most 1 MB and 4,096 rows a file, a series never split across files); one `<group>.pak` (`living-<group>.pak` here)
   per living series (`living_le_<cat>` -> `le_<cat>`, `living_mc_<cat>` -> `mc_<cat>`, `living_st_<source>` ->
   `st_<source>`), its seeds and variants local to it; `Credits.txt` stays one file. A group is `[a-z0-9_]`, kept
   short so every path stays inside VV1's deep-folder limit (a file name of at most 22 characters, as a `.cieg`'s
@@ -30,7 +32,7 @@ ASCII.
   (the owner, 2026-11-16) gets up to three versions that recast its villagers and leave out a different one of its
   random outcomes each (where a random page has three or more), the frame on one where it casts two villagers
   outside a catalogue, nature, grief, loss, illness or death scene, or else one version that only recasts.
-- **One manifest row per seed** in its series' `manifest-<group>.txt` (the collection's own line format,
+- **One manifest row per seed** in its series' `<group>.lst` (the collection's own line format,
   `story_collection.inc sc_scan`), only for the seeds the game's packs hold:
 
   | Field | Value |
@@ -49,7 +51,7 @@ ASCII.
   no Guardians variants: an event reads the same with the patch on and off. A future line that needs it takes the
   collection's own Guardians variants (cie-v6-binary.md 18, guardians-wording.md);
   `tests/test_living_runtime.py GuardiansOfIsola` fails the day one appears without them.
-- **The id prefix `living_`** tells the engine that the row's event is in its series' `living-<group>.pak`, not in `<id>.cieg`. No
+- **The id prefix `living_`** tells the engine that the row's event is in its series' `<group>.pak`, not in a `.cieg`. No
   `living_*.cieg` file ever ships. The manifest row's id equals the pack's seed id (2.2).
 - MJ (the 35 held seeds) has no rows and no variants until the owner's outcomes arrive.
 
