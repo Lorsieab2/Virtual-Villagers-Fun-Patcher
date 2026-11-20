@@ -20,6 +20,13 @@
 
 #define CE_TITLE_BYTES 48           /* the event's own title */
 #define CE_TEXT_BYTES 600           /* the event's description */
+/* PRACTICALLY UNLIMITED TEXT (the owner, 2026-11-16: "With the scrollbar patch active, Custom Island Events should
+   have a practically unlimited character and word count for any text").  With Scrolling Popups a library event's
+   texts are limited only by these sanity caps, sized to the file (story_graph.inc CG_MAX_FILE); the dialog's own
+   field holds the text's start and Scrolling Popups draws the whole (native/shared/one_popup.h). */
+#define CE_LONG_TEXT_MAX 100000     /* a popup's text, and a node's, in bytes */
+#define CE_LONG_LINE_BYTES 4096     /* a title or a choice's label, NUL included */
+#define CE_LONG_BUF (CE_LONG_TEXT_MAX + 8192)   /* a popup's text as composed (its title line, the gap, the refusals) */
 #define CE_NAME_BYTES 28            /* a villager name: the longest game field (A New Home's
                                        0x1C, NUL included); each game takes its own */
 #define CE_SKILLS 6

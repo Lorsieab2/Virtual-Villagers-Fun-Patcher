@@ -90,7 +90,10 @@ HELP_TEXT = (
     "Fitting on the screen\n"
     "Text never runs off the screen: the fit meter shows how many pages each game needs for the chosen popup. "
     "When the chosen game has the Scrolling Popups patch (the window reads which patches the game has), a popup "
-    "scrolls, so only the game's text limit counts.\n\n"
+    "scrolls and its text is practically unlimited: a part's text up to 100,000 characters, a title or a choice "
+    "up to 4,095 (a long title wraps, and a choice's box grows to as many lines as its words need). Without it "
+    "the limits stay: 1,990 characters a text, 95 a choice or a title as written, and each popup must fit its "
+    "pages; the game refuses to queue an event with longer texts and says so.\n\n"
     "Saving\n"
     "Save writes the event to the library of the save folder chosen at the top. Events with problems are kept "
     "but the game does not list them until the problems on the Check tab are fixed. Delete moves the event to "
@@ -704,6 +707,16 @@ class Fit:
         return text + (" - too long" if self.over else "")
 
 
+def text_count(used: int, scrolling: bool) -> tuple[str, int]:
+    """A part's text counter and its limit: practically unlimited with the Scrolling Popups patch (the owner,
+    2026-11-16), else the old limit, saying so."""
+    if scrolling:
+        return f"{used:,} of {cg.LONG_TEXT_MAX:,} characters (Scrolling Popups: practically unlimited)", \
+            cg.LONG_TEXT_MAX
+    return (f"{used:,} of {cg.NODE_TEXT_MAX:,} characters (without the Scrolling Popups patch; with it up to "
+            f"{cg.LONG_TEXT_MAX:,})", cg.NODE_TEXT_MAX)
+
+
 def fit_meter(g: dict, nid: str, scrolling: bool) -> dict[int, Fit | None]:
     """For each game the event is made for: how much of the screen the popup holding part `nid` takes at its
     longest (the longest names, every history); None when the part shows no popup on any history."""
@@ -719,8 +732,9 @@ def fit_meter(g: dict, nid: str, scrolling: bool) -> dict[int, Fit | None]:
                     if nid not in pop.nodes:
                         continue
                     if scrolling:
+                        # practically unlimited with Scrolling Popups (cg.LONG_TEXT_MAX, a sanity cap)
                         used = len(pop.worst.encode("ascii", "replace"))
-                        fit = Fit(used, cg.POPUP_TEXT_MAX, "characters", used > cg.POPUP_TEXT_MAX)
+                        fit = Fit(used, cg.LONG_TEXT_MAX, "characters", used > cg.LONG_TEXT_MAX)
                     else:
                         layout = getattr(game, pop.layout)
                         pages, why = cg.paginate(layout, cg.widest_title(g, pop.titles, layout, game), pop.worst,
@@ -1773,8 +1787,8 @@ class Library:
 
     def _count_chars(self, text: str) -> None:
         used = len(text.encode("ascii", "replace"))
-        words = f"{used:,} of {cg.NODE_TEXT_MAX:,} characters"
-        self.chars_label.configure(text=words, foreground=RED if used > cg.NODE_TEXT_MAX else "")
+        words, limit = text_count(used, self.scrolling.get())
+        self.chars_label.configure(text=words, foreground=RED if used > limit else "")
 
     def _text_modified(self, _event=None) -> None:
         if not self.text_box.edit_modified():

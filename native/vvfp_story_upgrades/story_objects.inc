@@ -97,10 +97,15 @@ static void *ce_deliver_object(int game, unsigned int string_table, int title_id
     if (!ce_install_strings(string_table, title_id, body_id, replace_existing)) {
         return NULL;
     }
-    if (!ce_deliver(game, ce_body_text, 2000)) {
+    su_title_whole = NULL;
+    if (!ce_deliver(game, su_long_text, (int)sizeof su_long_text)) {
+        su_title_whole = NULL;
         return NULL;
     }
-    lstrcpynA(ce_title_text, ce_armed_event.title, sizeof ce_title_text);
+    su_put_long(ce_body_text, 2000);  /* one_popup.h: a longer text's start; Scrolling Popups draws the whole */
+    /* the title: a library event's whole (its words may be longer than the event record's title holds) */
+    lstrcpynA(ce_title_text, su_title_whole != NULL ? su_title_whole : ce_armed_event.title, sizeof ce_title_text);
+    su_title_whole = NULL;
     return (void *)1;
 }
 
@@ -255,18 +260,22 @@ static int cs_op_rows(void *dialog, op_rows *out) {
     out->rows = n;
     for (k = 0; k < n && k < OP_MAX_ROWS; ++k) {
         lstrcpynA(out->labels[k], cg_label(k), OP_LABEL_BYTES);
+        if (OP_ROWS_HAS_TEXT(out) && lstrlenA(cg_label(k)) >= OP_LABEL_BYTES) {
+            out->label_text[k] = cg_label(k);   /* a long label whole (one_popup.h) */
+        }
     }
     return 1;
 }
 
-/* The text just made (choice_result) shown: the dialog's own field, and the title in force on it. */
+/* The text just made (su_long_text) shown: the dialog's own field (its start when it is longer: Scrolling Popups
+   draws the whole, one_popup.h), and the title in force on it. */
 static void cs_op_show(void *dialog) {
-    lstrcpynA((char *)dialog + 0x58, choice_result, 2000);
+    su_put_long((char *)dialog + 0x58, 2000);
     lstrcpynA(ce_title_text, cg_op_title(), sizeof ce_title_text);
 }
 
 static int cs_op_pick(void *dialog, int k) {
-    if (!ce_choice_resolve(choice_game, k, choice_result, sizeof choice_result)) {
+    if (!ce_choice_resolve(choice_game, k, su_long_text, (int)sizeof su_long_text)) {
         return 0;
     }
     choice_answered = 1;
@@ -275,7 +284,7 @@ static int cs_op_pick(void *dialog, int k) {
 }
 
 static int cs_op_ok(void *dialog) {
-    if (!cg_op_ok(choice_game, choice_result, sizeof choice_result)) {
+    if (!cg_op_ok(choice_game, su_long_text, (int)sizeof su_long_text)) {
         return 0;
     }
     cs_op_show(dialog);
@@ -358,6 +367,18 @@ __declspec(dllexport) int __stdcall VvfpOnePopupRows(const void *popup, op_rows 
     return mb_op_rows(popup, out);
 }
 
+/* For Scrolling Popups (native/shared/one_popup.h): the whole text of which a dialog's field `shown` holds the start,
+   or NULL. */
+__declspec(dllexport) const char *__stdcall VvfpPopupWholeText(const char *shown) {
+    const char *whole = NULL;
+    __try {
+        whole = op_long_text_whole(&su_whole, shown);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        whole = NULL;
+    }
+    return whole;
+}
+
 __declspec(dllexport) int __stdcall VvfpOnePopupPick(const void *popup, int k) {
     if (popup != NULL && popup == g_ma_op_dialog && g_ma_op != NULL) {
         return ma_op_pick((void *)popup, k);
@@ -394,9 +415,10 @@ static void *choice_object(int game, unsigned int string_table, int title_id, in
     if (!ce_install_strings(string_table, title_id, body_id, replace_existing)) {
         return NULL;
     }
-    if (!ce_choice_begin(game, ce_body_text, 2000)) {
+    if (!ce_choice_begin(game, su_long_text, (int)sizeof su_long_text)) {
         return NULL;
     }
+    su_put_long(ce_body_text, 2000);  /* one_popup.h: a longer text's start; Scrolling Popups draws the whole */
     if (cg_op_begun_take(game)) {
         /* One popup: the whole event in the presenter's dialog (cs_after_ctor), its choices drawn by Scrolling
            Popups; nothing to size for but the text shown first. */

@@ -70,6 +70,8 @@ from vv_fun_patcher import (
     MEAL_MULTIPLIER_RANGE,
     SICKNESS_MULTIPLIER_DEFAULT,
     SICKNESS_MULTIPLIER_RANGE,
+    PARTNER_CARRY_DEFAULT,
+    PARTNER_CARRY_RANGE,
     UNICODE_FONT_DEFAULT_FACE,
     conflict_ids,
     set_unicode_font_face,
@@ -151,8 +153,101 @@ LEGACY_OF_ISOLA_TITLE_COLOUR = "#1e8a3c"
 TITLE_COLOURS = {
     **{patch_id: ("ClassicDifficulty.TCheckbutton", CLASSIC_DIFFICULTY_TITLE_COLOUR)
        for patch_id in CLASSIC_DIFFICULTY_FUN_PATCH_IDS},
+    **{"vv%d_island_events_any_time" % game: ("ClassicDifficulty.TCheckbutton", CLASSIC_DIFFICULTY_TITLE_COLOUR)
+       for game in range(1, 6)},
     LEGACY_OF_ISOLA_FUN_PATCH_ID: ("LegacyOfIsola.TCheckbutton", LEGACY_OF_ISOLA_TITLE_COLOUR),
 }
+# The island events' content controls (the owner, 2026-11-15; scripts/build_island_event_content_features.py):
+# Content Notes is on in Owner's Defaults and off everywhere else; the 28 content filters are off
+# everywhere, Owner's Defaults too.
+ISLAND_EVENT_NOTES_IDS = ["vv%d_island_event_content_notes" % game for game in range(1, 6)]
+# No Safeguards for Island Events (and Additional Events too) ("for masochists"; the owner, 2026-11-15): off everywhere, Owner's Defaults and Select All too.
+ISLAND_EVENT_ANY_TIME_IDS = ["vv%d_island_events_any_time" % game for game in range(1, 6)]
+ISLAND_EVENT_FILTER_IDS = ["vv%d_island_event_filter_f%02d" % (game, n) for game in range(1, 6) for n in range(1, 29)]
+# Each game's Island Events section holds these rows (by the id after "vvN_"), in this order, and the filters below
+# them; the main list leaves them out.
+ISLAND_EVENT_SECTION_ROWS = ("more_island_events", "isola_grand_event_collection", "island_event_content_notes")
+# No Safeguards for Island Events (and Additional Events too) sits under Classic VV Difficulty in the main list (the
+# owner, 2026-11-15), with its title colour -- never ticked by it (off everywhere).
+NO_SAFEGUARDS_TAIL = "island_events_any_time"
+
+
+def place_after_classic(rows: list) -> list:
+    """The game's main-list rows with No Safeguards moved right after Classic VV Difficulty (when the game has it;
+    else it keeps its place by name)."""
+    mine = [r for r in rows if r[0].id.endswith("_" + NO_SAFEGUARDS_TAIL)]
+    if not mine:
+        return rows
+    rest = [r for r in rows if r not in mine]
+    at = next((k for k, r in enumerate(rest) if r[0].id in CLASSIC_DIFFICULTY_FUN_PATCH_IDS), None)
+    if at is None:
+        return rows
+    return rest[:at + 1] + mine + rest[at + 1:]
+ISLAND_EVENT_FILTER_PREFIX = "island_event_filter_"
+
+
+def island_event_section_kind(patch_id: str) -> str | None:
+    """"row" for a row of the Island Events section, "filter" for a content filter, None for the main list."""
+    tail = patch_id.split("_", 1)[1] if "_" in patch_id else patch_id
+    if tail.startswith(ISLAND_EVENT_FILTER_PREFIX):
+        return "filter"
+    return "row" if tail in ISLAND_EVENT_SECTION_ROWS else None
+
+
+# The red content advisories of the island-event rows (the owner, 2026-11-15, word for word), by the id after
+# "vvN_", and the information note shown after them (not red).  Custom Island Events live in Story / Cheat Upgrades.
+ISLAND_EVENT_ADVISORY_COLLECTION = (
+    "CONTENT ADVISORY: These events include occasional illness, injury, grief, death, pregnancy loss and other "
+    "difficult situations. Serious outcomes are rare and described without graphic detail. Some events involve "
+    "difficult choices, uncertainty or lasting consequences. Ordinary village life, kindness and community remain "
+    "central.")
+ISLAND_EVENT_ADVISORY_MORE = (
+    "Content advisory: Some events involve danger, disasters or difficult choices; outcomes are non-graphic.")
+ISLAND_EVENT_ADVISORY_CUSTOM = (
+    "Player-created events may contain sensitive subjects. Their content and outcomes depend on the creator; review "
+    "custom events before enabling them.")
+ISLAND_EVENT_ADVISORY_ANY_TIME = (
+    "Events that can kill a villager, make one disappear or lose a pregnancy can happen even in a small or new village.")
+ISLAND_EVENT_ADVISORY_PICK = (
+    "Warning: Pick Island Event and Custom Island Events ignore the island event safeguards (the 61-villager limit for "
+    "deadly events, rescue events, the opening events and a village in trouble). A picked or custom event can kill a "
+    "villager, make one disappear or lose a pregnancy at any time.")
+ISLAND_EVENT_INFO_NOTE = (
+    "Original game events and their appearance rates remain unchanged. New events can take the place of natural "
+    "island events (never rescue events or the two opening events). "
+    "Includes original and expanded Isola stories; credits are retained where applicable. Optional content controls "
+    "affect added events only.")
+ISLAND_EVENT_ADVISORIES = {
+    "isola_grand_event_collection": (ISLAND_EVENT_ADVISORY_COLLECTION, True),
+    "more_island_events": (ISLAND_EVENT_ADVISORY_MORE, True),
+    # Story / Cheat Upgrades holds Pick Island Event and Custom Island Events: the owner's two warnings (2026-11-15).
+    "story_cheat_upgrades": (ISLAND_EVENT_ADVISORY_CUSTOM + "\n\n" + ISLAND_EVENT_ADVISORY_PICK, False),
+    "island_events_any_time": (ISLAND_EVENT_ADVISORY_ANY_TIME, False),
+}
+ADVISORY_COLOUR = "#c00000"
+# A big red warning at the very top of a row's description (the owner, 2026-11-15), by the id after "vvN_".
+ISLAND_EVENT_BIG_WARNINGS = {
+    "island_events_any_time": "Warning: with this patch on, the game may be unpredictable.",
+}
+
+
+def island_event_big_warning(patch_id: str) -> str | None:
+    tail = patch_id.split("_", 1)[1] if "_" in patch_id else patch_id
+    return ISLAND_EVENT_BIG_WARNINGS.get(tail)
+# The filters never hide a kind of person (the owner, 2026-11-15).
+ISLAND_EVENT_FILTERS_NOTE = (
+    "Applied before the random draw picks an event: a filtered outcome is dropped where the event still makes sense, "
+    "otherwise the event is skipped. Added events only; off everywhere, Owner's Defaults too. Filters never hide a "
+    "kind of person (diversity, disability, identity, sex or gender changes, same-sex relationships, religion, "
+    "romance in general, family forms, singlehood).")
+
+
+def island_event_advisory(patch_id: str) -> tuple[str, bool] | None:
+    """A row's red advisory and whether the information note follows it, or None."""
+    tail = patch_id.split("_", 1)[1] if "_" in patch_id else patch_id
+    return ISLAND_EVENT_ADVISORIES.get(tail)
+
+
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
@@ -244,6 +339,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Isola Grand Event Collection (all five games; the owner, 2026-11-14): "Default ON in Owner's Defaults, OFF
     # everywhere else" -- off here and in Select All, not in Classic VV Difficulty.
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
+    # The island events' content controls (the owner, 2026-11-15): Content Notes on in Owner's
+    # Defaults only; the content filters off everywhere (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS too).
+    + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
     # Change Sex and Gender Presentation (all five games; the owner, 2026-11-15): every new option "ON in Owner's
     # Defaults and OFF everywhere else" -- off here and in Select All.
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
@@ -300,6 +398,9 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner (2026-11-12): Island Events Scale With Stored Food and Tech Points is the alternative, off in
     # Owner's Defaults; Island Events Scale With Population (like The Lost Children) is ticked there instead.
     + ["vv%d_island_events_scale_with_stored_amounts" % game for game in (1, 4, 5)]
+    # The owner (2026-11-15): the island events' content filters are off everywhere, Owner's Defaults too, and so is
+    # No Safeguards for Island Events (and Additional Events too).
+    + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select
@@ -313,6 +414,9 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
     # Isola Grand Event Collection: on in Owner's Defaults only (the owner, 2026-11-14).
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
+    # The island events' content controls (the owner, 2026-11-15): notes on in Owner's Defaults
+    # only, the filters off everywhere.
+    + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
     # Change Sex and Gender Presentation: on in Owner's Defaults only (the owner, 2026-11-15).
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
@@ -401,6 +505,14 @@ def saved_meal_multiplier(settings: dict) -> int:
     value = settings.get("meal_multiplier", MEAL_MULTIPLIER_DEFAULT) if isinstance(settings, dict) else None
     if isinstance(value, bool) or not isinstance(value, int) or value not in MEAL_MULTIPLIER_RANGE:
         return MEAL_MULTIPLIER_DEFAULT
+    return value
+
+
+def saved_partner_carry(settings: dict) -> int:
+    """"A man may carry the baby by chance": the percent a settings file holds, 0 to 100, else the default 10."""
+    value = settings.get("partner_carry_percent", PARTNER_CARRY_DEFAULT) if isinstance(settings, dict) else None
+    if isinstance(value, bool) or not isinstance(value, int) or value not in PARTNER_CARRY_RANGE:
+        return PARTNER_CARRY_DEFAULT
     return value
 
 
@@ -1361,6 +1473,9 @@ class App(tk.Tk):
             self.meal_var = tk.IntVar(value=MEAL_MULTIPLIER_DEFAULT)
             # 2-10x Sickness's multiplier, the third slider (the owner, 2026-11-08): 2 to 10, 2 unless moved.
             self.sickness_var = tk.IntVar(value=SICKNESS_MULTIPLIER_DEFAULT)
+            # "A man may carry the baby by chance" (the owner, 2026-11-16): 0 to 100 percent, 10 unless moved; the
+            # slider and its box in every game's Island Events section share it.
+            self.partner_carry_var = tk.IntVar(value=PARTNER_CARRY_DEFAULT)
             self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
             self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
@@ -1684,6 +1799,7 @@ class App(tk.Tk):
                 font=("Segoe UI", 10, "bold"),
             ).pack(anchor="w", pady=(0, 2))
             rows = []
+            island_rows, island_filters = [], []
             for patch in patches:
                 label = patch.name if shared else f"{patch.name} ({game_name})"
                 # Each row's "?" key is registered and its guide checked now,
@@ -1692,7 +1808,14 @@ class App(tk.Tk):
                 key = vv_how_to_use.patch_key(patch.id)
                 vv_how_to_use.guide(key, label)
                 self.help_keys.add(key)
-                rows.append((patch, label, key))
+                kind = None if shared else island_event_section_kind(patch.id)
+                if kind == "filter":
+                    island_filters.append(patch)
+                elif kind == "row":
+                    island_rows.append((patch, label, key))
+                else:
+                    rows.append((patch, label, key))
+            rows = place_after_classic(rows)
             # The owner: "add a search bar per-game for each patch (name only)".
             search_row = ttk.Frame(page)
             search_row.pack(fill="x", pady=(0, 4))
@@ -1706,6 +1829,8 @@ class App(tk.Tk):
             )
             listing.pack(fill="x")
             self.patch_searches[game_name] = (search_var, listing, rows)
+            if island_rows or island_filters:
+                self._build_island_events_section(page, game_name, island_rows, island_filters, styles)
             search_var.trace_add(
                 "write",
                 lambda *_args, name=game_name: self._filter_patch_page(name),
@@ -1762,6 +1887,65 @@ class App(tk.Tk):
             side="right", anchor="e", padx=(0, 4), pady=(8, 0)
         )
 
+    def _build_island_events_section(self, page, game_name: str, island_rows: list, filters: list,
+                                     styles) -> None:
+        """The game's Island Events section (the owner, 2026-11-15): the island-event rows (More Island Events, the
+        Isola Grand Event Collection, Content Notes) in a list of their own, then the content filters
+        as a grid of ticks.  Its rows are the same rows as everywhere: the same variables, guides and rules."""
+        requirement_font, description_font, background = styles
+        box = ttk.LabelFrame(page, text=f"Island Events ({game_name})", padding=(8, 4, 8, 6))
+        box.pack(fill="x", pady=(8, 0))
+        order = {tail: k for k, tail in enumerate(ISLAND_EVENT_SECTION_ROWS)}
+        island_rows = sorted(island_rows, key=lambda r: order.get(r[0].id.split("_", 1)[1], len(order)))
+        if island_rows:
+            listing = VirtualList(
+                box, island_rows,
+                lambda frame, row, styles=styles: self._build_patch_row(frame, row, styles),
+            )
+            listing.pack(fill="x")
+            if any(r[0].id.endswith("_more_island_events") for r in island_rows):
+                self._build_partner_carry(box)
+        if not filters:
+            return
+        head = ttk.Frame(box)
+        head.pack(fill="x", pady=(8, 2))
+        ttk.Label(head, text="Content filters (added events only)", font=requirement_font).pack(side="left")
+        self._help_button(head, "island_event_content_filters").pack(side="left", padx=(4, 0))
+        ttk.Label(box, text=ISLAND_EVENT_FILTERS_NOTE, wraplength=640, justify="left").pack(anchor="w", pady=(0, 4))
+        grid = ttk.Frame(box)
+        grid.pack(fill="x")
+        filters = sorted(filters, key=lambda p: p.id)
+        half = (len(filters) + 1) // 2
+        for k, patch in enumerate(filters):
+            # A tick and its words beside it, wrapped to the column (a long name never runs off the page); a click
+            # on the words ticks it too.
+            cell = ttk.Frame(grid)
+            cell.grid(row=k % half, column=k // half, sticky="nw", padx=(0, 12), pady=1)
+            variable = self.fun_patch_vars[patch.id]
+            ttk.Checkbutton(cell, variable=variable, command=self._fun_patch_changed).pack(side="left", anchor="n")
+            words = ttk.Label(cell, text=patch.name.removeprefix("Content Filter: "), wraplength=270,
+                              justify="left")
+            words.pack(side="left", anchor="n")
+            words.bind("<Button-1>", lambda _e, v=variable: (v.set(not v.get()), self._fun_patch_changed()))
+
+    def _build_partner_carry(self, box) -> None:
+        """"A man may carry the baby by chance" (the owner, 2026-11-16: "Or the player sets it!"): with More Island
+        Events, how often the partner carries instead in a couple's pregnancy of a new event that allows it -- a
+        slider and a box to type in, 0 to 100 percent, 10 unless moved (Owner's Defaults 10 too).  0: never by
+        chance (an event's own reason, or a choice, still can)."""
+        group = ttk.Frame(box)
+        group.pack(fill="x", pady=(6, 0))
+        ttk.Label(group, text="A man may carry the baby by chance (%):").pack(side="left", padx=(0, 4))
+        tk.Scale(group, variable=self.partner_carry_var, orient="horizontal", from_=PARTNER_CARRY_RANGE[0],
+                 to=PARTNER_CARRY_RANGE[-1], resolution=1, length=160, showvalue=False,
+                 command=lambda _value: self._save_settings()).pack(side="left")
+        entry = ttk.Spinbox(group, from_=PARTNER_CARRY_RANGE[0], to=PARTNER_CARRY_RANGE[-1], increment=1, width=5,
+                            textvariable=self.partner_carry_var, command=self._save_settings)
+        entry.pack(side="left", padx=(6, 0))
+        entry.bind("<FocusOut>", lambda _e: (self.partner_carry_var.set(self._partner_carry()), self._save_settings()))
+        entry.bind("<Return>", lambda _e: (self.partner_carry_var.set(self._partner_carry()), self._save_settings()))
+        self._help_button(group, "partner_carry_percent").pack(side="left", padx=(4, 0))
+
     def _build_patch_row(self, frame, row, styles) -> None:
         """Draw one patch: its checkbox and "?", its description with **bold** dependencies, and
         the requirement line.  The checkbox reads the patch's variable, so a row drawn later shows
@@ -1783,20 +1967,36 @@ class App(tk.Tk):
             button.configure(style=title_style)
         button.pack(side="left")
         self._help_button(patch_row, key, label).pack(side="left", padx=(4, 0))
+        line = 1
+        big = island_event_big_warning(patch.id)
+        if big is not None:
+            ttk.Label(frame, text=big, wraplength=620, justify="left", foreground=ADVISORY_COLOUR,
+                      font=("Segoe UI", 12, "bold")).grid(row=line, column=0, sticky="w", pady=(0, 2))
+            line += 1
+        # The island-event rows' content advisory, in red (the owner, 2026-11-15), and the note outside the red.
+        advisory = island_event_advisory(patch.id)
+        if advisory is not None:
+            ttk.Label(frame, text=advisory[0], wraplength=620, justify="left",
+                      foreground=ADVISORY_COLOUR).grid(row=line, column=0, sticky="w", pady=(0, 2))
+            line += 1
+            if advisory[1]:
+                ttk.Label(frame, text=ISLAND_EVENT_INFO_NOTE, wraplength=620,
+                          justify="left").grid(row=line, column=0, sticky="w", pady=(0, 2))
+                line += 1
         RichDescription(frame, row_description(patch), 620, requirement_font,
-                        description_font, background).grid(row=1, column=0, sticky="w", pady=(0, 3))
+                        description_font, background).grid(row=line, column=0, sticky="w", pady=(0, 3))
         ttk.Label(
             frame,
             text=patch_requirement_text(patch, self.fun_patches),
             wraplength=620,
             font=requirement_font,
-        ).grid(row=2, column=0, sticky="w", pady=(0, 6))
+        ).grid(row=line + 1, column=0, sticky="w", pady=(0, 6))
         # A patch that can never be built with another: greyed, with the reason, while the
         # other is ticked (refresh_conflict_rows).
         if any(conflict_ids(other) and (other.id == patch.id or patch.id in conflict_ids(other))
                for other in self.fun_patches):
             reason = ttk.Label(frame, text="", wraplength=620, font=styles[0], foreground="#9a3412")
-            reason.grid(row=3, column=0, sticky="w", pady=(0, 6))
+            reason.grid(row=line + 2, column=0, sticky="w", pady=(0, 6))
             self._conflict_rows[patch.id] = (button, reason)
             refresh_conflict_rows(self)
 
@@ -2511,6 +2711,8 @@ class App(tk.Tk):
         for name in ("tech_cost_var", "meal_var", "sickness_var"):
             if hasattr(self, name):
                 getattr(self, name).set(OWNERS_DEFAULT_SLIDER)
+        if hasattr(self, "partner_carry_var"):
+            self.partner_carry_var.set(PARTNER_CARRY_DEFAULT)     # 10% in Owner's Defaults too
         # Prerequisites yes, co-ticks no: Story / Cheat Upgrades must not tick its cost row back on (the owner,
         # 2026-11-07: cost row off in Owner's Defaults).
         self._last_fun_selection = set()
@@ -2675,6 +2877,8 @@ class App(tk.Tk):
             self.meal_var.set(saved_meal_multiplier(data))
         if hasattr(self, "sickness_var"):
             self.sickness_var.set(saved_sickness_multiplier(data))
+        if hasattr(self, "partner_carry_var"):
+            self.partner_carry_var.set(saved_partner_carry(data))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
             for build in self.builds:
@@ -2722,6 +2926,8 @@ class App(tk.Tk):
                                 else MEAL_MULTIPLIER_DEFAULT),
             "sickness_multiplier": (App._sickness_multiplier(self) if hasattr(self, "sickness_var")
                                     else SICKNESS_MULTIPLIER_DEFAULT),
+            "partner_carry_percent": (App._partner_carry(self) if hasattr(self, "partner_carry_var")
+                                      else PARTNER_CARRY_DEFAULT),
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
             "tree_window": self.tree_window,
@@ -2750,6 +2956,14 @@ class App(tk.Tk):
         except (tk.TclError, ValueError, AttributeError):
             value = MEAL_MULTIPLIER_DEFAULT
         return value if value in MEAL_MULTIPLIER_RANGE else MEAL_MULTIPLIER_DEFAULT
+
+    def _partner_carry(self) -> int:
+        """"A man may carry the baby by chance": the slider's percent, kept within 0 to 100."""
+        try:
+            value = int(self.partner_carry_var.get())
+        except (tk.TclError, ValueError, AttributeError):
+            value = PARTNER_CARRY_DEFAULT
+        return value if value in PARTNER_CARRY_RANGE else PARTNER_CARRY_DEFAULT
 
     def _sickness_multiplier(self) -> int:
         """The 2-10x Sickness slider's whole number, kept within 2 to 10."""
@@ -3030,6 +3244,7 @@ class App(tk.Tk):
             tech_cost = self._tech_cost_multiplier()
             meals = self._meal_multiplier()
             sickness = self._sickness_multiplier()
+            carry = self._partner_carry()
             preview = self._run_with_wait(
                 f"Please wait\u2026\n\nChecking {build.title}\nand preparing its patches.",
                 lambda: dry_run(
@@ -3064,6 +3279,7 @@ class App(tk.Tk):
                     tech_cost_multiplier=tech_cost,
                     meal_multiplier=meals,
                     sickness_multiplier=sickness,
+                    partner_carry_percent=carry,
                 ),
             )
             self.last_output_dir = output.parent
@@ -3097,6 +3313,7 @@ class App(tk.Tk):
             tech_cost = self._tech_cost_multiplier()
             meals = self._meal_multiplier()
             sickness = self._sickness_multiplier()
+            carry = self._partner_carry()
             validated = self._run_with_wait(
                 "Please wait\u2026\n\nChecking all five original games.",
                 lambda: validate_all_sources(sources),
@@ -3142,6 +3359,7 @@ class App(tk.Tk):
                     tech_cost_multiplier=tech_cost,
                     meal_multiplier=meals,
                     sickness_multiplier=sickness,
+                    partner_carry_percent=carry,
                 ),
             )
             self.last_output_dir = results[0][0].parent

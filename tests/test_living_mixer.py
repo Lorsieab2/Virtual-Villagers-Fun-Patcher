@@ -142,7 +142,7 @@ class TheVariants(unittest.TestCase):
 
     def test_packs_stay_small(self) -> None:
         for game, data in PACKS.items():
-            self.assertLess(len(data), 4_000_000, game)
+            self.assertLess(len(data), 8_000_000, game)   # the content controls made them larger (2026-11-16)
 
     def test_manifest_rows(self) -> None:
         for game in mx.GAMES:

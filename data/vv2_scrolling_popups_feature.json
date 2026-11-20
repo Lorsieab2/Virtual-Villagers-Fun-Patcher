@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv2",
   "name": "Scrolling Popups",
-  "description": "Popups get scrollbars when their text does not fit: a popup is never taller or wider than the screen (its buttons stay at its bottom, where they always are), and when its text is taller than the room left, or wider than the box (a long line, or one very long word), a vertical and/or a horizontal scrollbar appears, drawn with the game's own scrollbar pictures; every popup below can show both at once. A New Home and The Lost Children have no up/down scrollbar pictures of their own, so they borrow The Secret City's (shipped as new picture files; no game file is replaced). Scroll up and down with the mouse wheel over the popup, sideways with the wheel over the horizontal bar (or a sideways wheel or touchpad), with the arrows, by dragging the knob or handle or by clicking the bar; the text starts at the top and starts over when it changes. A popup whose text fits looks and works exactly as before. This covers the island-event popups (plain, two-choice and visitor events, and Custom Island Events from Story / Cheat Upgrades; also when the result replaces the question in a popup sized for the question), message boxes (tech and puzzle results, confirmations), tips (the tutorial and notices), the tombstone (a long name, cause of death or translation) and Statistics and Create Nickname (a long translation or name). Not covered, as the game draws them: the Options panel (each label sits beside its slider or button, which cannot scroll with it), the online-statistics notice (shown for two seconds, takes no clicks, a fixed 320 x 64 frame) and the panels with no text body (Change Player, the outfit chooser). There is no keyboard scrolling. Nothing is saved, so the patch can be ticked or unticked at any time. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP Scrolling Popups.dll\", started by VVFP Startup.dll; if it cannot be loaded, the popups are as the game draws them.",
+  "description": "Popups get scrollbars when their text does not fit: a popup is never taller or wider than the screen (its buttons stay at its bottom, where they always are), and when its text is taller than the room left, or wider than the box (a long line, or one very long word), a vertical and/or a horizontal scrollbar appears, drawn with the game's own scrollbar pictures; every popup below can show both at once. A New Home and The Lost Children have no up/down scrollbar pictures of their own, so they borrow The Secret City's (shipped as new picture files; no game file is replaced). Scroll up and down with the mouse wheel over the popup, sideways with the wheel over the horizontal bar (or a sideways wheel or touchpad), with the arrows, by dragging the knob or handle or by clicking the bar; the text starts at the top and starts over when it changes. A popup whose text fits looks and works exactly as before. This covers the island-event popups (plain, two-choice and visitor events, and Custom Island Events from Story / Cheat Upgrades; also when the result replaces the question in a popup sized for the question), message boxes (tech and puzzle results, confirmations), tips (the tutorial and notices), the tombstone (a long name, cause of death or translation) and Statistics and Create Nickname (a long translation or name). Not covered, as the game draws them: the Options panel (each label sits beside its slider or button, which cannot scroll with it), the online-statistics notice (shown for two seconds, takes no clicks, a fixed 320 x 64 frame) and the panels with no text body (Change Player, the outfit chooser). With it, Custom Island Events from the library (and the Isola Grand Event Collection) hold practically unlimited text: a text longer than the game's popup holds is shown whole, a long title wraps onto as many lines as it needs (A New Home and The Lost Children lead the text with it), and in every new island event's popup (those and More Island Events') each choice's box grows to as many lines as its words need (the choices below move down; each is clicked anywhere on its box). There is no keyboard scrolling. Nothing is saved, so the patch can be ticked or unticked at any time. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP Scrolling Popups.dll\", started by VVFP Startup.dll; if it cannot be loaded, the popups are as the game draws them.",
   "output_tag": "Scrolling Popups",
   "dependencies": [],
   "conflicts": [],
@@ -16,6 +16,7 @@
     "The tombstone (vtable 0x48FB48, a fixed panel): its body draw draws every line with the centred-block draw, whose call of the core draw (0x4096F1) calls the companion. Through the frame draw's tail the body is drawn once measuring (each line's extent recorded, nothing drawn, the clip empty), and when a line runs past the panel's sides (a long name, Cause of Death's cause line, a translation) the body is drawn with the panel rectangle (which the body draw and Cause of Death's line place everything by) moved by the scroll position, under a clip 16 px in from the sides and above the OK button, with a horizontal bar below the lines; otherwise exactly as before.",
     "The same for Statistics (vtable 0x477640), Create Nickname (vtable 0x47647C): at the text control draw's call (0x40CB77) a line of one of these panels is measured with all the panel's lines (its window's text controls); when one runs past the panel's sides, every line is drawn moved by the scroll position under a clip 16 px in from the sides, above the controls in the panel's lower half (its buttons, a text box), with a horizontal bar below the lines; text boxes, buttons and every panel that fits are drawn exactly as before.",
     "The event pump's `call 0x402070` handing a mouse event to the game (0x403EFE) calls the companion first: a press on a scrollbar of the popup drawn this moment, a knob drag and its release are used by the companion and not passed on; every other event goes to the game unchanged. The wheel is read by an SDL event watch (SDL_AddEventWatch, SDL_MOUSEWHEEL).",
+    "PRACTICALLY UNLIMITED TEXT (one popup per new island event): the companion that shows a text longer than the dialog's field holds puts its start in the field and keeps the whole; the companion measures and draws the whole text wherever it measures or draws the field (each island-event dialog's body draw's second `call 0x4096B0` (0x433299, 0x41F4D5, 0x437545) draws the whole text from the same place when the field holds only its start). The choices drawn after the text wrap each label into as many lines as it needs within its row; the row (the game's answer-button picture, its ends kept and its middle repeated) grows to hold them, the rows below move down, and each row is clicked anywhere on its own height.",
     "The scrollbars are the game's own pictures (WideSlider2.png and sliderhandle.png (its own) and Images\\vvfp_scroll_up/down/track/knob.png (The Secret City's UpArrowButton, DownArrowButton, VerticalScrollTrack and VerticalScrollKnob, borrowed)): Up/DownArrowButton, VerticalScrollTrack fitted to the bar's height, VerticalScrollKnob; the horizontal bar is WideSlider2 fitted to the vertical track's width (18 px) with sliderhandle fitted to the knob's size turned sideways."
   ],
   "explicit_non_changes": [
@@ -27,7 +28,7 @@
     {
       "source": "assets/scrolling_popups/VVFP Scrolling Popups.dll",
       "destination": "VVFP Scrolling Popups.dll",
-      "sha256": "D17CC29D89234C4E91B2DEA7618DA6CB08C0D876FAF5848BF638044D8A86292E"
+      "sha256": "CF979A9A5FABB4A522A0048745F927A0160BCBFF17CB582801ADF7EF70FB5851"
     },
     {
       "source": "assets/scrolling_popups/vvfp_scroll_up.png",
@@ -106,6 +107,27 @@
       "stock_bytes": "E86AFCFFFF",
       "written_bytes": "E8XXXXXXXX",
       "routine": "the centred-block draw's call of the core draw: while the companion measures the tombstone's lines, each line's extent is recorded and nothing is drawn; otherwise the stock call",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x433299",
+      "stock_bytes": "E81264FDFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "an island-event dialog's draw of its text from the first line break: when the dialog's field holds only the start of a longer text (a new island event's), the same call draws the whole text from the same place; otherwise the stock call",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x41F4D5",
+      "stock_bytes": "E8D6A1FEFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "an island-event dialog's draw of its text from the first line break: when the dialog's field holds only the start of a longer text (a new island event's), the same call draws the whole text from the same place; otherwise the stock call",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437545",
+      "stock_bytes": "E86621FDFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "an island-event dialog's draw of its text from the first line break: when the dialog's field holds only the start of a longer text (a new island event's), the same call draws the whole text from the same place; otherwise the stock call",
       "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
     },
     {

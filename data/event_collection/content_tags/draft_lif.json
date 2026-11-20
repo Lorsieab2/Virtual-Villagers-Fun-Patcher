@@ -1,0 +1,486 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_lif",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "lif01_only_until": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lif02_compliment_stuck": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lif03_more_friends": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lif04_smaller_used": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif05_something_said": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif06_full_storehouse": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif07_what_so_worried": {
+   "filters": [
+    "F11"
+   ],
+   "notes": [
+    "Emotional distress"
+   ],
+   "nodes": {
+    "o1": [
+     "F11"
+    ],
+    "setup": [
+     "F11"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lif08_schedule": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lif09_were_you_ever": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lif10_children_helped": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lif11_best_year": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lif12_canoe_under_hut": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif13_thing_got_right": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif14_second_half": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lif15_went_stayed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lif16_wrong_turn": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif17_enough": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lif18_shape_old_grief": {
+   "filters": [
+    "F03",
+    "F07"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F07"
+    ],
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lif19_joke_made": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lif20_busy_years": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif21_wrong_about": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lif22_luck_effort": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lif23_everything_had": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lif24_middle": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif25_ordinary": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "lif26_moment_nobody": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lif27_so_young_after": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif28_would_i_do_again": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif29_right_all_along": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lif30_friend_drifted": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif31_second_try": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lif32_slept_through": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lif33_what_mattered": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lif34_rich_ways": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ]
+   }
+  },
+  "lif35_angry_year": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lif36_being_forgiven": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif37_watching_wedding": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif38_taking_stock": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lif39_happiest_doing": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "o1": [
+     "F04"
+    ]
+   }
+  },
+  "lif40_carver_didnt": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lif41_knew": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F26"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lif42_owes_whom": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif43_long_way_round": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lif44_choice_still": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lif45_late_some_things": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lif46_still_curious": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F26"
+    ],
+    "setup": [
+     "F26"
+    ]
+   }
+  },
+  "lif47_seasons": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif48_best_nothing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lif49_version_left": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lif50_so_far_so_good": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

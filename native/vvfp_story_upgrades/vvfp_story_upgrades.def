@@ -25,7 +25,10 @@ EXPORTS
     VvfpStoryButtonRoom=_VvfpStoryButtonRoom@4
     VvfpStoryMoreEventDue=_VvfpStoryMoreEventDue@4
     VvfpStoryMoreEventDone=_VvfpStoryMoreEventDone@8
+    VvfpStoryNoSafeguards=_VvfpStoryNoSafeguards@4
+    VvfpStoryNewEventPopulation=_VvfpStoryNewEventPopulation@4
     VvfpMultiAnswerGameVtable=_VvfpMultiAnswerGameVtable@8
     VvfpOnePopupRows=_VvfpOnePopupRows@8
     VvfpOnePopupPick=_VvfpOnePopupPick@8
+    VvfpPopupWholeText=_VvfpPopupWholeText@4
     VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16

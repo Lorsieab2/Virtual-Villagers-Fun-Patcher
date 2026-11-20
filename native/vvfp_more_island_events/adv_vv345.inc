@@ -12,7 +12,7 @@
    nothing, the object is this DLL's), so the stock events keep every slot.  These events never take a share of the
    draw (the owner's rule: stock island event chances never change): the selector's loop end (cmp esi, N / jl) jumps
    here only to put the object of the event that is DUE -- picked with Pick Island Event, or drawn by Story / Cheat
-   Upgrades' separate rare roll (story_collection.inc), mie_pick.inc mp_due_object -- in slot 0 (else The Aspiring
+   Upgrades' natural-event replacement (story_collection.inc), mie_pick.inc mp_due_object -- in slot 0 (else The Aspiring
    Adventurer's, which nothing presents), and it adds no entry to the selector's list: the selector draws among the
    stock slots exactly as the stock game does, and Story / Cheat Upgrades' pick then presents slot 0 in place of the
    drawn event (vvfp_story_upgrades.c choose_from_table) when the object's own condition holds.  Slot 0 is put back
@@ -441,11 +441,35 @@ static int t_op_rows(void *dialog, op_rows *out) {
     return 1;
 }
 
+/* The whole text (mop.text, never cut or paged: mop_begin is given MOP_TEXT_BYTES) into a 2,000-byte text field --
+   the dialog's own +0x58, or the string the game's text routine copies into it (its strncat writes one byte past the
+   field for 2,000 bytes or more, so a field gets at most 1,999) -- whole when it fits, else its start, cut at a
+   space (one_popup.h op_long_text_put): Scrolling Popups then draws the whole (VvfpPopupWholeText). */
+#define T_OP_FIELD_BYTES 2000
+static op_long_text g_t_whole;
+static char g_t_start[T_OP_FIELD_BYTES];
+static int t_text_id(const char *text);
+
+static void t_op_put(char *field) {
+    op_long_text_put(&g_t_whole, field, T_OP_FIELD_BYTES, mop.text);
+}
+
+/* The body id carrying the text shown first (its start when longer than the field). */
+static int t_op_text_id(void) {
+    t_op_put(g_t_start);
+    return t_text_id(g_t_start);
+}
+
+/* VvfpPopupWholeText (vvfp_more_island_events.c): the whole text when `shown` is exactly the start put. */
+static const char *t_op_whole(const char *shown) {
+    return g_t_op && mop.active ? op_long_text_whole(&g_t_whole, shown) : NULL;
+}
+
 static int t_op_pick(void *dialog, int k) {
     if (!mop_pick(k)) {
         return 0;
     }
-    lstrcpynA((char *)dialog + 0x58, mop.text, 2000);
+    t_op_put((char *)dialog + 0x58);
     return 1;
 }
 
@@ -453,7 +477,7 @@ static int t_op_ok(void *dialog) {
     if (!mop_ok()) {
         return 0;
     }
-    lstrcpynA((char *)dialog + 0x58, mop.text, 2000);
+    t_op_put((char *)dialog + 0x58);
     return 1;
 }
 
@@ -465,6 +489,8 @@ static void t_op_close(void) {
         mop_end();
         ma_op_forget();
         g_t_op = 0;
+        g_t_whole.whole = NULL;
+        g_t_whole.cut = 0;
     }
 }
 
@@ -589,7 +615,7 @@ static int __fastcall o_title(void *self, void *unused) {
             adv_log_event(g_table_adv->game, g_title);
         }
         if (ev->ready && adv_scrolls()) {
-            mop_begin(ev->flow, ADV_PAGE_TEXT_MAX);    /* one popup: the whole question, one text */
+            mop_begin(ev->flow, MOP_TEXT_BYTES);       /* one popup: the whole question, one text */
         } else {
             mop.active = 0;
         }
@@ -603,7 +629,7 @@ static int __fastcall o_question(void *self, void *unused) {
     const adv_pages *q = ev != NULL ? ev->flow->question(0) : NULL;
     (void)unused;
     if (ev != NULL && t_op_for(ev->flow)) {
-        return t_text_id(mop.text);
+        return t_op_text_id();
     }
     return t_text_id(q != NULL && q->count > 0 ? q->text[q->count - 1] : "");
 }
@@ -654,7 +680,7 @@ static int __fastcall o_result(void *self, void *unused, int choice) {
         return t_text_id("");
     }
     if (t_op_for(ev->flow)) {
-        return t_text_id(mop.text);              /* one popup: its panel is sized for the text shown first */
+        return t_op_text_id();                   /* one popup: its panel is sized for the text shown first */
     }
     if (!ev->answered) {
         const char *text = ev->flow->tallest();

@@ -318,7 +318,7 @@ class ThePatchersMirror(unittest.TestCase):
 
     def test_the_label_line_counts_in_the_bytes(self):
         def graph(label):
-            body = ("tech " * 400)[:cg.POPUP_TEXT_MAX - 10].strip() + "."
+            body = ("tech " * 25000)[:cg.LONG_TEXT_MAX - 10].strip() + "."
             return {"format": "vvfp-cie-graph", "version": 6, "title": "Long", "games": [3],
                     "roles": {}, "start": "q", "nodes": {
                         "q": {"type": "question", "text": "Pick one.", "choices": [
@@ -327,9 +327,10 @@ class ThePatchersMirror(unittest.TestCase):
         _g, problems = cg.validate(graph("A"), True)
         self.assertEqual([x for x in problems if "bytes" in x], [], "label and blank line still fit")
         _g, problems = cg.validate(graph("Open the long door"), True)
-        self.assertTrue(any("longer than 1990 bytes" in x for x in problems), problems)
+        self.assertTrue(any(f"longer than {cg.LONG_TEXT_MAX} bytes" in x for x in problems), problems)
+        # Without Scrolling Popups such a text is refused for its own length, saying the patch would allow it.
         _g, problems = cg.validate(graph("Open the long door"), False)
-        self.assertFalse(any("longer than 1990 bytes" in x for x in problems), "without Scrolling Popups: no label")
+        self.assertTrue(any("Scrolling Popups" in x and "1990" in x for x in problems), problems)
 
 
 if __name__ == "__main__":

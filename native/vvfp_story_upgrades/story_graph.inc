@@ -126,7 +126,9 @@
 #define CG_LABEL_V6 96                  /* a version 6 label, NUL included (95 bytes) */
 #define CG_V4_ANSWERS 4                 /* the answers a run file version 3 kept */
 #define CG_NONE 0xFFFFu
-#define CG_MAX_FILE 0x20000u
+#define CG_MAX_FILE 0x1000000u              /* a player's .cieg (16 MiB): the sanity cap; read into memory of its own,
+                                              as large as the file (cg_grow), never a buffer this size */
+#define CG_SHIPPED_FILE 0x100000u           /* the collection's and the procedural events' own graphs (1 MiB) */
 #define CG_MAX_ROLES 16
 #define CG_MAX_NODES 1000
 #define CG_MAX_PATH 128
@@ -137,13 +139,16 @@
 #define CG_TEXT_MAX 1990                /* a popup's (and a page's) bytes: the later games build theirs in 2,000 */
 #define CG_TEXT_MAX_12 8000             /* ... A New Home's and The Lost Children's ONE popup (their dialogs hold 9,999;
                                            src/vv_cie_graph.py ONE_POPUP_TEXT_MAX_12) */
-#define CG_RAW_BYTES 8192
-#define CG_PAGE_BYTES 8200
-#define CG_DISPLAY_BYTES 49152
+#define CG_RAW_BYTES CE_LONG_BUF            /* a popup's raw text: with Scrolling Popups up to CE_LONG_TEXT_MAX */
+#define CG_PAGE_BYTES (CG_RAW_BYTES + 8)
+#define CG_DISPLAY_BYTES 0x100000           /* every display's words of a run (run file version 5; 4 kept 49,152) */
+#define CG_DISPLAY_BYTES_V4 49152
 #define CG_MAX_DISPLAYS 96
 #define CG_CAUSE_BYTES 64
 #define CG_LABEL_BYTES CE_BUTTON_BYTES
-#define CG_ENTRY_BYTES 8192
+#define CG_ENTRY_BYTES 0x20000             /* the run's Island Events log entry: 16 questions' choices of up to
+                                              CE_LONG_LINE_BYTES each and every change (run file 5; 4 kept 8,192) */
+#define CG_ENTRY_BYTES_V4 8192
 #define CG_MAX_QUESTIONS 16             /* questions on one history (src/vv_cie_graph.py MAX_QUESTIONS_PER_RUN) */
 #define CG_MAX_ANSWERS 7                /* a question's answers: version 6 two to seven, 4 and 5 two to four, before
                                            exactly two */
@@ -172,7 +177,64 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        /* cie-v6-binary.md 31: the gender presentation, set (a = 1) or cleared (a = 0) */
        CGE_PRESENTATION = 23,
        /* cie-v6-binary.md 30 */
-       CGE_DELIVER_EARLY = 24 };
+       CGE_DELIVER_EARLY = 24,
+       /* 25: reserved (a rest period once; the owner took the rest periods out, 2026-11-15) */
+       /* cie-v6-binary.md 32: a story trait kept for the villager (The Quiet Hands: mute), never a change */
+       CGE_TRAIT = 26,
+       /* cie-v6-binary.md (the data agent documents it): a new villager -- role 255 a random one, else a duplicate of
+          the role's villager (sex, head and body copied; name, likes, dislikes and skills the game's own roll) --
+          made by each game's own creator (the adapters' spawn: the Barrel's / stranger's path, its room check), a
+          the age class (0 any, 1 child, 2 teen, 3 adult, 4 elder).  No room: nothing, no error. */
+       CGE_NEW_VILLAGER = 27,
+       /* 28 / 29: the role's villager becomes pregnant by the game's own conception (the Custom Island Event's
+          chosen-partner path, a->conceive), the partner role in the first value (255 none); 29 delivers at once
+          (a->deliver: nursing a newborn).  Flags bit 0: any birth sex (else the carrier was born female); always 18
+          or more, never already expecting; no room: nothing. */
+       CGE_PREGNANT = 28, CGE_NURSING = 29,
+       /* 30: a copy of the role's villager by the game's own twins' copy routine (room asked first), always with a
+          name of its own (the game's own name roll; the owner, 2026-11-15).  New Believers' Heathens are never
+          copied. */
+       CGE_CLONE = 30,
+       /* 31: a mind swap (The Lost Children's Crystal Ball): names, skills, likes and dislikes exchanged between the
+          role and the role in the first value; looks, sex and age stay.  32: the name becomes "?" (A Bump On The
+          Head, The Return of Biggles).  Both hand the renames to the companions that key villagers by name. */
+       CGE_BODY_SWAP = 31, CGE_LOSE_NAME = 32,
+       /* 33: a real rename -- a first name drawn from the game's own list (either sex), the villager's last name
+          kept -- handed to the companions that key villagers by name.  34: the age set or moved (cg_change_age). */
+       CGE_CHANGE_NAME = 33, CGE_CHANGE_AGE = 34,
+       /* the owner, 2026-11-15 ("do your best to implement the outcomes"): 35 an illness cured (the game's own sick
+          field cleared); 36 the damaged structures repaired (one step from done, the game's own construction
+          finishes them: native/shared/structure_damage.h sd_repair, story_structures.inc); 37 the young head look
+          (Head Look's file, as old_look) */
+       CGE_CURE = 35, CGE_REPAIR = 36, CGE_YOUNG_LOOK = 37,
+       /* New Believers' Faith, the game's own way (the owner, 2026-11-16; "VV5 Heathen Events - What Vanilla Does"):
+          38 Faith +a (1..35) through FAITH_ADD 0x468020 (a Heathen whose Faith ends above 0 joins, the game's rule);
+          39 a Heathen joins: SetFaith 0x467F90(20, 1), then 0x466880(0), as The Defector; 40 a believer becomes a
+          Heathen by their own choice: SetFaith(-10, 1), then 0x466880(1), as The Spa / The Cracked Mask.  Only in
+          New Believers; elsewhere nothing. */
+       CGE_FAITH = 38, CGE_JOIN = 39, CGE_APOSTASY = 40 };
+/* 34: the mode (the effect's flags byte): set to a child, a teen 14-17, 18, an adult of 20-49, 50 or an elder, or
+   move by a number of years drawn in [a, b] (either may be below 0). */
+enum { CG_AGE_CHILD = 0, CG_AGE_TEEN = 1, CG_AGE_18 = 2, CG_AGE_ADULT = 3, CG_AGE_50 = 4, CG_AGE_ELDER = 5,
+       CG_AGE_ADD = 6 };
+#define CG_FX_ANY_BIRTH_SEX 1u          /* 28 / 29: flags bit 0 */
+/* 28 / 29: flags bits 1-2, the babies (the owner, 2026-11-15, "if the game allows"; every game's records hold a
+   litter of 1 to 3): bit 1 alone the stock multiple-birth roll whatever the tech gate (every game's: a multiple 7 in
+   100, of those triplets 25 in 100 -- VV1 0x43BC41 / 0x43BC7F, VV2 0x44BA6A, VV3 0x455B92 / 0x455BB2, VV4
+   0x45E893 / 0x45E8B3, VV5 0x465EE3 / 0x465F03), bit 2 alone twins, both triplets; each baby still only while the
+   game's own room predicate says there is room (the adapters' conceive). */
+#define CG_FX_LITTER_ROLL 2u
+#define CG_FX_LITTER_TWINS 4u
+/* 28 / 29: flags bit 3, "the partner may carry" (the owner, 2026-11-16): with a partner role, as often as the player's setting says (0 to 100 percent,
+   10 unless moved: cg_partner_carry_percent; the game's random routine) the partner carries instead -- of any birth sex -- when they pass the carrier's checks (18
+   or more, not expecting already); else the carrier stays.  The carrier is recorded in the mother's place whatever
+   their sex, as every carrier is. */
+#define CG_FX_PARTNER_MAY_CARRY 8u
+static int cg_partner_carries(const ce_adapter *a);   /* the setting's chance (below) */
+#define CG_TRAIT_MUTE 1u              /* 32: the story trait "mute" */
+#define CG_ROLE_SPEAKS 0x80u          /* 32: a villager role's byte 13 bit: its words have them speak */
+#define CG_ROLE_HEATHEN 0x40u         /* ... bit 6: New Believers: the role is a Heathen's (an Isolan), cast as the game's
+                                         own picker 0x471870 casts one with Heathens-only on and special roles off */
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
@@ -180,7 +242,10 @@ enum { CG_REL_SPOUSE = 1, CG_REL_PARENT = 2, CG_REL_CHILD = 3, CG_REL_SIBLING = 
        /* gap C2: through a living villager in between */
        CG_REL_GRANDPARENT = 5, CG_REL_GRANDCHILD = 6, CG_REL_AUNT = 7, CG_REL_COUSIN = 8 };
 #define CG_PREF_RANDOM 8u             /* a preference effect's flags: a random like or dislike (cie-v6-binary.md 24) */
+#define CG_PREF_REMOVE 16u            /* ... the like or dislike is taken away (the named one, or with CG_PREF_RANDOM
+                                         one the villager holds); held nowhere: nothing (the owner, 2026-11-15) */
 #define CG_NODE_AUTO_TEXT 1u          /* a node's flags (byte 3): its effects told in automatic lines (24) */
+#define CG_NODE_NEW_PAGE 2u           /* ... 19a: with Scrolling Popups, starts the event's one popup afresh */
 enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, CGC_ALL = 6, CGC_ANY = 7,
        CGC_PUZZLE = 8,                /* version 3: a = the puzzle's name, b = its game (the requirement) */
        /* version 6: the runtime facts */
@@ -199,6 +264,23 @@ enum { CG_ROLE_VILLAGER = 0, CG_ROLE_STRANGER = 1, CG_ROLE_ALIAS = 2,
 #define CG_CAST_STRICT 0              /* every requirement must hold (the rare roll, Pick Island Event) */
 #define CG_CAST_PREFER 1              /* a requirement nobody meets is dropped (bought through the library) */
 #define CG_ROLE_ALIAS_ALL 0xFFu       /* an effect's role byte: every living, listed villager (celebrate) */
+/* The owner, 2026-11-15: an effect's role byte may also be a GROUP (254: the effect's byte 3 the selector, its last
+   H the selector's value) or a villager this event has just made (253 the newest, 252 the one before it: made by a
+   new_villager or clone effect earlier on the same page). */
+#define CG_ROLE_GROUP 0xFEu
+#define CG_ROLE_NEWEST 0xFDu
+#define CG_ROLE_NEWEST2 0xFCu
+enum { CG_GROUP_ALL = 1,              /* every living, listed villager (New Believers: its believers) */
+       CG_GROUP_SKILL = 2,            /* ... whose skill named by the string at the last H is at least 50 */
+       CG_GROUP_RANDOM = 3,           /* ... N of them drawn (N at the last H, 1..255; fewer: all there are) */
+       CG_GROUP_ELDERS = 4,           /* ... every elder, 55 or more */
+       CG_GROUP_CHILDREN = 5,         /* ... every child, under 14 */
+       CG_GROUP_TEENS = 6,            /* ... every teen, 14 to 17 */
+       CG_GROUP_ADULTS = 7 };         /* ... every adult, 18 or more */
+#define CG_GROUP_SKILL_MIN 50
+#define CG_SKILL_BEST 32u             /* skill / skill_set flags: the villager's own highest skill, not the list's */
+#define CG_NEW_CHILD_OF_NEWEST 1u     /* new_villager flags: its parents are the two newest (253, 252); it does not
+                                         become the newest itself, so brothers and sisters share them */
 /* CG_DONE: every page shown, the file kept until a save holds the last page's effects (a crash before it must
    neither lose nor repeat them). */
 enum { CG_IDLE = 0, CG_QUEUED = 1, CG_PRE = 2, CG_ASKED = 3, CG_CHAIN = 4, CG_DONE = 5 };
@@ -215,7 +297,9 @@ enum { CG_LAST_SAME = 0, CG_LAST_DIFFERENT = 1, CG_LAST_RANDOM = 2 };   /* 28: i
 enum { CG_PH_NAME = 0, CG_PH_HE, CG_PH_HIS, CG_PH_HIM, CG_PH_MAN, CG_PH_AWARD, CG_PH_UNIT,
        CG_PH_HIMSELF, CG_PH_WOMAN_MAN, CG_PH_BOY, CG_PH_SON,
        /* role-sex words (cie-v6-binary.md 5) */
-       CG_PH_MOTHER, CG_PH_FATHER, CG_PH_MOM, CG_PH_SISTER, CG_PH_AUNT, CG_PH_GIRL, CG_PH_LADY };
+       CG_PH_MOTHER, CG_PH_FATHER, CG_PH_MOM, CG_PH_SISTER, CG_PH_AUNT, CG_PH_GIRL, CG_PH_LADY,
+       /* the standalone possessive (the owner's files, 2026-11-16): "his" / "hers" */
+       CG_PH_HIS_HERS };
 enum { CG_EXPAND_AWARD = 0, CG_EXPAND_WORST = 1, CG_EXPAND_REAL = 2 };
 
 /* ---- The .cieg (src/vv_cie_graph.py THE BINARY .cieg) ----------------------------------------------------- */
@@ -240,6 +324,9 @@ typedef struct {
     /* Version 6 (cie-v6-binary.md 21): the kinship relations (a 104-byte header); 0 none. */
     int n_rel;
     unsigned int o_rel;
+    /* A text, a title or a label longer than the popups without Scrolling Popups hold (CG_TEXT_MAX bytes, a label
+       or a title CG_LABEL_V6): the event is queued only where the popups scroll (cg_refusal). */
+    int long_text;
 } cg_graph;
 
 static unsigned int cg_u16(const unsigned char *p) {
@@ -293,6 +380,15 @@ static unsigned int cg_crc32(const unsigned char *data, unsigned int size, unsig
 }
 
 static char cg_why[160];
+
+/* `text` is at most `max` bytes; longer than `paged` marks the graph as needing Scrolling Popups (long_text). */
+static int cg_len_ok(const cg_graph *g, const char *text, int paged, int max) {
+    int n = lstrlenA(text);
+    if (n > paged) {
+        ((cg_graph *)g)->long_text = 1;
+    }
+    return n <= max;
+}
 
 static int cg_bad(const char *why) {
     lstrcpynA(cg_why, why, sizeof cg_why);
@@ -496,8 +592,8 @@ static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph) 
     static const char *const WORDS[] = { "name", "he/she", "his/her", "him/her", "man/woman", "award", "award_unit",
                                          "himself/herself", "woman/man", "boy/girl", "son/daughter",
                                          "mother/father", "father/mother", "mom/dad", "sister/brother", "aunt/uncle",
-                                         "girl/boy", "lady/gentleman" };
-    int words = g->version >= 6 ? 18 : 7;
+                                         "girl/boy", "lady/gentleman", "his/hers" };
+    int words = g->version >= 6 ? 19 : 7;
     int dot = -1;
     int i;
     int role = -1;
@@ -581,6 +677,157 @@ static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph) 
 /* Every character allowed (ce_text_char_ok; line breaks when `lines`), parentheses only around placeholders (no
    award in a label: `label`).  Version 6: also ; / & %, the escaped \( \), and pool tokens ({@word} only in a
    label). */
+/* A count token at `s` ('{'), cie-v6-binary.md 33: "{#babies:a baby|twins|triplets}" or "{#made:one|two|three}" --
+   the babies / the villagers the page's effects actually made (or, with none on this page, the last page's that made
+   any), the first option for 1 (or none known), the second for 2, the third for 3 or more (fewer options: the last).
+   Its bytes, the count kind in *which (0 babies, 1 made), its options in *opts (`*olen` bytes); 0 when it is not
+   one.  Options: 1 to 3, each 1 to 160 bytes of the plain text set and placeholders -- the event's own (a name, a
+   pronoun, checked against graph `g` when it is not NULL) or (made1) / (made2) -- with no brace, list, line break
+   or . ! ?. */
+static int cg_parse_ph(const cg_graph *g, const char *tok, int n, cg_ph *ph);
+
+/* The names filled after the page's effects (cie-v6-binary.md 33a), any case at `s`: "(made1)" 1, "(made2)" 2,
+   "(renamed)" 3; else 0. */
+static int cg_made_ph(const char *s) {
+    static const char RENAMED[] = "(renamed)";
+    int k;
+    if (s[0] == '(' && (s[1] == 'm' || s[1] == 'M') && (s[2] == 'a' || s[2] == 'A') && (s[3] == 'd' || s[3] == 'D')
+        && (s[4] == 'e' || s[4] == 'E') && (s[5] == '1' || s[5] == '2') && s[6] == ')') {
+        return s[5] - '0';
+    }
+    for (k = 0; RENAMED[k] != '\0'; ++k) {
+        char c = s[k];
+        if (c >= 'A' && c <= 'Z') {
+            c = (char)(c - 'A' + 'a');
+        }
+        if (c != RENAMED[k]) {
+            return 0;
+        }
+    }
+    return 3;
+}
+
+/* Its bytes: 7, "(renamed)" 9. */
+static int cg_made_len(int kind) {
+    return kind == 3 ? 9 : 7;
+}
+
+static int cg_count_token_in(const cg_graph *g, const char *s, int *which, const char **opts, int *olen) {
+    static const char *const NAMES[2] = { "babies", "made" };
+    const char *p;
+    int k, count = 1, run = 0;
+    if (s[0] != '{' || s[1] != '#') {
+        return 0;
+    }
+    for (k = 0; k < 2; ++k) {
+        int n = lstrlenA(NAMES[k]);
+        if (memcmp(s + 2, NAMES[k], (size_t)n) == 0 && s[2 + n] == ':') {
+            break;
+        }
+    }
+    if (k == 2) {
+        return 0;
+    }
+    *which = k;
+    *opts = s + 3 + lstrlenA(NAMES[k]);
+    for (p = *opts; *p != '}'; ++p) {
+        if (*p == '|') {
+            if (run == 0 || ++count > 3) {
+                return 0;
+            }
+            run = 0;
+            continue;
+        }
+        if (*p == '(') {
+            /* a placeholder: (made1) / (made2), or one of the event's own */
+            const char *e = p + 1;
+            cg_ph ph;
+            while (*e != '\0' && *e != ')' && *e != '(' && *e != '\n' && *e != '|' && *e != '}') {
+                ++e;
+            }
+            if (*e != ')' || (!cg_made_ph(p) && g != NULL && (!cg_parse_ph(g, p + 1, (int)(e - p - 1), &ph)
+                                                               || ph.hint >= 0))) {
+                return 0;
+            }
+            run += (int)(e - p) + 1;
+            if (run > 160) {
+                return 0;
+            }
+            p = e;
+            continue;
+        }
+        if (*p == '\0' || *p == '{' || *p == ')' || *p == '\n' || *p == '.' || *p == '!' || *p == '?'
+            || !ce_text_char_ok(*p) || ++run > 160) {
+            return 0;
+        }
+    }
+    if (run == 0) {
+        return 0;
+    }
+    *olen = (int)(p - *opts);
+    return (int)(p - s) + 1;
+}
+
+static int cg_count_token(const char *s, int *which, const char **opts, int *olen) {
+    return cg_count_token_in(NULL, s, which, opts, olen);   /* the loader checked its placeholders */
+}
+
+/* The option of a count token for `n` (the longest with n < 0: the worst case), into out (`cap` bytes); its
+   length. */
+static int cg_count_option(const char *opts, int olen, int n, char *out, int cap) {
+    int k = 0, want = n <= 1 ? 0 : n == 2 ? 1 : 2, start = 0, i, best = -1, best_len = -1, best_start = 0;
+    for (i = 0; i <= olen; ++i) {
+        if (i == olen || opts[i] == '|') {
+            int len = i - start;
+            if (n < 0 ? len > best_len : k <= want) {
+                best = k;
+                best_len = len;
+                best_start = start;
+            }
+            ++k;
+            start = i + 1;
+        }
+    }
+    if (best < 0 || best_len >= cap) {
+        return 0;
+    }
+    memcpy(out, opts + best_start, (size_t)best_len);
+    out[best_len] = '\0';
+    return best_len;
+}
+
+/* The villagers made (story_graph.inc cg_newest, below): (made1) the newest, (made2) the one before it; one made:
+   both are that one (so (made2) is never empty); none: "a newcomer". */
+static void cg_made_name(int k, char *out, int cap);
+
+/* Option `opt` (`n` bytes) with (made1) / (made2) put in -- the names (`worst` 0) or `room` W's -- into out. */
+static void cg_made_fill(const char *opt, int n, int worst, int room, char *out, int cap) {
+    int i, o = 0;
+    for (i = 0; i < n && o < cap - 1;) {
+        int k = cg_made_ph(opt + i);
+        if (k > 0 && i + cg_made_len(k) <= n) {
+            char name[CG_NAME_BYTES + 16];
+            const char *t;
+            if (worst) {
+                int c;
+                for (c = 0; c < room && c < (int)sizeof name - 1; ++c) {
+                    name[c] = 'W';
+                }
+                name[c] = '\0';
+            } else {
+                cg_made_name(k, name, (int)sizeof name);
+            }
+            for (t = name; *t != '\0' && o < cap - 1; ++t) {
+                out[o++] = *t;
+            }
+            i += cg_made_len(k);
+            continue;
+        }
+        out[o++] = opt[i++];
+    }
+    out[o] = '\0';
+}
+
 static int cg_text_ok(const cg_graph *g, const char *s, int lines, int label) {
     for (; *s != '\0'; ++s) {
         if (g->version >= 6) {
@@ -589,6 +836,15 @@ static int cg_text_ok(const cg_graph *g, const char *s, int lines, int label) {
                     return 0;
                 }
                 ++s;
+                continue;
+            }
+            if (*s == '{' && s[1] == '#') {
+                const char *opts;
+                int which, olen, n = cg_count_token_in(g, s, &which, &opts, &olen);
+                if (n == 0 || label) {
+                    return 0;          /* 33: a count token, in body text only */
+                }
+                s += n - 1;
                 continue;
             }
             if (*s == '{') {
@@ -602,6 +858,13 @@ static int cg_text_ok(const cg_graph *g, const char *s, int lines, int label) {
             if (*s == ';' || *s == '/' || *s == '&' || *s == '%') {
                 continue;
             }
+        }
+        if (*s == '(' && g->version >= 6 && cg_made_ph(s)) {
+            if (label) {
+                return 0;              /* 33: the villagers made, in body text only */
+            }
+            s += cg_made_len(cg_made_ph(s)) - 1;
+            continue;
         }
         if (*s == '(') {
             const char *e = s + 1;
@@ -747,7 +1010,8 @@ static int cg_pools_ok(const cg_graph *g) {
         unsigned int cond = cg_u16(it + 4);
         if (!cg_str_ok(g, cg_u16(it), 0) || cg_u16(it + 2) < 1u || cg_u16(it + 2) > 10000u
             || (cond != CG_NONE && (int)cond >= g->n_cond) || cg_u16(it + 6) != 0u
-            || !cg_text_ok(g, cg_s(g, cg_u16(it)), 1, 0) || lstrlenA(cg_s(g, cg_u16(it))) > CG_TEXT_MAX) {
+            || !cg_text_ok(g, cg_s(g, cg_u16(it)), 1, 0)
+            || !cg_len_ok(g, cg_s(g, cg_u16(it)), CG_TEXT_MAX, CE_LONG_TEXT_MAX)) {
             return cg_bad("a pool's text is not one the game can show");
         }
     }
@@ -783,7 +1047,50 @@ static int cg_title_ok(const cg_graph *g, const char *title) {
             return 0;
         }
     }
-    return title[0] != '\0' && lstrlenA(title) < (g->version >= 6 ? CG_LABEL_V6 : CE_TITLE_BYTES);
+    return title[0] != '\0' && (g->version >= 6 ? cg_len_ok(g, title, CG_LABEL_V6 - 1, CE_LONG_LINE_BYTES - 1)
+                                             : lstrlenA(title) < CE_TITLE_BYTES);
+}
+
+static int cg_fixed_name_ok(const char *name);   /* effect 33's fixed name (below) */
+
+/* What may happen to a Heathen in a new event (vanilla's whole list): Faith raised, joining, being stopped, walked
+   or posed (an action), a little health lost (5 to 30) and the sick mark; never a death, a disappearance, an age,
+   a skill, a like, a lower Faith or becoming a Heathen again. */
+static int cg_health_now(int game, const unsigned char *record);   /* below */
+
+static int cg_heathen_effect_ok(const unsigned char *e) {
+    int a = (int)((unsigned int)e[4] | ((unsigned int)e[5] << 8) | ((unsigned int)e[6] << 16)
+                  | ((unsigned int)e[7] << 24));
+    switch (e[0]) {
+    case CGE_FAITH: case CGE_JOIN: case CGE_ACTION: case CGE_SICK: case CGE_TRAIT:
+        return 1;
+    case CGE_HEALTH_CHANGE:
+        return a >= -30;
+    default:
+        return 0;
+    }
+}
+
+/* A group effect (role byte 254): the effects a group may take, and its selector. */
+static int cg_group_ok(const cg_graph *g, const unsigned char *e) {
+    unsigned int value = (unsigned int)e[14] | ((unsigned int)e[15] << 8);
+    switch (e[0]) {
+    case CGE_HEALTH: case CGE_PREF: case CGE_SKILL: case CGE_SICK: case CGE_ACTION: case CGE_MOOD:
+    case CGE_HEALTH_CHANGE: case CGE_SKILL_SET: case CGE_CURE: case CGE_YOUNG_LOOK: case CGE_OLD_LOOK:
+    case CGE_CELEBRATE: case CGE_APPEARANCE:
+        break;
+    default:
+        return 0;
+    }
+    switch (e[3]) {
+    case CG_GROUP_ALL: case CG_GROUP_ELDERS: case CG_GROUP_CHILDREN: case CG_GROUP_TEENS: case CG_GROUP_ADULTS:
+        return value == 0u;
+    case CG_GROUP_SKILL:
+        return value != CG_NONE && (int)value < g->n_string
+               && cg_s(g, value)[0] != '\0';
+    case CG_GROUP_RANDOM: return value >= 1u && value <= 255u;
+    default: return 0;
+    }
 }
 
 static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
@@ -802,7 +1109,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     g->header_bytes = cg_u16(h + 6);
     g->role_bytes = g->version >= 6 ? 16u : 8u;
     if (size > CG_MAX_FILE) {
-        return cg_bad("it is larger than this game can read (128 KB)");
+        return cg_bad("it is larger than this game can read (16 MB)");
     }
     if (cg_crc32(data, size, 12) != cg_u32(h + 12)) {
         return cg_bad("the file is damaged (its checksum does not match)");
@@ -850,7 +1157,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         }
     }
     if (g->games == 0u || (g->games & ~0x1Fu) != 0u || g->n_role < (g->version >= 6 ? 0 : 1) || g->n_role > CG_MAX_ROLES || g->n_node < 1
-        || g->n_node > CG_MAX_NODES || g->n_patch > 8 || g->n_child >= 0xFFFF || g->n_effect >= 0xFFFF
+        || g->n_node > CG_MAX_NODES || g->n_patch > 32 || g->n_child >= 0xFFFF || g->n_effect >= 0xFFFF
         || g->n_cond >= 0xFFFF || g->n_variant >= 0xFFFF || g->n_string >= 0xFFFF
         || !cg_section(g, g->o_role, g->n_role, g->role_bytes) || !cg_section(g, g->o_node, g->n_node, 28)
         || !cg_section(g, g->o_child, g->n_child, 12) || !cg_section(g, g->o_effect, g->n_effect, 16)
@@ -905,7 +1212,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                villager roles), and nothing else on an alias. */
             unsigned int members = cg_u16(r + 14);
             if ((r[8] != 0 && (r[8] > 120u || r[8] < r[3])) || r[9] > 3u || !cg_str_ok(g, cg_u16(r + 10), 1)
-                || r[13] > 1u || r[12] > 100u) {
+                || (r[13] & ~(CG_ROLE_SPEAKS | CG_ROLE_HEATHEN)) > 1u || r[12] > 100u) {
                 return cg_bad("a role's requirement is not one this game can read");
             }
             if (r[0] == CG_ROLE_OTHER) {
@@ -1017,7 +1324,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     for (i = 0; i < g->n_variant; ++i) {
         const unsigned char *v = cg_variant_at(g, i);
         if ((int)cg_u16(v) >= g->n_cond || !cg_str_ok(g, cg_u16(v + 2), 0)
-            || !cg_text_ok(g, cg_s(g, cg_u16(v + 2)), 1, 0) || lstrlenA(cg_s(g, cg_u16(v + 2))) > CG_TEXT_MAX) {
+            || !cg_text_ok(g, cg_s(g, cg_u16(v + 2)), 1, 0)
+            || !cg_len_ok(g, cg_s(g, cg_u16(v + 2)), CG_TEXT_MAX, CE_LONG_TEXT_MAX)) {
             return cg_bad("a variant text is not one the game can show");
         }
     }
@@ -1028,11 +1336,25 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         int villager = (e[0] >= CGE_KILL && e[0] <= CGE_SICK) || (e[0] >= CGE_ACTION && e[0] <= CGE_SKILL_SET)
                        || (e[0] == CGE_CELEBRATE && e[1] != CG_ROLE_ALIAS_ALL)
                        || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK) || e[0] == CGE_SEX_CHANGE
-                       || e[0] == CGE_PRESENTATION || e[0] == CGE_DELIVER_EARLY;
+                       || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_TRAIT
+                       || (e[0] >= CGE_PREGNANT && e[0] <= CGE_CHANGE_AGE)
+                       || e[0] == CGE_CURE || e[0] == CGE_YOUNG_LOOK || e[0] == CGE_PRESENTATION
+                       || e[0] == CGE_FAITH || e[0] == CGE_JOIN || e[0] == CGE_APOSTASY;
         int ok = (e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK))
                  || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_PRESENTATION
-                                         || e[0] == CGE_DELIVER_EARLY));
-        if (ok && villager) {
+                                         || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_TRAIT
+                                         || (e[0] >= CGE_NEW_VILLAGER && e[0] <= CGE_APOSTASY)));
+        if (ok && e[1] != CG_ROLE_GROUP && e[3] != 0) {
+            ok = 0;                    /* byte 3 is a group's selector only */
+        }
+        if (ok && e[1] != CG_ROLE_GROUP && e[0] != CGE_CHANGE_AGE && cg_u16(e + 14) != 0) {
+            ok = 0;                    /* the last H: a group's value, or change_age's cap */
+        }
+        if (ok && villager && g->version >= 6 && (e[1] == CG_ROLE_NEWEST || e[1] == CG_ROLE_NEWEST2)) {
+            /* a villager this event made on the same page */
+        } else if (ok && villager && g->version >= 6 && e[1] == CG_ROLE_GROUP) {
+            ok = cg_group_ok(g, e);
+        } else if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
                  && (cg_role_at(g, e[1])[0] == CG_ROLE_VILLAGER
@@ -1067,18 +1389,54 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 ok = a >= CG_LOOK_KEEP && a <= 29 && b >= CG_LOOK_KEEP && b <= 29
                      && !(a == CG_LOOK_KEEP && b == CG_LOOK_KEEP) && str == CG_NONE;
                 break;
-            case CGE_BABY_LOST: case CGE_OLD_LOOK: case CGE_SEX_CHANGE:
+            case CGE_BABY_LOST: case CGE_OLD_LOOK: case CGE_SEX_CHANGE: case CGE_CURE: case CGE_YOUNG_LOOK:
                 ok = a == 0 && b == 0 && str == CG_NONE;
+                break;
+            case CGE_REPAIR:
+                /* 36: every damaged structure the list names ("any": all) */
+                ok = e[1] == CG_ROLE_ALIAS_ALL && a == 0 && b == 0 && str != CG_NONE && cg_str_ok(g, str, 0)
+                     && cg_s(g, str)[0] != '\0';
                 break;
             case CGE_DELIVER_EARLY:
                 /* 30: the newborn's extra health loss, a range -99..-1, or none (0, 0). */
                 ok = str == CG_NONE && ((a == 0 && b == 0) || (a >= -99 && a <= b && b <= -1));
                 break;
+            case CGE_TRAIT: ok = a == (int)CG_TRAIT_MUTE && b == 0 && str == CG_NONE; break;  /* 32: a trait */
+            case CGE_NEW_VILLAGER:
+                /* a the age class, b the sex (0 random, 1 male, 2 female), flags bit 0 a child of the two newest */
+                ok = a >= 0 && a <= 4 && b >= 0 && b <= 2 && str == CG_NONE && (e[2] & ~CG_NEW_CHILD_OF_NEWEST) == 0
+                     && (e[1] == CG_ROLE_ALIAS_ALL || e[1] < (unsigned int)g->n_role || e[1] == CG_ROLE_NEWEST
+                         || e[1] == CG_ROLE_NEWEST2);
+                break;
+            case CGE_PREGNANT: case CGE_NURSING:
+                ok = (a == 0xFF || a == CG_ROLE_NEWEST || a == CG_ROLE_NEWEST2 || (a >= 0 && a < g->n_role)) && b == 0
+                     && str == CG_NONE
+                     && (e[2] & ~(CG_FX_ANY_BIRTH_SEX | CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS
+                                  | CG_FX_PARTNER_MAY_CARRY)) == 0;
+                break;
+            case CGE_BODY_SWAP:
+                ok = a >= 0 && a < g->n_role && a != (int)e[1] && b == 0 && str == CG_NONE;
+                break;
+            case CGE_CLONE:
+                ok = a >= 0 && a <= 2 && b == 0 && str == CG_NONE;   /* a: how many copies (0 = 1) */
+                break;
+            case CGE_LOSE_NAME:
+                ok = a == 0 && b == 0 && str == CG_NONE;
+                break;
+            case CGE_CHANGE_NAME:
+                /* the string: NONE (a random first name), or the fixed name to give (cg_fixed_name_ok) */
+                ok = a == 0 && b == 0 && (str == CG_NONE || cg_fixed_name_ok(cg_s(g, str)));
+                break;
+            case CGE_CHANGE_AGE:
+                ok = str == CG_NONE && e[2] <= CG_AGE_ADD && cg_u16(e + 14) <= 120u   /* the cap, years (0 none) */
+                     && (e[2] == CG_AGE_ADD ? (a >= -120 && b <= 120 && a <= b) : (a == 0 && b == 0));
             case CGE_PRESENTATION:
                 /* 31: a = 1 the other sex's look, 0 the villager's own again. */
                 ok = (a == 0 || a == 1) && b == 0 && str == CG_NONE;
                 break;
             case CGE_STATUS: ok = a == 1; break;
+            case CGE_FAITH: ok = a >= 1 && a <= 35 && b == 0 && str == CG_NONE; break;   /* vanilla: +5..+35 */
+            case CGE_JOIN: case CGE_APOSTASY: ok = a == 0 && b == 0 && str == CG_NONE; break;
             case CGE_HEALTH: ok = a >= 1 && a <= 100 && b >= a && b <= 100; break;
             case CGE_SKILL:
                 /* Version 6: a loss too (both ends -100..-1). */
@@ -1100,11 +1458,16 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         if (ok && e[0] == CGE_PREF && (e[2] & CG_PREF_RANDOM)) {
             ok = g->version >= 6 && str == CG_NONE && a == 0 && b == 0;   /* 24: a random like or dislike */
         } else if (ok && (e[0] == CGE_PREF || e[0] == CGE_SKILL || e[0] == CGE_SKILL_SET || e[0] == CGE_ACTION
-                          || e[0] == CGE_DAMAGE)) {
+                          || e[0] == CGE_DAMAGE || e[0] == CGE_REPAIR)) {
             ok = str != CG_NONE && cg_s(g, str)[0] != '\0';
         }
         if (!ok) {
             return cg_bad("an effect is not one this game can make");
+        }
+        if (g->version >= 6 && e[1] < (unsigned int)g->n_role && (cg_role_at(g, e[1])[13] & CG_ROLE_HEATHEN)
+            && !cg_heathen_effect_ok(e)) {
+            /* a Heathen's role: vanilla's own list only, whatever is ticked (No Safeguards too) */
+            return cg_bad("an effect is not one a Heathen may have");
         }
     }
     for (i = 0; i < g->n_node; ++i) {
@@ -1112,7 +1475,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         unsigned int text = cg_u16(n + 6), vfirst = cg_u16(n + 8), vcount = cg_u16(n + 10);
         unsigned int cfirst = cg_u16(n + 12), ccount = cg_u16(n + 14), els = cg_u16(n + 16);
         unsigned int efirst = cg_u16(n + 18), ecount = cg_u16(n + 20);
-        if (n[0] > 2u || n[1] > 1u || n[2] > 1u || (n[3] & ~CG_NODE_AUTO_TEXT) != 0u
+        if (n[0] > 2u || n[1] > 1u || n[2] > 1u || (n[3] & ~(CG_NODE_AUTO_TEXT | CG_NODE_NEW_PAGE)) != 0u
+            || ((n[3] & CG_NODE_NEW_PAGE) && n[1] != 0u)
             || (n[3] != 0u && (g->version < 6 || n[0] != CG_POPUP))   /* 25: auto lines on a v6 popup only */
             || !cg_str_ok(g, cg_u16(n + 4), 0) || !cg_str_ok(g, text, 1)
             || (vcount > 0u && vfirst + vcount > (unsigned int)g->n_variant)
@@ -1143,7 +1507,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                                                             "changes");
         }
         if (n[0] != CG_BRANCH && (cg_s(g, text)[0] == '\0' || !cg_text_ok(g, cg_s(g, text), 1, 0)
-                                  || lstrlenA(cg_s(g, text)) > CG_TEXT_MAX)) {
+                                  || !cg_len_ok(g, cg_s(g, text), CG_TEXT_MAX, CE_LONG_TEXT_MAX))) {
             return cg_bad("a text is not one the game can show");
         }
         for (k = 0; k < (int)ccount; ++k) {
@@ -1155,7 +1519,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             if (n[0] == CG_QUESTION) {
                 const char *label = cg_s(g, cg_u16(c + 8));
                 if (!cg_str_ok(g, cg_u16(c + 8), 0) || label[0] == '\0'
-                    || lstrlenA(label) >= (g->version >= 6 ? CG_LABEL_V6 : CG_LABEL_BYTES)
+                    || (g->version >= 6 ? !cg_len_ok(g, label, CG_LABEL_V6 - 1, CE_LONG_LINE_BYTES - 1)
+                                        : lstrlenA(label) >= CG_LABEL_BYTES)
                     || !cg_text_ok(g, label, 0, 1)) {
                     return cg_bad("a button label is not one the game can show");
                 }
@@ -1286,13 +1651,40 @@ typedef struct {
 
 static cg_state cg;
 static cg_graph cg_g;
-static char cg_labels[CG_MAX_ANSWERS][CG_LABEL_V6];   /* the asked question's button labels, names filled in */
+static char cg_labels[CG_MAX_ANSWERS][CE_LONG_LINE_BYTES];   /* the asked question's button labels, names filled
+                                                                  in (with Scrolling Popups: practically any length) */
 
 /* The asked question's label for `button` (ce_choice_label, for a graph's question). */
 static const char *cg_label(int button) {
     return button >= 0 && button < CG_MAX_ANSWERS ? cg_labels[button] : "";
 }
-static unsigned char cg_bytes[CG_MAX_FILE];
+/* A buffer as large as a file needs (at most CG_MAX_FILE), grown in the process heap: NULL when it cannot be. */
+static unsigned char *cg_grow(unsigned char **buf, unsigned int *cap, unsigned int need) {
+    unsigned int n;
+    void *p;
+    if (need > CG_MAX_FILE) {
+        return NULL;
+    }
+    if (*buf != NULL && need <= *cap) {
+        return *buf;
+    }
+    n = need < 0x10000u ? 0x10000u : (need + 0xFFFFu) & ~0xFFFFu;
+    p = *buf != NULL ? HeapReAlloc(GetProcessHeap(), 0, *buf, n) : HeapAlloc(GetProcessHeap(), 0, n);
+    if (p == NULL) {
+        return NULL;
+    }
+    *buf = (unsigned char *)p;
+    *cap = n;
+    return *buf;
+}
+
+static unsigned char *cg_bytes;            /* the run's graph (cg_g.d points into it) */
+static unsigned int cg_bytes_cap;
+
+/* cg_bytes able to hold `size` bytes (cg_g is loaded again from it after every copy). */
+static int cg_bytes_room(unsigned int size) {
+    return cg_grow(&cg_bytes, &cg_bytes_cap, size) != NULL;
+}
 static unsigned int cg_bytes_size;
 
 /* The choices of question `node` (two before format version 4, two to four from it, two to seven from 6). */
@@ -1367,7 +1759,7 @@ static int cg_op_begun_take(int game) {
     return r;
 }
 
-static char cg_shown_title[CE_TITLE_BYTES];   /* (defined below) */
+static char cg_shown_title[CE_LONG_LINE_BYTES * 4];   /* (defined below) */
 
 /* One popup: the title in force on the text shown last. */
 static const char *cg_op_title(void) {
@@ -1443,8 +1835,25 @@ static int cg_heathen(int game, const unsigned char *r) {
 }
 
 /* The special villagers a role leaves out unless it allows them (the shipped Aspiring Adventurer's). */
+/* No Safeguards for Island Events (and Additional Events too), island_events_any_time in the installed patches'
+   list (the owner, 2026-11-15, "for masochists"): no villager is protected from a new event -- nursing parents, the
+   Golden Child, The Secret City's Tribal Chief, New Believers' story villagers -- and an event's requirement keeps
+   only what it needs to make sense (its puzzles, its villagers, the children or the special villager it is about).
+   STILL PROTECTED, ALWAYS (inanimate or not a living villager, the owner's rule; or a crash or corruption risk):
+   The Lost Children's Esteemed Elder totem statues (never listed, c2_listed), The Secret City's stand-in records
+   (+0xE94, not villagers), The Tree of Life's bodies and ghosts and New Believers' Reanimate in progress (never
+   listed as living), the dead and the absent, the Golden Child in a sex change ("breaks things"), and New Believers'
+   Heathens in a believers-only role (they are not the tribe's).  Defined below (it reads the installed list).
+   ONLY FOR THE NATURAL DRAW'S EVENTS (the owner, 2026-11-15): Pick Island Event and Custom Island Events are
+   independent of every new-event rule, No Safeguards on or off -- cg_ns_cast asks the cast's origin. */
+static int cg_no_safeguards(int game);
+static int cg_ns_cast(int game);
+
 static int cg_special(const ce_adapter *a, int game, const unsigned char *r) {
     int kind = ce_role(a, r, NULL);
+    if (cg_ns_cast(game)) {
+        return 0;                      /* No Safeguards: no special villager is kept out */
+    }
     switch (game) {
     case 1: return kind == STORY_KIND_GOLDEN_CHILD;
     case 3: return kind == STORY_KIND_TRIBAL_CHIEF;
@@ -1460,6 +1869,9 @@ static int cg_special(const ce_adapter *a, int game, const unsigned char *r) {
    "expecting" field, one state with carrying), a special villager (cg_special); A New Home's and The Lost
    Children's listed() already leave out what is not a villager (The Lost Children's totems). */
 static int cg_protected(const ce_adapter *a, int game, const unsigned char *r) {
+    if (cg_ns_cast(game)) {
+        return 0;                      /* No Safeguards: nobody living is protected */
+    }
     return *(const int *)(r + a->off_pregnant) != 0 || cg_special(a, game, r);
 }
 
@@ -1471,11 +1883,11 @@ static int cg_never_harmed(int game, const unsigned char *r) {
     if (game == 3) {
         return r[0xE94] != 0;
     }
-    if (game == 5) {
+    if (game == 5 && !cg_ns_cast(game)) {
         int role = *(const int *)(r + 0x1CFC);
         return role >= 12 && role <= 17;
     }
-    return 0;
+    return 0;                          /* (The Secret City's stand-in records above: never, No Safeguards or not) */
 }
 
 /* Record `r`'s best value in the skills `list` names (comma separated) that the game has, -1 when it has none. */
@@ -1585,6 +1997,39 @@ static int cg_presentation_role(int role) {
 #define CG_NURSING_MIN_AGE (18 * 20)
 
 /* Whether record `index` may be role `role` (any binding aside). */
+/* The origin of the cast being made: the one being queued while nothing runs, else the running event's. */
+static int cg_origin_now_get(void);
+static int cg_casting_origin(void) {
+    return cg.phase == CG_IDLE || cg.phase == CG_DONE ? cg_origin_now_get() : cg.origin;
+}
+
+/* No Safeguards for the cast being made: installed, and the cast is the natural draw's (never Pick Island Event's
+   or a Custom Island Event's). */
+static int cg_ns_cast(int game) {
+    return cg_casting_origin() == CG_ORIGIN_NATURAL && cg_no_safeguards(game);
+}
+
+/* story_traits.inc: the new island events' story traits. */
+static void rs_set_trait(int game, int index, unsigned int trait);
+static int rs_has_trait(int game, const unsigned char *record, unsigned int trait);
+
+/* The roles a conversion names (a Heathen becomes a believer: a status effect with value 0, the faith change the
+   data side defines), an alias's members with it.  With No Safeguards on, only these may take a Heathen. */
+static unsigned int cg_conversion_roles(void) {
+    unsigned int mask = 0;
+    int i;
+    for (i = 0; cg_g.d != NULL && i < cg_g.n_effect; ++i) {
+        const unsigned char *e = cg_effect_at(&cg_g, i);
+        if (e[0] == CGE_STATUS && cg_u32(e + 4) == 0u && e[1] < (unsigned int)cg_g.n_role) {
+            mask |= 1u << e[1];
+            if (cg_role_at(&cg_g, e[1])[0] >= CG_ROLE_ALIAS) {
+                mask |= cg_u16(cg_role_at(&cg_g, e[1]) + 14);
+            }
+        }
+    }
+    return mask;
+}
+
 static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     const unsigned char *spec = cg_role_at(&cg_g, role);
     const unsigned char *r = a->record(index);
@@ -1596,7 +2041,7 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
         return 0;                      /* The Secret City's stand-in record */
     }
     /* Safety: never dropped. */
-    if ((spec[1] & CG_ROLE_NURSING) && *(const int *)(r + a->off_pregnant) != 0) {
+    if ((spec[1] & CG_ROLE_NURSING) && *(const int *)(r + a->off_pregnant) != 0 && !cg_ns_cast(game)) {
         return 0;
     }
     if ((spec[1] & CG_ROLE_SPECIAL) && cg_special(a, game, r)) {
@@ -1605,8 +2050,23 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     if (cg_g.version >= 6 && spec[9] == 3 && ce_age(a, r) < CG_NURSING_MIN_AGE) {
         return 0;                      /* a nursing parent is an adult of 18 or more */
     }
-    if (game == 1 && ce_role(a, r, NULL) == STORY_KIND_GOLDEN_CHILD && cg_sex_change_role(role)) {
-        return 0;                      /* the Golden Child is never cast for a sex change */
+    if (game == 1 && ce_role(a, r, NULL) == STORY_KIND_GOLDEN_CHILD && cg_sex_change_role(role)
+        && !vv_sex_gc_draws_follow(game)) {
+        return 0;                      /* the Golden Child: a sex change only when his draws follow (option 1) */
+    }
+    if (game == 5 && cg_g.version >= 6 && (spec[13] & CG_ROLE_HEATHEN)) {
+        /* A Heathen's role: as the game's own picker 0x471870 picks one (Heathens-only 1, special roles 0): a
+           Heathen, never roles 12-17 (the Heathen Doctor, Chief, the three Masters, the Heathen Mommy), never sick,
+           health above 0 (listed: present, not a body or a spirit); carrying or nursing allowed.  The role's own
+           ages and sex still apply below. */
+        int hrole = *(const int *)(r + 0x1CFC);
+        if (!cg_heathen(game, r) || (hrole >= 12 && hrole <= 17) || r[0x1C48] != 0 || cg_health_now(game, r) <= 0) {
+            return 0;
+        }
+    } else if (game == 5 && cg_heathen(game, r) && cg_ns_cast(game) && !((cg_conversion_roles() >> role) & 1u)) {
+        /* No Safeguards (the owner, 2026-11-15): a Heathen is cast only in a role whose purpose is a conversion;
+           Guardians of Isola's rules and words stay as they are. */
+        return 0;
     }
     if (cg_presentation_role(role) && vv_sex_change_refusal(game, r, index) != VV_SEX_OK) {
         return 0;                      /* nor any special villager for a gender presentation */
@@ -1614,7 +2074,7 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     if (cg_carrier_role(role) && !cg_born_female(game, r, index)) {
         return 0;                      /* only a villager born female is cast as a carrier */
     }
-    if ((spec[1] & CG_ROLE_BELIEVERS) && cg_heathen(game, r)) {
+    if ((spec[1] & CG_ROLE_BELIEVERS) && cg_heathen(game, r) && !(game == 5 && (spec[13] & CG_ROLE_HEATHEN))) {
         return 0;
     }
     if (cg_g.version >= 6 && (spec[1] & CG_ROLE_PROTECTED) && cg_protected(a, game, r)) {
@@ -1622,6 +2082,9 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     }
     if (cg_g.version >= 6 && (spec[1] & CG_ROLE_HARM) && cg_never_harmed(game, r)) {
         return 0;                      /* never harmed, even with protected "allow" */
+    }
+    if (cg_g.version >= 6 && (spec[13] & CG_ROLE_SPEAKS) && rs_has_trait(game, r, CG_TRAIT_MUTE)) {
+        return 0;                      /* a story-mute villager never takes a role whose words have them speak */
     }
     /* The requirements (version 6: dropped for a role nobody meets when the cast prefers them). */
     if (cg_relax_mask & (1u << role)) {
@@ -2557,7 +3020,7 @@ static int cg_bind(int game) {
         if (n == 0) {
             return 0;
         }
-        if (cg_g.version >= 6 && spec[13] == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
+        if (cg_g.version >= 6 && (spec[13] & ~(CG_ROLE_SPEAKS | CG_ROLE_HEATHEN)) == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
             /* "pick": "highest": only the villagers with the top value of the listed skills, then drawn. */
             const char *skills = cg_s(&cg_g, cg_u16(spec + 10));
             int best = -1, m = 0;
@@ -2901,8 +3364,38 @@ static int cg_skills(const ce_adapter *a, const unsigned char *e, int pick) {
 /* cie-v6-binary.md 24: a random like or dislike -- the walk's roll `k` over the game's list, then candidate k % count
    of the game's preferences (in list order) in NEITHER of the villager's lists now; -1 when there is none (or nobody
    bound to read). */
+/* One of the likes (or `dislike`: the dislikes) the villager in `role` holds, drawn with the game's own random
+   routine; -1 when the list is empty. */
+static int cg_held_preference_of(const ce_adapter *a, const unsigned char *r, int dislike);
+
+static int cg_held_preference(const ce_adapter *a, int role, int dislike) {
+    return cg_held_preference_of(a, role >= 0 ? cg_villager(a, role) : NULL, dislike);
+}
+
+/* A random like (or dislike) this villager holds, to take away; -1 when the list is empty (no roll then). */
+static int cg_held_preference_of(const ce_adapter *a, const unsigned char *r, int dislike) {
+    const int *list;
+    int held[64], n = 0, slot;
+    if (r == NULL) {
+        return -1;
+    }
+    list = (const int *)(r + (dislike ? a->off_dislikes : a->off_likes));
+    for (slot = 0; slot < a->pref_slots && n < 64; ++slot) {
+        if (list[slot] >= 0 && list[slot] < a->pref_count) {
+            held[n++] = list[slot];
+        }
+    }
+    return n > 0 ? held[ce_random_below(a, n)] : -1;
+}
+
+static int cg_random_preference_of(const ce_adapter *a, const unsigned char *r, int k);
+
 static int cg_random_preference(const ce_adapter *a, int role, int k) {
-    const unsigned char *r = role >= 0 ? cg_villager(a, role) : NULL;
+    return cg_random_preference_of(a, role >= 0 ? cg_villager(a, role) : NULL, k);
+}
+
+/* ...the same for villager record `r` (a group's member). */
+static int cg_random_preference_of(const ce_adapter *a, const unsigned char *r, int k) {
     const int *likes, *dislikes;
     int i, s, count = 0;
     if (r == NULL || a->pref_count <= 0 || k < 0) {
@@ -2933,11 +3426,42 @@ static int cg_random_preference(const ce_adapter *a, int role, int k) {
     return -1;
 }
 
+static int sc_population(int game);   /* story_collection.inc: the population the gate counts */
+
+/* Each game's normal food and tech-point range of its own island events (src/vv_cie_graph.py SIZE_TABLE): a size
+   word's range is it halved (small), as it is (normal), doubled (large) or tripled (huge). */
+static const int CG_SIZE_NORMAL[2][6][2] = {
+    { { 0, 0 }, { 200, 1500 }, { 100, 1500 }, { 200, 600 }, { 300, 300 }, { 50, 300 } },      /* food */
+    { { 0, 0 }, { 500, 4999 }, { 500, 3000 }, { 1000, 2000 }, { 500, 5000 }, { 500, 3000 } },  /* tech */
+};
+static const int CG_SIZE_MUL[4][2] = { { 1, 2 }, { 1, 1 }, { 2, 1 }, { 3, 1 } };
+
+/* Whether the loaded event is one of the new events (the collection's: its header names its "collection" block,
+   cie-v6-binary.md; the Living Event Engine's variants too). */
+static int cg_is_collection_event(void) {
+    return cg_g.version >= 6 && cg_g.header_bytes >= CG_HEADER_V6 && cg_u16(cg_g.d + 90) != CG_NONE;
+}
+
 static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e, cg_history *h) {
     int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
     int va = 0, vb = 0;
     switch (e[0]) {
     case CGE_FOOD: case CGE_TECH:
+        if (cg_is_collection_event() && game >= 1 && game <= 5 && sc_population(game) >= 61) {
+            /* The owner (2026-11-15): from 61 villagers a new event's food or tech points come in a random size --
+               small, normal, large or huge, equally likely -- in the game's own ranges; a gain stays a gain and a
+               loss a loss.  Below 61 the size the event names. */
+            const int *n = CG_SIZE_NORMAL[e[0] == CGE_TECH][game];
+            int size = ce_random_below(a, 4);
+            int slo = n[0] * CG_SIZE_MUL[size][0] / CG_SIZE_MUL[size][1];
+            int shi = n[1] * CG_SIZE_MUL[size][0] / CG_SIZE_MUL[size][1];
+            lo = slo + ce_random_below(a, shi - slo + 1);
+            if ((int)cg_u32(e + 4) < 0) {
+                lo = -lo;
+            }
+            va = (e[2] & 1u) ? cg_scaled(a, game, e[0] == CGE_FOOD, lo) : lo;
+            break;
+        }
         /* Version 5: this game's own amount or range, when the effect lists one. */
         if (cg_u16(e + 12) != CG_NONE && cg_per_game(cg_s(&cg_g, cg_u16(e + 12)), game, &lo, &hi) == 1) {
             if (hi == lo) {
@@ -2955,8 +3479,9 @@ static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e
         va = lo + ce_random_below(a, hi - lo + 1);
         break;
     case CGE_SKILL: {
-        int n = cg_skills(a, e, -1);
-        va = n > 0 ? cg_skills(a, e, ce_random_below(a, n)) : -1;
+        int n = (e[2] & CG_SKILL_BEST) ? 0 : cg_skills(a, e, -1);
+        /* the villager's own highest skill: chosen when the effect is made (-2), no roll here */
+        va = (e[2] & CG_SKILL_BEST) ? -2 : n > 0 ? cg_skills(a, e, ce_random_below(a, n)) : -1;
         vb = lo + ce_random_below(a, hi - lo + 1);   /* version 6: a loss too (lo..hi below 0) */
         break;
     }
@@ -2970,8 +3495,8 @@ static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e
         }
         break;
     case CGE_SKILL_SET: {
-        int n = cg_skills(a, e, -1);
-        va = n > 0 ? cg_skills(a, e, ce_random_below(a, n)) : -1;
+        int n = (e[2] & CG_SKILL_BEST) ? 0 : cg_skills(a, e, -1);
+        va = (e[2] & CG_SKILL_BEST) ? -2 : n > 0 ? cg_skills(a, e, ce_random_below(a, n)) : -1;
         vb = lo;                       /* the value set: no roll */
         break;
     }
@@ -2982,7 +3507,10 @@ static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e
         vb = hi == CG_LOOK_RANDOM ? ce_random_below(a, a->body_count - 1) : hi == CG_LOOK_KEEP ? -1 : hi;
         break;
     case CGE_PREF:
-        if (e[2] & CG_PREF_RANDOM) {
+        if ((e[2] & CG_PREF_RANDOM) && (e[2] & CG_PREF_REMOVE)) {
+            /* A random like (or dislike) the villager holds, to take away; -1 when the list is empty. */
+            va = cg_held_preference(a, cg_resolve_role(e[1]), (e[2] & 4u) != 0);
+        } else if (e[2] & CG_PREF_RANDOM) {
             /* 24: the roll, then the word chosen from the villager as the walk finds them (a fixed word: no roll) */
             int k = ce_random_below(a, a->pref_count);
             va = cg_random_preference(a, cg_resolve_role(e[1]), k);
@@ -3243,11 +3771,11 @@ static void cg_path_add(const cg_history *s, const cg_pick *picks, int count) {
 
 /* The pronouns, (male, female): he/she .. man/woman, then version 6's himself/herself, woman/man, boy/girl,
    son/daughter. */
-static const char *const CG_PRONOUNS[15][2] = {
+static const char *const CG_PRONOUNS[16][2] = {
     { "he", "she" }, { "his", "her" }, { "him", "her" }, { "man", "woman" },
     { "himself", "herself" }, { "man", "woman" }, { "boy", "girl" }, { "son", "daughter" },
     { "father", "mother" }, { "father", "mother" }, { "dad", "mom" }, { "brother", "sister" }, { "uncle", "aunt" },
-    { "boy", "girl" }, { "gentleman", "lady" } };
+    { "boy", "girl" }, { "gentleman", "lady" }, { "his", "hers" } };
 
 static const char *const *cg_pronoun(int what) {
     return CG_PRONOUNS[what <= CG_PH_MAN ? what - CG_PH_HE : what - CG_PH_HIMSELF + 4];
@@ -3282,6 +3810,24 @@ static int cg_glyph_fallback(char *out, int n, int cap) {
     for (i = 0; i < n && o < cap - 1; ++i) {
         const char *put = NULL;
         char c = copy[i];
+        if (c == '(' && cg_made_ph(copy + i)) {
+            int c2, len = cg_made_len(cg_made_ph(copy + i));
+            for (c2 = 0; c2 < len && o < cap - 1; ++c2) {
+                out[o++] = copy[i + c2];
+            }
+            i += len - 1;
+            continue;
+        }
+        if (c == '{' && copy[i + 1] == '#') {
+            /* 33: a count token is filled (and falls back) after the page's effects: kept as it is */
+            for (; i < n && copy[i] != '}' && o < cap - 1; ++i) {
+                out[o++] = copy[i];
+            }
+            if (i < n && o < cap - 1) {
+                out[o++] = copy[i];
+            }
+            continue;
+        }
         switch (c) {
         case ';': c = ','; break;
         case '(': case ')': c = '-'; break;
@@ -3729,6 +4275,43 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
             s += 2;
             continue;
         }
+        if (cg_g.version >= 6 && *s == '{' && s[1] == '#') {
+            /* 33: a count token -- the worst case its longest option; else kept for the page's pass after its
+               effects are made (cg_display) */
+            const char *opts;
+            int which, olen, n = cg_count_token(s, &which, &opts, &olen);
+            if (n > 0) {
+                if (mode == CG_EXPAND_WORST) {
+                    /* each option with its placeholders at their widest; the longest kept */
+                    static char opt[CG_PAGE_BYTES], filled[CG_PAGE_BYTES], wide[CG_PAGE_BYTES];
+                    int start = 0, i, best = 0;
+                    wide[0] = '\0';
+                    for (i = 0; i <= olen; ++i) {
+                        if (i == olen || opts[i] == '|') {
+                            int len;
+                            cg_made_fill(opts + start, i - start, 1, name_room, opt, (int)sizeof opt);
+                            len = cg_expand_in(opt, filled, (int)sizeof filled, mode, name_room, award_kind, award,
+                                               depth + 1);
+                            if (len > best) {
+                                best = len;
+                                lstrcpynA(wide, filled, (int)sizeof wide);
+                            }
+                            start = i + 1;
+                        }
+                    }
+                    for (i = 0; wide[i] != '\0' && o < cap - 1; ++i) {
+                        out[o++] = wide[i];
+                    }
+                } else {
+                    int c;
+                    for (c = 0; c < n && o < cap - 1; ++c) {
+                        out[o++] = s[c];
+                    }
+                }
+                s += n;
+                continue;
+            }
+        }
         if (cg_g.version >= 6 && *s == '{') {
             int pool, instance, n = cg_parse_brace(&cg_g, s, &pool, &instance);
             if (n > 0 && pool < 0) {
@@ -3770,6 +4353,21 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
                 s += n;
                 continue;
             }
+        }
+        if (*s == '(' && cg_g.version >= 6 && cg_made_ph(s)) {
+            /* 33: a made villager's name -- filled after the page's effects (cg_display); the worst case W x room */
+            int c;
+            if (mode == CG_EXPAND_WORST) {
+                for (c = 0; c < name_room && o < cap - 1; ++c) {
+                    out[o++] = 'W';
+                }
+            } else {
+                for (c = 0; c < cg_made_len(cg_made_ph(s)) && o < cap - 1; ++c) {
+                    out[o++] = s[c];
+                }
+            }
+            s += cg_made_len(cg_made_ph(s));
+            continue;
         }
         if (*s != '(') {
             out[o++] = *s++;
@@ -3855,20 +4453,22 @@ static int cg_expand(const char *raw, char *out, int cap, int mode, int name_roo
     return n;
 }
 
-/* A button label as the player reads it into `out` (CG_LABEL_V6 bytes): the real names, or -- when that is wider
-   than the screen or longer than a label holds -- each name as its role's pronoun (cie-v6-binary.md 15). */
+/* A button label as the player reads it into `out` (CE_LONG_LINE_BYTES bytes): the real names, or -- when that is
+   wider than the screen or longer than a label holds -- each name as its role's pronoun (cie-v6-binary.md 15).  With
+   Scrolling Popups a choice is a row that grows to as many lines as its label needs (native/shared/one_popup.h):
+   only the sanity cap counts, never the screen's width. */
 static void cg_label_text(const ce_adapter *a, const char *raw, char *out) {
-    static char real[CG_LABEL_V6 * 4];
-    int n;
+    static char real[CE_LONG_LINE_BYTES * 4];
+    int n, op = cg_one_popup(), limit = op ? CE_LONG_LINE_BYTES : CG_LABEL_V6;
     cg_case_label = 1;                  /* 20: a label is cased as a whole */
     n = cg_expand(raw, real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
-    if (cg_g.version >= 6 && (n >= CG_LABEL_V6 || ce_label_px(a, real) > ce_label_max_px(a))) {
+    if (cg_g.version >= 6 && (n >= limit || (!op && ce_label_px(a, real) > ce_label_max_px(a)))) {
         cg_pronoun_names = 1;
         cg_expand(raw, real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
         cg_pronoun_names = 0;
     }
     cg_case_label = 0;
-    lstrcpynA(out, real, CG_LABEL_V6);
+    lstrcpynA(out, real, limit);
 }
 
 typedef struct {
@@ -3922,10 +4522,12 @@ static int cg_one_popup(void) {
 
 static int ce_game_of(const ce_adapter *a);
 
-/* The bytes one popup's text may hold: A New Home's and The Lost Children's encounter dialog holds 9,999, the later
-   games' popups 2,000. */
+/* The bytes one popup's text may hold: with Scrolling Popups practically any (CE_LONG_TEXT_MAX: the dialog's field
+   holds its start and Scrolling Popups draws the whole, native/shared/one_popup.h); without it the later games'
+   popups hold 2,000. */
 static int cg_text_max(const ce_adapter *a) {
-    return cg_one_popup() && ce_game_of(a) >= 1 && ce_game_of(a) <= 2 ? CG_TEXT_MAX_12 : CG_TEXT_MAX;
+    (void)a;
+    return cg_one_popup() ? CE_LONG_TEXT_MAX : CG_TEXT_MAX;
 }
 
 /* `text` (raw: names not filled) fits page `pages->count` at its widest: its bytes, and -- unless the popup
@@ -4059,7 +4661,7 @@ static int cg_compose_once(const ce_layout *l, const char *title, const char *te
     w.out = out;
     w.size = size;
     w.width = l->width;
-    w.max_lines = cg_scrolls() ? 1000 : l->lines - 1;     /* a scrolling popup has room for every line */
+    w.max_lines = cg_scrolls() ? 0x7FFFFFFF : l->lines - 1;   /* a scrolling popup has room for every line */
     out[0] = '\0';
     if (l->with_title) {
         ce_wrap(&w, title);
@@ -4121,8 +4723,140 @@ static int cg_add_display(const char *text, int kind, int villager) {
     return k;
 }
 
+/* 33: what the effects made -- this page's, and the last page's that made any (-1 none known; memory only: after a
+   quit and a restore the first option is shown). */
+static int cg_count_last[2] = { -1, -1 };
+static int cg_count_page[2];
+static int cg_count_page_any[2];
+
+static void cg_count_add(int which, int n) {
+    if (which >= 0 && which < 2) {
+        cg_count_page[which] += n > 0 ? n : 0;
+        cg_count_page_any[which] = 1;
+    }
+}
+
+/* `text` with its count tokens filled (cie-v6-binary.md 33), in a buffer of its own; `text` itself when it has
+   none. */
+static const char *cg_count_fill(const char *text) {
+    static char out[CG_PAGE_BYTES];
+    const char *s;
+    int o = 0;
+    for (s = text; *s != '\0' && !(s[0] == '{' && s[1] == '#') && !cg_made_ph(s); ++s) {
+    }
+    if (*s == '\0') {
+        return text;
+    }
+    for (s = text; *s != '\0' && o < (int)sizeof out - 1;) {
+        const char *opts = NULL;
+        int which = 0, olen = 0, n = s[0] == '{' && s[1] == '#' ? cg_count_token(s, &which, &opts, &olen) : 0;
+        if (n == 0 && cg_made_ph(s)) {
+            char name[CG_NAME_BYTES + 16];
+            const char *t;
+            cg_made_name(cg_made_ph(s), name, (int)sizeof name);
+            for (t = name; *t != '\0' && o < (int)sizeof out - 1; ++t) {
+                out[o++] = *t;
+            }
+            s += cg_made_len(cg_made_ph(s));
+            continue;
+        }
+        if (n > 0) {
+            static char raw[CG_PAGE_BYTES], made[CG_PAGE_BYTES], real[CG_PAGE_BYTES];
+            const ce_adapter *a = ce_adapter_for(cg.game);
+            int len = cg_count_option(opts, olen, cg_count_last[which], raw, (int)sizeof raw), i;
+            cg_made_fill(raw, len, 0, 0, made, (int)sizeof made);
+            /* the event's own placeholders and the glyph fallback, as the rest of the page had them */
+            cg_expand(made, real, (int)sizeof real, CG_EXPAND_REAL, a != NULL ? a->name_room : 0, -1, 0);
+            for (i = 0; real[i] != '\0' && o < (int)sizeof out - 1; ++i) {
+                out[o++] = real[i];
+            }
+            s += n;
+            continue;
+        }
+        out[o++] = *s++;
+    }
+    out[o] = '\0';
+    return out;
+}
+
+/* 33a: the renames the event made (change_name, lost name, mind swap), each with the display it was made on: a
+   later display laid out before it has the old name, and gets the new one (whole words; memory only). */
+#define CG_RENAMES 8
+static struct {
+    char was[CG_NAME_BYTES], now[CG_NAME_BYTES];
+    int display;
+} cg_renames[CG_RENAMES];
+static int cg_rename_count;
+static int cg_display_now = -1;           /* the display whose effects are being made */
+
+static int cg_word_char(char c) {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '\'';
+}
+
+/* Display `k`'s text with the later renames put in. */
+static const char *cg_renames_fill(const char *text, int k) {
+    static char out[CG_PAGE_BYTES];
+    const char *s;
+    int r, o = 0, any = 0;
+    for (r = 0; r < cg_rename_count; ++r) {
+        any |= cg_renames[r].display < k && cg_renames[r].was[0] != '\0';
+    }
+    if (!any) {
+        return text;
+    }
+    for (s = text; *s != '\0' && o < (int)sizeof out - 1;) {
+        int hit = -1;
+        if (s == text || !cg_word_char(s[-1])) {
+            for (r = cg_rename_count - 1; r >= 0 && hit < 0; --r) {
+                int n = lstrlenA(cg_renames[r].was);
+                if (cg_renames[r].display < k && n > 0 && memcmp(s, cg_renames[r].was, (size_t)n) == 0
+                    && !cg_word_char(s[n])) {
+                    hit = r;
+                }
+            }
+        }
+        if (hit >= 0) {
+            const char *t;
+            for (t = cg_renames[hit].now; *t != '\0' && o < (int)sizeof out - 1; ++t) {
+                out[o++] = *t;
+            }
+            s += lstrlenA(cg_renames[hit].was);
+            continue;
+        }
+        out[o++] = *s++;
+    }
+    out[o] = '\0';
+    return out;
+}
+
+static void cg_display_title(int k, char *out, int cap);
+
+/* `out` (`cap` bytes) = a + b + c, cut at cap (wsprintfA stops at 1,024 characters: a long title or label is not). */
+static void cg_join(char *out, int cap, const char *a, const char *b, const char *c) {
+    int n;
+    lstrcpynA(out, a, cap);
+    n = lstrlenA(out);
+    lstrcpynA(out + n, b, cap - n);
+    n = lstrlenA(out);
+    lstrcpynA(out + n, c, cap - n);
+}
+static char cg_title_rest[CE_LONG_LINE_BYTES * 4];
+
 static const char *cg_display(int k) {
-    return k >= 0 && k < cg.display_count ? cg.displays + cg.display_off[k] : "";
+    static char wrapped[CG_PAGE_BYTES + CE_LONG_LINE_BYTES * 4 + 2];
+    char title[CE_LONG_LINE_BYTES * 4];
+    const char *text;
+    if (k < 0 || k >= cg.display_count) {
+        return "";
+    }
+    text = cg_count_fill(cg_renames_fill(cg.displays + cg.display_off[k], k));
+    cg_display_title(k, title, (int)sizeof title);
+    if (cg_title_rest[0] == '\0') {
+        return text;
+    }
+    /* the title's second line (a choice's label wider than the title area), then the page */
+    cg_join(wrapped, (int)sizeof wrapped, cg_title_rest, "\n", text);
+    return wrapped;
 }
 
 /* ---- Per-node popup titles (docs/event-collection/cie-v6-binary.md 14) ------------------------------------- */
@@ -4143,9 +4877,12 @@ static unsigned short cg_node_title(int node) {
    (story_title_widths.h), the first two games' title_width (src/vv_cie_graph.py GAMES). */
 static int cg_title_fits(const char *text) {
     static const int TITLE_WIDTH_V12[3] = { 0, 51, 46 };
-    int n = lstrlenA(text);
-    if (n >= CE_TITLE_BYTES) {
+    int n = lstrlenA(text), op = cg_one_popup();
+    if (n >= (op ? CE_LONG_LINE_BYTES : CE_TITLE_BYTES)) {
         return 0;
+    }
+    if (op && cg.game >= 3 && cg.game <= 5) {
+        return 1;                       /* Scrolling Popups wraps a title wider than its box (one_popup.h) */
     }
     if (cg.game >= 3 && cg.game <= 5) {
         int px = 0, i;
@@ -4162,11 +4899,11 @@ static int cg_title_fits(const char *text) {
 /* Title `t` (0: the event's own) expanded with `mode` (CG_EXPAND_REAL / CG_EXPAND_WORST) into `out`: its names,
    or -- when that does not fit -- its names as pronouns (cie-v6-binary.md 17). */
 static void cg_title_expand(unsigned short t, int mode, char *out, int cap) {
-    static char buf[CG_LABEL_V6 * 4];
+    static char buf[CE_LONG_LINE_BYTES * 4];
     const ce_adapter *a = ce_adapter_for(cg.game);
     const char *raw = cg_s(&cg_g, t == 0 ? (unsigned int)cg_g.title : (unsigned int)t - 1u);
     int room = a != NULL ? a->name_room : 0;
-    static char cased[CG_LABEL_V6 * 4];
+    static char cased[CE_LONG_LINE_BYTES * 4];
     if (cg_g.version < 6) {
         lstrcpynA(out, t == 0 ? cg.title : raw, cap);
         return;
@@ -4194,7 +4931,7 @@ static void cg_title_text(unsigned short t, char *out, int cap) {
    it is shown. */
 static const char *cg_readable(const cg_graph *g) {
     static char buf[CE_TITLE_BYTES];
-    static char cased[CG_LABEL_V6 * 4];
+    static char cased[CE_LONG_LINE_BYTES * 4];
     lstrcpynA(cased, cg_s(g, (unsigned int)g->title), sizeof cased);
     cg_title_case(cased);                               /* 20: a title in capitals in title case */
     lstrcpynA(buf, cased, sizeof buf);
@@ -4204,8 +4941,8 @@ static const char *cg_readable(const cg_graph *g) {
 /* 17: the running event's title with the cast villagers' real names (never pronouns: the log has no title box),
    for the Island Events log's "Event:" line and "Disappeared in ...". */
 static void cg_title_logged(char *out, int cap) {
-    static char buf[CG_LABEL_V6 * 4];
-    static char cased[CG_LABEL_V6 * 4];
+    static char buf[CE_LONG_LINE_BYTES * 4];
+    static char cased[CE_LONG_LINE_BYTES * 4];
     const ce_adapter *a = ce_adapter_for(cg.game);
     if (cg_g.version < 6) {
         lstrcpynA(out, cg.title, cap);
@@ -4218,8 +4955,46 @@ static void cg_title_logged(char *out, int cap) {
 }
 
 /* The title of display `k`'s popup, into `out`. */
+static char cg_title_rest[CE_LONG_LINE_BYTES * 4];   /* the part of the last title shown that did not fit its area */
+
+/* Title `title` (as shown) cut to what fits the title area, at a space; what is left into cg_title_rest. */
+static void cg_title_wrap(char *title) {
+    static char head[CE_LONG_LINE_BYTES * 4];
+    int n = lstrlenA(title), cut = -1, i;
+    cg_title_rest[0] = '\0';
+    if (n == 0 || cg_title_fits(title)) {
+        return;
+    }
+    for (i = 1; i < n && i < (int)sizeof head - 1; ++i) {
+        if (title[i] == ' ') {
+            memcpy(head, title, (size_t)i);
+            head[i] = '\0';
+            if (!cg_title_fits(head)) {
+                break;
+            }
+            cut = i;
+        }
+    }
+    if (cut <= 0) {
+        for (cut = n - 1; cut > 1; --cut) {   /* one long word: as many letters as fit */
+            memcpy(head, title, (size_t)cut);
+            head[cut] = '\0';
+            if (cg_title_fits(head)) {
+                break;
+            }
+        }
+        lstrcpynA(cg_title_rest, title + cut, (int)sizeof cg_title_rest);
+    } else {
+        lstrcpynA(cg_title_rest, title + cut + 1, (int)sizeof cg_title_rest);
+    }
+    title[cut] = '\0';
+}
+
 static void cg_display_title(int k, char *out, int cap) {
-    cg_title_text(k >= 0 && k < cg.display_count ? cg.display_title[k] : 0, out, cap);
+    static char full[CE_LONG_LINE_BYTES * 4];
+    cg_title_text(k >= 0 && k < cg.display_count ? cg.display_title[k] : 0, full, (int)sizeof full);
+    cg_title_wrap(full);                /* a choice's label wider than the title area: its rest on the page */
+    lstrcpynA(out, full, cap);
 }
 
 /* The title in force before history node `upto`: the last titled node's on the way, else the event's. */
@@ -4419,7 +5194,7 @@ static int cg_effect_harmful(const ce_adapter *a, int game, const unsigned char 
     int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
     switch (e[0]) {
     case CGE_KILL: case CGE_VANISH: case CGE_SICK: case CGE_DIE_UNRECOVERED: case CGE_BABY_LOST:
-    case CGE_BIRTH_THEN_DIE: case CGE_DELIVER_EARLY:
+    case CGE_BIRTH_THEN_DIE: case CGE_DELIVER_EARLY: case CGE_APOSTASY:
         return 1;
     case CGE_HEALTH: return hi < 100;
     case CGE_HEALTH_CHANGE: return lo < 0;
@@ -4493,7 +5268,7 @@ static int test_graph_head_looks;
 /* cie-v6-binary.md 27: the villager in record `index` is drawn with the OLD head from now on -- the per-villager
    head look Change Appearance offers, kept in "VVFP Head Look.dll"'s own per-save file (never a record field).
    0 when it cannot be made (the companion is not in the game, its draws do not follow the look, the write failed). */
-static int cg_old_look(int game, const unsigned char *record, int index) {
+static int cg_head_look(int game, const unsigned char *record, int index, int look) {
     vvfp_head_look_api api;
 #ifdef VVFP_TEST
     if (test_graph_head_look >= 0) {
@@ -4502,13 +5277,17 @@ static int cg_old_look(int game, const unsigned char *record, int index) {
         }
         if (test_graph_head_looks < 16) {
             test_graph_head_look_set[test_graph_head_looks][0] = index;
-            test_graph_head_look_set[test_graph_head_looks++][1] = VVFP_HEAD_LOOK_OLD;
+            test_graph_head_look_set[test_graph_head_looks++][1] = look;
         }
         return 1;
     }
 #endif
     (void)index;
-    return vvfp_head_look_find(game, &api) && api.set(game, record, VVFP_HEAD_LOOK_OLD) == 1;
+    return vvfp_head_look_find(game, &api) && api.set(game, record, look) == 1;
+}
+
+static int cg_old_look(int game, const unsigned char *record, int index) {
+    return cg_head_look(game, record, index, VVFP_HEAD_LOOK_OLD);
 }
 
 #ifdef VVFP_TEST
@@ -4552,6 +5331,9 @@ static int cg_presentation(int game, const unsigned char *record, int index, int
    they go on carrying, the carrying parent on the babies' records.  Every companion that keeps data by the sex
    follows the change (sex_change.h, VvfpVillagerSexChanged). */
 static int cg_sex_change_refusal(const ce_adapter *a, int game, const unsigned char *record) {
+    if (vv_sex_golden_child(game, record) && vv_sex_gc_draws_follow(game)) {
+        return -1;                     /* option 1: his look stays a boy's (the Gender Presentation companion) */
+    }
     if (cg_special(a, game, record) || cg_never_harmed(game, record)) {
         return CE_WHY_OTHER;
     }
@@ -4628,51 +5410,714 @@ static void cg_damage(const ce_adapter *a, int game, const unsigned char *e, int
     }
 }
 
-/* Effect `e` with its rolls (va, vb) on the village; the award's state in *award_kind / *award. */
-static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int va, int vb, int *award_kind,
-                      int *award, ce_result *r) {
-    unsigned char *record;
-    ce_result one;
-    ce_change *c;
-    int index, role;
-    switch (e[0]) {
-    case CGE_FOOD: case CGE_TECH:
-        if (e[2] & 2u) {
-            *award_kind = e[0] == CGE_FOOD ? 0 : 1;
-            *award = va;               /* given by a later "pay_award" */
-        } else {
-            cg_amount(a, e[0] == CGE_FOOD, va, r);
-        }
-        return;
-    case CGE_PAY:
-        if (*award_kind >= 0) {
-            cg_amount(a, *award_kind == 0, *award, r);
-        }
-        return;
-    case CGE_DAMAGE:
-        cg_damage(a, game, e, va);
-        return;
-    case CGE_CELEBRATE:
-        if (e[1] == CG_ROLE_ALIAS_ALL) {
-            cg_celebrate_all(a, game, r);
+/* The villagers this event made last (new_villager, clone), the newest first: role bytes 253 and 252.  Memory only:
+   they are for the effects of the same page (a quit before the next page forgets them, and those effects do
+   nothing). */
+static int cg_newest[2] = { -1, -1 };
+static unsigned int cg_newest_id[2];
+
+static char cg_renamed_now[CG_NAME_BYTES];   /* (renamed): the name the latest rename gave ("" none yet) */
+static unsigned char *cg_target(const ce_adapter *a, int who, int *index);
+
+static void cg_made_name(int k, char *out, int cap) {
+    const ce_adapter *a = ce_adapter_for(cg.game);
+    if (k == 3) {
+        int i;
+        if (cg_renamed_now[0] != '\0') {
+            lstrcpynA(out, cg_renamed_now, cap);
             return;
         }
-        break;
-    default:
-        break;
-    }
-    role = cg_resolve_role(e[1]);      /* an alias: the member drawn */
-    if (role < 0) {
-        return;                        /* an alias with no member: nobody to change */
-    }
-    record = cg_villager(a, role);
-    if (record == NULL) {
-        /* Gone since the event began (old age, another event between its pages, or this event): that role's
-           later effects are skipped -- never someone else in their record -- and the rest of the event goes on. */
-        cg.gone |= 1u << role;
+        /* before any rename: the current name of the villager the event's first change_name is for */
+        for (i = 0; i < cg_g.n_effect; ++i) {
+            const unsigned char *e = cg_effect_at(&cg_g, i);
+            int at = -1;
+            unsigned char *r = e[0] == CGE_CHANGE_NAME && a != NULL ? cg_target(a, e[1], &at) : NULL;
+            if (r != NULL) {
+                ce_copy_name(out, cap, r + a->off_name, a->name_bytes);
+                return;
+            }
+        }
+        lstrcpynA(out, "the villager", cap);
         return;
     }
-    if ((cg_role_at(&cg_g, role)[1] & CG_ROLE_PROTECTED) && cg_effect_harmful(a, game, e)
+    int pick = k == 2 && cg_newest[1] >= 0 ? 1 : 0;   /* (made1) the newest, (made2) the one before it */
+    unsigned char *r = a != NULL && cg_newest[pick] >= 0 ? ce_same_villager(a, cg_newest[pick], cg_newest_id[pick])
+                                                         : NULL;
+    if (r == NULL) {
+        lstrcpynA(out, "a newcomer", cap);
+        return;
+    }
+    ce_copy_name(out, cap, r + a->off_name, a->name_bytes);
+}
+
+/* A villager renamed (or their likes changed: a mind swap) by this event: the run's roles that are them keep
+   following them (their identity holds the name) and show the new name; the rename kept for the later pages. */
+static void cg_renamed_record(const ce_adapter *a, const unsigned char *record, const char *was) {
+    int r;
+    char now[CG_NAME_BYTES];
+    ce_copy_name(now, CG_NAME_BYTES, record + a->off_name, a->name_bytes);
+    for (r = 0; r < CG_MAX_ROLES; ++r) {
+        if ((cg.bound & (1u << r)) && !(cg.gone & (1u << r)) && a->record(cg.record[r]) == record) {
+            cg.identity[r] = ce_identity(a, record);
+            lstrcpynA(cg.name[r], now, CG_NAME_BYTES);
+        }
+    }
+    for (r = 0; r < 2; ++r) {
+        if (cg_newest[r] >= 0 && a->record(cg_newest[r]) == record) {
+            cg_newest_id[r] = ce_identity(a, record);
+        }
+    }
+    if (was != NULL && lstrcmpA(was, now) != 0 && cg_rename_count < CG_RENAMES) {
+        lstrcpynA(cg_renames[cg_rename_count].was, was, CG_NAME_BYTES);
+        lstrcpynA(cg_renames[cg_rename_count].now, now, CG_NAME_BYTES);
+        cg_renames[cg_rename_count++].display = cg_display_now;
+    }
+}
+
+static void cg_newest_reset(void) {
+    cg_newest[0] = cg_newest[1] = -1;
+    cg_renamed_now[0] = '\0';
+    cg_rename_count = 0;
+    cg_count_last[0] = cg_count_last[1] = -1;
+}
+
+static void cg_newest_push(const ce_adapter *a, int index) {
+    unsigned char *r = a->record(index);
+    if (r == NULL) {
+        return;
+    }
+    cg_newest[1] = cg_newest[0];
+    cg_newest_id[1] = cg_newest_id[0];
+    cg_newest[0] = index;
+    cg_newest_id[0] = ce_identity(a, r);
+}
+
+/* The villager an effect's role byte `who` names now (a role, an alias's member, or 253 / 252), its record index
+   in *index; NULL when nobody (gone, unbound, not made). */
+static unsigned char *cg_target(const ce_adapter *a, int who, int *index) {
+    unsigned char *rec;
+    int role;
+    if (who == (int)CG_ROLE_NEWEST || who == (int)CG_ROLE_NEWEST2) {
+        int k = who == (int)CG_ROLE_NEWEST ? 0 : 1;
+        if (cg_newest[k] < 0) {
+            return NULL;
+        }
+        rec = ce_same_villager(a, cg_newest[k], cg_newest_id[k]);
+        if (rec != NULL) {
+            *index = cg_newest[k];
+        }
+        return rec;
+    }
+    role = cg_resolve_role(who);
+    if (role < 0 || (rec = cg_villager(a, role)) == NULL) {
+        return NULL;
+    }
+    *index = cg.record[role];
+    return rec;
+}
+
+/* Effect `e` with its rolls (va, vb) on the village; the award's state in *award_kind / *award. */
+/* The age of a new villager of age class `cls` (0 any, 1 child 1..13, 2 teen 14..17, 3 adult 18..54, 4 elder
+   55..75), in the games' age units (20 a year), drawn with the game's own random routine. */
+static int cg_new_villager_age(const ce_adapter *a, int cls) {
+    static const int RANGE[5][2] = { { 1, 75 }, { 1, 13 }, { 14, 17 }, { 18, 54 }, { 55, 75 } };
+    int lo, hi;
+    if (cls < 0 || cls > 4) {
+        cls = 0;
+    }
+    lo = RANGE[cls][0];
+    hi = RANGE[cls][1];
+    return 20 * (lo + ce_random_below(a, hi - lo + 1));
+}
+
+/* Effect 27: a new villager through the game's own creator (a->spawn: its room check, its free record, its own
+   name, likes, dislikes and skills), told as an arrival (ce_tell_arrival: the logs, Cause of Death, Last Names);
+   a duplicate takes the cast villager's sex, head and body.  No room (the mode's cap, a full record table): nothing
+   and no error -- the effect is skipped. */
+static void cg_new_villager(const ce_adapter *a, int game, const unsigned char *e, ce_result *r) {
+    ce_spawn s;
+    int k, index;
+    (void)r;
+    if (a == NULL || !(a->caps & CAP_SPAWN) || a->spawn == NULL) {
+        return;
+    }
+    memset(&s, 0, sizeof s);
+    s.count = 1;
+    s.head = s.body = CE_KEEP;
+    s.mask = s.faction = s.health = CE_KEEP;
+    for (k = 0; k < CE_SKILLS; ++k) {
+        s.skills[k] = CE_KEEP;
+    }
+    for (k = 0; k < CE_SPAWN_PREFS; ++k) {
+        s.likes[k] = s.dislikes[k] = -1;
+    }
+    s.father_record = s.mother_record = -1;
+    s.father_head = s.father_body = s.mother_head = s.mother_body = CE_KEEP;
+    {
+        int sex = (int)cg_u32(e + 8);  /* b: 0 random (the game's roll), 1 male, 2 female */
+        s.sex = sex == 1 ? STORY_SEX_MALE : sex == 2 ? STORY_SEX_FEMALE
+                                                     : (ce_random_below(a, 2) ? STORY_SEX_FEMALE : STORY_SEX_MALE);
+    }
+    if (e[1] != CG_ROLE_ALIAS_ALL) {
+        int from = -1;
+        const unsigned char *src = cg_target(a, e[1], &from);
+        if (src == NULL) {
+            return;                    /* the villager to duplicate is gone: nothing */
+        }
+        s.sex = ce_sex(a, src);
+        s.head = *(const int *)(src + a->off_head);
+        s.body = *(const int *)(src + a->off_body);
+    }
+    s.father_kind = s.mother_kind = CE_PARENT_KEEP;
+    if (e[2] & CG_NEW_CHILD_OF_NEWEST) {
+        /* A family arriving together (the owner, 2026-11-15): the two newest villagers are its parents, recorded as
+           a birth records them (the Custom Island Event's own parents' write): a woman the mother, a man the
+           father; two of one sex: the first made the father's place. */
+        for (k = 1; k >= 0; --k) {
+            unsigned char *p = cg_newest[k] >= 0 ? ce_same_villager(a, cg_newest[k], cg_newest_id[k]) : NULL;
+            int female, as_mother;
+            if (p == NULL) {
+                continue;
+            }
+            female = ce_sex(a, p) == STORY_SEX_FEMALE;
+            as_mother = female ? s.mother_kind == CE_PARENT_KEEP : s.father_kind != CE_PARENT_KEEP;
+            if (as_mother && s.mother_kind == CE_PARENT_KEEP) {
+                ce_copy_name(s.mother_name, CE_NAME_BYTES, p + a->off_name, a->name_bytes);
+                s.mother_head = *(const int *)(p + a->off_head);
+                s.mother_body = *(const int *)(p + a->off_body);
+                s.mother_kind = CE_PARENT_VILLAGER;
+                s.mother_record = cg_newest[k];
+            } else if (s.father_kind == CE_PARENT_KEEP) {
+                ce_copy_name(s.father_name, CE_NAME_BYTES, p + a->off_name, a->name_bytes);
+                s.father_head = *(const int *)(p + a->off_head);
+                s.father_body = *(const int *)(p + a->off_body);
+                s.father_kind = CE_PARENT_VILLAGER;
+                s.father_record = cg_newest[k];
+            }
+        }
+        s.parents_set = s.father_kind != CE_PARENT_KEEP || s.mother_kind != CE_PARENT_KEEP;
+    }
+    s.age = cg_new_villager_age(a, (int)cg_u32(e + 4));
+    index = a->spawn(&s);
+    cg_count_add(1, index >= 0);       /* 33: the villagers actually made */
+    if (index < 0) {
+        return;                        /* no room: skipped, no error */
+    }
+    ce_tell_arrival(game, index, &s);
+    if ((a->caps & CAP_PARENTS) && s.parents_set && a->parents_supported()) {
+        ce_change parents;
+        ce_spawn_parents(&s, &parents);
+        (void)a->set_parents(index, &parents);
+    }
+    if (!(e[2] & CG_NEW_CHILD_OF_NEWEST)) {
+        cg_newest_push(a, index);      /* 253 from here on (the one before it 252) */
+    }
+}
+
+
+/* The companions that key a villager by an identity holding the name (native/shared/villager_rekey.h): each one
+   loaded is handed the renamed records and the names they had, as "VVFP Last Names.dll" hands its renames. */
+static const char *const CG_RENAME_OWNERS[] = {
+    "VVFP Head Look.dll", "VVFP Original Look.dll", "VVFP Origins Icons.dll", "VVFP VV1 Origins Icons.dll",
+    "VVFP VV2 Origins Icons.dll", "VVFP VV4 Origins Icons.dll", "VVFP Cause of Death.dll", "VVFP Faith Loss.dll",
+    "VVFP Last Names.dll", "VVFP VV1 Parentage.dll", "VVFP Parentage Export.dll", "VVFP Population Export.dll",
+    "VVFP Gender Presentation.dll",
+};
+
+int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *const *records,
+                                   const char *const *old_names);
+
+static void cg_tell_renamed(int game, int count, const void *const *records, const char *const *old_names) {
+    int slot = story_current_slot(game);
+    size_t k;
+    if (slot <= 0 || count <= 0) {
+        return;
+    }
+    (void)VvfpVillagersRenamed(game, slot, count, records, old_names);   /* this DLL's own custom titles */
+    for (k = 0; k < sizeof CG_RENAME_OWNERS / sizeof CG_RENAME_OWNERS[0]; ++k) {
+        HMODULE owner = GetModuleHandleA(CG_RENAME_OWNERS[k]);
+        vv_rekey_export_fn renamed = owner != NULL
+            ? (vv_rekey_export_fn)(void *)GetProcAddress(owner, "VvfpVillagersRenamed") : NULL;
+        if (renamed != NULL) {
+            (void)renamed(game, slot, count, records, old_names);
+        }
+    }
+}
+
+/* Each game's own copy routine (the twins' and triplets'): the new record index, -1 none.  The adapter's room
+   predicate is asked first (the routines' own record search has no bound of its own in A New Home and The Lost
+   Children). */
+static int cg_copy_villager(const ce_adapter *a, int game, int index) {
+    unsigned char *src = a->record(index);
+    int copy = -1;
+    if (src == NULL || a->room == NULL || !a->room()) {
+        return -1;
+    }
+    switch (game) {
+    case 1: copy = TC1(0x43C840u, VV1_ARRAY(), index); break;
+    case 2: copy = TC1(0x44CEC0u, VV2_POOL(), index); break;
+    case 3: copy = TC1(0x45F2D0u, C3_VILLAGE, (int)(uintptr_t)src); break;
+    case 4: copy = TC1(0x466310u, C4_MANAGER, (int)(uintptr_t)src); break;
+    case 5: copy = TC1(0x46FD70u, C5_MANAGER, (int)(uintptr_t)src); break;
+    default: break;
+    }
+    return copy >= 0 && copy < a->record_count ? copy : -1;
+}
+
+/* A first name from the game's own list (either sex, the game's random routine), never the one the record has; with
+   `keep_last`, the record's last name kept after it.  1 when the record holds the new name. */
+/* Effect 33's fixed name (the owner, 2026-11-15: "CHANGE NAME villager TO Lani"): 1 to 31 characters of letters,
+   spaces, apostrophes, hyphens and full stops, starting with a letter; "" (an empty string) counts as none. */
+static int cg_fixed_name_ok(const char *name) {
+    int k;
+    if (name[0] == '\0') {
+        return 1;
+    }
+    if (!((name[0] >= 'A' && name[0] <= 'Z') || (name[0] >= 'a' && name[0] <= 'z'))) {
+        return 0;
+    }
+    for (k = 0; name[k] != '\0'; ++k) {
+        char c = name[k];
+        if (k >= 31 || !((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == ' ' || c == '\'' || c == '-'
+                         || c == '.')) {
+            return 0;
+        }
+    }
+    return name[k - 1] != ' ';
+}
+
+/* Effect 33 with a fixed name: one word is a first name (the villager's last name kept, as the random pick keeps it),
+   a name with a space the whole name; past the room the game holds, the first name alone, then cut to the room.
+   Nothing when the villager already has that name.  1 when the name was written. */
+static int cg_rename_fixed(const ce_adapter *a, unsigned char *record, const char *fixed) {
+    char now[64], full[96];
+    const char *last = NULL;
+    int n_last = 0, k;
+    lstrcpynA(now, (const char *)record + a->off_name, (int)sizeof now);
+    for (k = 0; fixed[k] != '\0' && fixed[k] != ' '; ++k) {
+    }
+    if (fixed[k] == '\0') {
+        n_last = cg_last_of(now, &last);
+    }
+    if (n_last > 0 && lstrlenA(fixed) + 1 + n_last < (int)sizeof full) {
+        wsprintfA(full, "%s %.*s", fixed, n_last, last);
+    } else {
+        lstrcpynA(full, fixed, (int)sizeof full);
+    }
+    if (lstrlenA(full) > a->name_room) {
+        lstrcpynA(full, fixed, (int)sizeof full);
+        if (lstrlenA(full) > a->name_room) {
+            full[a->name_room > 0 ? a->name_room : 0] = '\0';
+        }
+    }
+    if (full[0] == '\0' || lstrcmpiA(full, now) == 0) {
+        return 0;
+    }
+    return ce_write_name(record + a->off_name, a->name_bytes, full);
+}
+
+static int cg_rename_from_list(const ce_adapter *a, int game, unsigned char *record, int keep_last) {
+    char now[64], pick[64], full[96];
+    const char *last = NULL, *list;
+    int tries, n_last = 0;
+    lstrcpynA(now, (const char *)record + a->off_name, (int)sizeof now);
+    if (keep_last) {
+        n_last = cg_last_of(now, &last);
+    }
+    for (tries = 0; tries < 8; ++tries) {
+        int count = 0, k, want, len = 0;
+        const char *p;
+        list = cg_names_list(game, ce_random_below(a, 2));
+        for (p = list; *p != '\0'; ++p) {
+            count += *p == ',';
+        }
+        if (count == 0) {
+            return 0;
+        }
+        want = ce_random_below(a, count);
+        for (p = list, k = 0; *p != '\0' && k < want; ++p) {
+            k += *p == ',';
+        }
+        while (p[len] != '\0' && p[len] != ',' && len + 1 < (int)sizeof pick) {
+            pick[len] = p[len];
+            ++len;
+        }
+        pick[len] = '\0';
+        if (n_last > 0 && len + 1 + n_last < (int)sizeof full) {
+            wsprintfA(full, "%s %.*s", pick, n_last, last);
+        } else {
+            lstrcpynA(full, pick, (int)sizeof full);
+        }
+        if (lstrlenA(full) > a->name_room) {
+            lstrcpynA(full, pick, (int)sizeof full);   /* the room the game holds: the first name alone */
+        }
+        if (lstrcmpiA(full, now) != 0) {
+            return ce_write_name(record + a->off_name, a->name_bytes, full);
+        }
+    }
+    return 0;
+}
+
+/* Effect 34: the age (the game's age units, 20 a year) set or moved, with the processed age (the catch-up's cursor,
+   ce_birth_layout's second field) moved with it, so the catch-up neither replays the years nor makes them up; a
+   carrier's conception mark moves with it too (the delivery stays as far off).  Never below 0; A New Home's Golden
+   Child stays five; a carrier is never made a child (nothing then). */
+static void cg_change_age(const ce_adapter *a, int game, const unsigned char *e, unsigned char *record) {
+    static const unsigned int PROCESSED[6] = { 0, 0x34Cu, 0x534u, 0xE74u, 0x1C3Cu, 0x1C3Cu };
+    static const int SET[6][2] = { { 1, 13 }, { 14, 17 }, { 18, 18 }, { 20, 49 }, { 50, 50 }, { 55, 75 } };
+    int age = ce_age(a, record), target, years, delta, carrying;
+    int *processed, *nursing;
+    if (game < 1 || game > 5 || (game == 1 && ce_role(a, record, NULL) == STORY_KIND_GOLDEN_CHILD)) {
+        return;
+    }
+    if (e[2] == CG_AGE_ADD) {
+        int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
+        years = lo + (hi > lo ? ce_random_below(a, hi - lo + 1) : 0);
+        target = age + 20 * years;
+    } else {
+        years = SET[e[2]][0] + (SET[e[2]][1] > SET[e[2]][0] ? ce_random_below(a, SET[e[2]][1] - SET[e[2]][0] + 1) : 0);
+        target = 20 * years;
+    }
+    if (target < 0) {
+        target = 0;
+    }
+    {
+        /* the cap (the last H, years; 0 none): never past it -- one already older stays as old */
+        int cap = (int)cg_u16(e + 14) * 20;
+        if (cap > 0 && target > cap) {
+            target = age > cap ? age : cap;
+        }
+    }
+    carrying = *(const int *)(record + a->off_pregnant) != 0;
+    if (carrying && target < 14 * 20) {
+        return;                        /* a carrier is never made a child */
+    }
+    delta = target - age;
+    processed = (int *)(record + PROCESSED[game]);
+    nursing = (int *)(record + a->off_pregnant);
+    *(int *)(record + a->off_age) = target;
+    *processed += delta;
+    if (*processed < 0) {
+        *processed = 0;
+    }
+    if (carrying) {
+        *nursing += delta;             /* the conception mark moves with the processed age */
+        if (*nursing <= 0) {
+            *nursing = 1;
+        }
+    }
+}
+
+/* Effects 28-34 (the life effects): pregnant, nursing, clone, mind swap, lost name, new name, age. */
+static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e, ce_result *r) {
+    int index = -1, k;
+    unsigned char *record = cg_target(a, e[1], &index);
+    if (record == NULL) {
+        return;                        /* gone since the event began (or never made): nothing */
+    }
+    switch (e[0]) {
+    case CGE_PREGNANT: case CGE_NURSING: {
+        int partner = -1, early = 0, other = (int)cg_u32(e + 4), litter = 1;
+        if (!(a->caps & CAP_PREGNANT) || a->conceive == NULL || ce_age(a, record) < 18 * 20
+            || *(const int *)(record + a->off_pregnant) != 0
+            || (!(e[2] & CG_FX_ANY_BIRTH_SEX) && !cg_born_female(game, record, index))) {
+            return;                    /* not a carrier these events may have, or expecting already: nothing */
+        }
+        if (other != 0xFF) {
+            int at = -1;
+            unsigned char *mate = cg_target(a, other, &at);
+            if (mate != NULL) {
+                partner = at;
+                if ((e[2] & CG_FX_PARTNER_MAY_CARRY) && cg_partner_carries(a) && ce_age(a, mate) >= 18 * 20
+                    && *(const int *)(mate + a->off_pregnant) == 0) {
+                    /* the partner carries (any birth sex): the two change places */
+                    partner = index;
+                    index = at;
+                    record = mate;
+                }
+            }
+        }
+        {
+            unsigned int kind = e[2] & (CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS);
+            if (kind == (CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS)) {
+                litter = 3;
+            } else if (kind == CG_FX_LITTER_TWINS) {
+                litter = 2;
+            } else if (kind == CG_FX_LITTER_ROLL && ce_random_below(a, 100) < 7) {
+                litter = ce_random_below(a, 100) < 25 ? 3 : 2;   /* the stock rolls, the tech gate left out */
+            }
+        }
+        {
+            int babies = a->conceive(index, litter, partner, r);
+            cg_count_add(0, babies);   /* 33: the babies actually on their way */
+            if (babies <= 0) {
+                return;                /* no room (the game's own predicate): nothing */
+            }
+        }
+        if (e[0] == CGE_NURSING && a->deliver != NULL && *(const int *)(record + a->off_pregnant) != 0) {
+            (void)a->deliver(index, &early);   /* born at once: nursing a newborn (the deliver_early path) */
+        }
+        return;
+    }
+    case CGE_CLONE: {
+        /* The first value: how many copies, 1 or 2 (0 = 1; the owner, 2026-11-15: "up to TWO clones", as the stock
+           events make), each by the same routine with its own room check; only one fits: one. */
+        int copy, made, want = (int)cg_u32(e + 4) == 2 ? 2 : 1, first_copy = -1;
+        if (game == 5 && cg_heathen(game, record)) {
+            return;                    /* New Believers' Heathens are never copied */
+        }
+        for (made = 0; made < want; ++made) {
+            int tries;
+            copy = cg_copy_villager(a, game, index);
+            cg_count_add(1, copy >= 0);   /* 33: the copies actually made */
+            if (copy < 0) {
+                return;                /* no room: nothing more */
+            }
+            /* The copy routine rolls the game's own new name (A New Home 0x43B950, The Lost Children 0x44B710, the
+               later games their name rolls); the owner: always a name of its own -- not the villager's, not the
+               other copy's -- so one that came out the same is drawn again from the game's own list. */
+            for (tries = 0; tries < 8; ++tries) {
+                const char *name = (const char *)a->record(copy) + a->off_name;
+                if (lstrcmpiA(name, (const char *)a->record(index) + a->off_name) != 0   /* read again after the copy */
+                    && (first_copy < 0 || lstrcmpiA(name, (const char *)a->record(first_copy) + a->off_name) != 0)) {
+                    break;
+                }
+                cg_rename_from_list(a, game, a->record(copy), 0);
+            }
+            ce_tell_arrival(game, copy, NULL);
+            cg_newest_push(a, copy);
+            first_copy = copy;
+        }
+        return;
+    }
+    case CGE_BODY_SWAP: {
+        int orole = cg_resolve_role((int)cg_u32(e + 4));
+        unsigned char *other = orole >= 0 ? cg_villager(a, orole) : NULL;
+        static char names[2][64];
+        const void *recs[2];
+        const char *olds[2];
+        unsigned char tmp[64];
+        if (other == NULL || other == record || a->name_bytes > (int)sizeof tmp) {
+            return;
+        }
+        lstrcpynA(names[0], (const char *)record + a->off_name, (int)sizeof names[0]);
+        lstrcpynA(names[1], (const char *)other + a->off_name, (int)sizeof names[1]);
+        memcpy(tmp, record + a->off_name, (size_t)a->name_bytes);
+        memcpy(record + a->off_name, other + a->off_name, (size_t)a->name_bytes);
+        memcpy(other + a->off_name, tmp, (size_t)a->name_bytes);
+        for (k = 0; k < a->skill_count && k < CE_SKILLS; ++k) {
+            unsigned int *x = (unsigned int *)(record + a->off_skills + 4u * (unsigned int)k);
+            unsigned int *y = (unsigned int *)(other + a->off_skills + 4u * (unsigned int)k);
+            unsigned int t = *x;
+            *x = *y;
+            *y = t;
+        }
+        for (k = 0; k < a->pref_slots; ++k) {
+            int *lx = (int *)(record + a->off_likes) + k, *ly = (int *)(other + a->off_likes) + k;
+            int *dx = (int *)(record + a->off_dislikes) + k, *dy = (int *)(other + a->off_dislikes) + k;
+            int t = *lx;
+            *lx = *ly;
+            *ly = t;
+            t = *dx;
+            *dx = *dy;
+            *dy = t;
+        }
+        recs[0] = record;
+        recs[1] = other;
+        olds[0] = names[0];
+        olds[1] = names[1];
+        cg_tell_renamed(game, 2, recs, olds);
+        cg_renamed_record(a, record, names[0]);
+        cg_renamed_record(a, other, names[1]);
+        return;
+    }
+    case CGE_CHANGE_NAME: {
+        static char was[64];
+        const void *recs[1];
+        const char *olds[1];
+        unsigned int fixed = cg_u16(e + 12);
+        lstrcpynA(was, (const char *)record + a->off_name, (int)sizeof was);
+        if (fixed != CG_NONE && cg_s(&cg_g, fixed)[0] != '\0' ? !cg_rename_fixed(a, record, cg_s(&cg_g, fixed))
+                                                              : !cg_rename_from_list(a, game, record, 1)) {
+            return;
+        }
+        recs[0] = record;
+        olds[0] = was;
+        cg_tell_renamed(game, 1, recs, olds);
+        cg_renamed_record(a, record, was);
+        ce_copy_name(cg_renamed_now, CG_NAME_BYTES, record + a->off_name, a->name_bytes);   /* (renamed) */
+        return;
+    }
+    case CGE_CHANGE_AGE:
+        cg_change_age(a, game, e, record);
+        return;
+    case CGE_LOSE_NAME: {
+        static char was[64];
+        const void *recs[1];
+        const char *olds[1];
+        lstrcpynA(was, (const char *)record + a->off_name, (int)sizeof was);
+        if (!ce_write_name(record + a->off_name, a->name_bytes, "?")) {
+            return;
+        }
+        recs[0] = record;
+        olds[0] = was;
+        cg_tell_renamed(game, 1, recs, olds);
+        cg_renamed_record(a, record, was);
+        return;
+    }
+    default:
+        return;
+    }
+}
+
+/* A villager's highest skill (the game's own fields; the first on a tie), -1 none. */
+static int cg_best_skill(const ce_adapter *a, const unsigned char *record) {
+    int k, best = -1, best_value = -1;
+    for (k = 0; k < a->skill_count && k < CE_SKILLS; ++k) {
+        int v = a->skills_float ? (int)*(const float *)(record + a->off_skills + 4u * (unsigned int)k)
+                                : *(const int *)(record + a->off_skills + 4u * (unsigned int)k);
+        if (v > best_value) {
+            best = k;
+            best_value = v;
+        }
+    }
+    return best;
+}
+
+static int sc_sick(int game, const unsigned char *r);   /* story_collection.inc */
+
+/* The illness cured: each game's own sick field (story_c1.inc .. story_c5.inc's sicken) cleared. */
+static void cg_cure(int game, unsigned char *record) {
+    switch (game) {
+    case 1: *(int *)(record + 0x354) = 0; break;
+    case 2: *(int *)(record + 0x53C) = 0; break;
+    case 3: record[0xE89] = 0; break;
+    case 4: case 5: record[0x1C48] = 0; break;
+    default: break;
+    }
+}
+
+static void cg_gone_role(int role) {
+    if (role >= 0 && role < CG_MAX_ROLES) {
+        cg.gone |= 1u << role;
+    }
+}
+
+static int st_was_finished(int game, int k);   /* story_structures.inc */
+
+/* 36: every structure the effect's list names that this village had finished and is damaged now, left one step
+   from done (sd_repair: the game's own construction finishes it). */
+static void cg_repair(const ce_adapter *a, int game, const unsigned char *e) {
+    const char *list = cg_s(&cg_g, cg_u16(e + 12));
+    char line[160];
+    int k;
+    (void)a;
+    for (k = 0; k < sd_structures(game) && k < SD_MAX_STRUCTURES; ++k) {
+        if (cg_structure_finished(game, k) || !st_was_finished(game, k) || !cg_structure_listed(game, list, k)) {
+            continue;
+        }
+#ifdef VVFP_TEST
+        if (test_graph_structures >= 0) {
+            test_graph_damaged[k] = -1;   /* repaired */
+        } else
+#endif
+        {
+            __try {
+                sd_repair(game, k);
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
+            }
+        }
+        wsprintfA(line, "  Repaired: %s (the builders finish it)\n", sd_name(game, k));
+        if (lstrlenA(cg_extra_lines) + lstrlenA(line) < (int)sizeof cg_extra_lines) {
+            lstrcatA(cg_extra_lines, line);
+        }
+    }
+}
+
+static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, int va, int vb, ce_result *r,
+                         int role, unsigned char *record, int index, const char *name);
+
+/* A group effect (role byte 254): every living, listed villager the selector takes (New Believers: believers only;
+   never The Secret City's stand-in; a harmful effect never a protected or never-harmed villager), each changed as
+   one cast villager would be, with the same rolls; N random ones drawn by the game's own random routine. */
+static void cg_group_effect(const ce_adapter *a, int game, const unsigned char *e, int va, int vb, ce_result *r) {
+    static int pick[CE_MAX_RECORDS];
+    int n = 0, i, want, harmful = cg_effect_harmful(a, game, e);
+    const char *skill = e[3] == CG_GROUP_SKILL ? cg_s(&cg_g, cg_u16(e + 14)) : NULL;
+    for (i = 0; i < a->record_count && i < CE_MAX_RECORDS; ++i) {
+        unsigned char *rec = a->record(i);
+        if (rec == NULL || !a->listed(rec) || (game == 3 && rec[0xE94] != 0) || cg_heathen(game, rec)) {
+            continue;
+        }
+        if (harmful && (cg_protected(a, game, rec) || cg_never_harmed(game, rec))) {
+            continue;
+        }
+        if (skill != NULL && (!cg_skills_known(a, skill) || cg_skill_value(a, rec, skill) < CG_GROUP_SKILL_MIN)) {
+            continue;
+        }
+        {
+            int years = ce_age(a, rec) / 20;
+            if ((e[3] == CG_GROUP_ELDERS && years < 55) || (e[3] == CG_GROUP_CHILDREN && years >= 14)
+                || (e[3] == CG_GROUP_TEENS && (years < 14 || years > 17)) || (e[3] == CG_GROUP_ADULTS && years < 18)) {
+                continue;
+            }
+        }
+        pick[n++] = i;
+    }
+    want = e[3] == CG_GROUP_RANDOM ? (int)cg_u16(e + 14) : n;
+    if (want > n) {
+        want = n;
+    }
+    if (e[3] == CG_GROUP_RANDOM) {
+        for (i = 0; i < want; ++i) {   /* the first `want` drawn without repeats */
+            int j = i + ce_random_below(a, n - i), t = pick[i];
+            pick[i] = pick[j];
+            pick[j] = t;
+        }
+    }
+    for (i = 0; i < want; ++i) {
+        unsigned char *rec = a->record(pick[i]);
+        char who[CE_NAME_BYTES];
+        if (rec == NULL || !a->listed(rec)) {
+            continue;
+        }
+        ce_copy_name(who, CE_NAME_BYTES, rec + a->off_name, a->name_bytes);
+        if (e[0] == CGE_PREF && (e[2] & CG_PREF_RANDOM) && (e[2] & CG_PREF_REMOVE)) {
+            /* a random like or dislike each member holds, taken away (none held: nothing for them) */
+            cg_effect_on(a, game, e, cg_held_preference_of(a, rec, (e[2] & 4u) != 0), vb, r, -1, rec, pick[i], who);
+            continue;
+        }
+        if (e[0] == CGE_PREF && (e[2] & CG_PREF_RANDOM)) {
+            /* a random like or dislike each: the roll, then the word chosen from this villager */
+            int k = ce_random_below(a, a->pref_count);
+            cg_effect_on(a, game, e, cg_random_preference_of(a, rec, k), vb, r, -1, rec, pick[i], who);
+            continue;
+        }
+        if (e[0] == CGE_APPEARANCE) {
+            /* a new look each: a random head / body row drawn for every member (the game's random routine) */
+            int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
+            int ha = lo == CG_LOOK_RANDOM ? ce_random_below(a, a->head_count - 1) : va;
+            int hb = hi == CG_LOOK_RANDOM ? ce_random_below(a, a->body_count - 1) : vb;
+            cg_effect_on(a, game, e, ha, hb, r, -1, rec, pick[i], who);
+            continue;
+        }
+        cg_effect_on(a, game, e, va, vb, r, -1, rec, pick[i], who);
+    }
+}
+
+/* One effect on one villager (`record`, record `index`, `name` for the log): a cast role's (`role`), or a group's
+   member or a villager this event made (`role` -1). */
+static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, int va, int vb, ce_result *r,
+                         int role, unsigned char *record, int index, const char *name) {
+    ce_result one;
+    ce_change *c;
+    if (cg_g.version >= 6 && record != NULL && cg_heathen(game, record) && !cg_heathen_effect_ok(e)) {
+        /* A Heathen however reached (an alias or "other" role standing for a heathen_ok one): vanilla's own list
+           only, as the load checks a Heathen's own role (Codex, #771). */
+        ce_refuse(r, CE_WHY_OTHER);
+        return;
+    }
+    if ((role < 0 || (cg_role_at(&cg_g, role)[1] & CG_ROLE_PROTECTED)) && cg_effect_harmful(a, game, e)
         && cg_protected(a, game, record)) {
         /* The hard guard's last word (the walk's guard took the branch out unless they became protected since):
            a protected villager is never harmed. */
@@ -4683,7 +6128,6 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         ce_refuse(r, CE_WHY_OTHER);    /* never harmed, whatever the role allows (cg_never_harmed) */
         return;
     }
-    index = cg.record[role];
     if (e[0] == CGE_KILL || e[0] == CGE_VANISH || e[0] == CGE_DIE_UNRECOVERED) {
         if (!(a->caps & (e[0] == CGE_KILL ? CAP_KILL : CAP_VANISH))) {
             ce_refuse(r, CE_WHY_OTHER);
@@ -4697,11 +6141,11 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
             /* 22: the stock disappearance (no body, no grave), told as a death; always "Unknown causes". */
             ++r->died;
             cg_tell_died_unrecovered(game, index);
-            cg_extra_add(cg.name[role], " died (Unknown causes); the body was not recovered.");
+            cg_extra_add(name, " died (Unknown causes); the body was not recovered.");
         } else {
             ce_refuse_as(r, CE_WHY_OTHER);
         }
-        cg.gone |= 1u << role;         /* gone for good: nothing more is done to them (their name stays) */
+        cg_gone_role(role);         /* gone for good: nothing more is done to them (their name stays) */
         return;
     }
     if (e[0] == CGE_BIRTH_THEN_DIE) {
@@ -4733,12 +6177,12 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         ++r->died;
         if (babies > 0) {
             wsprintfA(what, "'s %s %s; %s died.", babies > 1 ? "babies were" : "baby was",
-                      early ? "born early" : "born", cg.name[role]);
+                      early ? "born early" : "born", name);
         } else {
             lstrcpyA(what, " died.");
         }
-        cg_extra_add(cg.name[role], what);
-        cg.gone |= 1u << role;
+        cg_extra_add(name, what);
+        cg_gone_role(role);
         return;
     }
     if (e[0] == CGE_DELIVER_EARLY) {
@@ -4761,7 +6205,7 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         cg_tell_delivered(game, index);
         if (babies > 0) {
             wsprintfA(what, "'s %s %s.", babies > 1 ? "babies were" : "baby was", early ? "born early" : "born");
-            cg_extra_add(cg.name[role], what);
+            cg_extra_add(name, what);
         }
         return;
     }
@@ -4774,8 +6218,10 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
             ce_refuse(r, why >= 0 ? why : CE_WHY_OTHER);
             return;
         }
-        cg.identity[role] = ce_identity(a, record);
-        cg_extra_add(cg.name[role], female ? "'s sex is now male." : "'s sex is now female.");
+        if (role >= 0) {
+            cg.identity[role] = ce_identity(a, record);
+        }
+        cg_extra_add(name, female ? "'s sex is now male." : "'s sex is now female.");
         return;
     }
     if (e[0] == CGE_PRESENTATION) {
@@ -4794,7 +6240,66 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
             ce_refuse(r, CE_WHY_OTHER);
             return;
         }
-        cg_extra_add(cg.name[role], "'s head look is now Old.");
+        cg_extra_add(name, "'s head look is now Old.");
+        return;
+    }
+    if (e[0] == CGE_FAITH || e[0] == CGE_JOIN || e[0] == CGE_APOSTASY) {
+        /* New Believers' Faith through the game's own routines (never the fields): they convert as the game
+           converts, with its message, role, counters and puzzle check (cie-v6-binary.md 33c). */
+        int was;
+        if (game != 5) {
+            return;                    /* only New Believers has Faith: nothing */
+        }
+        was = cg_heathen(game, record);
+        if ((e[0] == CGE_JOIN && !was) || (e[0] == CGE_APOSTASY && was)) {
+            return;                    /* a believer already / a Heathen already: nothing */
+        }
+        __try {
+            if (e[0] == CGE_FAITH) {
+                TC1(0x468020u, record, (int)cg_u32(e + 4));
+            } else if (e[0] == CGE_JOIN) {
+                TC2(0x467F90u, record, 20, 1);
+                TC1(0x466880u, record, 0);
+            } else {
+                TC2(0x467F90u, record, -10, 1);
+                TC1(0x466880u, record, 1);
+            }
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            ce_refuse(r, CE_WHY_OTHER);
+            return;
+        }
+        if (was != cg_heathen(game, record)) {
+            cg_tell_faith(game, index);
+            cg_extra_add(name, was ? " joined the tribe." : " became a Heathen.");
+        } else if (e[0] == CGE_FAITH) {
+            cg_extra_add(name, "'s Faith grew.");
+        }
+        if (role >= 0) {
+            cg.identity[role] = ce_identity(a, record);
+        }
+        return;
+    }
+    if (e[0] == CGE_YOUNG_LOOK) {
+        /* 37: the young head look, through Head Look's own file (as old_look) */
+        if (!cg_head_look(game, record, index, VVFP_HEAD_LOOK_YOUNG)) {
+            ce_refuse(r, CE_WHY_OTHER);
+            return;
+        }
+        cg_extra_add(name, "'s head look is now Young.");
+        return;
+    }
+    if (e[0] == CGE_CURE) {
+        /* 35: the illness cured -- the game's own sick field cleared (the field each game's sicken sets; the
+           healers' and Full Heal's cure clears the same one); health is left as it is.  Not sick: nothing. */
+        if (!(a->caps & CAP_SICK)) {
+            ce_refuse(r, CE_WHY_OTHER);
+            return;
+        }
+        if (!sc_sick(game, record)) {
+            return;
+        }
+        cg_cure(game, record);
+        cg_extra_add(name, " was cured.");
         return;
     }
     if (e[0] == CGE_BABY_LOST) {
@@ -4809,7 +6314,7 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
             ce_refuse_as(r, CE_WHY_NOT_EXPECTING);
             return;
         }
-        cg_extra_add(cg.name[role], "'s baby was lost.");
+        cg_extra_add(name, "'s baby was lost.");
         return;
     }
     memset(&cg_one, 0, sizeof cg_one);
@@ -4844,7 +6349,7 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         const int *list = (const int *)(record + (dislike ? a->off_dislikes : a->off_likes));
         int k, have = 0, free_slot = 0;
         if (random && (value < 0 || value >= a->pref_count)) {
-            return;                    /* 24: no word left to give: nothing changed, nothing refused */
+            return;                    /* 24: no word left to give (or none held to take): nothing, nothing refused */
         }
         if (!(a->caps & CAP_PREFS) || value < 0) {
             ce_refuse(r, CE_WHY_OTHER);
@@ -4853,6 +6358,14 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         for (k = 0; k < a->pref_slots; ++k) {
             have |= list[k] == value;
             free_slot |= list[k] == -1;
+        }
+        if (e[2] & CG_PREF_REMOVE) {
+            /* Taken away through the Custom Island Event's own removal (CE_PREF_REMOVE): the game's own like or
+               dislike field, the slot freed.  Not held: nothing changes, nothing is refused. */
+            if (have) {
+                c->pref_ops[c->pref_op_count++] = CE_PREF_OP(dislike, 1, value);
+            }
+            break;
         }
         c->pref_ops[c->pref_op_count++] = CE_PREF_OP(!dislike, 1, value);   /* never liked and disliked at once */
         if (!have && !free_slot && a->pref_slots > 0) {
@@ -4864,6 +6377,9 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
     }
     case CGE_SKILL: {
         int now, value;
+        if (e[2] & CG_SKILL_BEST) {
+            va = cg_best_skill(a, record);   /* the villager's own highest skill */
+        }
         if (!(a->caps & CAP_SKILLS) || va < 0 || va >= a->skill_count) {
             ce_refuse(r, CE_WHY_OTHER);
             return;
@@ -4903,6 +6419,9 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         break;
     }
     case CGE_SKILL_SET:
+        if (e[2] & CG_SKILL_BEST) {
+            va = cg_best_skill(a, record);
+        }
         if (!(a->caps & CAP_SKILLS) || va < 0 || va >= a->skill_count) {
             return;                    /* a skill this game does not have: nothing (rule 8) */
         }
@@ -4938,15 +6457,90 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
     ce_apply(a, &cg_one, &one);
     cg_merge_result(r, &one);
     if (e[0] == CGE_APPEARANCE) {
-        cg_extra_add(cg.name[role], "'s look changed.");
+        cg_extra_add(name, "'s look changed.");
     }
     if (e[0] == CGE_STATUS && cg_heathen(game, record)) {
         cg_tell_faith(game, index);
     }
     record = a->record(index);
-    if (record != NULL && a->listed(record)) {
+    if (role >= 0 && record != NULL && a->listed(record)) {
         cg.identity[role] = ce_identity(a, record);   /* the same villager, with what was just changed */
     }
+}
+
+static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int va, int vb, int *award_kind,
+                      int *award, ce_result *r) {
+    unsigned char *record;
+    int index, role;
+    switch (e[0]) {
+    case CGE_FOOD: case CGE_TECH:
+        if (e[2] & 2u) {
+            *award_kind = e[0] == CGE_FOOD ? 0 : 1;
+            *award = va;               /* given by a later "pay_award" */
+        } else {
+            cg_amount(a, e[0] == CGE_FOOD, va, r);
+        }
+        return;
+    case CGE_PAY:
+        if (*award_kind >= 0) {
+            cg_amount(a, *award_kind == 0, *award, r);
+        }
+        return;
+    case CGE_DAMAGE:
+        cg_damage(a, game, e, va);
+        return;
+    case CGE_REPAIR:
+        cg_repair(a, game, e);
+        return;
+    case CGE_NEW_VILLAGER:
+        cg_new_villager(a, game, e, r);
+        return;
+    case CGE_PREGNANT: case CGE_NURSING: case CGE_CLONE: case CGE_BODY_SWAP: case CGE_LOSE_NAME:
+    case CGE_CHANGE_NAME: case CGE_CHANGE_AGE:
+        cg_life_effect(a, game, e, r);
+        return;
+    case CGE_TRAIT:
+        /* 32: the villager keeps the story trait (story_traits.inc's file follows them), whatever is ticked. */
+        index = -1;
+        if (cg_target(a, e[1], &index) != NULL) {   /* a role, or a villager this event made */
+            rs_set_trait(game, index, cg_u32(e + 4));
+        }
+        return;
+    case CGE_CELEBRATE:
+        if (e[1] == CG_ROLE_ALIAS_ALL) {
+            cg_celebrate_all(a, game, r);
+            return;
+        }
+        break;
+    default:
+        break;
+    }
+    if (e[1] == CG_ROLE_GROUP) {
+        cg_group_effect(a, game, e, va, vb, r);   /* every villager of the group, one by one */
+        return;
+    }
+    if (e[1] == CG_ROLE_NEWEST || e[1] == CG_ROLE_NEWEST2) {
+        char who[CE_NAME_BYTES];
+        record = cg_target(a, e[1], &index);
+        if (record == NULL) {
+            return;                    /* not made (no room), or gone */
+        }
+        ce_copy_name(who, CE_NAME_BYTES, record + a->off_name, a->name_bytes);
+        cg_effect_on(a, game, e, va, vb, r, -1, record, index, who);
+        return;
+    }
+    role = cg_resolve_role(e[1]);      /* an alias: the member drawn */
+    if (role < 0) {
+        return;                        /* an alias with no member: nobody to change */
+    }
+    record = cg_villager(a, role);
+    if (record == NULL) {
+        /* Gone since the event began (old age, another event between its pages, or this event): that role's
+           later effects are skipped -- never someone else in their record -- and the rest of the event goes on. */
+        cg.gone |= 1u << role;
+        return;
+    }
+    cg_effect_on(a, game, e, va, vb, r, role, record, cg.record[role], cg.name[role]);
 }
 
 /* ---- One history's popups, their pages, and which page makes which effect ------------------------------------
@@ -5011,6 +6605,8 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "health", "<R>'s health changes." },
     { "like", "<R> now likes <W>." },
     { "dislike", "<R> now dislikes <W>." },
+    { "unlike", "<R> no longer likes <W>." },
+    { "undislike", "<R> no longer dislikes <W>." },
     { "skill+", "<R> learns more about <S>." },
     { "skill-", "<R> feels less sure of <P> <S>." },
     { "sick", "<R> falls sick." },
@@ -5030,6 +6626,13 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "baby_lost", "<R>'s baby is lost." },
     { "old_look", "<R> looks older and more worn." },
     { "sex_change", "<R>'s sex changes." },
+    { "cure", "<R> is cured." },
+    { "young_look", "<R> looks younger." },
+    { "repair", "The damaged buildings are being repaired." },
+    { "skill_best", "<R> gets better at what <P> does best." },
+    { "faith", "<R> feels closer to the tribe." },
+    { "join", "<R> joins the tribe." },
+    { "apostasy", "<R> becomes a Heathen." },
     { "presentation", "<R>'s look changes." },
 };
 
@@ -5090,6 +6693,9 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
         int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
         int role = e[1] == CG_ROLE_ALIAS_ALL ? -1 : (int)e[1];
         char word[48];
+        if (e[1] == CG_ROLE_GROUP || e[1] == CG_ROLE_NEWEST || e[1] == CG_ROLE_NEWEST2) {
+            continue;                  /* no role to name: the author's text tells it */
+        }
         const char *skill = a != NULL && va >= 0 && va < a->skill_count ? a->skill_names[va] : NULL;
         switch (e[0]) {
         case CGE_FOOD: case CGE_TECH:
@@ -5112,6 +6718,12 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
         case CGE_DIE_UNRECOVERED: cg_auto_add(out, cap, "die_unrecovered", role, "", ""); break;
         case CGE_BABY_LOST: cg_auto_add(out, cap, "baby_lost", role, "", ""); break;
         case CGE_OLD_LOOK: cg_auto_add(out, cap, "old_look", role, "", ""); break;
+        case CGE_YOUNG_LOOK: cg_auto_add(out, cap, "young_look", role, "", ""); break;
+        case CGE_CURE: cg_auto_add(out, cap, "cure", role, "", ""); break;
+        case CGE_FAITH: cg_auto_add(out, cap, "faith", role, "", ""); break;
+        case CGE_JOIN: cg_auto_add(out, cap, "join", role, "", ""); break;
+        case CGE_APOSTASY: cg_auto_add(out, cap, "apostasy", role, "", ""); break;
+        case CGE_REPAIR: cg_auto_add(out, cap, "repair", -1, "", ""); break;
         case CGE_SEX_CHANGE: cg_auto_add(out, cap, "sex_change", role, "", ""); break;
         case CGE_PRESENTATION: cg_auto_add(out, cap, "presentation", role, "", ""); break;
         case CGE_DAMAGE: cg_auto_add(out, cap, "damage", -1, "", ""); break;
@@ -5131,10 +6743,13 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
             } else {
                 lstrcpynA(word, cg_s(&cg_g, cg_u16(e + 12)), sizeof word);
             }
-            cg_auto_add(out, cap, (e[2] & 4u) ? "dislike" : "like", role, "", word);
+            cg_auto_add(out, cap, (e[2] & CG_PREF_REMOVE) ? ((e[2] & 4u) ? "undislike" : "unlike")
+                                                        : ((e[2] & 4u) ? "dislike" : "like"), role, "", word);
             break;
         case CGE_SKILL:
-            if (skill != NULL && vb != 0) {
+            if (va == -2 && vb > 0) {
+                cg_auto_add(out, cap, "skill_best", role, "", "");
+            } else if (skill != NULL && vb != 0) {
                 cg_auto_add(out, cap, vb > 0 ? "skill+" : "skill-", role, skill, "");
             }
             break;
@@ -5180,7 +6795,8 @@ static void cg_group(int game, const cg_history *h, int from) {
             if (n[3] & CG_NODE_AUTO_TEXT) {
                 cg_auto_lines(game, h, n, fx0, award_kind, award, text, sizeof text);   /* 25 */
             }
-            if (cg_one_popup() && cg_pop_count > 0 && cg_pops[cg_pop_count - 1].question < 0) {
+            if (cg_one_popup() && cg_pop_count > 0 && cg_pops[cg_pop_count - 1].question < 0
+                && !(n[3] & CG_NODE_NEW_PAGE)) {
                 /* ONE popup: every node up to the question (or the ending) joins the segment's one text; what was
                    a popup of its own (a question, a new popup) after a blank line (src/vv_cie_graph.py one_popup) */
                 p = &cg_pops[cg_pop_count - 1];
@@ -5289,6 +6905,44 @@ static unsigned short cg_page_title(const cg_popup *p, const cg_pages *pages, in
     return t;
 }
 
+/* The owner (2026-11-16): after the player clicks a choice, the popups that follow take that choice's label as their
+   title (until the next choice), unless a node there has a title of its own.  The label of the choice that led to
+   path node `from` (the node after a question), as a title (its string index + 1); 0 none.  Always the label, never
+   the event's title instead: one wider than the title area wraps, its rest the page's first line (cg_display_title,
+   cg_display: "should not be a problem with the scrollbars"). */
+static int cg_layout_choice = -1;     /* the choice cg_take_answer lays out the pages of (-1: none known) */
+
+static unsigned short cg_choice_title(const cg_history *h, int from) {
+    static char worst[CE_LONG_LINE_BYTES * 4];
+    const unsigned char *q;
+    int k, count, first;
+    if (cg_g.version < 6 || from <= 0 || from >= h->nodes) {
+        return 0;
+    }
+    q = cg_node_at(&cg_g, h->node[from - 1]);
+    if (q[0] != CG_QUESTION) {
+        return 0;
+    }
+    first = (int)cg_u16(q + 12);
+    count = (int)cg_u16(q + 14);
+    if (cg_layout_choice >= 0 && cg_layout_choice < count) {
+        /* the choice the player picked (several choices may lead to the same node: its own label, Codex P2) */
+        unsigned int label = cg_u16(cg_child_at(&cg_g, first + cg_layout_choice) + 8);
+        (void)worst;
+        return label != CG_NONE ? (unsigned short)(label + 1u) : 0;
+    }
+    for (k = 0; k < count; ++k) {
+        const unsigned char *c = cg_child_at(&cg_g, first + k);
+        unsigned int label = cg_u16(c + 8);
+        if ((int)cg_u16(c) != h->node[from] || label == CG_NONE) {
+            continue;
+        }
+        (void)worst;
+        return (unsigned short)(label + 1u);   /* always (the owner): a label wider than the title area wraps */
+    }
+    return 0;
+}
+
 static void cg_layout_from(const ce_adapter *a, int game, int from, int after_question) {
     static cg_pager w;
     static cg_pages pages;
@@ -5304,6 +6958,28 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
     cg_group_in_question = after_question && from > 0 && !fresh;
     cg_group(game, h, from);
     cg_group_in_question = 0;
+    if (after_question && from > 0) {
+        /* the choice's label as the title of what follows, where no node of this part set one (cg_choice_title);
+           set before the pages are laid out, so the title area is measured with it */
+        unsigned short choice = cg_choice_title(h, from), before = cg_title_before(h, from);
+        if (from < h->nodes && cg_node_title(h->node[from]) != 0) {
+            choice = 0;                /* the next node has a title of its own: it keeps it */
+        }
+        for (p = 0; choice != 0 && p < cg_pop_count; ++p) {
+            int j;
+            if (cg_pops[p].tcount == 0) {
+                cg_pops[p].tcount = 1;
+                cg_pops[p].toff[0] = 0;
+                cg_pops[p].ttitle[0] = choice;
+                continue;
+            }
+            for (j = 0; j < cg_pops[p].tcount; ++j) {
+                if (cg_pops[p].ttitle[j] == before) {
+                    cg_pops[p].ttitle[j] = choice;
+                }
+            }
+        }
+    }
     for (p = 0; p < cg_pop_count; ++p) {
         int question = cg_pops[p].question >= 0;
         w.a = a;
@@ -5319,6 +6995,19 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
         }
         w.pages = &pages;
         w.scroll = cg_scrolls();
+        if (!w.scroll) {
+            /* A title wider than its area shows its rest as the page's first lines (cg_display): those lines kept
+               free on every page, so the text is paged around them, never cut (Codex, #771). */
+            static char probe[CG_LABEL_V6 * 4];
+            ce_layout bare = *w.first;
+            bare.with_title = 0;
+            lstrcpynA(probe, widest, (int)sizeof probe);
+            cg_title_wrap(probe);
+            if (cg_title_rest[0] != '\0') {
+                w.reserve += ce_lines_used_in(&bare, "", cg_title_rest);
+            }
+            cg_title_rest[0] = '\0';
+        }
         cg_paginate(&w, cg_pops[p].raw);
         for (k = 0; k < pages.count; ++k) {
             int d, kind = CGD_PAGE;
@@ -5409,7 +7098,8 @@ typedef int (__stdcall *cg_log_begin_fn)(int game);
 typedef int (__stdcall *cg_log_end_fn)(int game, char *out, int cap);
 typedef int (__stdcall *cg_log_write_fn)(int game, int key, const char *text, int disk, int final);
 static int cg_logged;                  /* the game whose last popup was this run's (asked once by the log) */
-static char cg_shown_title[CE_TITLE_BYTES];   /* the title of the run's popup shown last (14: a node's may differ) */
+static char cg_shown_title[CE_LONG_LINE_BYTES * 4];   /* the title of the run's popup shown last (14: a node's may
+                                                         differ) */
 
 #ifdef VVFP_TEST
 static int test_graph_log;             /* stands in for the companion: each page's lines "  page <k>" */
@@ -5435,14 +7125,14 @@ static void cg_entry_put(const char *text) {
 
 /* The entry's header: the title, and the button clicked (`label`, or NULL with no question). */
 static void cg_entry_start(const char *label) {
-    char line[CG_LABEL_V6 * 4 + CE_BUTTON_BYTES + 32], title[CG_LABEL_V6 * 4];
+    static char line[CE_LONG_LINE_BYTES * 8 + 32], title[CE_LONG_LINE_BYTES * 4];
     cg.entry_len = 0;
     cg.entry[0] = '\0';
     cg_title_logged(title, sizeof title);
-    wsprintfA(line, "  Event: %s\n", title);
+    cg_join(line, (int)sizeof line, "  Event: ", title, "\n");
     cg_entry_put(line);
     if (label != NULL) {
-        wsprintfA(line, "  Choice: %s\n", label);
+        cg_join(line, (int)sizeof line, "  Choice: ", label, "\n");
         cg_entry_put(line);
     }
     cg.entry_head = cg.entry_len;
@@ -5539,6 +7229,9 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
     const cg_history *h = &cg.path;
     int j;
     memset(r, 0, sizeof *r);
+    cg_display_now = k;
+    cg_count_page[0] = cg_count_page[1] = 0;
+    cg_count_page_any[0] = cg_count_page_any[1] = 0;
     cg.gone_at[k] = cg.gone;
     memcpy(cg.identity_at[k], cg.identity, sizeof cg.identity);
     for (j = 0; j < cg.job_count[k]; ++j) {
@@ -5554,6 +7247,11 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
     }
     if (cg.job_count[k] > 0) {
         cg.applied_when[k] = sq_clock();
+    }
+    for (j = 0; j < 2; ++j) {
+        if (cg_count_page_any[j]) {
+            cg_count_last[j] = cg_count_page[j];   /* 33: this page's count, for this page and the next */
+        }
     }
 }
 
@@ -5578,6 +7276,7 @@ static void cg_show(const ce_adapter *a, int game, int k, char *text, int size) 
     cg_logged = game;                  /* the game's own bracket around this popup is not a record of its own */
     cg_display_title(k, cg_shown_title, sizeof cg_shown_title);   /* 14: the title in force on this page */
     lstrcpynA(ce_armed_event.title, cg_shown_title, sizeof ce_armed_event.title);   /* the later games draw it */
+    su_title_whole = cg_shown_title;   /* ... whole (story_objects.inc ce_deliver_object) */
     cg_compose(&l, cg_shown_title, cg_display(k), r.refused > 0 ? &r : NULL, text, size);
     cg.display_next = k + 1;
 }
@@ -5883,7 +7582,7 @@ static void cg_begin_question(int game, char *text, int size) {
                 const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, node) + 12) + map[b]);
                 cg_label_text(a, cg_s(&cg_g, cg_u16(c + 8)), real);
             }
-            lstrcpynA(cg_labels[b], real, CG_LABEL_V6);
+            lstrcpynA(cg_labels[b], real, CE_LONG_LINE_BYTES);
             if (b < 2) {
                 lstrcpynA(ce_choice_store[ce_asked_store].labels[b], real, CE_BUTTON_BYTES);
             }
@@ -5909,7 +7608,9 @@ static int cg_take_answer(const ce_adapter *a, int game, int choice) {
     cg.path.fx = cg.q_fx[qi];
     cg.pick_count = cg.q_picks[qi];
     cg_path_add(cg_seg(qi, choice), cg.seg_picks[qi][choice], cg.seg_pick_count[qi][choice]);
+    cg_layout_choice = choice;
     cg_layout_from(a, game, cg.q_path[qi], 1);
+    cg_layout_choice = -1;
     return 1;
 }
 
@@ -5918,7 +7619,7 @@ static int cg_take_answer(const ce_adapter *a, int game, int choice) {
    header's "Choice:" line for the start's question, another "Choice:" line for each later one. */
 static int cg_resolve(int game, int button, char *text, int size) {
     const ce_adapter *a = ce_adapter_for(game);
-    static char label[CG_LABEL_V6];
+    static char label[CE_LONG_LINE_BYTES];
     unsigned char map[CG_MAX_ANSWERS];
     int qi = cg.answers, node, first, choice;
     if (a == NULL || button < 0 || button >= CG_MAX_ANSWERS || qi >= CG_MAX_QUESTIONS || cg.asking < 0) {
@@ -5938,14 +7639,14 @@ static int cg_resolve(int game, int button, char *text, int size) {
     cg.choice = button;
     {
         const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, node) + 12) + choice);
-        char line[CG_LABEL_V6 + 16];
+        static char line[CE_LONG_LINE_BYTES + 16];
         cg_label_text(a, cg_s(&cg_g, cg_u16(c + 8)), label);
         cg.q_entry[qi] = cg.entry_len;
         if (cg.entry_head == 0) {
             cg_entry_start(label);     /* the title and the start question's answer */
             cg.q_entry[qi] = 0;
         } else {
-            wsprintfA(line, "  Choice: %s\n", label);
+            cg_join(line, (int)sizeof line, "  Choice: ", label, "\n");
             cg_entry_put(line);
         }
     }
@@ -6258,6 +7959,41 @@ static int cg_installed_has(int game, const char *id) {
     return 0;
 }
 
+/* The player's "a man may carry the baby by chance" setting (the patcher writes "# partner_carry_percent=N" in the
+   installed patches' list; the owner, 2026-11-16): 0 to 100, 10 when the list has none. */
+static int cg_partner_carry_percent(void) {
+    static const char KEY[] = "# partner_carry_percent=";
+    const char *p;
+    int n = lstrlenA(KEY), value = 0, digits = 0;
+    cg_installed_load();
+    if (cg_installed_state != 1) {
+        return 10;
+    }
+    for (p = cg_installed; *p != '\0'; ++p) {
+        if ((p == cg_installed || p[-1] == '\n') && memcmp(p, KEY, (size_t)n) == 0) {
+            for (p += n; *p >= '0' && *p <= '9' && digits < 3; ++p, ++digits) {
+                value = value * 10 + (*p - '0');
+            }
+            return digits > 0 && value <= 100 ? value : 10;
+        }
+    }
+    return 10;
+}
+
+/* Whether the partner carries this time: the setting's chance (no roll at 0 or 100). */
+static int cg_partner_carries(const ce_adapter *a) {
+    int percent = cg_partner_carry_percent();
+    if (percent <= 0) {
+        return 0;
+    }
+    return percent >= 100 || ce_random_below(a, 100) < percent;
+}
+
+static int cg_no_safeguards(int game) {
+    cg_installed_load();
+    return cg_installed_state == 1 && cg_installed_has(game, "island_events_any_time");
+}
+
 /* Whether the patches named by the event are on: the installed patches' list when the patcher wrote one; without
    it (a game patched by an older patcher) only Guardians of Isola's rewrite (New Believers), seen in the game's own
    text as the Faith popup sees it -- which is also asked with the list, as before. */
@@ -6346,7 +8082,8 @@ static int cg_requirement_holds(int game, unsigned int needed) {
         memset(cg_visited, 0, sizeof cg_visited);
         for (k = 0; k < all[1] && holds; ++k) {
             int c = (int)cg_u16(all + 2) + k;
-            if (cg_cond_at(&cg_g, c)[0] != CGC_PUZZLE) {
+            if (cg_cond_at(&cg_g, c)[0] != CGC_PUZZLE
+                && !(cg_cond_at(&cg_g, c)[0] == CGC_MIN_POPULATION && cg_ns_cast(game))) {
                 holds = cg_holds_cond(c, game, 0);
             }
         }
@@ -6354,13 +8091,63 @@ static int cg_requirement_holds(int game, unsigned int needed) {
         cg.patches = keep_patches;
         cg.aliases_drawn = keep_drawn;
     }
-    if (holds && cg_g.min_eligible > 0) {
+    if (holds && cg_g.min_eligible > 0 && !cg_ns_cast(game)) {
         holds = cg_eligible_count(a, game, needed) >= cg_g.min_eligible;
     }
     return holds;
 }
 
 static void cg_role_words(int game, int r, char *out, int size);
+
+/* Whether condition `i` names a content filter (island_event_filter_*: src/vv_event_content.py) anywhere in it. */
+static int cg_cond_names_filter(int i, int depth) {
+    const unsigned char *c;
+    unsigned int a;
+    int k;
+    if (i < 0 || i >= cg_g.n_cond || depth > 8) {
+        return 0;
+    }
+    c = cg_cond_at(&cg_g, i);
+    a = cg_u16(c + 2);
+    switch (c[0]) {
+    case CGC_PATCH: {
+        const char *id = cg_s(&cg_g, cg_u16(cg_g.d + cg_g.o_patch + 2u * a));
+        return lstrlenA(id) > 20 && memcmp(id, "island_event_filter_", 20) == 0;
+    }
+    case CGC_NOT:
+        return cg_cond_names_filter((int)a, depth + 1);
+    case CGC_ALL: case CGC_ANY:
+        for (k = 0; k < c[1]; ++k) {
+            if (cg_cond_names_filter((int)a + k, depth + 1)) {
+                return 1;
+            }
+        }
+        return 0;
+    default:
+        return 0;
+    }
+}
+
+/* Whether the parts of the event's requirement that name a content filter (the skip src/vv_event_content.py writes)
+   hold with the patches on now: a bought event is never kept out by its other requirements, but always by these. */
+static int cg_filters_allow(int game) {
+    const unsigned char *all;
+    unsigned int keep = cg.patches;
+    int k, holds = 1;
+    if (cg_g.req_cond == (int)CG_NONE) {
+        return 1;
+    }
+    all = cg_cond_at(&cg_g, cg_g.req_cond);
+    cg.patches = cg_patches_on(game);
+    for (k = 0; k < all[1] && holds; ++k) {
+        int c = (int)cg_u16(all + 2) + k;
+        if (cg_cond_names_filter(c, 0)) {
+            holds = cg_holds_cond(c, game, 0);
+        }
+    }
+    cg.patches = keep;
+    return holds;
+}
 
 /* What requirement condition `i` asks for, in plain words, into `out` (after "it needs "): the first part that does
    not hold now.  0 when it holds.  (A requirement never holds a villager fact: src/vv_cie_graph.py refuses it; never a
@@ -6425,6 +8212,8 @@ static int cg_cond_words(int i, int game, int depth, char *out, int cap) {
         } else if (n[0] == CGC_SPECIAL_PRESENT) {
             lstrcpynA(part, na == 1u ? "no Golden Child in the village" : "no Tribal Chief in the village",
                       sizeof part);
+        } else if (cg_cond_names_filter((int)a, 0)) {
+            lstrcpynA(part, "the island event content filters to allow it", sizeof part);
         } else if (n[0] == CGC_PATCH) {
             lstrcpynA(part, "a patch installed in this game to be taken off", sizeof part);
         } else if (n[0] == CGC_PUZZLE) {
@@ -6550,6 +8339,13 @@ static const char *cg_refusal(int game, unsigned int *planned) {
         wsprintfA(reason, "\"%s\" is not made for %s.", cg_readable(&cg_g), a->game_name);
         return reason;
     }
+    if (cg_g.long_text && !cg_one_popup()) {
+        /* A text longer than the popups hold without scrollbars (the owner, 2026-11-16: practically unlimited text
+           needs Scrolling Popups). */
+        wsprintfA(reason, "\"%s\" has text longer than this game's popups hold without the Scrolling Popups patch. "
+                  "Nothing has been queued.", cg_readable(&cg_g));
+        return reason;
+    }
     question = cg_node_at(&cg_g, cg_g.start)[0] == CG_QUESTION;
     if (question && !ce_choice_available(a)) {
         return "This game can not ask a question with two choices yet.";
@@ -6583,6 +8379,12 @@ static const char *cg_refusal(int game, unsigned int *planned) {
         static char why[360];
         cg_requirement_words(game, needed, why);
         wsprintfA(reason, "%s Nothing has been queued.", why);
+        return reason;
+    }
+    if (cg_g.version >= 6 && cg_cast_now != CG_CAST_STRICT && !cg_filters_allow(game)) {
+        /* Bought too: the island event content filters the player ticked keep it out (src/vv_event_content.py). */
+        wsprintfA(reason, "\"%s\" is kept out by the island event content filters. Nothing has been queued.",
+                  cg_readable(&cg_g));
         return reason;
     }
     if (cg_g.version >= 6 && cg_cast_now == CG_CAST_PREFER) {
@@ -6663,9 +8465,14 @@ static const char *cg_risk(int game) {
 
 static int cg_origin_now = CG_ORIGIN_PURCHASE;   /* the next cg_queue's origin */
 
+static int cg_origin_now_get(void) {
+    return cg_origin_now;
+}
+
 /* Queue the loaded event in `game` (the checks made: cg_refusal), its first display made due as the purchase does.
    1 on success. */
 static int cg_queue(int game, unsigned int planned, int due) {
+    cg_newest_reset();
     const ce_adapter *a = ce_adapter_for(game);
     if (a == NULL) {
         return 0;
@@ -6748,12 +8555,19 @@ static void cg_tick(int game) {
 /* ---- The run's file ---------------------------------------------------------------------------------------- */
 
 #define CG_FILE_MAGIC 0x31474356u      /* 'V' 'C' 'G' '1' */
-#define CG_FILE_VERSION 4u                 /* 2: the run keeps its path and every question's answers; 3: and a
+#define CG_FILE_VERSION 5u                 /* 2: the run keeps its path and every question's answers; 3: and a
                                               question's third and fourth answers (cg_state.seg_more); 4 (format
                                               version 6): answers five to seven, the pool picks, the aliases, each
-                                              question's buttons, the origin and the cast */
-#define CG_FILE_V2_STATE ((unsigned int)offsetof(cg_state, seg_more))   /* a version 2 file's state bytes */
-#define CG_FILE_V3_STATE ((unsigned int)offsetof(cg_state, seg_v6))     /* a version 3 file's */
+                                              question's buttons, the origin and the cast; 5: the displays' words
+                                              in CG_DISPLAY_BYTES (practically unlimited text), not 49,152 */
+/* Versions 2 to 4 kept CG_DISPLAY_BYTES_V4 bytes of displays: every field after them sits that much nearer. */
+#define CG_DISPLAY_GROWTH ((unsigned int)(CG_DISPLAY_BYTES - CG_DISPLAY_BYTES_V4))
+#define CG_ENTRY_GROWTH ((unsigned int)(CG_ENTRY_BYTES - CG_ENTRY_BYTES_V4))
+#define CG_FILE_GROWTH (CG_DISPLAY_GROWTH + CG_ENTRY_GROWTH)
+#define CG_FILE_V2_STATE ((unsigned int)offsetof(cg_state, seg_more) - CG_FILE_GROWTH)   /* a version 2 file's state
+                                                                                           bytes */
+#define CG_FILE_V3_STATE ((unsigned int)offsetof(cg_state, seg_v6) - CG_FILE_GROWTH)     /* a version 3 file's */
+#define CG_FILE_V4_STATE ((unsigned int)sizeof(cg_state) - CG_FILE_GROWTH)               /* a version 4 file's */
 
 typedef struct {
     unsigned int magic;
@@ -6766,7 +8580,8 @@ typedef struct {
 } cg_file_head;
 
 static cg_file_head cg_head;
-static unsigned char cg_read_buf[CG_MAX_FILE];
+static unsigned char *cg_read_buf;
+static unsigned int cg_read_cap;
 static cg_state cg_read_state;
 
 /* The state's bytes a run file of the header's version holds: version 4 the whole state, version 3 everything before
@@ -6774,15 +8589,35 @@ static cg_state cg_read_state;
    empty: cg_file_upgrade); 0 for any other. */
 static unsigned int cg_file_state_bytes(void) {
     return cg_head.version == CG_FILE_VERSION ? (unsigned int)sizeof(cg_state)
+         : cg_head.version == 4u ? CG_FILE_V4_STATE
          : cg_head.version == 3u ? CG_FILE_V3_STATE
          : cg_head.version == 2u ? CG_FILE_V2_STATE : 0u;
 }
 
+/* A state read from a file before version 5: its fields moved to their places now -- the displays' words grew by
+   CG_DISPLAY_GROWTH and the log entry by CG_ENTRY_GROWTH -- the room they gained empty. */
+static void cg_file_widen(cg_state *st) {
+    unsigned char *b = (unsigned char *)st;
+    unsigned int words = (unsigned int)offsetof(cg_state, displays), kind = (unsigned int)offsetof(cg_state, display_kind);
+    unsigned int entry = (unsigned int)offsetof(cg_state, entry), after = entry + CG_ENTRY_BYTES;
+    unsigned int bytes = cg_file_state_bytes();
+    unsigned int old_after = after - CG_FILE_GROWTH, old_kind = kind - CG_DISPLAY_GROWTH;
+    if (cg_head.version >= CG_FILE_VERSION || bytes < old_after || kind != words + CG_DISPLAY_BYTES
+        || (unsigned int)offsetof(cg_state, seg_more) != after) {
+        return;
+    }
+    /* from the far end: what follows the entry, then the displays' kinds up to the old entry's end */
+    memmove(b + after, b + old_after, bytes - old_after);
+    memmove(b + kind, b + old_kind, (entry + CG_ENTRY_BYTES_V4) - kind);
+    memset(b + words + CG_DISPLAY_BYTES_V4, 0, CG_DISPLAY_GROWTH);
+    memset(b + entry + CG_ENTRY_BYTES_V4, 0, CG_ENTRY_GROWTH);
+}
+
 /* A run read from an older file: what it lacks as a run of its own version had it (no alias drawn, every choice
-   shown as its version shows them, the cast strict). */
+   shown as its version shows them, the cast strict).  Version 4 holds them all (5 only widened the words). */
 static void cg_file_upgrade(cg_state *st) {
     int r;
-    if (cg_head.version >= CG_FILE_VERSION) {
+    if (cg_head.version >= 4u) {
         return;
     }
     for (r = 0; r < CG_MAX_ROLES; ++r) {
@@ -6798,7 +8633,7 @@ static int cg_file_state_ok(void) {
 }
 
 #ifdef VVFP_TEST
-static unsigned char cg_test_file[sizeof(cg_file_head) + sizeof(cg_state) + CG_MAX_FILE];
+static unsigned char cg_test_file[sizeof(cg_file_head) + sizeof(cg_state) + CG_SHIPPED_FILE];
 static unsigned int cg_test_size;
 
 static int cg_file_read(int game, int slot) {
@@ -6811,17 +8646,23 @@ static int cg_file_read(int game, int slot) {
     memcpy(&cg_head, cg_test_file, sizeof cg_head);
     state = cg_file_state_bytes();
     memset(&cg_read_state, 0, sizeof cg_read_state);
-    if (state == 0u || cg_head.graph_bytes > CG_MAX_FILE || cg_test_size != sizeof cg_head + state + cg_head.graph_bytes) {
+    if (state == 0u || cg_head.graph_bytes > CG_SHIPPED_FILE
+        || cg_test_size != sizeof cg_head + state + cg_head.graph_bytes
+        || cg_grow(&cg_read_buf, &cg_read_cap, cg_head.graph_bytes ? cg_head.graph_bytes : 1u) == NULL) {
         return 0;
     }
     memcpy(&cg_read_state, cg_test_file + sizeof cg_head, state);
     memcpy(cg_read_buf, cg_test_file + sizeof cg_head + state, cg_head.graph_bytes);
+    cg_file_widen(&cg_read_state);
     return 1;
 }
 
 static int cg_file_write(int game, int slot) {
     (void)game;
     (void)slot;
+    if (cg_bytes_size > CG_SHIPPED_FILE) {
+        return 0;
+    }
     memcpy(cg_test_file, &cg_head, sizeof cg_head);
     memcpy(cg_test_file + sizeof cg_head, &cg, sizeof cg);
     memcpy(cg_test_file + sizeof cg_head + sizeof cg, cg_bytes, cg_bytes_size);
@@ -6851,8 +8692,12 @@ static int cg_file_read(int game, int slot) {
     ok = ReadFile(h, &cg_head, sizeof cg_head, &got, NULL) && got == sizeof cg_head && cg_file_state_bytes() != 0u
         && ReadFile(h, &cg_read_state, cg_file_state_bytes(), &more, NULL) && more == cg_file_state_bytes()
         && cg_head.graph_bytes <= CG_MAX_FILE
+        && cg_grow(&cg_read_buf, &cg_read_cap, cg_head.graph_bytes ? cg_head.graph_bytes : 1u) != NULL
         && ReadFile(h, cg_read_buf, cg_head.graph_bytes, &graph, NULL) && graph == cg_head.graph_bytes;
     CloseHandle(h);
+    if (ok) {
+        cg_file_widen(&cg_read_state);
+    }
     return ok ? 1 : 0;
 }
 
@@ -6905,6 +8750,9 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
         return;
     }
     cg_file_upgrade(&cg_read_state);
+    if (!cg_bytes_room(cg_head.graph_bytes)) {
+        return;
+    }
     memcpy(cg_bytes, cg_read_buf, cg_head.graph_bytes);
     cg_bytes_size = cg_head.graph_bytes;
     cg_g = check;                      /* checked above: the same bytes, now in the run's own buffer */
@@ -7049,7 +8897,7 @@ static void cg_village_reset(int game, int slot) {
 
 /* ---- The library (the in-game "From the library..." picker) ----------------------------------------------- */
 
-#define CG_LIBRARY_MAX 1024             /* the player's library and the Isola Grand Event Collection's group (its events and
+#define CG_LIBRARY_MAX STORY_TABLE_LIMIT             /* the player's library and the Isola Grand Event Collection's group (its events and
                                            its Living Event Engine rows: about 380 in a game) */
 enum { IDD_CE_LIBRARY = 312, IDC_LB_LIST = 3801, IDC_LB_NOTE = 3802 };
 
@@ -7057,13 +8905,29 @@ static struct {
     int game;
     int count;
     int chosen;
-    char path[CG_LIBRARY_MAX][MAX_PATH];
-    char label[CG_LIBRARY_MAX][320];    /* a living row's label carries its sentence */
+    int cap;                            /* entries the two arrays hold (cg_lib_room) */
+    char (*path)[MAX_PATH];
+    char (*label)[320];                 /* a living row's label carries its sentence */
     char problems[1600];
 } cg_lib;
 
+/* Room for one more library entry (the arrays grown as needed, up to CG_LIBRARY_MAX); 1 when there is. */
+static int cg_lib_room(void) {
+    int cap = cg_lib.cap, c1 = cg_lib.cap;
+    if (cg_lib.count < cg_lib.cap) {
+        return 1;
+    }
+    if (!story_grow((void **)&cg_lib.path, &cap, cg_lib.count + 1, MAX_PATH)
+        || !story_grow((void **)&cg_lib.label, &c1, cg_lib.count + 1, 320)) {
+        return 0;
+    }
+    cg_lib.cap = cap;
+    return 1;
+}
+
 static cg_graph cg_lib_graph;
-static unsigned char cg_lib_bytes[CG_MAX_FILE];
+static unsigned char *cg_lib_bytes;
+static unsigned int cg_lib_cap;
 
 static int cg_read_whole(const char *path, unsigned char *buf, unsigned int cap, unsigned int *size) {
     HANDLE h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -7074,6 +8938,22 @@ static int cg_read_whole(const char *path, unsigned char *buf, unsigned int cap,
     }
     length = GetFileSize(h, &high);
     ok = high == 0 && length != INVALID_FILE_SIZE && length <= cap && ReadFile(h, buf, length, &got, NULL) && got == length;
+    CloseHandle(h);
+    *size = got;
+    return ok;
+}
+
+/* A file read whole into *buf, grown to its size (at most CG_MAX_FILE). */
+static int cg_read_grow(const char *path, unsigned char **buf, unsigned int *cap, unsigned int *size) {
+    HANDLE h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    DWORD got = 0, high = 0, length;
+    BOOL ok;
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    length = GetFileSize(h, &high);
+    ok = high == 0 && length != INVALID_FILE_SIZE && length <= CG_MAX_FILE
+         && cg_grow(buf, cap, length ? length : 1u) != NULL && ReadFile(h, *buf, length, &got, NULL) && got == length;
     CloseHandle(h);
     *size = got;
     return ok;
@@ -7137,7 +9017,7 @@ static void cg_library_scan(int game) {
             cg_library_note(found.cFileName, "its .json is newer: save it again in the patcher");
             continue;
         }
-        if (!cg_read_whole(path, cg_lib_bytes, sizeof cg_lib_bytes, &size) || !cg_load(&cg_lib_graph, cg_lib_bytes, size)) {
+        if (!cg_read_grow(path, &cg_lib_bytes, &cg_lib_cap, &size) || !cg_load(&cg_lib_graph, cg_lib_bytes, size)) {
             cg_library_note(found.cFileName, cg_why[0] != '\0' ? cg_why : "it cannot be read");
             cg_why[0] = '\0';
             continue;
@@ -7145,7 +9025,7 @@ static void cg_library_scan(int game) {
         if (!(cg_lib_graph.games & (1u << (game - 1)))) {
             continue;                  /* made for other games */
         }
-        if (cg_lib.count < CG_LIBRARY_MAX) {
+        if (cg_lib_room()) {
             lstrcpyA(cg_lib.path[cg_lib.count], path);
             wsprintfA(cg_lib.label[cg_lib.count], "%s   (%s)", cg_readable(&cg_lib_graph),
                       found.cFileName);
@@ -7217,14 +9097,21 @@ static int cg_library_purchase(int game, HWND owner) {
     if (cg_lib.game != game || cg_lib.chosen < 0 || cg_lib.chosen >= cg_lib.count) {
         return 0;
     }
-    if (lv_library_path(cg_lib.path[cg_lib.chosen])) {
+    if (pc_library_path(cg_lib.path[cg_lib.chosen])) {
+        /* A procedural event: composed now, left in cg_bytes (story_procedural.inc). */
+        if (!pc_library_load(game, cg_lib.path[cg_lib.chosen])) {
+            wsprintfA(prompt, "That event can not happen right now: %s. Nothing has been queued.", cg_why);
+            ui_message(owner, prompt);
+            return 0;
+        }
+    } else if (lv_library_path(cg_lib.path[cg_lib.chosen])) {
         /* A Living Event Engine seed: the variant the library's cast can cast, in cg_bytes (story_living.inc). */
         if (!lv_library_load(game, cg_lib.path[cg_lib.chosen])) {
             wsprintfA(prompt, "That event can not happen right now: %s. Nothing has been queued.", cg_why);
             ui_message(owner, prompt);
             return 0;
         }
-    } else if (!cg_read_whole(cg_lib.path[cg_lib.chosen], cg_bytes, sizeof cg_bytes, &size)
+    } else if (!cg_read_grow(cg_lib.path[cg_lib.chosen], &cg_bytes, &cg_bytes_cap, &size)
         || !cg_load(&cg_g, cg_bytes, size)) {
         wsprintfA(prompt, "That event can not be used: %s. Nothing has been queued.", cg_why);
         ui_message(owner, prompt);
@@ -7296,6 +9183,10 @@ static int cg_queue_origin(int game, const unsigned char *file, unsigned size, i
         return 0;
     }
     if (file != cg_bytes) {
+        if (!cg_bytes_room(size)) {
+            lstrcpynA(cg_queue_why, "The event file can not be read.", sizeof cg_queue_why);
+            return 0;
+        }
         memcpy(cg_bytes, file, size);
     }
     cg_bytes_size = size;
@@ -7324,6 +9215,16 @@ static int cg_queue_origin(int game, const unsigned char *file, unsigned size, i
 #ifdef VVFP_TEST
 /* ---- Test build only --------------------------------------------------------------------------------------- */
 
+/* "A man may carry the baby by chance": the percent the installed patches' list gives (-1 in the high half of
+   nothing), and one draw of cg_partner_carries with the rolls VvfpStoryProbeSetRolls gives: percent | carries << 8. */
+__declspec(dllexport) int __stdcall VvfpStoryProbePartnerCarries(int game) {
+    const ce_adapter *a = ce_adapter_for(game);
+    if (a == NULL) {
+        return -1;
+    }
+    return cg_partner_carry_percent() | (cg_partner_carries(a) << 8);
+}
+
 /* Queue the .cieg `data` (`size` bytes) in `game` as the library's purchase does, without any dialog: NULL when
    queued, else the refusal.  `due` 1 makes the island event due (ce_arm_with), 0 only arms it. */
 __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphQueue(int game, const unsigned char *data,
@@ -7334,6 +9235,9 @@ __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphQueue(int game, c
         return "too large";
     }
     install_state[game] = 1;
+    if (!cg_bytes_room(size)) {
+        return "too large";
+    }
     memcpy(cg_bytes, data, size);
     cg_bytes_size = size;
     if (!cg_load(&cg_g, cg_bytes, size)) {
@@ -7419,11 +9323,21 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphVv1Parent(int record, in
     p->body = body;
 }
 
-/* The run file's layout: out[0] a version 3 file's state bytes, [1] the header's bytes, [2] the whole state's. */
+/* The run file's layout: out[0] a version 3 file's state bytes, [1] the header's bytes, [2] the whole state's, [3] where
+   the displays' words start in it, [4] their bytes, [5] the bytes versions 2 to 4 kept for them, [6] where version
+   3's state ends now (the third and fourth answers' segments end), [7] a version 4 file's state bytes. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphFileLayout(int *out) {
     out[0] = (int)CG_FILE_V3_STATE;
     out[1] = (int)sizeof(cg_file_head);
     out[2] = (int)sizeof(cg_state);
+    out[3] = (int)offsetof(cg_state, displays);
+    out[4] = (int)CG_DISPLAY_BYTES;
+    out[5] = (int)CG_DISPLAY_BYTES_V4;
+    out[6] = (int)offsetof(cg_state, seg_v6);
+    out[7] = (int)CG_FILE_V4_STATE;
+    out[8] = (int)offsetof(cg_state, entry);           /* [8] the log entry's start, [9] its bytes, [10] version 4's */
+    out[9] = (int)CG_ENTRY_BYTES;
+    out[10] = (int)CG_ENTRY_BYTES_V4;
 }
 
 /* cg_queue_origin as story_collection.inc calls it: 1 queued, else 0 with the reason copied to `why` (200 bytes). */
@@ -7492,8 +9406,9 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphFacts(int unicode, int s
 /* Read `data` as a .cieg: NULL when it passes, else why not. */
 __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphCheck(const unsigned char *data, unsigned int size) {
     static cg_graph g;
-    static unsigned char copy[CG_MAX_FILE];
-    if (size > CG_MAX_FILE) {
+    static unsigned char *copy;
+    static unsigned int copy_cap;
+    if (size > CG_MAX_FILE || cg_grow(&copy, &copy_cap, size ? size : 1u) == NULL) {
         return "too large";
     }
     memcpy(copy, data, size);
@@ -7630,7 +9545,7 @@ __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphDisplay(int k) {
 
 /* Display `k`'s popup title (cie-v6-binary.md 14), or NULL. */
 __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphTitle(int k) {
-    static char title[CE_TITLE_BYTES + 64];
+    static char title[CE_LONG_LINE_BYTES * 4];
     if (k < 0 || k >= cg.display_count) {
         return NULL;
     }

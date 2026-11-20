@@ -46,7 +46,10 @@ def _owner_keeps_off(patch_id: str) -> bool:
             or patch_id == "vv4_yellow_fruit_refills_partially"
             # The owner (2026-11-12): Island Events Scale With Stored Food and Tech Points is the alternative, off in
             # Owner's Defaults (Island Events Scale With Population is ticked there).
-            or patch_id.endswith("_island_events_scale_with_stored_amounts"))
+            or patch_id.endswith("_island_events_scale_with_stored_amounts")
+            # The owner (2026-11-15): the island events' content filters and No Safeguards for Island Events are
+            # off everywhere, Owner's Defaults too (Content Notes is ticked there).
+            or "_island_event_filter_f" in patch_id or patch_id.endswith("_island_events_any_time"))
 
 
 class OwnersDefaultsTests(unittest.TestCase):

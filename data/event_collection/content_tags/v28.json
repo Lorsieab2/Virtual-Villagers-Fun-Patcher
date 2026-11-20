@@ -1,0 +1,3057 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "v28",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "all_beautification": {
+   "filters": [
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "r4": [
+     "F19"
+    ]
+   }
+  },
+  "all_conundrums": {
+   "filters": [
+    "F13",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "b2": [
+     "F13"
+    ],
+    "b4": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "all_doctors_dilemma": {
+   "filters": [
+    "F03",
+    "F05",
+    "F06",
+    "F08",
+    "F27"
+   ],
+   "notes": [
+    "Bereavement",
+    "Serious injury"
+   ],
+   "nodes": {
+    "death": [
+     "F03",
+     "F05",
+     "F08"
+    ],
+    "disability": [
+     "F06",
+     "F27"
+    ],
+    "intro": [
+     "F08"
+    ],
+    "recovery": [
+     "F08"
+    ]
+   },
+   "speaks": [
+    "healer2"
+   ]
+  },
+  "all_everybodys_winner": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_great_appointment": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_inexplicable_idea": {
+   "filters": [
+    "F16",
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "b3": [
+     "F16"
+    ],
+    "c5": [
+     "F16",
+     "F19"
+    ]
+   },
+   "speaks": [
+    "inventor"
+   ]
+  },
+  "all_invention": {
+   "filters": [
+    "F16",
+    "F21",
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "coda_o3": [
+     "F16"
+    ],
+    "intro": [
+     "F16"
+    ],
+    "question": [
+     "F21",
+     "F26"
+    ],
+    "w1": [
+     "F16"
+    ],
+    "w2": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "all_invention_showcase": {
+   "filters": [
+    "F08",
+    "F16",
+    "F19",
+    "F21",
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F21"
+    ],
+    "a3": [
+     "F08"
+    ],
+    "b3": [
+     "F26"
+    ],
+    "b6": [
+     "F16"
+    ],
+    "c2_2": [
+     "F16"
+    ],
+    "c6": [
+     "F16"
+    ],
+    "c7": [
+     "F08"
+    ],
+    "c8": [
+     "F16",
+     "F19"
+    ],
+    "question": [
+     "F26"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "all_its_alive": {
+   "filters": [
+    "F03",
+    "F08",
+    "F11",
+    "F24"
+   ],
+   "notes": [
+    "Bereavement",
+    "Emotional distress"
+   ],
+   "nodes": {
+    "a1": [
+     "F03",
+     "F08",
+     "F24"
+    ],
+    "a3": [
+     "F11"
+    ],
+    "b2": [
+     "F08"
+    ]
+   },
+   "speaks": [
+    "researcher"
+   ]
+  },
+  "all_panel_standards": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "end6": [
+     "F16"
+    ]
+   }
+  },
+  "all_physics_defying": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "a1": [
+     "F03"
+    ],
+    "d1": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "builder"
+   ]
+  },
+  "all_scholasticon": {
+   "filters": [
+    "F08"
+   ],
+   "notes": [],
+   "nodes": {
+    "d2": [
+     "F08"
+    ]
+   },
+   "speaks": [
+    "researcher2",
+    "child"
+   ]
+  },
+  "all_secret_of_life": {
+   "filters": [
+    "F03",
+    "F04",
+    "F06",
+    "F07",
+    "F15",
+    "F19",
+    "F23"
+   ],
+   "notes": [
+    "Bereavement",
+    "Serious injury",
+    "Disappearance",
+    "Historical suffering"
+   ],
+   "nodes": {
+    "a1_2": [
+     "F19"
+    ],
+    "a3_2_food": [
+     "F03",
+     "F15"
+    ],
+    "a3_2_research": [
+     "F03",
+     "F15"
+    ],
+    "a4_2": [
+     "F03",
+     "F06"
+    ],
+    "b5": [
+     "F07",
+     "F19"
+    ],
+    "b5_2": [
+     "F23"
+    ],
+    "c5": [
+     "F03"
+    ],
+    "d2": [
+     "F04"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "all_storytelling": {
+   "filters": [
+    "F16",
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "ask": [
+     "F16",
+     "F21"
+    ]
+   }
+  },
+  "all_strange_statue": {
+   "filters": [
+    "F21",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "intro": [
+     "F21",
+     "F25"
+    ]
+   }
+  },
+  "all_teacher_who_failed": {
+   "filters": [
+    "F08"
+   ],
+   "notes": [],
+   "nodes": {
+    "wrong": [
+     "F08"
+    ]
+   }
+  },
+  "all_unlikely_advisor": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v18_01_warriors": {
+   "filters": [
+    "F03",
+    "F06"
+   ],
+   "notes": [
+    "Bereavement",
+    "Serious injury"
+   ],
+   "nodes": {
+    "a3": [
+     "F06"
+    ],
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "all_v18_02_martial": {
+   "filters": [
+    "F03",
+    "F12"
+   ],
+   "notes": [
+    "Bereavement",
+    "Emotional distress"
+   ],
+   "nodes": {
+    "a2": [
+     "F12"
+    ],
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "all_v18_03_question": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v18_04_duel": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v18_05_alchemists": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "all_v18_06_paradox": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v18_07_sixteenth": {
+   "filters": [
+    "F03",
+    "F21"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "a2": [
+     "F21"
+    ],
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "all_v18_08_poets": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "all_v18_09_trivia": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "all_v18_10_ball": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v18_11_stick_game": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "all_v18_12_hoop": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "all_v18_decathlon": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v20_between_life": {
+   "filters": [
+    "F03",
+    "F05",
+    "F06",
+    "F08",
+    "F27"
+   ],
+   "notes": [
+    "Bereavement",
+    "Serious injury"
+   ],
+   "nodes": {
+    "a2": [
+     "F06"
+    ],
+    "a3": [
+     "F03",
+     "F05"
+    ],
+    "a4": [
+     "F03",
+     "F05"
+    ],
+    "b3": [
+     "F06"
+    ],
+    "b4": [
+     "F03",
+     "F05"
+    ],
+    "c3": [
+     "F06"
+    ],
+    "c4": [
+     "F03",
+     "F05"
+    ],
+    "collapse": [
+     "F08"
+    ],
+    "d2": [
+     "F03",
+     "F05"
+    ],
+    "d4": [
+     "F03",
+     "F05"
+    ],
+    "e2": [
+     "F06",
+     "F27"
+    ],
+    "e4": [
+     "F03",
+     "F05"
+    ],
+    "f4": [
+     "F03",
+     "F05"
+    ],
+    "g2": [
+     "F06",
+     "F27"
+    ],
+    "g4": [
+     "F03",
+     "F05"
+    ]
+   },
+   "speaks": [
+    "patient"
+   ]
+  },
+  "all_v20_d10_child": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v20_d11_ancient": {
+   "filters": [
+    "F03",
+    "F05",
+    "F06"
+   ],
+   "notes": [
+    "Bereavement",
+    "Serious injury"
+   ],
+   "nodes": {
+    "a2": [
+     "F03",
+     "F05"
+    ],
+    "b2": [
+     "F06"
+    ]
+   }
+  },
+  "all_v20_d12_cannot": {
+   "filters": [
+    "F03",
+    "F05",
+    "F06",
+    "F21"
+   ],
+   "notes": [
+    "Bereavement",
+    "Serious injury"
+   ],
+   "nodes": {
+    "a2": [
+     "F03",
+     "F05"
+    ],
+    "b2": [
+     "F06"
+    ],
+    "c2": [
+     "F06"
+    ],
+    "intro": [
+     "F21"
+    ]
+   }
+  },
+  "all_v20_d2_no_such": {
+   "filters": [
+    "F03",
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "a3": [
+     "F03",
+     "F05"
+    ],
+    "b3": [
+     "F03",
+     "F05"
+    ]
+   }
+  },
+  "all_v20_d3_cure": {
+   "filters": [
+    "F03",
+    "F05",
+    "F06"
+   ],
+   "notes": [
+    "Bereavement",
+    "Serious injury"
+   ],
+   "nodes": {
+    "a2": [
+     "F06"
+    ],
+    "a4": [
+     "F03",
+     "F05"
+    ]
+   }
+  },
+  "all_v20_d4_half": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "a2": [
+     "F06"
+    ]
+   }
+  },
+  "all_v20_d5_last_dose": {
+   "filters": [
+    "F03",
+    "F05",
+    "F06",
+    "F08"
+   ],
+   "notes": [
+    "Bereavement",
+    "Serious injury"
+   ],
+   "nodes": {
+    "a2": [
+     "F06"
+    ],
+    "a3": [
+     "F03",
+     "F05"
+    ],
+    "b2": [
+     "F03",
+     "F05"
+    ],
+    "c2": [
+     "F03",
+     "F05"
+    ],
+    "intro": [
+     "F08"
+    ]
+   }
+  },
+  "all_v20_d6_physician": {
+   "filters": [
+    "F03",
+    "F05",
+    "F06"
+   ],
+   "notes": [
+    "Bereavement",
+    "Serious injury"
+   ],
+   "nodes": {
+    "a2": [
+     "F03",
+     "F05"
+    ],
+    "b2": [
+     "F06"
+    ],
+    "c2": [
+     "F06"
+    ]
+   }
+  },
+  "all_v20_d7_patient": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "b2": [
+     "F06"
+    ]
+   }
+  },
+  "all_v20_d8_works_too": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "a2": [
+     "F06"
+    ]
+   }
+  },
+  "all_v20_d9_healers": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v20_r1_should_not": {
+   "filters": [
+    "F03",
+    "F11",
+    "F20"
+   ],
+   "notes": [
+    "Bereavement",
+    "Emotional distress"
+   ],
+   "nodes": {
+    "a2": [
+     "F03"
+    ],
+    "b2": [
+     "F11"
+    ],
+    "coda_p7": [
+     "F20"
+    ],
+    "d3": [
+     "F03"
+    ]
+   }
+  },
+  "all_v20_r2_relic_trial": {
+   "filters": [
+    "F04",
+    "F08",
+    "F16"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "b4": [
+     "F04"
+    ],
+    "c1": [
+     "F08"
+    ],
+    "c3": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "accused"
+   ]
+  },
+  "all_v20_r3_isola": {
+   "filters": [
+    "F11",
+    "F15",
+    "F19",
+    "F20"
+   ],
+   "notes": [
+    "Historical suffering",
+    "Emotional distress"
+   ],
+   "nodes": {
+    "a2": [
+     "F11",
+     "F15"
+    ],
+    "a4": [
+     "F20"
+    ],
+    "b3": [
+     "F19"
+    ],
+    "coda_p7": [
+     "F20"
+    ],
+    "intro": [
+     "F15"
+    ]
+   }
+  },
+  "all_v20_r4_relic": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v21_c1_potters": {
+   "filters": [
+    "F03",
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "b5": [
+     "F05"
+    ],
+    "coda_c11": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "potter"
+   ]
+  },
+  "all_v21_c2_divided": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "intro": [
+     "F21"
+    ]
+   }
+  },
+  "all_v21_c3_crafts_fair": {
+   "filters": [
+    "F03",
+    "F04",
+    "F20",
+    "F21"
+   ],
+   "notes": [
+    "Bereavement",
+    "Disappearance"
+   ],
+   "nodes": {
+    "a1": [
+     "F21"
+    ],
+    "b4": [
+     "F04"
+    ],
+    "c5": [
+     "F20"
+    ],
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "all_v22_1_drawing": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "artist"
+   ]
+  },
+  "all_v22_2_strength": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "all_v22_3_potion": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "all_v22_4_parents": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "c2": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "child",
+    "parent"
+   ]
+  },
+  "all_v23_1_practical": {
+   "filters": [
+    "F04",
+    "F13"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "b1": [
+     "F04"
+    ],
+    "b2": [
+     "F13"
+    ]
+   }
+  },
+  "all_v23_2_ill_timed": {
+   "filters": [
+    "F20",
+    "F22"
+   ],
+   "notes": [],
+   "nodes": {
+    "s2": [
+     "F20"
+    ],
+    "s4": [
+     "F22"
+    ]
+   }
+  },
+  "all_v23_3_strange": {
+   "filters": [
+    "F04",
+    "F13",
+    "F21"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "c1": [
+     "F21"
+    ],
+    "c3": [
+     "F04"
+    ],
+    "intro": [
+     "F13"
+    ]
+   }
+  },
+  "all_v23_4_missing": {
+   "filters": [
+    "F04",
+    "F25"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "a1": [
+     "F25"
+    ],
+    "intro": [
+     "F04"
+    ]
+   }
+  },
+  "all_v23_5_false_alarm": {
+   "filters": [
+    "F11",
+    "F13",
+    "F19",
+    "F21"
+   ],
+   "notes": [
+    "Emotional distress"
+   ],
+   "nodes": {
+    "a2": [
+     "F13"
+    ],
+    "a3": [
+     "F21"
+    ],
+    "b1": [
+     "F19"
+    ],
+    "c1": [
+     "F11"
+    ]
+   }
+  },
+  "all_v23_6_prank_war": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "prankster2"
+   ]
+  },
+  "all_v24_revolutionary": {
+   "filters": [
+    "F04",
+    "F16",
+    "F20",
+    "F21",
+    "F25"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "a1_art": [
+     "F21"
+    ],
+    "a1_eng": [
+     "F21"
+    ],
+    "a1_food": [
+     "F21"
+    ],
+    "a1_sci": [
+     "F21"
+    ],
+    "a1_trade": [
+     "F21"
+    ],
+    "a5": [
+     "F16"
+    ],
+    "a6": [
+     "F04"
+    ],
+    "c4": [
+     "F04"
+    ],
+    "d4": [
+     "F04"
+    ],
+    "q_disc_trade": [
+     "F25"
+    ],
+    "q_inv_art": [
+     "F25"
+    ],
+    "q_inv_food": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "inventor"
+   ]
+  },
+  "all_v27_01_cry": {
+   "filters": [
+    "F13"
+   ],
+   "notes": [],
+   "nodes": {
+    "c": [
+     "F13"
+    ]
+   }
+  },
+  "all_v27_02_little_grip": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_03_recognition": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_04_crawling": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_05_lullaby": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_06_grove": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "c": [
+     "F06"
+    ]
+   }
+  },
+  "all_v27_07_secret": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_08_cruel_joke": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_09_kingdom": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_10_supper": {
+   "filters": [
+    "F01",
+    "F04",
+    "F18"
+   ],
+   "notes": [
+    "Child death",
+    "Disappearance"
+   ],
+   "nodes": {
+    "c": [
+     "F01",
+     "F04",
+     "F18"
+    ]
+   }
+  },
+  "all_v27_11_legend": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "c": [
+     "F06"
+    ]
+   }
+  },
+  "all_v27_12_new_friend": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_13_raft": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "c": [
+     "F04"
+    ]
+   }
+  },
+  "all_v27_14_proof": {
+   "filters": [
+    "F03",
+    "F05",
+    "F06"
+   ],
+   "notes": [
+    "Bereavement",
+    "Serious injury"
+   ],
+   "nodes": {
+    "c_death": [
+     "F03",
+     "F05"
+    ],
+    "c_injury": [
+     "F06"
+    ]
+   }
+  },
+  "all_v27_15_embarrass": {
+   "filters": [
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "b": [
+     "F19"
+    ]
+   }
+  },
+  "all_v27_16_swap": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_17_pact": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "b": [
+     "F06"
+    ],
+    "c": [
+     "F06"
+    ]
+   }
+  },
+  "all_v27_18_heartbreak": {
+   "filters": [
+    "F05",
+    "F28"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "a": [
+     "F05"
+    ],
+    "intro": [
+     "F28"
+    ]
+   }
+  },
+  "all_v27_19_beam": {
+   "filters": [
+    "F06",
+    "F21"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "b": [
+     "F21"
+    ],
+    "c": [
+     "F06"
+    ]
+   }
+  },
+  "all_v27_20_favor": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "c": [
+     "F06"
+    ]
+   }
+  },
+  "all_v27_21_councilor": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_22_doubt": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_23_watcher": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "c": [
+     "F06"
+    ]
+   }
+  },
+  "all_v27_24_explorer": {
+   "filters": [
+    "F04",
+    "F06"
+   ],
+   "notes": [
+    "Serious injury",
+    "Disappearance"
+   ],
+   "nodes": {
+    "b": [
+     "F06"
+    ],
+    "c": [
+     "F04"
+    ]
+   }
+  },
+  "all_v27_25_crossing": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "c": [
+     "F04"
+    ]
+   }
+  },
+  "all_v27_26_teacher": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_27_empty_chair": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "intro": [
+     "F03"
+    ]
+   }
+  },
+  "all_v27_28_beginning": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_29_route": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_30_basket": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "c": [
+     "F03"
+    ]
+   }
+  },
+  "all_v27_31_guardian": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_32_fish": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "b": [
+     "F04"
+    ]
+   }
+  },
+  "all_v27_33_insect": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "intro": [
+     "F26"
+    ]
+   }
+  },
+  "all_v27_34_pet": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_35_pets_last": {
+   "filters": [
+    "F03",
+    "F04",
+    "F05"
+   ],
+   "notes": [
+    "Bereavement",
+    "Disappearance"
+   ],
+   "nodes": {
+    "b": [
+     "F03",
+     "F05"
+    ],
+    "c": [
+     "F04"
+    ]
+   }
+  },
+  "all_v27_36_hatchling": {
+   "filters": [
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "b": [
+     "F19"
+    ],
+    "intro": [
+     "F19"
+    ]
+   }
+  },
+  "all_v27_37_returned": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_38_rough_patch": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_39_marriage": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_40_siblings": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_41_promise": {
+   "filters": [
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "c": [
+     "F19"
+    ]
+   }
+  },
+  "all_v27_42_special": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_43_lovers": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_44_courtship": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_45_coworkers": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_46_ally": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_47_grief": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "b": [
+     "F05"
+    ]
+   }
+  },
+  "all_v27_48_mentor": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_49_chosen": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_50_reunion": {
+   "filters": [
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "b": [
+     "F19"
+    ]
+   }
+  },
+  "all_v27_51_apology": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "all_v27_52_unexpected": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "intro": [
+     "F25"
+    ]
+   }
+  },
+  "all_v27_53_shore": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "c": [
+     "F03"
+    ]
+   }
+  },
+  "all_v27_54_fever": {
+   "filters": [
+    "F03",
+    "F05",
+    "F06"
+   ],
+   "notes": [
+    "Bereavement",
+    "Serious injury"
+   ],
+   "nodes": {
+    "b": [
+     "F06"
+    ],
+    "c": [
+     "F03",
+     "F05"
+    ],
+    "intro": [
+     "F06"
+    ]
+   }
+  },
+  "all_v27_55_deep_pool": {
+   "filters": [
+    "F03",
+    "F04",
+    "F05",
+    "F06"
+   ],
+   "notes": [
+    "Bereavement",
+    "Serious injury",
+    "Disappearance"
+   ],
+   "nodes": {
+    "c_fatal": [
+     "F03",
+     "F05"
+    ],
+    "c_missing": [
+     "F04"
+    ],
+    "c_rescue": [
+     "F06"
+    ]
+   }
+  },
+  "all_v27_56_empty_boat": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "b": [
+     "F04"
+    ],
+    "c": [
+     "F04"
+    ]
+   }
+  },
+  "all_v27_57_bell": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "c": [
+     "F06"
+    ]
+   }
+  },
+  "all_verse_that_changed": {
+   "filters": [
+    "F03",
+    "F05",
+    "F16"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "a1_more": [
+     "F16"
+    ],
+    "err5": [
+     "F03",
+     "F05"
+    ]
+   },
+   "speaks": [
+    "reciter"
+   ]
+  },
+  "all_very_bad_day": {
+   "filters": [
+    "F10",
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "coda_o3": [
+     "F16"
+    ],
+    "confessor": [
+     "F16"
+    ],
+    "k2": [
+     "F16"
+    ],
+    "k3": [
+     "F10"
+    ],
+    "ostracism": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "vv1_child_of_legend": {
+   "filters": [
+    "F13"
+   ],
+   "notes": [],
+   "nodes": {
+    "legend": [
+     "F13"
+    ]
+   }
+  },
+  "vv1_elders_favorite": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "adult"
+   ]
+  },
+  "vv1_last_song_before": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "coda_c7": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "child",
+    "elder"
+   ]
+  },
+  "vv1_masters_small": {
+   "filters": [
+    "F08",
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "ending": [
+     "F08"
+    ],
+    "question": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "builder",
+    "child"
+   ]
+  },
+  "vv1_missing_pearl": {
+   "filters": [
+    "F04",
+    "F21"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "coda_r5": [
+     "F21"
+    ],
+    "question": [
+     "F04"
+    ]
+   }
+  },
+  "vv1_the_wall": {
+   "filters": [
+    "F08",
+    "F16",
+    "F21",
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "coda_r5": [
+     "F21"
+    ],
+    "fault": [
+     "F21",
+     "F26"
+    ],
+    "h1": [
+     "F16"
+    ],
+    "h3": [
+     "F16"
+    ],
+    "intro": [
+     "F21",
+     "F26"
+    ],
+    "p2": [
+     "F08"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "vv1_unexpected": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "intro": [
+     "F03"
+    ]
+   }
+  },
+  "vv1_v14_01_impossible": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_02_worlds": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_03_little": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_04_living_map": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_05_lesson": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_06_song_isola": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_07_instrument": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_08_tiny": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_09_rainbow": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_10_little": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_11_thirsty": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_12_berry_bushs": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_13_curious": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "scene": [
+     "F26"
+    ]
+   }
+  },
+  "vv1_v14_14_stars_have": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_15_little": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_16_child_who": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_17_golden": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_18_little": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_19_golden": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_20_question": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_21_little": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_22_golden": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v14_23_little": {
+   "filters": [
+    "F08"
+   ],
+   "notes": [],
+   "nodes": {
+    "scene": [
+     "F08"
+    ]
+   }
+  },
+  "vv1_v14_24_boy_who": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "scene": [
+     "F05"
+    ]
+   }
+  },
+  "vv1_v14_25_child_who": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv1_v17_building": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv1_v17_children": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv1_v17_cooking": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv1_v17_farming": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv1_v17_research": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv1_v17_sculpture": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv1_v17_story": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv2_cooking_contest": {
+   "filters": [
+    "F03",
+    "F07",
+    "F08",
+    "F11",
+    "F16",
+    "F20",
+    "F21",
+    "F24",
+    "F27"
+   ],
+   "notes": [
+    "Bereavement",
+    "Emotional distress"
+   ],
+   "nodes": {
+    "a1_18_1": [
+     "F11"
+    ],
+    "a1_29_5": [
+     "F21"
+    ],
+    "a1_i": [
+     "F07"
+    ],
+    "a1_r2": [
+     "F08",
+     "F21"
+    ],
+    "a2_24": [
+     "F21"
+    ],
+    "a2_29": [
+     "F11"
+    ],
+    "ban_competing": [
+     "F27"
+    ],
+    "ban_cooking": [
+     "F27"
+    ],
+    "ban_potions": [
+     "F27"
+    ],
+    "ban_stews": [
+     "F27"
+    ],
+    "seven": [
+     "F16"
+    ],
+    "v13a_a4": [
+     "F11"
+    ],
+    "v13a_c2": [
+     "F07"
+    ],
+    "v13a_d5": [
+     "F21"
+    ],
+    "v13a_intro": [
+     "F11",
+     "F24"
+    ],
+    "v13a_remark": [
+     "F03",
+     "F20",
+     "F24"
+    ]
+   },
+   "speaks": [
+    "cook2",
+    "cook1"
+   ]
+  },
+  "vv2_experimental_remedy": {
+   "filters": [
+    "F04",
+    "F09",
+    "F21",
+    "F26"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "intro": [
+     "F21",
+     "F26"
+    ],
+    "question": [
+     "F04",
+     "F09"
+    ]
+   }
+  },
+  "vv2_hospitals_most_difficult": {
+   "filters": [
+    "F08"
+   ],
+   "notes": [],
+   "nodes": {
+    "b2": [
+     "F08"
+    ]
+   }
+  },
+  "vv2_hut_sharing_negotiation": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv2_packed_hospital": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv2_secret_behind_waterfall": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv2_stolen_spoon": {
+   "filters": [
+    "F04",
+    "F16"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "intro": [
+     "F04"
+    ],
+    "t4": [
+     "F16"
+    ]
+   }
+  },
+  "vv2_the_great_totem_dispute": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "a2": [
+     "F20"
+    ]
+   }
+  },
+  "vv2_timid_child": {
+   "filters": [
+    "F16",
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "question": [
+     "F16",
+     "F19"
+    ],
+    "story": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "adult",
+    "child"
+   ]
+  },
+  "vv2_v17_building": {
+   "filters": [
+    "F03",
+    "F25"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ],
+    "contest": [
+     "F25"
+    ]
+   }
+  },
+  "vv2_v17_children": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv2_v17_farming": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv2_v17_research": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv2_v17_sculpture": {
+   "filters": [
+    "F03",
+    "F16"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ],
+    "contest": [
+     "F16"
+    ]
+   }
+  },
+  "vv2_v17_story": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv2_veterinary_visitor": {
+   "filters": [
+    "F24",
+    "F27"
+   ],
+   "notes": [],
+   "nodes": {
+    "intro": [
+     "F24",
+     "F27"
+    ]
+   }
+  },
+  "vv345_magician_naturalist": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv3_chief_and_the_pearl": {
+   "filters": [
+    "F04",
+    "F21"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "coda_r5": [
+     "F21"
+    ],
+    "intro": [
+     "F04"
+    ]
+   }
+  },
+  "vv3_chiefs_impossible_question": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "a2": [
+     "F20"
+    ]
+   }
+  },
+  "vv3_chiefs_monumental_speech": {
+   "filters": [
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "result": [
+     "F19"
+    ]
+   }
+  },
+  "vv3_child_who_claimed_to_be": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F20"
+    ],
+    "a3": [
+     "F20"
+    ]
+   }
+  },
+  "vv3_duel_terrible_inventors": {
+   "filters": [
+    "F06",
+    "F21",
+    "F26"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "coda_r2": [
+     "F06"
+    ],
+    "question": [
+     "F06",
+     "F21",
+     "F26"
+    ]
+   }
+  },
+  "vv3_gardening_contest": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "intro": [
+     "F26"
+    ]
+   }
+  },
+  "vv3_statue_that_judged_its": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv3_tale_telling_elder": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "coda_c7": [
+     "F16"
+    ]
+   }
+  },
+  "vv3_the_citys_two_histories": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv3_unfortunate_portrait": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv3_v17_building": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv3_v17_children": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv3_v17_cooking": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv3_v17_farming": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv3_v17_research": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv3_v17_sculpture": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv3_v17_story": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv3_weather_dance_that_went": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv4_arbor_day_festival": {
+   "filters": [
+    "F16",
+    "F21",
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "ending": [
+     "F16"
+    ],
+    "intro": [
+     "F21",
+     "F26"
+    ]
+   }
+  },
+  "vv4_breadfruit_breakdown": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "cook1",
+    "cook2"
+   ]
+  },
+  "vv4_fruity_masterpiece": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "cook",
+    "elder"
+   ]
+  },
+  "vv4_lullaby": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv4_mask_that_wouldnt_stay": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv4_quiet_gardener": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "coda_c7": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "young"
+   ]
+  },
+  "vv4_rotten_structure": {
+   "filters": [
+    "F08",
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "collapse": [
+     "F08",
+     "F21"
+    ]
+   }
+  },
+  "vv4_the_dolphins_strange_gift": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv4_the_great_water_argument": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv4_the_unwelcome_landscaper": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "a3": [
+     "F26"
+    ]
+   }
+  },
+  "vv4_v17_building": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv4_v17_children": {
+   "filters": [
+    "F03",
+    "F11"
+   ],
+   "notes": [
+    "Bereavement",
+    "Emotional distress"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ],
+    "contest": [
+     "F11"
+    ]
+   }
+  },
+  "vv4_v17_cooking": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv4_v17_farming": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv4_v17_research": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv4_v17_sculpture": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv4_v17_story": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv5_convert_who_missed_home": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv5_feast_of_two_traditions": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "b2": [
+     "F20"
+    ]
+   }
+  },
+  "vv5_field_day": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "intro": [
+     "F25"
+    ]
+   }
+  },
+  "vv5_gift_or_insult": {
+   "filters": [
+    "F08",
+    "F24"
+   ],
+   "notes": [],
+   "nodes": {
+    "intro": [
+     "F08",
+     "F24"
+    ]
+   }
+  },
+  "vv5_great_laundry_mishap": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "claimer",
+    "finder"
+   ]
+  },
+  "vv5_great_woodworking": {
+   "filters": [
+    "F06",
+    "F08",
+    "F19"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "interrupt": [
+     "F08"
+    ],
+    "quiet_text": [
+     "F19"
+    ],
+    "repair": [
+     "F06"
+    ],
+    "tro_end": [
+     "F19"
+    ]
+   },
+   "speaks": [
+    "builder1"
+   ]
+  },
+  "vv5_keeper_of_little_things": {
+   "filters": [
+    "F15"
+   ],
+   "notes": [
+    "Historical suffering"
+   ],
+   "nodes": {
+    "b5": [
+     "F15"
+    ]
+   },
+   "speaks": [
+    "child",
+    "elder"
+   ]
+  },
+  "vv5_little_things_remember": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "coda_c7": [
+     "F16"
+    ]
+   }
+  },
+  "vv5_meaning_of_faith": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "teacher",
+    "child"
+   ]
+  },
+  "vv5_multicultural_festival": {
+   "filters": [
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "dispute": [
+     "F19"
+    ]
+   },
+   "speaks": [
+    "planner"
+   ]
+  },
+  "vv5_old_belief_and_new": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv5_potluck_dispute": {
+   "filters": [
+    "F16",
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "n4": [
+     "F16"
+    ],
+    "two": [
+     "F19"
+    ]
+   }
+  },
+  "vv5_slug_race": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "vv5_the_guardians_disagreement": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "b2": [
+     "F20"
+    ]
+   }
+  },
+  "vv5_trial_shattered_pearls": {
+   "filters": [
+    "F05",
+    "F11",
+    "F16",
+    "F21",
+    "F27"
+   ],
+   "notes": [
+    "Bereavement",
+    "Emotional distress"
+   ],
+   "nodes": {
+    "e3": [
+     "F11"
+    ],
+    "intro": [
+     "F21"
+    ],
+    "m3": [
+     "F16"
+    ],
+    "p2": [
+     "F05",
+     "F27"
+    ]
+   }
+  },
+  "vv5_v17_building": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv5_v17_children": {
+   "filters": [
+    "F03",
+    "F16"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ],
+    "contest": [
+     "F16"
+    ]
+   }
+  },
+  "vv5_v17_cooking": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "judge1"
+   ]
+  },
+  "vv5_v17_farming": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv5_v17_research": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv5_v17_sculpture": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  },
+  "vv5_v17_story": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "coda_c11": [
+     "F03"
+    ]
+   }
+  }
+ }
+}

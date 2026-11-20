@@ -125,9 +125,33 @@ typedef struct {
 
 #define ADV_ALLOW_TRIBAL_CHIEF 0x1u          /* The Secret City's Tribal Chief may be picked (the owner's exception) */
 
+/* Story / Cheat Upgrades' answers (its exports; -1 / 0 without it): the population its gate counts, and No
+   Safeguards for Island Events (and Additional Events too) (the owner, 2026-11-15). */
+typedef int (__stdcall *adv_story_int_fn)(int game);
+
+static int adv_story_int(const char *name, int game, int fallback) {
+    HMODULE story = GetModuleHandleA("VVFP Story Upgrades.dll");
+    adv_story_int_fn fn = story != NULL ? (adv_story_int_fn)(void *)GetProcAddress(story, name) : NULL;
+    return fn != NULL ? fn(game) : fallback;
+}
+
+static int adv_no_safeguards(int game) {
+    return adv_story_int("VvfpStoryNoSafeguards", game, 0) != 0;
+}
+
 static int adv_is_protected_allowing(int game, const unsigned char *r, unsigned int allow) {
     if (r == NULL) {
         return 1;
+    }
+    if (adv_no_safeguards(game)) {
+        /* No Safeguards: only what is not a living villager stays out -- The Lost Children's totem statues, The Tree
+           of Life's bodies and ghosts, New Believers' Reanimate in progress. */
+        switch (game) {
+        case 2: return r[0x558] != 0;
+        case 4: return r[0x1CC7] != 0;
+        case 5: return r[0x1CE1] != 0;
+        default: return 0;
+        }
     }
     switch (game) {
     case 1:
@@ -663,9 +687,18 @@ static int adv_percent(const adv_game *g, int percent) {
    Lost Children's and The Secret City's own factors, Island Events Scale in the other three). */
 /* ... times `times` / `parts` (2: a SMALL award, half a normal one -- The Playful Dolphins), before the scaling. */
 static int adv_award_roll_part(const adv_game *g, int kind, int times, int parts) {
+    static const int SIZE[4][2] = { { 1, 2 }, { 1, 1 }, { 2, 1 }, { 3, 1 } };   /* small, normal, large, huge */
     int lo = kind == ADV_KIND_FOOD ? g->food_lo : g->tech_lo;
     int hi = kind == ADV_KIND_FOOD ? g->food_hi : g->tech_hi;
     int base = lo + (hi > lo ? g->rand_below(hi - lo + 1) : 0);
+    if (adv_story_int("VvfpStoryNewEventPopulation", g->game, -1) >= 61) {
+        /* The owner (2026-11-15): from 61 villagers a new event's food or tech points come in a random size --
+           small, normal, large or huge, equally likely -- in the game's own ranges (the population Story / Cheat
+           Upgrades' gate counts).  Below 61 the size the event names. */
+        int size = g->rand_below(4);
+        times = SIZE[size][0];
+        parts = SIZE[size][1];
+    }
     return g->award_amount(kind, base * times / (parts > 0 ? parts : 1));
 }
 

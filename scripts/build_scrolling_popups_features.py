@@ -93,6 +93,12 @@ LABEL_PANELS = {
 }
 # The tip's per-line `call justify` (The Secret City, The Tree of Life, New Believers).
 TIP_JUSTIFY = {3: 0x41E433, 4: 0x41B9B0, 5: 0x41C200}
+# The later three's island-event dialog: its call of the title's centred draw (a title wider than the box is drawn
+# in lines by the companion): (site, centred draw).
+TITLE_SITES = {3: (0x418561, 0x40A070), 4: (0x416F1C, 0x409BE0), 5: (0x4176B9, 0x409EB0)}
+# A New Home's and The Lost Children's island-event dialogs (plain, encounter, crate): each body draw's second call of
+# the centred-lines draw (the text from its first line break): (sites, centred-lines draw).
+WHOLE_SITES = {1: ((0x4279A9, 0x418885, 0x42AA75), 0x4094C0), 2: ((0x433299, 0x41F4D5, 0x437545), 0x4096B0)}
 ART = {1: "WideSlider2.png and sliderhandle.png (its own) and Images\\vvfp_scroll_up/down/track/knob.png (The Secret "
           "City's UpArrowButton, DownArrowButton, VerticalScrollTrack and VerticalScrollKnob, borrowed)",
        3: "image ids 0x1B-0x1E, 0x19, 0x1A", 4: "image ids 0xA3-0xA6, 0xA1, 0xA2", 5: "image ids 0x81-0x84, 0x7F, 0x80"}
@@ -144,6 +150,12 @@ def description(game: int) -> str:
         + (", hover hints (they follow the mouse and vanish when it moves, so no bar could be reached)"
            if game in (4, 5) else "")
         + " and the panels with no text body (Change Player" + (", the outfit chooser" if game > 1 else "")
+        + "). With it, Custom Island Events from the library (and the Isola Grand Event Collection) hold practically "
+        "unlimited text: a text longer than the game's popup holds is shown whole, a long title wraps onto as many "
+        "lines as it needs"
+        + (" (A New Home and The Lost Children lead the text with it)" if game in (1, 2) else "")
+        + ", and in every new island event's popup (those and More Island Events') each choice's box grows to as "
+        "many lines as its words need (the choices below move down; each is clicked anywhere on its box"
         + "). There is no keyboard scrolling. Nothing is saved, so the patch can be ticked or "
         "unticked at any time. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in "
         "play: the effect has not been tested live.** The companion is \"" + DLL_NAME + "\", started by VVFP "
@@ -185,6 +197,17 @@ def detours(game: int) -> list[dict]:
         out.append((CENTRE[game][0], CENTRE[game][1], "the centred-block draw's call of the core draw: while the "
                                                       "companion measures the tombstone's lines, each line's extent "
                                                       "is recorded and nothing is drawn; otherwise the stock call"))
+    if game in TITLE_SITES:
+        out.append((TITLE_SITES[game][0], TITLE_SITES[game][1],
+                    "the island-event dialog's title draw: a title wider than the text box is held and drawn by the "
+                    "companion in as many centred lines as it needs at the top of the scrolled box; otherwise the "
+                    "stock call"))
+    if game in WHOLE_SITES:
+        whole_sites, whole_fn = WHOLE_SITES[game]
+        out += [(va, whole_fn, "an island-event dialog's draw of its text from the first line break: when the "
+                               "dialog's field holds only the start of a longer text (a new island event's), the "
+                               "same call draws the whole text from the same place; otherwise the stock call")
+                for va in whole_sites]
     rows = [{"va": f"0x{va:X}", "stock_bytes": call_bytes(va, target), "written_bytes": "E8XXXXXXXX",
              "routine": routine, "installed_by": INSTALLED_BY} for va, target, routine in out]
     tail, stock = TAIL[game]
@@ -286,6 +309,18 @@ def behavior_changes(game: int) -> list[str]:
         "companion first: a press on a scrollbar of the popup drawn this moment, a knob drag and its release are "
         "used by the companion and not passed on; every other event goes to the game unchanged. The wheel is read "
         "by an SDL event watch (SDL_AddEventWatch, SDL_MOUSEWHEEL).",
+        "PRACTICALLY UNLIMITED TEXT (one popup per new island event): the companion that shows a text longer than "
+        "the dialog's field holds puts its start in the field and keeps the whole; the companion measures and draws "
+        "the whole text wherever it measures or draws the field"
+        + (f" (the later three's text draw and panel size; the title draw's `call 0x{TITLE_SITES[game][1]:X}` "
+           f"(0x{TITLE_SITES[game][0]:X}) holds a title wider than the text box and draws it in lines at the top of "
+           "the scrolled box, everything below it moved down)" if game in TITLE_SITES else "")
+        + (" (each island-event dialog's body draw's second `call 0x" + f"{WHOLE_SITES[game][1]:X}` ("
+           + ", ".join(f"0x{va:X}" for va in WHOLE_SITES[game][0]) + ") draws the whole text from the same place "
+           "when the field holds only its start)" if game in WHOLE_SITES else "")
+        + ". The choices drawn after the text wrap each label into as many lines as it needs within its row; the "
+        "row (the game's answer-button picture, its ends kept and its middle repeated) grows to hold them, the rows "
+        "below move down, and each row is clicked anywhere on its own height.",
         f"The scrollbars are the game's own pictures ({ART[game]}): Up/DownArrowButton, VerticalScrollTrack fitted "
         "to the bar's height, VerticalScrollKnob; the horizontal bar is WideSlider2 fitted to the vertical track's "
         "width (18 px) with sliderhandle fitted to the knob's size turned sideways.",

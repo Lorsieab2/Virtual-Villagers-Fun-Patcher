@@ -1,0 +1,784 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "moments500",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "tim001_leaf_lantern": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim002_shells": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim003_mended_lantern": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim004_patterns_light": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim005_careful_lantern": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim006_sibling_fleet": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim007_petal_sail": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim008_puddle_regatta": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim009_folding_leaf": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim010_boats_bound": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim011_rain_roof": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim012_shelter": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim013_raindrop_races": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim014_thunder_beyond": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim015_crafts_before": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim016_herbs_stew": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim017_roasted_root": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim018_turn_stirring": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim019_taste_childhood": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim020_new_recipe": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim021_bubbles_mixture": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim022_changing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim023_scents": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim024_careful_measure": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim025_settling_shade": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim026_mending": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim027_gentle_grip": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim028_butterflies": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim029_wings_without": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim030_closer_look": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim031_decorations": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim032_rehearsing_song": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim033_seasonal_table": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim034_sweeping": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim035_holidays": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim036_leaf_wrapped": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim037_shell_parent": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim038_bracelets": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim039_apprentice_gift": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim040_fruit_neighbor": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim041_basket_promise": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim042_pact_between": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim043_right_time": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim044_forgotten_visit": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim045_shared": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim046_splicing_rope": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim047_grandparent_net": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "e1": [
+     "F25"
+    ],
+    "e2": [
+     "F25"
+    ],
+    "e3": [
+     "F25"
+    ],
+    "e4": [
+     "F25"
+    ]
+   }
+  },
+  "tim048_choosing_ripe": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim049_difficult_weave": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim050_reading": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim051_sorting_roots": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim052_watching_parent": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim053_helpful_load": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim054_breakfast": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim055_family_tools": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim056_sandal_tied": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim057_gathering_twigs": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim058_sibling": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim059_last_ripe_fruit": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim060_basket_two": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim061_snake_path": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "e1": [
+     "F26"
+    ],
+    "e2": [
+     "F26"
+    ],
+    "e3": [
+     "F26"
+    ],
+    "e4": [
+     "F26"
+    ]
+   }
+  },
+  "tim062_empty_snakeskin": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim063_through_tall": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "e1": [
+     "F26"
+    ],
+    "e2": [
+     "F26"
+    ],
+    "e3": [
+     "F26"
+    ],
+    "e4": [
+     "F26"
+    ]
+   }
+  },
+  "tim064_sunlit_stone": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "e1": [
+     "F26"
+    ],
+    "e2": [
+     "F26"
+    ],
+    "e3": [
+     "F26"
+    ],
+    "e4": [
+     "F26"
+    ]
+   }
+  },
+  "tim065_giving_snakes": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "e1": [
+     "F26"
+    ],
+    "e2": [
+     "F26"
+    ],
+    "e3": [
+     "F26"
+    ],
+    "e4": [
+     "F26"
+    ]
+   }
+  },
+  "tim066_skipping_stones": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim067_circle_game": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim068_pebbles_color": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim069_tallest_pebble": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim070_heart_shaped": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim071_twisting_strong": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim072_yesterday_knot": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim073_checking": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim074_ropemaker_hands": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim075_tangled_cord": {
+   "filters": [
+    "F12"
+   ],
+   "notes": [
+    "Emotional distress"
+   ],
+   "nodes": {
+    "e1": [
+     "F12"
+    ],
+    "e2": [
+     "F12"
+    ],
+    "e3": [
+     "F12"
+    ],
+    "e4": [
+     "F12"
+    ]
+   }
+  },
+  "tim076_beach_race": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim077_basket": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim078_winding_course": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim079_starting_call": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim080_famous_tumble": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim081_letter": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim082_marks_scholar": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim083_written_recipe": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim084_notes_tomorrow": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim085_copying_story": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim086_joining": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim087_room_meal": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim088_missing_friend": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim089_comfortable": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim090_place_game": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim091_heavy_morning": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim092_early_finish": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim093_wandering_mind": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim094_builder_pause": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim095_waiting_supper": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim096_ceremonial": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim097_repairs_across": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim098_lantern_pattern": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim099_two_memories": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim100_carvings": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim101_waiting_sprout": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim102_neighboring": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim103_water_herbs": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim104_reading_healthy": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim105_blossom": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim106_fisher_net": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "e1": [
+     "F25"
+    ],
+    "e2": [
+     "F25"
+    ],
+    "e3": [
+     "F25"
+    ],
+    "e4": [
+     "F25"
+    ]
+   }
+  },
+  "tim107_coiling_line": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim108_shells_tidepool": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim109_reading_tides": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim110_patient_fishing": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "e1": [
+     "F25"
+    ],
+    "e2": [
+     "F25"
+    ],
+    "e3": [
+     "F25"
+    ],
+    "e4": [
+     "F25"
+    ]
+   }
+  },
+  "tim111_drum_rehearsal": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim112_trading_dance": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim113_clapping": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim114_workday_tune": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim115_songs_after": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim116_tomorrow_shade": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim117_longer_way_home": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim118_watching_clouds": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim119_cup_solitude": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim120_after_afternoon": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim121_mending_basket": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim122_supper_friend": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim123_clearing_path": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim124_helping_carry": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim125_invitation": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

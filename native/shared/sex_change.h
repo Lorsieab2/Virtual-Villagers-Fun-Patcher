@@ -96,6 +96,25 @@ static int vv_sex_golden_child(int game, const unsigned char *record) {
     return game == 1 && record != NULL && *(const int *)(record + 0x36Cu) == 0xC7;
 }
 
+/* Whether A New Home's Golden Child keeps his look through a sex change (the owner's option 1, 2026-11-15):
+   "VVFP Gender Presentation.dll" is in the game and its draws follow (VvfpGenderPresentationInstalled 1), so the
+   two routines that pick his sheets by the sex field (the Villager Details portrait 0x437380, a dialog's figure
+   0x43763E) are handed "male" for him whatever the field says (gp_drawn_sex). */
+/* Only the companions that carry option 1 define VV_SEX_GC_OPTION1 (A New Home's Origins Icons, Gender
+   Presentation, Story / Cheat Upgrades): the other games' companions are built exactly as before. */
+#ifdef VV_SEX_GC_OPTION1
+typedef int (__stdcall *vv_sex_gp_installed_fn)(int game);
+static int vv_sex_gc_draws_follow(int game) {
+    HMODULE gp;
+    vv_sex_gp_installed_fn installed;
+    if (game != 1 || (gp = GetModuleHandleA("VVFP Gender Presentation.dll")) == NULL) {
+        return 0;
+    }
+    installed = (vv_sex_gp_installed_fn)(void *)GetProcAddress(gp, "VvfpGenderPresentationInstalled");
+    return installed != NULL && installed(game) == 1;
+}
+#endif
+
 /* Why villager `record` (record index `index`) cannot have their sex changed (VV_SEX_*), or VV_SEX_OK.  Carrying
    and nursing are NOT refused (the owner, 2026-11-15): no game's delivery depends on the carrier's sex
    (tests/test_sex_change_carrier_all.py runs each game's own delivery with the sex changed part way: the same
@@ -119,6 +138,17 @@ static int vv_sex_change_refusal(int game, const unsigned char *record, int inde
     }
     return VV_SEX_OK;
 }
+
+#ifdef VV_SEX_GC_OPTION1
+/* The refusal of a SEX CHANGE (not of a gender presentation, which keeps vv_sex_change_refusal): the same, except
+   that the Golden Child may change when his draws follow (vv_sex_gc_draws_follow). */
+static int vv_sex_change_refusal_sex(int game, const unsigned char *record, int index) {
+    if (vv_sex_golden_child(game, record) && vv_sex_gc_draws_follow(game)) {
+        return VV_SEX_OK;
+    }
+    return vv_sex_change_refusal(game, record, index);
+}
+#endif
 
 /* ---- the log ---------------------------------------------------------------------------------------------- */
 
@@ -423,7 +453,11 @@ static void vv_sex_history(int game, const unsigned char *record) {
 static int vv_sex_change_apply(int game, unsigned char *record, int index) {
     static unsigned char before[VV_SEX_RECORD_MAX];
     const vv_sex_layout *l;
+#ifdef VV_SEX_GC_OPTION1
+    int why = vv_sex_change_refusal_sex(game, record, index), slot;
+#else
     int why = vv_sex_change_refusal(game, record, index), slot;
+#endif
     if (why != VV_SEX_OK) {
         return why;
     }

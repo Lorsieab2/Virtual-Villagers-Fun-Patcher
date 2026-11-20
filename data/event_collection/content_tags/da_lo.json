@@ -1,0 +1,577 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "da_lo",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "lo01_fishing_song": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "lo02_birds_threes": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lo03_itchy_palm": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lo04_never_step_over": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lo05_same_dream": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lo06_speak_them_they": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "third",
+    "subject",
+    "friend"
+   ]
+  },
+  "lo07_lucky_sandals": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lo08_salt_over": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lo09_unlucky_number": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lo10_shooting_star": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lo11_one_those_days": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F07"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lo12_knock_wood": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lo13_lucky_seat": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lo14_moth_hut": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lo15_double_coconut": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lo16_sneeze_means_true": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lo17_left_foot_first": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "b": [
+     "F21"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lo18_fish_goes_back": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "a": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lo19_whistling_after": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "a": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lo20_coin_face_up": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lo21_rain_wedding_day": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lo22_ringing_ear": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lo23_same_gift": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lo24_lucky_hands": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lo25_path_never_takes": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lo26_spider_over_door": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "b": [
+     "F26"
+    ],
+    "setup": [
+     "F26"
+    ]
+   }
+  },
+  "lo27_swapping_charms": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lo28_dont_say_until": {
+   "filters": [
+    "F11"
+   ],
+   "notes": [
+    "Emotional distress"
+   ],
+   "nodes": {
+    "b": [
+     "F11"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lo29_hiccup_cure": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lo30_lucky_day": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "a": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "third",
+    "pal"
+   ]
+  },
+  "lo31_warm_stone_stream": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lo32_lavastone_garden": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lo33_lavastone_sickbed": {
+   "filters": [
+    "F08"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F08"
+    ],
+    "a3": [
+     "F08"
+    ],
+    "b": [
+     "F08"
+    ],
+    "setup": [
+     "F08"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lo34_two_theories": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lo35_cracked_lavastone": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lo36_lost_over_side": {
+   "filters": [
+    "F22",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "b": [
+     "F25"
+    ],
+    "setup": [
+     "F22"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lo37_stone_chose": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lo38_dark_lavastone": {
+   "filters": [
+    "F03",
+    "F08"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "a": [
+     "F08"
+    ],
+    "a1": [
+     "F08"
+    ],
+    "a2": [
+     "F08"
+    ],
+    "setup": [
+     "F03"
+    ]
+   }
+  },
+  "lo39_child_pretty": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lo40_tireless_necklace": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "a": [
+     "F06"
+    ]
+   }
+  },
+  "lo41_stone_points": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lo42_stone_burned": {
+   "filters": [
+    "F03",
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "a3": [
+     "F03",
+     "F05"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lo43_stone_took_years": {
+   "filters": [
+    "F27"
+   ],
+   "notes": [],
+   "nodes": {
+    "a": [
+     "F27"
+    ],
+    "b": [
+     "F27"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lo44_night_stone_kept": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "b": [
+     "F06"
+    ]
+   }
+  },
+  "lo45_stone_nobody_will": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "a": [
+     "F03"
+    ],
+    "b": [
+     "F03"
+    ],
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lo46_stone_under_floor": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lo47_shattered_stone": {
+   "filters": [
+    "F08"
+   ],
+   "notes": [],
+   "nodes": {
+    "a2": [
+     "F08"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lo48_stone_went_cold": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lo49_visitor_gift": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lo50_where_do": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  }
+ }
+}

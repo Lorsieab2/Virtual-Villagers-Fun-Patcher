@@ -72,6 +72,8 @@ class WindowTests(unittest.TestCase):
             # (text, bold) pairs the window showed with the set the catalog holds.
             expected = {}
             for patch in vfp.load_public_fun_patches():
+                if "_island_event_filter_f" in patch.id:
+                    continue                      # the content filters: a grid of checkboxes, one shared guide
                 shown = gui.row_description(patch)        # with "Needs to be manually turned on." when default-off
                 plain = "".join(segment for segment, _ in gui.split_bold(shown))
                 expected[plain] = "**" in shown

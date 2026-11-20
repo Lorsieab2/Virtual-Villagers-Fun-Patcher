@@ -160,6 +160,7 @@ version 3 refuses it).
 """
 from __future__ import annotations
 
+import contextvars
 import copy
 import json
 import re
@@ -191,6 +192,28 @@ TITLE_BYTES = 47              # CE_TITLE_BYTES 48, NUL included
 BUTTON_BYTES = 39             # CE_BUTTON_BYTES 40, NUL included
 NODE_TEXT_MAX = 1990          # a node's text, bytes
 POPUP_TEXT_MAX = 1990         # a popup's text, bytes (the later games build the popup text in 2,000)
+# PRACTICALLY UNLIMITED TEXT (the owner, 2026-11-16: "With the scrollbar patch active, Custom Island Events should have
+# a practically unlimited character and word count for any text").  With Scrolling Popups (validate(scrolling=True))
+# a text, a title and a label are limited only by these sanity caps, sized to the file (story_custom.h
+# CE_LONG_TEXT_MAX, CE_LONG_LINE_BYTES; story_graph.inc CG_MAX_FILE 1 MiB): the dialog's field holds a long text's
+# start and Scrolling Popups draws the whole (native/shared/one_popup.h); a choice's row grows to as many lines as its
+# label needs and a long title wraps.  Without it the caps above stay (the engine refuses to queue an event whose
+# texts are longer than them where the popups do not scroll: story_graph.inc cg_refusal).
+LONG_TEXT_MAX = 100000        # a node's text and a popup's text, bytes, with scrolling
+LONG_LINE_BYTES = 4095        # a title or a label, bytes, with scrolling (CE_LONG_LINE_BYTES 4096, NUL included)
+MAX_FILE_BYTES = 0x1000000    # a compiled .cieg the game reads (story_graph.inc CG_MAX_FILE, 16 MiB)
+DISPLAY_BYTES = 0x100000      # every popup's words of one run, the engine keeps them (story_graph.inc CG_DISPLAY_BYTES)
+_SCROLL_CAPS: "contextvars.ContextVar[bool]" = contextvars.ContextVar("vv_cie_scroll_caps", default=False)
+
+
+def scroll_caps() -> bool:
+    """True inside validate(scrolling=True): the long caps apply."""
+    return _SCROLL_CAPS.get()
+
+
+def text_cap() -> int:
+    """A node's text at most this many bytes (NODE_TEXT_MAX, or LONG_TEXT_MAX with scrolling)."""
+    return LONG_TEXT_MAX if scroll_caps() else NODE_TEXT_MAX
 MAX_PAGES = 10                # pages a popup may take without scrolling (the shipped event's ADV_MAX_PAGES)
 MAX_POPUPS_PER_RUN = 6        # popups on one history, the question's included (version 1)
 MAX_POPUPS_PER_RUN_V2 = 16    # ... version 2 (questions anywhere): the companion keeps 96 pages a run
@@ -376,19 +399,27 @@ V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # th
               "sex_change",                                                  # ... 29
               "deliver_early",                                               # ... 30
               "presentation")                                                # ... 31
+TRAIT_EFFECT_CODE = 26        # cie-v6-binary.md 32
+TRAIT_CODES = {"mute": 1}     # 32: a story trait's bit
+ROLE_SPEAKS = 0x80            # 32: a villager role's byte 13 bit: the role's words have them speak
+ROLE_HEATHEN = 0x40           # 33c: ... New Believers: a Heathen's role (an Isolan), cast as the game's picker casts one
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
                      "sex_change": 22,     # 29
-                     "presentation": 23,   # 31: the gender presentation (a cross-sex look, the sex field kept)
-                     "deliver_early": 24})  # 30
+                     "presentation": 23,   # 34: the gender presentation (a cross-sex look, the sex field kept)
+                     "deliver_early": 24,  # 30
+                     # 25 is reserved (a rest period once; the owner took the rest periods out, 2026-11-15)
+                     # 32: a story trait kept for the villager (The Quiet Hands: "mute"), never a change to them
+                     "trait": TRAIT_EFFECT_CODE})
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
                     "baby_lost": CAP_CANCEL, "birth_then_die": CAP_KILL,
                     "old_look": 0,         # 27: "VVFP Head Look.dll", known only at run time
                     "sex_change": 0,       # 29: known only at run time (the companions loaded)
                     "deliver_early": CAP_CANCEL,    # 30: the nursing parent's pregnancy (the adapter's deliver)
-                    "presentation": 0})    # 31: "VVFP Gender Presentation.dll", known only at run time
+                    "presentation": 0,     # 34: "VVFP Gender Presentation.dll", known only at run time
+                    "trait": 0})                    # 32: never a change to the villager
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
                                           "baby_lost", "birth_then_die", "old_look", "sex_change",
                                           "deliver_early", "presentation")
@@ -402,6 +433,7 @@ LOOK_KEEP = -2                # ... not changed
 PREF_RANDOM = "random"        # cie-v6-binary.md 24: a random like or dislike
 PREF_RANDOM_FLAG = 8          # ... the effect's flags bit
 NODE_AUTO_TEXT = 1            # cie-v6-binary.md 25: the node flags' bit for the automatic outcome lines
+NODE_NEW_PAGE = 2             # cie-v6-binary.md 19a: a popup node that starts the event's one popup afresh
 RELATION_CODES = {"spouse_of": 1, "parent_of": 2, "child_of": 3, "sibling_of": 4,
                   # gap C2: wider kinship, through a living villager in between
                   "grandparent_of": 5, "grandchild_of": 6, "aunt_or_uncle_of": 7, "cousin_of": 8}
@@ -1171,8 +1203,16 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
             if not _int_in(min_age, 0, 80):
                 problems.append(f"{where}: min_age is 0..80 years")
             if v6:
-                extra -= {"max_age", "skill", "special", "protected", "relation"}
+                extra -= {"max_age", "skill", "special", "protected", "relation", "speaks", "heathen_ok"}
                 roles[rid] = _norm_role_v6(r, where, problems, sex, min_age)
+                for flag in ("speaks", "heathen_ok"):
+                    # 32 / 33c: "speaks": true (the role's words have them speak; never a story-mute villager),
+                    # "heathen_ok": true (New Believers: an Isolan's role, cast only among the Heathens)
+                    if flag in r:
+                        if not isinstance(r[flag], bool):
+                            problems.append(f"{where}: {flag} is true or false")
+                        elif r[flag]:
+                            roles[rid][flag] = True
                 rel = r.get("relation")
                 if rel is not None:
                     # Section 21: one kinship relation to another villager role the event needs.
@@ -1264,7 +1304,7 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
         problems.append(f"at most {MAX_NODES} nodes")
     nodes: dict[str, dict] = {}
     node_keys = {"type", "popup", "join", "text", "variants", "effects", "children", "choices", "else", "summary",
-                 "outcome", "name"} | ({"src", "text_only_reason", "title", "auto_text"} if v6 else set())
+                 "outcome", "name"} | ({"src", "text_only_reason", "title", "auto_text", "new_page"} if v6 else set())
     pool_names = pool_names_of(data) if v6 else set()
     canon = (lambda s: _canon_text(s, pool_names)) if v6 else (lambda s: s)
     default_role = default_role_of(roles) if v6 else "subject"
@@ -1399,6 +1439,16 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                     problems.append(f"{where}: auto_text is only on a popup node")
                 elif auto:
                     nodes[nid]["auto_text"] = True
+            fresh = n.get("new_page")
+            if fresh is not None:
+                # 19a: with Scrolling Popups, a popup that starts the event's one popup afresh (a scroll page of its
+                # own, as after a question), so no popup's text passes what the game's popup holds.
+                if not isinstance(fresh, bool):
+                    problems.append(f"{where}: new_page is true or false")
+                elif fresh and (t != "popup" or n.get("popup", "new") != "new"):
+                    problems.append(f"{where}: new_page is only on a popup node that opens a new popup")
+                elif fresh:
+                    nodes[nid]["new_page"] = True
     g["nodes"] = nodes
     if v6:
         _normalize_v6_extras(data, g, problems, shared_pools)
@@ -2170,7 +2220,8 @@ def placeholders_v6(text: str, roles: dict) -> list[tuple[str, Placeholder | Non
 def _harmful(e: dict, games: Iterable[int]) -> bool:
     """An effect that can harm its villager (cie-v6-binary.md section 7)."""
     do = e["do"]
-    if do in ("kill", "vanish", "sick", "die_unrecovered", "baby_lost", "birth_then_die", "deliver_early"):
+    if do in ("kill", "vanish", "sick", "die_unrecovered", "baby_lost", "birth_then_die", "deliver_early",
+              "apostasy"):
         return True
     if do == "health":
         return e["max"] < HEALTH_MAX
@@ -2499,8 +2550,14 @@ def contexts(g: dict, games: Iterable[int] | None = None) -> list[Context]:
                     out.append(Context(game, pset, frozenset(rset)))
                     continue
                 rset = with_aliases(g, rset)
+                req_if = (g.get("requirement") or {}).get("if")
                 for facts in _fact_sets(g, rset):
-                    out.append(Context(game, pset, frozenset(rset), facts))
+                    ctx = Context(game, pset, frozenset(rset), facts)
+                    # a context the event's own requirement refuses never runs (the content filters' skip groups,
+                    # src/vv_event_content.py): nothing of it is checked
+                    if req_if is not None and not cond_holds(req_if, ctx, ()):
+                        continue
+                    out.append(ctx)
     return out
 
 
@@ -2539,6 +2596,9 @@ def _fact_sets(g: dict, bound: frozenset[str]) -> list[frozenset[str]]:
     leaves: list = []
     for c in _all_conds(g):
         _cond_leaves(c, leaves)
+    req_if = (g.get("requirement") or {}).get("if")
+    if req_if is not None:
+        _cond_leaves(req_if, leaves)   # the requirement's own facts (min_population ...): its contexts exist too
     free = sorted({f"harmable:{a}" for op, a in leaves if op == "harmable" and a in bound
                    and g["roles"].get(a, {}).get("kind") == "villager" and f"harmable:{a}" not in base}
                   | {f"special_present:{a}" for op, a in leaves if op == "special_present"}
@@ -2577,6 +2637,7 @@ class Popup:
     titles: list[str] = field(default_factory=list)   # the titles in force on it ("" = the event's), in order
     chosen: str = ""                    # a question's: the choice this history takes, as its row shows it at its
                                         # widest (one_popup puts it first in the answer's text)
+    new_page: bool = False              # 19a: its first node starts the event's one popup afresh
 
 
 @dataclass
@@ -2633,6 +2694,8 @@ AUTO_LINES = {
     "health": "<R>'s health changes.",
     "like": "<R> now likes <W>.",
     "dislike": "<R> now dislikes <W>.",
+    "unlike": "<R> no longer likes <W>.",
+    "undislike": "<R> no longer dislikes <W>.",
     "skill+": "<R> learns more about <S>.",
     "skill-": "<R> feels less sure of <P> <S>.",
     "sick": "<R> falls sick.",
@@ -2653,6 +2716,15 @@ AUTO_LINES = {
     "old_look": "<R> looks older and more worn.",
     "sex_change": "<R>'s sex changes.",
     "presentation": "<R>'s look changes.",
+    # the engine's newer effects (cure 35, young look 37, repair 36, a skill gain to the villager's best skill)
+    "cure": "<R> is cured.",
+    "young_look": "<R> looks younger.",
+    "repair": "The damaged buildings are being repaired.",
+    "skill_best": "<R> gets better at what <P> does best.",
+    # New Believers' Faith (faith 38, join 39, apostasy 40)
+    "faith": "<R> feels closer to the tribe.",
+    "join": "<R> joins the tribe.",
+    "apostasy": "<R> becomes a Heathen.",
 }
 
 
@@ -2772,7 +2844,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
         node = nodes[nid]
         path = path + (nid,)
         popups = [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room, p.answers, list(p.titles),
-                        p.chosen) for p in popups]
+                        p.chosen, p.new_page) for p in popups]
         ntitle = node.get("title", "") if node["type"] != "branch" else ""   # cie-v6-binary.md 14
         effects = list(effects)
         # Effects first: an award deferred here is the (award) of this node's own text.
@@ -2886,7 +2958,8 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 # 14: a page shown in the question's own popup keeps that popup's title.
                 in_question = after and (not v6 or popups[-1].answers <= MAX_ANSWERS_V4)
                 titles = [title] + ([ntitle] if ntitle else []) if in_question else [ntitle or title]
-                popups.append(Popup(kind, text, nodes=[nid], room=room, titles=titles))
+                popups.append(Popup(kind, text, nodes=[nid], room=room, titles=titles,
+                                    new_page=bool(node.get("new_page"))))
         title = ntitle or title
         if node["type"] != "branch" and v6:
             _walk_text_v6(lg, nid, text, ctx, path, award, where, say,
@@ -3071,8 +3144,8 @@ def _check_text_v6(where: str, text: str, problems: list[str], g: dict, label: b
                    uses: dict | None = None) -> None:
     """Version 6 text: the character set, every placeholder, escape and brace token (cie-v6-binary.md 5).  `uses`
     collects each pool's highest instance."""
-    if len(text.encode("ascii", "replace")) > NODE_TEXT_MAX:
-        problems.append(f"{where}: text is longer than {NODE_TEXT_MAX} characters")
+    if len(text.encode("ascii", "replace")) > text_cap():
+        problems.append(f"{where}: text is longer than {text_cap()} characters" + _without_scrolling())
     bad: set[str] = set()
     for kind, raw in text_tokens(text):
         if kind == "lit":
@@ -3223,8 +3296,8 @@ def _check_text(where: str, text: str, problems: list[str], version: int = 1, g:
     if version >= VERSION_V6 and g is not None:
         _check_text_v6(where, text, problems, g, label)
         return
-    if len(text.encode("ascii", "replace")) > NODE_TEXT_MAX:
-        problems.append(f"{where}: text is longer than {NODE_TEXT_MAX} characters")
+    if len(text.encode("ascii", "replace")) > text_cap():
+        problems.append(f"{where}: text is longer than {text_cap()} characters" + _without_scrolling())
     for raw, p in placeholders(text):
         if p is None:
             problems.append(f"{where}: {raw} is not a placeholder (parentheses are only placeholders)")
@@ -3259,7 +3332,7 @@ def one_popup(popups: list[Popup]) -> list[Popup]:
     after it (story_graph.inc cg_op_lead; "Honesty\n\n..."): in `worst`, which the bytes are checked on."""
     out: list[Popup] = []
     for pop in popups:
-        if out and out[-1].layout != "question":
+        if out and out[-1].layout != "question" and not pop.new_page:
             last = out[-1]
             last.text = last.text + ONE_POPUP_JOIN + pop.text if last.text else pop.text
             last.worst = last.worst + ONE_POPUP_JOIN + pop.worst if last.worst else pop.worst
@@ -3276,7 +3349,7 @@ def one_popup(popups: list[Popup]) -> list[Popup]:
         if out and out[-1].chosen:
             worst = out[-1].chosen + ONE_POPUP_JOIN + worst if worst else out[-1].chosen
         out.append(Popup(pop.layout, pop.text, worst, pop.effects, list(pop.nodes), pop.room, pop.answers,
-                         list(pop.titles), pop.chosen))
+                         list(pop.titles), pop.chosen, pop.new_page))
     return out
 
 
@@ -3287,6 +3360,14 @@ def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
     done: set[tuple] = set()
     for p in paths:
         game = GAMES[p.ctx.game]
+        total = sum(len(pop.worst.encode("ascii", "replace")) + 1
+                    for pop in (one_popup(p.popups) if scrolling else p.popups))
+        if total > DISPLAY_BYTES:
+            nodes = "+".join(n for pop in p.popups for n in pop.nodes)
+            why = (f"{game.name}: the popups of one run ({nodes[:120]}) hold {total:,} bytes with the longest names; "
+                   f"the game keeps at most {DISPLAY_BYTES:,} for one event")
+            if why not in problems:
+                problems.append(why)
         for pop in (one_popup(p.popups) if scrolling else p.popups):
             key = (game.number, pop.layout, pop.worst, pop.effects, pop.room, tuple(pop.titles))
             if key in done:
@@ -3294,10 +3375,10 @@ def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
             done.add(key)
             layout = getattr(game, pop.layout)
             nodes = "+".join(pop.nodes)
-            cap = ONE_POPUP_TEXT_MAX_12 if scrolling and game.number <= 2 else POPUP_TEXT_MAX
+            cap = LONG_TEXT_MAX if scrolling else POPUP_TEXT_MAX
             if len(pop.worst.encode("ascii", "replace")) > cap:
                 problems.append(f"{game.name}: the popup of {nodes} is longer than {cap} bytes "
-                                "with the longest names")
+                                "with the longest names" + ("" if scrolling else _without_scrolling()))
                 continue
             if scrolling:
                 continue
@@ -3342,18 +3423,33 @@ def title_problems(g: dict, title: str, what: str) -> list[str]:
                 out.append(f"{what}: {raw}: a stranger has no name")
     if bad:
         out.append(f"{what} has characters the game cannot show")
-    if len(title) > LABEL_BYTES_V6:
-        out.append(f"{what} is longer than {LABEL_BYTES_V6} characters as written")   # the .cieg's raw title
+    raw_cap = LONG_LINE_BYTES if scroll_caps() else LABEL_BYTES_V6
+    if len(title) > raw_cap:
+        out.append(f"{what} is longer than {raw_cap} characters as written"   # the .cieg's raw title
+                   + _without_scrolling())
     if out:
         return out
     for gn in g["games"]:
         game = GAMES[gn]
         worst = worst_v6(title_case(title), g, game, None)                # section 20
+        if scroll_caps() and len(worst) <= LONG_LINE_BYTES:
+            # With Scrolling Popups a long title wraps (one_popup.h; A New Home's and The Lost Children's text leads
+            # with it, its rest after the picture's gap, cg_title_wrap): only its length is free -- a single word
+            # wider than the title box still cannot wrap.
+            if gn in TITLE_BOX_PX:
+                wide, word = widest_word(worst, lambda w: title_px(gn, w))
+                if wide > TITLE_BOX_PX[gn]:
+                    out.append(f"{game.name}: {what} has a word ({word[:24]!r}) {wide} pixels wide with the longest "
+                               f"names; its popup's title box shows {TITLE_BOX_PX[gn]}")
+            continue
         if title_fits(gn, worst) or title_fits(gn, worst_v6(title_case(title), g, game, None, pronoun_names=True)):
             continue
-        if len(worst) > TITLE_BYTES:
+        if scroll_caps():
+            out.append(f"{what} is longer than {LONG_LINE_BYTES} characters with the longest names")
+        elif len(worst) > TITLE_BYTES:
             out.append(f"{what} is longer than {TITLE_BYTES} characters" + (" with the longest names"
-                                                                            if worst != title else ""))
+                                                                            if worst != title else "")
+                       + _without_scrolling())
         elif gn in TITLE_BOX_PX:
             out.append(f"{game.name}: {what} is {title_px(gn, worst)} pixels wide; its popup shows "
                        f"{TITLE_BOX_PX[gn]}")
@@ -3419,8 +3515,33 @@ def widest_title(g: dict, titles: Iterable[str], layout: "Layout", game: "Game")
     return best
 
 
+def widest_word(text: str, px) -> tuple[int, str]:
+    """The widest of `text`'s words (parted by spaces and line breaks) by `px(word)`, and that word."""
+    best, word = 0, ""
+    for w in text.replace("\n", " ").split(" "):
+        if w:
+            n = px(w)
+            if n > best:
+                best, word = n, w
+    return best, word
+
+
+def _without_scrolling() -> str:
+    """What a too-long text's problem adds without Scrolling Popups (the long caps need it)."""
+    return "" if scroll_caps() else " (with the Scrolling Popups patch on, texts can be practically unlimited)"
+
+
 def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tuple[dict, list[str]]:
-    """(the normalized graph, every problem).  No problems = the graph may be compiled and played."""
+    """(the normalized graph, every problem).  No problems = the graph may be compiled and played.  With
+    `scrolling` (Scrolling Popups installed) the long caps apply (LONG_TEXT_MAX, LONG_LINE_BYTES)."""
+    token = _SCROLL_CAPS.set(bool(scrolling))
+    try:
+        return _validate(data, scrolling, shared_pools)
+    finally:
+        _SCROLL_CAPS.reset(token)
+
+
+def _validate(data: Any, scrolling: bool, shared_pools: Any) -> tuple[dict, list[str]]:
     g, problems = normalize(data, shared_pools)
     if problems and not g.get("nodes"):
         return g, problems
@@ -3485,6 +3606,20 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
             for c in n["choices"]:
                 if v6:
                     label = worst_v6(c["label"], lg_labels, game, None, label=True)
+                    if scroll_caps():
+                        # A choice's row grows to as many lines as its label needs (one_popup.h): only the sanity
+                        # cap counts, never the screen's width.
+                        if len(label) > LONG_LINE_BYTES:
+                            problems.append(f"{game.name}: the label {c['label']!r} is {len(label)} characters "
+                                            f"with the longest names; at most {LONG_LINE_BYTES}")
+                            continue
+                        # Only its length is free: a single word wider than the screen cannot wrap.
+                        wide, word = widest_word(label, lambda w: label_px(gn, w))
+                        if wide > label_max_px(gn):
+                            problems.append(f"{game.name}: the label {c['label']!r} has a word ({word[:24]!r}) that "
+                                            f"runs off the screen with the longest names ({wide} of "
+                                            f"{label_max_px(gn)} pixels)")
+                        continue
                     if not label_fits(gn, label):
                         # Section 15: the engine shows the names as pronouns when they do not fit.
                         fallback = worst_v6(c["label"], lg_labels, game, None, pronoun_names=True, label=True)
@@ -3492,7 +3627,7 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
                             continue
                     if len(label) > LABEL_BYTES_V6:
                         problems.append(f"{game.name}: the label {c['label']!r} is {len(label)} characters with "
-                                        f"the longest names; at most {LABEL_BYTES_V6}")
+                                        f"the longest names; at most {LABEL_BYTES_V6}" + _without_scrolling())
                     elif label_px(gn, label) > label_max_px(gn):
                         problems.append(f"{game.name}: the label {c['label']!r} runs off the screen with the "
                                         f"longest names ({label_px(gn, label)} of {label_max_px(gn)} pixels)")
@@ -3520,6 +3655,12 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
     for ctx in contexts(g):
         paths = walk(g, ctx, problems)
         problems.extend(x for x in fit_problems(g, paths, scrolling) if x not in problems)
+    if not problems:
+        # The file the game reads: at most MAX_FILE_BYTES (the library's scan refuses a larger one).
+        size = len(compile_graph(g))
+        if size > MAX_FILE_BYTES:
+            problems.append(f"the event's file would be {size:,} bytes; the game reads at most {MAX_FILE_BYTES:,} "
+                            "(shorten some texts or split the event)")
     return g, problems
 
 
@@ -3651,7 +3792,8 @@ def _compile_v6(g: dict) -> bytes:
                                  ridx[gap["role"]] + 1 if gap else 0, gap["years"] if gap else 0,
                                  v["max_age"] or 0, SPECIAL_CODES.get(v["special"], 0),
                                  s(",".join(sk["names"])) if sk else NONE, sk["min"] if sk else 0,
-                                 PICK_CODES[sk["pick"]] if sk else 0, 0)
+                                 (PICK_CODES[sk["pick"]] if sk else 0) | (ROLE_SPEAKS if v.get("speaks") else 0)
+                                 | (ROLE_HEATHEN if v.get("heathen_ok") else 0), 0)
     nodes = children = effects = variants = b""
     n_child = n_effect = n_variant = 0
     for nid in node_ids:
@@ -3670,7 +3812,7 @@ def _compile_v6(g: dict) -> bytes:
         for e in n["effects"]:
             do = e["do"]
             code = EFFECT_CODES["skill_set" if do == "skill" and "set" in e else do]
-            r = effect_role(e)
+            r = e["role"] if do == "trait" else effect_role(e)
             role = ridx[r] if r is not None else 0xFF
             flags, a, b, st = 0, 0, 0, NONE
             if do in ("food", "tech"):
@@ -3705,12 +3847,15 @@ def _compile_v6(g: dict) -> bytes:
                 st = s(e["cause"])
             elif do == "deliver_early" and "min" in e:
                 a, b = e["min"], e["max"]
+            elif do == "trait":
+                a = TRAIT_CODES[e["trait"]]
             elif do == "presentation":
                 a = 1 if e["on"] else 0
             effects += _EFFECT.pack(code, role, flags, 0, a, b, st, 0)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
-                            1 if n["join"] == "paragraph" else 0, NODE_AUTO_TEXT if n.get("auto_text") else 0,
+                            1 if n["join"] == "paragraph" else 0,
+                            (NODE_AUTO_TEXT if n.get("auto_text") else 0) | (NODE_NEW_PAGE if n.get("new_page") else 0),
                             s(nid), s(n["text"]),
                             v_first if n["variants"] else NONE, len(n["variants"]),
                             c_first, n_child - c_first, nidx[n["else"]] if n["else"] else NONE,
@@ -3841,6 +3986,7 @@ def _decompile_v6(data: bytes) -> dict:
     roles: dict[str, dict] = {}
     for rid, raw in zip(role_ids, roles_raw):
         kind, flags, sex, min_age, _sid, gap_role, gap_years, max_age, special, skills, smin, pick, mask = raw
+        speaks, heathen, pick = bool(pick & ROLE_SPEAKS), bool(pick & ROLE_HEATHEN), pick & ~(ROLE_SPEAKS | ROLE_HEATHEN)
         if kind == 1:
             roles[rid] = {"kind": "stranger", "sex": sex_names[sex]}
             if flags & 1:
@@ -3863,6 +4009,10 @@ def _decompile_v6(data: bytes) -> dict:
                           "believers_only": bool(flags & 8)}
             if gap_role:
                 roles[rid]["max_age_gap"] = {"role": role_ids[gap_role - 1], "years": gap_years}
+            if speaks:
+                roles[rid]["speaks"] = True
+            if heathen:
+                roles[rid]["heathen_ok"] = True
     if _hsize == HEADER_BYTES_REL:
         o_rel, n_rel, _z = _HEADER_REL.unpack_from(data, _HEADER6.size)
         code_relation = {v: k for k, v in RELATION_CODES.items()}
@@ -3927,6 +4077,8 @@ def _decompile_v6(data: bytes) -> dict:
                             e[part] = "random" if v == LOOK_RANDOM else v
                 elif do in ("die_unrecovered", "birth_then_die"):
                     e["cause"] = s(st)
+                elif do == "trait":
+                    e["trait"] = {v: k for k, v in TRAIT_CODES.items()}[a]
                 elif do == "deliver_early" and (a or b):
                     e.update(min=a, max=b)
                 elif do == "presentation":
@@ -3940,6 +4092,8 @@ def _decompile_v6(data: bytes) -> dict:
             nodes[nid]["title"] = s(ntitle)
         if nflags & NODE_AUTO_TEXT:
             nodes[nid]["auto_text"] = True
+        if nflags & NODE_NEW_PAGE:
+            nodes[nid]["new_page"] = True
     requirement: dict[str, Any] = {"min_eligible": min_el}
     if req_cond != NONE:
         _op, count, first, _b, _ = _COND.unpack_from(data, o_cond + req_cond * _COND.size)
@@ -4425,6 +4579,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
     seg = segment(lg["start"], path, picks)
     answers = list(answers)
     qi = 0
+    chosen: dict[int, int] = {}        # each question's place on the path -> the choice picked
     while True:
         path += seg["nodes"]
         path_texts += seg["texts"]
@@ -4440,6 +4595,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         qi += 1
         if pick not in segs:
             raise ValueError(f"answer {pick} is not shown at {path[-1]}")
+        chosen[len(path) - 1] = pick
         seg = segs[pick]
 
     # The popups, joined as walk() joins them, then read as the player reads them.
@@ -4470,9 +4626,26 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
     title = event_title(lg, game, patches)   # 18
     room_after = False                 # the last popup was a question showing 2 to 4 buttons
     seen: tuple = ()
+    # The owner (2026-11-16, story_graph.inc cg_choice_title): after a choice the popups that follow take its label
+    # as their title until the next choice, unless the node after it has a title of its own; a title node of that
+    # part keeps its own.
+    choice_title, before = None, None
+
+    def shown_title(t):
+        # a chosen label is read as a button reads it (its game words, its names): ("label", raw)
+        return ("label", choice_title) if choice_title is not None and t == before else t
+
     for at, nid in enumerate(path):
         n = lg["nodes"][nid]
         seen = seen + (nid,)
+        if at > 0 and lg["nodes"][path[at - 1]]["type"] == "question":
+            q = lg["nodes"][path[at - 1]]
+            # the choice picked (several may lead to the same node: its own label)
+            picked = chosen.get(at - 1)
+            label = (q["choices"][picked]["label"] if picked is not None and picked < len(q["choices"])
+                     else next((c["label"] for c in q["choices"] if c["next"] == nid), None))
+            choice_title = label if label is not None and not n.get("title") else None
+            before = title
         if n["type"] == "branch":
             continue
         t = path_texts[at]
@@ -4482,16 +4655,46 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         else:
             texts.append(t)
             if room_after and n["type"] == "popup":
-                titles.append(title)   # shown in the question's own popup: its title
+                titles.append(shown_title(title))   # shown in the question's own popup: its title
                 title = n.get("title") or title
             else:
                 title = n.get("title") or title
-                titles.append(title)
+                titles.append(shown_title(title))
         room_after = n["type"] == "question" and \
             sum(1 for c in n["choices"] if cond_holds(c.get("if"), ctx, seen)) <= MAX_ANSWERS_V4
     pick_map = {(p[0], p[1]): p[2] for p in picks if p[2] is not None}
     popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe) for t in texts]
-    titles = [title_shown(lg, t, game, bindings, aliases, unicode) for t in titles]     # 17
+    def choice_shown(label: str) -> str:
+        # story_graph.inc cg_title_expand: the label in title case, its names (or pronouns when they do not fit)
+        t = title_case(label)
+        real = expand_v6(t, lg, bindings, pick_map, None, game, unicode, aliases, tribe=tribe, label=True)
+        if title_fits(game, real):
+            return real
+        return expand_v6(t, lg, bindings, pick_map, None, game, unicode, aliases, tribe=tribe, pronoun_names=True,
+                         label=True)
+
+    titles = [choice_shown(t[1]) if isinstance(t, tuple)
+              else title_shown(lg, t, game, bindings, aliases, unicode) for t in titles]     # 17
+    for i, t in enumerate(titles):
+        # story_graph.inc cg_title_wrap: a title wider than the title area is cut at a space where it fits; its rest
+        # is the page's first line
+        if t and not title_fits(game, t):
+            cut = -1
+            for k in range(1, len(t)):
+                if t[k] == " ":
+                    if not title_fits(game, t[:k]):
+                        break
+                    cut = k
+            if cut <= 0:
+                cut = len(t) - 1
+                while cut > 1 and not title_fits(game, t[:cut]):
+                    cut -= 1
+                rest = t[cut:]
+            else:
+                rest = t[cut + 1:]
+            titles[i] = t[:cut]
+            if i < len(popups):
+                popups[i] = rest + "\n" + popups[i]
     labels = []                        # 15: each question's shown buttons, as read
     seen = ()
     for nid in path:

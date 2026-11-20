@@ -1142,16 +1142,19 @@ class EngineFollowups(unittest.TestCase):
             h = cg.walk(g, cg.contexts(g, [gn])[0])
             self.assertIn(f"now likes {longest}.", h[0].popups[0].worst)
             self.assertIn("W" * game.name_room + " feels less sure of", h[0].popups[0].worst)
-        # A text that fits alone but not with its lines is refused (The Secret City's popup holds 1990 bytes).
+        # A text that fits alone but not with its lines is refused (The Secret City's popup holds 1990 bytes
+        # without Scrolling Popups; with it the length is practically unlimited, so the lines are counted against
+        # the paged popup).
         w = copy.deepcopy(AUTO)
         w["games"] = [3]
         w["nodes"]["p"]["text"] = "(Name) wakes up feeling odd. " + "It is a very odd morning. " * 70
         plain = copy.deepcopy(w)
         for n in plain["nodes"].values():
             n.pop("auto_text")
-        self.assertEqual(cg.validate(plain, True)[1], [])
-        self.assertTrue(any("longer than 1990 bytes" in p for p in cg.validate(w, True)[1]),
-                        cg.validate(w, True)[1])
+        self.assertEqual([p for p in cg.validate(plain, False)[1] if "bytes" in p], [])
+        self.assertTrue(any("longer than 1990 bytes" in p for p in cg.validate(w, False)[1]),
+                        cg.validate(w, False)[1])
+        self.assertEqual(cg.validate(w, True)[1], [], "with Scrolling Popups: no length cap")
 
     def test_random_preference(self):
         g = cg.load(copy.deepcopy(AUTO), True)
@@ -1512,7 +1515,7 @@ class FormatGaps(unittest.TestCase):
         import collection_check as cc
         shared = {"pools": cc.shared_pools()}
         files = sorted(p for p in (ROOT / "data" / "event_collection").rglob("*.json")
-                       if p.name not in ("manifest.json", "shared_pools.json"))
+                       if p.name not in ("manifest.json", "shared_pools.json") and "content_tags" not in p.parts)
         self.assertGreaterEqual(len(files), 10)
         for p in files:
             g = cc.graph_for_engine(read(p))
@@ -1571,7 +1574,12 @@ class TitlesCapsAndNoRoles(unittest.TestCase):
         self.assertEqual(t.problems_of(d, True), [])
         # (In sentence case, 19, that label fits; one word in capitals inside ordinary text stays in capitals.)
         d["nodes"]["q"]["choices"][0]["label"] = "Tell (NAME1) to stop WWWWWWWWWWWWWWWWWWWWWWWW"
-        self.assertTrue(any("runs off the screen" in p for p in t.problems_of(d, True)))
+        self.assertTrue(any("runs off the screen" in p for p in t.problems_of(d, False)))
+        # With Scrolling Popups a choice's row grows to its lines (one_popup.h): that label wraps and passes; a
+        # single word wider than the screen still runs off it.
+        self.assertEqual(t.problems_of(d, True), [])
+        d["nodes"]["q"]["choices"][0]["label"] = "Tell (NAME1) to stop " + "W" * 80
+        self.assertTrue(any("has a word" in p and "runs off the screen" in p for p in t.problems_of(d, True)))
 
     def test_no_roles(self):
         for scrolling in (False, True):
@@ -1616,7 +1624,12 @@ class Fit(unittest.TestCase):
     def test_longest_pool_item_is_measured(self):
         d = v6(pools={"X": {"distinct": True, "items": ["a", "b", "x" * 1500]}})
         d["nodes"]["p"]["text"] = "{X.1} {X.2}"
-        self.assertTrue(any("longer than 1990" in p for p in t.problems_of(d, True)))
+        self.assertTrue(any("longer than 1990" in p for p in t.problems_of(d, False)))
+        # With Scrolling Popups the longest item still counts, against the sanity cap.
+        self.assertFalse(any("longer than" in p for p in t.problems_of(d, True)))
+        d = v6(pools={"X": {"distinct": True, "items": ["a", "b", "x " * 30000]}})
+        d["nodes"]["p"]["text"] = "{X.1} {X.2}"
+        self.assertTrue(any(f"longer than {cg.LONG_TEXT_MAX}" in p for p in t.problems_of(d, True)))
 
 
 class NodeTitles(unittest.TestCase):
@@ -1650,12 +1663,65 @@ class NodeTitles(unittest.TestCase):
         next(iter(old["nodes"].values()))["title"] = "Older"
         self.assertTrue(any("unknown fields title" in p for p in t.problems_of(old)))
 
+    def test_new_page_starts_the_one_popup_afresh(self):
+        """19a: with Scrolling Popups a "new_page" popup starts the event's one popup afresh (no question needed), so
+        each part is measured on its own; the flag round-trips and is refused off a new popup."""
+        g = {"format": "vvfp-cie-graph", "version": 6, "title": "The Long Tale", "games": [4],
+             "roles": {"subject": {"kind": "villager"}}, "start": "a",
+             "nodes": {"a": {"text": "(Name) begins. " + "A word. " * 150, "children": [{"next": "b"}]},
+                       "b": {"text": "(Name) goes on. " + "A word. " * 150, "new_page": True}}}
+        lg = cg.load(copy.deepcopy(g))
+        self.assertEqual(cg.decompile_graph(cg.compile_graph(lg))["nodes"]["b"].get("new_page"), True)
+        ctx = cg.contexts(lg, [4])[0]
+        pops = [pp for h in cg.walk(lg, ctx) for pp in cg.one_popup(h.popups)]
+        self.assertEqual(len(pops), 2, "two scroll pages")
+        joined = copy.deepcopy(g)
+        del joined["nodes"]["b"]["new_page"]
+        lj = cg.load(joined)
+        pops = [pp for h in cg.walk(lj, cg.contexts(lj, [4])[0]) for pp in cg.one_popup(h.popups)]
+        self.assertEqual(len(pops), 1, "without the flag: one popup")
+        bad = copy.deepcopy(g)
+        bad["nodes"]["b"]["popup"] = "append"
+        with self.assertRaises(cg.GraphError):
+            cg.load(bad)
+        # Codex (#772): a new_page node with a successor keeps its flag through the walk -- three pages, each
+        # measured on its own.
+        three = copy.deepcopy(g)
+        three["nodes"]["b"]["children"] = [{"next": "c"}]
+        three["nodes"]["c"] = {"text": "(Name) ends. " + "A word. " * 150, "new_page": True}
+        lt = cg.load(three)
+        pops = [pp for h in cg.walk(lt, cg.contexts(lt, [4])[0]) for pp in cg.one_popup(h.popups)]
+        self.assertEqual(len(pops), 3, "three scroll pages")
+        self.assertEqual([p.nodes for p in pops], [["a"], ["b"], ["c"]])
+
+    def test_simulate_titles_follow_the_choice_picked(self):
+        """Codex P2 (PR #771): two choices leading to the same node -- the title is the label of the one picked."""
+        g = copy.deepcopy(TITLES)
+        g["nodes"]["q"]["choices"] = [{"label": "Leave", "next": "n"}, {"label": "Keep", "next": "n"}]
+        del g["nodes"]["y"], g["nodes"]["y2"]
+        g = cg.load(g)
+        for answer, label in ((0, "Leave"), (1, "Keep")):
+            r = cg.simulate(g, 3, [1], {"subject": cg.Binding("Ana", "f")}, [answer])
+            self.assertEqual(r["titles"][-1], label)
+
+    def test_a_requirement_fact_still_checks_the_graph(self):
+        """Codex P2 (PR #771): a requirement on a run-time fact (min_population) keeps its contexts, so a branch with
+        no child that applies there is still found."""
+        g = {"format": "vvfp-cie-graph", "version": 6, "title": "The Check", "games": [3],
+             "roles": {"subject": {"kind": "villager"}}, "start": "b",
+             "requirement": {"min_eligible": 1, "if": {"min_population": 3}},
+             "nodes": {"b": {"type": "branch", "children": [{"next": "x", "if": {"min_population": 99}}]},
+                       "x": {"text": "(Name) waits."}}}
+        _graph, problems = cg.validate(g, True)
+        self.assertTrue(any("no child applies" in p for p in problems), problems)
+
     def test_simulate_titles(self):
         g = cg.load(copy.deepcopy(TITLES))
         r = cg.simulate(g, 3, [0], {"subject": cg.Binding("Ana", "f")}, [0])
         self.assertEqual(r["titles"], ["The Revolutionary Invention"] * 3 + ["The Elders Decide"])
         r = cg.simulate(g, 3, [1], {"subject": cg.Binding("Ana", "f")}, [1])
-        self.assertEqual(r["titles"], ["The Revolutionary Discovery"] * 3)
+        # the owner (2026-11-16): after "Keep it quiet" its label titles what follows (the node has no title)
+        self.assertEqual(r["titles"], ["The Revolutionary Discovery"] * 2 + ["Keep it quiet"])
 
     def test_the_fit_pages_with_the_widest_title(self):
         # A New Home leads each page with its title: a node's two-line title takes one more line than the event's.

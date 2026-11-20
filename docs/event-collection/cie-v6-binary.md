@@ -148,7 +148,8 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
 - `{NAME}` or `{NAME.k}`, k = 1..8: pool `NAME`, instance k (`{NAME}` is instance 1). `NAME` is a pool name
   string (it may start with `@` or `_`). Braces never nest in the binary. A pool item's text may itself hold
   placeholders and pool tokens (not its own pool, depth at most 3, checked by the compiler).
-- Labels (choice labels): placeholders, `\(` `\)` and game words `{@w}` only. At most 95 bytes in v6 (v1-v5: 39).
+- Labels (choice labels): placeholders, `\(` `\)` and game words `{@w}` only. At most 95 bytes in v6 (v1-v5: 39);
+  with Scrolling Popups up to 4,095 (section 19).
 - **Pronoun hint (labels only, section 15):** a name placeholder may end in `|` and a pronoun pair, e.g.
   `(ACCUSED|HE/SHE)`, `(Name1|his/her)`: the form its fallback takes (`he/she`, `him/her`, `his/her`,
   `himself/herself`, any case). Without a hint the fallback is `him/her`. The hint is refused in body text.
@@ -500,12 +501,32 @@ Collection, Custom Island Events; the games' own events stay as they are) appear
   next trigger after its intro page and the village's opening event took it) cannot happen.
 - **Effects** are made when the text that tells them is shown (an answer's at its click, with its text); the Island
   Events log keeps ONE entry (a "Choice:" line for each answer). Island Events Seen counts the event once.
-- **Bytes.** A text may hold at most 1990 bytes at its widest (the later games' popup holds 2,000), 8000 in A New
-  Home and The Lost Children (their dialog holds 9,999; `CG_TEXT_MAX_12`, `ONE_POPUP_TEXT_MAX_12`). Lines do not
-  count: the popup scrolls.
+- **Bytes (practically unlimited, the owner 2026-11-16).** A text may hold up to `CE_LONG_TEXT_MAX` = 100,000
+  bytes at its widest (Python `LONG_TEXT_MAX`), a title or a choice's label up to 4,095 (`CE_LONG_LINE_BYTES` 4,096
+  with the NUL; Python `LONG_LINE_BYTES`) -- sanity caps sized to the file (`CG_MAX_FILE` 16 MiB, read into memory as large as the file; `validate` checks the compiled size, Python `MAX_FILE_BYTES`, and one run's words against `CG_DISPLAY_BYTES` 1 MiB, `DISPLAY_BYTES`). The dialog's own
+  field holds 2,000 bytes in the later games and 9,999 in A New Home and The Lost Children: a longer text is put
+  there as its start (`one_popup.h op_long_text_put`: a little short of the field, at a space) and Scrolling Popups
+  draws the WHOLE text (`VvfpPopupWholeText`); a label longer than `op_rows.labels` holds is handed over whole
+  (`op_rows.label_text`). Lines do not count: the popup scrolls. A choice is a row that wraps its label into as many
+  lines as it needs (never the screen-width rule of section 15, never pronouns for width); in the later games a
+  title wider than the text box wraps at the top of the scrolled box (A New Home and The Lost Children lead the
+  text with the title: its first line, the rest after the picture's gap, `cg_title_wrap`). The run file is version
+  5 (`CG_DISPLAY_BYTES` 1 MiB of displays' words; versions 2 to 4 kept 49,152 and are read widened,
+  `cg_file_widen`).
+- **Without Scrolling Popups** the old caps stay (1,990 bytes a text, 95 a label or a title as written, the pages);
+  `validate(scrolling=False)` says so in each problem, and the engine refuses to queue an event whose texts are
+  longer than them where the popups do not scroll (`cg_g.long_text`, `cg_refusal`).
 - **The popup's size**: the constructor's own, for its first text, with the rows and the room OK keeps below them
   (5/2 of OK's height) instead of the room for the game's buttons, capped to the screen; later texts scroll in it.
 - Without Scrolling Popups everything is as before (pages, button room, G1).
+
+### 19a. A fresh page without a question (`"new_page": true`, the owner, 2026-11-16)
+
+A popup node (popup "new") may carry `"new_page": true` (node flags bit 1, `0x02`): with Scrolling Popups it starts
+the event's one popup afresh, as an answer does, instead of joining the text before it -- so a long event never has
+to cut its words to fit the game's popup (1,990 bytes; 8,000 in A New Home and The Lost Children). Without
+Scrolling Popups it changes nothing (that node opens a popup of its own anyway). The fit check measures each part on
+its own (`one_popup`).
 
 ## 20. Sentence case
 
@@ -908,7 +929,125 @@ parent lives. `birth_then_die` (section 23) always kills the parent, so this is 
   25), as `birth_then_die`.
 - Not offered in the Custom Island Event library's Add menu (a collection effect for now; an owner question).
 
-## 31. The gender presentation (`presentation`, code 23; the owner, 2026-11-15)
+## 31. The content controls (the owner, 2026-11-15): up to 32 patch names; code 25 reserved
+
+`src/vv_event_content.py` writes the island events' content controls into every NEW event as it is compiled (the
+collection's builder and the Living Event Engine's mixer); the event files are never changed, each source's tags are
+in `data/event_collection/content_tags/<source>.json`.
+
+- **Patch names:** a graph may name up to **32** patches (the engine's `cg.patches` mask; before, 8). The content
+  filters are `island_event_filter_f01` .. `f28`, the content notes `island_event_content_notes`: the patcher writes
+  each ticked row in "VVFP Installed Patches.txt", which `cg_installed_has` reads.
+- **Dropped outcomes:** a weighted child (never a player's choice) whose own part of the graph carries a filter gets
+  `{"not": {"patch": "island_event_filter_fNN"}}` (several: `not any`).
+- **Skipped events:** the requirement gets `not (any group covered)` -- a filter still reachable with its edges
+  dropped, or every child of one node dropped. Strict casts (the rare roll, Pick Island Event) refuse it with "the
+  island event content filters to allow it"; a bought event is refused by these parts too ("is kept out by the island
+  event content filters"), never by the requirement's other parts.
+- **The content note:** the first text node(s) get variants "Content note: <labels>\n<text>", each with the
+  condition `island_event_content_notes` and which labels the ticked filters leave.
+- **Code 25 is reserved:** it was a rest period (`rest`); the owner took the rest periods out (2026-11-15), so nothing writes it and the engine refuses a file that holds it.
+
+## 32. Story traits (`trait`, code 26) and speaking roles (the owner, 2026-11-15)
+
+- **`{"do": "trait", "role": r, "trait": "mute"}`** (a = the trait's bit, 1 "mute"; b 0; no string): made at its
+  place, it keeps the trait for the villager in the same per-villager file as the rest periods (`story_rest.inc`),
+  whatever is ticked; it follows them as every patcher sidecar does. "The Quiet Hands" (Inner Life 3, `il003_*`)
+  gives it to the villager it casts (`src/vv_event_content.py` TRAIT_EVENTS writes the effect on its start, or on
+  each answer's first node when the start is a question). Never a change, never a line, never logged.
+- **A speaking role:** byte 13 of a villager role (the skill pick, 0 or 1) carries bit 7 (`0x80`) when the event's
+  words have that role speak (a quoted line attributed to them: `speaking_roles`, kept in the source's tag table as
+  `"speaks"`). Such a role never takes a villager with the trait "mute" (`cg_eligible`).
+
+## 33. Count tokens: text that fits what the effects made (the owner, 2026-11-15)
+
+Twins and triplets (pregnant / nursing flags bits 1-2), up to two clones (clone a = 2) and several new villagers come
+only as far as the game's room allows, so the text says how many actually came:
+
+- **`{#babies:A|B|C}`**: the babies the page's `pregnant` / `nursing` effects actually put on their way (each
+  game's own conception, its room check included).
+- **`{#made:A|B|C}`**: the villagers the page's `new_villager` and `clone` effects actually made.
+- **The option:** A for 1 (and for 0 or nothing known), B for 2, C for 3 or more; with fewer options the last one
+  is used for anything past it. Examples: `{#babies:a baby|twins|triplets}`, `{#babies:it|them}`,
+  `{#babies:is|are}`, `{#made:one|two|three}`, `{#made:a newcomer|two newcomers|three newcomers}`.
+- **Which count:** the page's own count once its effects are made (the engine fills the tokens after it makes
+  them, before the page is shown); a page that makes no such effect uses the last earlier page's count of the same
+  event ("the following page"). Nothing made yet on the event: A. The counts are memory only: after a quit and a
+  restore between pages, A.
+- **Syntax:** `{#`, the count's name (`babies` or `made`), `:`, then 1 to 3 options separated by `|`, then `}`.
+  Each option is 1 to 160 bytes of the plain text set (letters, digits, space, `, : - ' "` and `; / & %`) and
+  placeholders: the event's own names and pronouns (`(name)`, `(Name1)`, `(child.he/she)`, `(his/hers)`, ...; no
+  label hint) and `(made1)` / `(made2)`. No pool or game word, brace, line break or `.` `!` `?` (so a page break never
+  falls inside one). Body text only, never a button label or a title. Any other `{#...}` is refused by the loader.
+  The option is chosen first, then its placeholders are filled (and VV1/VV2's glyph fallback made) as the rest of the
+  page's were.
+- **Fit:** the worst case is the widest option with its placeholders at their widest (CG_EXPAND_WORST; Python
+  `worst_v6` the same), so the pages are laid out for it.
+
+### 33a. The names of the villagers the event made: `(made1)`, `(made2)`
+
+- **`(made1)`** is the name of the newest villager the event's `new_villager` (not a child of the newest, flags bit
+  0) or `clone` effects made; **`(made2)`** the one made before it. With only one made, both are that villager (so
+  `(made2)` is never empty); with none, "a newcomer". The game's own name, read after the page's effects are made
+  (any case: `(Made1)` the same). Body text and count options only, never a label or a title.
+- **When:** filled when the page is shown, after its effects; on a later page of the same event the same villagers
+  (memory only: after a quit and a restore between pages, "a newcomer").
+- **Fit:** the worst case is `W` x the game's name room.
+
+- **`(renamed)`** (any case) is the name the event's latest `change_name` (33) gave (random or fixed), filled after
+  the page's effects as `(made1)` is; before any rename, the current name of the villager the event's first
+  `change_name` is for. Body text and count options only.
+- **A renamed villager's role** (change_name, the lost name "?", a mind swap) keeps following them: the role's own
+  `(name)` / `(Name)` and the role shorthand show the new name on every later page -- pages laid out before the
+  rename have the old name put back as the new one (whole words), pages laid out after it have it already -- and the
+  role's later effects still reach them (their identity, which holds the name, is taken again). The rename's own
+  page keeps the names it was written with, so "(subject) is now called (renamed)." reads "Ana is now called Lani.".
+  Memory only for the old pages: after a quit and a restore between pages, a page laid out before the rename may
+  show the old name.
+
+### 33c. New Believers' Heathens and Faith (the owner, 2026-11-16; "VV5 Heathen Events - What Vanilla Does")
+
+- **A Heathen's role (`"heathen_ok": true` on a villager role):** role byte 13 bit 6 (`0x40`, beside SPEAKS `0x80`;
+  the flags byte 1 is full). Keep `believers_only` as it is (true): the engine casts such a role only among the
+  Heathens whatever byte 1 says, so a believer is never cast in it. In New Believers the role is cast as the
+  game's own picker `0x471870` casts a Heathen (Heathens-only on, special roles off): a Heathen, never roles 12-17
+  (the Heathen Doctor, the Heathen Chief, the three Masters, the Heathen Mommy), never sick, health above 0, listed
+  (present, not a body or a spirit); carrying or nursing allowed; the role's own ages and sex apply (a child under
+  14 for a child's story, 14 or more for an envoy). Default stays believers only. In the other games the bit is
+  ignored. Vanilla casts one Heathen an event; an event may name more.
+- **What may happen to a Heathen's role** (refused when the file is loaded, whatever is ticked, No Safeguards too):
+  `faith`, `join`, `action` (stopped, walked, posed), `health_change` down to -30 (minor harm, as The Missing Kids),
+  `sick`, `trait`. Never a death, a disappearance, an age, a skill, a like or dislike, a lower Faith.
+- **`faith` (code 38):** role; a = the Faith gained, 1..35 (vanilla +5..+35); b 0; no string. The game's
+  FAITH_ADD `0x468020`: a Heathen whose Faith ends above 0 joins the tribe the game's own way (its message, role,
+  counters, puzzle check; below 5 becomes 55). Auto line "<R> feels closer to the tribe."
+- **`join` (code 39):** role; a = b = 0; no string. A Heathen joins: SetFaith `0x467F90`(20, 1), then
+  `0x466880`(0), as The Defector. A believer already: nothing. Auto line "<R> joins the tribe."
+- **`apostasy` (code 40):** role (a believer's, never a Heathen's role); a = b = 0; no string. A believer becomes a
+  Heathen by their own choice (write it only where the player's answer has the believer choose it): SetFaith(-10,
+  1), then `0x466880`(1), as The Spa and The Cracked Mask. Harmful (protected villagers kept out). Auto line
+  "<R> becomes a Heathen."
+- Only in New Believers; in the other games the three do nothing. UNCONFIRMED live: the three routines are called
+  as thiscall on the villager's record, as the vanilla events call them.
+
+### 33b. Other forms (the owner's files, 2026-11-16)
+
+- **`(his/hers)`**: the standalone possessive ("the choice was hers"), with the role prefix, the capital and ALL
+  CAPS forms as every pronoun (`(friend.his/hers)`, `(His/Hers)`, `(HIS/HERS)`). Engine `CG_PH_HIS_HERS`.
+- **Role-prefixed pronouns** were already read: `(<role id>.he/she)`, `(<role id>.his/her)`, `(<role id>.him/her)`,
+  `(<role id>.himself/herself)`, `(<role id>.man/woman)`, `(<role id>.woman/man)`, `(<role id>.boy/girl)`,
+  `(<role id>.son/daughter)`, the role-sex words of section 5, and now `(<role id>.his/hers)`. `name1` / `name2` take
+  no prefix: `(name2.his/her)` is not a form; write `(friend.his/her)` (name2 is the role `friend`).
+- **Group targets by age:** role byte 254 with byte 3 = 4 every elder (55 or more), 5 every child (under 14), 6 every
+  teen (14 to 17), 7 every adult (18 or more); the last H 0. A random like or dislike (preference with flags bit 8)
+  may now take a group too: each member draws their own word.
+- **Group targets on `appearance` (17):** role byte 254 takes `appearance` too; with a random head or body each
+  member draws their own row (the game's random routine), so "a new look for three random villagers" gives three
+  looks.
+- **Python (the compiler, the importer):** accept the token in text, measure it as its longest option, `simulate`
+  with a count of 1 unless the facts give `count:babies:<n>` / `count:made:<n>`; `normalize` keeps it as written.
+
+## 34. The gender presentation (`presentation`, code 23; the owner, 2026-11-15)
 
 JSON (v6): `{"do": "presentation", "role": r, "on": true}` (`on` defaults to true; a = 1 when on, 0 when off; b = 0,
 string `NONE`; no roll). The villager keeps the sex the game records for them and is drawn with the other sex's heads

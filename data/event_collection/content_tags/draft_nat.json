@@ -1,0 +1,617 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_nat",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "nat01_crab_blue_cup": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "nat02_bird_line": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "fisher"
+   ]
+  },
+  "nat03_what_storm_left": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "nat04_too_many_urchins": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "nat05_seal_canoe": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ],
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "nat06_clam_bed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "nat07_bird_nobody_has": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "nat08_frog_used_sing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "nat09_fishing_dolphins": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "nat10_goats_hillside": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "nat11_vine_covers": {
+   "filters": [
+    "F07",
+    "F15"
+   ],
+   "notes": [
+    "Historical suffering"
+   ],
+   "nodes": {
+    "o1": [
+     "F07"
+    ],
+    "o2": [
+     "F15"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "nat12_turtle_eggs": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "nat13_bat_cave": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "nat14_penguin_just": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "nat15_ants_are_moving": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F26"
+    ],
+    "o2": [
+     "F26"
+    ],
+    "setup": [
+     "F26"
+    ]
+   }
+  },
+  "nat16_dead_fish_lagoon": {
+   "filters": [
+    "F03",
+    "F24"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o2": [
+     "F03"
+    ],
+    "setup": [
+     "F24"
+    ]
+   }
+  },
+  "nat17_cleaning_rock": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "nat18_whale_bones": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "nat19_crab_march": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "nat20_web_across_door": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F26"
+    ],
+    "setup": [
+     "F26"
+    ]
+   }
+  },
+  "nat21_firefly_clearing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "nat22_coconut_crab": {
+   "filters": [
+    "F11",
+    "F25"
+   ],
+   "notes": [
+    "Emotional distress"
+   ],
+   "nodes": {
+    "setup": [
+     "F11",
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "nat23_pig_found_roots": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "nat24_lowest_tide_year": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "nat25_starfish_short": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "nat26_shuffle_your": {
+   "filters": [
+    "F03",
+    "F06",
+    "F16"
+   ],
+   "notes": [
+    "Bereavement",
+    "Serious injury"
+   ],
+   "nodes": {
+    "o2": [
+     "F06"
+    ],
+    "setup": [
+     "F03",
+     "F16"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "nat27_mosquito_pond": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F26"
+    ],
+    "o2": [
+     "F26"
+    ],
+    "setup": [
+     "F26"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "nat28_what_grows_back": {
+   "filters": [
+    "F07",
+    "F23"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F07",
+     "F23"
+    ]
+   }
+  },
+  "nat29_strangest_thing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "nat30_well_tastes_salt": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "nat31_owl_pellets": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F26"
+    ],
+    "o2": [
+     "F26"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "nat32_twig_walked_away": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "nat33_sharks_lagoon": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "nat34_day_butterflies": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "nat35_snails_nobody": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F03"
+    ]
+   }
+  },
+  "nat36_hornets_path": {
+   "filters": [
+    "F06",
+    "F26"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1": [
+     "F06",
+     "F26"
+    ],
+    "o2": [
+     "F26"
+    ],
+    "setup": [
+     "F26"
+    ]
+   }
+  },
+  "nat37_kingfisher": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "nat38_mangroves": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "nat39_enormous_baby": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "nat40_wild_pigs_taro": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "nat41_gecko_tail": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "nat42_noisy_trees": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "nat43_fish_puffed_up": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "nat44_song_under_canoe": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "nat45_rain_didnt_come": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ],
+    "o2": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "nat46_tree_top_tree": {
+   "filters": [
+    "F25",
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25",
+     "F26"
+    ]
+   }
+  },
+  "nat47_counting_nests": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "nat48_bees_wall": {
+   "filters": [
+    "F13"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F13"
+    ]
+   }
+  },
+  "nat49_jellyfish_season": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "nat50_fish_were_bigger": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  }
+ }
+}
