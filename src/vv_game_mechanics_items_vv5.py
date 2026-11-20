@@ -377,7 +377,7 @@ def _puzzle_entries() -> list[Entry]:
               # 0x474780(4) but no work event. Fix Vanilla Bugs queues event 40 after that practice (0x455109).
               (("The game's tip says polishing the finished statue gives energy and building skill, and the game has "
                 "a step that adds 1 Divine Energy for it, but in the normal game no action ever asks for that step, so "
-                "\"Polishing the statue\" trains Building and gives no Divine Energy. Fixed by "
+                "\"Polishing the statue\" trains Building and gives no Divine Energy. "
                 f"{_feature('vv5_fix_vanilla_bugs')}: each polish also adds 1 Divine Energy, never above the "
                 "Divine Energy cap.", VERIFIED_C),
                (f"{_feature('vv5_statue_polishing_or_honoring')}: a villager dropped on the finished statue polishes it "
