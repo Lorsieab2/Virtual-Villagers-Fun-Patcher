@@ -130,8 +130,8 @@ check counter 0 -- the hut site `0x447724` was never reached.
   stock "fix a hut" option.
 * **A New Home's false "started".** Every way VV1's Building branch gives up
   (`0x4474A1`, `0x4477A6`) returns `mov al, bl` with `bl = 1`: "started" with
-  nothing started, so the builder stood idle and the scheduler (and Builders
-  and Healers Work First's fallback) never looked further.  The hut stub now
+  nothing started, so the builder stood idle and the scheduler (and Villagers Work Their
+  Own Job First's fallback) never looked further.  The hut stub now
   reports "nothing" (`xor al, al` after the dispatcher's own pops) when no hut
   stands and when the stock 20% skip roll fires.  The Lost Children and the
   later games already report "nothing" (`xor al, al`).
@@ -142,7 +142,7 @@ built fixes hut 9; no hut standing and the skip roll say "nothing" with the
 dispatcher's saves popped in order), mutation-checked. **TESTED.** Live play:
 **UNVERIFIED** until the owner runs v1.35.37.
 
-## Addendum: Builders and Healers Work First (v1.35.36)
+## Addendum: Villagers Work Their Own Job First (v1.35.36)
 
 The owner: "in both low and high food situations, builders and healers still
 should prioritize fixing huts over other stuff for all 5 games", as "an
@@ -233,7 +233,7 @@ doing that action, not 100% replace them" -- 75%, one roll per decision:
 if it passes the patches act together (own work first, construction before a
 fix, the hut fix when idle, the food bypasses); if it fails the stock game
 decides that turn unchanged. Scope: Builders Fix Huts When Idle (all five),
-Builders and Healers Work First (all five), Healers Study Plants Regardless
+Villagers Work Their Own Job First (all five), Healers Study Plants Regardless
 of Food (VV1, VV2) and Builder Action Fixes (VV1).
 
 * The decision is one run of the game's idle scheduler, which the fix-huts

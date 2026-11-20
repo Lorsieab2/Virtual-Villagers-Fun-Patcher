@@ -24,7 +24,7 @@ machine code in the executable the patcher renders; only leaf routines (the
 picker, the RNG, the queue processor, the study routines, the task-state
 step) are scripted.  Any call into the executable that is not scripted stops
 the run.  Then the same with every healer patch ticked (Builders Fix Huts When
-Idle, Builders and Healers Work First, Healers Study Plants Regardless of
+Idle, Villagers Work Their Own Job First, Healers Study Plants Regardless of
 Food), their test builds installed as the per-frame companions install them,
 to show the patches work together and queue one thing per decision.
 """
@@ -300,17 +300,18 @@ class LostChildrenNotCheckedOnHealing(unittest.TestCase):
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
 @unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
 class WithEveryHealerPatch(unittest.TestCase):
-    """Easier Healing Mastery with Builders Fix Huts When Idle, Builders and
-    Healers Work First and Healers Study Plants Regardless of Food: each still
+    """Easier Healing Mastery with Builders Fix Huts When Idle, Villagers Work Their Own
+    Job First and Healers Study Plants Regardless of Food: each still
     does its own job, and a decision queues one thing."""
 
     def rows(self, game):
         return tuple(ROWS[game]) + (EHM[game],)
 
     def test_work_first_puts_a_healer_to_healing_and_the_healing_studies(self):
+        # Healing 30: Villagers Work Their Own Job First puts nobody first at skill 5 or less (the owner, 2026-11-18).
         for game in ("vv1", "vv2"):
             with self.subTest(game=game):
-                m = machine(game, rows=self.rows(game), runtime=True, pick=OTHER).decide()
+                m = machine(game, rows=self.rows(game), runtime=True, pick=OTHER, healing=30).decide()
                 self.assertEqual(len(studies(m)), 1, names(m))
                 self.assertNotIn("research step", names(m))
 
@@ -319,14 +320,14 @@ class WithEveryHealerPatch(unittest.TestCase):
         # when that starts it, nothing is dispatched.
         for game in ("vv1", "vv2"):
             with self.subTest(game=game):
-                m = machine(game, rows=self.rows(game), runtime=True, pick=OTHER, task=9, cont=1).decide()
+                m = machine(game, rows=self.rows(game), runtime=True, pick=OTHER, task=9, cont=1, healing=30).decide()
                 conts = [c for c in m.calls if c[0] == "continue"]
                 self.assertEqual(len(conts), 1)
                 self.assertEqual(conts[0][1], (INDEX, 60 if game == "vv1" else 40))
                 self.assertEqual(studies(m), [])               # the scripted continuation did it
                 # ... and when the continuation starts nothing, Work First and
                 # Easier Healing Mastery still give exactly one study.
-                m = machine(game, rows=self.rows(game), runtime=True, pick=OTHER, task=9, cont=0).decide()
+                m = machine(game, rows=self.rows(game), runtime=True, pick=OTHER, task=9, cont=0, healing=30).decide()
                 if game == "vv1":
                     self.assertEqual(len(studies(m)), 1, names(m))
                 else:

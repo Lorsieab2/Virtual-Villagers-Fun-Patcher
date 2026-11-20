@@ -48,8 +48,8 @@
      VV5 site 0x46CADA: the same.
 
    Everything this companion changes happens about three times in four:
-   one roll per decision of the idle scheduler, shared with Builders and
-   Healers Work First, Healers Study and Builder Action Fixes (see "About
+   one roll per decision of the idle scheduler, shared with Villagers Work Their Own
+   Job First, Healers Study and Builder Action Fixes (see "About
    three times in four" below); when it fails, every site runs the stock
    code.  For a villager whose job checkmark is not Building (or, for the
    low-food healer bypass, not Healing) a second roll lets it act only 14
@@ -430,11 +430,9 @@ static const unsigned int vv1_hut_pick = VV1_RESUME + 9;   /* 0x447737: push 3; 
    fix, this asks whether construction is available exactly as the stock branch
    judges it, and if so enters that construction's own stock code:
 
-     new huts: hut 9 while incomplete (entry 0x447528, the stock hut
-       section); hut 10 and hut 11 while incomplete and progress >= 2 or the
-       population above 22 / 45 -- see "Huts need a manual start" below --
-       population from the game's own counter 0x41CF90 (ecx = village state),
-       as the stock checks call it -- each entered through
+     new huts: hut 9 while incomplete and progress >= 1 (entry 0x447528,
+       the stock hut section); hut 10 and hut 11 while incomplete and progress
+       >= 2 -- see "Huts need a manual start" below -- each entered through
        vv1_build_hut10 / vv1_build_hut11, which push the hut and run the
        section's own build tail (0x447539: push ebp; mov ecx, esi; call
        0x442090; the started epilogue);
@@ -448,7 +446,6 @@ static const unsigned int vv1_hut_pick = VV1_RESUME + 9;   /* 0x447737: push 3; 
    construction and never falls back here.  Project record i: progress dword at
    state + 0x9F9C + 8*i, complete flag byte 4 bytes later (read from the
    owner's saves: progress counts up to the target, the flag turns 1). */
-#define VV1_POPULATION   0x41CF90u
 #define VV1_HUT_SECTION  0x447528u
 #define VV1_HUT9_CALL    0x44753Cu   /* stock: call 0x442090, the hut gate */
 #define VV1_HUT_GATE     0x442090u
@@ -466,16 +463,6 @@ static int vv1_complete(const unsigned char *state, unsigned int id) {
     return state[0x9F9C + 8 * id + 4] == 1;
 }
 
-static const unsigned int vv1_population_fn = VV1_POPULATION;
-static int vv1_population(const unsigned char *state) {
-    int n;
-    __asm {
-        mov ecx, state
-        call dword ptr [vv1_population_fn]
-        mov n, eax
-    }
-    return n;
-}
 
 /* A progress gate on the new-hut calls (older Builder Action Fixes) would make
    the stock hut section skip a hut at zero progress; mirror it if present, so
@@ -494,19 +481,21 @@ static int vv1_huts_need_progress(void) {
    builders started a hut on their own above those numbers and abandoned a
    started one whenever the population fell back (the owner's village,
    v1.35.42: population 17, hut 10 at progress 12, its builders fixing huts).
-   The owner: at or below 22 / 45 villagers builders only work on one of
-   those huts once the player has dropped a villager on it at least once, and
-   then finish it whatever the population; above 22 / 45 they may start it
-   themselves, as the stock game does.  A drop works the hut past the drawing
-   routine's mark, so hut 10 and hut 11 count as construction exactly while
-   they are not complete and their progress is 2 or more or the population is
-   above 22 (hut 10) / 45 (hut 11).  Hut 9 has no gate, as in the stock
-   game.  The stock section itself is lifted to the
+   The owner: builders only work on one of those huts once the player has
+   dropped a villager on it at least once, and then finish it whatever the
+   population; and (2026-11-18, on #807) builders never start ANY population
+   hut by themselves, whatever the population -- not hut 9 either, which a new
+   village starts at progress 125 but an earthquake can take back to 0.  A
+   drop works the hut past the drawing routine's mark, so hut 10 and hut 11
+   count as construction exactly while they are not complete and their
+   progress is 2 or more, and hut 9 while its progress is 1 or more (the
+   drawing routine never marks hut 9).  The population counter is no longer
+   asked.  The stock section itself is lifted to the
    same test (VV1_GATE below; Builder Action Fixes writes the same bytes into
    the executable), so the stock path and this one agree. */
 static int vv1_hut_buildable(const unsigned char *state, unsigned int id, int need_progress) {
     if (vv1_complete(state, id)) return 0;
-    if (id != 9 && vv1_progress(state, id) < 2 && vv1_population(state) <= (id == 10 ? 22 : 45)) return 0;
+    if (vv1_progress(state, id) < (id == 9 ? 1 : 2)) return 0;      /* nobody worked on it yet */
     return !need_progress || vv1_progress(state, id) > 0;
 }
 
@@ -767,7 +756,10 @@ static unsigned int __cdecl vv2_construction(const unsigned char *village, unsig
     int level = *(const int *)(state + 0x2EA84);
     if (task >= 11 && task <= 20 && VV2_DONE(state, task_project[task - 11]) == 0) return task_handler[task - 11];
     if (VV2_DONE(state, 1) != 1 && VV2_PROGRESS(state, 1) > 0 && task == 0) return 0x4600A7u;
-    if (VV2_DONE(state, 24) != 1) return 0x45FF0Bu;
+    /* Hut 24: a new village starts it at progress 205 (0x42517D); at 0 (an
+       earthquake took it back) nobody starts it again without a drop
+       (2026-11-18, on #807). */
+    if (VV2_DONE(state, 24) != 1 && VV2_PROGRESS(state, 24) >= 1) return 0x45FF0Bu;
     /* The executable's new-hut test (this row's record): worked on by the player. */
     if (VV2_DONE(state, 25) != 1 && VV2_PROGRESS(state, 25) >= 2) return 0x45FF38u;
     if (VV2_DONE(state, 26) != 1 && VV2_PROGRESS(state, 26) >= 2) return 0x45FF65u;
@@ -1357,7 +1349,7 @@ static int __cdecl vv2_builder_first(const unsigned char *village, const unsigne
 
 /* VV3-VV5 pick numbering: 4 Building, 2 Healing.  A healer's pick waits
    behind the same farming attempt (the 50% food swap already spares job 2);
-   while "VVFP Work First.dll" (Builders and Healers Work First) is shipped,
+   while "VVFP Work First.dll" (Villagers Work Their Own Job First) is shipped,
    it is dispatched at once too. */
 static int work_first_present(void);
 
@@ -1515,7 +1507,7 @@ __declspec(dllexport) int __cdecl VvfpFixHutsBuilderFirst(int game_id, int pick)
     return 0;
 }
 
-/* ---- The "Builders and Healers Work First" addendum ---------------------- */
+/* ---- The "Villagers Work Their Own Job First" addendum ---------------------- */
 /* "VVFP Work First.dll" is its own companion (one feature per DLL); this one
    loads it by full path, once, from the same per-frame install call, and asks
    it to install its dispatcher hook for this game.  Not shipped (the row is
@@ -1678,8 +1670,8 @@ __declspec(dllexport) __declspec(naked) void VvfpFixHutsScheduler3(void) {
 /* ---- The decision in catch-up: wrapping the catch-up worker --------------- */
 /* Time passing while the game was closed, and Time Warp, never run the idle
    scheduler: each game's catch-up worker picks a job and dispatches it
-   itself, and several patches can act on that one choice -- Builders and
-   Healers Work First at the pick dispatch or the research pick, this
+   itself, and several patches can act on that one choice -- Villagers Work Their Own
+   Job First at the pick dispatch or the research pick, this
    companion's own sites inside the Building dispatcher, and in The Lost
    Children Healers Study's plant-study continuation.  Outside a decision
    each of them used to draw its own roll, so a villager could get an
@@ -1846,10 +1838,10 @@ static const unsigned char VV1_GATE_STOCK[74] = {
     0x03, 0x00, 0x38, 0x98, 0xF8, 0x9F, 0x00, 0x00, 0x74, 0x3D };
 static const unsigned char VV1_GATE_LIFTED[74] = {
     0x38, 0x99, 0xF0, 0x9F, 0x00, 0x00, 0x74, 0x21, 0x83, 0xB9, 0xEC, 0x9F, 0x00, 0x00, 0x01, 0x7F,
-    0x0A, 0xE8, 0x30, 0x5A, 0xFD, 0xFF, 0x83, 0xF8, 0x16, 0x7E, 0x0E, 0x53, 0x6A, 0x0A, 0xEB, 0xCF,
+    0x0A, 0xE8, 0x30, 0x5A, 0xFD, 0xFF, 0x83, 0xF8, 0x16, 0xEB, 0x0E, 0x53, 0x6A, 0x0A, 0xEB, 0xCF,
     0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0x8B, 0x8E, 0x10, 0xE0, 0x03, 0x00, 0x38,
     0x99, 0xF8, 0x9F, 0x00, 0x00, 0x74, 0x50, 0x83, 0xB9, 0xF4, 0x9F, 0x00, 0x00, 0x01, 0x7F, 0x0A,
-    0xE8, 0x01, 0x5A, 0xFD, 0xFF, 0x83, 0xF8, 0x2D, 0x7E, 0x3D };
+    0xE8, 0x01, 0x5A, 0xFD, 0xFF, 0x83, 0xF8, 0x2D, 0xEB, 0x3D };
 static const struct gate GATES[6] = {
     { 0 },
     { 0x44754Au, VV1_GATE_STOCK, VV1_GATE_LIFTED, sizeof VV1_GATE_STOCK },

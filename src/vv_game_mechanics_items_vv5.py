@@ -452,8 +452,10 @@ def _building_entries() -> list[Entry]:
             "trains Building."), VERIFIED_C,
               ((f"{_feature('vv5_builders_fix_huts')}: about three times in four a builder builds first, and with no "
                 "project to work on examines and fixes a built hut even before every hut stands.", VERIFIED_C),
-               (f"{_feature('vv5_builders_and_healers_work_first')}: builders and healers try their own work first about "
-                "three times in four, and in catch-up devotees try Honoring first.", VERIFIED_C))),
+               (f"{_feature('vv5_builders_and_healers_work_first')}: farmers, researchers, healers, builders and "
+                "devotees try their own work first about three times in four (devotees while you play only without "
+                "Easier Devotee Training), once that skill is above 5; untrained villagers practise their ticked job too.",
+                VERIFIED_C))),
     ]
 
 

@@ -262,6 +262,13 @@ PUZZLE_ENTRIES = (
         ("With the patcher (Easier Healing Mastery, on by default): healers with no patient study plants on their "
          "own, catch-up included (14% for a villager not checked on Healing). With Healers Study Plants Regardless "
          "of Food (on by default): a studying villager carries on at 300 food or more, 50% of the time.", C),
+        # The continuation 0x460590 picks rand(4) among herbs 1, 2, 5 and 6 (0x4606A1; VVFP Herb Study.dll: rand(6)).
+        ("In the original game a villager carrying on with plant study never studies the third or fourth herb "
+         "again. With the patcher (Fix Vanilla Bugs): all six can be studied again, each a Healing practice roll.",
+         C),
+        ("With the patcher (Villagers Work Their Own Job First): once Herb Mastery is solved, a healer with nothing "
+         "else to do studies one of the six plants on their own, about three times in four (never one who "
+         "dislikes herbs).", C),
     )),
     Entry(PUZZLE, "The Sewing Hut", (
         # Callback 7 (0x46305D): 400 (0x190) sets +0x2E790, +1 a trip.

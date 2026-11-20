@@ -1,35 +1,30 @@
-"""Builders and Healers Work First (all five games) -- the addendum to
-Builders Fix Huts When Idle.
+"""Villagers Work Their Own Job First, upgraded to skill practice (all five games)
+-- the addendum to Builders Fix Huts When Idle.
 
-The owner: "in both low and high food situations, builders and healers still
-should prioritize fixing huts over other stuff for all 5 games" -- builders
-their building work, healers their healing and study, first, while not every
-population hut is built -- and "make the work patches an addendum to the
-preexisting ones".  Codex on #462: a forced job with nothing to do must fall
-back to the stock choice, not leave the villager idle.
+The owner's decisions (2026-11-17, "Skill Practice - Behaviors to Approve"):
+villagers practise their selected job on their own -- Farming, Research,
+Healing, Building and New Believers' Devotion -- about three times in four,
+the roll shared with Builders Fix Huts When Idle; Parenting stays under the
+Birth Control patches; builders never start a project nobody was dropped on;
+puzzle work and tool jobs stay the game's; New Believers' Devotion is never
+doubled up with Easier Devotee Training.  Plus the items that need sites of
+their own: beginners (items 1, 2), the fruit trip and noni in catch-up (84,
+101) and The Lost Children's sewing hut (30).
 
-Pinned here:
+Pinned here, EMULATED in the executable the patcher renders for the rows with
+the companions' test builds installed (tests/test_catch_up_work_first.world):
 
-* Each game's work dispatcher entry, its displaced bytes and the adult
-  scheduler's call sites are what the stubs assume, read from the stock
-  executables.
-* The DLL's dispatcher stubs (VV1/VV2/VV4/VV5), RUN in an emulator with the
-  dispatcher's body scripted: for a builder or healer called from the adult
-  scheduler with a hut unbuilt, the own job is asked for first; if it starts
-  something the scheduler gets "started" (with the stock ret N); if it starts
-  nothing, the scheduler's own request runs (so the villager is never left
-  idle by the addendum).  Any other job, any other caller, a request that is
-  already the own job, or all huts built runs the stock request alone.
-* The Secret City's dispatcher stub in the fix-huts page, run the same way
-  with VvfpWorkFirstFirst scripted, and with the DLL missing.
-* The five rows depend on Builders Fix Huts When Idle, ship and pin the DLL,
-  and the fix-huts companion loads it by full path.
-* About three times in four: the stubs ask the decision's roll -- the
-  fix-huts companion's VvfpFixHutsRoll, handed over through
-  VvfpWorkFirstSetRoll (scripted here) -- only when they would act, and when
-  it fails the scheduler's own request runs alone (RollTests).  The roll and
-  these stubs reached from the games' own callers are pinned in
-  tests/test_builders_decision_roll.py.
+* every runtime site's stock bytes, and that the installer writes them all;
+* the live scheduler's calls: the own job first, the caller's request when it
+  starts nothing, the caller's request alone when the roll fails or for any
+  other caller, Parenting never, Research never in place of Farming;
+* New Believers' live Devotion only without Easier Devotee Training;
+* the beginners' gate, the catch-up offers and the sewing hut, each stub run
+  from its site with the game's registers;
+* the five rows ship and pin the DLL and list every site.
+Catch-up, the fallbacks (exercise, herb study), the builders' rule and the
+untrained mark: tests/test_catch_up_work_first.py.  Every behaviour here
+fails with the earlier DLL.
 """
 from __future__ import annotations
 
@@ -40,424 +35,389 @@ import sys
 import unittest
 from pathlib import Path
 
-import pefile
-from unicorn import UC_ARCH_X86, UC_HOOK_CODE, UC_MODE_32, Uc
+from unicorn import UC_HOOK_CODE
 from unicorn.x86_const import (
-    UC_X86_REG_EAX, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI, UC_X86_REG_EIP,
-    UC_X86_REG_ESI, UC_X86_REG_ESP,
+    UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI, UC_X86_REG_EIP, UC_X86_REG_ESI,
+    UC_X86_REG_ESP,
 )
+
+from test_builders_decision_roll import (
+    FORCE_FAIL, FORCE_PASS, HALT, OBJ, RECORD, STATE, STOCK_ABSENT, STOCK_PRESENT, TEST_BUILD_ABSENT,
+    TEST_BUILDS_PRESENT, VILLAGE, INDEX, Leaf,
+)
+from test_catch_up_work_first import G, GAMES, _stock_bytes_at, world, _own_jobs, _other
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 DLL = ROOT / "assets" / "work_first" / "VVFP Work First.dll"
-# The probes and counters the emulator drives exist only in the TEST build
-# (VVFP_TEST, same source; tests/test_shipped_dlls_have_no_test_hooks.py).
-TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Work First.test.dll"
-# tests/test_dlls/ is export-ignore: the release source archive carries no test
-# build, so there the tests that drive one skip instead of failing.
-TEST_BUILD_ABSENT = "test builds are not in the release source archive (tests/test_dlls)"
-STOCK = {g: ROOT / "research" / "stock-executables" / n for g, n in (
-    ("vv1", "Virtual Villagers - A New Home.exe"), ("vv2", "Virtual Villagers - The Lost Children.exe"),
-    ("vv3", "Virtual Villagers - The Secret City.exe"), ("vv4", "Virtual Villagers - The Tree of Life.exe"),
-    ("vv5", "Virtual Villagers - New Believers.exe"))}
-GAME_NO = {"vv1": 1, "vv2": 2, "vv3": 3, "vv4": 4, "vv5": 5}
-STACK = 0x70000000
-VILLAGE = 0x20000000
-STATE = 0x30000000
-RECORD = 0x38000000
-INDEX = 7
+WORK_FIRST_BASE = 0x11000000
 
-G = {
-    "vv1": dict(disp=0x4472C0, stock="8B44240885C0", calls=(0x448350, 0x44837D), building=4, healing=5, ret=8),
-    "vv2": dict(disp=0x45FBF0, stock="8B44240885C0", calls=(0x461A03, 0x461A30), building=5, healing=3, ret=8),
-    "vv3": dict(disp=0x45AF00, stock="8B44240881ECA0000000", calls=(0x45C237, 0x45C275, 0x45C28A),
-                building=4, healing=2, ret=8),
-    "vv4": dict(disp=0x4639B0, stock="8B44240481EC98000000", calls=(0x4659CD, 0x465A12, 0x465A25),
-                building=4, healing=2, ret=4),
-    "vv5": dict(disp=0x46C540, stock="81EC94000000", calls=(0x46F28C, 0x46F2D1, 0x46F2E5),
-                building=4, healing=2, ret=4),
+# The adult scheduler's calls of the dispatcher (their return addresses).
+LIVE = {
+    "vv1": (0x448355, 0x448382),
+    "vv2": (0x461A08, 0x461A35),
+    "vv3": (0x45C23C, 0x45C27A, 0x45C28F),
+    "vv4": (0x4659D2, 0x465A17, 0x465A2A),
+    "vv5": (0x46F291, 0x46F2D6, 0x46F2EA),
 }
-HUT_PREDICATE = {"vv4": (0x438960, 19), "vv5": (0x43AE80, 19)}
+OTHER_CALLER = {"vv1": 0x447D99, "vv2": 0x4605F9, "vv3": 0x45AA99, "vv4": 0x4634D9, "vv5": 0x46BCF9}
 
 
-def _stock(game: str, va: int, n: int) -> bytes:
-    pe = pefile.PE(str(STOCK[game]), fast_load=True)
-    return STOCK[game].read_bytes()[pe.get_offset_from_rva(va - 0x400000):][:n]
+def live(m, game, ret, job):
+    """The scheduler's `call dispatcher` returning to `ret`, asking `job`."""
+    m.asked, m.marks, m.calls = [], [], []
+    if game in ("vv1", "vv2"):
+        m.run(G[game]["disp"], ret, {UC_X86_REG_ECX: VILLAGE}, stack=(ret, INDEX, job))
+    elif game == "vv3":
+        m.run(G[game]["disp"], ret, {UC_X86_REG_ECX: VILLAGE}, stack=(ret, RECORD, job))
+    else:
+        m.run(G[game]["disp"], ret, {UC_X86_REG_ECX: OBJ}, stack=(ret, job))
+    return m
 
 
-def _emulator():
-    pe = pefile.PE(str(TEST_DLL))
-    base = pe.OPTIONAL_HEADER.ImageBase
-    exports = {e.name.decode(): base + e.address for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name}
-    image = pe.get_memory_mapped_image()
-    mu = Uc(UC_ARCH_X86, UC_MODE_32)
-    mu.mem_map(base, (len(image) + 0xFFFF) & ~0xFFFF)
-    mu.mem_write(base, image)
-    mu.mem_map(STACK - 0x10000, 0x20000)
-    mu.mem_map(VILLAGE, 0x1000000)
-    mu.mem_map(STATE, 0x100000)
-    mu.mem_map(RECORD, 0x10000)
-    return mu, exports
+def jobs(m):
+    return [job for _, job in m.asked]
 
 
-ROLL_FN = 0x7D000000        # a scripted VvfpFixHutsRoll: counts its calls, answers ROLL_FN+0x40
-ROLL_COUNT = ROLL_FN + 0x80
+def run_until(m, start, targets, regs, stack=()):
+    """Run from `start` until one of `targets` is reached; returns it."""
+    reached = []
+
+    def hook(mu, address, size, user_data):
+        reached.append(address)
+        mu.emu_stop()
+    handles = [m.mu.hook_add(UC_HOOK_CODE, hook, begin=t, end=t) for t in targets]
+    try:
+        m.stop_at = None
+        m.mu.reg_write(UC_X86_REG_ESP, 0x0F000000 - 0x1000 - 4 * len(stack))
+        if stack:
+            m.mu.mem_write(0x0F000000 - 0x1000 - 4 * len(stack), struct.pack(f"<{len(stack)}I", *stack))
+        for reg, value in regs.items():
+            m.mu.reg_write(reg, value)
+        m.error = None
+        m.mu.emu_start(start, 0, count=200000)
+        if m.error and not reached:
+            raise AssertionError(m.error)
+    finally:
+        for h in handles:
+            m.mu.hook_del(h)
+    return reached[0] if reached else m.mu.reg_read(UC_X86_REG_EIP)
 
 
-def _set_roll(mu, ex, answer: int) -> None:
-    """What the fix-huts bridge does: VvfpWorkFirstSetRoll(its roll)."""
-    mu.mem_map(ROLL_FN, 0x1000)
-    mu.mem_write(ROLL_FN, b"\xFF\x05" + struct.pack("<I", ROLL_COUNT) + b"\xB8" + struct.pack("<I", answer) + b"\xC3")
-    ret, esp = STACK - 0x100, STACK - 0x300
-    mu.mem_write(ret, b"\xF4")
-    mu.mem_write(esp, struct.pack("<2I", ret, ROLL_FN))
-    mu.reg_write(UC_X86_REG_ESP, esp)
-    mu.emu_start(ex["VvfpWorkFirstSetRoll"], ret, count=1000)
+def _manifest(game):
+    return json.loads((ROOT / "data" / f"{game}_work_first_feature.json").read_text(encoding="utf-8"))
 
 
-def _probe(game_no: int):
-    mu, ex = _emulator()
-    buf, ret, esp = STACK - 0x8000, STACK - 0x100, STACK - 0x200
-    mu.mem_write(ret, b"\xF4")
-    mu.mem_write(esp, struct.pack("<6I", ret, game_no, buf, buf + 0x10, buf + 0x30, buf + 0x50))
-    mu.reg_write(UC_X86_REG_ESP, esp)
-    mu.emu_start(ex["VvfpWorkFirstProbeSite"], ret, count=10000)
-    n = mu.reg_read(UC_X86_REG_EAX)
-    va, = struct.unpack("<I", mu.mem_read(buf, 4))
-    stub, = struct.unpack("<I", mu.mem_read(buf + 0x50, 4))
-    return n, va, bytes(mu.mem_read(buf + 0x10, n)), bytes(mu.mem_read(buf + 0x30, n)), stub
-
-
-class DispatchRun:
-    """Enter a dispatcher stub as `call dispatcher` from `call_site` would.
-    The dispatcher's body (after the displaced bytes) is scripted: it records
-    the job it was asked for and answers `starts(job)`."""
-
-    def __init__(self, game: str, call_site: int, selected: int, requested: int,
-                 huts_done: bool, starts, level: int = 3, roll: int = 1):
-        g = G[game]
-        stub = _probe(GAME_NO[game])[4]
-        mu, ex = _emulator()
-        _set_roll(mu, ex, roll)
-        if game == "vv1":
-            mu.mem_write(VILLAGE + 0x3E010, struct.pack("<I", STATE))
-            for off in (0x9FE8, 0x9FF0, 0x9FF8):
-                mu.mem_write(STATE + off, bytes([1]))
-            if not huts_done:
-                mu.mem_write(STATE + 0x9FF0, bytes([0]))
-            mu.mem_write(VILLAGE + INDEX * 0x3D8 + 0x3D0, struct.pack("<i", selected))
-            mu.mem_write(STATE + 0xA2CC, struct.pack("<i", level))
-        elif game == "vv2":
-            mu.mem_write(VILLAGE + 0xE574D4, struct.pack("<I", STATE))
-            for off in (0x2E818, 0x2E820, 0x2E828):
-                mu.mem_write(STATE + off, bytes([1]))
-            if not huts_done:
-                mu.mem_write(STATE + 0x2E828, bytes([0]))
-            mu.mem_write(VILLAGE + INDEX * 0xE48C + 0x7F8, struct.pack("<i", selected))
-            mu.mem_write(STATE + 0x2EA84, struct.pack("<i", level))
-        else:
-            mu.mem_write(VILLAGE + 0x1B88, struct.pack("<I", RECORD))
-            mu.mem_write(RECORD + (0x1C70 if game == "vv4" else 0x1C74), struct.pack("<i", selected))
-        self.huts_done, self.starts, self.game, self.g = huts_done, starts, game, g
-        self.body = g["disp"] + len(bytes.fromhex(g["stock"]))
-        self.ret = call_site + 5
-        for va in (self.ret, self.body) + ((HUT_PREDICATE[game][0],) if game in HUT_PREDICATE else ()):
-            try:
-                mu.mem_map(va & ~0xFFF, 0x1000)
-            except Exception:
-                pass
-            mu.mem_write(va, b"\xC3")
-        esp = STACK - 0x400
-        args = struct.pack("<2I", INDEX, requested) if g["ret"] == 8 else struct.pack("<I", requested)
-        mu.mem_write(esp, struct.pack("<I", self.ret) + args)
-        mu.reg_write(UC_X86_REG_ESP, esp)
-        mu.reg_write(UC_X86_REG_ECX, VILLAGE)
-        mu.reg_write(UC_X86_REG_EBX, 0x11111111)
-        mu.reg_write(UC_X86_REG_ESI, 0x22222222)
-        mu.reg_write(UC_X86_REG_EDI, 0x33333333)
-        self.asked, self.exit, self.stock_frame = [], None, None
-        mu.hook_add(UC_HOOK_CODE, self._hook)
-        mu.emu_start(stub, 0, count=200000)
-        self.mu, self.esp_before = mu, esp
-
-    def _hook(self, mu, address, size, user_data):
-        g = self.g
-        if self.game in HUT_PREDICATE and address == HUT_PREDICATE[self.game][0]:
-            sp = mu.reg_read(UC_X86_REG_ESP)
-            ret, arg = struct.unpack("<2I", mu.mem_read(sp, 8))
-            done = self.huts_done or arg != HUT_PREDICATE[self.game][1] + 3
-            mu.reg_write(UC_X86_REG_EAX, 1 if done else 0)
-            mu.reg_write(UC_X86_REG_ESP, sp + 8)
-            mu.reg_write(UC_X86_REG_EIP, ret)
-        elif address == self.body:
-            # The body runs after the displaced bytes, which moved esp by the
-            # stock prologue's own amount; the caller's frame sits above it.
-            sp = mu.reg_read(UC_X86_REG_ESP)
-            shift = {"vv1": 0, "vv2": 0, "vv3": 0xA0, "vv4": 0x98, "vv5": 0x94}[self.game]
-            frame = sp + shift
-            ret, = struct.unpack("<I", mu.mem_read(frame, 4))
-            job_at = frame + (8 if g["ret"] == 8 else 4)
-            job, = struct.unpack("<i", mu.mem_read(job_at, 4))
-            self.asked.append(job)
-            self.stock_frame = (ret, mu.reg_read(UC_X86_REG_ECX))
-            # the displaced `mov eax, [esp+N]` (not VV5) loads the job argument
-            if self.game != "vv5":
-                assert mu.reg_read(UC_X86_REG_EAX) == job, (hex(mu.reg_read(UC_X86_REG_EAX)), job)
-            mu.reg_write(UC_X86_REG_EAX, 1 if self.starts(job) else 0)
-            mu.reg_write(UC_X86_REG_ESP, frame + 4 + g["ret"])
-            mu.reg_write(UC_X86_REG_EIP, ret)
-        elif address == self.ret:
-            self.exit = address
-            mu.emu_stop()
-
-    def reg(self, r):
-        return self.mu.reg_read(r)
-
-    def rolls(self) -> int:
-        return struct.unpack("<I", self.mu.mem_read(ROLL_COUNT, 4))[0]
-
-
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
 class SiteTests(unittest.TestCase):
-    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
-    def test_the_dispatcher_entries_and_the_scheduler_call_sites(self):
-        for game, g in G.items():
+    def test_every_runtime_site_is_stock_and_installed(self):
+        for game in ("vv1", "vv2", "vv4", "vv5"):
+            m = world(game)
+            for site in _manifest(game)["runtime_detours"]:
+                va = int(site["va"], 16)
+                stock = bytes.fromhex(site["stock_bytes"])
+                with self.subTest(game=game, va=hex(va)):
+                    self.assertEqual(_stock_bytes_at(game, va, len(stock)), stock)
+                    code = bytes(m.mu.mem_read(va, len(stock)))
+                    if va == 0x439C80:
+                        # A New Home's picker gate: cmp esi, 1 -> cmp esi, 5; the jle is kept.
+                        self.assertEqual(code, bytes.fromhex("83FE05") + stock[3:])
+                        continue
+                    self.assertIn(code[0], (0xE9, 0xE8))
+                    self.assertEqual(code[0], 0xE8 if stock[0] == 0xE8 else 0xE9, "a call stays a call")
+                    target = (va + 5 + struct.unpack("<i", code[1:5])[0]) & 0xFFFFFFFF
+                    self.assertTrue(WORK_FIRST_BASE <= target < WORK_FIRST_BASE + 0x1000000, hex(target))
+                    self.assertEqual(code[5:], b"\x90" * (len(stock) - 5))
+
+    def test_a_new_home_installs_beside_birth_control(self):
+        # Birth Control (vv1_birth_control) already makes the picker gate cmp esi, 5 and routes its jle
+        # into its own page: the gate is left as it is and every other site still installs (it used to
+        # refuse the whole install, so Work First did nothing in A New Home with Birth Control ticked).
+        from test_builders_decision_roll import ROWS
+        m = world("vv1", rows=tuple(ROWS["vv1"]) + ("vv1_birth_control",))
+        gate = bytes(m.mu.mem_read(0x439C80, 9))
+        self.assertEqual(gate[:3], bytes.fromhex("83FE05"))
+        self.assertEqual(gate[3], 0xE9, "Birth Control's jmp into its page, untouched")
+        for site in _manifest("vv1")["runtime_detours"]:
+            va = int(site["va"], 16)
+            if va == 0x439C80:
+                continue
+            with self.subTest(va=hex(va)):
+                code = bytes(m.mu.mem_read(va, 5))
+                target = (va + 5 + struct.unpack("<i", code[1:5])[0]) & 0xFFFFFFFF
+                self.assertTrue(WORK_FIRST_BASE <= target < WORK_FIRST_BASE + 0x1000000, hex(target))
+
+    def test_the_scheduler_call_sites(self):
+        for game, rets in LIVE.items():
+            for ret in rets:
+                with self.subTest(game=game, ret=hex(ret)):
+                    code = _stock_bytes_at(game, ret - 5, 5)
+                    self.assertEqual(code[0], 0xE8)
+                    self.assertEqual((ret + struct.unpack("<i", code[1:])[0]) & 0xFFFFFFFF, G[game]["disp"])
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class LiveScheduler(unittest.TestCase):
+    def test_the_own_job_first_for_every_practised_job(self):
+        for game in GAMES:
+            for who, own in _own_jobs(game):
+                other = _other(game, own)
+                for ret in LIVE[game]:
+                    with self.subTest(game=game, who=who, ret=hex(ret)):
+                        m = live(world(game, selected=own, pick=other), game, ret, other)
+                        self.assertEqual(jobs(m), [own])
+                        self.assertEqual(m.mu.reg_read(UC_X86_REG_EAX) & 0xFF, 1)
+                        # Nothing of theirs to do: the scheduler's own request.
+                        m = live(world(game, selected=own, pick=other, food=200,
+                                       starts=lambda j, o=own: j != o), game, ret, other)
+                        self.assertEqual(jobs(m), [own, other])
+                        self.assertEqual(m.asked[-1][0], ret, "the request with the scheduler's own frame")
+
+    def test_a_failed_roll_or_another_caller_is_the_request_alone(self):
+        for game in GAMES:
+            g = G[game]
+            own = g["healing"]
+            other = g["building"]
+            with self.subTest(game=game, case="roll"):
+                m = live(world(game, selected=own, force=FORCE_FAIL), game, LIVE[game][0], other)
+                self.assertEqual(m.asked, [(LIVE[game][0], other)])
+            with self.subTest(game=game, case="caller"):
+                m = live(world(game, selected=own), game, OTHER_CALLER[game], other)
+                self.assertEqual(m.asked, [(OTHER_CALLER[game], other)])
+                self.assertEqual(m.draws("fix_huts"), 0)
+
+    def test_parenting_is_never_put_first(self):
+        for game in GAMES:
+            g = G[game]
+            for ret in LIVE[game]:
+                with self.subTest(game=game, ret=hex(ret)):
+                    m = live(world(game, selected=g["parenting"]), game, ret, g["healing"])
+                    self.assertEqual(m.asked, [(ret, g["healing"])])
+                    self.assertEqual(m.draws("fix_huts"), 0)
+
+    def test_the_games_own_parenting_pick_is_never_displaced(self):
+        # Review on #807: a worker with a ticked job whose own pick is Parenting (an embrace attempt) must
+        # still make that attempt -- never their job instead -- so births stay the game's and Birth Control's.
+        for game in GAMES:
+            g = G[game]
+            for who, own in _own_jobs(game):
+                for ret in LIVE[game]:
+                    with self.subTest(game=game, who=who, ret=hex(ret)):
+                        m = live(world(game, selected=own, force=FORCE_PASS), game, ret, g["parenting"])
+                        self.assertEqual(jobs(m), [g["parenting"]])
+                        self.assertEqual(m.asked[0][0], ret, "the scheduler's own request, unchanged")
+                        self.assertEqual(m.draws("fix_huts"), 0)
+
+    def test_research_never_takes_the_place_of_farming(self):
+        # The later games' low-food scheduler asks for Farming first.
+        for game in GAMES:
+            g = G[game]
             with self.subTest(game=game):
-                n = len(bytes.fromhex(g["stock"]))
-                self.assertEqual(_stock(game, g["disp"], n), bytes.fromhex(g["stock"]))
-                for call in g["calls"]:
-                    code = _stock(game, call, 5)
-                    self.assertEqual(code[0], 0xE8, hex(call))
-                    rel, = struct.unpack("<i", code[1:])
-                    self.assertEqual(call + 5 + rel, g["disp"], hex(call))
-                if game != "vv3":
-                    k, va, stock, patched, stub = _probe(GAME_NO[game])
-                    self.assertEqual((va, stock), (g["disp"], bytes.fromhex(g["stock"])))
-                    rel, = struct.unpack("<i", patched[1:5])
-                    self.assertEqual(va + 5 + rel, stub)
-                    self.assertEqual(patched[5:], b"\x90" * (n - 5))
+                m = live(world(game, selected=g["research"]), game, LIVE[game][0], g["farming"])
+                self.assertEqual(m.asked, [(LIVE[game][0], g["farming"])])
+                m = live(world(game, selected=g["research"]), game, LIVE[game][0], g["healing"])
+                self.assertEqual(jobs(m), [g["research"]])
+
+    def test_a_new_home_farmer_only_where_the_farming_case_starts_something(self):
+        # A New Home's Farming case reports "started" with nothing started
+        # at level 1 with nothing to forage: no farmer is put first there.
+        g = G["vv1"]
+        for level, forage, first in ((1, 0, False), (1, 5, True), (2, 0, True), (3, 0, True)):
+            with self.subTest(level=level, forage=forage):
+                m = world("vv1", selected=g["farming"], farm_level=level)
+                m.w32(STATE + 0xA2F4, forage)
+                live(m, "vv1", LIVE["vv1"][0], g["healing"])
+                self.assertEqual(jobs(m)[0] == g["farming"], first)
 
 
-class DispatcherStubTests(unittest.TestCase):
-    GAMES = ("vv1", "vv2", "vv4", "vv5")
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class NewBelieversDevotion(unittest.TestCase):
+    """Item 98: devotees practise Devotion while you play too -- but never on
+    top of Easier Devotee Training, which already sends them Honoring."""
 
-    def other_job(self, g):
-        return next(j for j in range(0, 6) if j not in (g["building"], g["healing"]))
+    def test_live_devotion_without_easier_devotee_training(self):
+        for ret in LIVE["vv5"]:
+            with self.subTest(ret=hex(ret)):
+                m = live(world("vv5", selected=5), "vv5", ret, 3)
+                self.assertEqual(jobs(m), [5])
 
-    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
-    def test_the_own_job_is_tried_first_and_a_start_is_returned(self):
-        for game in self.GAMES:
-            g = G[game]
-            for own in (g["building"], g["healing"]):
-                for call in g["calls"]:
-                    with self.subTest(game=game, own=own, call=hex(call)):
-                        r = DispatchRun(game, call, own, self.other_job(g), huts_done=False,
-                                        starts=lambda job, own=own: job == own)
-                        self.assertEqual(r.asked, [own], "only the own job, and it started")
-                        self.assertEqual(r.exit, call + 5)
-                        self.assertEqual(r.reg(UC_X86_REG_EAX) & 0xFF, 1, "started")
-                        self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before + 4 + g["ret"], "ret N")
-                        self.assertEqual(r.reg(UC_X86_REG_ECX), VILLAGE)
-                        self.assertEqual((r.reg(UC_X86_REG_EBX), r.reg(UC_X86_REG_ESI), r.reg(UC_X86_REG_EDI)),
-                                         (0x11111111, 0x22222222, 0x33333333))
+    def test_with_easier_devotee_training_the_game_decides(self):
+        for ret in LIVE["vv5"]:
+            with self.subTest(ret=hex(ret)):
+                m = world("vv5", selected=5, pick=3)
+                # Easier Devotee Training's jmp in place of the stock test.
+                m.mu.mem_write(0x46F1DD, bytes.fromhex("E91E520200") + b"\x90" * 4)
+                live(m, "vv5", ret, 3)
+                self.assertEqual(m.asked, [(ret, 3)])
+                # ... while in catch-up the devotee is still put first.
+                m.asked = []
+                m.decide()
+                self.assertEqual([j for _, j in m.asked][:1], [5])
 
-    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
-    def test_with_nothing_of_their_own_to_do_the_stock_request_runs(self):
-        # Codex #462: never leave the villager idle -- the scheduler's own
-        # request still runs when the own job starts nothing.
-        for game in self.GAMES:
-            g = G[game]
-            requested = self.other_job(g)
-            for started in (True, False):
-                with self.subTest(game=game, stock_request_starts=started):
-                    r = DispatchRun(game, g["calls"][0], g["building"], requested, huts_done=False,
-                                    starts=lambda job: started and job == requested)
-                    self.assertEqual(r.asked, [g["building"], requested])
-                    self.assertEqual(r.exit, g["calls"][0] + 5)
-                    self.assertEqual(r.reg(UC_X86_REG_EAX) & 0xFF, 1 if started else 0)
-                    self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before + 4 + g["ret"])
-                    self.assertEqual(r.stock_frame, (g["calls"][0] + 5, VILLAGE),
-                                     "the stock request sees the scheduler's own frame and ecx")
 
-    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
-    def test_healers_come_first_even_with_every_hut_built(self):
-        # The owner, v1.35.38: "For healers, they should study medicine at all
-        # food levels, when they can study medicine" -- not tied to the huts,
-        # unlike builders.
-        for game in self.GAMES:
-            g = G[game]
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class OnlyAboveSkill5(unittest.TestCase):
+    """The owner (2026-11-18): "Villagers should go to their chosen job on
+    their own only above skill 5 in all 5 games."  A New Home's picker gate
+    (0x439C80) becomes the others' rule; the others are untouched, and
+    nobody is put first at skill 5 or less."""
+
+    def picker(self, skill, rows=None):
+        m = world("vv1", rows=rows) if rows is None else world("vv1", rows=rows, runtime=False)
+        m.leaves[0x402F10] = Leaf(1, lambda m, a, c, r: 0, cdecl=True, name="rand")
+        where = run_until(m, 0x439C80, (0x439C89, 0x439B22), {UC_X86_REG_ESI: skill})
+        return "goes on" if where == 0x439C89 else "no job"
+
+    def test_a_new_home_gate_is_above_5(self):
+        for skill, expected in ((0, "no job"), (2, "no job"), (5, "no job"), (6, "goes on")):
+            with self.subTest(skill=skill):
+                self.assertEqual(self.picker(skill), expected)
+
+    def test_the_stock_a_new_home_gate_was_above_1(self):
+        self.assertEqual(_stock_bytes_at("vv1", 0x439C80, 9).hex().upper(), "83FE010F8E99FEFFFF")
+        for skill, expected in ((1, "no job"), (2, "goes on"), (5, "goes on")):
+            with self.subTest(skill=skill):
+                self.assertEqual(self.picker(skill, rows=()), expected)
+
+    def test_the_other_games_gates_are_untouched(self):
+        for game, va in (("vv2", 0x449E0F), ("vv3", 0x45986D), ("vv4", 0x461E69), ("vv5", 0x46A594)):
             with self.subTest(game=game):
-                r = DispatchRun(game, g["calls"][0], g["healing"], self.other_job(g), huts_done=True,
-                                starts=lambda job: job == g["healing"])
-                self.assertEqual(r.asked, [g["healing"]])
-                self.assertEqual(r.reg(UC_X86_REG_EAX) & 0xFF, 1)
-                r = DispatchRun(game, g["calls"][0], g["healing"], self.other_job(g), huts_done=True,
-                                starts=lambda job: False)
-                self.assertEqual(r.asked, [g["healing"], self.other_job(g)], "can't study: the stock request")
+                m = world(game)
+                self.assertEqual(bytes(m.mu.mem_read(va, 3)).hex().upper(), "83FE05")
 
-    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
-    def test_below_level_3_a_builder_with_every_hut_built_comes_first(self):
-        # A New Home / The Lost Children: below Building level 3 a built hut is
-        # hut work even once every one is built (Codex on #464).
-        for game in ("vv1", "vv2"):
+    def test_nobody_is_put_first_at_skill_5_or_less(self):
+        for game in GAMES:
             g = G[game]
-            with self.subTest(game=game):
-                r = DispatchRun(game, g["calls"][0], g["building"], self.other_job(g), huts_done=True,
-                                starts=lambda job: job == g["building"], level=2)
-                self.assertEqual(r.asked, [g["building"]])
-
-    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
-    def test_everything_else_runs_the_stock_request_alone(self):
-        for game in self.GAMES:
-            g = G[game]
-            other = self.other_job(g)
-            cases = [
-                (g["calls"][0], g["building"], other, True),     # all huts built
-                (g["calls"][0], other, g["building"], False),     # not a builder or healer
-                (g["calls"][0], g["building"], g["building"], False),  # already the own job
-                (0x401000, g["healing"], other, False),           # another caller
-            ]
-            for call, selected, requested, huts_done in cases:
-                with self.subTest(game=game, call=hex(call), selected=selected, requested=requested,
-                                  huts_done=huts_done):
-                    r = DispatchRun(game, call, selected, requested, huts_done, starts=lambda job: True)
-                    self.assertEqual(r.asked, [requested])
-                    self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before + 4 + g["ret"])
+            for skill, first in ((5, False), (6, True)):
+                with self.subTest(game=game, skill=skill):
+                    m = live(world(game, selected=g["healing"], skill=skill), game, LIVE[game][0], g["building"])
+                    self.assertEqual(jobs(m)[0] == g["healing"], first)
 
 
-class RollTests(unittest.TestCase):
-    GAMES = ("vv1", "vv2", "vv4", "vv5")
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class NoHutStartedByNobodysDrop(unittest.TestCase):
+    """The owner (2026-11-18): builders never start a population hut on their
+    own; a hut is started only once the player has dropped a builder on it,
+    and then builders continue it.  The Building case's hut start (A New Home
+    0x44753C, huts 9 and 10; The Lost Children 0x45FF11, hut 24), run from
+    its call with the game's registers."""
 
-    def other_job(self, g):
-        return next(j for j in range(0, 6) if j not in (g["building"], g["healing"]))
+    def test_a_new_home(self):
+        cases = [(9, 0, 0, "nothing"), (9, 1, 0, "started"), (9, 0, 0xB, "started"),
+                 (10, 1, 0, "nothing"), (10, 2, 0, "started"), (10, 1, 0xC, "started"), (10, 1, 0xB, "nothing")]
+        for hut, progress, activity, expected in cases:
+            with self.subTest(hut=hut, progress=progress, activity=activity):
+                self.assertEqual(self.call_site("vv1", hut, progress, activity), expected)
 
-    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
-    def test_a_failed_roll_runs_the_stock_request_alone(self):
-        for game in self.GAMES:
-            g = G[game]
-            for own, huts_done in ((g["building"], False), (g["healing"], True)):
-                for call in g["calls"]:
-                    with self.subTest(game=game, own=own, call=hex(call)):
-                        requested = self.other_job(g)
-                        r = DispatchRun(game, call, own, requested, huts_done=huts_done,
-                                        starts=lambda job: job in (own, requested), roll=0)
-                        self.assertEqual(r.asked, [requested], "the scheduler's own request, alone")
-                        self.assertEqual(r.rolls(), 1)
-                        self.assertEqual(r.stock_frame, (call + 5, VILLAGE))
-                        self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before + 4 + g["ret"])
-                        self.assertEqual((r.reg(UC_X86_REG_EBX), r.reg(UC_X86_REG_ESI), r.reg(UC_X86_REG_EDI)),
-                                         (0x11111111, 0x22222222, 0x33333333))
+    def test_the_lost_children(self):
+        for progress, task, expected in ((0, 0, "nothing"), (1, 0, "started"), (205, 0, "started"),
+                                         (0, 0xB, "started"), (0, 0xC, "nothing")):
+            with self.subTest(progress=progress, task=task):
+                self.assertEqual(self.call_site("vv2", 24, progress, task), expected)
 
-    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
-    def test_the_roll_is_asked_once_and_only_where_the_stub_would_act(self):
-        for game in self.GAMES:
-            g = G[game]
-            other = self.other_job(g)
-            with self.subTest(game=game, acts=True):
-                r = DispatchRun(game, g["calls"][0], g["building"], other, huts_done=False,
-                                starts=lambda job: False)
-                self.assertEqual((r.asked, r.rolls()), ([g["building"], other], 1))
-            for call, selected, requested, huts_done in (
-                    (g["calls"][0], g["building"], other, True),
-                    (g["calls"][0], other, g["building"], False),
-                    (g["calls"][0], g["building"], g["building"], False),
-                    (0x401000, g["healing"], other, False)):
-                with self.subTest(game=game, call=hex(call), selected=selected, requested=requested):
-                    r = DispatchRun(game, call, selected, requested, huts_done, starts=lambda job: True)
-                    self.assertEqual(r.rolls(), 0)
-
-    def test_the_bridge_hands_over_the_fix_huts_roll_before_installing(self):
-        source = (ROOT / "native/vvfp_fix_huts/vvfp_fix_huts.c").read_text(encoding="utf-8")
-        bridge = source.split("static void work_first_bridge(int game_id) {", 1)[1].split("\n}\n", 1)[0]
-        self.assertLess(bridge.index('"VvfpWorkFirstSetRoll"'), bridge.index('"VvfpWorkFirstInstall"'))
-        self.assertIn("set_roll(VvfpFixHutsRoll);", bridge)
-        own = (ROOT / "native/vvfp_work_first/vvfp_work_first.c").read_text(encoding="utf-8")
-        self.assertIn('GetModuleHandleA("VVFP Fix Huts.dll")', own, "The Secret City: looked up by name")
-        self.assertIn('"VvfpFixHutsRoll"', own)
+    def call_site(self, game, hut, progress, activity):
+        """Run the dispatcher's own `push flag; push hut; push index; mov ecx, village; call` block."""
+        m = world(game)
+        if game == "vv1":
+            m.w32(STATE + 0x9F9C + 8 * hut, progress)
+            m.w8(STATE + 0x9FA0 + 8 * hut, 0)
+            m.w32(VILLAGE + INDEX * 0x3D8 + 0x3B8, activity)
+            block, build, nothing = 0x447536, 0x442090, 0x447901
+            regs = {UC_X86_REG_EBX: 1, UC_X86_REG_ESI: VILLAGE, UC_X86_REG_EBP: INDEX}
+            if hut == 10:
+                block = None
+        else:
+            m.w32(STATE + 0x2E814, progress)
+            m.w8(STATE + 0x2E818, 0)
+            m.w32(VILLAGE + INDEX * 0xE48C + 0x7E0, activity)
+            block, build, nothing = 0x45FF0B, 0x457130, 0x46004C
+            regs = {UC_X86_REG_EBX: 1, UC_X86_REG_ESI: VILLAGE, UC_X86_REG_EDI: INDEX}
+        stack = (0xE0, 0xEB, 0xEB0, 0xE51)          # the dispatcher's saved edi, ebp, ebx, esi
+        if block is None:
+            # Hut 10 enters the hut-9 tail as Builders Fix Huts does: push ebx; push 10; jmp 0x447539.
+            stack = (10, 1) + stack
+            block = 0x447539
+        where = run_until(m, block, (build, nothing), regs, stack=stack)
+        if where == build:
+            ret, index, h, flag = struct.unpack("<4I", m.mu.mem_read(m.mu.reg_read(UC_X86_REG_ESP), 16))
+            self.assertEqual((index, h, flag), (INDEX, hut, 1))
+            self.assertEqual(ret, (0x447541 if game == "vv1" else 0x45FF16), "the stock call's return")
+            return "started"
+        top = struct.unpack("<4I", m.mu.mem_read(m.mu.reg_read(UC_X86_REG_ESP), 16))
+        self.assertEqual(top, stack[-4:], "the dispatcher's frame, as at its 'nothing' exit")
+        return "nothing"
 
 
-class SecretCityTests(unittest.TestCase):
-    def setUp(self):
-        m = json.loads((ROOT / "data" / "vv3_builders_fix_huts_feature.json").read_text(encoding="utf-8"))
-        self.overlay = m["pe_append_transaction"]["composition_overlays"]["vv3_enable_origins_exclusive_features"]
-        self.page = bytes.fromhex(self.overlay["append_bytes"])
-        self.base = int(self.overlay["page_virtual_address"], 16)
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class CatchUpOffers(unittest.TestCase):
+    """Items 84 and 101: the Farming case's `cmp byte [game+flag], bl; jne
+    skip` -- in catch-up a selected farmer is offered the fruit trip / noni on
+    the decision's roll; while you play the stock offer."""
 
-    def test_the_site_patch(self):
-        (patch,) = [p for p in self.overlay["hook_patches"] if p["offset"] == "0x5AF00"]
-        self.assertEqual(bytes.fromhex(patch["before"]), _stock("vv3", 0x45AF00, 10))
-        after = bytes.fromhex(patch["after"])
-        rel, = struct.unpack("<i", after[1:5])
-        self.assertEqual(0x45AF00 + 5 + rel, self.base + 0x200)
-        self.assertEqual(after[5:], b"\x90" * 5)
-        self.assertIn(b"VVFP Work First.dll\0", self.page)
-        self.assertIn(b"VvfpWorkFirstFirst\0", self.page)
+    SITES = {"vv4": (0x463A30, 0x463A38, 0x463A43, 0x171A4), "vv5": (0x46C5CA, 0x46C5D2, 0x46C5D8, 0x17E10)}
+    GAME_OBJ = STATE
 
-    def _run(self, answer, requested, starts, call=0x45C275):
-        mu = Uc(UC_ARCH_X86, UC_MODE_32)
-        mu.mem_map(self.base & ~0xFFF, 0x2000)
-        mu.mem_write(self.base, self.page[:0x400])
-        mu.mem_map(0x47C000, 0x1000)
-        for iat, fn in ((0x47C074, 0x7A000000), (0x47C124, 0x7A000010), (0x47C128, 0x7A000020)):
-            mu.mem_write(iat, struct.pack("<I", fn))
-        mu.mem_map(0x7A000000, 0x1000)
-        mu.mem_write(0x7A000000, b"\xC2\x04\x00" + b"\x90" * 13 + b"\xC2\x04\x00" + b"\x90" * 13 + b"\xC2\x08\x00")
-        mu.mem_map(0x7B000000, 0x1000)
-        mu.mem_write(0x7B000000, b"\xC3")
-        mu.mem_map(0x45A000, 0x1000)
-        mu.mem_write(0x45AF0A, b"\xC3")
-        mu.mem_map(0x45C000, 0x1000)
-        ret = call + 5
-        mu.mem_write(ret, b"\xC3")
-        mu.mem_map(STACK - 0x10000, 0x20000)
-        esp = STACK - 0x400
-        mu.mem_write(esp, struct.pack("<3I", ret, RECORD, requested))
-        mu.reg_write(UC_X86_REG_ESP, esp)
-        mu.reg_write(UC_X86_REG_ECX, 0x44444444)
-        state = {"exit": None, "args": None, "asked": []}
+    def offer(self, game, catching_up, selected, force=FORCE_PASS):
+        site, yes, no, flag = self.SITES[game]
+        m = world(game, selected=selected, force=force)
+        m.w8(self.GAME_OBJ + flag, 1 if catching_up else 0)
+        m.leaves[0x425950] = Leaf(0, lambda m, a, c, r: self.GAME_OBJ, name="game")     # what follows the skip (VV5)
+        where = run_until(m, site, (yes, no), {UC_X86_REG_EAX: self.GAME_OBJ, UC_X86_REG_EBX: 0,
+                                                UC_X86_REG_ESI: OBJ})
+        self.assertEqual(m.mu.reg_read(UC_X86_REG_ESI), OBJ)
+        return "offer" if where == yes else "skip" if where == no else hex(where)
 
-        def hook(mu, address, size, user_data):
-            sp = mu.reg_read(UC_X86_REG_ESP)
-            if address in (0x7A000000, 0x7A000010):
-                mu.reg_write(UC_X86_REG_EAX, 0 if answer is None else 0x10000000)
-            elif address == 0x7A000020:
-                mu.reg_write(UC_X86_REG_EAX, 0 if answer is None else 0x7B000000)
-            elif address == 0x7B000000:
-                state["args"] = struct.unpack("<4I", mu.mem_read(sp + 4, 16))
-                mu.reg_write(UC_X86_REG_EAX, answer & 0xFFFFFFFF)
-            elif address == 0x45AF0A:
-                frame = sp + 0xA0
-                r, rec, job = struct.unpack("<3I", mu.mem_read(frame, 12))
-                state["asked"].append(job)
-                assert rec == RECORD and mu.reg_read(UC_X86_REG_ECX) == 0x44444444
-                assert mu.reg_read(UC_X86_REG_EAX) == job
-                mu.reg_write(UC_X86_REG_EAX, 1 if starts(job) else 0)
-                mu.reg_write(UC_X86_REG_ESP, frame + 12)
-                mu.reg_write(UC_X86_REG_EIP, r)
-            elif address == ret:
-                state["exit"] = address
-                mu.emu_stop()
+    def test_live_is_the_stock_offer(self):
+        for game in self.SITES:
+            for selected in (0, 2):
+                with self.subTest(game=game, selected=selected):
+                    self.assertEqual(self.offer(game, False, selected), "offer")
 
-        mu.hook_add(UC_HOOK_CODE, hook)
-        mu.emu_start(self.base + 0x200, 0, count=20000)
-        return state, mu, esp, ret
+    def test_catch_up_offers_it_to_a_farmer_only(self):
+        for game in self.SITES:
+            with self.subTest(game=game, who="farmer"):
+                self.assertEqual(self.offer(game, True, 0), "offer")
+            with self.subTest(game=game, who="healer"):
+                self.assertEqual(self.offer(game, True, 2), "skip")
+            with self.subTest(game=game, who="farmer, roll failed"):
+                self.assertEqual(self.offer(game, True, 0, force=FORCE_FAIL), "skip")
 
-    def test_the_own_job_first_then_the_stock_request(self):
-        state, mu, esp, ret = self._run(answer=4, requested=0, starts=lambda j: j == 4)
-        self.assertEqual(state["args"], (3, ret, RECORD, 0), "VvfpWorkFirstFirst(3, caller, record, job)")
-        self.assertEqual(state["asked"], [4])
-        self.assertEqual(mu.reg_read(UC_X86_REG_EAX) & 0xFF, 1)
-        self.assertEqual(mu.reg_read(UC_X86_REG_ESP), esp + 12, "ret 8")
-        state, mu, esp, ret = self._run(answer=2, requested=0, starts=lambda j: j == 0)
-        self.assertEqual(state["asked"], [2, 0], "nothing to heal: the scheduler's farming runs")
-        self.assertEqual(mu.reg_read(UC_X86_REG_EAX) & 0xFF, 1)
-        self.assertEqual(mu.reg_read(UC_X86_REG_ESP), esp + 12)
 
-    def test_minus_one_or_no_dll_runs_the_stock_request_alone(self):
-        for answer in (-1, None):
-            state, mu, esp, ret = self._run(answer=answer, requested=3, starts=lambda j: True)
-            self.assertEqual(state["asked"], [3])
-            self.assertEqual(state["exit"], ret)
-            self.assertEqual(mu.reg_read(UC_X86_REG_ESP), esp + 12)
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+class LostChildrenSewingHut(unittest.TestCase):
+    """Item 30: once the sewing hut is finished, the Building case's examine
+    pick sometimes examines it (0x45F7C0(index, 7)); otherwise the stock
+    rand(4)."""
+
+    def pick(self, finished, forced, force=FORCE_PASS):
+        m = world("vv2", force=force)
+        m.w8(STATE + 0x2E790, 1 if finished else 0)
+        m.mu.mem_write(m.exports["work_first"]["VvfpWorkFirstStats"] + 12, struct.pack("<i", forced))
+        m.leaves[0x45F7C0] = Leaf(2, lambda m, a, c, r: 0, name="examine")
+        m.leaves[0x4031A0] = Leaf(1, lambda m, a, c, r: 2, cdecl=True, name="rand")
+        m.calls = []
+        where = run_until(m, 0x4602B0, (0x4602B7, 0x4602E5),
+                          {UC_X86_REG_ESI: VILLAGE, UC_X86_REG_EDI: INDEX, UC_X86_REG_EBX: 1})
+        return where, [c[:2] for c in m.calls if c[0] in ("examine", "rand")]
+
+    def test_the_finished_sewing_hut_is_examined(self):
+        where, calls = self.pick(True, 4)
+        self.assertEqual(where, 0x4602E5)
+        self.assertEqual(calls, [("examine", (INDEX, 7))])
+
+    def test_otherwise_the_stock_pick(self):
+        for finished, forced, force in ((False, 4, FORCE_PASS), (True, 3, FORCE_PASS), (True, 4, FORCE_FAIL)):
+            with self.subTest(finished=finished, forced=forced, force=force):
+                where, calls = self.pick(finished, forced, force)
+                self.assertEqual(where, 0x4602B7)
+                self.assertEqual(calls, [("rand", (4,))])
 
 
 class RowTests(unittest.TestCase):
@@ -469,23 +429,31 @@ class RowTests(unittest.TestCase):
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("assets/work_first/VVFP Work First.dll", release)
-        for game in G:
+        for game in GAMES:
             with self.subTest(game=game):
                 rid = f"{game}_builders_and_healers_work_first"
-                m = json.loads((ROOT / "data" / f"{game}_work_first_feature.json").read_text(encoding="utf-8"))
+                m = _manifest(game)
                 self.assertIn(rid, ids)
                 self.assertTrue(default_fun_patch_selection(rid))
                 self.assertEqual(m["dependencies"], [f"{game}_builders_fix_huts"])
                 self.assertEqual(m["patches"], [])
                 self.assertEqual([c["sha256"] for c in m["companion_files"]], [sha])
                 self.assertIn("**Requires Builders Fix Huts When Idle**", m["description"])
+                self.assertIn("Villagers practise their selected job", m["description"])
+                self.assertIn("Parenting is left to the game and the Birth Control patches", m["description"])
+                self.assertNotIn("research-pick", json.dumps(m))
                 self.assertIn(f"data/{game}_work_first_feature.json", release)
                 self.assertIn(f"`{rid}`", readme)
         source = (ROOT / "native/vvfp_fix_huts/vvfp_fix_huts.c").read_text(encoding="utf-8")
-        # By full path in the patcher's folder (native/shared/patcher_files.h).
         self.assertIn('vvfp_load_patcher_dll("VVFP Work First.dll")', source)
         self.assertIn('GetProcAddress(work_first_module, "VvfpWorkFirstInstall")', source)
-        self.assertIn(b"VVFP Work First.dll", (ROOT / "assets/fix_huts/VVFP Fix Huts.dll").read_bytes())
+
+    def test_the_runtime_sites_match_the_dll(self):
+        source = (ROOT / "native/vvfp_work_first/vvfp_work_first.c").read_text(encoding="utf-8")
+        for game in ("vv1", "vv2", "vv4", "vv5"):
+            for site in _manifest(game)["runtime_detours"]:
+                with self.subTest(game=game, va=site["va"]):
+                    self.assertIn(site["va"][2:].upper() + "U", source.upper().replace("0X", ""))
 
 
 if __name__ == "__main__":

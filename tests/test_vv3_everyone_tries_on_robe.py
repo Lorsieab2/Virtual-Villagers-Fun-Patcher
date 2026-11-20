@@ -130,7 +130,7 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # (0xCB800..0xCBC00), its new nine-byte site at 0x5C229 (the low-food
     # farming test) or the PE CheckSum; nothing else moved.
     # Re-pinned when the fix-huts page gained the dispatcher stub for the
-    # Builders and Healers Work First addendum. Justified BEFORE re-pinning by
+    # Villagers Work Their Own Job First addendum. Justified BEFORE re-pinning by
     # rendering the full catalog on main (ac363f0e) and on the branch and
     # diffing byte for byte: 168 differing bytes per mode, every one inside the
     # fix-huts overlay (0xCB800..0xCBC00), the dispatcher's ten-byte entry at
@@ -260,17 +260,21 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for Picked Up Collectibles Stay Collected When Dropped (vv3_collectibles_stay_collected): without it
     # the render equals the pins before it (FB106BB0..., 9E0FEA89..., EAB765F8...); with it exactly 15 bytes differ in
     # every mode, the two area-test NOPs 0x2DEEA..0x2DEEF and 0x2DF1A..0x2DF1F and the PE CheckSum; same length.
+    # Re-pinned for Villagers Work Their Own Job First (#807): the catch-up worker's Parenting pick (0x45BF52) is no
+    # longer diverted and the dispatcher stub's protocol changed. Rendered from 3584eb2f2 and from this tree and
+    # compared byte for byte: only the PE CheckSum (0x160..0x162), 0x5BF52..0x5BF56 (back to the stock cmp/jne) and
+    # the fix-huts overlay's stubs (0xCBA0C, 0xCBA2A..0xCBAFE) differ, in every mode; same length.
     "stock": (
-        "B8B3AC4E38B24A6C0333BFFC4E3CB376AE27F840CD0D32F1B60F31266595D58E",
-        "78E20C00",
+        "590A075BD0D699B00E4A52FDF073E1518DB667407C0621B1A5C69B66709DC8CF",
+        "4A530D00",
     ),
     "collection_progression": (
-        "B099D35A7AC0D1CDF80266DB6C81BA2A55E22D295B931CFE80073C78A6ADEC02",
-        "78FB0C00",
+        "6AFD22D21396C3F5BD4E01907CCEB618A8E52612E648657EA4B65025420EB16B",
+        "4A6C0D00",
     ),
     "immediate_fixed": (
-        "8F04028774CBA8A73505F88AF675528D321E45A607360FAD840F876CD2EC6AFE",
-        "763D0D00",
+        "0DC05772B4BAC4ED0F8740C2359355E680F108CECE946DF7D6CE22E28B392FF2",
+        "48AE0D00",
     ),
     # Re-pinned for the hospital tables' Fix Vanilla Bugs bytes (052a1b81), which changed this
     # render on main without re-pinning it: the three digests above are main's own render at
