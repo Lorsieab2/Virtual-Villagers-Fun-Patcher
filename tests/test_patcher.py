@@ -881,11 +881,11 @@ class ManifestTests(unittest.TestCase):
         )
         self.assertIn('"always_clear_running_dislike": True', source.split('"vv1": {', 1)[1].split('"vv2": {', 1)[0])
 
-    def test_rejected_vv4_birth_control_is_not_selectable(self) -> None:
-        self.assertNotIn(
-            "vv4_birth_control",
-            [patch.id for patch in load_fun_patches()],
-        )
+    def test_vv4_and_vv5_birth_control_are_selectable(self) -> None:
+        # The owner (2026-11-19): catch-up babies are part of Birth Control in all five games.
+        ids = [patch.id for patch in load_fun_patches()]
+        self.assertIn("vv4_birth_control", ids)
+        self.assertIn("vv5_birth_control", ids)
 
     def test_vv1_and_vv3_birth_control_are_exposed_as_independent_patches(self) -> None:
         ids = {patch.id for patch in load_fun_patches()}

@@ -172,6 +172,17 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Change Sex and Gender Presentation (the owner, 2026-11-15: on in Owner's Defaults only).
                   or p.endswith("_gender_presentation")})
 
+    def test_birth_control_is_on_by_default_in_all_five_games(self) -> None:
+        """The owner (2026-11-19): the new The Tree of Life and New Believers Birth Control rows are ON BY DEFAULT,
+        like A New Home to The Secret City's -- ticked by the defaults, Owner's Defaults and Select All."""
+        for game in range(1, 6):
+            patch_id = f"vv{game}_birth_control"
+            with self.subTest(patch_id):
+                self.assertIn(patch_id, fun_patch_ids())
+                self.assertTrue(default_fun_patch_selection(patch_id))
+                self.assertTrue(owners_default_fun_patch_selection(patch_id))
+                self.assertTrue(select_all_fun_patch_selection(patch_id))
+
     def test_change_sex_and_gender_presentation_is_on_in_owners_defaults_only(self) -> None:
         """The owner (2026-11-15): every new option is ON in Owner's Defaults and OFF everywhere else -- the normal
         defaults and Select All leave Change Sex and Gender Presentation off in all five games."""

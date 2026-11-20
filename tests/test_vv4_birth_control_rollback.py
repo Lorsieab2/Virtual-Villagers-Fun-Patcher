@@ -24,7 +24,7 @@ class VV4BirthControlRollbackTests(unittest.TestCase):
         entry = next(item for item in manifest["fun_patches"] if item["id"] == "vv1_birth_control")
         self.assertTrue(entry.get("enabled", True))
         self.assertEqual([patch["offset"] for patch in entry["patches"]], [
-            "0x3DD03", "0x46E96", "0x47084", "0x477FA", "0x39C80", "0x39C83"
+            "0x3DD03", "0x46E96", "0x47084", "0x477FA", "0x39C80", "0x39C83", "0x2E7EF"
         ])
         self.assertIn("static verification complete", entry["status"])
         self.assertIn("generated:vv1_birth_control_page", json.dumps(entry))
@@ -92,13 +92,16 @@ class VV4BirthControlRollbackTests(unittest.TestCase):
         self.assertIn("`.vv1bc` executable page", transparency)
         self.assertIn("VV3 exact-build feature `vv3_birth_control`", transparency)
 
-    def test_vv4_entry_is_disabled_rejected_and_has_no_executable_edits(self) -> None:
+    def test_vv4_and_vv5_entries_own_only_the_catch_up_children_gate(self) -> None:
+        # The owner (2026-11-19): Parenting-ticked villagers try during catch-up "as part of birth control for
+        # all 5 games" -- the one edit the VV4/VV5 rows make (tests/test_birth_control_catch_up.py emulates it).
         manifest = json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))
-        entry = next(item for item in manifest["fun_patches"] if item["id"] == "vv4_birth_control")
-        self.assertFalse(entry["enabled"])
-        self.assertIn("rejected/superseded", entry["status"])
-        self.assertIn("untouched vanilla breeding reference", entry["status"])
-        self.assertEqual(entry["patches"], [])
+        for game, offset in (("vv4", "0x657AE"), ("vv5", "0x6E93E")):
+            with self.subTest(game=game):
+                entry = next(item for item in manifest["fun_patches"] if item["id"] == f"{game}_birth_control")
+                self.assertTrue(entry.get("enabled", True))
+                self.assertEqual([(p["offset"], p["before"], p["after"]) for p in entry["patches"]],
+                                 [(offset, "83F805", "83F863")])
 
     def test_vv4_and_vv5_are_native_no_patch_references(self) -> None:
         builds = {item.id: item for item in load_builds()}
@@ -112,10 +115,7 @@ class VV4BirthControlRollbackTests(unittest.TestCase):
             "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
         )
         self.assertEqual(builds["vv5"].size, 991232)
-        ids = {p.id for p in load_fun_patches()}
-        self.assertNotIn("vv4_birth_control", ids)
-        self.assertNotIn("vv5_birth_control", ids)
-        text = (ROOT / "docs" / "villager-breeding-overhaul-research.md").read_text(encoding="utf-8")
+        text =(ROOT / "docs" / "villager-breeding-overhaul-research.md").read_text(encoding="utf-8")
         for marker in ("0x460C10", "0x4689A0", "0x46A3C0", "0x470A10", "0x467D20", "0x465E00"):
             self.assertIn(marker, text)
         self.assertIn("VV5 is also a native no-patch reference", text)
@@ -126,8 +126,8 @@ class VV4BirthControlRollbackTests(unittest.TestCase):
         self.assertIn("VV1, VV2, and VV3 now have separate exact-build records", transparency)
         self.assertIn("VV2 exact-build feature `vv2_birth_control`", transparency)
 
-    def test_vv4_birth_control_is_absent_from_catalog_and_cli_help(self) -> None:
-        self.assertNotIn("vv4_birth_control", {patch.id for patch in load_fun_patches()})
+    def test_vv4_and_vv5_birth_control_are_in_catalog_and_cli_help(self) -> None:
+        ids = {patch.id for patch in load_fun_patches()}
         result = subprocess.run(
             [sys.executable, "src/vv_fun_patcher.py", "dry-run-all", "--help"],
             cwd=ROOT,
@@ -135,7 +135,9 @@ class VV4BirthControlRollbackTests(unittest.TestCase):
             capture_output=True,
             text=True,
         )
-        self.assertNotIn("vv4_birth_control", result.stdout)
+        for patch_id in ("vv4_birth_control", "vv5_birth_control"):
+            self.assertIn(patch_id, ids)
+            self.assertIn(patch_id, result.stdout)
 
     def test_rendered_vv4_stock_bytes_do_not_apply_former_edits(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv4")

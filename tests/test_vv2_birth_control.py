@@ -87,6 +87,11 @@ DELIVERY_SAFETY_OFFSETS = {0x3BE8E, 0x73F20}
 CHOOSER_FALLBACK_OFFSET = 0x49E36
 CHOOSER_FALLBACK_BEFORE = bytes.fromhex("6A64E86393FBFF83C40433D283F84B0F9CC2")
 CHOOSER_FALLBACK_AFTER = bytes.fromhex("EB1D90909090909090909090909090909090")
+# Catch-up babies (the owner, 2026-11-19): the catch-up job turn's Children gate, RNG(100) <= 5 -> <= 99 at file
+# 0x3B53C == VA 0x43B53C (tests/test_birth_control_catch_up.py emulates it).
+CATCH_UP_OFFSET = 0x3B53C
+CATCH_UP_BEFORE = bytes.fromhex("83F805")
+CATCH_UP_AFTER = bytes.fromhex("83F863")
 
 PREGNANCY_WRITER_CALLS = (
     (0x22006, bytes.fromhex("E875990200")),
@@ -171,8 +176,10 @@ class VV2BirthControlTests(unittest.TestCase):
                 ]
                 self.assertEqual(
                     [int(edit["offset"], 0) for edit in selected_feature],
-                    [block[0] for block in BLOCKS] + [CHOOSER_FALLBACK_OFFSET],
+                    [block[0] for block in BLOCKS] + [CHOOSER_FALLBACK_OFFSET, CATCH_UP_OFFSET],
                 )
+                self.assertEqual(selected[CATCH_UP_OFFSET:CATCH_UP_OFFSET + 3], CATCH_UP_AFTER)
+                self.assertEqual(deselected[CATCH_UP_OFFSET:CATCH_UP_OFFSET + 3], CATCH_UP_BEFORE)
                 self.assertFalse(
                     any(
                         edit["owner"] == f"feature:{FEATURE_ID}"
@@ -218,6 +225,7 @@ class VV2BirthControlTests(unittest.TestCase):
                 CHOOSER_FALLBACK_OFFSET + len(CHOOSER_FALLBACK_AFTER),
             )
         )
+        allowed.update(range(CATCH_UP_OFFSET, CATCH_UP_OFFSET + len(CATCH_UP_AFTER)))
         for mode in load_patch_modes():
             with self.subTest(mode=mode.id):
                 selected, _ = render_patched_bytes(STOCK, self.build, mode.id, [FEATURE_ID])
@@ -267,7 +275,7 @@ class VV2BirthControlTests(unittest.TestCase):
                 }
                 self.assertEqual(
                     feature_offsets,
-                    {block[0] for block in BLOCKS} | {CHOOSER_FALLBACK_OFFSET},
+                    {block[0] for block in BLOCKS} | {CHOOSER_FALLBACK_OFFSET, CATCH_UP_OFFSET},
                 )
                 safety_offsets = {
                     int(edit["offset"], 0)
@@ -320,7 +328,7 @@ class VV2BirthControlTests(unittest.TestCase):
                     if edit["owner"] == f"feature:{FEATURE_ID}"
                 ]
                 self.assertEqual(
-                    feature_offsets, [0x6488D, 0x64A8F, CHOOSER_FALLBACK_OFFSET]
+                    feature_offsets, [0x6488D, 0x64A8F, CHOOSER_FALLBACK_OFFSET, CATCH_UP_OFFSET]
                 )
 
     def test_documentation_and_transparency_are_exact_and_deterministic(self) -> None:

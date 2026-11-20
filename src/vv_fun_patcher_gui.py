@@ -247,6 +247,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Change Sex and Gender Presentation (all five games; the owner, 2026-11-15): every new option "ON in Owner's
     # Defaults and OFF everywhere else" -- off here and in Select All.
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
+    # Birth Control (The Tree of Life, New Believers; new 2026-11-19) is NOT here: the owner (2026-11-19) wants it
+    # on by default like A New Home to The Secret City's Birth Control rows, and ticked by Owner's Defaults and
+    # Select All.
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]

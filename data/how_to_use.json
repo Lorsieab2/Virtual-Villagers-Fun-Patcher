@@ -82,6 +82,7 @@
         "Lets you choose who has babies: villagers only pair up on their own when their Parenting preference is ticked.",
         "How to use: on a villager's Details screen, tick Parenting for villagers you want as parents and untick it for the rest.",
         "The game no longer picks a villager aged 50 or older as a partner.",
+        "While the game is closed (and during a Time Warp), a villager with Parenting ticked tries for a baby as often as other villagers do their jobs, instead of only now and then.",
         "Pregnancies that have already started are not affected."
       ]
     },
@@ -90,7 +91,18 @@
       "guide": [
         "Lets you choose who has babies: a villager only starts pairing up on their own with some Parenting skill AND the Parenting preference ticked.",
         "How to use: on a villager's Details screen, tick Parenting for villagers you want as parents and untick it for the rest.",
+        "While the game is closed (and during a Time Warp), a villager with Parenting ticked tries for a baby as often as other villagers do their jobs, instead of only now and then.",
         "Dropping villagers on each other, and pregnancies already started, are not affected."
+      ]
+    },
+    {
+      "ids": ["vv4_birth_control", "vv5_birth_control"],
+      "guide": [
+        "While the game is closed (and during a Time Warp), a villager with Parenting ticked tries for a baby as often as other villagers do their jobs, instead of only now and then.",
+        "How to use: on a villager's Details screen, tick Parenting for villagers you want as parents and untick it for the rest.",
+        "A baby is still not guaranteed: the game's usual chances, the population limit and huts still decide. Children are never involved.",
+        "Live play, dropping villagers on each other, and pregnancies already started, are not affected.",
+        "On by default, like Birth Control in the other games; Owner's Defaults and Select All tick it too."
       ]
     },
     {
@@ -1233,7 +1245,7 @@
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
         "2-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection and Change Sex and Gender Presentation are not ticked either.",
-        "It does not change the population mode."
+        "Nor is Birth Control in The Tree of Life and New Believers. It does not change the population mode."
       ]
     },
     "default_patches": {
@@ -1245,7 +1257,7 @@
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
         "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups, More Island Events, Isola Grand Event Collection,",
-        "Island Events Scale With Population (like The Lost Children), Island Events Scale With Stored Food and Tech Points,",
+        "Island Events Scale With Population (like The Lost Children), Island Events Scale With Stored Food and Tech Points, Birth Control in The Tree of Life and New Believers,",
         "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
       ]
     },
