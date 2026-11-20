@@ -687,6 +687,14 @@ def main() -> None:
         newline="\n",
     )
     print(OUTPUT)
+    # The manifest takes two generators: build_vv2_birth_feature.py appends
+    # VV2's birth cave (0xB2558) and the three child-creation site rewrites to
+    # what was just written.  Run alone, this one silently dropped VV2's birth
+    # logging (seven composition patches down to three) again and again --
+    # last in 181a51614; tests/test_birth_stubs_execute.py caught it -- so it
+    # runs the birth generator itself.
+    import build_vv2_birth_feature
+    build_vv2_birth_feature.main()
 
 
 if __name__ == "__main__":
