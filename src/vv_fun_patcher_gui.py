@@ -287,7 +287,7 @@ def island_event_advisory(patch_id: str) -> tuple[str, bool] | None:
     return ISLAND_EVENT_ADVISORIES.get(tail)
 
 
-# Fog of Doom Lets Every Heathen Listen and its modifier No Restrictions on Fog of Doom Conversions (New Believers).
+# Fog of Doom Lets Red and Orange Heathens Listen and its modifier No Restrictions on Fog of Doom Conversions (New Believers).
 FOG_LISTENING_ID = "vv5_fog_of_doom_every_heathen_listens"
 FOG_NO_RESTRICTIONS_ID = "vv5_fog_of_doom_no_restrictions"
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
@@ -428,7 +428,7 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # (2026-11-08): "default on in OWNERS DEFAULTS ONLY" -- off here; Owner's
     # Defaults ticks it, as it ticks every default-off patch it does not name.
     + ["vv5_heathens_keep_masks_when_converted"]
-    # Fog of Doom Lets Every Heathen Listen (New Believers; the owner, 2026-11-19): a new option, so "ON in Owner's
+    # Fog of Doom Lets Red and Orange Heathens Listen (New Believers; the owner, 2026-11-19): a new option, so "ON in Owner's
     # Defaults and OFF everywhere else" -- off here and in Select All.  Its modifier No Restrictions on Fog of Doom
     # Conversions is off by default, in Owner's Defaults and in Select All.
     + [FOG_LISTENING_ID, FOG_NO_RESTRICTIONS_ID]
@@ -478,9 +478,8 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner (2026-11-15): the island events' content filters are off everywhere, Owner's Defaults too, and so is
     # No Safeguards for Island Events (and Additional Events too).
     + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
-    # No Restrictions on Fog of Doom Conversions (New Believers; the owner, 2026-11-19: "default off"): off in
-    # Owner's Defaults too until the owner says otherwise.
-    + [FOG_NO_RESTRICTIONS_ID]
+    # (No Restrictions on Fog of Doom Conversions is NOT here: the owner, 2026-11-20, turned it on in Owner's
+    # Defaults; it stays off by default and in Select All.)
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select
@@ -508,7 +507,7 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + ONE_TIME_COLLECTIBLES_IDS
     # Village Solidarity: on in Owner's Defaults only (the owner, 2026-11-17).
     + ["vv%d_village_solidarity" % game for game in range(1, 6)]
-    # Fog of Doom Lets Every Heathen Listen: on in Owner's Defaults only; No Restrictions on Fog of Doom Conversions
+    # Fog of Doom Lets Red and Orange Heathens Listen: on in Owner's Defaults only; No Restrictions on Fog of Doom Conversions
     # off everywhere (the owner, 2026-11-19).
     + [FOG_LISTENING_ID, FOG_NO_RESTRICTIONS_ID]
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked

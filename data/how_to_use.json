@@ -1110,13 +1110,15 @@
         "If that Heathen's Faith is below -10 they listen, just as a blue-masked Heathen does, and gain the same Faith.",
         "From Faith -10 up they will not listen: only the Earthquake God Power raises their Faith further.",
         "The first time that happens in a village, a popup says so (once per village; Start Over resets it; needs Story / Cheat Upgrades).",
-        "Natural fog and other weather do nothing. Blue-masked Heathens are unchanged. Not yet seen in a running game."
+        "Natural fog and other weather do nothing. Blue-masked Heathens are unchanged (they already listen).",
+        "The Chief, purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never listen this way. Not yet seen in a running game."
       ]
     },
     {
       "ids": ["vv5_fog_of_doom_no_restrictions"],
       "guide": [
-        "Off by default and in Owner's Defaults; Select All does not tick it. Needs Fog of Doom Lets Every Heathen Listen (ticked with it).",
+        "Off by default and in Select All; on in Owner's Defaults. Needs Fog of Doom Lets Red and Orange Heathens Listen (ticked with it).",
+        "The Chief, purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never listen this way.",
         "In the Fog of Doom, orange- and red-masked Heathens listen whatever their Faith: no Earthquake is needed.",
         "Natural fog still does nothing. Not yet seen in a running game."
       ]
@@ -1453,7 +1455,7 @@
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
         "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation, More Frequent Island Events,",
         "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Birth Control in The Tree of Life and New Believers,",
-        "Fog of Doom Lets Every Heathen Listen, No Restrictions on Fog of Doom Conversions,",
+        "Fog of Doom Lets Red and Orange Heathens Listen, No Restrictions on Fog of Doom Conversions,",
         "the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
       ]
     },
@@ -1481,7 +1483,6 @@
         "That includes Story / Cheat Upgrades, Respecting the Legacy of Isola and 256 Villagers (Experimental), which uses its own save folder.",
         "It ticks the harder-game patches too, Classic VV Difficulty and 0.1-10x Tech Cost included, and sets both sliders to 2.",
         "Story / Cheat Upgrades cost Tech Points is off here (the upgrades are free). So is Island Events Scale With Stored Food and Tech Points.",
-        "No Restrictions on Fog of Doom Conversions is off here too.",
         "The island event controls: every Content Filter and No Safeguards for Island Events (and Additional Events too) are off here too; it does not change the population mode."
       ]
     },

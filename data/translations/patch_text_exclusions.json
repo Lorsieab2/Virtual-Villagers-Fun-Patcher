@@ -12,7 +12,7 @@
    "match": "^(?!Village Solidarity: %d / 100$|Village Solidarity$|Village Solidarity shows how close)"
   },
   {
-   "reason": "Fog of Doom Lets Every Heathen Listen (VVFP Fog Listening.dll): the notice's mark file's line and folder and file names (never shown; files stay English) and the game's own Guardians of Isola words it looks for (\"left the tribe\", compared with the game's string, never shown). The status-line message has its own two rows.",
+   "reason": "Fog of Doom Lets Red and Orange Heathens Listen (VVFP Fog Listening.dll): the notice's mark file's line and folder and file names (never shown; files stay English) and the game's own Guardians of Isola words it looks for (\"left the tribe\", compared with the game's string, never shown). The status-line message has its own two rows.",
    "files": ["native/vvfp_fog_listening/*"],
    "functions": ["FL_NOTICE_LINE", "fl_isola", "fl_notice_path"]
   },

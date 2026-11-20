@@ -1,4 +1,4 @@
-"""New Believers' "Fog of Doom Lets Every Heathen Listen" and its modifier "No Restrictions on Fog of Doom Conversions"
+"""New Believers' "Fog of Doom Lets Red and Orange Heathens Listen" and its modifier "No Restrictions on Fog of Doom Conversions"
 (the owner, 2026-11-19: "the Fog of Doom can allow villagers to be dropped on red/yellow heathens to convert them like
 they can the blue ones"; "for heathens, they work only when the heathen's faith is lower than -10. at -10 or above
 only the Earthquake power can convert them"; the drop starts the game's own listening, which raises Faith as for a
@@ -247,7 +247,7 @@ class TheRows(unittest.TestCase):
         row = json.loads(FEATURE.read_text(encoding="utf-8"))
         free = json.loads(FREE_FEATURE.read_text(encoding="utf-8"))
         self.assertEqual((row["id"], row["name"], row["game_id"]),
-                         (ROW, "Fog of Doom Lets Every Heathen Listen", "vv5"))
+                         (ROW, "Fog of Doom Lets Red and Orange Heathens Listen", "vv5"))
         self.assertEqual(row["dependencies"], [])
         self.assertEqual(row["patches"], [])
         self.assertTrue(row["description"].startswith("**Needs the Fog of Doom God Power**"))
@@ -261,7 +261,7 @@ class TheRows(unittest.TestCase):
         self.assertEqual((free["id"], free["name"], free["dependencies"]),
                          (FREE, "No Restrictions on Fog of Doom Conversions", [ROW]))
         self.assertTrue(free["description"].startswith(
-            "**Needs \"Fog of Doom Lets Every Heathen Listen\": ticking this patch ticks it too"))
+            "**Needs \"Fog of Doom Lets Red and Orange Heathens Listen\": ticking this patch ticks it too"))
         self.assertIn("No restrictions on Fog of Doom Conversions: red and yellow heathens can be talked to, and the "
                       "-10 faith limit requiring Earthquakes is removed. Those heathens can now be talked to like any "
                       "other blue heathen and eventually converted, as long as Fog of Doom is active.",
@@ -277,7 +277,7 @@ class TheRows(unittest.TestCase):
         self.assertEqual((default_fun_patch_selection(ROW), owners_default_fun_patch_selection(ROW),
                           select_all_fun_patch_selection(ROW)), (False, True, False))
         self.assertEqual((default_fun_patch_selection(FREE), owners_default_fun_patch_selection(FREE),
-                          select_all_fun_patch_selection(FREE)), (False, False, False))
+                          select_all_fun_patch_selection(FREE)), (False, True, False))   # OD on: the owner, 2026-11-20
 
     def test_registered_bundled_documented(self):
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
@@ -546,6 +546,27 @@ class Listening(unittest.TestCase):
                 v = self.island(free=True)
                 v.weather(fog, thickness)
                 self.refused(v, v.believer(1), v.heathen(2, "red", 0))
+
+    def test_puzzle_heathens_never_listen_in_the_fog(self):
+        """The owner (2026-11-20): the Chief (role 13), the purple-masked Heathens (the Heathen Doctor 12 and the three
+        Masters 14-16) and the Heathen Mommy (17) are puzzle Heathens and never listen this way, with or without No
+        Restrictions: in any mask the Fog lets nobody of them through, and the stock sermon end refuses them."""
+        for free in (False, True):
+            for role in range(12, 18):
+                for kind in ("orange", "red", "blue"):
+                    with self.subTest(free=free, role=role, kind=kind):
+                        v = self.island(free=free)
+                        v.weather(True, 4.0)
+                        believer, heathen = v.believer(1, devotion=90.0), v.heathen(2, kind, -50, role=role)
+                        if kind != "blue":
+                            self.refused(v, believer, heathen)
+                        else:
+                            v.drop(believer, heathen)              # the stock blue path, as without the patch
+                        v.sermon_end(believer, heathen)
+                        self.assertNotIn((heathen, LISTENING), v.actions, "a puzzle Heathen never listens")
+                        self.assertEqual(v.faith(heathen), -50, "no Faith from a sermon")
+                        self.assertEqual(v.converted, [])
+                        self.assertEqual(v.export("VvfpFogListeningCount"), 0)
 
     def test_without_no_restrictions_faith_zero_and_up_never_listens(self):
         for faith in (0, 5, -5):

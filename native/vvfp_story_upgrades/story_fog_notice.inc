@@ -1,4 +1,4 @@
-/* Fog of Doom Lets Every Heathen Listen's notice (New Believers) -- included by vvfp_story_upgrades.c, after
+/* Fog of Doom Lets Red and Orange Heathens Listen's notice (New Believers) -- included by vvfp_story_upgrades.c, after
    story_faith_notice.inc.
 
    The owner (2026-11-19): when the Fog of Doom is on and a Heathen in an orange or red mask with Faith -10 or more

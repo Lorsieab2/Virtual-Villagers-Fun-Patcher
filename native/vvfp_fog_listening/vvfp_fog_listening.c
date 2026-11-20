@@ -1,4 +1,4 @@
-/* VVFP Fog Listening -- "Fog of Doom Lets Every Heathen Listen", New Believers.
+/* VVFP Fog Listening -- "Fog of Doom Lets Red and Orange Heathens Listen", New Believers.
 
    The owner (2026-11-19): "the Fog of Doom can allow villagers to be dropped on red/yellow heathens to convert them
    like they can the blue ones"; "for heathens, they work only when the heathen's faith is lower than -10. at -10 or
@@ -80,6 +80,12 @@
 #define FL_RED 0x1CEE
 #define FL_FAITH 0x1CF0
 #define FL_FAITH_BELOW (-10)            /* the owner: "only when the heathen's faith is lower than -10" */
+/* The record's role (+0x1CFC): 12 the Heathen Doctor and 14-16 the three Masters (purple masks), 13 the Chief, 17 the
+   Heathen Mommy.  The owner (2026-11-20): these are puzzle Heathens and never listen this way, with or without No
+   Restrictions -- never let through here (the stock sermon end 0x468DA0 refuses roles 12-17 too). */
+#define FL_ROLE 0x1CFC
+#define FL_ROLE_FIRST_SPECIAL 12
+#define FL_ROLE_LAST_SPECIAL 17
 #define FL_NO_LIMIT_FLAG "VVFP Fog Listening No Restrictions.txt"
 
 static const unsigned char SITE_STOCK[24] = {
@@ -246,6 +252,10 @@ void __stdcall VvfpFogNoticeVillageReset(int game) {
 
 /* 1 when a believer dropped on this orange- or red-masked Heathen starts the stock listening. */
 static int fl_may_listen(const unsigned char *heathen) {
+    int role = *(const int *)(heathen + FL_ROLE);
+    if (role >= FL_ROLE_FIRST_SPECIAL && role <= FL_ROLE_LAST_SPECIAL) {
+        return 0;                       /* a puzzle Heathen (purple mask, the Chief, the Mommy): the stock refusal */
+    }
     if (!((fl_fog_fn)FL_FOG_TEST)((void *)FL_WEATHER)) {
         return 0;                       /* no Fog of Doom: natural fog and other weather never count */
     }

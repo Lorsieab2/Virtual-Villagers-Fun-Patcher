@@ -149,7 +149,7 @@ class ContentTests(unittest.TestCase):
             # Both Island Events Scale rows, named together within the guide's 1,250 characters.
             if "_island_events_scale_with_" in patch_id:
                 short = "both Island Events Scale patches"
-            # Fog of Doom Lets Every Heathen Listen and its option, named together likewise.
+            # Fog of Doom Lets Red and Orange Heathens Listen and its option, named together likewise.
             if patch_id.startswith("vv5_fog_of_doom_"):
                 short = "both Fog of Doom patches"
             with self.subTest(default_off=patch_id):

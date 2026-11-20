@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-# Builds "VVFP Fog Listening.dll" (Fog of Doom Lets Every Heathen Listen, New Believers) from
+# Builds "VVFP Fog Listening.dll" (Fog of Doom Lets Red and Orange Heathens Listen, New Believers) from
 # native\vvfp_fog_listening.  32-bit, static CRT, like every other companion.  Re-run
 # scripts\build_fog_listening_feature.py afterwards: the row pins the DLL by SHA-256.
 

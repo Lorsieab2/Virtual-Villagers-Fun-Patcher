@@ -200,7 +200,7 @@ def lines(village: gm.Village) -> list[gm.Fact]:
     add("Dropping a believer of 14 or more on a Heathen in the blue mask starts preaching: the believer is "
         "\"Explaining the truth\", then (after the Devotion check) the Heathen is \"Listening\" and gains the Faith "
         "below. A drop on a Heathen in the orange or red mask does nothing.")
-    # Fog of Doom Lets Every Heathen Listen (native/vvfp_fog_listening): the mask test spliced; the game's thick-fog
+    # Fog of Doom Lets Red and Orange Heathens Listen (native/vvfp_fog_listening): the mask test spliced; the game's thick-fog
     # test 0x476260 on the weather 0x710948 (only the Fog of Doom sets thickness 4, 0x41FB60); Faith +0x1CF0 < -10.
     fog_listen = village.has(FOG_LISTENING)
     if fog_listen is not False:
@@ -211,7 +211,7 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "with the same Faith; from -10 up only the Earthquake God Power raises their Faith, and the first such "
             "drop in a village says so in a popup (with Story / Cheat Upgrades), once per village (Start Over resets "
             "it). Natural fog and "
-            "other weather never count.", sub=True)
+            "other weather never count. The Chief, purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never listen this way.", sub=True)
         if free is not False:
             add(f"With \"{gm.feature_name(FOG_NO_LIMIT)}\" ({'in this game' if free else UNTOLD}) as well: in the "
                 "Fog of Doom they listen whatever their Faith.", sub=True)

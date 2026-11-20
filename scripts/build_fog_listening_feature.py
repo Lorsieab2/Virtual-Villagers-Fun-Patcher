@@ -1,4 +1,4 @@
-"""Write New Believers' "Fog of Doom Lets Every Heathen Listen" row (the owner, 2026-11-19: "the Fog of Doom can allow
+"""Write New Believers' "Fog of Doom Lets Red and Orange Heathens Listen" row (the owner, 2026-11-19: "the Fog of Doom can allow
 villagers to be dropped on red/yellow heathens to convert them like they can the blue ones"; "for heathens, they work
 only when the heathen's faith is lower than -10. at -10 or above only the Earthquake power can convert them"; the drop
 starts the game's own listening, which raises Faith as for a blue Heathen; only the cast Fog of Doom God Power, never
@@ -20,7 +20,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ROW_ID = "vv5_fog_of_doom_every_heathen_listens"
-NAME = "Fog of Doom Lets Every Heathen Listen"
+NAME = "Fog of Doom Lets Red and Orange Heathens Listen"
 DLL_NAME = "VVFP Fog Listening.dll"
 DLL = ROOT / "assets" / "fog_listening" / DLL_NAME
 OUT = ROOT / "data" / f"{ROW_ID}_feature.json"
@@ -50,8 +50,8 @@ def description() -> str:
         "Story / Cheat Upgrades (on by default) for the popup: that patch's DLL shows it, when no other popup or "
         "island event is showing or on its way.** A Heathen joins the tribe the normal "
         "game's way, when their Faith rises above 0. **Only the Fog of Doom God Power counts: natural fog, a "
-        "Tempest and every other weather do nothing.** Blue-masked Heathens, the Heathen Doctor, the Chief, the "
-        "three Masters and the Mommy are unchanged. **Works the same with every other patch and in every "
+        "Tempest and every other weather do nothing.** Blue-masked Heathens are unchanged (they already listen in "
+        "the normal game). The Chief, purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never listen this way. **Works the same with every other patch and in every "
         "population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). "
         "The companion is \"VVFP Fog Listening.dll\"; it never writes a save, only one small file in the save's "
         "own patcher folder that marks the message as shown."
@@ -123,8 +123,8 @@ def row(dll_sha: str) -> dict:
     }
 
 
-# No Restrictions on Fog of Doom Conversions (the owner, 2026-11-19; off by default, and off in Owner's Defaults and
-# Select All until the owner says otherwise): the same companion, told by the row's one file in the patcher's folder,
+# No Restrictions on Fog of Doom Conversions (the owner, 2026-11-19; off by default and in Select All; on in Owner's
+# Defaults: the owner, 2026-11-20): the same companion, told by the row's one file in the patcher's folder,
 # drops the Faith condition.
 FREE_ID = "vv5_fog_of_doom_no_restrictions"
 FREE_NAME = "No Restrictions on Fog of Doom Conversions"
@@ -143,7 +143,7 @@ def free_description() -> str:
         f"**Needs \"{NAME}\": ticking this patch ticks it too, and unticking that one unticks this one.** "
         + FREE_OWNER_TEXT + " (\"Yellow\" is the game's orange mask.) Natural fog and every other weather still do "
         "nothing; the listening, the Faith it gives and the conversion are the normal game's, as for a blue-masked "
-        "Heathen. **Off by default.** **Not yet seen in a running game** (checked by emulation of the stock "
+        "Heathen. The Chief, purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never listen this way. **Off by default; on in Owner's Defaults; off in Select All.** **Not yet seen in a running game** (checked by emulation of the stock "
         f"executable). The patch adds one small file, \"{FREE_FLAG}\", to the patcher's folder, which tells "
         f"\"{DLL_NAME}\" to leave out the Faith limit."
     )

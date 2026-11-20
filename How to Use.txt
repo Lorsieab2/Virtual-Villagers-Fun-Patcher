@@ -1477,7 +1477,7 @@ convert's original look is the head and body they had with the mask they wore.
 Heathens who joined before this patch keep the look they have now. Runs on the
 Origins upgrades, which the patcher adds with it.
 
-FOG OF DOOM LETS EVERY HEATHEN LISTEN (NEW BELIEVERS)
+FOG OF DOOM LETS RED AND ORANGE HEATHENS LISTEN (NEW BELIEVERS)
 
 Off by default; on in Owner's Defaults. Cast the Fog of Doom God Power, then,
 while its thick fog lasts, drag a believer of 14 or more onto a Heathen in an
@@ -1489,13 +1489,18 @@ only the Earthquake God Power raises their Faith further; the first time that
 happens in a village a popup says so (once per village, until Start Over;
 it needs Story / Cheat Upgrades, on by default). A Heathen joins the tribe the normal way, when their Faith rises above
 0. Natural fog and every
-other weather do nothing; blue-masked Heathens are unchanged.
+other weather do nothing; blue-masked Heathens are unchanged (they already
+listen). The Chief, purple-masked Heathens and the Heathen Mommy are puzzle
+Heathens and never listen this way.
 
 NO RESTRICTIONS ON FOG OF DOOM CONVERSIONS (NEW BELIEVERS)
 
-Off by default. Needs Fog of Doom Lets Every Heathen Listen (ticked with it).
+Off by default; on in Owner's Defaults. Needs Fog of Doom Lets Red and Orange
+Heathens Listen (ticked with it).
 In the Fog of Doom, Heathens in orange and red masks listen whatever their
-Faith, so no Earthquake is needed. Natural fog still does nothing.
+Faith, so no Earthquake is needed. Natural fog still does nothing. The Chief,
+purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never
+listen this way.
 
 PUDDLE PLAY MOVES TO THE LAKE SHORE (NEW BELIEVERS)
 

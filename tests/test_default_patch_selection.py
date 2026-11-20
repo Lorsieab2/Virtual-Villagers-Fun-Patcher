@@ -194,7 +194,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_island_events_any_time")
                   # Village Solidarity (the owner, 2026-11-17: on in Owner's Defaults only).
                   or p.endswith("_village_solidarity")
-                  # Fog of Doom Lets Every Heathen Listen and No Restrictions on Fog of Doom Conversions (New
+                  # Fog of Doom Lets Red and Orange Heathens Listen and No Restrictions on Fog of Doom Conversions (New
                   # Believers, new 2026-11-19).
                   or p in ("vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions")})
 
@@ -439,7 +439,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {f"vv{n}_island_events_any_time" for n in range(1, 6)}
         # ...and Village Solidarity (the owner, 2026-11-17: on in Owner's Defaults, off everywhere else).
         held_back |= {f"vv{n}_village_solidarity" for n in range(1, 6)}
-        # ...and Fog of Doom Lets Every Heathen Listen (new 2026-11-19: on in Owner's Defaults only) and its option No
+        # ...and Fog of Doom Lets Red and Orange Heathens Listen (new 2026-11-19: on in Owner's Defaults only) and its option No
         # Restrictions on Fog of Doom Conversions (the owner: default off; off in Owner's Defaults too).
         held_back |= {"vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions"}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)

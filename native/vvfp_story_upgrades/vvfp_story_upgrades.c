@@ -1146,7 +1146,7 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     time_skip_tick(game);
     /* Popup When Believers Become Heathens (New Believers): the believers the Faith drift turned Heathen. */
     faith_notice_tick(game);
-    /* Fog of Doom Lets Every Heathen Listen (New Believers): its once-per-village notice. */
+    /* Fog of Doom Lets Red and Orange Heathens Listen (New Believers): its once-per-village notice. */
     fog_notice_tick(game);
     /* A Custom Island Event held by a new village's two opening island
        events: made due once they are over (story_custom_ui.inc). */
@@ -1483,7 +1483,7 @@ __declspec(dllexport) int __stdcall VvfpStoryEventChosen(int game) {
 #include "story_custom_ui.inc"
 #include "story_time_skip.inc"
 #include "story_faith_notice.inc"   /* Popup When Believers Become Heathens (New Believers) */
-#include "story_fog_notice.inc"     /* Fog of Doom Lets Every Heathen Listen's notice (New Believers) */
+#include "story_fog_notice.inc"     /* Fog of Doom Lets Red and Orange Heathens Listen's notice (New Believers) */
 #include "story_queue.inc"      /* queued purchases kept across a quit */
 /* The Living Event Engine (story_living.inc), called by the branching engine and the collection's roll. */
 static int lv_is_living(const char *id);

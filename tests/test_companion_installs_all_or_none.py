@@ -507,7 +507,7 @@ CASES = [
     Case("Heathens Keep Masks", "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll", (5,),
          lambda g: [f"vv{g}_heathens_keep_masks_when_converted"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpHeathensKeepMasksInstalled"))[1]),
-    # Fog of Doom Lets Every Heathen Listen (New Believers): the drop handler's mask test.
+    # Fog of Doom Lets Red and Orange Heathens Listen (New Believers): the drop handler's mask test.
     Case("Fog Listening", "assets/fog_listening/VVFP Fog Listening.dll", (5,),
          lambda g: [f"vv{g}_fog_of_doom_every_heathen_listens"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpFogListeningInstalled"))[1]),
