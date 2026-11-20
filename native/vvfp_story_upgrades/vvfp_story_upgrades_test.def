@@ -173,3 +173,4 @@ EXPORTS
     VvfpStoryProbeLivingReset=_VvfpStoryProbeLivingReset@8
     VvfpStoryProbeSetRollTail=_VvfpStoryProbeSetRollTail@4
     VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16
+    VvfpStoryProbeFirstMarks=_VvfpStoryProbeFirstMarks@0

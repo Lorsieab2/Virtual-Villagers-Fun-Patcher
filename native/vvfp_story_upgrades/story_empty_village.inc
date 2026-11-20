@@ -465,3 +465,10 @@ __declspec(naked) static void c5_select_stub(void) {
         ret
     }
 }
+
+#ifdef VVFP_TEST
+/* The first-event marks a trigger run leaves (test build only): ce_dead_first | ce_first_before << 8. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeFirstMarks(void) {
+    return ce_dead_first | (ce_first_before << 8);
+}
+#endif
