@@ -5,7 +5,7 @@ through tests/farmers_emulation_vv5.py (what is stubbed there: RNG, the real clo
 drawing / sound only) and skips when the executable or the game's data files (research/game-data/vv5: lcmap.dat,
 wpts.dat, anims.dat, animpts.dat) are not present (CI).
 
-The full re-measurements (TRIP_SAMPLES: 1,200 trips; one 8-hour LIVE_CYCLE run) run only with VVFP_RELEASE=1.
+The full re-measurements (TRIP_SAMPLES: 1,200 trips; one 8-hour LIVE_CYCLE run) run only with --release or VVFP_RELEASE=1.
 """
 from __future__ import annotations
 
@@ -129,7 +129,7 @@ class LiveTripTests(unittest.TestCase):
                     self.assertGreaterEqual(seconds, low - 1e-6)
                     self.assertLessEqual(seconds, high + 1e-6)
 
-    @unittest.skipUnless(RELEASE, "release-only (slow): run with VVFP_RELEASE=1")
+    @unittest.skipUnless(RELEASE, "release-only (slow): run with --release or VVFP_RELEASE=1")
     def test_the_trip_samples_re_measure_exactly(self):
         for key, (n, mean, low, high) in vv5.TRIP_SAMPLES.items():
             trips = _bin_trips(JOBS[key], n, seed=11)
@@ -139,7 +139,7 @@ class LiveTripTests(unittest.TestCase):
                 self.assertEqual(round(statistics.mean(paid), 2), mean)
                 self.assertEqual((round(min(paid), 2), round(max(paid), 2)), (low, high))
 
-    @unittest.skipUnless(RELEASE, "release-only (slow): run with VVFP_RELEASE=1")
+    @unittest.skipUnless(RELEASE, "release-only (slow): run with --release or VVFP_RELEASE=1")
     def test_one_live_cycle_run_re_measures(self):
         # 8 emulated hours of the scheduler 0x46F070 for a believer dropped on the crops (LIVE_CYCLE, seed 31).
         for (key, farming), count in LIVE_COUNTS_SEED_31.items():
