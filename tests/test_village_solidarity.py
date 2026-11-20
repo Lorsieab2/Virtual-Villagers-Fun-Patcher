@@ -241,7 +241,11 @@ class TheRows(unittest.TestCase):
             self.assertIn("**Needs Story / Cheat Upgrades", row["description"])
             # Three Tech screen sites: the draw (the counter), the constructor (the "?" button is made) and the
             # screen's vtable slot 3 (the button's click opens the help box).
-            self.assertEqual(len(row["runtime_detours"]), 3)
+            # After them, the routines "VVFP Island Events.dll" detours to read the game's own events' results
+            # (the owner, 2026-11-20; tests/test_stock_event_solidarity.py).
+            own = [d for d in row["runtime_detours"] if d["installed_by"].startswith(scores.SOLIDARITY_DLL)]
+            self.assertEqual(len(own), 3)
+            self.assertEqual(row["runtime_detours"][:3], own)
             self.assertIn("draw", row["runtime_detours"][0]["routine"])
             self.assertIn("constructor", row["runtime_detours"][1]["routine"])
             self.assertIn("vtable slot 3", row["runtime_detours"][2]["routine"])

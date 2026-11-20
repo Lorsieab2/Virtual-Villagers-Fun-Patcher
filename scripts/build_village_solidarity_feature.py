@@ -27,6 +27,11 @@ GAMES = (1, 2, 3, 4, 5)
 DLL_NAME = scores.SOLIDARITY_DLL
 DLL = ROOT / "assets" / "village_solidarity" / DLL_NAME
 NATIVE = ROOT / "native" / "vvfp_village_solidarity"
+# The game's own island events move the score too (the owner, 2026-11-20): "VVFP Island Events.dll"
+# (native/vvfp_island_events/stock_solidarity.inc) reads each result and hands its tag over, so this row ships it
+# as well (the same file the Island Events log row ships; built by scripts/build_vvfp_island_events.ps1).
+ISLAND_EVENTS_DLL = "VVFP Island Events.dll"
+ISLAND_EVENTS = ROOT / "assets" / "island_events" / ISLAND_EVENTS_DLL
 
 DESCRIPTION = (
     "Gives each village a **Village Solidarity** score from 0 to 100, starting at 50. The patcher's new island events "
@@ -34,7 +39,10 @@ DESCRIPTION = (
     "Events) can mark a page as raising, lowering or not changing it: songs and gatherings, fair resolutions, mutual "
     "aid, welcoming newcomers and feelings like happiness, trust, gratitude and hope raise it; unresolved conflicts, "
     "unfairness, broken promises and feelings like tension, distrust, resentment and fear lower it; solemn "
-    "remembrance and quiet reflection leave it as it is. Every raise and every lower moves it by the same "
+    "remembrance and quiet reflection leave it as it is. **The game's own island events move it too:** each of their "
+    "results has its own tag -- gains, healing, newcomers and celebrations raise it; losses, sickness, deaths and "
+    "disasters lower it; the rest leave it (the full list is on the Game Mechanics page) -- and those events and "
+    "their chances stay exactly the game's own. Every raise and every lower moves it by the same "
     f"{scores.STEP} points. **The score only changes odds:** the higher it is, the more likely the new cooperative "
     "and celebration events and the cooperative endings of a chance split; the lower it is, the more likely the new "
     "repair, peace and apology events and the tense endings (at the normal strength each point away from 50 adds 2% "
@@ -45,10 +53,10 @@ DESCRIPTION = (
     "too. The score is kept outside the save, in the save's own Village Scores file, and every change is written to "
     "the save's Village Solidarity log; Start Over clears both. Without this patch the events' marks are only words "
     "in their files. **Needs Story / Cheat Upgrades (on by default), which runs the new events; ticking this ticks "
-    "it.** **The score moves only when new events with marked pages happen: tick the Isola Grand Event Collection "
-    "or More Island Events, or write your own Custom Island Events.** **Works the same in every population mode.** "
-    "**On in Owner's Defaults; off in the normal defaults and in Select All.** The companion is \"" + DLL_NAME
-    + "\", started by VVFP Startup.dll; the save is never written."
+    "it.** **Works the same in every population mode.** "
+    "**On in Owner's Defaults; off in the normal defaults and in Select All.** The companions are \"" + DLL_NAME
+    + "\" and \"" + ISLAND_EVENTS_DLL + "\" (which reads the results of the game's own events), started by VVFP "
+    "Startup.dll; the save is never written."
 )
 
 
@@ -82,6 +90,13 @@ def counter_sites(game: int) -> list[tuple[int, str, str]]:
     return sites
 
 
+def island_event_sites(game: int) -> list[tuple[int, str, str]]:
+    """The routines "VVFP Island Events.dll" detours in `game` (scripts/build_island_events_features.py SITES)."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import build_island_events_features as island  # noqa: E402
+    return island.SITES[f"vv{game}"]
+
+
 def row(game: int, dll_sha: str) -> dict:
     sites = counter_sites(game)
     return {
@@ -111,6 +126,11 @@ def row(game: int, dll_sha: str) -> dict:
             "The rare collection draw after a natural island event (story_collection.inc) multiplies a collection "
             "event's draw weight the same way when its manifest marks it \"cooperative\" (a high score) or "
             "\"repair\" (a low score); every other candidate keeps its weight.",
+            "The game's own island events move the score too: \"" + ISLAND_EVENTS_DLL + "\" (its existing "
+            "comparison of each event, native/vvfp_island_events/stock_solidarity.inc) looks the result shown up in "
+            "the owner's table (data/stock_island_event_solidarity.txt: the title, the answer, and what the result "
+            "did to the village where one answer has several results) and calls VvfpVillageScoreTag once with its "
+            "tag. It reads the result after the game applied it; nothing runs before the game's own routine.",
         ] + ([
             "The Tech screen draw is spliced to show \"Village Solidarity: <score> / 100\" in the game's own font "
             "(translated through VVFP Translations.dll): native/vvfp_village_solidarity/counter_vv" + str(game)
@@ -118,7 +138,8 @@ def row(game: int, dll_sha: str) -> dict:
         ] if sites else []),
         "explicit_non_changes": [
             "The game's own island events and their chances never change: the Story companion's rare roll is the "
-            "only draw the factor touches, and it is never in place of a natural event.",
+            "only draw the factor touches, and it is never in place of a natural event; the game's own events only "
+            "move the score, read after their results are applied.",
             "Nothing changes work, helping, idling, skills, health, food or tech: real effects of an event stay "
             "exactly as the event gives them.",
             "Nothing is written to the save or to a villager record; " + (
@@ -130,12 +151,18 @@ def row(game: int, dll_sha: str) -> dict:
                            "same file; runtime/player confirmation pending",
         "companion_files": [
             {"source": f"assets/village_solidarity/{DLL_NAME}", "destination": DLL_NAME, "sha256": dll_sha},
+            {"source": f"assets/island_events/{ISLAND_EVENTS_DLL}", "destination": ISLAND_EVENTS_DLL,
+             "sha256": sha(ISLAND_EVENTS)},
         ],
         "patches": [],
         "runtime_detours": [
             {"va": f"0x{va:06X}", "stock_bytes": stock, "routine": what,
              "installed_by": f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, third word)"}
             for va, stock, what in sites
+        ] + [
+            {"va": f"{va:#x}", "stock_bytes": stock, "routine": what,
+             "installed_by": f"{ISLAND_EVENTS_DLL}, VvfpStartup"}
+            for va, stock, what in island_event_sites(game)
         ],
     }
 

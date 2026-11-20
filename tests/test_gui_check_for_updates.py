@@ -181,6 +181,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_scrollbars",
                # Village Solidarity's numbers (the owner, 2026-11-17): the GUI reads its slider's strength from it.
                "vv_village_scores",
+               # Village Solidarity and the games' own island events (the owner, 2026-11-20): the tag table.
+               "vv_stock_event_solidarity",
                # Game Mechanics (the owner, 2026-10-22): its window, the page and each game's module,
                # found by name (importlib) and so listed here for the release zip.
                "vv_game_mechanics_window", "vv_game_mechanics", "vv_game_mechanics_vv1", "vv_game_mechanics_vv2", "vv_game_mechanics_vv3",
@@ -468,7 +470,9 @@ class ReleasesLinkTests(unittest.TestCase):
             # Children Play Tag and Build Sandcastles: the page's words only.
             ("vv_game_mechanics_children_play", {"vv_game_mechanics"}),
             # Village Solidarity: the page's words and the slider's numbers.
-            ("vv_game_mechanics_solidarity", {"vv_game_mechanics", "vv_village_scores"}),
+            ("vv_game_mechanics_solidarity", {"vv_game_mechanics", "vv_village_scores", "vv_stock_event_solidarity"}),
+            # The games' own island events' tags: none of the patcher's modules.
+            ("vv_stock_event_solidarity", set()),
             # The Secret City's Tribal Chief: the page's words, the villagers as Last Names reads them (function-level).
             ("vv_game_mechanics_chief_vv3", {"vv_game_mechanics", "vv_last_names"}),
             # God powers: the Spirituality roll's exact odds from the shared Chances helpers.

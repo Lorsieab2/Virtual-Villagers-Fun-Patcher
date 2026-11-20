@@ -1,0 +1,426 @@
+# Village Solidarity: the tag of every result of the games' OWN island events (the owner, 2026-11-20, v1.35.97).
+#
+# ONE SOURCE.  "VVFP Island Events.dll" reads nothing from here at run time: scripts/build_stock_solidarity_table.py
+# turns this file into native/vvfp_island_events/stock_solidarity_table.inc (tests/test_stock_event_solidarity.py
+# fails when the two differ).  To change a tag: edit the TAG column, run that script, rebuild the DLL
+# (scripts/build_vvfp_island_events.ps1) and re-pin it (scripts/build_island_events_features.py and
+# scripts/build_village_solidarity_feature.py --no-build).
+#
+# When the game shows one of these results, Village Solidarity moves by its tag: RAISE +5, LOWER -5, NEUTRAL no
+# change (a "no change" line in the Village Solidarity log), exactly once.  Only with the Village Solidarity row
+# ticked.  Score only: no stock event, result or chance changes.
+#
+# Columns (" | " between them):
+#   GAME    VV1 .. VV5
+#   TITLE   the event's title exactly as the game shows it (English)
+#   ANSWER  the button picked, as its label reads (a final "." dropped); "-" for an event with no choice
+#   WHEN    "-" always; else what tells this result from the others behind the same title and answer, read from
+#           the village just before and just after the game applies it:
+#             food+ food-   the stored food went up / down        tech+ tech-  the tech points went up / down
+#             lost          a villager died or was taken away     joined       a villager joined (a believer in VV5)
+#             sick          a villager fell sick                  sick2        two or more villagers fell sick
+#             hurt          a villager lost health                healed       a villager gained health or was cured
+#             weather       the weather changed
+#             item:<word>   the item the popup names holds <word> (A New Home's crates, The Lost Children's sacks)
+#           Rows with the same GAME, TITLE and ANSWER are tried top to bottom; the first whose WHEN holds is the
+#           result shown.  Without a "-" row last, a result none of them matches moves nothing.
+#   TAG     RAISE, LOWER or NEUTRAL
+#   RESULT  what the result is (words only)
+#
+# Left out by the owner's word: the Gong of Wonder (The Lost Children), which is no island event.
+# Counted by the owner's word: the events "Restore Missing Island Events" brings back (marked "restored").
+
+# ---- A NEW HOME -------------------------------------------------------------------------------------------------
+VV1 | The Bad Little Monkey | - | - | LOWER | tech points lost
+VV1 | The Plague of Parrots | - | - | LOWER | berries lost
+VV1 | A Plague of Locusts | - | - | LOWER | crop field emptied
+VV1 | The Measles Epidemic | - | - | LOWER | every child falls sick
+VV1 | The South Wind | - | - | LOWER | berries, crops and stored food lost
+VV1 | The Heat Wave | - | - | NEUTRAL | villagers swim or relax
+VV1 | Isola Day Celebration | - | - | RAISE | the village celebrates
+VV1 | Blessings Day Celebration | - | - | RAISE | the village celebrates
+VV1 | The Big Wave | - | - | LOWER | the beach covered in debris again
+VV1 | The Good Little Monkey | - | - | RAISE | tech points gained
+VV1 | The Greedy Little Monkey | - | - | RAISE | stored food gained
+VV1 | The Barrel O` Babies | - | - | RAISE | toddlers join
+VV1 | The North Wind | - | - | RAISE | berries and crops gained
+VV1 | The Helpful Honeybees | - | - | RAISE | berries gained
+VV1 | A Mighty Storm | - | - | LOWER | all stored food washed away (restored)
+VV1 | The Trapped Whale | Help free the whale | - | RAISE | Spirituality up a level
+VV1 | The Trapped Whale | Harvest the whale for food | - | RAISE | +1,000 food
+VV1 | The Strange Berries | Taste the strange berries | lost | LOWER | the villager dies
+VV1 | The Strange Berries | Taste the strange berries | - | NEUTRAL | feels young again
+VV1 | The Strange Berries | Ignore the seductive plant | - | NEUTRAL | nothing changes
+VV1 | The Old Drum | Cut open the drum | - | NEUTRAL | Healing 100
+VV1 | The Old Drum | Keep the drum to make music | - | RAISE | berries +500
+VV1 | The Mysterious Face | Get a closer look | joined | RAISE | a stranger joins
+VV1 | The Mysterious Face | Get a closer look | - | LOWER | never seen again
+VV1 | The Mysterious Face | Cautiously back away | - | NEUTRAL | nothing changes
+VV1 | The Visitor | Allow him to gather samples | - | RAISE | Medicine up a level
+VV1 | The Visitor | Tell the stranger to leave | - | LOWER | villagers fall sick
+VV1 | A Mysterious Vial | Drink the liquid | sick | LOWER | a red vapour makes the others sick
+VV1 | A Mysterious Vial | Drink the liquid | - | NEUTRAL | Healing, a toddler again, dancing, a new head, skills up or down
+VV1 | A Mysterious Vial | Pour it out | - | NEUTRAL | nothing changes
+VV1 | The Troubled Child | Let him try farming | - | NEUTRAL | the child sick, Farming +50
+VV1 | The Troubled Child | Let her try farming | - | NEUTRAL | the child sick, Farming +50
+VV1 | The Troubled Child | Let him try research | - | RAISE | Research 100, +3,000 tech points
+VV1 | The Troubled Child | Let her try research | - | RAISE | Research 100, +3,000 tech points
+VV1 | The Suspicious Monkey | Try to scare the monkey away | - | LOWER | -50 health, can kill
+VV1 | The Suspicious Monkey | Wait and see what it does | - | NEUTRAL | Healing +60
+VV1 | The Wild Mushroom | Taste the mushroom | food+ | RAISE | delicious: Farming and stored food
+VV1 | The Wild Mushroom | Taste the mushroom | - | NEUTRAL | poisoned: sick and hurt
+VV1 | The Wild Mushroom | Discard the mushroom | - | NEUTRAL | nothing changes
+VV1 | The Black Pearl | Share the treasure with the tribe | - | RAISE | everyone healed, the village celebrates
+VV1 | The Black Pearl | Keep the pearl hidden | - | LOWER | treasure hidden from the tribe
+VV1 | The Dream | Enter the right cave | - | NEUTRAL | new dislikes
+VV1 | The Dream | Enter the left cave | - | NEUTRAL | nothing changes
+VV1 | The Moth | Help the moth | - | NEUTRAL | nothing changes
+VV1 | The Moth | Leave the moth alone | - | NEUTRAL | Healing 100
+VV1 | The Book | Read the book | - | LOWER | never seen again
+VV1 | The Book | Bring it to the researchers | - | NEUTRAL | nothing changes
+VV1 | The Brass Compass | Use it to mash berries | - | RAISE | everyone's Farming up
+VV1 | The Brass Compass | Let the researchers have it | - | RAISE | tech points gained
+VV1 | The Furry Food | Remove the moldy pieces | - | LOWER | villagers fall sick (restored)
+VV1 | The Furry Food | Throw out all the food | - | LOWER | all stored food lost (restored)
+VV1 | A Mysterious Crate | Open it | item:weathered | NEUTRAL | tech points, some fall sick
+VV1 | A Mysterious Crate | Open it | item:rotting | LOWER | villagers bitten, sick and hurt
+VV1 | A Mysterious Crate | Open it | item:watertight | RAISE | infants join
+VV1 | A Mysterious Crate | Open it | item:fruit | LOWER | spiders: the opener badly hurt, can kill
+VV1 | A Mysterious Crate | Open it | item:sealed | RAISE | tech points
+VV1 | A Mysterious Crate | Open it | item:wooden | RAISE | stored food
+VV1 | A Mysterious Crate | Leave it alone | - | NEUTRAL | nothing changes
+
+# ---- THE LOST CHILDREN ------------------------------------------------------------------------------------------
+VV2 | The Obnoxious Parrot | - | - | LOWER | a quarter of the tech points lost
+VV2 | The Flash Flood | - | - | LOWER | stored food cut to 750
+VV2 | The Dense Fog | - | food- | LOWER | food lost
+VV2 | The Dense Fog | - | tech- | LOWER | tech points lost
+VV2 | The Dense Fog | - | food+ | RAISE | food gained
+VV2 | The Dense Fog | - | tech+ | RAISE | tech points gained
+VV2 | The Dense Fog | - | - | NEUTRAL | nothing to lose
+VV2 | The East Wind | - | - | LOWER | coconuts, crops and food lost
+VV2 | The West Wind | - | - | RAISE | coconuts and crops gained
+VV2 | The Friendly Parrot | - | - | RAISE | stored food gained
+VV2 | The Heat Wave | - | - | NEUTRAL | villagers cool off
+VV2 | Isola Day Celebration | - | - | RAISE | the village celebrates
+VV2 | Blessings Day Celebration | - | - | RAISE | a gathering, the village celebrates
+VV2 | Day of Elders | - | - | RAISE | a gathering
+VV2 | Day of Honor | - | - | RAISE | villagers honour the dead together
+VV2 | The Spring Allergies | - | - | NEUTRAL | everyone sneezes
+VV2 | The Mother Parrot | - | - | RAISE | children gain Parenting
+VV2 | The Barrel O` Babies | - | - | RAISE | toddlers join
+VV2 | Old Friends | - | - | RAISE | a man and a woman join
+VV2 | The Epidemic | - | - | LOWER | most villagers fall sick
+VV2 | Rats! | - | - | LOWER | villagers bitten, food halved
+VV2 | The Foul Passing | - | - | LOWER | all stored food lost
+VV2 | Where Are The Infants? | - | - | LOWER | babies lost
+VV2 | A Dangerous Mission | - | - | LOWER | eight young villagers leave for good
+VV2 | The Mosquito Swarm | - | - | LOWER | some fall sick (restored)
+VV2 | The Dragonfly Migration | - | - | RAISE | everyone cured (restored)
+VV2 | Science Awareness Day | - | - | RAISE | children gain Research (restored)
+VV2 | The Tattered Diary | - | - | NEUTRAL | a lore page (restored)
+VV2 | The Doctrine of Magicians | - | - | NEUTRAL | a lore page (restored)
+VV2 | The Doctrine of Naturalists | - | - | NEUTRAL | a lore page (restored)
+VV2 | The Ancient Gold Coin | Use it to adorn clothing | - | RAISE | Culture up a level
+VV2 | The Ancient Gold Coin | Give it to the scientists | - | RAISE | tech points
+VV2 | The Cursed Idol | Destroy the idol | - | NEUTRAL | new dislikes
+VV2 | The Cursed Idol | Make an offering of food | - | LOWER | food lost
+VV2 | The Prettiest Tribe Girl | All agree she is the prettiest | - | NEUTRAL | dislikes work
+VV2 | The Prettiest Tribe Girl | Looks aren't everything | - | NEUTRAL | Parenting up
+VV2 | The Strange Request | Allow the request | - | LOWER | tech points lost
+VV2 | The Strange Request | Refuse the request | - | NEUTRAL | nothing changes
+VV2 | The Savage Child | Lure him away with food | - | RAISE | a boy joins (food spent)
+VV2 | The Savage Child | Chase him away | - | LOWER | tech points lost, turned away
+VV2 | The Voices In The Brush | Investigate the voices | food+ | RAISE | harmless: food gained
+VV2 | The Voices In The Brush | Investigate the voices | - | LOWER | never seen again
+VV2 | The Voices In The Brush | Head back to the village | - | NEUTRAL | nothing changes
+VV2 | For The Birds | Taste the fish | - | RAISE | food gained
+VV2 | For The Birds | Leave the fish alone | - | NEUTRAL | the child's Farming
+VV2 | The Fastest Runner | Let him race everyone | - | NEUTRAL | dislikes running
+VV2 | The Fastest Runner | Let her race everyone | - | NEUTRAL | dislikes running
+VV2 | The Fastest Runner | Agree he is the fastest | - | NEUTRAL | likes running
+VV2 | The Fastest Runner | Agree she is the fastest | - | NEUTRAL | likes running
+VV2 | The Nightmare | Wake him up | - | NEUTRAL | nothing changes
+VV2 | The Nightmare | Wake her up | - | NEUTRAL | nothing changes
+VV2 | The Nightmare | Let him sleep | - | NEUTRAL | -20 health
+VV2 | The Nightmare | Let her sleep | - | NEUTRAL | -20 health
+VV2 | A Bump On The Head | Bonk him on the head | - | NEUTRAL | skills up or down, -10 health
+VV2 | A Bump On The Head | Bonk her on the head | - | NEUTRAL | skills up or down, -10 health
+VV2 | A Bump On The Head | Let him rest | - | NEUTRAL | nothing changes
+VV2 | A Bump On The Head | Let her rest | - | NEUTRAL | nothing changes
+VV2 | The Child Prodigy | Let him play | - | NEUTRAL | Building +50
+VV2 | The Child Prodigy | Let her play | - | NEUTRAL | Building +50
+VV2 | The Child Prodigy | Let him apprentice | - | RAISE | Research, tech points
+VV2 | The Child Prodigy | Let her apprentice | - | RAISE | Research, tech points
+VV2 | The Swarm Of Dragonflies | Chase them away | - | LOWER | some fall sick
+VV2 | The Swarm Of Dragonflies | Ignore them | - | NEUTRAL | nothing changes
+VV2 | The Black Seeds | Eat them | - | NEUTRAL | nothing changes
+VV2 | The Black Seeds | Plant them | - | LOWER | crop field emptied
+VV2 | The Crystal Ball | Keep it | - | NEUTRAL | two villagers trade places
+VV2 | The Crystal Ball | Give it to the children | - | NEUTRAL | nothing changes
+VV2 | The Silver Mirror | Speak the word Geminus | - | NEUTRAL | nothing changes
+VV2 | The Silver Mirror | Speak the word Sunimeg | - | RAISE | a copy joins
+VV2 | The Huge Coconut | Soften it in the pond | - | NEUTRAL | nothing changes
+VV2 | The Huge Coconut | Hurl it from the diving rock | - | RAISE | food, everyone cured
+VV2 | The Falling Star | Wish for himself | - | NEUTRAL | one skill up
+VV2 | The Falling Star | Wish for herself | - | NEUTRAL | one skill up
+VV2 | The Falling Star | Wish for the village | - | RAISE | food or tech points
+VV2 | The Hole In The Sand | Investigate the hole | tech+ | RAISE | brass tools or a golden pocket watch
+VV2 | The Hole In The Sand | Investigate the hole | food+ | RAISE | a cache of nuts
+VV2 | The Hole In The Sand | Investigate the hole | food- | LOWER | ants raid the food bin
+VV2 | The Hole In The Sand | Investigate the hole | sick2 | LOWER | baby snakes: villagers fall sick
+VV2 | The Hole In The Sand | Investigate the hole | - | NEUTRAL | putrid slime: the villager falls sick
+VV2 | The Hole In The Sand | Fill in the hole | - | NEUTRAL | nothing changes
+VV2 | The Spyglass | Keep it | - | RAISE | Exploration level
+VV2 | The Spyglass | Give it to the scientists | - | RAISE | tech points
+VV2 | The Love Note | Write his own poem | - | NEUTRAL | Parenting
+VV2 | The Love Note | Hide to catch the poet | - | RAISE | a baby is conceived
+VV2 | The White Pearl | Keep it for himself | - | NEUTRAL | his skills up
+VV2 | The White Pearl | Keep it for herself | - | NEUTRAL | her skills up
+VV2 | The White Pearl | Show it to the tribe | - | NEUTRAL | shared, a small tech loss
+VV2 | A Mysterious Sack | Open it | item:plastic | RAISE | stored food
+VV2 | A Mysterious Sack | Open it | item:sealed | RAISE | tech points
+VV2 | A Mysterious Sack | Open it | item:compromised | NEUTRAL | tech points, some fall sick
+VV2 | A Mysterious Sack | Open it | item:canvas | LOWER | mice bite: many sick and hurt
+VV2 | A Mysterious Sack | Open it | item:burlap | LOWER | fire ants: the opener badly hurt, can kill
+VV2 | A Mysterious Sack | Leave it alone | - | NEUTRAL | nothing changes
+VV2 | A Mysterious Vial | Drink the liquid | - | NEUTRAL | a new head, one skill up, or skills down
+VV2 | A Mysterious Vial | Pour it out | - | NEUTRAL | nothing changes
+
+# ---- THE SECRET CITY --------------------------------------------------------------------------------------------
+VV3 | The Tsunami | - | - | LOWER | villagers swept away
+VV3 | The Plague Of Ants | - | - | LOWER | stored food lost
+VV3 | The Science Fair | - | - | RAISE | children gain Research
+VV3 | The Allergy Season | - | - | NEUTRAL | everyone sneezes
+VV3 | Isola Day Celebration | - | - | RAISE | the village celebrates
+VV3 | Blessings Day Celebration | - | - | RAISE | the village celebrates
+VV3 | Day of Honor | - | - | RAISE | villagers honour the dead together
+VV3 | The Canoe from the Other Side | - | - | RAISE | a man joins
+VV3 | The Mysterious Fog | - | food+ | RAISE | honeycombs: food gained
+VV3 | The Mysterious Fog | - | food- | LOWER | food lost
+VV3 | The Mysterious Fog | - | tech+ | RAISE | tech points gained
+VV3 | The Mysterious Fog | - | tech- | LOWER | tech points lost
+VV3 | The Mysterious Fog | - | - | NEUTRAL | nothing to lose
+VV3 | The Miraculous Bloom | - | - | RAISE | honey set to 500
+VV3 | The Reflection in the Water | - | - | NEUTRAL | a message only
+VV3 | The Chief's Address | - | - | RAISE | the villagers gather to listen
+VV3 | The Rainy Season | - | - | NEUTRAL | rain
+VV3 | The Cold Snap | - | - | LOWER | a cold spell
+VV3 | The Salty Air | - | - | NEUTRAL | everyone hides
+VV3 | The Oppressive Humidity | - | - | NEUTRAL | villagers slow down
+VV3 | "Thick as Pea Soup" | - | - | NEUTRAL | thick fog
+VV3 | The Stinging Jellyfish | - | - | LOWER | villagers stung
+VV3 | The Mushroom Celebration | - | - | RAISE | everyone celebrates
+VV3 | The Yellow Geckos | - | - | RAISE | everyone cured
+VV3 | Another One of Those Barrels | - | - | RAISE | children join
+VV3 | The Daredevil | He swims with sharks | - | NEUTRAL | Parenting, or a crab bite
+VV3 | The Daredevil | He rethinks his "plan" | - | NEUTRAL | nothing changes
+VV3 | The Ghostly Dream | Study the ways of nature | - | NEUTRAL | Farming
+VV3 | The Ghostly Dream | Study the healing arts | - | NEUTRAL | Healing
+VV3 | The Ghostly Dream | Become preoccupied with research | - | NEUTRAL | Research
+VV3 | The Ghostly Dream | Become inspired by architecture | - | NEUTRAL | Building
+VV3 | The Crystal of Reflections | Keep the crystal | - | RAISE | a copy joins
+VV3 | The Crystal of Reflections | Dispose of the crystal | - | NEUTRAL | nothing changes
+VV3 | The Bitter Brown Beans | Taste some beans | - | NEUTRAL | some sick, food and tech gained
+VV3 | The Bitter Brown Beans | Use beans for dye | - | NEUTRAL | a new outfit
+VV3 | The Bitter Brown Beans | Try to brew the beans | - | RAISE | food and tech gained
+VV3 | The Bitter Brown Beans | Use the beans as fertilizer | - | RAISE | fruit trees full
+VV3 | The Ancient Tablet | Use it for doing laundry | - | NEUTRAL | likes laundry
+VV3 | The Ancient Tablet | Use it for decoration | - | NEUTRAL | likes learning
+VV3 | The Ancient Tablet | Focus research on tablet | - | NEUTRAL | Alchemy up a level, tech points spent
+VV3 | The Ancient Tablet | Put it on display | - | RAISE | villagers gain Research
+VV3 | The Low Tide | Grab the fish | food+ | RAISE | food gained
+VV3 | The Low Tide | Grab the fish | - | LOWER | a wave sweeps villagers away
+VV3 | The Low Tide | Move to high ground | - | NEUTRAL | nothing changes
+VV3 | The Ants and the Granary | Sweep the ants away | - | LOWER | a third of the food lost
+VV3 | The Ants and the Granary | Let them be | - | LOWER | food lost
+VV3 | The Green Pearl | Grind it into powder | - | NEUTRAL | full health, likes running
+VV3 | The Green Pearl | Mount it on a bracelet | - | NEUTRAL | Parenting
+VV3 | The Blue Pearl | Grind it into powder | - | NEUTRAL | Research
+VV3 | The Blue Pearl | Examine it more closely | - | NEUTRAL | nothing changes
+VV3 | The Lazy Apprentice | Stay with the current teacher | - | NEUTRAL | likes learning
+VV3 | The Lazy Apprentice | Find a new teacher | - | NEUTRAL | skills, dislikes learning
+VV3 | The Omen in the Clouds | Warn the villagers | food- | LOWER | a storm nobody believed: food lost
+VV3 | The Omen in the Clouds | Warn the villagers | tech- | LOWER | a false alarm: tech points lost
+VV3 | The Omen in the Clouds | Warn the villagers | weather | RAISE | a storm the village was ready for
+VV3 | The Omen in the Clouds | Warn the villagers | - | NEUTRAL | a false alarm studied: Research
+VV3 | The Omen in the Clouds | Perform the dance | - | NEUTRAL | rain, the villager sick
+VV3 | The Playful Otters | Throw them some food | - | LOWER | food lost
+VV3 | The Playful Otters | Just keep watching them | - | NEUTRAL | the child's Farming
+VV3 | The Ant Hill | Poke the ant hill with a stick | - | NEUTRAL | the child hurt
+VV3 | The Ant Hill | Drop some bits of food | - | LOWER | food lost
+VV3 | The Red Starfish | Pick it up | - | NEUTRAL | one skill down
+VV3 | The Red Starfish | Leave it alone | - | NEUTRAL | nothing changes
+VV3 | The Blue Starfish | Pick it up | - | NEUTRAL | one skill up
+VV3 | The Blue Starfish | Leave it alone | - | NEUTRAL | nothing changes
+VV3 | Bed Bugs | Swat it | - | NEUTRAL | the villager sick
+VV3 | Bed Bugs | Have a closer look | - | NEUTRAL | likes ants
+VV3 | The Lovers | Carve a knife for him | - | RAISE | a baby conceived
+VV3 | The Lovers | Give him a shark-tooth necklace | - | NEUTRAL | nothing changes
+VV3 | The Lovers | Give her a shell necklace | - | NEUTRAL | nothing changes
+VV3 | The Lovers | Give her flowers | - | RAISE | a baby conceived
+VV3 | The Medical Emergency | Attempt the procedure | lost | LOWER | the patient dies
+VV3 | The Medical Emergency | Attempt the procedure | - | RAISE | full recovery
+VV3 | The Medical Emergency | Let the illness take its course | - | NEUTRAL | new dislikes
+VV3 | The Mysterious Vial | Taste it | joined | RAISE | two copies join
+VV3 | The Mysterious Vial | Taste it | - | NEUTRAL | age, looks or skills change
+VV3 | The Mysterious Vial | Bring it back to the village | - | NEUTRAL | nothing changes
+VV3 | The Mango and the Papaya | Swim out after the papaya | food+ | RAISE | both fruits home
+VV3 | The Mango and the Papaya | Swim out after the papaya | - | NEUTRAL | bugs: nothing
+VV3 | The Mango and the Papaya | Be satisfied with the mango | - | RAISE | food
+VV3 | The Mysterious Crate | Open the crate | sick | NEUTRAL | a tarantula: the opener hurt, some food
+VV3 | The Mysterious Crate | Open the crate | - | RAISE | a crate of fruit
+VV3 | The Mysterious Crate | Shove it back out to sea | - | NEUTRAL | nothing changes
+VV3 | Vanity and the Bee | Run to the water | - | NEUTRAL | likes running
+VV3 | Vanity and the Bee | Swat at the bee | - | NEUTRAL | sick, hurt
+VV3 | The Noisy Bird | Scare the bird away | - | NEUTRAL | nothing changes
+VV3 | The Noisy Bird | Leave the bird alone | - | NEUTRAL | nothing changes
+VV3 | The Hole in the Hut | Use beeswax | - | LOWER | honey lost
+VV3 | The Hole in the Hut | Use tree sap | - | LOWER | fruit lost
+VV3 | The Royal Jelly | Use a clear vial | - | NEUTRAL | cured, Healing
+VV3 | The Royal Jelly | Use a dark vial | - | NEUTRAL | nothing changes
+VV3 | The Shooting Star | Tell the others | - | RAISE | food
+VV3 | The Shooting Star | Stay and watch | - | NEUTRAL | the child's Research
+VV3 | The Return of Biggles | Confront him | - | NEUTRAL | Research, renamed "?"
+VV3 | The Return of Biggles | Watch him work | - | RAISE | tech points
+
+# ---- THE TREE OF LIFE -------------------------------------------------------------------------------------------
+VV4 | The Creeping Mold | - | - | LOWER | stored food lost
+VV4 | The Allergy Season | - | - | NEUTRAL | everyone sneezes
+VV4 | Isola Day Celebration | - | - | RAISE | the village celebrates
+VV4 | Blessings Day Celebration | - | - | RAISE | the village celebrates
+VV4 | Day of Honor | - | - | RAISE | villagers honour the dead together
+VV4 | The Mysterious Footprints | - | food+ | RAISE | food gained
+VV4 | The Mysterious Footprints | - | food- | LOWER | food lost
+VV4 | The Mysterious Footprints | - | tech+ | RAISE | tech points gained
+VV4 | The Mysterious Footprints | - | tech- | LOWER | tech points lost
+VV4 | The Mysterious Footprints | - | - | NEUTRAL | nothing to lose
+VV4 | A Closer Look | - | - | RAISE | blackberries gained
+VV4 | The Rainy Season | - | - | NEUTRAL | rain
+VV4 | The Cold Snap | - | - | LOWER | the fire goes out
+VV4 | "A Monsoon!" | - | - | NEUTRAL | rain
+VV4 | The Stinging Wasps | - | - | LOWER | villagers stung
+VV4 | The Festival of the Banyan | - | - | RAISE | the children are celebrated
+VV4 | The Pure Sea Air | - | - | RAISE | every sick villager cured
+VV4 | Daredevil Barrel...of Babies! | - | - | RAISE | children arrive
+VV4 | The State of the Tree | - | sick | LOWER | glum: villagers hurt and sick
+VV4 | The State of the Tree | - | hurt | LOWER | glum: villagers hurt and sick
+VV4 | The State of the Tree | - | healed | RAISE | rejuvenated: everyone healed
+VV4 | The State of the Tree | - | - | NEUTRAL | no one was sick or hurt to tell which
+VV4 | The Abandoned Infants | - | - | RAISE | women become pregnant
+VV4 | The Arc of Brilliant Colors | Run to the left side | - | NEUTRAL | nothing changes
+VV4 | The Arc of Brilliant Colors | Run to the right side | food+ | RAISE | rare mushrooms: food
+VV4 | The Arc of Brilliant Colors | Run to the right side | - | NEUTRAL | a fall: hurt
+VV4 | The Robber Crab | Cut off its tail | - | RAISE | villagers gain Healing
+VV4 | The Robber Crab | Let it go | - | RAISE | Food Mastery up a level
+VV4 | The Phosphorescent Fungi | Throw it into the ocean | - | NEUTRAL | the child's Research, sick, hurt
+VV4 | The Phosphorescent Fungi | Admire it from afar | - | LOWER | villagers fall sick
+VV4 | The Pink Shell | Pick it up and listen inside | - | NEUTRAL | hurt, a dislike
+VV4 | The Pink Shell | Admire it without touching it | - | NEUTRAL | likes learning
+VV4 | The Calabash Instrument | Fill it up to the first notch | - | RAISE | tech points
+VV4 | The Calabash Instrument | Fill it to the top | - | LOWER | tech points lost
+VV4 | The Climber | Try to find a way down | - | NEUTRAL | -50 health, Dendrology level
+VV4 | The Climber | Start yelling for help | - | LOWER | tech points lost
+VV4 | The Mosquito Larvae | Put soap in the pond | - | LOWER | soap used, villagers sick
+VV4 | The Mosquito Larvae | Pour oil in the pond | - | RAISE | tech points
+VV4 | Faces in the Night | Inform the tribe | - | RAISE | tech points
+VV4 | Faces in the Night | Ignore the faces | - | NEUTRAL | new dislikes
+VV4 | The Screaming Baby | Leave baby alone | - | NEUTRAL | likes and dislikes
+VV4 | The Screaming Baby | Take baby to the beach | - | NEUTRAL | likes dancing, +10 health
+VV4 | The Sealed Box | Swim back with the box | tech+ | RAISE | tech points
+VV4 | The Sealed Box | Swim back with the box | - | LOWER | swept away
+VV4 | The Sealed Box | Let it go | - | NEUTRAL | nothing changes
+VV4 | The Wet Book | Read each page | - | NEUTRAL | skills raised to 50
+VV4 | The Wet Book | Bring it to the lab | - | RAISE | everyone's Parenting
+VV4 | The Lie | Lie | - | NEUTRAL | the child hurt
+VV4 | The Lie | Tell the truth | - | RAISE | everyone's Parenting
+VV4 | The Aspiring Doctor | Eat algae | - | NEUTRAL | cured, Healing
+VV4 | The Aspiring Doctor | Drink sea water | - | NEUTRAL | sick, hurt
+VV4 | The Aspiring Doctor | Eat a bit | - | NEUTRAL | cured, Healing
+VV4 | The Aspiring Doctor | Fast | - | NEUTRAL | sick, hurt, Healing
+VV4 | The Aspiring Doctor | Eat | - | NEUTRAL | sick
+VV4 | The Aspiring Doctor | Use bark | - | NEUTRAL | cured, hurt, Healing
+VV4 | The Aspiring Doctor | Use mushrooms | - | NEUTRAL | sick, hurt, Healing
+VV4 | The Aspiring Doctor | Better not | - | NEUTRAL | sick
+VV4 | The Aspiring Scientist | Try the salts | - | NEUTRAL | badly hurt, Research, tech points
+VV4 | The Aspiring Scientist | Use algae | - | LOWER | tech points lost
+VV4 | Innovation in Construction | Try the technique | hurt | LOWER | a fall: badly hurt, can kill
+VV4 | Innovation in Construction | Try the technique | - | NEUTRAL | Building +65
+VV4 | Innovation in Construction | It is too dangerous | - | NEUTRAL | nothing changes
+VV4 | Innovation in Farming | Try standing on fruit | hurt | LOWER | hot coals: badly hurt, can kill
+VV4 | Innovation in Farming | Try standing on fruit | - | NEUTRAL | Farming +65
+VV4 | Innovation in Farming | That is too dangerous | - | NEUTRAL | nothing changes
+VV4 | Tough Lessons | Climb the Tree | - | NEUTRAL | -75 health for the child's sake, Parenting
+VV4 | Tough Lessons | Leave the Child | - | NEUTRAL | Parenting down
+VV4 | The Pretty Shell | Teach kids sharing | - | RAISE | teaching sharing
+VV4 | The Pretty Shell | Teach kids negotiation | - | NEUTRAL | skills
+VV4 | The Legendary Stranger | How should we care for our people? | - | RAISE | Medicine up a level
+VV4 | The Legendary Stranger | How should we care for the tree? | - | RAISE | Dendrology up a level
+
+# ---- NEW BELIEVERS ----------------------------------------------------------------------------------------------
+VV5 | The Creeping Mold | - | - | LOWER | stored food lost
+VV5 | The Allergy Season | - | - | NEUTRAL | everyone sneezes
+VV5 | Isola Day Celebration | - | - | RAISE | the village celebrates
+VV5 | Blessings Day Celebration | - | - | RAISE | Divine Energy full, the village celebrates
+VV5 | Day of Honor | - | - | RAISE | villagers honour the dead together
+VV5 | The Vision | - | - | NEUTRAL | one believer's Faith up
+VV5 | The Mysterious Footprints | - | food+ | RAISE | food gained
+VV5 | The Mysterious Footprints | - | food- | LOWER | food lost
+VV5 | The Mysterious Footprints | - | tech+ | RAISE | tech points gained
+VV5 | The Mysterious Footprints | - | tech- | LOWER | tech points lost
+VV5 | The Mysterious Footprints | - | - | NEUTRAL | nothing to lose
+VV5 | The Cold Snap | - | - | LOWER | the fire goes out
+VV5 | Army Ants! | - | - | LOWER | crops eaten
+VV5 | Aphid Infestation! | - | - | LOWER | crops halved
+VV5 | The River Breaks Its Banks | - | - | RAISE | noni and crops gained
+VV5 | The Strange Crystals | - | - | RAISE | tech points gained
+VV5 | The Especially Offensive Cloud | - | - | NEUTRAL | everyone hides
+VV5 | The Bottle of Spicy Juice | - | - | NEUTRAL | villagers react
+VV5 | The Clumsy Heathen | - | - | RAISE | noni gained
+VV5 | The Pesky Critter | - | - | LOWER | tech points lost
+VV5 | Mushroom Day! | - | - | NEUTRAL | a little food, tech points lost
+VV5 | The Salty Air | - | - | NEUTRAL | everyone hides
+VV5 | Barrel O' Babies! | - | joined | RAISE | children join the tribe
+VV5 | Barrel O' Babies! | - | - | NEUTRAL | Heathen children appear
+VV5 | Chutes Without Ladders | - | - | RAISE | children join the tribe
+VV5 | News From Another Tribe | - | - | RAISE | a master joins, or tech points
+VV5 | Innovation in Farming | - | - | RAISE | the children gather
+VV5 | The Bed Bugs | Search for the bugs all night | - | NEUTRAL | hurt, a dislike
+VV5 | The Bed Bugs | Let it go | - | NEUTRAL | -15 health
+VV5 | The Mask | Put it on | - | LOWER | becomes a Heathen
+VV5 | The Mask | Bury it | - | RAISE | Faith and Divine Energy up
+VV5 | The Heathen Toy | Keep it | - | NEUTRAL | Research
+VV5 | The Heathen Toy | Return it to its owner | - | RAISE | kindness to a Heathen
+VV5 | The Daredevil Jump | Jump | - | NEUTRAL | likes and dislikes
+VV5 | The Daredevil Jump | Don't jump | - | NEUTRAL | dislikes
+VV5 | The Spa | Bathe quickly before anyone notices | - | NEUTRAL | +10 health
+VV5 | The Spa | Enjoy the pools | - | LOWER | becomes a Heathen
+VV5 | Doubt | Give a sign | - | LOWER | Faith and Divine Energy lost
+VV5 | Doubt | Don't give a sign | - | NEUTRAL | Faith and Devotion up
+VV5 | Spying on the Heathens | Run away | - | NEUTRAL | Devotion
+VV5 | Spying on the Heathens | Talk to the heathen | - | RAISE | reaching out to a Heathen
+VV5 | You're Doing It Wrong! | Teach them to reduce explosions | hurt | NEUTRAL | an explosion: hurt
+VV5 | You're Doing It Wrong! | Teach them to reduce explosions | - | RAISE | Science up a level
+VV5 | You're Doing It Wrong! | There are a lot of them; better not! | - | RAISE | tech points
+VV5 | The Missing Kids | Yell for help | - | NEUTRAL | two children slightly hurt
+VV5 | The Missing Kids | Try to help the heathen | - | RAISE | kindness to a Heathen
+VV5 | Outreach? | Offer a tour | - | RAISE | reaching out (small cost)
+VV5 | Outreach? | Refuse the tour | - | NEUTRAL | nothing changes
+VV5 | The Advanced Artifacts | Collaborate with the other researchers | - | RAISE | working together, tech points
+VV5 | The Advanced Artifacts | Prepare an independent report | tech- | LOWER | not believed: tech points lost
+VV5 | The Advanced Artifacts | Prepare an independent report | - | RAISE | well received: Science up a level
+VV5 | Trick Or Trade | Employ a clever ruse | - | NEUTRAL | tech points, Devotion to 0
+VV5 | Trick Or Trade | Trade some food for the scrolls | - | RAISE | a fair trade, tech points
+VV5 | The Migrating Fruit Bats | Observe them | - | NEUTRAL | Food Mastery level, noni lost
+VV5 | The Migrating Fruit Bats | Scare them | - | NEUTRAL | Farming
+VV5 | The Aphids in the Noni Bush | Research bugs that eat aphids | - | NEUTRAL | noni lost, Farming, tech points
+VV5 | The Aphids in the Noni Bush | Research potions that kill aphids | - | LOWER | noni lost
+VV5 | The Defector | Accept the heathen | tech- | LOWER | a spy: tech points lost
+VV5 | The Defector | Accept the heathen | - | RAISE | a genuine defector joins
+VV5 | The Defector | Better not | - | NEUTRAL | nothing changes
+VV5 | The Straw Hat | Wear it | - | NEUTRAL | Devotion
+VV5 | The Straw Hat | Use it as a cooking strainer | - | RAISE | food
+VV5 | The Strange Nectar | Drink it | - | NEUTRAL | age set to 16.5
+VV5 | The Strange Nectar | Bring it to the lab | - | RAISE | tech points
+VV5 | The Cracked Mask | Attempt to fix the mask | - | RAISE | kindness to a Heathen
+VV5 | The Cracked Mask | Try to trick the heathen | - | LOWER | becomes a Heathen
