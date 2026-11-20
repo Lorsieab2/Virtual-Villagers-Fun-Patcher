@@ -3224,7 +3224,7 @@
         {
           "source": "assets/empty_sources/VVFP VV4 Empty Sources.dll",
           "destination": "VVFP VV4 Empty Sources.dll",
-          "sha256": "50F1EC5EA16CED4C4680E512C985EB7EB9D311A19E2C33CC76D3335DF0682D22"
+          "sha256": "D9748D0FD760B8FFDEFA26C7C98809DFDE215BA08CA87B67D87D52B2809CF2C8"
         }
       ],
       "runtime_detours": [
