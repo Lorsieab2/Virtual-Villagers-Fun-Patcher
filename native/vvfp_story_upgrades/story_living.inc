@@ -3,8 +3,7 @@
    and story_collection.inc (the rare roll, Pick Island Event) call it.
 
    A manifest row whose id begins "living_" is a Living Event Engine seed: its event is not a "<id>.cieg" file but
-   one of the seed's variants in its group's pack, "Island Event Collection\living-<group>.pak" beside
-   "manifest-<group>.txt" (VLEP v1 or v2; an older install's single "living.pak" beside its "manifest.txt" when no
+   one of the seed's variants in its group's pack, "Events\<group>.pak" beside "<group>.lst" (VLEP v1 or v2; an older install's single "living.pak" beside its "manifest.txt" when no
    split file exists: the group ""), each an ordinary version 6 graph.  ONE GROUP'S PACK IS LOADED AT A TIME, into
    memory of its own size, and changed when another group is asked for (the owner, 2026-11-15: many small files).
 
@@ -281,7 +280,7 @@ static int lv_check(const unsigned char *d, unsigned int size, int game, lv_pack
     return 1;
 }
 
-/* The pack of the group the collection loaded (lv_want_group: "living-<group>.pak", or the older single "living.pak"
+/* The pack of the group the collection loaded (lv_want_group: "<group>.pak", or the older single "living.pak"
    for the group ""), loaded and checked into memory of its own size -- the previous group's freed -- and read again
    only when the file changed: 1 when it can be used. */
 static int lv_pack_for(int game) {
@@ -302,7 +301,7 @@ static int lv_pack_for(int game) {
     char leaf[LV_GROUP_BYTES + 16];
     unsigned int size = 0;
     if (lv_want_group[0] != '\0') {
-        wsprintfA(leaf, "living-%s.pak", lv_want_group);
+        wsprintfA(leaf, "%s.pak", lv_want_group);
     } else {
         lstrcpyA(leaf, LV_PACK_LEAF);
     }

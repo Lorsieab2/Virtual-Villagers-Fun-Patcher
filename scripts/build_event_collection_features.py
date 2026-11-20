@@ -7,15 +7,18 @@ The events are data: one version 6 branching Custom Island Event graph per event
 block (id, source lines, section, credit, draw weight, series).  This compiles every one with the patcher's own
 src/vv_cie_graph.py (validate, then compile_graph) and writes:
 
-  * assets/event_collection/<id>.cieg -- each event's compiled file;
+  * assets/event_collection/<id>.cieg -- each event's compiled file, installed as "Events\\<number>.cieg" (its number
+    from data/event_collection/file_numbers.tsv, which only ever grows: a number is never changed or reused);
   * assets/event_collection/vvN/manifest-<group>.txt -- the events of game N (one file per source section and per
-    living series; living-<group>.pak holds each living series' variants), one line each:
+    living series; living-<group>.pak holds each living series' variants), installed as "Events\\<group>.lst" and
+    "Events\\<group>.pak", one line each:
     id<TAB>title<TAB>games<TAB>draw weight<TAB>series<TAB>credit<TAB>description<TAB>Guardians title<TAB>Guardians
-    description (Story / Cheat Upgrades' story_collection.inc reads it from "<game folder>\\Virtual Villagers Fun
-    Patcher Files\\Island Event Collection\\manifest-<group>.txt"): the title the game shows (its title variant's, cie-v6-
+    description<TAB>kind<TAB>file (Story / Cheat Upgrades' story_collection.inc reads it from "<game folder>\\Virtual
+    Villagers Fun Patcher Files\\Events\\<group>.lst"): the title the game shows (its title variant's, cie-v6-
     binary.md 18), Pick Island Event's sentence (collection.description), and -- New Believers only, empty when the
-    same -- both with Guardians of Isola Rewrite on (the title variant and collection.description_variants);
-  * assets/event_collection/Credits.txt ("Island Event Collection\\Credits.txt" in the game), and the same text as
+    same -- both with Guardians of Isola Rewrite on (the title variant and collection.description_variants); the
+    file column is the event's number (its "<number>.cieg");
+  * assets/event_collection/Credits.txt ("Events\\Credits.txt" in the game), and the same text as
     docs/more-island-events/Isola Grand Event Collection - Credits.md: the source's credit ledger (lines 1-91) and
     every section's credit block, verbatim, then each event's own credit;
   * data/vvN_isola_grand_event_collection_feature.json -- the five rows, pinning every file by SHA-256.
@@ -51,13 +54,15 @@ SOURCE = ROOT / "docs" / "more-island-events" / \
 SOURCE_SHA256 = "319712596BCCD325F47DF13B10DC895071F0306F7105B17CC8F3ED73BAE44C3E"
 DATA = ROOT / "data" / "event_collection"
 ASSETS = ROOT / "assets" / "event_collection"
-FOLDER = "Island Event Collection"          # beside the companions (src/patcher_files.py PATCHER_READ_FOLDERS)
+# Short installed names (the owner, 2026-11-19: no "Path too long" when a patched game is copied or unzipped): the
+# folder, "<number>.cieg", "<group>.lst" and "<group>.pak" (src/patcher_files.py PATCHER_READ_FOLDERS).
+FOLDER = "Events"                           # beside the companions (src/patcher_files.py PATCHER_READ_FOLDERS)
+MANIFEST_EXT, PACK_EXT = ".lst", ".pak"
+NUMBERS = ROOT / "data" / "event_collection" / "file_numbers.tsv"
 CREDITS_NAME = "Credits.txt"                # short: every path stays inside the game's own longest file's length
-ID_MAX = 30                                 # an event id's longest (its .cieg's path, likewise)
-# ... in an event A New Home shows: its .cieg ("Virtual Villagers Fun Patcher Files\Island Event Collection\<id>.cieg",
-# 65 characters besides the id) must stay shorter than VV1's old patch-log path in the same folder (90 characters,
-# tests/test_patcher_files_folder.py DeepOutputFoldersPatch), so a deep folder's longest path is still a file the
-# old patcher refused: 24 at most, 22 with a margin of two.
+ID_MAX = 30                                 # an event id's longest
+# ... in an event A New Home shows (the ids' old rule, from when the id named the event's file; the installed file is
+# now "<number>.cieg", and the ids keep their lengths so no id ever changes).
 VV1_ID_MAX = 22
 CREDITS_MD = ROOT / "docs" / "more-island-events" / "Isola Grand Event Collection - Credits.md"
 NAME = "Isola Grand Event Collection"
@@ -69,8 +74,8 @@ NOT_EVENTS = {"manifest.json", "shared_pools.json",
               # not events
               "solidarity_tags.json", "solidarity_review.json"}
 # The Living Event Engine (docs/event-collection/living-pack.md): its variants ship in one pack per game,
-# "Island Event Collection\\living.pak", and its seeds are manifest rows (id living_..., one series per category).
-LIVING_NAME = "living-*.pak"                 # one per living series (below)
+# "Events\\<group>.pak", and its seeds are manifest rows (id living_..., one series per category).
+LIVING_NAME = "*.pak"                        # one per living series (below), in the game's Events folder
 # Split files (the owner, 2026-11-15; the engine's layout, feat/97-island-events-ui 70df06497): one
 # "manifest-<group>.txt" per source section and per living series, one "living-<group>.pak" per living series.  A group
 # is [a-z0-9_]; it is kept short so every path stays inside VV1's deep-folder limit (VV1_ID_MAX: the file name at most
@@ -416,6 +421,9 @@ def manifest_line(game: int, e: dict) -> str:
         extra = [alt_title if alt_title != title else "", alt_description if alt_description != description else ""]
     # Village Solidarity (column 10, only when the event has a kind): "cooperative" or "repair".
     kind = [e["solidarity"]] if e.get("solidarity") else []
+    # Its compiled file's name (column 11, "<number>.cieg" in the game: file_numbers), when the build numbered it.
+    if e.get("file"):
+        kind = (kind or [""]) + [e["file"]]
     return "\t".join([e["id"], title, ",".join(str(n) for n in e["games"]), str(e["weight"]), e["series"],
                       e["credit"], description] + extra + kind)
 
@@ -518,6 +526,38 @@ def credits_text(events: list[dict], lines: list[str] | None = None, living_on: 
     return "".join(out)
 
 
+def read_numbers(path: Path = NUMBERS) -> dict[str, int]:
+    """{event id: its file number} of the committed table ("<number><TAB><id>" lines, '#' a comment)."""
+    out: dict[str, int] = {}
+    if not path.is_file():
+        return out
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip() or line.startswith("#"):
+            continue
+        number, ident = line.split("\t")
+        out[ident] = int(number)
+    return out
+
+
+def file_numbers(ids: list[str], path: Path = NUMBERS, write: bool = False) -> dict[str, int]:
+    """Every event id's file number (the owner, 2026-11-19: "just number the added events"): the committed table's,
+    and the next free numbers for ids it does not have yet (in sorted order), appended at its end.  A number is never
+    changed or given to another id, even when its event leaves the collection, so a reinstall never scrambles
+    anything; the ids stay the events' identity everywhere (picks, logs, saved runs)."""
+    table = read_numbers(path)
+    new = sorted(set(ids) - set(table))
+    if new:
+        top = max(table.values(), default=0)
+        for k, ident in enumerate(new, 1):
+            table[ident] = top + k
+        if write:
+            rows = ["# Isola Grand Event Collection: each event's installed file, \"Events\\<number>.cieg\"",
+                    "# (scripts/build_event_collection_features.py).  Append only: never change or reuse a number."]
+            rows += [f"{n}\t{i}" for i, n in sorted(table.items(), key=lambda kv: kv[1])]
+            path.write_text("\n".join(rows) + "\n", encoding="utf-8", newline="\n")
+    return table
+
+
 def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
 
@@ -570,8 +610,9 @@ def row(game: int, files: list[tuple[str, str, bytes]], count: int, living_count
             "event comes. The event is armed as a purchase arms one, and the island timer's keeper is then given "
             "a new natural time after it, drawn as the game's own trigger draws one (12-23, 10-19 or 8-15 hours), "
             "so the new event takes the natural event's place.",
-            f"The events of this game are compiled .cieg files in \"Virtual Villagers Fun Patcher Files\\{FOLDER}\", "
-            "listed in its manifest-*.txt files (one per source section and living series); Pick Island Event lists them (strict casting: every requirement must hold) "
+            f"The events of this game are compiled .cieg files in \"Virtual Villagers Fun Patcher Files\\{FOLDER}\" "
+            "(each named by its number, data/event_collection/file_numbers.tsv), "
+            "listed in its *.lst files (one per source section and living series); Pick Island Event lists them (strict casting: every requirement must hold) "
             "and the in-game library's \"Isola Grand Event Collection\" group sells them (the library's casting: a "
             "requirement nobody meets is dropped, the protected villagers' safety never).",
         ] + ([
@@ -680,7 +721,7 @@ MANIFEST_HEAD = ["# Isola Grand Event Collection: events of this game, read by V
 
 def static_mixer_line(game: int, v) -> str:
     """A static event's mixer seed row: the event's own title, description, credit and games, its own id and series."""
-    e = v.plan["static"]
+    e = dict(v.plan["static"], file="")      # a living seed's row: its event is in the pack, never a .cieg
     fields = manifest_line(game, e).split("\t")
     fields[0], fields[4], fields[3] = v.manifest_id, v.series, "1"
     return "\t".join(fields)
@@ -729,6 +770,9 @@ def build(src: Path = DATA, assets: Path = ASSETS, data_dir: Path = ROOT / "data
     variants, packs = living_build(events) if living_on else ([], {})
     groups = manifest_groups(events)
     lg = living_groups(variants)
+    numbers = file_numbers([e["id"] for e in events], write=write and Path(src) == DATA)
+    for e in events:
+        e["file"] = str(numbers[e["id"]])
     rows = {}
     planned: dict[Path, bytes] = {}
     for e in events:
@@ -741,16 +785,16 @@ def build(src: Path = DATA, assets: Path = ASSETS, data_dir: Path = ROOT / "data
         for grp in sorted(manifests):
             name = f"manifest-{grp}.txt"
             planned[assets / f"vv{game}" / name] = manifests[grp]
-            files.append((f"{rel}/vv{game}/{name}", f"{FOLDER}/{name}", manifests[grp]))
+            files.append((f"{rel}/vv{game}/{name}", f"{FOLDER}/{grp}{MANIFEST_EXT}", manifests[grp]))
         living_count = 0
         for series, data in sorted((packs.get(game) or {}).items()):
             name = f"living-{lg[series]}.pak"
             planned[assets / f"vv{game}" / name] = data
-            files.append((f"{rel}/vv{game}/{name}", f"{FOLDER}/{name}", data))
+            files.append((f"{rel}/vv{game}/{name}", f"{FOLDER}/{lg[series]}{PACK_EXT}", data))
             # the Living Engine's own situations; a static event's mixer versions (bank 2) are that event again
             living_count += sum(1 for s in living.read_pack(data)["seeds"] if s["bank"] in (0, 1))
         mine = [e for e in events if game in e["games"]]
-        files += [(f"{rel}/{e['id']}.cieg", f"{FOLDER}/{e['id']}.cieg", e["cieg"]) for e in mine]
+        files += [(f"{rel}/{e['id']}.cieg", f"{FOLDER}/{e['file']}.cieg", e["cieg"]) for e in mine]
         rows[game] = row(game, files, len(mine), living_count)
     if write:
         for path, data in planned.items():
@@ -773,7 +817,7 @@ def build(src: Path = DATA, assets: Path = ASSETS, data_dir: Path = ROOT / "data
 def main() -> None:
     rows = build()
     for game, record in rows.items():
-        names = [f["destination"].rsplit("/", 1)[-1] for f in record["companion_files"]]
+        names = [f["source"].rsplit("/", 1)[-1] for f in record["companion_files"]]
         packs_ = [n for n in names if n.startswith("living-")]
         size = sum((ASSETS / f"vv{game}" / n).stat().st_size for n in packs_)
         print(f"vv{game}: {sum(n.endswith('.cieg') for n in names)} events, "

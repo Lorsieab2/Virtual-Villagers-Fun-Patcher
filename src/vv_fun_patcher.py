@@ -5,6 +5,7 @@ import base64
 import hashlib
 import json
 import os
+import re
 import shutil
 import stat
 import struct
@@ -14,7 +15,7 @@ import time
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 import patcher_files
@@ -11219,7 +11220,7 @@ def _copy_companion_files(
 
 def _write_player_events(output_folder: Path, fun_patches: list[FunPatch]) -> None:
     """Player Events (src/vv_player_events.py): with the game's Isola Grand Event Collection row installed, the
-    player's own event and piece files compiled into its "Island Event Collection" folder.  A bad file or line is
+    player's own event and piece files compiled into its "Events" folder.  A bad file or line is
     left out and reported (vv_player_events.LAST_REPORTS, the GUI's dialog); nothing here can fail the patch."""
     import vv_player_events
     for feature in fun_patches:
@@ -11612,6 +11613,7 @@ def _remove_unselected_companions(
                 "an older patcher's loose copy: the patcher's files are now in "
                 f"'{patcher_files.PATCHER_FILES_FOLDER}'",
             )
+    removed += _remove_legacy_collection_folder(long_staging)
     # The reports of the build the source folder came from (a folder an
     # earlier patcher produced): they describe that build, not this one, which
     # writes its own. The same files _patcher_owned_companion_keys owns on
@@ -11634,6 +11636,57 @@ def _remove_unselected_companions(
             "sha256": digest,
             "reason": "a report of the earlier build the source folder came from",
         })
+    return removed
+
+
+_LEGACY_COLLECTION_FILE = re.compile(
+    r"(?i)^(?:[a-z0-9_]+\.cieg|manifest(?:-[a-z0-9_]+)?\.txt|living(?:-[a-z0-9_]+)?\.pak|pieces-[a-z0-9_]+\.pcb"
+    r"|credits\.txt|problems\.txt|.+\.tmp)$")
+
+
+def _legacy_collection_relative(relative: "str | os.PathLike[str]") -> bool:
+    """A path (relative to the game folder) directly in the collection's folder under its older, long name."""
+    parts = [part.casefold() for part in Path(relative).parts]
+    return (len(parts) == 3 and parts[0] == patcher_files.PATCHER_FILES_FOLDER.casefold()
+            and parts[1] == patcher_files.LEGACY_COLLECTION_FOLDER.casefold())
+
+
+def _player_events_relative(relative: "str | os.PathLike[str]") -> bool:
+    """A file Player Events compiled into the collection's folder ("Events\\pl_<x>.lst", "p<n>.cieg"...)."""
+    import vv_player_events
+    parts = Path(relative).parts
+    return (len(parts) == 3 and parts[0].casefold() == patcher_files.PATCHER_FILES_FOLDER.casefold()
+            and parts[1].casefold() == vv_player_events.COLLECTION_FOLDER.casefold()
+            and vv_player_events._owned(parts[2]))
+
+
+def _remove_legacy_collection_folder(game_folder: Path) -> list[dict[str, str]]:
+    """The collection's folder under its older, long name ("Virtual Villagers Fun Patcher Files\\Island Event
+    Collection", up to v1.35.97's path fix): every file in it the patcher or its companion wrote -- the events
+    ("<id>.cieg", the player's "pl_*.cieg"), the manifests, the living packs, the pieces, Credits.txt and
+    Problems.txt -- is removed (nothing reads them now: the collection is in "Events" with short names), and the
+    folder too once it is empty.  A file of any other name is left where it is.  Returns what was removed."""
+    folder = patcher_files.long_path(game_folder) / patcher_files.PATCHER_FILES_FOLDER \
+        / patcher_files.LEGACY_COLLECTION_FOLDER
+    removed: list[dict[str, str]] = []
+    if not folder.is_dir():
+        return removed
+    for path in sorted(folder.iterdir(), key=lambda p: p.name):
+        if not path.is_file() or not _LEGACY_COLLECTION_FILE.match(path.name):
+            continue
+        digest = sha256(path)
+        path.unlink()
+        removed.append({
+            "path": (PurePosixPath(patcher_files.PATCHER_FILES_FOLDER) / patcher_files.LEGACY_COLLECTION_FOLDER
+                     / path.name).as_posix(),
+            "sha256": digest,
+            "reason": "the Isola Grand Event Collection's older folder: its files now have short names in "
+                      f"'{patcher_files.PATCHER_FILES_FOLDER}\\Events'",
+        })
+    try:
+        folder.rmdir()
+    except OSError:
+        pass                                          # something else is in it: kept
     return removed
 
 
@@ -14081,6 +14134,10 @@ def _game_opened_relatives(
                 # the staged copy drops them, and the game never opens them.
                 if patcher_files.is_patch_log_name(relative.name)                         or relative.name.casefold() == patcher_files.TRANSPARENCY_FILENAME.casefold():
                     continue
+                # The collection's older long-named folder: the staged copy drops it too
+                # (_remove_legacy_collection_folder), so its long names never refuse a folder.
+                if _legacy_collection_relative(relative) and _LEGACY_COLLECTION_FILE.match(relative.name):
+                    continue
                 relatives.append(str(relative))
     return relatives
 
@@ -14576,6 +14633,12 @@ def apply_patch(
                     continue
                 relative = prior.relative_to(long_output)
                 if relative.as_posix().casefold() in owned:
+                    continue
+                # The collection's older long-named folder and an earlier patch's Player Events files: the patcher's,
+                # never the player's (this patch writes its own, with short names).
+                if _legacy_collection_relative(relative) and _LEGACY_COLLECTION_FILE.match(relative.name):
+                    continue
+                if _player_events_relative(relative):
                     continue
                 target = patcher_files.long_path(staging_folder) / relative
                 if target.exists():

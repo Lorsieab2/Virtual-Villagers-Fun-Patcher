@@ -28,15 +28,16 @@ of the built-in events.
   also installed in each patched game's `Virtual Villagers Fun Patcher Files\Player Events`.
 - **At patch time** (only with the game's Isola Grand Event Collection row ticked, and "Install my player events
   when patching" on), in the patched game's `Virtual Villagers Fun Patcher Files`:
-  - `Island Event Collection\manifest-pl_<x>.txt`, one per file (the collection's own split-file manifests,
-    `story_collection.inc`), and `pl_<x>_<nnn>.cieg`, one per event;
-  - `Island Event Collection\pieces-pl_<x>.pcb`, the file's mixer pieces (VPCB v1,
+  - `Events\pl_<x>.lst`, one per file (the collection's own split-file manifests, `story_collection.inc`), and
+    `p<n>.cieg`, one per event (numbered `p1`, `p2`... across your files; the manifest row's file column names it,
+    and the event's id stays its identity in picks and logs);
+  - `Events\pl_<x>.pcb`, the file's mixer pieces (VPCB v1,
     [procedural-pieces.md](event-collection/procedural-pieces.md));
-  - `<x>` keeps every name within A New Home's deep-folder rule (a manifest's file name at most 22 characters, the
-    collection's own groups' rule): a file name of up to 6 letters and digits as it is (`events.txt`: `pl_events`),
+  - every name is short, so a patched game copies and unzips without "Path too long": a file name of up to 6 letters
+    and digits as it is (`events.txt`: `pl_events`),
     a longer one its first two and a hash of the whole name (`My Sea Stories.txt`: `pl_my` and four hex digits), the
     same every patch. Two files that still meet: the second takes the next hash, and the report says so;
-  - the built-in collection ships its own `manifest-<group>.txt` files, so nothing of it is copied or changed;
+  - the built-in collection ships its own `<group>.lst` files, so nothing of it is copied or changed;
   - `Player Events\`: the AI prompt (with your rules), the tone reference, a copy of your files and
     `Player Events Report.txt` (what was installed and what was left out, and why).
   The patcher's own earlier files there (those names only) are replaced at each patch; nothing else is touched. The

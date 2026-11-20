@@ -180,14 +180,26 @@ PATCHER_READS: frozenset[str] = frozenset({
 
 # Folders of files only the companions read, whatever their names: everything in them goes in the patcher's folder.
 PATCHER_READ_FOLDERS: tuple[str, ...] = (
-    # The Isola Grand Event Collection: its events (.cieg), manifest.txt and credits, read by "VVFP Story
-    # Upgrades.dll" from "Island Event Collection\\" beside it (story_collection.inc;
-    # scripts/build_event_collection_features.py).
-    "Island Event Collection/",
+    # The Isola Grand Event Collection: its events ("<number>.cieg"), manifests ("<group>.lst"), living packs
+    # ("<group>.pak") and credits, read by "VVFP Story Upgrades.dll" from "Events\\" beside it (story_collection.inc;
+    # scripts/build_event_collection_features.py).  Short names (the owner, 2026-11-19): no "Path too long" when a
+    # patched game is copied or unzipped.
+    "Events/",
     # Player Events (src/vv_player_events.py install): the AI prompt, the owner's reference files, the install report
     # and copies of the player's event files, written there for the player to read.
     "Player Events/",
 )
+
+# The same folder under its name up to v1.35.97's path fix, with the long file names it held ("<id>.cieg",
+# "manifest-<group>.txt", "living-<group>.pak", "pieces-<group>.pcb", Credits.txt and the companion's Problems.txt).
+# Nothing reads it any more: a re-patch removes those files from it (vv_fun_patcher._remove_legacy_collection_folder).
+LEGACY_COLLECTION_FOLDER = "Island Event Collection"
+
+# The budgets the tests hold every shipped name to (tests/test_path_lengths.py): a file inside a patched game folder,
+# relative to it, and an entry of the release zip.  With them a game folder up to 159 characters deep still copies
+# and unzips with Windows Explorer, whose limit is MAX_PATH.
+INSTALLED_RELATIVE_BUDGET = 100
+ZIP_ENTRY_BUDGET = 120
 
 # Setting files the patcher itself writes beside their companions (no catalog record ships them): the sliders'
 # numbers for Louder Wind Flutes ("VVFP VV4 Louder Flutes.dll") and More Frequent Island Events ("VVFP Island

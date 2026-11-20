@@ -39,10 +39,16 @@
 
    MANY SMALL FILES (the owner, 2026-11-15: "an unlimited amount of files, the game picks randomly from one of them
    every time it chooses an island event"): the collection's events are listed in many small manifests,
-   "Island Event Collection\manifest-<group>.txt" (the same line format; a living group's variants in
-   "living-<group>.pak" beside it); an older install's single "manifest.txt" (with "living.pak") is read only when no
-   split file exists.  A small index (sc_index: each file's name and draw weight -- its events' weights, a series
-   counting once) is all that is kept of them; the draw loads one file at a time.
+   "Events\<group>.lst" (the same line format; a living group's variants in "<group>.pak" beside it); an older
+   install's single "manifest.txt" (with "living.pak") is read only when no split file exists.  A small index
+   (sc_index: each file's name and draw weight -- its events' weights, a series counting once) is all that is kept of
+   them; the draw loads one file at a time.
+
+   SHORT NAMES (the owner, 2026-11-19: no "Path too long" when a patched game is copied): the folder is "Events" and
+   every file in it has a short name -- a collection event's compiled file is "<number>.cieg", its number in the
+   manifest row's file column (column 11; the numbers never change between versions:
+   data/event_collection/file_numbers.tsv), and a row without one is "<id>.cieg".  The id stays the event's identity
+   everywhere (picks, logs, saved runs).
 
    CHOICE.  The candidates are More Island Events' entries that can happen now (when that row is installed) and the
    collection's files for this game (when its row is installed) whose STRICT cast and requirement hold now.  The draw
@@ -57,7 +63,9 @@
    branching engine (cg_queue_origin, CG_ORIGIN_NATURAL, CG_CAST_STRICT). */
 
 #define SC_ROW "isola_grand_event_collection"           /* the row's short id (cg_installed_has) */
-#define SC_FOLDER "Island Event Collection"
+#define SC_FOLDER "Events"
+#define SC_MANIFEST_EXT ".lst"                           /* a group's manifest: "<group>.lst" */
+#define SC_MANIFEST_EXT_W L".lst"
 #define SC_MAX STORY_TABLE_LIMIT                          /* collection entries of one game: a sanity limit (the
                                                             tables are allocated to the manifest's rows) */
 #define SC_WINDOW 3                                      /* seconds before a natural event: the decision */
@@ -94,6 +102,7 @@ typedef struct {
     char title[CE_TITLE_BYTES + 32];
     char series[48];
     char description[160];             /* the Pick Island Event list's sentence ("" = none: the generic line) */
+    char file[12];                     /* its compiled file's name without ".cieg" ("" = the id) */
     int weight;
     int favour;                        /* Village Solidarity: 1 a cooperative event, 2 a repair event, 0 neither */
 } sc_entry;
@@ -147,8 +156,8 @@ static int sc_reserve(int need) {
 }
 
 /* A problem the player should be able to find (a manifest past its sanity limit, a table that could not grow): one
-   line, once per session each, appended to "Virtual Villagers Fun Patcher Files\Island Event Collection\
-   Problems.txt" beside the collection (never the save). */
+   line, once per session each, appended to "Virtual Villagers Fun Patcher Files\Events\Problems.txt" beside the
+   collection (never the save). */
 static void sc_problem(const char *line) {
     static char said[8][160];
     static int said_count;
@@ -519,6 +528,37 @@ static int sc_games_has(const char *games, int game) {
     return 0;
 }
 
+/* A file name the manifest may give (column 11): 1..24 of [a-z0-9_], so it can never leave the folder. */
+static int sc_file_name_ok(const char *s) {
+    int n = 0;
+    for (; s[n] != '\0'; ++n) {
+        if (n >= 24 || !((s[n] >= 'a' && s[n] <= 'z') || (s[n] >= '0' && s[n] <= '9') || s[n] == '_')) {
+            return 0;
+        }
+    }
+    return n > 0;
+}
+
+/* The compiled file of entry `e`: "<file>.cieg", or "<id>.cieg" when its row names none. */
+static void sc_entry_leaf(const sc_entry *e, char *leaf) {
+    wsprintfA(leaf, "%s.cieg", e->file[0] != '\0' ? e->file : e->id);
+}
+
+/* The group of a file `name` of the collection's folder ending in `ext` (".lst", ".pcb"): its stem when it is 1..24
+   of [a-z0-9_] and the name ends in exactly `ext`; 0 otherwise. */
+static int sc_group_of(const wchar_t *name, const wchar_t *ext, char *out, int cap) {
+    int n = 0, k;
+    for (k = 0; name[k] != L'\0' && !(name[k] == L'.' && lstrcmpiW(name + k, ext) == 0); ++k) {
+        wchar_t c = name[k];
+        if (n + 1 >= 25 || n + 1 >= cap || !((c >= L'a' && c <= L'z') || (c >= L'0' && c <= L'9') || c == L'_')) {
+            return 0;
+        }
+        out[n++] = (char)c;
+    }
+    out[n] = '\0';
+    return n > 0 && name[k] == L'.';
+}
+
 /* Field `n` of the line [p, end) as sc_field reads it, without a line's last '\r'. */
 static void sc_field_end(const char *p, const char *end, int n, char *out, int cap) {
     int len;
@@ -530,8 +570,8 @@ static void sc_field_end(const char *p, const char *end, int n, char *out, int c
 }
 
 /* The collection's events for `game` from manifest.txt: "id<TAB>title<TAB>games<TAB>weight<TAB>series<TAB>credit
-   <TAB>description<TAB>Guardians title<TAB>Guardians description", one line each ('#' a comment), each with its
-   "<id>.cieg" beside it.  The last two (New Believers only; empty = the same) are the event's title and sentence
+   <TAB>description<TAB>Guardians title<TAB>Guardians description<TAB>kind<TAB>file", one line each ('#' a comment),
+   each with its "<file>.cieg" (no file: "<id>.cieg") beside it.  The last two (New Believers only; empty = the same) are the event's title and sentence
    with Guardians of Isola's rewrite on: its title variant's (cie-v6-binary.md 18), as the event shows it.  The
    count. */
 static int sc_scan_group(int game, int g) {
@@ -553,7 +593,7 @@ static int sc_scan_group(int game, int g) {
     if (text == NULL) {
         char leaf[SC_GROUP_BYTES + 16];
         if (sc_groups[g].name[0] != '\0') {
-            wsprintfA(leaf, "manifest-%s.txt", sc_groups[g].name);
+            wsprintfA(leaf, "%s" SC_MANIFEST_EXT, sc_groups[g].name);
         } else {
             lstrcpyA(leaf, "manifest.txt");
         }
@@ -623,6 +663,15 @@ static int sc_scan_group(int game, int g) {
             e->favour = lstrcmpA(kind, "cooperative") == 0 ? CG_SOL_FAVOUR_HIGH
                       : lstrcmpA(kind, "repair") == 0 ? CG_SOL_FAVOUR_LOW : 0;
         }
+        {
+            /* Its compiled file (column 11): only a short [a-z0-9_] name, never a path; else the id names it. */
+            char file[40];
+            sc_field_end(p, end, 10, file, sizeof file);
+            e->file[0] = '\0';
+            if (sc_file_name_ok(file) && lstrlenA(file) < (int)sizeof e->file) {
+                lstrcpyA(e->file, file);
+            }
+        }
         ++sc_count;
     }
     return sc_count;
@@ -655,7 +704,7 @@ static int sc_add_group(const char *name) {
     return 1;
 }
 
-/* The collection's index for `game`: every "manifest-<group>.txt" (a name of [a-z0-9_], at most 24 characters), or
+/* The collection's index for `game`: every "<group>.lst" (a name of [a-z0-9_], at most 24 characters), or
    -- none -- an older install's "manifest.txt" as the group "", each with its draw weight (the file read once, its
    rows forgotten).  The count of groups. */
 static int sc_index(int game) {
@@ -675,23 +724,13 @@ static int sc_index(int game) {
         wchar_t pattern[VVFP_PATCHER_FILES_PATH_CAP];
         WIN32_FIND_DATAW found;
         HANDLE find;
-        if (sc_path(pattern, "manifest-*.txt") != 0
+        if (sc_path(pattern, "*" SC_MANIFEST_EXT) != 0
             && (find = FindFirstFileW(pattern, &found)) != INVALID_HANDLE_VALUE) {
             do {
                 char name[SC_GROUP_BYTES];
-                int n = 0, ok = 1, k;
-                const wchar_t *w = found.cFileName + 9;          /* past "manifest-" */
-                for (k = 0; w[k] != L'\0' && !(w[k] == L'.' && lstrcmpiW(w + k, L".txt") == 0); ++k) {
-                    wchar_t c = w[k];
-                    if (n + 1 >= 25 || !((c >= L'a' && c <= L'z') || (c >= L'0' && c <= L'9') || c == L'_')) {
-                        ok = 0;
-                        break;
-                    }
-                    name[n++] = (char)c;
-                }
-                name[n] = '\0';
-                if (!ok || n == 0 || (found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-                    sc_problem("A collection manifest's name is not manifest-<letters, digits or _>.txt: skipped.");
+                if (!sc_group_of(found.cFileName, SC_MANIFEST_EXT_W, name, SC_GROUP_BYTES)
+                    || (found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+                    sc_problem("A collection manifest's name is not <letters, digits or _>.lst: skipped.");
                     continue;
                 }
                 if (!sc_add_group(name)) {
@@ -729,7 +768,7 @@ static int sc_load_entry(int i, unsigned int *size) {
         return 1;
     }
 #endif
-    wsprintfA(leaf, "%s.cieg", sc_list[i].id);
+    sc_entry_leaf(&sc_list[i], leaf);
     return sc_path(path, leaf) != 0 && sc_read_w(path, sc_bytes, sizeof sc_bytes, size);
 }
 
@@ -1253,7 +1292,7 @@ static void sc_library_add(int game) {
             }
             continue;
         }
-        wsprintfA(leaf, "%s.cieg", sc_list[i].id);
+        sc_entry_leaf(&sc_list[i], leaf);
         if (sc_path(wide, leaf) == 0) {
             continue;
         }

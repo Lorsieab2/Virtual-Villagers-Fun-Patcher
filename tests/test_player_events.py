@@ -504,7 +504,7 @@ class FormatSectionMatchesTheParser(unittest.TestCase):
             (src / "mine.txt").write_text(SIMPLE, encoding="utf-8")
             out, report = pe.compile_folder(1, src, pe.Settings())
             self.assertEqual(report.installed, ["mine.txt: The Coconut That Would Not Open"])
-            self.assertEqual([n for n in out if n.startswith("manifest-")], ["manifest-pl_mine.txt"])
+            self.assertEqual([n for n in out if n.endswith(".lst")], ["pl_mine.lst"])
 
     def test_the_tone_reference_ships_byte_for_byte(self):
         a = (pe.PLAYER_FOLDER / pe.TONE_NAME).read_bytes()
@@ -635,7 +635,7 @@ class PieceEffectRecords(unittest.TestCase):
             finally:
                 pe._piece_effect_target = orig
         self.assertEqual(report.pieces, 2, "both pieces are kept")
-        self.assertTrue(any(name.startswith("pieces-") for name in out))
+        self.assertTrue(any(name.endswith(".pcb") for name in out))
         self.assertFalse(report.skipped, "nothing is Left out over an effect")
         self.assertTrue(any("kept as flavor" in n for n in report.notes), report.notes)
 
@@ -1121,10 +1121,12 @@ class InstallAndRules(unittest.TestCase):
         ciegs = sorted(n for n in out if n.endswith(".cieg"))
         self.assertEqual(len(ciegs), 3, ciegs)
         self.assertEqual(len(report.installed), 3)
-        rows = [line.split("\t")[0] for line in out["manifest-pl_foo.txt"].decode().splitlines()
-                if not line.startswith("#")]
-        self.assertEqual(sorted(f"{r}.cieg" for r in rows), ciegs, "each row its own file")
-        self.assertIn("pl_foo_002.cieg", ciegs)
+        rows = [line.split("\t") for line in out["pl_foo.lst"].decode().splitlines() if not line.startswith("#")]
+        # each row its own short file (its file column, "p<n>.cieg"; the id stays the event's identity)
+        self.assertEqual(sorted(f"{r[10]}.cieg" for r in rows), ciegs, "each row its own file")
+        self.assertEqual(ciegs, ["p1.cieg", "p2.cieg", "p3.cieg"])
+        self.assertEqual(len({r[0] for r in rows}), 3)
+        self.assertIn("pl_foo_002", [r[0] for r in rows])
         self.assertEqual(sum("already used" in n for n in report.notes), 2, report.notes)
 
     def test_install_writes_only_its_own_files_and_reports_bad_items(self):
@@ -1139,30 +1141,35 @@ class InstallAndRules(unittest.TestCase):
             game = Path(tmp) / "Game"
             coll = game / pe.PATCHER_FILES / pe.COLLECTION_FOLDER
             coll.mkdir(parents=True)
-            (coll / "manifest-v28.txt").write_text("# built in\nall_x\tX\t1\t1\t\t\t\t\t\n", encoding="utf-8")
-            (coll / "all_x.cieg").write_bytes(b"CIEG")
+            (coll / "v28.lst").write_text("# built in\nall_x\tX\t1\t1\t\t\t\t\t\t\t7\n", encoding="utf-8")
+            (coll / "7.cieg").write_bytes(b"CIEG")
+            # an earlier patch's player files, under this patcher's names and an older one's
             (coll / "pl_stale_001.cieg").write_bytes(b"old")
             (coll / "manifest-pl_old.txt").write_text("# an earlier patch's\n", encoding="utf-8")
+            (coll / "p9.cieg").write_bytes(b"old")
+            (coll / "pl_gone.lst").write_text("# an earlier patch's\n", encoding="utf-8")
             report = pe.install(1, game, src, pe.Settings(), root)
             names = sorted(p.name for p in coll.iterdir())
             mine = pe.group_name("My Events", set())[0]
             self.assertTrue(mine.startswith("pl_my") and len(mine) == 9, mine)
             self.assertEqual(pe.group_name("My Events", set())[0], mine)          # the same every patch
-            self.assertIn(f"manifest-{mine}.txt", names)
-            self.assertIn("pieces-pl_pieces.pcb", names)
-            self.assertEqual(names.count("manifest-v28.txt"), 1)                   # the collection's own, untouched
-            self.assertEqual((coll / "manifest-v28.txt").read_text(encoding="utf-8")[:10], "# built in")
+            self.assertIn(f"{mine}.lst", names)
+            self.assertIn("pl_pieces.pcb", names)
+            self.assertEqual(names.count("v28.lst"), 1)                            # the collection's own, untouched
+            self.assertEqual((coll / "v28.lst").read_text(encoding="utf-8")[:10], "# built in")
             self.assertFalse([n for n in names if "collection" in n])              # nothing copied any more
-            self.assertIn("all_x.cieg", names)
-            self.assertNotIn("pl_stale_001.cieg", names)
-            self.assertNotIn("manifest-pl_old.txt", names)
-            self.assertTrue(all(len(n) <= 22 for n in names if n.startswith(("manifest-", "pieces-"))), names)
+            self.assertIn("7.cieg", names)
+            for stale in ("pl_stale_001.cieg", "manifest-pl_old.txt", "pl_gone.lst"):
+                self.assertNotIn(stale, names)
+            self.assertNotIn("p9.cieg", names)                                     # only this patch's p1.cieg
+            self.assertIn("p1.cieg", names)
+            self.assertTrue(all(len(n) <= 22 for n in names), names)
             self.assertEqual(len(report.installed), 1)
             self.assertTrue(any("A Broken One" in s or "line" in s for s in report.skipped))
-            rows = [r for r in (coll / f"manifest-{mine}.txt").read_text(encoding="utf-8").splitlines()
+            rows = [r for r in (coll / f"{mine}.lst").read_text(encoding="utf-8").splitlines()
                     if not r.startswith("#")]
             ident, title, games, weight = rows[0].split("\t")[:4]
-            self.assertTrue((coll / f"{ident}.cieg").is_file())
+            self.assertTrue((coll / f"{rows[0].split(chr(9))[10]}.cieg").is_file())
             self.assertLessEqual(len(ident), pe.VV1_ID_MAX)
             self.assertEqual((title, games, weight), ("The Coconut That Would Not Open", "1,3", "1"))
             shown = game / pe.PATCHER_FILES / pe.INSTALLED_FOLDER
@@ -1173,7 +1180,7 @@ class InstallAndRules(unittest.TestCase):
             self.assertFalse([p for p in coll.iterdir() if "example" in p.name.lower()])
             # Favoured themes weigh three times; Only my themes leaves the others out; ticked rules are enforced.
             pe.install(1, game, src, pe.Settings(favour=["comedy"]), root)
-            row = [r for r in (coll / f"manifest-{mine}.txt").read_text(encoding="utf-8").splitlines()
+            row = [r for r in (coll / f"{mine}.lst").read_text(encoding="utf-8").splitlines()
                    if not r.startswith("#")][0]
             self.assertEqual(row.split("\t")[3], "3")
             r2 = pe.install(1, game, src, pe.Settings(favour=["sea"], only_my_themes=True), root)
@@ -1195,7 +1202,7 @@ class InstallAndRules(unittest.TestCase):
         self.assertNotEqual(a, b)
         self.assertEqual(len(b), pe.GROUP_NAME_MAX)
         self.assertIn("already taken", note_b)
-        self.assertLessEqual(len(f"manifest-{b}.txt"), 22)
+        self.assertLessEqual(len(f"{b}.lst"), 22)
 
     def test_settings_and_rules_files_round_trip(self):
         with tempfile.TemporaryDirectory() as tmp:

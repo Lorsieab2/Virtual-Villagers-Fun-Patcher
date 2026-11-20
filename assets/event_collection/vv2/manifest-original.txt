@@ -1,3 +1,3 @@
 # Isola Grand Event Collection: events of this game, read by VVFP Story Upgrades.dll.
 # id	title	games	draw weight	series	credit	description	Guardians title	Guardians description
-vv2_cooking_contest	The Cooking Contest	2	1		* The Cooking Contest (VV2): written by Lorsieab2.	Two cooks face off in the final of the Cooking Contest: stick with a trusted recipe, or try a new one.		
+vv2_cooking_contest	The Cooking Contest	2	1		* The Cooking Contest (VV2): written by Lorsieab2.	Two cooks face off in the final of the Cooking Contest: stick with a trusted recipe, or try a new one.				4359
