@@ -238,10 +238,15 @@ class TheDescriptions(unittest.TestCase):
             with self.subTest(game=game, event=row[0]):
                 # A tenth column, only when the event has one, is its Village Solidarity kind (3de360934, #804;
                 # docs/event-collection/cie-v6-binary.md, scripts/build_event_collection_features.py).
-                self.assertIn(len(row), (9, 10), "id, title, games, weight, series, credit, description, the "
-                                                 "two Guardians fields, and the Village Solidarity kind")
-                if len(row) == 10:
-                    self.assertIn(row[9], ("cooperative", "repair"))
+                # An eleventh, only when the event has a file number, is its compiled file's short name in the
+                # installed Events folder (fix/97-path-lengths; story_collection.inc column 11), the tenth then
+                # empty when it has no Solidarity kind.
+                self.assertIn(len(row), (9, 10, 11), "id, title, games, weight, series, credit, description, the "
+                                                     "two Guardians fields, the Village Solidarity kind and the file")
+                if len(row) >= 10:
+                    self.assertIn(row[9], ("cooperative", "repair") if len(row) == 10 else ("", "cooperative", "repair"))
+                if len(row) == 11:
+                    self.assertRegex(row[10], r"^[a-z0-9_]{1,24}$")
                 title, desc, _needs, _refusal = full_entry(picker, row, cieg)
                 self.assertEqual(title, row[1])
                 self.assertEqual(desc, row[6])
