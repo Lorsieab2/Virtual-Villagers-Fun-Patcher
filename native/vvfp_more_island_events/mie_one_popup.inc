@@ -13,9 +13,15 @@
    field): the answer is its flow's own choose, and the ending's effects (adv_log_effects: the Island Events log's ONE
    entry, with a "Choice:" line for each answer) are made when the text that ends the ending is shown -- at the answer
    when it all fits in one text, as it does (a text holds every page of it while the bytes allow; the rest, a fault
-   of a translation's length, comes with OK in the same popup).  Without Scrolling Popups nothing here runs. */
+   of a translation's length, comes with OK in the same popup).  Without Scrolling Popups nothing here runs.
 
-#define MOP_TEXT_BYTES 8000
+   The Secret City, The Tree of Life and New Believers (the owner, v1.35.97: one scrolling popup, never pages with
+   OK): their texts are never limited by the dialog's 2,000-byte field -- mop_begin is given MOP_TEXT_BYTES, so a
+   text holds every page, and the field gets only its start (adv_vv345.inc t_op_put: one_popup.h op_long_text_put),
+   Scrolling Popups drawing the whole (VvfpPopupWholeText). */
+
+#define MOP_TEXT_BYTES (ADV_MAX_PAGES * ADV_PAGE_BYTES + 1024)   /* every page of a text, a line apart, and the
+                                                                    answer's words before them */
 
 static struct {
     const adv_flow *flow;

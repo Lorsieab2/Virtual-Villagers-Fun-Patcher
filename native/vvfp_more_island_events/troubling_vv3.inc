@@ -189,7 +189,7 @@ static int __fastcall ts_o_title(void *self, void *unused) {
         adv_log_event(g_ts->g->game, g_title);
     }
     if (ts.ready && adv_scrolls()) {
-        mop_begin(&TS_FLOW, ADV_PAGE_TEXT_MAX);        /* one popup: the whole opening, one text */
+        mop_begin(&TS_FLOW, MOP_TEXT_BYTES);           /* one popup: the whole opening, one text */
     } else {
         mop.active = 0;
     }
@@ -200,7 +200,7 @@ static int __fastcall ts_o_title(void *self, void *unused) {
 static int __fastcall ts_o_question(void *self, void *unused) {
     (void)self; (void)unused;
     if (t_op_for(&TS_FLOW)) {
-        return t_text_id(mop.text);
+        return t_op_text_id();
     }
     return t_text_id(ts.intro.count > 0 ? ts.intro.text[ts.intro.count - 1] : "");
 }
@@ -228,7 +228,7 @@ static int __fastcall ts_o_label_b(void *self, void *unused) {
 static int __fastcall ts_o_result(void *self, void *unused, int choice) {
     (void)self; (void)unused; (void)choice;
     if (t_op_for(&TS_FLOW)) {
-        return t_text_id(mop.text);              /* one popup: its panel is sized for the text shown first */
+        return t_op_text_id();                   /* one popup: its panel is sized for the text shown first */
     }
     if (!ts.answered) {
         const char *text = ts_tallest_text();
