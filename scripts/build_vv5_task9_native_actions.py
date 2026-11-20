@@ -3601,7 +3601,19 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
     is shifted by the same delta, and +0x1C4C is shifted only when it is nonzero.
     Villagers already at exactly 360 are left untouched. Charges one verified
     200,000 deduction after the shared confirm; if no villager needed changing it
-    deducts nothing."""
+    deducts nothing.
+
+    +0x1C3C is the age the villager tick has already lived (0x472C90 steps every
+    villager whose +0x1C3C is behind +0x1B8C one unit at a time, in ONE update,
+    with 4 job turns per unit), and +0x1C4C is the age a pregnancy or nursing
+    started at (0x465E7A writes +0x1C3C there; the birth at 0x4730BA is due 40
+    units later). Until v1.35.97 this row moved +0x1B8C only (0x46F7F0 is a
+    plain add), so a child made 18 replayed every missing year at once on the
+    next update: conception after conception and birth after birth while the
+    shown age stayed 360 (live R4, 2026-11-20: Maoa five Conception and five
+    Birth records at age 360, 93 babies born before the next Tech row was
+    bought). An elder made 18 the other way stopped living units until the
+    shown age caught up with the old one."""
     return put(page, page_va, "age18_all", f"""
         push ebp
         mov ebp, esp
@@ -3640,9 +3652,15 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         mov eax, 360
         sub eax, dword ptr [esi+0x1B8C]
         jz age_already
+        mov edi, eax
         push eax
         lea ecx, [esi+0x1B8C]
         call 0x46F7F0
+        add dword ptr [esi+0x1C3C], edi
+        cmp dword ptr [esi+0x1C4C], 0
+        je age_counted
+        add dword ptr [esi+0x1C4C], edi
+    age_counted:
         inc dword ptr [ebp-0x10]
         jmp age_next
     age_already:
