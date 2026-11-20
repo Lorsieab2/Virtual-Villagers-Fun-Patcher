@@ -74,12 +74,13 @@ class Undelete(Base):
                 repairs = [p for p in s.v.folder.rglob(f"Virtual Villagers {game} Repairs Log *.txt")]
                 text = "".join(p.read_bytes().decode("latin-1") for p in repairs)
                 self.assertIn("  Restored: Gonea Testa (Female, head 99, body 98)\r\n", text)
-                self.assertIn("Village History 1.txt from Village History 1.txt" + hr.BACKUP_SUFFIX, text)
-                self.assertEqual(len(re.findall(r"^  Backup: .*" + re.escape(hr.UNDO_SUFFIX), text, re.M)), 1)
+                # Short names (vv_repair_copies): the revision's copy, then the undo's own.
+                self.assertIn("Village History 1.txt from Village History 1.txt.bak1", text)
+                self.assertEqual(len(re.findall(r"^  Backup: .*Village History 1\.txt\.bak2", text, re.M)), 1)
                 # Each log was copied before the undo, as it was after the revision.
-                copies = list(s.v.folder.rglob("*" + hr.UNDO_SUFFIX))
                 for p in changed:
-                    self.assertTrue(any(c.name.startswith(p.name) and c.read_bytes() == revised[p] for c in copies))
+                    copies = hr.tools.copies.kept_copies(s.v.folder, p, hr.UNDO_SUFFIX)
+                    self.assertTrue(any(c.read_bytes() == revised[p] for c in copies))
 
     def test_lines_written_since_the_revision_are_kept(self):
         for game in GAMES:

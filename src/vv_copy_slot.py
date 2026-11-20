@@ -69,6 +69,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
+import vv_long_paths as lp
 import vv_save_backup
 import vv_save_layout as layout
 import vv_tribe_rename as rename
@@ -286,15 +287,14 @@ def highest_numbers(folder: Path) -> dict[str, int]:
     """The game's highest number of each kind, in every log of the save folder (every slot's, the shared
     ones and an older build's folders alike; never the Backups)."""
     highest: dict[str, int] = {}
-    for path in Path(folder).rglob("*.txt"):
-        try:
-            parts = path.relative_to(folder).parts
-        except ValueError:
+    root = Path(folder)
+    # Any length, never the Backups (vv_long_paths); a folder that cannot be listed stops the count.
+    for path in lp.walk(root, skip=lambda d: d.parent == root
+                        and d.name.casefold() == vv_save_backup.BACKUPS_FOLDER.casefold()):
+        if not path.name.casefold().endswith(".txt"):
             continue
-        if parts and parts[0].casefold() == vv_save_backup.BACKUPS_FOLDER.casefold():
-            continue
         try:
-            numbers = record_numbers(path.read_bytes())
+            numbers = record_numbers(lp.read_bytes(path))
         except OSError:
             continue
         for kind, values in numbers.items():
@@ -1270,15 +1270,34 @@ SET_ASIDE_PREFIX = "Replaced by copy "
 
 
 def set_aside_folder(folder: Path, when: datetime, slot: int, village: str | None) -> Path:
-    """A new folder name in Backups for the target slot's files (never one that is there)."""
+    """A new folder in Backups for the target slot's files (never one that is there): a short name,
+    "<yyyy-mm-dd hhmm> S<slot>" (the owner, 2026-11-20: no path-too-long errors), its full description --
+    "Replaced by copy <date> - Save <N> - <village>" -- one line of the Backups index (vv_save_backup;
+    never a backup Restore Saves offers).  Made here, empty."""
     name = "".join(ch for ch in (village or "") if ch not in '\\/:*?"<>|').strip(" .") or "no village"
-    base = f"{SET_ASIDE_PREFIX}{when:%Y-%m-%d %H-%M-%S} - Save {slot} - {name}"
     backups = Path(folder) / vv_save_backup.BACKUPS_FOLDER
-    for k in range(1, 1000):
-        candidate = backups / (base if k == 1 else f"{base} ({k})")
-        if not os.path.lexists(candidate):
-            return candidate
-    raise CopyError(f"Too many folders named {base} in {backups}.")
+    try:
+        made, order = vv_save_backup.new_short_folder(
+            backups, when, lambda w, k: f"{w:%Y-%m-%d %H%M} S{slot}" + ("" if k == 1 else f" {k}"))
+        vv_save_backup.note_in_backups_index(backups, made.name, vv_save_backup.KIND_REPLACED, when, order,
+                                             f"{SET_ASIDE_PREFIX}{when:%Y-%m-%d %H-%M-%S} - Save {slot} - {name}")
+    except (OSError, vv_save_backup.BackupError) as exc:
+        raise CopyError(f"No folder could be made in {backups} for the replaced files ({exc}).") from exc
+    return made
+
+
+def _drop_empty_aside(aside: Path) -> None:
+    """A copy rolled back: its set-aside folder, made first, is removed with its Backups-index line when
+    nothing is left in it (anything still in it stays, and so does its line)."""
+    try:
+        for sub in sorted((p for p in lp.extended(aside).rglob("*") if p.is_dir()), key=lambda p: -len(p.parts)):
+            if not any(sub.iterdir()):
+                sub.rmdir()
+        if not any(lp.extended(aside).iterdir()):
+            lp.extended(aside).rmdir()
+            vv_save_backup._forget_in_backups_index(aside.parent, aside.name)
+    except OSError:
+        pass
 
 
 def _set_aside(plan: Plan, backup: vv_save_backup.BackupResult, aside: Path, done: _Done) -> None:
@@ -1502,6 +1521,8 @@ def copy_slot(
         verify(plan)
     except Exception as exc:  # noqa: BLE001 -- every failure is rolled back
         problems = _roll_back(plan, done)
+        if aside is not None:
+            _drop_empty_aside(aside)
         if problems:
             raise CopyError(
                 f"The copy failed ({exc}) and these could not be put back: {'; '.join(problems)}. "

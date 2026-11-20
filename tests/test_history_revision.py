@@ -264,16 +264,14 @@ class Safety(Base):
                     hr._write = real
                 for path, data in before.items():
                     self.assertEqual(path.read_bytes(), data, path.name)
-                copies = list((s.v.folder / "Virtual Villagers Fun Patcher Data" / "Copies Made Before Repairs")
-                              .rglob("*" + hr.BACKUP_SUFFIX))
+                copies = [c for path in before for c in hr.tools.copies.kept_copies(s.v.folder, path, hr.BACKUP_SUFFIX)]
                 self.assertTrue(copies)
                 # ...and a successful run copies each log it changes first, byte for byte.
                 s.revise(plan)
-                copies = {c.name: c for c in (s.v.folder / "Virtual Villagers Fun Patcher Data" /
-                                              "Copies Made Before Repairs").rglob("*" + hr.BACKUP_SUFFIX + "*")}
                 for path, data in before.items():
-                    self.assertTrue(any(c.read_bytes() == data for n, c in copies.items()
-                                        if n.startswith(path.name)), path.name)
+                    self.assertTrue(any(c.read_bytes() == data
+                                        for c in hr.tools.copies.kept_copies(s.v.folder, path, hr.BACKUP_SUFFIX)),
+                                    path.name)
 
     def test_a_log_replaced_before_its_read_back_fails_is_put_back_too(self):
         for game in GAMES:

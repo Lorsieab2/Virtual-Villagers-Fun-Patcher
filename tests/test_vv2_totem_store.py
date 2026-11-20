@@ -197,7 +197,7 @@ class SeveralColours(unittest.TestCase):
         log = v.repairs()
         for name, old in (("ElderA", 9 % 8), ("ElderB", 10 % 8), ("ElderC", 11 % 8)):
             self.assertIn(f"{name}'s totem from {vt.face(old)} to {vt.face(4)}", log)
-        self.assertEqual(len([b for b in v.backups() if "colour" in b.name]), 1)   # one backup for all
+        self.assertEqual(len([b for b in v.backups() if "colour" in ts.vv_save_backup.backup_label(b)]), 1)   # one for all
 
     def test_a_subset_changes_only_the_ticked_ones(self):
         v = self.village()

@@ -1021,15 +1021,15 @@ class PendingTitleAnswers(Base):
                 self.assertEqual((e.age, e.head, e.body, e.sex), tuple(who.title_looks[k] for k in
                                                                         ("age", "head", "body", "sex")))
                 # The file as it was is kept; the repair is recorded; the question is gone.
-                copy = v.folder / DATA / "Copies Made Before Repairs" / DATA / "Custom Titles" / \
-                    "Custom Titles - Save 1.dat.before-title-answer"
+                [copy] = tools.copies.kept_copies(v.folder, v.folder / DATA / "Custom Titles" /
+                                                  "Custom Titles - Save 1.dat", ".before-title-answer")
                 self.assertEqual(copy.read_bytes(), before)
                 repairs = list(tools.layout.slot_log_folder(v.folder, "Repairs Made", 1).glob(
                     f"Virtual Villagers {game} Repairs Log *.txt"))
                 self.assertEqual(len(repairs), 1)
                 text = repairs[0].read_bytes().decode("latin-1")
                 self.assertIn(f"Gave the pending custom title \"Helpful Spirit\" to {who.name}", text)
-                self.assertIn("copy kept: Custom Titles - Save 1.dat.before-title-answer", text)
+                self.assertIn("copy kept: Custom Titles - Save 1.dat.bak1", text)
                 self.assertFalse([f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "titles"])
 
     def test_remove_the_title_takes_out_only_that_entry(self):

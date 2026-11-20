@@ -279,7 +279,7 @@ class MoveToSaveFoldersTest(unittest.TestCase):
                     self.assertFalse((f / rel).exists(), rel)
                     self.assertEqual(after[new], before[rel])
                     self.assertEqual((f / new).stat().st_mtime_ns, stamps[rel])
-                    copy = tools.copy_before_repair(f, f / rel, mv.COPY_SUFFIX)
+                    [copy] = tools.copies.kept_copies(f, f / rel, mv.COPY_SUFFIX)
                     self.assertEqual(copy.read_bytes(), before[rel])
                     self.assertEqual(layout.route(f, rel), f / new)
                 # The older Save 1 and Save 2 log folders were emptied and removed; the shared ones stay.
@@ -413,7 +413,7 @@ class MoveToSaveFoldersTest(unittest.TestCase):
             self.assertEqual((f / rel).stat().st_mtime_ns, when, rel)
         self.assertEqual(folders(f) - {d for d in folders(f) if d.startswith(COPIES)},
                          {d for d in dirs if not d.startswith(COPIES)})
-        copies = [p for p in (f / COPIES).rglob("*") if p.is_file() and mv.COPY_SUFFIX in p.name]
+        copies = [k for k in tools.copies.all_kept(f) if k.reason == tools.copies.reason_of(mv.COPY_SUFFIX)]
         self.assertEqual(bool(copies), copies_left)
 
     def test_a_failure_at_any_step_puts_everything_back(self) -> None:

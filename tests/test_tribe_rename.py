@@ -517,7 +517,8 @@ class SafetyTests(SaveFolderTest):
         )
         before = self.snapshot(folder)
         result = rename.rename_tribe(game, folder, 1, "New Name", FakeProcesses(), NOW)
-        self.assertEqual(result.backup.backup_folder.name, "Backup 2026-10-04 15-30-00 (before rename)")
+        self.assertEqual(result.backup.backup_folder.name, "2026-10-04 1530")
+        self.assertTrue(backup.list_backups(folder)[0].before_rename)
         self.assertEqual(result.backup.backup_folder.parent, folder / "Backups")
         copied = {
             path.relative_to(result.backup.backup_folder).as_posix(): path.read_bytes()

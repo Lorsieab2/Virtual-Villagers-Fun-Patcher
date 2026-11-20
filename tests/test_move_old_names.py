@@ -50,7 +50,13 @@ def write(path: Path, data: str | bytes, when: int | None = None) -> None:
 
 def tree(folder: Path, under: str = "") -> dict[str, bytes]:
     root = folder / under if under else folder
-    return {p.relative_to(folder).as_posix(): p.read_bytes() for p in sorted(root.rglob("*")) if p.is_file()}
+    out = {p.relative_to(folder).as_posix(): p.read_bytes() for p in sorted(root.rglob("*")) if p.is_file()}
+    if under == COPIES:
+        # The copies kept before repairs have short names; the index says which file each is
+        # (src/vv_repair_copies.py), shown here at the place an older build kept it.
+        out = {f"{COPIES}/{k.original.replace(chr(92), '/')}": k.copy.read_bytes()
+               for k in tools.copies.all_kept(folder)}
+    return out
 
 
 class MoveTest(unittest.TestCase):
@@ -109,13 +115,15 @@ class MoveTest(unittest.TestCase):
         self.assertEqual(now[f"{DATA}/Parents (A New Home)/Virtual Villagers 1 Parentage Records - Save 1.dat"], b"parents")
         self.assertEqual(checker.deaths_records(f, 1, 1), deaths)
         self.assertEqual(self.kept_apart(), apart)                 # Backups, Tribe History, Tribe Population
-        self.assertEqual(result.backup.backup_folder.name, "Backup 2026-10-09 20-00-00 (before repair re-arm)")
+        self.assertEqual(result.backup.backup_folder.name, "2026-10-09 2000")
+        self.assertEqual([i.suffix for i in backup.list_backups(f) if i.path == result.backup.backup_folder],
+                         ["(before repair re-arm)"])
         # One record in the Repairs Made log, in the Repair tool's own shape.
         log = (f / LOGS / "Repairs Made" / "Virtual Villagers 1 Repairs Log 1.txt").read_bytes().decode("latin-1")
         self.assertIn("Village: (all villages in this save folder)\r\nRepair 2\r\n  Date: 2026-10-09 20:00:00\r\n"
                       "  Checked: the patcher's files kept under older builds' names", log)
         self.assertIn(f"  Moved: {DATA}\\Parentage Records -> {DATA}\\Parents (A New Home)\r\n", log)
-        self.assertIn("  Backup: Backup 2026-10-09 20-00-00 (before repair re-arm)\r\n", log)
+        self.assertIn("  Backup: 2026-10-09 2000\r\n", log)
         # A second click finds nothing to move, and changes nothing.
         self.assertEqual(mv.plan(f), [])
         before = tree(f)

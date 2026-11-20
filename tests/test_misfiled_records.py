@@ -9,6 +9,7 @@ villages known from their Village History snapshots.
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -145,7 +146,7 @@ class MisfiledRecordsTests(unittest.TestCase):
         removed = (conception(312, KIWI, MOTU, True) + conception(316, MATATE, MOTU, True)).replace("\n", "\r\n")
         self.assertEqual(len(before1) - len(one.encode("latin-1")), len(removed.encode("latin-1")))
         # A copy of each file was kept first.
-        copies = list(self.base.rglob("*.before-*"))
+        copies = [p for p in self.base.rglob("*") if re.search(r"\.bak\d+$", p.name)]
         self.assertEqual(len(copies), 2, copies)
         # Nothing left to move.
         self.assertEqual(len(self.plan().questions), 0)

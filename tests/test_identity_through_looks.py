@@ -212,7 +212,7 @@ class NumbersALooksChangeGave(Changed):
                    / "Virtual Villagers 3 Repairs Log 1.txt").read_bytes().decode("latin-1")
         self.assertIn(f"Number taken off: {numbered} (head {x.head}, body {new_body}) -> {x.name}", repairs)
         self.assertIn("Evidence:", repairs)
-        backups = [p for p in v.folder.parent.rglob("*") if p.is_dir() and "taking off numbers" in p.name]
+        backups = [i for i in nn.vv_save_backup.list_backups(v.folder) if "taking off numbers" in i.suffix]
         self.assertTrue(backups, "the save folder was backed up first")
         self.assertEqual(nn.misnumbered_by_looks(v.folder, 3, 1), [])
         village = gen.load_village(v.folder, 3, 1)

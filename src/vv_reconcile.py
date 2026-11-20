@@ -61,6 +61,7 @@ only file this module writes, and only through `export`.
 """
 from __future__ import annotations
 
+import glob
 import os
 import re
 import struct
@@ -70,6 +71,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
+import vv_long_paths as lp
+import vv_repair_copies as repair_copies
 import vv_save_layout as layout
 from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
@@ -1073,10 +1076,10 @@ class _Builder:
             rel = _rel(folder, path)
             place = _answer_place(folder, rel)
             chain: list[tuple[Path | None, int, datetime]] = []
-            for copy in sorted(_copies_of(path, copies_root, folder), key=lambda p: p.stat().st_mtime):
+            for copy in sorted(_copies_of(path, copies_root, folder), key=lp.mtime):
                 try:
-                    chain.append((copy, _record_count(copy.read_bytes().decode(GAME_TEXT)),
-                                  datetime.fromtimestamp(copy.stat().st_mtime)))
+                    chain.append((copy, _record_count(lp.read_bytes(copy).decode(GAME_TEXT)),
+                                  datetime.fromtimestamp(lp.mtime(copy))))
                 except OSError:
                     continue
             chain.append((None, count, datetime.max))
@@ -1099,15 +1102,18 @@ class _Builder:
         # an upgrade moved into its own subfolder is not missing, src/vv_save_layout.py).
         present: set[str] = set()
         copies: dict[str, list[Path]] = {}
+        originals: dict[tuple, Path] = {}
         # The older layout's folders, then the saves' own "Virtual Villagers Fun Patcher\Save <S>" (its Logs,
         # its Data and its own Copies Made Before Repairs).
         own_copies = {folder / layout.save_root(s) / layout.SAVE_DATA / layout.COPIES for s in layout.SLOTS}
+        unlisted: list[str] = []
         for top in (layout.LOGS, layout.DATA, "VVFP Logs", layout.SAVES):
             root = folder / top
             if not root.is_dir():
                 continue
-            for p in root.rglob("*"):
-                if not p.is_file():
+            # Every file at any length (vv_long_paths: an older build's copy can run past 259 characters).
+            for p in lp.walk(root, errors=unlisted):
+                if p.name.casefold() == repair_copies.INDEX.casefold():
                     continue
                 if ".before-" in p.name:
                     # A copy kept before a repair: beside the file (older builds) or in Copies Made Before
@@ -1116,12 +1122,24 @@ class _Builder:
                     copies.setdefault(_file_key(p, p.name.split(".before-", 1)[0]), []).append(p)
                 elif copies_root not in p.parents and not own_copies.intersection(p.parents):
                     present.add(_file_key(p, p.name))
+        # This build's copies made before a repair (".before-..." as their reason, as the older names said):
+        # short names; the index names the file each one is of.  A file set aside or copied before a move is
+        # not one, as before.
+        for kept in repair_copies.all_kept(folder):
+            if not kept.reason.startswith("before-"):
+                continue
+            original = folder / kept.original
+            key = _file_key(original, original.name)
+            copies.setdefault(key, []).append(kept.copy)
+            originals.setdefault(key, original)
+        for problem in unlisted:
+            self.note("file", f"unlisted|{problem}", f"{problem}: its files were not checked.")
         # By name AND slot (review of #585): the slot folders reuse names ("Village History 1.txt" under
         # Save 1 and Save 2), so Save 1's file deleted while Save 2's remains is still missing.  Any other
         # folder of the same slot counts, as an upgrade may move a data file into its own subfolder.
         for key, kept in sorted(copies.items(), key=lambda item: (item[0][0], item[0][1] or 0)):
-            name, slot = kept[0].name.split(".before-", 1)[0], key[1]
-            original = kept[0].with_name(name)
+            original = originals.get(key) or kept[0].with_name(kept[0].name.split(".before-", 1)[0])
+            name, slot = original.name, key[1]
             if key in present or not self.slot_file_of(original):
                 continue
             named = slot is not None and f"save {slot}" in name.lower()
@@ -1362,7 +1380,17 @@ def _answer_id(folder: Path, qid: str) -> str:
 def _copies_of(path: Path, copies_root: Path, folder: Path) -> list[Path]:
     """The copies kept of a log before repairs, newest first: beside it, and in Copies Made Before
     Repairs under the same relative place."""
-    found = [p for p in path.parent.glob(path.name + ".before-*") if p.is_file()]
+    def beside(place: Path) -> list[Path]:
+        # Any length (vv_long_paths): an older build's copy can run past 259 characters.
+        if not lp.is_dir(place):
+            return []
+        return [lp.plain(p) for p in lp.extended(place).glob(glob.escape(path.name) + ".before-*") if p.is_file()]
+
+    found = beside(path.parent)
+    try:
+        found += repair_copies.kept_copies(folder, path, before_only=True)   # this build's: short names
+    except (ValueError, OSError):
+        pass
     try:
         relative = path.relative_to(folder)
         older = layout.older_layout(folder, path)
@@ -1376,10 +1404,10 @@ def _copies_of(path: Path, copies_root: Path, folder: Path) -> list[Path]:
         else:
             mirrors = [copies_root / relative]
         for mirror in mirrors:
-            found += [p for p in mirror.parent.glob(path.name + ".before-*") if p.is_file()]
+            found += beside(mirror.parent)
     except (ValueError, OSError):
         pass
-    return sorted(found, key=lambda p: p.stat().st_mtime, reverse=True)
+    return sorted(found, key=lp.mtime, reverse=True)
 
 
 def _file_key(path: Path, name: str) -> tuple[str, int | None]:

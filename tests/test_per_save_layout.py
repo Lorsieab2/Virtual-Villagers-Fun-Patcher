@@ -283,29 +283,41 @@ def test_copy_before_repair_in_both_layouts(folder):
     own_dat = folder / SAVES / "Save 5" / "Data" / "Custom Titles" / "Custom Titles - Save 5.dat"
     for p in (older_log, own_log, own_dat):
         put(p)
+    # New copies: short names straight in the Copies Made Before Repairs folder, the index naming the file
+    # (src/vv_repair_copies.py; the owner, 2026-11-20: no path-too-long errors).
     assert tools.copy_before_repair(folder, older_log, ".before-x") == \
-        folder / DATA / layout.COPIES / LOGS / "Save 1" / "Tribe History" / "Village History 1.txt.before-x"
+        folder / DATA / layout.COPIES / "Village History 1.txt.bak1"
     assert tools.copy_before_repair(folder, own_log, ".before-x") == \
-        folder / SAVES / "Save 1" / "Data" / layout.COPIES / "Logs" / "Tribe History" / "Village History 1.txt.before-x"
+        folder / SAVES / "Save 1" / "Data" / layout.COPIES / "Village History 1.txt.bak1"
+    assert tools.copy_before_repair(folder, own_log, ".before-x-2") == \
+        folder / SAVES / "Save 1" / "Data" / layout.COPIES / "Village History 1.txt.bak2"
     assert tools.copy_before_repair(folder, own_dat, ".b") == \
-        folder / SAVES / "Save 5" / "Data" / layout.COPIES / "Data" / "Custom Titles" / "Custom Titles - Save 5.dat.b"
+        folder / SAVES / "Save 5" / "Data" / layout.COPIES / "Custom Titles - Save 5.dat.bak1"
+    # The older builds' places, for reading only.
+    assert tools.older_copy_place(folder, own_log, ".before-x") == \
+        folder / SAVES / "Save 1" / "Data" / layout.COPIES / "Logs" / "Tribe History" / "Village History 1.txt.before-x"
+    index = (folder / SAVES / "Save 1" / "Data" / layout.COPIES / "Copies Index.txt").read_text("utf-8")
+    assert "Village History 1.txt.bak2\tVirtual Villagers Fun Patcher\\Save 1\\Logs\\Tribe History\\" \
+           "Village History 1.txt\tbefore-x\t" in index
 
 
 def test_copies_made_before_a_move_are_still_found(folder):
     """A file moved into its save's own folder keeps its earlier copies at the older place
-    (src/vv_move_to_save_folders.py): readers look in both mirrors; new copies go to the save's own."""
+    (src/vv_move_to_save_folders.py): readers look in both mirrors and the index; new copies go to the
+    save's own."""
     import vv_reconcile
     own_log = put(folder / SAVES / "Save 2" / "Logs" / "Tribe History" / "Village History 1.txt")
     older_copy = put(folder / DATA / layout.COPIES / LOGS / "Save 2" / "Tribe History"
                      / "Village History 1.txt.before-a", when=1_700_000_000)
     own_copy = put(tools.copy_before_repair(folder, own_log, ".before-b"), when=1_700_000_100)
     assert tools.copy_places(folder, own_log, ".before-a") == [
-        tools.copy_before_repair(folder, own_log, ".before-a"), older_copy]
+        tools.older_copy_place(folder, own_log, ".before-a"), older_copy]
+    assert tools.copies.kept_copies(folder, own_log) == [own_copy]
     found = vv_reconcile._copies_of(own_log, folder / DATA / layout.COPIES, folder)
     assert found == [own_copy, older_copy]                 # newest first
     # A file still in the older layout: one place, as before.
     older_log = put(folder / LOGS / "Save 3" / "Tribe History" / "Village History 1.txt")
-    assert tools.copy_places(folder, older_log, ".x") == [tools.copy_before_repair(folder, older_log, ".x")]
+    assert tools.copy_places(folder, older_log, ".x") == [tools.older_copy_place(folder, older_log, ".x")]
 
 
 # ---- Backups: a slot's own folder is that slot's ---------------------------------------------------

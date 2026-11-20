@@ -206,7 +206,7 @@ The patcher can copy your modded games' saves for you, in all five games.
 3. Each chosen folder is copied -- your .ldw saves, the "Virtual Villagers
    Fun Patcher Logs" and "Virtual Villagers Fun Patcher Data" folders and
    everything else in it -- into a new folder inside it:
-       (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS
+       (save folder)\Backups\YYYY-MM-DD HHMM
    Every copied file is checked against the original. An earlier backup is
    never replaced, and nothing in the patcher ever reads or deletes the
    Backups folder (Start Over leaves it alone).
@@ -293,7 +293,7 @@ The patcher can change a tribe's name inside its save, in all five games.
    # $ % & ( ) * + ; < = > @ [ \ ] ^ _ { } | ~ in a name. A name that is too
    long or uses those characters is refused, never cut short.
 5. Click "Rename". The save folder is backed up first, into
-       (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS (before rename)
+       (save folder)\Backups\YYYY-MM-DD HHMM (listed as before rename)
    Restore Saves lists that backup like any other, so a rename can be undone.
    Then the name is changed in the slot's save, its older copies and the
    slot list. Every file is checked after writing; if anything fails, every
@@ -327,11 +327,11 @@ under a new name, in all five games. Both villages can then be played.
    Replace it?". "No" is the default; Return and Escape answer No, and No
    changes nothing at all.
 5. On "Yes" the whole save folder is backed up first, into
-       (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS (before copy)
+       (save folder)\Backups\YYYY-MM-DD HHMM (listed as before copy)
    Then every file of the slot you copy to (the old village's save, its
    logs and data, its saved trees, or an earlier village's leftovers) is
    moved -- never deleted -- into
-       (save folder)\Backups\Replaced by copy YYYY-MM-DD HH-MM-SS - Save N - (name)
+       (save folder)\Backups\YYYY-MM-DD HHMM SN
    which Restore Saves never offers and nothing reads; to get the old
    village back, restore the "(before copy)" backup. Then the village is
    copied with the new name, with everything the patcher keeps for it: its
@@ -376,7 +376,7 @@ first and listed in the Repairs log), and the go-ahead is then used up.
 3. The logs are checked first and the result shown. If nothing is found
    wrong you are told so, and can still go ahead.
 4. Confirm. The save folder is backed up first, into
-       (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS (before repair re-arm)
+       (save folder)\Backups\YYYY-MM-DD HHMM (listed as before repair re-arm)
    which Restore Saves lists like any other backup. Then only the files that
    say "this village was already checked" are cleared for that save slot
    (the Cross-Check marker in A New Home, the Graves Logged and Arrivals

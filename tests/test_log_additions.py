@@ -79,11 +79,11 @@ class Planning(unittest.TestCase):
         self.assertIn("  Name: Hoani\r\n  Custom title: Helpful Spirit\r\n  Age: 400", text[second:])
         self.assertEqual([(f.name, f.count) for f in done["custom"]],
                          [(str(history.relative_to(self.folder)), 1)])
-        # The copy is kept in Data\Copies Made Before Repairs, at the log's own place (the owner,
-        # 2026-10-09), never beside it.
-        copies = self.folder / tools.DATA / "Copies Made Before Repairs" / history.relative_to(self.folder).parent
-        backups = list(copies.glob("*" + tools.WORD_BACKUP_SUFFIX + "*"))
+        # The copy is kept in Data\Copies Made Before Repairs under a short name (the owner, 2026-10-09 and
+        # 2026-11-20), never beside it.
+        backups = tools.copies.kept_copies(self.folder, history, tools.WORD_BACKUP_SUFFIX)
         self.assertEqual(len(backups), 1)
+        self.assertEqual(backups[0].parent, self.folder / tools.DATA / "Copies Made Before Repairs")
         self.assertEqual(list(history.parent.glob("*.before-*")), [])
         [again] = self.kinds()["custom"].questions.values()
         self.assertEqual(again.options, ["From 2026-10-01 10:00", additions.FROM_NOW],

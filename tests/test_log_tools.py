@@ -314,6 +314,7 @@ class ApprovalTests(FolderTest):
                 outside_new_backup = {
                     k: v for k, v in after.items()
                     if v[2] != "dir" and not k.startswith(new_backup) and k != approval
+                    and k != f"Backups/{backup.BACKUPS_INDEX}"
                 }
                 # Files only: clearing a marker updates its folder's own time.
                 self.assertEqual(
@@ -352,7 +353,8 @@ class ApprovalTests(FolderTest):
         for new in (f"{LOGS}/Deaths and Disappearances", f"{LOGS}/Repairs Made", f"{DATA}/Parents (A New Home)"):
             self.assertFalse((folder / new).exists(), new)
         approval = approval_of(1, 1)
-        self.assertEqual({k for k in after if k not in before and not k.startswith(new_backup)},
+        self.assertEqual({k for k in after if k not in before and not k.startswith(new_backup)
+                          and k != f"Backups/{backup.BACKUPS_INDEX}"},
                          {approval.rsplit("/", n)[0] for n in range(1, 5)} | {approval})
         import vv_save_layout as layout
         self.assertEqual(layout.find(folder, f"{DATA}\\Parents (A New Home)\\{parents.name}"), parents)
@@ -460,7 +462,8 @@ class ApprovalTests(FolderTest):
         folder = self.make_folder("huttest", 1, "Modded")
         result = tools.approve_repair(folder, 1, 1, FakeProcesses(), NOW)
         copy = result.backup.backup_folder
-        self.assertEqual(copy.name, "Backup 2026-10-04 15-30-00 (before repair re-arm)")
+        self.assertEqual(copy.name, "2026-10-04 1530")
+        self.assertEqual([i.suffix for i in backup.list_backups(folder) if i.path == copy], ["(before repair re-arm)"])
         for name in markers_of(1, 1):
             self.assertEqual((copy / name).read_bytes(), valid_marker(name, 1, 1))
         listed = backup.list_backups(folder)
@@ -839,7 +842,8 @@ class LogWordsTests(FolderTest):
                          .replace(b"  Name: Ana\r\n", b"  Name: Ana\r\n  Sex: Female\r\n") + self.NEW)
         # The copy is kept in Data\Copies Made Before Repairs, at the log's own place (the owner,
         # 2026-10-09), never beside the log.
-        backup_copy = folder / DATA / "Copies Made Before Repairs" / (HISTORY + tools.WORD_BACKUP_SUFFIX)
+        backup_copy = tools.copies.kept_copies(folder, path, tools.WORD_BACKUP_SUFFIX)[0]   # the first made
+        self.assertEqual(backup_copy, folder / DATA / "Copies Made Before Repairs" / "Village History.txt.bak1")
         self.assertEqual(backup_copy.read_bytes(), self.OLD + self.NEW)
         self.assertFalse(path.with_name(path.name + tools.WORD_BACKUP_SUFFIX).exists())
         repairs = (tools.layout.slot_log_folder(folder, "Repairs Made", 1) / "Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")

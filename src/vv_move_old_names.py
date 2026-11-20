@@ -44,6 +44,7 @@ from pathlib import Path
 
 import patcher_files
 import vv_log_tools as tools
+import vv_long_paths as lp
 import vv_save_backup
 import vv_save_layout as layout
 from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
@@ -156,15 +157,8 @@ def _is_link(path: Path) -> bool:
 
 
 def _files_under(root: Path) -> list[Path]:
-    out = []
-    for entry in sorted(root.iterdir(), key=lambda p: p.name.casefold()):
-        if _is_link(entry):
-            continue
-        if entry.is_dir():
-            out += _files_under(entry)
-        elif entry.is_file():
-            out.append(entry)
-    return out
+    # Any length (vv_long_paths): a copy an older build kept beside its file can run past 259 characters.
+    return list(lp.walk(root))
 
 
 def _classify(folder: Path, old: Path, new: Path) -> str:

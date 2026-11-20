@@ -19,8 +19,10 @@ What is copied
     older "Virtual Villagers Fun Patcher Logs" and "Virtual Villagers Fun Patcher
     Data" folders with all their subfolders, and any other file the patcher
     keeps beside the saves -- except the "Backups" folder itself. The copy goes
-    into a new "Backups\\Backup YYYY-MM-DD HH-MM-SS" folder inside that same
-    save folder. An existing backup is never written into or replaced, and
+    into a new "Backups\\YYYY-MM-DD HHMM" folder inside that same save folder
+    (its date, time and label in "Backups Index.txt": short_backup_name; older
+    builds' "Backups\\Backup <date> (...)" folders are read as before). An
+    existing backup is never written into or replaced, and
     every copied file is read back and checked against the original's size and
     SHA-256.
 
@@ -37,7 +39,7 @@ Pausing
 Restore
     A backup is restored -- the whole save folder, or one save slot -- only
     while the game is closed, and only after the current saves have been
-    backed up as "Backup <date> (before restore)". See restore_backup.
+    backed up, labelled "(before restore)". See restore_backup.
 
 Nothing here touches Tk, so the GUI runs it on a worker thread, and the tests
 drive it with a fake Documents folder and a fake process controller.
@@ -59,6 +61,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable, Iterator, Protocol
 
+import vv_long_paths as lp
 import vv_save_clock
 import vv3_second_faction
 
@@ -226,20 +229,15 @@ def files_to_back_up(save_folder: Path) -> list[Path]:
     link can never pull an unrelated tree -- or the save folder itself -- into
     the copy.
     """
-    files: list[Path] = []
-
-    def walk(folder: Path, relative: Path) -> None:
-        for entry in sorted(folder.iterdir(), key=lambda item: item.name.casefold()):
-            if relative == Path() and entry.name.casefold() == BACKUPS_FOLDER.casefold():
-                continue
-            if entry.is_dir():
-                if not _is_link(entry):
-                    walk(entry, relative / entry.name)
-            elif entry.is_file() and not _is_link(entry):
-                files.append(relative / entry.name)
-
-    walk(save_folder, Path())
-    return files
+    # Any length (vv_long_paths): a file of an older build's Copies Made Before Repairs, or of a backup,
+    # can run past 259 characters; a folder that cannot be listed fails the whole listing, never skipped.
+    root = Path(save_folder)
+    if not lp.is_dir(root):
+        raise FileNotFoundError(f"{root} is not there")
+    backups = root / BACKUPS_FOLDER
+    return [p.relative_to(root) for p in lp.walk(root, skip=lambda d: d.parent == root and
+                                                  d.name.casefold() == backups.name.casefold(),
+                                                  link=_is_link)]
 
 
 # ---------------------------------------------------------------------------
@@ -296,7 +294,7 @@ def unchanged_since(backup: BackupResult) -> bool:
         if f.times is None:
             return False
         try:
-            st = (folder / relative).stat()
+            st = lp.stat(folder / relative)
         except OSError:
             return False
         if st.st_size != f.size or st.st_mtime_ns != f.times[1]:
@@ -305,67 +303,123 @@ def unchanged_since(backup: BackupResult) -> bool:
 
 
 def backup_folder_name(now: datetime) -> str:
+    """An OLDER build's name for a backup made at `now` ("Backup <date>"); new backups are named
+    short_backup_name's way."""
     return f"{BACKUP_PREFIX}{now.strftime('%Y-%m-%d %H-%M-%S')}"
 
 
 IN_PROGRESS = " (in progress)"
 
+# SHORT NAMES (the owner, 2026-11-20: "fix ALL path too long errors"; Explorer copies nothing of 260
+# characters or more).  A new backup is "Backups\<yyyy-mm-dd hhmm>" (" 2", " 3" ... when that minute is
+# taken): every file in it is only 24 characters (at most 26) deeper than in the save folder.  Its date
+# and time to the second, its order and its label ("(before restore)" ...) are one line of "Backups
+# Index.txt" in the Backups folder, which list_backups reads, so the list and its labels look exactly as
+# before.  A folder of an older build ("Backup <date>[ (n)][ (before ...)]") is read by its name, forever,
+# and never renamed.  A folder with no line (a copy that stopped part-way) is never offered.
+BACKUPS_INDEX = "Backups Index.txt"
+_INDEX_HEAD = "# Each backup in this folder: its folder, what it is, when it was made, its order that second, its label.\r\n"
+KIND_BACKUP = "backup"
+KIND_REPLACED = "replaced"           # Copy Player Slot's "Replaced by copy" folder (src/vv_copy_slot.py)
 
-def _backup_names(now: datetime, suffix: str) -> Iterator[str]:
-    base = backup_folder_name(now)
+
+def short_backup_name(now: datetime, attempt: int = 1) -> str:
+    base = now.strftime("%Y-%m-%d %H%M")
+    return base if attempt == 1 else f"{base} {attempt}"
+
+
+def backups_index(backups: Path) -> dict[str, tuple[str, datetime, int, str]]:
+    """Folder name (casefolded) -> (kind, when, order, label) for every line of the Backups folder's index
+    (a name given twice: the later line)."""
+    out: dict[str, tuple[str, datetime, int, str]] = {}
+    try:
+        text = lp.read_bytes(Path(backups) / BACKUPS_INDEX).decode("utf-8", "replace")
+    except OSError:
+        return out
+    for line in text.splitlines():
+        parts = line.split("\t")
+        if line.startswith("#") or len(parts) < 5:
+            continue
+        try:
+            when = datetime.strptime(parts[2], "%Y-%m-%d %H-%M-%S")
+            order = int(parts[3])
+        except ValueError:
+            continue
+        out[parts[0].casefold()] = (parts[1], when, order, parts[4])
+    return out
+
+
+def note_in_backups_index(backups: Path, name: str, kind: str, when: datetime, order: int, label: str) -> None:
+    """One line of the Backups folder's index (made with its heading the first time)."""
+    index = lp.extended(Path(backups) / BACKUPS_INDEX)
+    head = b"" if index.exists() else _INDEX_HEAD.encode("utf-8")
+    line = "\t".join((name, kind, when.strftime("%Y-%m-%d %H-%M-%S"), str(order),
+                      label.replace("\t", " ").replace("\r", " ").replace("\n", " "))) + "\r\n"
+    with open(index, "ab") as handle:
+        handle.write(head + line.encode("utf-8"))
+
+
+def _forget_in_backups_index(backups: Path, name: str) -> None:
+    """A deleted backup's lines taken out of the Backups index (through a temporary file moved into place;
+    the index removed when no line is left).  An index that cannot be rewritten keeps the line: the folder
+    is gone, so nothing is listed for it."""
+    index = lp.extended(Path(backups) / BACKUPS_INDEX)
+    try:
+        lines = index.read_bytes().decode("utf-8", "replace").splitlines()
+    except OSError:
+        return
+    kept = [ln for ln in lines if ln.startswith("#") or ln.split("\t", 1)[0].casefold() != name.casefold()]
+    try:
+        if not any(not ln.startswith("#") for ln in kept):
+            index.unlink()
+            return
+        temporary = index.with_name(index.name + f".{uuid.uuid4().hex[:12]}.tmp")
+        temporary.write_bytes(("\r\n".join(kept) + "\r\n").encode("utf-8"))
+        os.replace(temporary, index)
+    except OSError:
+        pass
+
+
+def new_short_folder(backups: Path, when: datetime, minute_name=short_backup_name) -> tuple[Path, int]:
+    """A new, empty folder in Backups named for `when`'s minute (" 2", " 3" ... when taken, or named in the
+    index): mkdir without exist_ok is the claim, so nothing there is ever written into.  (folder, order)."""
+    lp.makedirs(backups)
+    known = backups_index(backups)
     for attempt in range(1, 1000):
-        name = base if attempt == 1 else f"{base} ({attempt})"
-        yield f"{name} {suffix}" if suffix else name
+        name = minute_name(when, attempt)
+        candidate = Path(backups) / name
+        if name.casefold() in known or os.path.lexists(lp.extended(candidate)):
+            continue
+        try:
+            lp.extended(candidate).mkdir()
+        except FileExistsError:
+            continue
+        return candidate, attempt
+    raise BackupError(f"Too many backups made at {when:%Y-%m-%d %H:%M} in {backups}.")
 
 
 def _new_backup_folder(save_folder: Path, now: datetime, suffix: str = "") -> Path:
-    """Create and return a new, empty "... (in progress)" folder.
-
-    The backup is made under this name, which list_backups never offers, and
-    is renamed to its final name only once every file has been verified -- so
-    a copy that fails or is interrupted can never look like a usable backup.
-    mkdir(exist_ok=False) is the claim, and a name whose final folder already
-    exists is skipped, so an existing backup is never written into.
-    """
-    backups = save_folder / BACKUPS_FOLDER
-    backups.mkdir(exist_ok=True)
-    for name in _backup_names(now, suffix):
-        if (backups / name).exists():
-            continue
-        candidate = backups / (name + IN_PROGRESS)
-        try:
-            candidate.mkdir()
-        except FileExistsError:
-            continue
-        return candidate
-    raise BackupError(f"Too many backups named {backup_folder_name(now)} in {backups}.")
+    """Create and return a new, empty backup folder (short_backup_name).  It is a backup only once
+    _finish_backup writes its line in the Backups index, after every file was verified -- so a copy that
+    fails or is interrupted can never look like a usable backup."""
+    return new_short_folder(Path(save_folder) / BACKUPS_FOLDER, now)[0]
 
 
 def _finish_backup(staging: Path, now: datetime, suffix: str) -> Path:
-    """Give a verified backup its final name: the first one still free."""
-    for name in _backup_names(now, suffix):
-        final = staging.with_name(name)
-        if final.exists():
-            continue
-        for attempt in range(DELETE_ATTEMPTS):
-            try:
-                staging.rename(final)
-                return final
-            except FileExistsError:
-                break
-            except PermissionError:
-                # A sync or indexing program (OneDrive) can hold a folder it
-                # has just seen created for a moment.
-                if attempt == DELETE_ATTEMPTS - 1:
-                    raise
-                time.sleep(DELETE_RETRY_SECONDS)
-    raise BackupError(f"No free name for the backup in {staging.parent}.")
+    """A verified backup becomes one: its line in the Backups index (its order: the number its name ends
+    in, 1 when none)."""
+    found = re.search(r" (\d+)$", staging.name)
+    label = suffix.strip()
+    if label and not label.startswith("("):
+        label = f"({label})"
+    note_in_backups_index(staging.parent, staging.name, KIND_BACKUP, now, int(found.group(1)) if found else 1, label)
+    return staging
 
 
 def _set_aside(staging: Path, label: str) -> Path:
     """Rename a failed backup "... INCOMPLETE", "... INCOMPLETE (2)" ...
 
-    If no rename succeeds it stays "... (in progress)", which is not offered
+    If no rename succeeds it keeps its name with no line in the Backups index, so it is not offered
     as a backup either.
     """
     base = staging.name.removesuffix(IN_PROGRESS) + label
@@ -384,7 +438,7 @@ def _set_aside(staging: Path, label: str) -> Path:
 def _hash_file(path: Path) -> tuple[int, str]:
     digest = hashlib.sha256()
     size = 0
-    with path.open("rb") as handle:
+    with lp.extended(path).open("rb") as handle:
         while True:
             chunk = handle.read(HASH_CHUNK)
             if not chunk:
@@ -396,11 +450,11 @@ def _hash_file(path: Path) -> tuple[int, str]:
 
 def _copy_one(source: Path, destination: Path) -> CopiedFile:
     """Copy one file, never over an existing one, and verify it by size and hash."""
-    destination.parent.mkdir(parents=True, exist_ok=True)
+    lp.makedirs(destination.parent)
     digest = hashlib.sha256()
     size = 0
-    original = source.stat()
-    with source.open("rb") as reader, destination.open("xb") as writer:
+    original = lp.stat(source)
+    with lp.extended(source).open("rb") as reader, lp.extended(destination).open("xb") as writer:
         while True:
             chunk = reader.read(HASH_CHUNK)
             if not chunk:
@@ -435,12 +489,38 @@ def _keep_times(path: Path, times: tuple[int, int]) -> None:
     within the 2 seconds the coarsest Windows file system (FAT) keeps -- BackupError, and the backup
     or the restore fails safely as any other bad copy does, instead of passing with the copy time."""
     try:
-        os.utime(path, ns=times)
-        kept = os.stat(path).st_mtime_ns
+        os.utime(lp.extended(path), ns=times)
+        kept = lp.stat(path).st_mtime_ns
     except OSError as exc:
         raise BackupError(f"The time of {path.name} could not be kept ({exc}).") from exc
     if abs(kept - times[1]) > 2_000_000_000:
         raise BackupError(f"The time of {path.name} could not be kept (it reads back as another time).")
+
+
+LONG_PATHS = "Long Paths (Fun Patcher)"
+LONG_PATHS_INDEX = "Long Paths Index.txt"
+
+
+def _long_path_name(number: int, name: str) -> str:
+    """A long file's short name in a backup's Long Paths folder: "<n> <its name, at most 40 letters>"."""
+    short = re.sub(r"^Virtual Villagers(?: [1-5]| -) ", "", name)
+    return f"{number} {short[:40].rstrip(' .')}"
+
+
+def backup_contents(backup: Path) -> dict[Path, Path]:
+    """Every file a backup holds: its place in the save folder -> where it is in the backup (a file kept
+    under a short name in the backup's Long Paths folder, at its own place)."""
+    root = Path(backup)
+    out = {p: root / p for p in files_to_back_up(root) if not (p.parts and p.parts[0] == LONG_PATHS)}
+    try:
+        text = lp.read_bytes(root / LONG_PATHS / LONG_PATHS_INDEX).decode("utf-8", "replace")
+    except FileNotFoundError:
+        return out
+    for line in text.splitlines():
+        stored, tab, relative = line.partition("\t")
+        if tab and stored and "\\" not in stored and "/" not in stored and lp.is_file(root / LONG_PATHS / stored):
+            out[Path(relative)] = root / LONG_PATHS / stored
+    return out
 
 
 def copy_save_folder(
@@ -461,10 +541,22 @@ def copy_save_folder(
     staging = _new_backup_folder(save_folder, when, suffix)
     result = BackupResult(save_folder, staging)
     try:
+        long_names: list[tuple[str, Path]] = []
         for relative in relatives:
-            copied = _copy_one(save_folder / relative, staging / relative)
+            target = staging / relative
+            if lp.too_long(target):
+                # A file whose place in the backup would run past 259 characters (an older build's long copy
+                # deep in Copies Made Before Repairs): kept under a short name in the backup's Long Paths
+                # folder, its place named in that folder's index, and restored to its own place.
+                stored = _long_path_name(len(long_names) + 1, relative.name)
+                long_names.append((stored, relative))
+                target = staging / LONG_PATHS / stored
+            copied = _copy_one(save_folder / relative, target)
             copied.relative = relative
             result.files.append(copied)
+        if long_names:
+            (lp.extended(staging / LONG_PATHS / LONG_PATHS_INDEX)).write_bytes(
+                "".join(f"{stored}\t{relative}\r\n" for stored, relative in long_names).encode("utf-8"))
         game = game_number(save_folder)
         if game is not None:
             for copied in result.files:
@@ -963,6 +1055,7 @@ def is_slot_save(relative: Path) -> bool:
 def _swap_in(path: Path, data: bytes) -> None:
     """``data`` swapped in through a temporary file of its own: a new, unique name created
     exclusively, so nothing already beside the save is ever written over or moved (Codex, #575)."""
+    path = lp.extended(path)                 # any length: the temporary name is longer (vv_long_paths)
     temporary = path.with_name(f"{path.name}.{uuid.uuid4().hex}.vvfp-pause-tmp")
     try:
         with temporary.open("xb") as handle:
@@ -1292,6 +1385,23 @@ def slot_villages(game: int, folder: Path) -> dict[int, str]:
     return dict(sorted(villages.items()))
 
 
+def _backup_entry(index: dict, name: str) -> tuple[datetime, int, str] | None:
+    """(when, order, label) of the backup folder `name`: its line in the Backups index (this build's short
+    names), else its own name (an older build's); None when it is not a usable backup."""
+    found = index.get(name.casefold())
+    if found is not None:
+        kind, when, order, label = found
+        return (when, order, label) if kind == KIND_BACKUP else None
+    return _parse_backup_name(name)
+
+
+def backup_label(backup: Path) -> str:
+    """A backup folder's label ("(before restore)" ...; "" for a plain backup or a folder that is not one):
+    from the Backups index, or an older build's folder name."""
+    found = _backup_entry(backups_index(Path(backup).parent), Path(backup).name)
+    return found[2] if found is not None else ""
+
+
 def list_backups(save_folder: Path) -> list[BackupInfo]:
     """The usable backups in ``save_folder``\\Backups, newest first.
 
@@ -1305,13 +1415,15 @@ def list_backups(save_folder: Path) -> list[BackupInfo]:
     found: list[tuple[datetime, int, BackupInfo]] = []
     if not backups.is_dir():
         return []
+    index = backups_index(backups)
     for entry in backups.iterdir():
-        parsed = _parse_backup_name(entry.name)
+        parsed = _backup_entry(index, entry.name)
         if parsed is None or not entry.is_dir() or _is_link(entry):
             continue
         when, sequence, label = parsed
-        files = files_to_back_up(entry)
-        size = sum((entry / relative).stat().st_size for relative in files)
+        contents = backup_contents(entry)
+        files = list(contents)
+        size = sum(lp.stat(path).st_size for path in contents.values())
         villages = slot_villages(game, entry) if game else {}
         found.append((
             when,
@@ -1367,7 +1479,7 @@ def file_slot(relative: Path, folder: Path) -> int | str:
         return int(match.group(1))
     if top in _LOG_FOLDERS and name.lower().endswith(".txt"):
         try:
-            with (folder / relative).open("r", encoding="utf-8", errors="replace") as handle:
+            with lp.extended(folder / relative).open("r", encoding="utf-8", errors="replace") as handle:
                 head = [handle.readline() for _ in range(3)]
         except OSError:
             return "unknown"
@@ -1387,6 +1499,7 @@ class RestorePlan:
     add: list[Path] = field(default_factory=list)       # only in the backup
     remove: list[Path] = field(default_factory=list)    # only in the save folder now
     unchanged: list[Path] = field(default_factory=list)
+    sources: dict[Path, Path] = field(default_factory=dict)   # each file's place in the backup (backup_contents)
 
     @property
     def changes(self) -> int:
@@ -1416,9 +1529,10 @@ def plan_restore(save_folder: Path, backup: Path, slot: int | None = None) -> Re
     another village).
     """
     _require_backup_of(save_folder, backup)
-    in_backup = set(files_to_back_up(backup))
+    contents = backup_contents(backup)            # a long file kept under a short name: at its own place
+    in_backup = set(contents)
     in_folder = set(files_to_back_up(save_folder))
-    plan = RestorePlan(save_folder, backup, slot)
+    plan = RestorePlan(save_folder, backup, slot, sources=contents)
     for relative in sorted(in_backup | in_folder, key=lambda p: str(p).casefold()):
         here = relative in in_folder
         there = relative in in_backup
@@ -1430,7 +1544,7 @@ def plan_restore(save_folder: Path, backup: Path, slot: int | None = None) -> Re
                 continue
             if slot not in owners:
                 if owners & {"meta", "unknown"} and not (
-                    here and there and _same_file(save_folder / relative, backup / relative)
+                    here and there and _same_file(save_folder / relative, contents[relative])
                 ):
                     what = (
                         "the game's shared save (slot 0), which records every slot"
@@ -1448,7 +1562,7 @@ def plan_restore(save_folder: Path, backup: Path, slot: int | None = None) -> Re
                     f"{relative} belongs to Save {slot} in one copy and not in the other."
                 )
         if here and there:
-            if _same_file(save_folder / relative, backup / relative):
+            if _same_file(save_folder / relative, contents[relative]):
                 plan.unchanged.append(relative)
             else:
                 plan.replace.append(relative)
@@ -1468,7 +1582,7 @@ def _require_backup_of(save_folder: Path, backup: Path) -> None:
     backups = (save_folder / BACKUPS_FOLDER).resolve()
     if (
         backup.resolve().parent != backups
-        or _parse_backup_name(backup.name) is None
+        or _backup_entry(backups_index(save_folder / BACKUPS_FOLDER), backup.name) is None
         or not backup.is_dir()
         or _is_link(backup)
     ):
@@ -1482,8 +1596,9 @@ def _place(source: Path, target: Path) -> None:
     size and SHA-256, and only then moved over the target with os.replace,
     so the target is at every moment either its old file or the new one.
     """
-    target.parent.mkdir(parents=True, exist_ok=True)
+    lp.makedirs(target.parent)
     expected = _hash_file(source)
+    target = lp.extended(target)         # any length (vv_long_paths)
     while True:
         temp = target.with_name(f"{target.name}.vvfp-restore-{uuid.uuid4().hex[:12]}.tmp")
         try:
@@ -1492,7 +1607,7 @@ def _place(source: Path, target: Path) -> None:
             continue
         break
     try:
-        with source.open("rb") as reader, writer:
+        with lp.extended(source).open("rb") as reader, writer:
             while True:
                 chunk = reader.read(HASH_CHUNK)
                 if not chunk:
@@ -1500,7 +1615,7 @@ def _place(source: Path, target: Path) -> None:
                 writer.write(chunk)
         if _hash_file(temp) != expected:
             raise BackupError(f"The restored copy of {target.name} did not match the backup.")
-        kept = source.stat()
+        kept = lp.stat(source)
         _keep_times(temp, (kept.st_atime_ns, kept.st_mtime_ns))   # the time the file had when it was backed up
         os.replace(temp, target)
     finally:
@@ -1572,12 +1687,12 @@ def restore_backup(
             if _game_running(save_folder, controller):
                 raise BackupError(started)
             done.append(relative)
-            _place(backup / relative, save_folder / relative)
+            _place(plan.sources.get(relative, backup / relative), save_folder / relative)
         for relative in plan.remove:
             if _game_running(save_folder, controller):
                 raise BackupError(started)
             done.append(relative)
-            (save_folder / relative).unlink()
+            lp.extended(save_folder / relative).unlink()       # any length (vv_long_paths)
     except (OSError, BackupError) as exc:
         problems = _roll_back(save_folder, before, done)
         if problems:
@@ -1666,9 +1781,13 @@ def _recognise_second_factions(save_folder: Path, plan, slot: int | None) -> dic
 
 def _roll_back(save_folder: Path, before: BackupResult | None, done: list[Path]) -> list[str]:
     problems: list[str] = []
+    try:
+        stored = backup_contents(before.backup_folder) if before else {}
+    except OSError:
+        stored = {}
     for relative in reversed(done):
-        target = save_folder / relative
-        original = before.backup_folder / relative if before else None
+        target = lp.extended(save_folder / relative)           # any length (vv_long_paths)
+        original = lp.extended(stored.get(relative, before.backup_folder / relative)) if before else None
         try:
             if original is not None and original.is_file():
                 # The before-restore backup's saves are Paused (their clock and timers too); such a
@@ -1730,9 +1849,11 @@ def delete_backup(save_folder: Path, backup: Path) -> None:
     last: OSError | None = None
     for attempt in range(DELETE_ATTEMPTS):
         try:
-            shutil.rmtree(doomed, onexc=retry_writable)
+            shutil.rmtree(lp.extended(doomed), onexc=retry_writable)   # any length (vv_long_paths)
+            _forget_in_backups_index(backup.parent, backup.name)
             return
         except FileNotFoundError:
+            _forget_in_backups_index(backup.parent, backup.name)
             return
         except OSError as exc:
             last = exc

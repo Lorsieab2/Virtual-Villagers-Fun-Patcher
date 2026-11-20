@@ -967,6 +967,10 @@ FILES = [
     # The save folder's folder and file names, old and new: the Family Tree Maker finds its edits and
     # writes its reports through it, and Repair Saves & Logs moves older builds' folders with it.
     "src/vv_save_layout.py",
+    # Paths of any length in the save folders, and the copies kept before repairs (short names and
+    # their index): Back Up Saves and every repair import them (the owner, 2026-11-20).
+    "src/vv_long_paths.py",
+    "src/vv_repair_copies.py",
     # The "?" guides beside every feature; the GUI imports the module, and
     # the module reads the data file.
     "src/vv_how_to_use.py",

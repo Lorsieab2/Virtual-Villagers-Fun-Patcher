@@ -49,6 +49,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
+import vv_repair_copies as copies
 import vv_save_backup
 import vv_save_layout as layout
 from transparency import PATCHER_VERSION
@@ -701,12 +702,19 @@ class WordFix:
 
 
 def copy_before_repair(folder: Path, path: Path, suffix: str) -> Path:
-    """Where the copy of `path` (in the save folder) kept before a repair goes: "Data\\Copies Made
-    Before Repairs", at the file's own place, "<name><suffix>" (the owner, 2026-10-09: no longer
-    beside the file; native/shared/save_layout.h vv_layout_copy_path).  A file in a save's own folder
-    ("Virtual Villagers Fun Patcher\\Save <S>\\...") has its copy in that save's own "Data\\Copies Made
-    Before Repairs", at its place inside "Save <S>", so deleting the save's folder takes it too
-    (native/shared/per_save.h)."""
+    """Where a NEW copy of `path` (in the save folder) kept before a repair goes, its index line
+    written: "<short name>.bak<n>" in "Data\\Copies Made Before Repairs" -- the save's own for a file of
+    a save's own folder, so deleting the save's folder takes it too -- never a name in use, `suffix`
+    (".before-<what>[-<k>]") kept as the reason in that folder's "Copies Index.txt"
+    (src/vv_repair_copies.py; the owner, 2026-11-20: no path-too-long errors).  Every call is a new
+    place; the caller writes the copy there."""
+    return copies.new_copy(folder, path, suffix)
+
+
+def older_copy_place(folder: Path, path: Path, suffix: str) -> Path:
+    """Where an OLDER build kept its copy of `path`: "Data\\Copies Made Before Repairs", at the file's
+    own place, "<name><suffix>" (only read; native/shared/save_layout.h vv_layout_copy_path still names
+    the companions' copies so)."""
     relative = Path(path).resolve().relative_to(Path(folder).resolve())
     if layout.older_layout(folder, path) is not None:
         root = Path(folder) / relative.parts[0] / relative.parts[1]
@@ -717,11 +725,12 @@ def copy_before_repair(folder: Path, path: Path, suffix: str) -> Path:
 
 
 def copy_places(folder: Path, path: Path, suffix: str) -> list[Path]:
-    """Every place a copy of `path` kept before a repair may be, for READING (a new copy is always
-    made at copy_before_repair's place): that place, and for a file in a save's own folder also the
-    older layout's "Data\\Copies Made Before Repairs\\<its older-layout place>", where its copies made
-    before Repair Saves & Logs' "Move Files to Save Folders..." stay (src/vv_move_to_save_folders.py)."""
-    out = [copy_before_repair(folder, path, suffix)]
+    """Every place an OLDER build's copy of `path` kept before a repair may be, for READING (the new
+    copies are found by copies.kept_copies): older_copy_place, and for a file in a save's own folder
+    also the older layout's "Data\\Copies Made Before Repairs\\<its older-layout place>", where its
+    copies made before Repair Saves & Logs' "Move Files to Save Folders..." stay
+    (src/vv_move_to_save_folders.py)."""
+    out = [older_copy_place(folder, path, suffix)]
     older = layout.older_layout(folder, path)
     if older is not None:
         target = Path(folder) / layout.DATA / layout.COPIES / Path(*older.split("\\"))
