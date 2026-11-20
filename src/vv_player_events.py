@@ -2639,11 +2639,11 @@ def _piece_effect_target(e: dict, local: dict[str, int]) -> tuple[int, int, int 
     extra = int(e.get("max_age", 0) or 0) if do == "change_age" else 0
     if do == "new_villager":
         return (_piece_slot(local, e["copy_of"]) if e.get("copy_of") else 0xFF), 0, extra
-    if do == "celebrate":
-        # vv_cie_graph.effect_role: everyone (0xFF, the whole village dances) only for who "all"; else that villager
+    if do in ("celebrate", "group"):
+        # vv_cie_graph.effect_role: everyone (0xFF, the whole village) only for who "all"; else that villager
         who = e.get("who", "all")
         return (0xFF if who in (None, "all") else _piece_slot(local, who)), 0, extra
-    if do in ("food", "tech", "pay_award", "damage", "repair"):
+    if do in ("food", "tech", "pay_award", "damage", "repair", "supply", "trade", "village"):
         return 0xFF, 0, extra
     return _piece_slot(local, e.get("role", "subject")), 0, extra
 
@@ -2725,6 +2725,15 @@ def _effect_record(e: dict, local: dict[str, int], game: int) -> tuple[int, int,
             st = e["structures"] if isinstance(e["structures"], str) else ",".join(e["structures"])
         elif do == "deliver_early":
             a, b = (e["min"], e["max"]) if "min" in e else (0, 0)
+        # The trader and Village Moments kinds (cie-v6-binary.md 39-42), as vv_cie_graph's compiler writes them.
+        elif do == "supply":
+            a, b, st = e["min"], e["max"], e["item"]
+        elif do == "trade":
+            a, b, st = e["give_amount"], e["get_amount"], f"{e['give']},{e['get']}"
+        elif do == "group":
+            a, st = e.get("percent") or 0, cie.group_word(e)
+        elif do == "village":
+            a, b, st = cie.village_args(e)
         elif do not in _EFFECTS_WITHOUT_VALUES:
             raise _NoPieceLayout(do)
         if do == "skill" and e.get("best"):
