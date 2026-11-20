@@ -122,6 +122,7 @@ PINNED_SUBS = {
     "The Hollow Totem": (C,), "The Rainbow Totem": (C,),
     "The Tribute Statue": (C, C), "The Heathen Chief": (C,), "The Nursery School": (C,), "The fire pit": (C,),
     "Fixing a hut (the repair)": (C, C), "Red (rare) mushroom": (E, C, C, C), "Barrel of Babies": (C,),
+    "Lab gear (the second collectible set, 24 pieces)": (C,),
     "Story / Cheat Upgrades": (C,),
 }
 
