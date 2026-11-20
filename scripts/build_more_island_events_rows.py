@@ -376,7 +376,7 @@ def description(game: int) -> str:
         "help), half the time a trap leads to death (a grave) or a disappearance (no grave). \"Stay on the safe "
         "path\" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled "
         "survivalist, killed, gone, or they " + ("become a Heathen" if game == 5 else "join another tribe")
-        + ". The event is " + HOW[game] + "; it needs two villagers of 14 or more who are not nursing a baby and not "
+        + ". " + HOW[game] + "; it needs two villagers of 14 or more who are not nursing a baby and not "
         + WHO_NOT[game] + ", and the adventurer and the friend who may come to help are drawn from them. The "
         "reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island "
         "events (" + reward_words(game) + ")" + ("; " if game in (1, 4, 5) else " ") + SCALE[game]
@@ -407,7 +407,7 @@ def row(game: int, sha: str) -> dict:
         "output_tag": "Aspiring Adventurer",
         "dependencies": [f"vv{game}_story_cheat_upgrades"],
         "behavior_changes": [
-            f"The event is {HOW[game]}. It can happen only while at least two villagers may go: 14 or more (280 age "
+            f"{HOW[game]}. It can happen only while at least two villagers may go: 14 or more (280 age "
             f"units), alive and present, not carrying a baby, and not {WHO_NOT[game]}; the adventurer and the friend "
             "of ending A8 are drawn from them, the friend never the adventurer.",
             "Choice A, \"Go Investigate!\": the find 50% a pile of dirt, 25% meat (a food award: "
