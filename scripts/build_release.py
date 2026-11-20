@@ -116,6 +116,18 @@ FILES = [
     "assets/keep_carried/VVFP Keep Carried.dll",
     # Fix Vanilla Bugs (The Lost Children ... New Believers): a word wider than its box no longer hangs the layout.
     "assets/long_words/VVFP Long Words.dll",
+    # Fix Vanilla Bugs (The Tree of Life): the owner's redrawn broken-pier holes, drawn in place of sprites 104-113.
+    "assets/vv4_pier_holes/VVFP VV4 Pier Holes.dll",
+    "assets/vv4_pier_holes/vvfp_northPierHoleEast.png",
+    "assets/vv4_pier_holes/vvfp_northPierHoleMidNorth.png",
+    "assets/vv4_pier_holes/vvfp_northPierHoleMidSouth.png",
+    "assets/vv4_pier_holes/vvfp_northPierHoleSouthEast.png",
+    "assets/vv4_pier_holes/vvfp_northPierHoleWest.png",
+    "assets/vv4_pier_holes/vvfp_southPierHoleEast.png",
+    "assets/vv4_pier_holes/vvfp_southPierHoleNorthEast.png",
+    "assets/vv4_pier_holes/vvfp_southPierHoleNorthWest.png",
+    "assets/vv4_pier_holes/vvfp_southPierHoleSouthEast.png",
+    "assets/vv4_pier_holes/vvfp_southPierHoleSouthWest.png",
     # Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse.
     "assets/push_clouds/VVFP Push Clouds.dll",
     # Popup When Believers Become Heathens (New Believers): counts the believers the Faith drift turns Heathen.

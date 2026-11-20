@@ -298,6 +298,33 @@ def _startup(m: Machine, game: int) -> int:
     return m.export("VvfpStartup", game, 0)
 
 
+def _serve_pier_holes(m: Machine) -> None:
+    """The pier holes companion's PNG header reads, answered from assets/vv4_pier_holes (Images\\vvfp_*.png)."""
+    folder = ROOT / "assets" / "vv4_pier_holes"
+    handles: dict[int, list] = {}
+
+    def create(p):
+        name = p.wstring(p.arg(0)).rpartition("\\")[2]
+        path = folder / name
+        if not name.startswith("vvfp_") or not path.is_file():
+            return 0xFFFFFFFF, 28
+        handle = 0x200 + 4 * len(handles)
+        handles[handle] = [path.read_bytes(), 0]
+        return handle, 28
+
+    def read(p):
+        data, at = handles[p.arg(0)]
+        piece = data[at:at + p.arg(2)]
+        p.write(p.arg(1), piece)
+        handles[p.arg(0)][1] = at + len(piece)
+        p.put32(p.arg(3), len(piece))
+        return 1, 20
+
+    m.api_handlers["CreateFileW"] = create
+    m.api_handlers["ReadFile"] = read
+    m.api_handlers["CloseHandle"] = lambda p: (1, 4)
+
+
 def _with_origins(*rows: str):
     return lambda g: [f"vv{g}_origins_village_wide_upgrades"] + [r.format(g=g) for r in rows]
 
@@ -432,6 +459,12 @@ CASES = [
          lambda g: [f"vv{g}_yellow_fruit_trees_limited"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpYellowFruitInstalled"))[1]),
     # Heathens Keep Their Masks When Converted (New Believers): the conversion's role test and The Defector's setter call.
+    # Fix Vanilla Bugs (The Tree of Life): the ten broken-pier hole entries of the sprite table (its pictures served
+    # from the row's own files in Images).
+    Case("VV4 Pier Holes", "assets/vv4_pier_holes/VVFP VV4 Pier Holes.dll", (4,),
+         lambda g: [f"vv{g}_fix_vanilla_bugs"],
+         lambda m, g: (_serve_pier_holes(m), m.export("VvfpStartup", g, 0),
+                       int(m.export("VvfpPierHolesInstalled") == 10))[2]),
     Case("Heathens Keep Masks", "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll", (5,),
          lambda g: [f"vv{g}_heathens_keep_masks_when_converted"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpHeathensKeepMasksInstalled"))[1]),

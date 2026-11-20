@@ -93,6 +93,19 @@ GAME_READS_IN_PLACE: dict[str, str] = {
     "Images/vvfp_fruit_tree_3.png": _GAME_IMAGE,
     "Images/vvfp_fruit_tree_4.png": _GAME_IMAGE,
     "Images/vvfp_fruit_tree_5.png": _GAME_IMAGE,
+    # The Tree of Life's Fix Vanilla Bugs: the owner's redrawn broken-pier holes;
+    # the game's sprite table entries 104-113 are pointed at "vvfp_" + the stock
+    # name (vvfp_vv4_pier_holes.c).
+    "Images/vvfp_northPierHoleEast.png": _GAME_IMAGE,
+    "Images/vvfp_northPierHoleMidNorth.png": _GAME_IMAGE,
+    "Images/vvfp_northPierHoleMidSouth.png": _GAME_IMAGE,
+    "Images/vvfp_northPierHoleSouthEast.png": _GAME_IMAGE,
+    "Images/vvfp_northPierHoleWest.png": _GAME_IMAGE,
+    "Images/vvfp_southPierHoleEast.png": _GAME_IMAGE,
+    "Images/vvfp_southPierHoleNorthEast.png": _GAME_IMAGE,
+    "Images/vvfp_southPierHoleNorthWest.png": _GAME_IMAGE,
+    "Images/vvfp_southPierHoleSouthEast.png": _GAME_IMAGE,
+    "Images/vvfp_southPierHoleSouthWest.png": _GAME_IMAGE,
     # The Tree of Life / New Believers text: the game's own string table.
     "Assets/sm.xml": "replaces the game's own string table, which the game opens from Assets\\",
     # New Believers' Guardians of Isola rewrite: stock art replaced in place.
