@@ -33,7 +33,7 @@
       "offset": "0x15817",
       "before": "90909090",
       "after": "33C0EBF1",
-      "purpose": "the same condition: alignment nops -> xor eax, eax; jmp 0x41580C -- level 0 into the shared level test (the always-applied safety patch's record check there still runs): Science below 2 dropped"
+      "purpose": "the same condition: alignment nops -> xor eax, eax; jmp 0x41580C -- level 0 into the shared level test (the stock test there, which no record guard touches): Science below 2 dropped"
     },
     {
       "offset": "0x159DC",

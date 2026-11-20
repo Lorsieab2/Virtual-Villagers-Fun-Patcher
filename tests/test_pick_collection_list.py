@@ -30,6 +30,8 @@ sys.path.insert(0, str(ROOT / "src"))
 
 import test_story_custom_island_event as sci  # noqa: E402
 import vv_cie_graph as cie  # noqa: E402
+from story_emulator import API_STUBS  # noqa: E402
+from unicorn import UC_HOOK_CODE  # noqa: E402
 
 LIMIT = 400_000_000          # the biggest events take more than the emulator's default count to load and check
 GAMES = [g for g in sci.GAMES if sci.HAVE_EMULATOR and sci.TEST_DLL.is_file() and sci.have_stock(g)]
@@ -67,14 +69,36 @@ class Picker:
         for i in range(adults):
             self.st.village.put(i, sex="m" if i % 2 else "f", years=25, name=f"V{i}")
         self.text = self.p.alloc(4096)
-        self.blob = self.p.alloc(0x40000)
+        # As big as the companion's own buffer for a shipped event (story_graph.inc CG_SHIPPED_FILE, 1 MiB): the
+        # biggest shipped events (hc3_disasters ... about 300 KB) outgrew the 256 KB this once was, and the bytes
+        # past it were zeroed by the companion's own heap blocks, so their files looked unreadable.
+        self.blob_size = 0x100000
+        self.blob = self.p.alloc(self.blob_size)
         self.bufs = [self.p.alloc(1200) for _ in range(3)]
+        # Only the stubs and the API stubs are hooked, as tests/test_faith_loss_marks.py does: through the
+        # emulator's every-instruction Python hook one entry cost about a third of a second, and since the
+        # collection grew to about 4,300 events a game (mixer versions of every static event, 2026-11-15/16) the
+        # whole list took many hours -- it looked like a hang.  The game code and the companion run the same.
+        self.p.mu.hook_del(self.p.code_hook)
+        self.hooked = frozenset(self.p.stubs)
+        for va in self.hooked:
+            self.p.mu.hook_add(UC_HOOK_CODE, self.p._on_code, begin=va, end=va)
+        self.p.mu.hook_add(UC_HOOK_CODE, self.p._on_code, begin=API_STUBS, end=API_STUBS + 0xFFFF)
+
+    def check_hooks(self) -> None:
+        """A stub added after the swap would be skipped silently: never."""
+        assert frozenset(self.p.stubs) == self.hooked, sorted(set(self.p.stubs) ^ self.hooked)
+
+    def put_cieg(self, cieg: bytes) -> None:
+        assert len(cieg) <= self.blob_size, len(cieg)
+        self.p.write(self.blob, cieg)
 
     def entry(self, row: list[str], cieg: bytes) -> tuple[int, str, str, str]:
         """(k, title, needs, refusal) of the list's only entry: `row` (the manifest's cells), `cieg` its event."""
+        self.check_hooks()
         line = "\t".join(row[:5] + ["test"]) + "\n"
         self.p.write(self.text, line.encode("cp1252") + b"\0")
-        self.p.write(self.blob, cieg)
+        self.put_cieg(cieg)
         self.p.export("VvfpStoryProbeCollectionManifest", self.text, 0, 0)
         self.p.export("VvfpStoryProbeCollectionCieg", self.blob, len(cieg))
         k = self.p.call(self.p.exports["VvfpStoryProbeMoreEntry"], [self.n, 0, *self.bufs, 1200], limit=LIMIT)
@@ -129,26 +153,36 @@ def plain(test: unittest.TestCase, title: str, needs: str, refusal: str) -> None
     no_role_id(test, refusal[len(title):])
 
 
+def each_case(cls: type, name: str, cases: dict[str, tuple]) -> None:
+    """One test method per case (`name`_<case> runs cls._`name`(*args)), so a parallel run (pytest -n) spreads the
+    whole collection -- about 4,300 events a game -- over its workers instead of running it as one long test."""
+    for suffix, args in cases.items():
+        def test(self, args=args) -> None:
+            if args and isinstance(args[0], str) and args[0].startswith("vv") and args[0] not in GAMES:
+                self.skipTest(f"needs {args[0]}'s stock executable")
+            getattr(self, f"_{name}")(*args)
+        test.__name__ = f"{name}_{suffix}"
+        setattr(cls, test.__name__, test)
+
+
 @unittest.skipUnless(GAMES, "needs unicorn, pefile, the stock executables and the Story TEST build")
 class TheWholeCollection(unittest.TestCase):
-    def test_every_title_as_written_and_every_refusal_with_its_reason(self) -> None:
-        for game in GAMES:
-            for adults in (4, 1):
-                picker = Picker(game, adults)
-                shown = refused = 0
-                for row in manifest_rows(picker.n):
-                    cieg = (ROOT / "assets" / "event_collection" / f"{row[0]}.cieg").read_bytes()
-                    with self.subTest(game=game, adults=adults, event=row[0]):
-                        k, title, needs, refusal = picker.entry(row, cieg)
-                        self.assertEqual(k, 0x4000)
-                        self.assertEqual(title, row[1], "the title as written")
-                        self.assertNotIn("{", title)
-                        shown += 1
-                        if needs:
-                            refused += 1
-                            plain(self, title, needs, refusal)
-                self.assertGreater(shown, 0)
-                self.assertGreater(refused, 0, "a small village can not have every event")
+    def _test_every_title_as_written_and_every_refusal_with_its_reason(self, game: str, adults: int) -> None:
+        picker = Picker(game, adults)
+        shown = refused = 0
+        for row in manifest_rows(picker.n):
+            cieg = (ROOT / "assets" / "event_collection" / f"{row[0]}.cieg").read_bytes()
+            with self.subTest(game=game, adults=adults, event=row[0]):
+                k, title, needs, refusal = picker.entry(row, cieg)
+                self.assertEqual(k, 0x4000)
+                self.assertEqual(title, row[1], "the title as written")
+                self.assertNotIn("{", title)
+                shown += 1
+                if needs:
+                    refused += 1
+                    plain(self, title, needs, refusal)
+        self.assertGreater(shown, 0)
+        self.assertGreater(refused, 0, "a small village can not have every event")
 
     def test_the_very_bad_day_keeps_its_name_placeholder_in_the_list(self) -> None:
         for game in GAMES:
@@ -159,6 +193,10 @@ class TheWholeCollection(unittest.TestCase):
                 self.assertEqual(picker.entry(row, cieg)[1], "(Name1)'s No Good, Very Bad Day")
 
 
+each_case(TheWholeCollection, "test_every_title_as_written_and_every_refusal_with_its_reason",
+          {f"{game}_{adults}_adults": (game, adults) for game in sci.GAMES for adults in (4, 1)})
+
+
 GENERIC = "An event of the Isola Grand Event Collection."
 GUARDIANS_WORDS = re.compile(r"heathen|convert", re.I)
 
@@ -166,8 +204,9 @@ GUARDIANS_WORDS = re.compile(r"heathen|convert", re.I)
 def full_entry(picker: Picker, row: list[str], cieg: bytes) -> tuple[str, str, str, str]:
     """(title, description, needs, refusal) of the list's only entry, from the manifest's WHOLE line `row`."""
     # The shipped manifest's own bytes (UTF-8): a credit may hold any character (Role Models' heading has an emoji).
+    picker.check_hooks()
     picker.p.write(picker.text, ("\t".join(row) + "\n").encode("utf-8") + b"\0")
-    picker.p.write(picker.blob, cieg)
+    picker.put_cieg(cieg)
     picker.p.export("VvfpStoryProbeCollectionManifest", picker.text, 0, 0)
     picker.p.export("VvfpStoryProbeCollectionCieg", picker.blob, len(cieg))
     k = picker.p.call(picker.p.exports["VvfpStoryProbeMoreEntry"], [picker.n, 0, *picker.bufs, 1200], limit=LIMIT)
@@ -191,28 +230,51 @@ class TheDescriptions(unittest.TestCase):
     in place of the generic line; New Believers with Guardians of Isola Rewrite says neither Heathen nor convert
     (docs/event-collection/guardians-wording.md), and without it nothing changes."""
 
-    def test_every_event_shows_its_own_sentence(self) -> None:
-        for game in GAMES:
-            picker = Picker(game, 4)
-            seen = set()
-            for row in manifest_rows(picker.n):
-                cieg = (ROOT / "assets" / "event_collection" / f"{row[0]}.cieg").read_bytes()
-                with self.subTest(game=game, event=row[0]):
-                    self.assertEqual(len(row), 9, "id, title, games, weight, series, credit, description, and the "
-                                                  "two Guardians fields")
-                    title, desc, _needs, _refusal = full_entry(picker, row, cieg)
-                    self.assertEqual(title, row[1])
-                    self.assertEqual(desc, row[6])
-                    self.assertNotEqual(desc, GENERIC)
-                    self.assertRegex(desc, r"^[A-Z][A-Za-z0-9 .,!?:;'-]*[.!?]$")   # no placeholder, brace, role id
-                    # no code label: a role id with a digit or "_" (gardener1, zz_helper9); plain words such as
-                    # "inventor" or "cook" are English the sentence may use
-                    labels = {r for r in CODE_LABELS if re.search(r"[0-9_]", r)}
-                    self.assertEqual(sorted(set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", desc)) & labels), [], desc)
-                    seen.add(desc)
-            self.assertGreater(len(seen), 1)
+    def _test_every_event_shows_its_own_sentence(self, game: str) -> None:
+        picker = Picker(game, 4)
+        seen = set()
+        for row in manifest_rows(picker.n):
+            cieg = (ROOT / "assets" / "event_collection" / f"{row[0]}.cieg").read_bytes()
+            with self.subTest(game=game, event=row[0]):
+                # A tenth column, only when the event has one, is its Village Solidarity kind (3de360934, #804;
+                # docs/event-collection/cie-v6-binary.md, scripts/build_event_collection_features.py).
+                self.assertIn(len(row), (9, 10), "id, title, games, weight, series, credit, description, the "
+                                                 "two Guardians fields, and the Village Solidarity kind")
+                if len(row) == 10:
+                    self.assertIn(row[9], ("cooperative", "repair"))
+                title, desc, _needs, _refusal = full_entry(picker, row, cieg)
+                self.assertEqual(title, row[1])
+                self.assertEqual(desc, row[6])
+                self.assertNotEqual(desc, GENERIC)
+                self.assertRegex(desc, r"^[A-Z][A-Za-z0-9 .,!?:;'-]*[.!?]$")   # no placeholder, brace, role id
+                # no code label: a role id with a digit or "_" (gardener1, zz_helper9); plain words such as
+                # "inventor" or "cook" are English the sentence may use
+                labels = {r for r in CODE_LABELS if re.search(r"[0-9_]", r)}
+                self.assertEqual(sorted(set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", desc)) & labels), [], desc)
+                seen.add(desc)
+        self.assertGreater(len(seen), 1)
 
-    def test_new_believers_with_and_without_guardians_of_isola(self) -> None:
+    def _test_new_believers_with_and_without_guardians_of_isola(self, game: str, guardians: bool,
+                                                                adults: int) -> None:
+        rows = manifest_rows(5)
+        picker = Picker(game, adults)
+        if guardians:
+            install(picker, "vv5\nvv5_guardians_of_isola_rewrite\n")
+        for row in rows:
+            cieg = (ROOT / "assets" / "event_collection" / f"{row[0]}.cieg").read_bytes()
+            with self.subTest(guardians=guardians, adults=adults, event=row[0]):
+                title, desc, needs, refusal = full_entry(picker, row, cieg)
+                if guardians:
+                    self.assertEqual(title, row[7] or row[1])
+                    self.assertEqual(desc, row[8] or row[6])
+                    for words in (title, desc, needs, refusal):
+                        self.assertIsNone(GUARDIANS_WORDS.search(words), words)
+                else:
+                    self.assertEqual((title, desc), (row[1], row[6]))
+                    if needs and "not a chief" in needs:
+                        self.assertIn("a puzzle's Heathen", needs)
+
+    def test_the_homesick_convert_with_and_without_guardians_of_isola(self) -> None:
         if "vv5" not in GAMES:
             self.skipTest("needs New Believers' stock executable")
         rows = manifest_rows(5)
@@ -220,30 +282,18 @@ class TheDescriptions(unittest.TestCase):
         varied = [r for r in rows if r[7] or r[8]]
         self.assertIn("vv5_convert_who_missed_home", [r[0] for r in varied])
         varied = [r for r in varied if r[0] == "vv5_convert_who_missed_home"]
-        for guardians in (False, True):
-            for adults in (4, 1):
-                picker = Picker("vv5", adults)
-                if guardians:
-                    install(picker, "vv5\nvv5_guardians_of_isola_rewrite\n")
-                for row in rows:
-                    cieg = (ROOT / "assets" / "event_collection" / f"{row[0]}.cieg").read_bytes()
-                    with self.subTest(guardians=guardians, adults=adults, event=row[0]):
-                        title, desc, needs, refusal = full_entry(picker, row, cieg)
-                        if guardians:
-                            self.assertEqual(title, row[7] or row[1])
-                            self.assertEqual(desc, row[8] or row[6])
-                            for words in (title, desc, needs, refusal):
-                                self.assertIsNone(GUARDIANS_WORDS.search(words), words)
-                        else:
-                            self.assertEqual((title, desc), (row[1], row[6]))
-                            if needs and "not a chief" in needs:
-                                self.assertIn("a puzzle's Heathen", needs)
         picker = Picker("vv5", 4)
         row = varied[0]
         cieg = (ROOT / "assets" / "event_collection" / f"{row[0]}.cieg").read_bytes()
         self.assertEqual(full_entry(picker, row, cieg)[:2], ("The Homesick Convert", row[6]))
         install(picker, "vv5\nvv5_guardians_of_isola_rewrite\n")
         self.assertEqual(full_entry(picker, row, cieg)[:2], ("The Homesick Newcomer", row[8]))
+
+
+each_case(TheDescriptions, "test_every_event_shows_its_own_sentence", {game: (game,) for game in sci.GAMES})
+each_case(TheDescriptions, "test_new_believers_with_and_without_guardians_of_isola",
+          {f"{'with' if guardians else 'without'}_guardians_{adults}_adults": ("vv5", guardians, adults)
+           for guardians in (False, True) for adults in (4, 1)})
 
 
 @unittest.skipUnless(GAMES, "needs unicorn, pefile, the stock executables and the Story TEST build")
@@ -342,7 +392,7 @@ class AThousandEntries(unittest.TestCase):
                 text = "".join(f"e{i}\tThe Event Number {i}\t1,2,3,4,5\t1\t\ttest\n" for i in range(1000))
                 buf = picker.p.alloc(len(text) + 16)
                 picker.p.write(buf, text.encode("cp1252") + b"\0")
-                picker.p.write(picker.blob, cieg)
+                picker.put_cieg(cieg)
                 picker.p.export("VvfpStoryProbeCollectionManifest", buf, 0, 0)
                 picker.p.export("VvfpStoryProbeCollectionCieg", picker.blob, len(cieg))
                 k, possible = picker.p.alloc(4 * 2048), picker.p.alloc(4 * 2048)

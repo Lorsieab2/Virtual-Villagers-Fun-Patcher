@@ -173,6 +173,11 @@ class Run:
             except Exception:
                 pass
             mu.mem_write(VV1_HUT9_CALL, hut_call if hut_call is not None else VV1_HUT9_CALL_STOCK)
+        else:
+            # Project record i: progress dword at state + 0x2E754 + 8*i, the
+            # complete flag byte 4 bytes later (vvfp_fix_huts.c VV2_PROGRESS).
+            for pid, (progress, done) in (projects or {}).items():
+                mu.mem_write(STATE + 0x2E754 + 8 * pid, struct.pack("<iB", progress, done))
         exits = [g["resume"], g["examine"], g["started"], g["rand"]] + [g[k] for k in ("hut_pick", "hut_resume", "nothing", "level_stock") if k in g]
         if game == "vv1":
             exits += [VV1_POPULATION, VV1_HUT_TAIL] + list(VV1_CONSTRUCTION)
@@ -329,8 +334,12 @@ class BelowLevelOnlyAHutTests(unittest.TestCase):
         # runs the whole dispatcher): hut 24 unbuilt is construction the
         # stock branch always offers, so the level gate goes straight into
         # the branch's own hut-24 code (option A), with what it expects.
+        # Hut 24 counts as construction only once worked on (progress 1 or
+        # more; a new village starts it at 205) -- the owner, 2026-11-18 on
+        # #807: builders never start a population hut by themselves
+        # (vvfp_fix_huts.c vv2_construction).
         stub = _probe("VvfpFixHutsProbeLevelSite", 2)[4]
-        r = Run("vv2", stub, level=2, huts=(0, 1, 0))
+        r = Run("vv2", stub, level=2, huts=(0, 1, 0), projects={24: (205, 0)})
         self.assertIsNone(r.examined)
         self.assertEqual(r.exit, 0x45FF0B, "push ebx; push 0x18: build hut 24")
         self.assertEqual(r.reg(UC_X86_REG_EBX), 0, "this harness's ebx (the game's is 1 here), untouched")
@@ -343,22 +352,36 @@ class BelowLevelOnlyAHutTests(unittest.TestCase):
         # Nothing stands to fix, but hut 24 is there to build (at any
         # progress), which the stock rolls skipped this time: straight into it
         # (option A), as A New Home builds hut 9.
+        # The owner, 2026-11-18 on #807: only a hut someone worked on (progress
+        # 1 or more) -- at 0 (an earthquake took it back) nobody starts it
+        # again without a drop, and with nothing standing that is "nothing".
         stub = _probe("VvfpFixHutsProbeLevelSite", G["vv2"]["no"])[4]
-        r = Run("vv2", stub, level=2, huts=(0, 0, 0))
+        r = Run("vv2", stub, level=2, huts=(0, 0, 0), projects={24: (1, 0)})
         self.assertIsNone(r.examined, "nothing examined")
         self.assertEqual(r.rolled, [], "the stock random pick is never reached")
         self.assertEqual(r.exit, 0x45FF0B, "the branch's own hut-24 code")
+        r = Run("vv2", stub, level=2, huts=(0, 0, 0), projects={24: (0, 0)})
+        self.assertIsNone(r.examined, "nothing examined")
+        self.assertEqual(r.rolled, [])
+        self.assertEqual(r.exit, G["vv2"]["nothing"], "never started by nobody's drop")
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_new_home_no_hut_built_builds_hut_9(self):
-        # Hut 9 has no population gate: with none built, a builder builds it.
+        # Hut 9 has no population gate: with none built, a builder builds it --
+        # once someone worked on it (progress 1 or more; a new village starts
+        # it at 125).  The owner, 2026-11-18 on #807: builders never start a
+        # population hut by themselves, hut 9 included (an earthquake can take
+        # it back to 0) -- vvfp_fix_huts.c vv1_hut_buildable.
         stub = _probe("VvfpFixHutsProbeLevelSite", G["vv1"]["no"])[4]
-        r = Run("vv1", stub, level=2, huts=(0, 0, 0))
+        r = Run("vv1", stub, level=2, huts=(0, 0, 0), projects={9: (125, 0)})
         self.assertIsNone(r.examined, "nothing examined")
         self.assertEqual(r.exit, VV1_HUT_SECTION)
         self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before, "the dispatcher's frame, untouched")
         self.assertEqual((r.reg(UC_X86_REG_ESI), r.reg(UC_X86_REG_EBP), r.reg(UC_X86_REG_EBX) & 0xFF),
                          (VILLAGE, INDEX, 1), "what the stock hut section expects")
+        r = Run("vv1", stub, level=2, huts=(0, 0, 0), projects={9: (0, 0)})
+        self.assertIsNone(r.examined, "nothing standing to fix")
+        self.assertNotIn(r.exit, VV1_CONSTRUCTION, "never started by nobody's drop")
 
 
 class NewHomeBuildFirstTests(unittest.TestCase):
@@ -393,23 +416,21 @@ class NewHomeBuildFirstTests(unittest.TestCase):
             self._assert_builds(r, 10)
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
-    def test_an_untouched_hut_is_started_only_above_the_stock_numbers(self):
-        # Progress 0, or the drawing routine's scaffold mark 1: construction
-        # only above 22 (hut 10) / 45 (hut 11), as in the stock game.
+    def test_an_untouched_hut_is_never_started_whatever_the_population(self):
+        # Progress 0, or the drawing routine's scaffold mark 1: never
+        # construction, whatever the population -- the owner, 2026-11-18 on
+        # #807: builders never start a population hut by themselves (the stock
+        # game started one above 22 / 45; vvfp_fix_huts.c vv1_hut_buildable no
+        # longer asks the population).  A hut stands, so the builder fixes it.
         for site, stub, level in self._sites():
           with self.subTest(site=site):
             for progress in (0, 1):
-                for population in (10, 15, 22):
+                for population in (10, 15, 22, 23, 100):
                     self.assertIsNotNone(Run("vv1", stub, level=level, huts=(1, 0, 1), population=population,
                                              projects={10: (progress, 0)}).examined)
-                for population in (10, 28, 45):
+                for population in (10, 28, 45, 46, 100):
                     self.assertIsNotNone(Run("vv1", stub, level=level, huts=(1, 1, 0), population=population,
                                              projects={11: (progress, 0)}).examined)
-                # Above 22 / 45 an untouched hut is construction, as in the stock game.
-                self._assert_builds(Run("vv1", stub, level=level, huts=(1, 0, 1), population=23,
-                                        projects={10: (progress, 0)}), 10)
-                self._assert_builds(Run("vv1", stub, level=level, huts=(1, 1, 0), population=46,
-                                        projects={11: (progress, 0)}), 11)
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_a_started_hut_is_built_whatever_the_population(self):
@@ -481,10 +502,20 @@ class NewHomeNothingTests(unittest.TestCase):
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_no_hut_standing_builds_hut_9(self):
         # No hut stands, so there is nothing to fix -- but hut 9 is there to
-        # build, and building comes first.
-        r = Run("vv1", self.stub, level=3, huts=(0, 0, 0))
+        # build (someone worked on it: progress 125, a new village's own), and
+        # building comes first.
+        r = Run("vv1", self.stub, level=3, huts=(0, 0, 0), projects={9: (125, 0)})
         self.assertIsNone(r.examined)
         self.assertEqual(r.exit, VV1_HUT_SECTION)
+        self.assertEqual(r.rolled, [])
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_hut_9_nobody_worked_on_is_nothing(self):
+        # The owner, 2026-11-18 on #807: builders never start a population hut
+        # by themselves -- hut 9 back at progress 0 (an earthquake) is not
+        # construction, and with nothing standing that is "nothing".
+        r = Run("vv1", self.stub, level=3, huts=(0, 0, 0), projects={9: (0, 0)})
+        self._assert_nothing(r)
         self.assertEqual(r.rolled, [])
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
