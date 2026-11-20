@@ -80,6 +80,9 @@ enum {
     GAME_VV4 = 4,
     GAME_VV5 = 5,
 
+    /* Every MAX_LONG_PATH buffer is STATIC, never a local: each is 64 KB, and the roster runs inside the
+       game's save (The Lost Children's save routine alone holds a 193 KB frame), so thirteen of them on the
+       stack (about 700 KB) could overflow the game's 1 MB stack.  The game calls this from one thread. */
     MAX_LONG_PATH = 32768,
 
     /* A fixed local bound for a name, checked against each game's own
@@ -710,7 +713,7 @@ static int build_log_paths(
     wchar_t *temporary,
     wchar_t *destination
 ) {
-    wchar_t module_path[MAX_LONG_PATH];
+    static wchar_t module_path[MAX_LONG_PATH];
     wchar_t sub[MAX_PATH];
     /* The export belongs with the SAVE, not with the executable.
        See native/shared/save_folder.h: this used to strip to the exe's own
@@ -1423,8 +1426,8 @@ static long long history_file_size(const wchar_t *path) {
    Numbering starts at 1 and walks upward, so a player reads them in order and
    older files stay exactly as they were written. */
 static int build_history_path(int slot, wchar_t *destination) {
-    wchar_t module_path[MAX_LONG_PATH];
-    wchar_t folder[MAX_LONG_PATH];
+    static wchar_t module_path[MAX_LONG_PATH];
+    static wchar_t folder[MAX_LONG_PATH];
     wchar_t sub[MAX_PATH];
     int number;
     /* ONE FOLDER PER SAVE SLOT (native/shared/log_slot.h): this save's snapshot goes into
@@ -1436,7 +1439,7 @@ static int build_history_path(int slot, wchar_t *destination) {
     /* `module_path` is the shared folder, for the migration below only -- made only when an older
        build's file is there to move into it. */
     {
-        wchar_t root[MAX_LONG_PATH];
+        static wchar_t root[MAX_LONG_PATH];
         if (!vv_save_folder_w(root, 96)
             || _snwprintf_s(module_path, MAX_LONG_PATH, _TRUNCATE,
                             L"%ls\\" VV_LOGS_DIR L"\\Tribe History", root) < 0) {
@@ -1462,9 +1465,9 @@ static int build_history_path(int slot, wchar_t *destination) {
     {
         static int history_migrated;
         if (!history_migrated) {
-            wchar_t root[MAX_LONG_PATH];
-            wchar_t legacy[MAX_LONG_PATH];
-            wchar_t first[MAX_LONG_PATH];
+            static wchar_t root[MAX_LONG_PATH];
+            static wchar_t legacy[MAX_LONG_PATH];
+            static wchar_t first[MAX_LONG_PATH];
             int stranded = 0;       /* a legacy file exists and would not move */
             history_migrated = 1;
             if (_snwprintf_s(first, MAX_LONG_PATH, _TRUNCATE,
@@ -1503,7 +1506,7 @@ static int build_history_path(int slot, wchar_t *destination) {
                                     L"%ls\\VVFP Logs\\Tribe History\\Village History.txt",
                                     root) >= 0
                     && GetFileAttributesW(legacy) != INVALID_FILE_ATTRIBUTES) {
-                    wchar_t made[MAX_LONG_PATH];
+                    static wchar_t made[MAX_LONG_PATH];
                     if (!vv_save_subfolder_w(made, VV_LOGS_DIR L"\\Tribe History", 64)
                         || !MoveFileW(legacy, first)) {
                         stranded = 1;
@@ -1541,7 +1544,7 @@ static int append_history(
     int game_id,
     const char *village
 ) {
-    wchar_t path[MAX_LONG_PATH];
+    static wchar_t path[MAX_LONG_PATH];
     FILE *file;
     unsigned int index;
     int written = 0;
@@ -1608,8 +1611,8 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
     int file_index = 1;
     int in_file = 0;
     FILE *file = NULL;
-    wchar_t temporary[MAX_LONG_PATH];
-    wchar_t destination[MAX_LONG_PATH];
+    static wchar_t temporary[MAX_LONG_PATH];
+    static wchar_t destination[MAX_LONG_PATH];
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
         return 0;
@@ -1739,8 +1742,8 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
         int stale = file_index + 1;
         int limit = (int)(g->slots / VILLAGERS_PER_FILE) + 2;
         while (stale <= limit) {
-            wchar_t old_temporary[MAX_LONG_PATH];
-            wchar_t old_destination[MAX_LONG_PATH];
+            static wchar_t old_temporary[MAX_LONG_PATH];
+            static wchar_t old_destination[MAX_LONG_PATH];
             if (!build_log_paths(vv_log_header_slot(village), stale, old_temporary, old_destination)) {
                 break;
             }
