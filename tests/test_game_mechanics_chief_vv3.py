@@ -146,7 +146,7 @@ class DirectingWork(unittest.TestCase):
                       "fish 8 becomes 10", "an owned Food Point Doubler doubles fruit and honey picks, fish and crabs",
                       "an owned Tech Point Doubler doubles the research points, the chief's research bonus included",
                       "Tribal Chief Supervises the Hospital", "Learning Skills Never Fails",
-                      "Fruit Counts When It Reaches the Food Bin", "Builders and Healers Work First",
+                      "Fruit Counts When It Reaches the Food Bin", "Villagers Work Their Own Job First",
                       "No other patch changes the chief's site, the roll or the bonus",
                       "no Food Mastery and no \"Food Gains are Flat\" patch"):
             self.assertIn(words, text)

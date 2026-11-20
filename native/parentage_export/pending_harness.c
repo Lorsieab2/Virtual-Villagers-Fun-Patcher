@@ -70,7 +70,9 @@ typedef int (__stdcall *ensure_village_t)(int, const char *, const void *);
 #define OWN_FATHER  0xDF8   /* the villager's own parents, kept for life */
 #define OWN_MOTHER  0xE11
 #define OWN_CAP     0x19
-#define TITLE       "Virtual Villagers 3 Births and Conceptions Log"
+#define SEX         0xDC8   /* 0 male, 1 female (the export's layout row); a zeroed record is male */
+#define FEMALE      1
+#define TITLE      "Virtual Villagers 3 Births and Conceptions Log"
 #define VILLAGE     "Village: Harness Tribe (Save 1)\n"
 #define VILLAGE2    "Village: Second Tribe (Save 2)\n"
 
@@ -99,6 +101,9 @@ static void parents(int i, const char *father, const char *mother) {
 }
 
 static void conceive(int mother, int father) {
+    /* The mothers here are women: the log names a male carrier's sex in a Note since the logs record sex (#784),
+       which would label every record. */
+    *(int *)(rec(mother) + SEX) = FEMALE;
     memset(rec(mother) + FATHER_NAME, 0, FATHER_CAP);
     strncpy((char *)rec(mother) + FATHER_NAME, (const char *)rec(father) + NAME, FATHER_CAP);
     *(int *)(rec(mother) + HEAD_COPY) = *(int *)(rec(father) + HEAD);

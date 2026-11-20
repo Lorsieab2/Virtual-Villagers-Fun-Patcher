@@ -88,6 +88,8 @@ class Placement(unittest.TestCase):
                 mock.patch.object(gm, "catchup_facts", return_value=[]), \
                 mock.patch.object(gm, "farmers_facts", return_value=[]), \
                 mock.patch.object(gm, "chances_facts", return_value=[]), \
+                mock.patch.object(gm, "carried_facts", return_value=[]), \
+                mock.patch.object(gm, "training_facts", return_value=[]), \
                 mock.patch.object(gm, "items_facts", return_value=[]), \
                 mock.patch.object(gm, "hidden_facts", return_value=[]), \
                 mock.patch.object(gm, "time_units_lines", return_value=[]):     # the clock key (its own test)
