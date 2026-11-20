@@ -5783,7 +5783,8 @@
   },
   {
    "id": "vv5_the_guardians_disagreement",
-   "title": "The Guardians' Disagreement",
+   "title": "The Villagers' Disagreement",
+   "source_title": "The Guardians' Disagreement",
    "games": [
     5
    ],
@@ -48664,7 +48665,8 @@
   },
   {
    "id": "lvauth18_guardians",
-   "title": "The Guardians' Council",
+   "title": "The Two Communities' Council",
+   "source_title": "The Guardians' Council",
    "games": [
     5
    ],

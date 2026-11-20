@@ -51,6 +51,14 @@
   "cast_only": [
    "friend",
    "third"
+  ],
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A researcher, a storyteller and a villager of faith each explain the night sky: let each speak, or let them argue it out."
+   }
   ]
  },
  "requirement": {
@@ -113,5 +121,8 @@
    "text": "The three of them argue happily until the stars fade. (subject) has evidence, (friend) has better stories, and (third) has a way of asking questions that makes the other two stop and think. Nobody wins. The children fall asleep long before the end.",
    "src": "L103"
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

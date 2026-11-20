@@ -557,3 +557,12 @@ reads it after a lead-in. Rows start with `critic`.
 | critic L809 | `the privilege (C)` | `the privilege of (C)` | hc1_routes | a missing word: "the privilege of (C)" (C is an -ing phrase) |
 | critic L2036 | `a rival apprentice ((name2))` | `a rival apprentice, (name2),` | hc6_sabotage | the saboteur's name as an appositive: "catches a rival apprentice, Kai, in the act" |
 | critic L1014 | `not a (sigil / sacred symbol / holy passage / prayer / ancestral mark)` | `not (a sigil / a sacred symbol / a holy passage / a prayer / an ancestral mark)` | hc1_routes | a/an before a slot: "not a ancestral mark" |
+
+### No Guardians as the villagers' name (the owner, 2026-11-19)
+
+The owner: "don't use 'Guardians' to refer to our villagers" (docs/event-collection/guardians-wording.md, "No Guardians as
+the villagers' name"; scripts/food_tech_additions.py TEXT_EDITS).
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| draft_blf L311 | `a feast for the Guardians,` | `a feast for the whole tribe,` | `blf26_isolan_feast` setup | "the Guardians" here names our villagers; the feast is the whole tribe's |

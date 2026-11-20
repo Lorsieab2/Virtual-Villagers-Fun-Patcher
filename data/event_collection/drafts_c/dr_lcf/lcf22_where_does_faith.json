@@ -50,6 +50,14 @@
   "label_case": "title",
   "cast_only": [
    "friend"
+  ],
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A researcher and a person of faith debate whether faith has any place in studying the stars: debate in public, or work together."
+   }
   ]
  },
  "requirement": {
@@ -112,5 +120,8 @@
    ],
    "auto_text": true
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

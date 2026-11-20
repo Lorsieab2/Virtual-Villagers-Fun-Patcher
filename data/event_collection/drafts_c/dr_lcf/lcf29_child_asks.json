@@ -51,6 +51,14 @@
   "cast_only": [
    "friend",
    "third"
+  ],
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A child asks a researcher and a person of faith why the sun rises: give both answers, or ask the child what they think."
+   }
   ]
  },
  "requirement": {
@@ -114,5 +122,8 @@
    ],
    "auto_text": true
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }
