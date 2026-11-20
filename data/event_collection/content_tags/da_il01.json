@@ -85,7 +85,10 @@
     "Disappearance"
    ],
    "nodes": {
-    "a": [
+    "a__fx": [
+     "F04"
+    ],
+    "a__text": [
      "F04"
     ]
    }

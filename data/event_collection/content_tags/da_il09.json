@@ -48,7 +48,10 @@
    ],
    "notes": [],
    "nodes": {
-    "b": [
+    "b__fx": [
+     "F07"
+    ],
+    "b__text": [
      "F07"
     ]
    }
@@ -58,8 +61,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "friend",
-    "subject"
+    "subject",
+    "friend"
    ]
   },
   "il164_dinner": {
@@ -102,7 +105,10 @@
    ],
    "notes": [],
    "nodes": {
-    "a": [
+    "a__fx": [
+     "F26"
+    ],
+    "a__text": [
      "F26"
     ]
    },
@@ -156,7 +162,10 @@
    ],
    "notes": [],
    "nodes": {
-    "a": [
+    "a__fx": [
+     "F07"
+    ],
+    "a__text": [
      "F07"
     ]
    },

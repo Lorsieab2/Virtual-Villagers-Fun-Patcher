@@ -1,0 +1,705 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_lcc",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "lcc01_we_will_defend": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcc02_watch_fires": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcc03_warriors": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1": [
+     "F06"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcc04_plan_children": {
+   "filters": [
+    "F20",
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ],
+    "o2": [
+     "F26"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcc05_war_chant": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcc06_raiders_gardens": {
+   "filters": [
+    "F06",
+    "F15",
+    "F20"
+   ],
+   "notes": [
+    "Serious injury",
+    "Historical suffering"
+   ],
+   "nodes": {
+    "o1": [
+     "F06",
+     "F15",
+     "F20"
+    ],
+    "o2": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcc07_night_conch_blew": {
+   "filters": [
+    "F06",
+    "F20"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1": [
+     "F06"
+    ],
+    "o2": [
+     "F20"
+    ]
+   }
+  },
+  "lcc08_captured_raider": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcc09_prisoner_stayed": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcc10_prisoner_ran": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcc11_hostage_exchange": {
+   "filters": [
+    "F04",
+    "F25"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "o1": [
+     "F04",
+     "F25"
+    ],
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcc12_taken_child": {
+   "filters": [
+    "F01",
+    "F07"
+   ],
+   "notes": [
+    "Child death"
+   ],
+   "nodes": {
+    "o2": [
+     "F07"
+    ],
+    "setup": [
+     "F01"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcc13_shields_village": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ],
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcc14_warrior_would": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcc15_ambush_forest": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1": [
+     "F06"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcc16_feast_before": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcc17_warriors_return": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1": [
+     "F06"
+    ],
+    "o2": [
+     "F06"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcc18_honor_song": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F05"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcc19_shell_necklace": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcc20_raider_gift": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcc21_lookout_mistake": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcc22_spearhead_makers": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcc23_canoe_wall": {
+   "filters": [
+    "F20",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20",
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "lcc24_wounded_healer": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1": [
+     "F06"
+    ],
+    "o2": [
+     "F06"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcc25_peace_council": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcc26_truce_feast": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ]
+   }
+  },
+  "lcc27_long_spear": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcc28_watchers_signal": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcc29_kept_caves": {
+   "filters": [
+    "F18"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F18"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcc30_raid_never_came": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "lcc31_stolen_canoes": {
+   "filters": [
+    "F15",
+    "F20",
+    "F25"
+   ],
+   "notes": [
+    "Historical suffering"
+   ],
+   "nodes": {
+    "o1": [
+     "F20",
+     "F25"
+    ],
+    "setup": [
+     "F15"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcc32_fire_arrows": {
+   "filters": [
+    "F06",
+    "F07",
+    "F20",
+    "F23"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1": [
+     "F06",
+     "F07",
+     "F20",
+     "F23"
+    ],
+    "o2": [
+     "F07",
+     "F20",
+     "F23"
+    ],
+    "setup": [
+     "F23"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcc33_brave_runner": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcc34_message_other": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ]
+   }
+  },
+  "lcc35_painted_faces": {
+   "filters": [
+    "F11"
+   ],
+   "notes": [
+    "Emotional distress"
+   ],
+   "nodes": {
+    "o1": [
+     "F11"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcc36_two_warriors": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcc37_grave_unknown": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcc38_warrior_advice": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcc39_night_swimmers": {
+   "filters": [
+    "F06",
+    "F20"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1": [
+     "F06"
+    ],
+    "o2": [
+     "F20"
+    ]
+   }
+  },
+  "lcc40_last_raid_story": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcc41_guardian_dance": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcc42_ransom_demand": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcc43_wounded_raider": {
+   "filters": [
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F19"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcc44_signal_drums": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcc45_night_long_watch": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o2": [
+     "F06"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcc46_unwanted_weapon": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcc47_healers_bundle": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ]
+   }
+  },
+  "lcc48_speech_after": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcc49_canoe_peace": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcc50_day_defenders": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  }
+ }
+}

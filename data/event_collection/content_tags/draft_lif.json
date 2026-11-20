@@ -95,7 +95,10 @@
     "Emotional distress"
    ],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F11"
+    ],
+    "o1__text": [
      "F11"
     ],
     "setup": [
@@ -317,8 +320,8 @@
     ]
    },
    "speaks": [
-    "subject",
-    "friend"
+    "friend",
+    "subject"
    ]
   },
   "lif32_slept_through": {
@@ -344,7 +347,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F25"
+    ],
+    "o1__text": [
      "F25"
     ]
    }
@@ -385,7 +391,10 @@
     "Disappearance"
    ],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F04"
+    ],
+    "o1__text": [
      "F04"
     ]
    }

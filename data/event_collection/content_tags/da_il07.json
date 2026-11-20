@@ -212,7 +212,10 @@
     "Emotional distress"
    ],
    "nodes": {
-    "a": [
+    "a__fx": [
+     "F12"
+    ],
+    "a__text": [
      "F12"
     ],
     "setup": [

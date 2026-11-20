@@ -69,10 +69,10 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "friend",
     "child",
     "grownup",
-    "subject"
+    "subject",
+    "friend"
    ]
   },
   "day06_everywhere_goes": {
@@ -103,10 +103,16 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
      "F20"
     ],
-    "o2": [
+    "o1__text": [
+     "F20"
+    ],
+    "o2__fx": [
+     "F20"
+    ],
+    "o2__text": [
      "F20"
     ]
    }
@@ -186,7 +192,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o2": [
+    "o2__fx": [
+     "F25"
+    ],
+    "o2__text": [
      "F25"
     ],
     "setup": [
@@ -234,9 +243,17 @@
    ]
   },
   "day24_good_knees_today": {
-   "filters": [],
-   "notes": [],
-   "nodes": {}
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1__fx": [
+     "F06"
+    ]
+   }
   },
   "day25_harder_day": {
    "filters": [],
@@ -249,10 +266,16 @@
   },
   "day26_overslept": {
    "filters": [
+    "F06",
     "F20"
    ],
-   "notes": [],
+   "notes": [
+    "Serious injury"
+   ],
    "nodes": {
+    "o1__fx": [
+     "F06"
+    ],
     "setup": [
      "F20"
     ]
@@ -353,7 +376,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o2": [
+    "o2__fx": [
+     "F26"
+    ],
+    "o2__text": [
      "F26"
     ],
     "setup": [
@@ -368,7 +394,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o2": [
+    "o2__fx": [
+     "F08"
+    ],
+    "o2__text": [
      "F08"
     ]
    },
@@ -392,7 +421,11 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F20",
+     "F25"
+    ],
+    "o1__text": [
      "F20",
      "F25"
     ],

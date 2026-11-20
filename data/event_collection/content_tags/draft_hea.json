@@ -62,8 +62,8 @@
     ]
    },
    "speaks": [
-    "friend",
-    "subject"
+    "subject",
+    "friend"
    ]
   },
   "hea04_under_breadfruit": {
@@ -95,7 +95,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F25"
+    ],
+    "o1__text": [
      "F25"
     ]
    },
@@ -206,7 +209,10 @@
     "Emotional distress"
    ],
    "nodes": {
-    "o2": [
+    "o2__fx": [
+     "F12"
+    ],
+    "o2__text": [
      "F12"
     ]
    },
@@ -274,7 +280,10 @@
     "o1": [
      "F08"
     ],
-    "o2": [
+    "o2__fx": [
+     "F08"
+    ],
+    "o2__text": [
      "F08"
     ],
     "setup": [
@@ -288,9 +297,17 @@
    ]
   },
   "hea24_resting_allowed": {
-   "filters": [],
-   "notes": [],
-   "nodes": {},
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o2__fx": [
+     "F06"
+    ]
+   },
    "speaks": [
     "friend"
    ]
@@ -332,7 +349,11 @@
     "o1": [
      "F06"
     ],
-    "o2": [
+    "o2__fx": [
+     "F06",
+     "F16"
+    ],
+    "o2__text": [
      "F16"
     ]
    },
@@ -444,9 +465,17 @@
    ]
   },
   "hea37_slower_wanted": {
-   "filters": [],
-   "notes": [],
-   "nodes": {},
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o2__fx": [
+     "F06"
+    ]
+   },
    "speaks": [
     "subject",
     "friend"
@@ -458,7 +487,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o2": [
+    "o2__fx": [
+     "F07"
+    ],
+    "o2__text": [
      "F07"
     ]
    },
@@ -538,9 +570,9 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "healer",
     "subject",
-    "friend"
+    "friend",
+    "healer"
    ]
   },
   "hea47_sitting_still": {
@@ -566,7 +598,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o2": [
+    "o2__fx": [
+     "F07"
+    ],
+    "o2__text": [
      "F07"
     ]
    },

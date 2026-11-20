@@ -80,8 +80,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "friend",
-    "subject"
+    "subject",
+    "friend"
    ]
   },
   "fam206_raising_two": {
@@ -295,7 +295,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F07"
+    ],
+    "o1__text": [
      "F07"
     ],
     "setup": [
@@ -375,7 +378,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o2": [
+    "o2__fx": [
+     "F25"
+    ],
+    "o2__text": [
      "F25"
     ]
    },
@@ -416,9 +422,9 @@
    "nodes": {},
    "speaks": [
     "subject",
+    "third",
     "friend",
-    "neighbor",
-    "third"
+    "neighbor"
    ]
   },
   "fam237_matchmaking": {
@@ -426,9 +432,9 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "subject",
     "fourth",
-    "friend"
+    "friend",
+    "subject"
    ]
   },
   "fam238_family_worst": {
@@ -497,7 +503,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o2": [
+    "o2__fx": [
+     "F16"
+    ],
+    "o2__text": [
      "F16"
     ]
    },
@@ -534,9 +543,17 @@
    ]
   },
   "fam249_much_affection": {
-   "filters": [],
-   "notes": [],
-   "nodes": {},
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o2__fx": [
+     "F06"
+    ]
+   },
    "speaks": [
     "subject"
    ]

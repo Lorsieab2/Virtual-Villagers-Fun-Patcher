@@ -6,6 +6,8 @@
 static const char *const TR_KEY_STEMS[] = {
     "vvfp.adult_confused/vvfp_adult_confused.COLLECTIBLES.s0",
     "vvfp.adult_confused/vvfp_adult_confused.MUSHROOMS.s0",
+    "vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_gathering.s0",
+    "vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_making.s0",
     "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.0",
     "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.1",
     "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.2",
@@ -843,6 +845,8 @@ static const char *const TR_KEY_STEMS[] = {
     "vvfp.storytelling/vvfp_storytelling.x.s2",
     "vvfp.storytelling/vvfp_storytelling.x.s3",
     "vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0",
+    "vvfp.village_solidarity/vvfp_village_solidarity.SOL_HELP_TEXT.s0",
+    "vvfp.village_solidarity/vvfp_village_solidarity.SOL_HELP_TITLE.s0",
     "vvfp.vv2_empty_stew/vvfp_vv2_empty_stew.EMPTYING_EN.s0",
     NULL
 };

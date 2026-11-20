@@ -1,0 +1,526 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_lch",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "lch01_story_told_about": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lch02_archive_lock": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lch03_history_written": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lch04_song_belongs": {
+   "filters": [
+    "F03",
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03",
+     "F05"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lch05_stolen_design": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lch06_medicine_garden": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lch07_research_village": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lch08_forest_witnesses": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lch09_results_belong": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lch10_woman_refused": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lch11_care_circle": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ]
+   }
+  },
+  "lch12_elder_public": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lch13_girls_wanted": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lch14_patient_voice": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lch15_youth": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lch16_language_nursery": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lch17_festival": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "third"
+   ]
+  },
+  "lch18_apprentice": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lch19_children": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lch20_names_mountains": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lch21_byname": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lch22_interpreter": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lch23_seeds_came_home": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lch24_food_we_choose": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ],
+    "setup": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lch25_feast_remembered": {
+   "filters": [
+    "F20",
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20",
+     "F21"
+    ]
+   }
+  },
+  "lch26_boundary_nobody": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lch27_river_guardians": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lch28_gathering": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lch29_gift_conditions": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lch30_festival_many": {
+   "filters": [
+    "F20",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20",
+     "F25"
+    ],
+    "o2": [
+     "F20",
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "lch31_day_many_hands": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lch32_harvest_hungry": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ],
+    "o2": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lch33_village_tool": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "o1": [
+     "F04"
+    ],
+    "o2": [
+     "F04"
+    ],
+    "setup": [
+     "F04"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lch34_song_working": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lch35_bridge_everyone": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lch36_healer_mistake": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lch37_family_needed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lch38_roof_built_rain": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lch39_village_water": {
+   "filters": [
+    "F20",
+    "F21",
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F26"
+    ],
+    "o2": [
+     "F20",
+     "F21"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lch40_canoe_makers": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lch41_festival_makers": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lch42_painting_told": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F20"
+    ],
+    "setup": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lch43_craft_nearly": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lch44_stars_above_our": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lch45_night_reflection": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lch46_sacred_grove": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lch47_coconut_debate": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lch48_festival": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lch49_family_seeking": {
+   "filters": [
+    "F20",
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ],
+    "o2": [
+     "F20"
+    ],
+    "setup": [
+     "F21"
+    ]
+   }
+  },
+  "lch50_names_we_carry": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  }
+ }
+}

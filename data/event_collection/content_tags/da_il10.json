@@ -124,9 +124,17 @@
    "nodes": {}
   },
   "il192_back_water": {
-   "filters": [],
-   "notes": [],
-   "nodes": {}
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "a__fx": [
+     "F06"
+    ]
+   }
   },
   "il193_sixty_years": {
    "filters": [],

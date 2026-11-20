@@ -60,7 +60,10 @@
     "o1": [
      "F26"
     ],
-    "o2": [
+    "o2__fx": [
+     "F26"
+    ],
+    "o2__text": [
      "F26"
     ],
     "setup": [
@@ -453,12 +456,16 @@
   },
   "tt44_cleverest_pig": {
    "filters": [
-    "F03"
+    "F03",
+    "F20"
    ],
    "notes": [
     "Bereavement"
    ],
    "nodes": {
+    "o1__fx": [
+     "F20"
+    ],
     "o2": [
      "F03"
     ],
@@ -495,6 +502,9 @@
     "Serious injury"
    ],
    "nodes": {
+    "o2__fx": [
+     "F06"
+    ],
     "setup": [
      "F06"
     ]

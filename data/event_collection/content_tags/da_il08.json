@@ -43,8 +43,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "subject",
-    "friend"
+    "friend",
+    "subject"
    ]
   },
   "il143_measuring_beans": {
@@ -137,7 +137,10 @@
    ],
    "notes": [],
    "nodes": {
-    "a": [
+    "a__fx": [
+     "F25"
+    ],
+    "a__text": [
      "F25"
     ],
     "setup": [

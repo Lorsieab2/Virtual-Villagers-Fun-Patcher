@@ -59,9 +59,15 @@
    "nodes": {}
   },
   "rm06_stream_after_rain": {
-   "filters": [],
+   "filters": [
+    "F20"
+   ],
    "notes": [],
-   "nodes": {}
+   "nodes": {
+    "b1__fx": [
+     "F20"
+    ]
+   }
   },
   "rm07_fisher_restraint": {
    "filters": [
@@ -286,9 +292,15 @@
    "nodes": {}
   },
   "rm40_example_no_one": {
-   "filters": [],
+   "filters": [
+    "F20"
+   ],
    "notes": [],
-   "nodes": {}
+   "nodes": {
+    "b2__fx": [
+     "F20"
+    ]
+   }
   }
  }
 }

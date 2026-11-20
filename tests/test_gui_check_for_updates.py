@@ -179,6 +179,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
                # The horizontal scroll bars every window's scrolling areas share (the owner, 2026-11-11).
                "vv_scrollbars",
+               # Village Solidarity's numbers (the owner, 2026-11-17): the GUI reads its slider's strength from it.
+               "vv_village_scores",
                # Game Mechanics (the owner, 2026-10-22): its window, the page and each game's module,
                # found by name (importlib) and so listed here for the release zip.
                "vv_game_mechanics_window", "vv_game_mechanics", "vv_game_mechanics_vv1", "vv_game_mechanics_vv2", "vv_game_mechanics_vv3",

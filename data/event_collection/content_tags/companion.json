@@ -467,9 +467,17 @@
    "nodes": {}
   },
   "c5b032_missing_hug": {
-   "filters": [],
-   "notes": [],
-   "nodes": {}
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "e1__fx": [
+     "F06"
+    ]
+   }
   },
   "c5b033_growing_child": {
    "filters": [],
@@ -836,7 +844,10 @@
    ],
    "notes": [],
    "nodes": {
-    "e1": [
+    "e1__fx": [
+     "F16"
+    ],
+    "e1__text": [
      "F16"
     ]
    }
@@ -1166,9 +1177,17 @@
    "nodes": {}
   },
   "c5dn003_five_scholar": {
-   "filters": [],
-   "notes": [],
-   "nodes": {}
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "e2__fx": [
+     "F06"
+    ]
+   }
   },
   "c5dn004_reluctant": {
    "filters": [],
@@ -1227,11 +1246,16 @@
   },
   "c5dn015_midnight_baker": {
    "filters": [
-    "F07"
+    "F07",
+    "F20"
    ],
    "notes": [],
    "nodes": {
-    "e3": [
+    "e3__fx": [
+     "F07",
+     "F20"
+    ],
+    "e3__text": [
      "F07"
     ]
    }
@@ -1880,7 +1904,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -1900,7 +1928,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -1920,7 +1952,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -1940,7 +1976,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -1960,7 +2000,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -1980,7 +2024,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2000,7 +2048,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2020,7 +2072,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2040,7 +2096,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2060,7 +2120,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2080,7 +2144,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2100,7 +2168,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2120,7 +2192,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2140,7 +2216,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2160,7 +2240,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2180,7 +2264,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2200,7 +2288,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2220,7 +2312,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2240,7 +2336,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2260,7 +2360,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2280,7 +2384,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2300,7 +2408,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2320,7 +2432,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2340,7 +2456,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2360,7 +2480,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2380,7 +2504,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2400,7 +2528,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -2420,7 +2552,11 @@
     "Disappearance"
    ],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F03",
+     "F24"
+    ],
+    "c__text": [
      "F03",
      "F24"
     ],
@@ -3406,11 +3542,16 @@
   },
   "cat138_sea_otter": {
    "filters": [
+    "F20",
     "F25"
    ],
    "notes": [],
    "nodes": {
-    "b": [
+    "b__fx": [
+     "F20",
+     "F25"
+    ],
+    "b__text": [
      "F25"
     ],
     "premise": [
@@ -3433,11 +3574,16 @@
   },
   "cat140_orcas_passage": {
    "filters": [
+    "F20",
     "F25"
    ],
    "notes": [],
    "nodes": {
-    "b": [
+    "b__fx": [
+     "F20",
+     "F25"
+    ],
+    "b__text": [
      "F25"
     ],
     "premise": [
@@ -3480,7 +3626,10 @@
    ],
    "notes": [],
    "nodes": {
-    "b": [
+    "b__fx": [
+     "F26"
+    ],
+    "b__text": [
      "F26"
     ],
     "c": [
@@ -4065,9 +4214,15 @@
    }
   },
   "lbl009_family_recipe": {
-   "filters": [],
+   "filters": [
+    "F20"
+   ],
    "notes": [],
-   "nodes": {}
+   "nodes": {
+    "e2__fx": [
+     "F20"
+    ]
+   }
   },
   "lbl010_shared_birthday": {
    "filters": [],
@@ -4181,6 +4336,9 @@
     "Disappearance"
    ],
    "nodes": {
+    "e1__fx": [
+     "F06"
+    ],
     "e2": [
      "F06"
     ],
@@ -4882,7 +5040,10 @@
    ],
    "notes": [],
    "nodes": {
-    "b": [
+    "b__fx": [
+     "F25"
+    ],
+    "b__text": [
      "F25"
     ]
    }
@@ -5138,7 +5299,10 @@
     "Bereavement"
    ],
    "nodes": {
-    "b": [
+    "b__fx": [
+     "F03"
+    ],
+    "b__text": [
      "F03"
     ]
    }
@@ -5225,7 +5389,10 @@
    ],
    "notes": [],
    "nodes": {
-    "c": [
+    "c__fx": [
+     "F27"
+    ],
+    "c__text": [
      "F27"
     ]
    }
@@ -5241,7 +5408,10 @@
    ],
    "notes": [],
    "nodes": {
-    "b": [
+    "b__fx": [
+     "F25"
+    ],
+    "b__text": [
      "F25"
     ],
     "premise": [

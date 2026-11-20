@@ -75,7 +75,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F20"
+    ],
+    "o1__text": [
      "F20"
     ]
    },
@@ -114,8 +117,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "friend",
-    "subject"
+    "subject",
+    "friend"
    ]
   },
   "blf10_question_fire": {
@@ -181,8 +184,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "subject",
-    "friend"
+    "friend",
+    "subject"
    ]
   },
   "blf17_strong_arms": {
@@ -247,12 +250,20 @@
    ]
   },
   "blf24_same_prayer": {
-   "filters": [],
-   "notes": [],
-   "nodes": {},
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1__fx": [
+     "F06"
+    ]
+   },
    "speaks": [
-    "subject",
-    "friend"
+    "friend",
+    "subject"
    ]
   },
   "blf25_rain_song": {
@@ -260,8 +271,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "subject",
-    "friend"
+    "friend",
+    "subject"
    ]
   },
   "blf26_isolan_feast": {
@@ -294,7 +305,10 @@
     "Emotional distress"
    ],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F11"
+    ],
+    "o1__text": [
      "F11"
     ]
    },
@@ -307,8 +321,8 @@
    "notes": [],
    "nodes": {},
    "speaks": [
-    "friend",
-    "subject"
+    "subject",
+    "friend"
    ]
   },
   "blf31_do_you_like": {
@@ -358,9 +372,18 @@
    ]
   },
   "blf36_blessing_two": {
-   "filters": [],
+   "filters": [
+    "F20"
+   ],
    "notes": [],
-   "nodes": {},
+   "nodes": {
+    "o1_f__fx": [
+     "F20"
+    ],
+    "o1_m__fx": [
+     "F20"
+    ]
+   },
    "speaks": [
     "third",
     "men1",
@@ -418,7 +441,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F25"
+    ],
+    "o1__text": [
      "F25"
     ]
    },
@@ -489,7 +515,10 @@
    ],
    "notes": [],
    "nodes": {
-    "o1": [
+    "o1__fx": [
+     "F25"
+    ],
+    "o1__text": [
      "F25"
     ]
    },

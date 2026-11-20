@@ -1,0 +1,538 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_lcd",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "lcd01_make_move_stay": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcd02_teen_crush": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcd03_flowers_doorstep": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcd04_love_poem": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcd05_serenade": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcd06_where_should": {
+   "filters": [
+    "F25",
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F26"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcd07_first_kiss": {
+   "filters": [
+    "F27"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F27"
+    ]
+   }
+  },
+  "lcd08_holding_hands": {
+   "filters": [
+    "F11"
+   ],
+   "notes": [
+    "Emotional distress"
+   ],
+   "nodes": {
+    "setup": [
+     "F11"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcd09_gift_went_wrong": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcd10_rival_suitors": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "third"
+   ]
+  },
+  "lcd11_shy_admirer": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcd12_friend_knew": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ],
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "lcd13_love_song_nobody": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcd14_asking_family": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend",
+    "third"
+   ]
+  },
+  "lcd15_secret_proposal": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcd16_low_key_grand": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcd17_wedding_two": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcd18_how_many": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F07"
+    ]
+   }
+  },
+  "lcd19_breaking_news": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcd20_bad_news": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcd21_breakup": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcd22_changing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcd23_divorce": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcd24_starting_over": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcd25_choice_marry": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcd26_promise_between": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcd27_matchmaker": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcd28_teen_heartbreak": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcd29_hut_two": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcd30_anniversary": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcd31_gift_necklace": {
+   "filters": [
+    "F06",
+    "F20",
+    "F25"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1": [
+     "F06"
+    ],
+    "o2": [
+     "F20",
+     "F25"
+    ]
+   }
+  },
+  "lcd32_courting_across": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcd33_clumsy_dance": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcd34_jealous_moment": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "o1": [
+     "F04"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcd35_parents": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "third",
+    "friend",
+    "subject"
+   ]
+  },
+  "lcd36_gift_song_dawn": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcd37_teen_gift": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcd38_lost_love": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcd39_wedding_feast": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F20"
+    ]
+   }
+  },
+  "lcd40_marriage_advice": {
+   "filters": [
+    "F11"
+   ],
+   "notes": [
+    "Emotional distress"
+   ],
+   "nodes": {
+    "setup": [
+     "F11"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcd41_nervous_groom": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcd42_garland_pattern": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcd43_meddling_cousins": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcd44_breakup_song": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcd45_proposal": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcd46_wedding_gift": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcd47_long_engagement": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "lcd48_love_after_fifty": {
+   "filters": [
+    "F05",
+    "F25"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F25"
+    ],
+    "setup": [
+     "F05"
+    ]
+   }
+  },
+  "lcd49_courting_canoe": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcd50_love_hut_rumor": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  }
+ }
+}
