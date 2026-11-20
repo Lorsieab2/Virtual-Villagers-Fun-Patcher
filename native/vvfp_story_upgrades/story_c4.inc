@@ -620,7 +620,9 @@ static int c4_refill(void) {
 
 /* The blackberries [world+0x170F8] (the game keeps them 0..1000; seen live:
    the bushes follow within a second), the cutting tools [0x4D8618] (the
-   tool object's count, 0..6 as making and using them keep it) and the bars
+   tool object's count, 0..6 as making and using them keep it, 0..99 with Up
+   to 99 Cutting Tools/Soap/Cloth, "VVFP VV4 Supply Cap.dll" -- the event
+   offers 0..99 and sets at most 6 when that companion is not loaded) and the bars
    of soap [0x4D8D98] (the soap object's count; making adds 3 with no cap,
    99 here).  Both counts are saved by their objects and redrawn every
    frame. */
@@ -629,9 +631,9 @@ static const ce_value_def C4_VALUES[] = {
       "One store for every bush; the game's own ceiling is 1000. Fishing has no store, "
       "and the fruit trees none unless Yellow Fruit Trees are No Longer Unlimited is on "
       "(Refill fills its tree)." },
-    { "Cutting tools", 0, 6,
-      "The game keeps 0-6. Whether villagers use them before The Cutting Tool is solved "
-      "was not seen in play." },
+    { "Cutting tools", 0, 99,
+      "The game keeps 0-6 (0-99 with Up to 99 Cutting Tools/Soap/Cloth; without it more than 6 is set to 6). "
+      "Whether villagers use them before The Cutting Tool is solved was not seen in play." },
     { "Bars of soap", 0, 99,
       "Making soap adds 3 at a time. Whether villagers use it before Soap Invented is "
       "solved was not seen in play." },
@@ -663,7 +665,13 @@ static int c4_value_set(int which, int amount) {
     }
     switch (which) {
     case 0: *(int *)(c4_world() + 0x170F8) = amount; return 1;
-    case 1: *(int *)(uintptr_t)0x4D8618u = amount; return 1;
+    case 1:
+        /* The game's own most: 6, or 99 with "VVFP VV4 Supply Cap.dll" (Up to 99 Cutting Tools/Soap/Cloth). */
+        if (amount > 6 && GetModuleHandleW(L"VVFP VV4 Supply Cap.dll") == NULL) {
+            amount = 6;
+        }
+        *(int *)(uintptr_t)0x4D8618u = amount;
+        return 1;
     case 2: *(int *)(uintptr_t)0x4D8D98u = amount; return 1;
     default: return 0;
     }

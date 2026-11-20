@@ -23578,7 +23578,7 @@
   },
   {
    "stem": "vvfp.story/story_c4.C4_VALUES.1.3",
-   "english": "The game keeps 0-6. Whether villagers use them before The Cutting Tool is solved was not seen in play.",
+   "english": "The game keeps 0-6 (0-99 with Up to 99 Cutting Tools/Soap/Cloth; without it more than 6 is set to 6). Whether villagers use them before The Cutting Tool is solved was not seen in play.",
    "games": [
     "vv4"
    ],
@@ -70346,6 +70346,28 @@
    "mechanism": "b",
    "context": "Rename Tribe window (the note under the name box)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_making.s0",
+   "english": "Making a sack out of cloth",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV4 Cloth Sacks.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_gathering.s0",
+   "english": "Gathering food in cloth sack",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV4 Cloth Sacks.dll",
+   "notes": "a patcher window",
+   "route": "key"
   }
  ]
 }

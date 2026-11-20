@@ -377,6 +377,25 @@
       ]
     },
     {
+      "ids": ["vv4_cloth_sacks_for_yellow_fruit"],
+      "guide": [
+        "On by default. Needs the Clothing Hut finished and the Cooking Pit restored.",
+        "Drop an adult on the left side of the Clothing Hut, under its awning: they use one cloth bolt to make a sack and bring 30 yellow fruit to the food bin.",
+        "Works like the cutting tool on the blackberries: the cloth is used when they start, with no cloth they refuse, and Food Mastery multiplies the food.",
+        "Only villagers you drop make sacks: farmers never do on their own.",
+        "While the stew pot is making The Grand Feast and needs fruit, the sack goes into the stew instead and counts as its fruit (no food from that sack).",
+        "With Yellow Fruit Trees are No Longer Unlimited, a sack takes its fruit from the tree (30, or what is left, even none); without it every sack holds 30. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv4_up_to_99_supplies"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it.",
+        "Cutting tools and cloth bolts can be stored up to 99 instead of 6; they are still made 3 at a time and each use takes one. Soap was never limited.",
+        "The stacks at the fish skeleton and the Clothing Hut still show at most 6; point at them to see the real count. Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv5_heathen_mommy_puzzle"],
       "guide": [
         "New villages start with the Heathen Mommy: a Heathen mother with a nursing baby.",
@@ -472,13 +491,13 @@
     {
       "ids": ["vv4_fix_vanilla_bugs"],
       "guide": [
-        "Fixes a bug in the original game: a village with exactly 150 villagers can be saved and loaded again.",
-        "A village already damaged by that bug is repaired when it is loaded.",
+        "A village with exactly 150 villagers can be saved and loaded again; one already damaged by that bug is repaired when it is loaded.",
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Unpausing at another speed gives the Fire Pit that speed's length. Nursery School lessons no longer always pick Building on a tie.",
         "Rain can no longer crash the game, and the Overview Map's water (rivers, waterfalls and their animations) lines up with its riverbeds.",
+        "No cutting tool is used up on an empty bush (with Cloth Sacks, no sack on an empty fruit tree). Cutting-tool berries count for The Grand Feast.",
         "The 150-villager fix only matters with a bigger population mode or 256 Villagers. On by default."
       ]
     },
@@ -1245,7 +1264,7 @@
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
         "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups, More Island Events, Isola Grand Event Collection,",
-        "Island Events Scale With Population (like The Lost Children), Island Events Scale With Stored Food and Tech Points,",
+        "Island Events Scale With Population (like The Lost Children), Island Events Scale With Stored Food and Tech Points, Up to 99 Cutting Tools/Soap/Cloth,",
         "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
       ]
     },

@@ -77,6 +77,14 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Change Sex and Gender Presentation (all five games): a villager drawn with the other sex's heads and bodies,
        keeping the recorded sex; its row also offers Change Appearance's Change sex button. */
     "VVFP Gender Presentation.dll",
+    /* Cloth Sacks for Yellow Fruit (The Tree of Life): a cloth bolt made into a sack for 30 yellow fruit, like the
+       cutting tool on the blackberries. */
+    "VVFP VV4 Cloth Sacks.dll",
+    /* Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life): the cap of 6 raised to 99; the stacks drawn as 6. */
+    "VVFP VV4 Supply Cap.dll",
+    /* Fix Vanilla Bugs (The Tree of Life): no cutting tool (or, with Cloth Sacks, cloth sack) used on an empty
+       source. */
+    "VVFP VV4 Empty Sources.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \
