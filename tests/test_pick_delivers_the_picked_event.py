@@ -219,6 +219,54 @@ class PickDeliversThePickedEvent(unittest.TestCase):
                             self.assertEqual(trigger.counter, 0, "a player's event before the village's first "
                                              "island event is not counted: the opening events still come")
 
+    def test_a_question_before_the_first_event_comes_once_then_the_game_goes_on(self):
+        """Code review of the fix: the question takes the family roll's route (CE_DEAD_GO) while the first-event mark
+        is still set for the count's take-back.  A New Home / The Lost Children, a new village: the picked question is
+        asked exactly once, the trigger's first-event marks are cleared by its delivery, it is not counted -- and the
+        game then goes on as stock: its own visitor as the village's first island event (counted 1), then its own
+        island event (counted 2), with nothing of the pick shown again."""
+        if not TEST_DLL.is_file():
+            self.skipTest("the Story test build is not in tests/test_dlls")
+        for game in ("vv1", "vv2"):
+            if not have_stock(game):
+                continue
+            for kind, title, data in self._picks(game):
+                if kind != "question":
+                    continue
+                with self.subTest(game=game, event=title):
+                    trigger = PickTrigger(Story(game))
+                    trigger.counter = 0
+                    p = trigger.story.proc
+                    n = trigger.story.n
+                    if "VvfpStoryProbeFirstMarks" not in p.exports:
+                        self.skipTest("this test build has no first-event probe")
+                    self.assertIsNone(trigger.queue(data))
+                    asked = 0
+                    for display in range(8):
+                        built = trigger.fire()
+                        if built == "visitor":
+                            self.assertIsNotNone(trigger.shown_question(), "the picked question")
+                            asked += 1
+                            break
+                        self.assertEqual(built, "island", f"display {display}")
+                        self.assertIsNotNone(trigger.shown_island(), f"display {display}: the event's page")
+                        p.export("VvfpStoryInstall", n)
+                    self.assertEqual(asked, 1)
+                    self.assertEqual(p.export("VvfpStoryProbeFirstMarks"), 0,
+                                     "ce_dead_first and ce_first_before cleared by the delivery")
+                    self.assertEqual(p.export("VvfpStoryProbeCustomPending", n), 0, "nothing of it armed")
+                    self.assertEqual(trigger.counter, 0, "not counted")
+                    p.export("VvfpStoryInstall", n)
+                    self.assertEqual(trigger.fire(), "visitor", "the village's first island event: the visitor")
+                    self.assertIsNone(trigger.shown_question(), "the game's own encounter, not the question again")
+                    self.assertEqual(trigger.counter, 1)
+                    self.assertEqual(p.export("VvfpStoryProbeFirstMarks") & 0xFF, 0)
+                    p.export("VvfpStoryInstall", n)
+                    self.assertEqual(trigger.fire(), "island", "then the game's own family draw")
+                    self.assertIsNone(trigger.shown_island(), "the game's own island event")
+                    self.assertEqual(trigger.counter, 2)
+                    self.assertEqual(p.export("VvfpStoryProbeFirstMarks"), 0)
+
     def test_a_picked_question_waits_while_the_village_is_empty(self):
         """Found live too (A New Home, immediate_fixed): "The Stone That Chose" (a question) was bought, a Time Warp
         then starved the whole tribe, and no Island Events record was written.  As designed: a question needs a
