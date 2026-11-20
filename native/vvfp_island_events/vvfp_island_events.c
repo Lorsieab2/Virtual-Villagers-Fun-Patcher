@@ -365,6 +365,12 @@ static int graph_logged_by_story(const struct snapshot *s) {
     return g_more_logged != NULL && g_more_logged(g_game, s->title);
 }
 
+/* Set while VvfpIslandEventsGraphEnd compares a page's (or an ending's) own effects: that comparison is the one
+   entry's, asked for by the companion that keeps it, so "is this popup the companion's?" (graph_logged_by_story)
+   is not asked of it -- More Island Events answers yes to anything in the later games while its event is up, and
+   the comparison came back empty ("Changes: none" for The Aspiring Adventurer's tech points, live v1.35.97). */
+static int g_graph_comparing;
+
 /* Compare and write: one record per villager the event changed. */
 static void compare(struct snapshot *s) {
     unsigned char *now[MAX_VILLAGERS];
@@ -372,7 +378,7 @@ static void compare(struct snapshot *s) {
     char before[2 * TITLE_MAX + TEXT_MAX + 64];
     char changes[2048];
     size_t at;
-    if (s->count == 0 || time_skip_notice(s) || graph_logged_by_story(s)) {
+    if (s->count == 0 || time_skip_notice(s) || (!g_graph_comparing && graph_logged_by_story(s))) {
         return;
     }
     stock_solidarity(s);                  /* score only, with or without the log */
@@ -990,7 +996,9 @@ int __stdcall VvfpIslandEventsGraphEnd(int game, char *out, int cap) {
     g_write_village = graph_write_village;
     g_choice[0] = '\0';
     lstrcpynA(g_graph_snap.title, "branching event", sizeof g_graph_snap.title);   /* never the Time Skip's */
+    g_graph_comparing = 1;
     compare(&g_graph_snap);
+    g_graph_comparing = 0;
     g_write = real;
     g_write_village = real_village;
     memcpy(g_choice, keep_choice, sizeof g_choice);

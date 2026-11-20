@@ -29,6 +29,10 @@ SDK_VERSION = "10.0.26100.0"
 CHECKS = 5 * 15 + 2 + 3   # and the weather with no word, in the three games that have weather
 # + 3 per game: the time skip's closing notice is no island event (and what is still logged).
 CHECKS += 3 * 5
+# + 6 per game: More Island Events' ending and a branching Custom Island Event's page, bracketed by
+# VvfpIslandEventsGraphBegin / End while the companion calls every popup its own: what changed comes back
+# (live v1.35.97: The Aspiring Adventurer's tech points and The Troubling Signs' food were "Changes: none").
+CHECKS += 6 * 5
 # Labels the games have no word for, approved by the owner on 2026-10-09 (the coordinator's message:
 # "The owner approved all of your proposals"); every other village label must be the exe's own words.
 APPROVED = {
