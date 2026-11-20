@@ -64,14 +64,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) walks home very fast, not quite running, not looking back. Every rustle makes (him/her) jump. (He/she) reaches the village just as the first fires are lit, and stands in the light, breathing hard. (He/she) feels foolish. (He/she) also feels glad to be home, and decides the second feeling matters more.",
-   "src": "L374"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) makes (him/her)self stop and listen. The hoot is an owl. The clicks are insects. The rustle is a little ground bird, scratching. The thing that might be a frog is definitely a frog. (He/she) is still frightened, but now (he/she) knows what (he/she) is frightened of. (He/she) walks home steadily.",
    "src": "L377"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) walks home very fast, not quite running, not looking back. Every rustle makes (him/her) jump. (He/she) reaches the village just as the first fires are lit, and stands in the light, breathing hard. (He/she) feels foolish. (He/she) also feels glad to be home, and decides the second feeling matters more.",
+   "src": "L374",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L374"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) walks home very fast, not quite running, not looking back. Every rustle makes (him/her) jump. (He/she) reaches the village just as the first fires are lit, and stands in the light, breathing hard. (He/she) feels foolish. (He/she) also feels glad to be home, and decides the second feeling matters more.",
+   "src": "L374"
   }
  }
 }

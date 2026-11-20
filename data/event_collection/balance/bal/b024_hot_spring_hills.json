@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hot Spring in the Hills",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b024_hot_spring_hills",
+  "source": "balance",
+  "lines": [
+   1071,
+   1112
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1071",
+  "ledger": [
+   {
+    "src": "L1072",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1073",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1081",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1090",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1078",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1079",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1082",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1091",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1084",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1087",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1093",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1096",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1099-1112",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A landslip in the hills has uncovered a hot spring, steaming in a hollow of black rock.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A landslip in the hills has uncovered a hot spring, steaming in a hollow of black rock. The water is cloudy white and smells faintly of eggs. One of the elders says (his/her) grandmother bathed in a spring like this when she was young, and came out \"looking like her own daughter,\" but that her sister came out looking like their grandmother.\n(Name) has a stiff back and a long day behind (him/her), and the water looks very, very warm.\nShould (name) get all the way in, or just soak (his/her) feet?",
+   "choices": [
+    {
+     "label": "Get All the Way In",
+     "next": "c1",
+     "src": "L1078"
+    },
+    {
+     "label": "Just Soak the Feet",
+     "next": "c2",
+     "src": "L1079"
+    }
+   ],
+   "src": "L1074-1076"
+  },
+  "c1o1": {
+   "text": "When (name) climbs out, pink and sleepy, (his/her) face feels tight. In the still water at the edge, an older face looks back at (him/her): grey at the temples, deep lines round the eyes. (He/She) feels exactly the same, only more relaxed than in years. \"Well,\" (he/she) says, \"my back's better.\" The elder who told the story nods slowly. \"The sister was very happy too,\" (he/she) says.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L1085",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "When (name) climbs out, (his/her) face looks the way it did years ago, smooth and bright, as though (he/she) has slept for a month. The next day, there's a queue at the hot spring. The day after that, there's a second queue of people who came out looking older and are cross about it. The elders decide the spring should only be used on special occasions.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L1088",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) sinks into the cloudy water up to (his/her) chin and groans. The heat goes straight into (his/her) bones. The steam is so thick (he/she) can't see the rocks at the edge...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1082"
+  },
+  "c2o1": {
+   "text": "(Name) breathes in the steam, and breathes it out, and by the time (he/she) pulls (his/her) feet out, wrinkled as dried fruit, (his/her) face has changed. Younger. Brighter. \"It was just my feet,\" (he/she) keeps saying, at home, staring into a water bowl. \"It was only ever my feet.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L1094",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) has had a cough for weeks. Sitting in the steam, it loosens, and (he/she) coughs up something unpleasant into the bushes and then sits back, breathing freely for the first time in a long while. The healers come up the next day with baskets, and start bottling the water, and arguing about how much.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "src": "L1097",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) sits on the black rock and lowers (his/her) feet into the water. It's like being hugged by the ground. A cool breeze blows the steam into (his/her) face...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1091"
+  }
+ }
+}

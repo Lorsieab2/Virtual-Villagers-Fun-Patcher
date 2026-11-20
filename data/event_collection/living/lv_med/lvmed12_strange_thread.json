@@ -108,7 +108,8 @@
      "max": -10,
      "src": "L20365"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -125,7 +126,8 @@
      "max": 10,
      "src": "L20366"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -143,9 +145,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The wound heals slowly without the new material.",
-   "src": "L20368"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -159,7 +168,8 @@
      "max": -10,
      "src": "L20369"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -193,7 +203,28 @@
      "max": 10,
      "src": "L20372"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The wound heals slowly without the new material.",
+   "src": "L20368",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20368"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The wound heals slowly without the new material.",
+   "src": "L20368"
   }
  }
 }

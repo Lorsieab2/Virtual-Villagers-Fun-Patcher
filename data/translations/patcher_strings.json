@@ -9540,6 +9540,62 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.story/vvfp_story_upgrades.event_requires.every_event",
+   "english": "nothing beyond an island event being possible",
+   "games": [
+    "vv1",
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/vvfp_story_upgrades.event_requires.vv3_science_low",
+   "english": "a villager the event can be about, and Science technology below level 2",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/vvfp_story_upgrades.event_requires.vv3_science_high",
+   "english": "a villager the event can be about, and Science technology level 2 or more",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/vvfp_story_upgrades.event_requires.vv3_tablet_research",
+   "english": "a villager the event can be about, Science technology level 2 or more, and Alchemy technology below level 3",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/vvfp_story_upgrades.event_requires.vv3_medicine",
+   "english": "a villager the event can be about, and Medicine technology level 2 or more",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.story/vvfp_story_upgrades.story_pick_island_event.s5",
    "english": "Pick Island Event",
    "games": [
@@ -23578,7 +23634,7 @@
   },
   {
    "stem": "vvfp.story/story_c4.C4_VALUES.1.3",
-   "english": "The game keeps 0-6. Whether villagers use them before The Cutting Tool is solved was not seen in play.",
+   "english": "The game keeps 0-6 (0-99 with Up to 99 Cutting Tools/Soap/Cloth; without it more than 6 is set to 6). Whether villagers use them before The Cutting Tool is solved was not seen in play.",
    "games": [
     "vv4"
    ],
@@ -65257,7 +65313,7 @@
   },
   {
    "stem": "vvfp.more_island_events/adv_text.LABEL_A",
-   "english": "Go investigate!",
+   "english": "Go Investigate!",
    "games": [
     "vv1",
     "vv2",
@@ -65272,7 +65328,7 @@
   },
   {
    "stem": "vvfp.more_island_events/adv_text.LABEL_B",
-   "english": "Stay on the safe path",
+   "english": "Stay on the Safe Path",
    "games": [
     "vv1",
     "vv2",
@@ -66138,7 +66194,7 @@
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_DONT",
-   "english": "Don't explore",
+   "english": "Don't Explore",
    "games": [
     "vv1"
    ],
@@ -66402,7 +66458,7 @@
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_LEFT",
-   "english": "Run towards the left path",
+   "english": "Run Towards the Left Path",
    "games": [
     "vv1"
    ],
@@ -66413,7 +66469,7 @@
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_RIGHT",
-   "english": "Run towards the right path",
+   "english": "Run Towards the Right Path",
    "games": [
     "vv1"
    ],
@@ -66545,7 +66601,7 @@
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_RETURN",
-   "english": "You're right, I'll return them.",
+   "english": "You're Right, I'll Return Them.",
    "games": [
     "vv1"
    ],
@@ -66556,7 +66612,7 @@
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_KEEP",
-   "english": "Curses schmurses. I'm keeping them.",
+   "english": "Curses Schmurses. I'm Keeping Them.",
    "games": [
     "vv1"
    ],
@@ -66732,7 +66788,7 @@
   },
   {
    "stem": "vvfp.more_island_events/climb_text.LABEL_PLAN",
-   "english": "Go with the plan",
+   "english": "Go with the Plan",
    "games": [
     "vv2"
    ],
@@ -66743,7 +66799,7 @@
   },
   {
    "stem": "vvfp.more_island_events/climb_text.LABEL_ADVICE",
-   "english": "Follow the scientists' advice",
+   "english": "Follow the Scientists' Advice",
    "games": [
     "vv2"
    ],
@@ -66908,7 +66964,7 @@
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.LABEL_SPIRITUAL",
-   "english": "Consult the spiritual leaders",
+   "english": "Consult the Spiritual Leaders",
    "games": [
     "vv3"
    ],
@@ -66919,7 +66975,7 @@
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.LABEL_MAGICIANS",
-   "english": "Ask the magicians for advice",
+   "english": "Ask the Magicians for Advice",
    "games": [
     "vv3"
    ],
@@ -66930,7 +66986,7 @@
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.LABEL_NATURALISTS",
-   "english": "Call the naturalists to a discussion",
+   "english": "Call the Naturalists to a Discussion",
    "games": [
     "vv3"
    ],
@@ -66941,7 +66997,7 @@
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.LABEL_SCIENTISTS",
-   "english": "Talk with the scientists and healers",
+   "english": "Talk with the Scientists and Healers",
    "games": [
     "vv3"
    ],
@@ -67205,7 +67261,7 @@
   },
   {
    "stem": "vvfp.more_island_events/dive_text.LABEL_DEEPER",
-   "english": "Swim deeper",
+   "english": "Swim Deeper",
    "games": [
     "vv3"
    ],
@@ -67216,7 +67272,7 @@
   },
   {
    "stem": "vvfp.more_island_events/dive_text.LABEL_NOT",
-   "english": "Better not",
+   "english": "Better Not",
    "games": [
     "vv3"
    ],
@@ -67566,7 +67622,7 @@
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.LABEL_SWIM",
-   "english": "Swim towards the dolphins",
+   "english": "Swim Towards the Dolphins",
    "games": [
     "vv4"
    ],
@@ -67577,7 +67633,7 @@
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.LABEL_BACK",
-   "english": "Hang back",
+   "english": "Hang Back",
    "games": [
     "vv4"
    ],
@@ -67720,7 +67776,7 @@
   },
   {
    "stem": "vvfp.more_island_events/mask_text.LABEL_WAIT",
-   "english": "Wait for their parents to come",
+   "english": "Wait for Their Parents to Come",
    "games": [
     "vv4"
    ],
@@ -67731,7 +67787,7 @@
   },
   {
    "stem": "vvfp.more_island_events/mask_text.LABEL_CRY",
-   "english": "Cry for help",
+   "english": "Cry for Help",
    "games": [
     "vv4"
    ],
@@ -67742,7 +67798,7 @@
   },
   {
    "stem": "vvfp.more_island_events/mask_text.LABEL_CLEARING",
-   "english": "Walk towards the clearing",
+   "english": "Walk Towards the Clearing",
    "games": [
     "vv4"
    ],
@@ -67753,7 +67809,7 @@
   },
   {
    "stem": "vvfp.more_island_events/mask_text.LABEL_FOREST",
-   "english": "Walk towards the forest",
+   "english": "Walk Towards the Forest",
    "games": [
     "vv4"
    ],
@@ -69611,7 +69667,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s0",
-   "english": "The village gains food.",
+   "english": "The village gains <N> food.",
    "games": [
     "vv1",
     "vv2",
@@ -69625,7 +69681,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s1",
-   "english": "The village loses food.",
+   "english": "The village loses <N> food.",
    "games": [
     "vv1",
     "vv2",
@@ -69639,7 +69695,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s2",
-   "english": "The village gains tech points.",
+   "english": "The village gains <N> tech points.",
    "games": [
     "vv1",
     "vv2",
@@ -69653,7 +69709,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s3",
-   "english": "The village loses tech points.",
+   "english": "The village loses <N> tech points.",
    "games": [
     "vv1",
     "vv2",
@@ -69681,7 +69737,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s5",
-   "english": "<R> disappears.",
+   "english": "<R> suffers fatal injuries.",
    "games": [
     "vv1",
     "vv2",
@@ -69695,7 +69751,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s6",
-   "english": "<R> becomes a Heathen.",
+   "english": "<R> disappears from the village.",
    "games": [
     "vv1",
     "vv2",
@@ -69709,7 +69765,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s7",
-   "english": "<R>'s health changes.",
+   "english": "<R> leaves the village.",
    "games": [
     "vv1",
     "vv2",
@@ -69723,7 +69779,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s8",
-   "english": "<R> now likes <W>.",
+   "english": "<R> becomes a Heathen.",
    "games": [
     "vv1",
     "vv2",
@@ -69737,7 +69793,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s9",
-   "english": "<R> now dislikes <W>.",
+   "english": "<R>'s health is now <N>.",
    "games": [
     "vv1",
     "vv2",
@@ -69751,7 +69807,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s10",
-   "english": "<R> learns more about <S>.",
+   "english": "<R> now likes <W>.",
    "games": [
     "vv1",
     "vv2",
@@ -69765,7 +69821,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s11",
-   "english": "<R> feels less sure of <P> <S>.",
+   "english": "<R> now dislikes <W>.",
    "games": [
     "vv1",
     "vv2",
@@ -69779,7 +69835,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s12",
-   "english": "<R> falls sick.",
+   "english": "<R> gains <N> <S> skill.",
    "games": [
     "vv1",
     "vv2",
@@ -69793,7 +69849,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s13",
-   "english": "The village celebrates.",
+   "english": "<R> loses <N> <S> skill.",
    "games": [
     "vv1",
     "vv2",
@@ -69807,7 +69863,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s14",
-   "english": "<R> celebrates.",
+   "english": "<R> becomes sick.",
    "games": [
     "vv1",
     "vv2",
@@ -69821,7 +69877,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s15",
-   "english": "<R> is in a good mood.",
+   "english": "Everyone celebrates.",
    "games": [
     "vv1",
     "vv2",
@@ -69835,7 +69891,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s16",
-   "english": "<R> is in a bad mood.",
+   "english": "<R> celebrates.",
    "games": [
     "vv1",
     "vv2",
@@ -69849,7 +69905,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s17",
-   "english": "<R> feels better.",
+   "english": "<R> shakes <P> head.",
    "games": [
     "vv1",
     "vv2",
@@ -69863,7 +69919,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s18",
-   "english": "<R> feels worse.",
+   "english": "<R> gains <N> health.",
    "games": [
     "vv1",
     "vv2",
@@ -69877,7 +69933,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s19",
-   "english": "<R> masters <S>.",
+   "english": "<R> loses <N> health.",
    "games": [
     "vv1",
     "vv2",
@@ -69891,7 +69947,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s20",
-   "english": "<R> forgets everything about <S>.",
+   "english": "<R> masters <S>.",
    "games": [
     "vv1",
     "vv2",
@@ -69905,7 +69961,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s21",
-   "english": "<R>'s <S> skill changes.",
+   "english": "<R> loses all <S> skill.",
    "games": [
     "vv1",
     "vv2",
@@ -69919,7 +69975,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s22",
-   "english": "Something in the village is damaged.",
+   "english": "<R>'s <S> skill is now <N>.",
    "games": [
     "vv1",
     "vv2",
@@ -69933,7 +69989,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s23",
-   "english": "<R>'s hair changes color.",
+   "english": "A building loses <N>% of its construction.",
    "games": [
     "vv1",
     "vv2",
@@ -69947,7 +70003,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s24",
-   "english": "<R>'s look changes.",
+   "english": "<R>'s head changes.",
    "games": [
     "vv1",
     "vv2",
@@ -69961,7 +70017,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s25",
-   "english": "<R> dies; the body is not recovered.",
+   "english": "<R>'s clothes change.",
    "games": [
     "vv1",
     "vv2",
@@ -69975,7 +70031,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s26",
-   "english": "<R>'s baby is lost.",
+   "english": "<R> dies. The body is not recovered.",
    "games": [
     "vv1",
     "vv2",
@@ -69989,91 +70045,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s27",
-   "english": "<R> looks older and more worn.",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.story/story_graph.cg_refusal.s9",
-   "english": "a grandparent and grandchild",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.story/story_graph.cg_refusal.s10",
-   "english": "an aunt or uncle and a niece or nephew",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.story/story_graph.cg_refusal.s11",
-   "english": "No villagers in the village can take part together now: it needs two who are %s. Nothing has been queued.",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
-  },
-  {
-   "stem": "vvfp.story/story_graph.cg_load.s42",
-   "english": "a new name is not for a villager role the event needs",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.story/story_graph.cg_effect.s9",
-   "english": "'s sex is now male.",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.story/story_graph.cg_effect.s10",
-   "english": "'s sex is now female.",
+   "english": "<R>'s baby is lost.",
    "games": [
     "vv1",
     "vv2",
@@ -70087,7 +70059,595 @@
   },
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s28",
-   "english": "<R>'s sex changes.",
+   "english": "<R> looks older.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s29",
+   "english": "<R> is now male.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s30",
+   "english": "<R> is now female.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s31",
+   "english": "<R>'s gender presentation changes.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s32",
+   "english": "The village gains <N> <W>.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s33",
+   "english": "The village loses <N> <W>.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s34",
+   "english": "The village gives <N> <W>.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s35",
+   "english": "The village gets <N> <W>.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s36",
+   "english": "The village sings together.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s37",
+   "english": "The village chants together.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s38",
+   "english": "The village gathers for a speech.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s39",
+   "english": "The village dances.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s40",
+   "english": "The village prays.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s41",
+   "english": "The village relaxes.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s42",
+   "english": "The village goes swimming.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s43",
+   "english": "The village gathers at the water.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s44",
+   "english": "The children play.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s45",
+   "english": "The elders tell stories.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s46",
+   "english": "<W> sings.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s47",
+   "english": "<W> chants.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s48",
+   "english": "<W> gives a speech.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s49",
+   "english": "<W> dances.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s50",
+   "english": "<W> prays.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s51",
+   "english": "<W> relaxes.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s52",
+   "english": "<W> goes swimming.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s53",
+   "english": "<W> goes to the water.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s54",
+   "english": "<W> plays.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s55",
+   "english": "<W> tells a story.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s56",
+   "english": "<W> celebrates.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s57",
+   "english": "<N> villagers become sick.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s58",
+   "english": "One villager becomes sick.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s59",
+   "english": "Every villager is cured.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s60",
+   "english": "The village works on <W>.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s61",
+   "english": "The next island event will come <N> hours later.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s62",
+   "english": "The next island event will come 1 hour later.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s63",
+   "english": "The next island event will come in about a minute.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s64",
+   "english": "The village's <W> technology rises to level <N>.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s65",
+   "english": "The village's <W> technology falls to level <N>.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s66",
+   "english": "The sky clears.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s67",
+   "english": "The sun comes out.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s68",
+   "english": "It starts to rain.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s69",
+   "english": "A storm rolls in.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s70",
+   "english": "Fog rolls in.",
    "games": [
     "vv1",
     "vv2",
@@ -70334,6 +70894,1566 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.village_solidarity/vvfp_village_solidarity.VS_SCORES.s0",
+   "english": "Village Solidarity: %d / 100",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Village Solidarity.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_more_events.sm_fill_more.s0",
+   "english": "the island event content filters to allow it",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_pick_fill.s0",
+   "english": "A new island event, put together each time from the collection's pieces.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_pick_fill.s1",
+   "english": "%s (varies)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = an island event's title",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_collection.sc_read_manifest.s0",
+   "english": "A collection manifest is larger than its 1 MB limit: it was skipped.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_collection.sc_scan_group.s0",
+   "english": "A collection manifest has more events than its limit: the rest were left out.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_collection.sc_scan_group.s1",
+   "english": "The collection's list could not be made: not enough memory. Some events were left out.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_collection.sc_add_group.s0",
+   "english": "The collection's index could not grow: not enough memory. Some files were left out.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_collection.sc_pick_fill.s1",
+   "english": "The Pick Island Event list could not hold every event: not enough memory.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_load.s43",
+   "english": "an effect is not one a Heathen may have",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_made_name.s0",
+   "english": "the villager",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_repair.s0",
+   "english": "  Repaired: %s (the builders finish it)\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect_on.s0",
+   "english": " joined the tribe.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect_on.s1",
+   "english": " became a Heathen.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect_on.s2",
+   "english": "'s Faith grew.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect_on.s3",
+   "english": "'s head look is now Young.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect_on.s4",
+   "english": " was cured.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s29",
+   "english": "<R> no longer likes <W>.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s30",
+   "english": "<R> no longer dislikes <W>.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s31",
+   "english": "<R> is cured.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s32",
+   "english": "<R> looks younger.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s33",
+   "english": "The damaged buildings are being repaired.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s34",
+   "english": "<R> gets better at what <P> does best.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s35",
+   "english": "<R> feels closer to the tribe.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s36",
+   "english": "<R> joins the tribe.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_refusal.s12",
+   "english": "\"%s\" is kept out by the island event content filters. Nothing has been queued.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_living.lv_pack_for.s0",
+   "english": "A living events pack is larger than its 256 MB limit or too small: its events were left out.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_living.lv_pack_for.s1",
+   "english": "A living events pack could not be read: not enough memory.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_living.lv_pack_for.s2",
+   "english": "A living events pack is damaged or of another version: its events were left out.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.PC_NOTE_LABELS.s0",
+   "english": "Child death",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.PC_NOTE_LABELS.s1",
+   "english": "Pregnancy loss",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.PC_NOTE_LABELS.s2",
+   "english": "Serious injury",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.PC_NOTE_LABELS.s3",
+   "english": "Historical suffering",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.PC_NOTE_LABELS.s4",
+   "english": "Emotional distress",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_load.s0",
+   "english": "The procedural events' pieces could not be read: not enough memory.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_load.s1",
+   "english": "A procedural events' pieces file could not be read (or is past 1 MB): skipped.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_load.s2",
+   "english": "A procedural events' pieces file is damaged or of another version: skipped.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_index.s0",
+   "english": "A procedural events' pieces file's name is not pieces-<letters, digits or _>.pcb: skipped.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_index.s1",
+   "english": "The procedural events' index could not grow: not enough memory. Some files were left out.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_write.s0",
+   "english": "Content note: ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_write.s1",
+   "english": "a%do%d",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number); %2 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_arm_check.s0",
+   "english": "its pieces can not be read: install the patch again",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_pick_fill.s2",
+   "english": "the village to have the villagers it needs",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_pick_buy.s0",
+   "english": "it can not happen right now.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_structures.ST_WHAT.s0",
+   "english": "Island Event Structures",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_traits.RS_KIND.s0",
+   "english": "Island Events",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_traits.rs_path.s0",
+   "english": "Island Event Story Traits - Save ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.golden_mushroom/vvfp_golden_mushroom.golden_found.s0",
+   "english": "Golden Mushrooms - Save ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_golden_mushroom",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.golden_mushroom/vvfp_golden_mushroom.golden_found.s1",
+   "english": "Golden Mushrooms",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_golden_mushroom",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_refusal.s13",
+   "english": "\"%s\" has text longer than this game's popups hold without the Scrolling Popups patch. Nothing has been queued.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_load.s44",
+   "english": "it is larger than this game can read (16 MB)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_living.lv_refusal.s0",
+   "english": "the event can not be read",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_text_cap_refusal.s0",
+   "english": "The %s is longer than %d characters. Shorten it.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_text_cap_refusal.s1",
+   "english": "The %s is longer than %d characters: without the Scrolling Popups patch that is all the island event panel holds. Shorten it, or install Scrolling Popups: with it the popup scrolls and the text can be practically unlimited.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_refusal.s4",
+   "english": "The title must fit on one line. Shorten it.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_refusal.s5",
+   "english": "The title must fit on one line and the description must fit the island event panel. Shorten them, or install the Scrolling Popups patch: with it the popup scrolls and the text can be practically unlimited.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_label_refusal.s4",
+   "english": "A button label is %d characters at most.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_label_refusal.s5",
+   "english": "A word in that button label is wider than the screen in this game. Shorten it.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_label_refusal.s6",
+   "english": "A button label is %d characters at most in this game without the Scrolling Popups patch (with it, labels can be practically unlimited).",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_result_refusal.s3",
+   "english": "result text",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_result_refusal.s4",
+   "english": "The result text must fit the island event panel. Shorten it, or install the Scrolling Popups patch: with it the popup scrolls and the text can be practically unlimited.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_choice_refusal.s5",
+   "english": "The title must fit on one line and the question must fit the island event panel. Shorten them, or install the Scrolling Popups patch: with it the popup scrolls and the text can be practically unlimited.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom_ui.ui_update_counts.s3",
+   "english": "%d words, %d characters - the popup scrolls (Scrolling Popups): no line limit",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number); %2 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom_ui.ui_update_counts.s4",
+   "english": " - too long without Scrolling Popups",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom_ui.ui_choices_dialog.s3",
+   "english": "With Scrolling Popups a label can be practically unlimited: it wraps in its own row. A chance is 1-100: each outcome's share is its chance out of the button's total.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom_ui.ui_choices_dialog.s4",
+   "english": "A label is up to %d characters in %s without the Scrolling Popups patch (with it, practically unlimited). A chance is 1-100: each outcome's share is its chance out of the button's total.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number); %2 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.VV_LOOK_LOG_PRESENTATION.s0",
+   "english": "gender presentation",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.VV_LOOK_LOG_PRESENTATION_OWN.s0",
+   "english": "Own look",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.VV_LOOK_LOG_PRESENTATION_OTHER.s0",
+   "english": "Other sex's look",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.VV_LOOK_LOG_HEAD_LOOK.s0",
+   "english": "head look",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.vv_look_log.s0",
+   "english": "  Old head: ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.vv_look_log.s1",
+   "english": "\n  Old body: ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.vv_look_log.s2",
+   "english": "\n  New head: ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.vv_look_log.s3",
+   "english": "\n  New body: ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.vv_look_log.s4",
+   "english": "\n  Old ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/look_change_log.vv_look_log.s5",
+   "english": "\n  New ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_log_name_change.s0",
+   "english": "  Old name: %s\n  Age: %d\n  Changed by: %s (island event)\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = a number (number); %3 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_log_name_change.s1",
+   "english": "an island event",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_carrier_line.s0",
+   "english": "%s %s the babies (the partner carries instead of %s).",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_carrier_line.s1",
+   "english": ", who is male,",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_carrier_line.s2",
+   "english": "%s %s the babies.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect.s13",
+   "english": " now has the story trait mute.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0",
+   "english": "Harvesting blackberries with a cutting tool",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "a",
+   "context": "VVFP Text Fixes.dll",
+   "notes": "drawn by the game's text routine; the villager panel's Action line while harvesting blackberries with a cutting tool (any length)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_c4.C4_SUPPLY_NAMES.s0",
+   "english": "Cloth bolts",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.village_solidarity/vvfp_village_solidarity.SOL_HELP_TITLE.s0",
+   "english": "Village Solidarity",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Village Solidarity.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.village_solidarity/vvfp_village_solidarity.SOL_HELP_TEXT.s0",
+   "english": "Village Solidarity shows how close and united your village feels, from 0 to 100. Good Island event outcomes raise it, bad ones lower it. High Solidarity (greater than 50) can increase the likelihood of more good events happening, while Low Solidarity (less than 50) does the opposite.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Village Solidarity.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_making.s0",
+   "english": "Making a sack out of cloth",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV4 Cloth Sacks.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.cloth_sacks/vvfp_vv4_cloth_sacks.caption_gathering.s0",
+   "english": "Gathering food in cloth sack",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV4 Cloth Sacks.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_load.s42",
+   "english": "a new name is not for a villager role the event needs",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect_on.s5",
+   "english": "'s sex is now male.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect_on.s6",
+   "english": "'s sex is now female.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s71",
+   "english": "<R> gains <N> skill in what <P> does best.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s72",
+   "english": "<R> is expecting a baby.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s73",
+   "english": "<R> is caring for a baby.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s74",
+   "english": "A double of <R> appears.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s75",
+   "english": "<R> and <Q> swap bodies.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s76",
+   "english": "<R> forgets <P> name.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s77",
+   "english": "<R> is now called <W>.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s78",
+   "english": "<R> is now <N> years old.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s79",
+   "english": "Village Solidarity rises by <N>.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s80",
+   "english": "Village Solidarity falls by <N>.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_refusal.s9",
+   "english": "a grandparent and grandchild",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_refusal.s10",
+   "english": "an aunt or uncle and a niece or nephew",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_refusal.s11",
+   "english": "No villagers in the village can take part together now: it needs two who are %s. Nothing has been queued.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.CG_GOODS.s0",
+   "english": "Fruit on the trees",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.CG_GOODS.s1",
+   "english": "Yellow fruit",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.cg_work_skill.s0",
+   "english": "work:",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.cg_event_timer.s0",
+   "english": "  The next island event: %s\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.CG_AREAS4.s0",
+   "english": "Food Mastery",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.cg_tech_level.s0",
+   "english": "  Tech level (%s): %d -> %d\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = a number (number); %3 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.cg_weather.s0",
+   "english": "  Weather: %s\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph_village.cg_village_ok.s0",
+   "english": "weather:",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
    "stem": "vvfp.gui/rename_tribe.long_name_note",
    "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
    "games": [
@@ -70345,6 +72465,132 @@
    ],
    "mechanism": "b",
    "context": "Rename Tribe window (the note under the name box)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.title",
+   "english": "Difficulty Sliders",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Difficulty Sliders page (its title)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.button",
+   "english": "Difficulty Sliders...",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "the main page's button that opens the Difficulty Sliders page",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.intro",
+   "english": "Each slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, in the middle, the normal game. One number is shared by every game that has its patch, and it is used only while that patch is ticked on the main page. Patch again after changing a slider.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Difficulty Sliders page (the text under its title)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.off_note",
+   "english": "(its patch is not ticked)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Difficulty Sliders page (beside a greyed-out slider)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.guide_1",
+   "english": "Opens the page with every slider: Tech Cost, Hungrier Villagers, Sickness, More Frequent Island Events, Louder Wind Flutes and the five newer ones.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "the Difficulty Sliders \"?\" guide, line 1",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.guide_2",
+   "english": "They are grouped by game, with each patch's name beside its slider. A slider is used only while its patch is ticked on the main page.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "the Difficulty Sliders \"?\" guide, line 2",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.guide_3",
+   "english": "Each reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game. A number saved above 10 is 10.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "the Difficulty Sliders \"?\" guide, line 3",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.guide_4",
+   "english": "One number is shared by every game that has the patch. Patch again after changing a slider.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "the Difficulty Sliders \"?\" guide, line 4",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/game_mechanics.minimum_detail",
+   "english": "Minimal Detail",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Game Mechanics window (the tick box beside Auto-refresh: show only the vital statistics and numbers)",
    "notes": "a patcher window"
   }
  ]

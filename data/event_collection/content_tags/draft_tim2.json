@@ -1,0 +1,337 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_tim2",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "tim126_palm_frond_kite": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim127_shapes_night": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim128_moon_path": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim129_braids_bright": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "tim130_string_figure": {
+   "filters": [
+    "F12"
+   ],
+   "notes": [
+    "Emotional distress"
+   ],
+   "nodes": {
+    "e3": [
+     "F12"
+    ]
+   }
+  },
+  "tim131_thumbprints": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim132_dew_every_leaf": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim133_rhythm_bark": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim134_coconut_water": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim135_shadow_animals": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "e4": [
+     "F07"
+    ]
+   }
+  },
+  "tim136_sand_drawing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "tim137_morning_fog": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim138_shells_breeze": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim139_breadfruit_pole": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim140_goat_followed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim141_hen_fire": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim142_parrot_new_word": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "tim143_supper_guest": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim144_mud_hot_day": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim145_warm_feet": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim146_last_row_mat": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim147_blue_fingers": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim148_necklace_reason": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim149_crowns_blossoms": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim150_bird_tracks": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim151_everyone_stops": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim152_first_light": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim153_splashing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim154_driftwood_fish": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim155_fireside_riddle": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim156_hiding_behind": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim157_three_fruits": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim158_chasing_waves": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim159_rainbow_over": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim160_pattern_canoe": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim161_neat_woodpile": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim162_fish_over_coals": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "e1": [
+     "F20"
+    ]
+   }
+  },
+  "tim163_smell": {
+   "filters": [
+    "F07",
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "e3": [
+     "F20"
+    ],
+    "e4": [
+     "F07"
+    ]
+   }
+  },
+  "tim164_honey_leaf": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim165_shadow_stick": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "e4": [
+     "F04"
+    ]
+   }
+  },
+  "tim166_lullaby_through": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim167_hundredth": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim168_great_crab_race": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim169_festival_mask": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim170_portrait": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "tim171_counting_waves": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim172_bone_earring": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim173_elder_learns": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim174_frog_chorus": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "tim175_swept_doorway": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

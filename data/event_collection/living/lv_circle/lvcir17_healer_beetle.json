@@ -91,8 +91,15 @@
   },
   "a1": {
    "name": "Outcome A1",
-   "text": "The harvest improves, but birds that ate the beetles visit less often.",
-   "src": "L21455"
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -148,12 +155,32 @@
      "max": 10,
      "src": "L21461"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",
    "text": "An apprentice draws an incorrect conclusion from a single afternoon.",
    "src": "L21462"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The harvest improves, but birds that ate the beetles visit less often.",
+   "src": "L21455",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L21455"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The harvest improves, but birds that ate the beetles visit less often.",
+   "src": "L21455"
   }
  }
 }

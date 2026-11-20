@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gathering Everyone Could Attend",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg28_gathering",
+  "source": "draft_lcg",
+  "lines": [
+   386,
+   397
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L386",
+  "ledger": [
+   {
+    "src": "L387",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L393",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L397",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L397",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The meeting place is up a steep slope that several villagers cannot climb: move the meetings, or build an easier path.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village gathering has always been held on the hill, where the breeze is cool. (subject), who uses a cane, and several of the oldest villagers have not been able to get up there for a year. (friend) loves the hill. What should the village do?",
+   "src": "L389",
+   "choices": [
+    {
+     "label": "Move the Meetings",
+     "next": "o1",
+     "src": "L391"
+    },
+    {
+     "label": "Build an Easier Path",
+     "next": "o2",
+     "src": "L395"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The gatherings move to the flat ground by the meeting hut. It is hotter and noisier. (subject) and the old villagers are back, and the first gathering is twice as long because they have a year of things to say.",
+   "src": "L393"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) organizes the building of a winding path up the hill, with rests and rails. It takes two months. When it is done, (subject) is the first to reach the top, and sits down in the breeze with great satisfaction.",
+   "src": "L397",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L397"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

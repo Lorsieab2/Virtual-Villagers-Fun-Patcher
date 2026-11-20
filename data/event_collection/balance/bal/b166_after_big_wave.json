@@ -1,0 +1,253 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "After the Big Wave",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b166_after_big_wave",
+  "source": "balance",
+  "lines": [
+   7670,
+   7714
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7670",
+  "ledger": [
+   {
+    "src": "L7671",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7672",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7680",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7689",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7677",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7678",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7681",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7690",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7683",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7686",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7692",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7695",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7698-7714",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L7687",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "A big wave came in the night, out of a calm sea, with no storm behind it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A big wave came in the night, out of a calm sea, with no storm behind it. It rolled up the beach and through the nearest huts, knee-deep, and rolled back out again, taking a cooking pot, three mats and a very surprised chicken. By the time anyone was properly awake, it was over.\nThis morning the huts by the beach are soaked and sagging, their walls full of sand and seaweed. The chicken has turned up on a roof. (Name) has been asked by the {@chief} to decide: rebuild the huts where they were, or move them up the hill, away from the sea.\nThe families who live there don't want to move. Their grandparents built those huts. What should (name) decide?",
+   "choices": [
+    {
+     "label": "Rebuild Where They Were",
+     "next": "c1",
+     "src": "L7677"
+    },
+    {
+     "label": "Move Them Up the Hill",
+     "next": "c2",
+     "src": "L7678"
+    }
+   ],
+   "src": "L7673-7675"
+  },
+  "c1o1": {
+   "text": "It takes a week. The walls are rebuilt, the floors are dug out and dried and laid with fresh sand, and the families move back in, grateful. (Name) has the builders put a low wall of stones along the beach in front of them, just in case. The wave never comes back. The chicken never comes down from the roof.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L7684",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The huts are rebuilt, and then, three nights later, another wave comes, smaller, and soaks them again, and this time it gets into the research hut next door and turns a season of bark notes into mush. The huts are fixed a second time, with stone floors. The notes are not.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L7687"
+  },
+  "c1": {
+   "text": "(Name) tells the families they can stay. Everyone sets to work shovelling sand out of the huts with coconut shells, pulling seaweed out of the walls and hanging the mats out to dry...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7681"
+  },
+  "c2o1": {
+   "text": "The new huts on the hill are drier, cooler, and have a view of the whole bay. The grandmother complains for a week, then admits it's nicer. The families hold a feast to warm the new huts, and everyone comes. The old spots on the beach are turned into a drying ground for fish, and the chicken finally comes down off its roof to live there.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L7693",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The huts are moved and rebuilt, but the families are angry with (name) for a long time. Every time (name) walks past, the grandmother turns her back. (Name) can't stand the sound of a hut going up any more, or the smell of new thatch. It reminds (him/her) of the quarrel. The huts stay on the hill. They are very nice huts, and nobody says so.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L7696"
+  },
+  "c2": {
+   "text": "(Name) decides the huts must move. There's a lot of shouting. One grandmother sits down in her doorway and refuses to get up. In the end, the village carries the walls up the hill one by one, with her still sitting in hers...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7690"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "wood",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

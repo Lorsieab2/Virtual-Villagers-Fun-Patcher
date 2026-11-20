@@ -1,0 +1,261 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wishing Well's Old Coin",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b257_wishing_well_coin",
+  "source": "balance",
+  "lines": [
+   11993,
+   12033
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11993",
+  "ledger": [
+   {
+    "src": "L11994",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11995",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12002",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12011",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11999",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12000",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12003",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12012",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12005",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12008",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12014",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12017",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12020-12033",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At the bottom of the old dry well behind the gardens, a villager spots something glinting.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the bottom of the old dry well behind the gardens, (name) spots something glinting. (He/She) climbs down on a rope and finds a shell coin, the kind nobody has used in three generations, worn smooth by many thumbs. Scratched on it are the words of an old saying (name)'s grandmother used to repeat: \"Give back what you take, and the well gives back what time took.\"\n(Name) holds the coin up to the light. Should (he/she) throw it back into the well, the way the saying says, or keep it?",
+   "choices": [
+    {
+     "label": "Throw It Back In",
+     "next": "c1",
+     "src": "L11999"
+    },
+    {
+     "label": "Keep It",
+     "next": "c2",
+     "src": "L12000"
+    }
+   ],
+   "src": "L11996-11997"
+  },
+  "c1o1": {
+   "text": "The well breathes out a cool, damp breath that smells of rain. (Name) feels it go into (his/her) lungs, (his/her) back, (his/her) knees. When (he/she) walks back to the village, people stop and stare. (He/She) is ten years younger, quick and straight, and (his/her) face is bright. \"Grandmother was right,\" (he/she) says to anyone who asks, and goes off to swim.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -10,
+      -10
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L12006",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The well breathes in. (Name) feels the warmth go out of (his/her) hands, the spring go out of (his/her) knees. When (he/she) gets home, (his/her) hair is greyer and (his/her) face is lined. \"I must have said it backwards,\" (name) says, sitting down heavily. (His/her) grandmother, (he/she) remembers, always did say the well had a sense of humour.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      10,
+      10
+     ],
+     "max_age": 75,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L12009",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) climbs back out, stands at the edge, and drops the coin. It falls a long way for such a shallow well. Somewhere far below, (he/she) hears a splash, though the well has been dry for years...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12003"
+  },
+  "c2o1": {
+   "text": "Every time (name) looks at the coin, (he/she) thinks of (his/her) grandmother, who sang in the gardens every morning with soil up to her elbows. (Name) has never been able to stand the feel of soil. But it starts to rub off. Within a month (name) is kneeling in the gardens, humming (his/her) grandmother's songs, and the soil under (his/her) fingernails doesn't bother (him/her) at all.",
+   "children": [
+    {
+     "next": "c2o1_c2"
+    }
+   ],
+   "src": "L12015"
+  },
+  "c2o2": {
+   "text": "In the morning the coin is not on the shelf. (Name) searches the hut, then the path, and finally finds it lying at the bottom of the well again, glinting. (He/She) leaves it there. Some things, (he/she) decides, want to stay where they are.",
+   "src": "L12018"
+  },
+  "c2": {
+   "text": "(Name) decides that a three-generations-old coin is worth more in (his/her) pocket than in a hole. (He/She) takes it home and puts it on the shelf by (his/her) sleeping mat...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12012"
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "turnips",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       1
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  },
+  "c2o1_g2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "vegetables",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c2": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g2",
+     "if": {
+      "game": [
+       2
+      ]
+     },
+     "else": "c2o1_c1"
+    }
+   ]
+  }
+ }
+}

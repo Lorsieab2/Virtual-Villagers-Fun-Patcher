@@ -90,9 +90,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The fever subsides, but the healer cannot know whether the extract caused it.",
-   "src": "L20313"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -106,7 +113,8 @@
      "max": -40,
      "src": "L20314"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -135,7 +143,8 @@
      "max": 30,
      "src": "L20316"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -148,7 +157,8 @@
      "cause": "unknown",
      "src": "L20317"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -177,7 +187,8 @@
      "max": 10,
      "src": "L20319"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",
@@ -194,7 +205,28 @@
      "max": 10,
      "src": "L20320"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The fever subsides, but the healer cannot know whether the extract caused it.",
+   "src": "L20313",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20313"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The fever subsides, but the healer cannot know whether the extract caused it.",
+   "src": "L20313"
   }
  }
 }

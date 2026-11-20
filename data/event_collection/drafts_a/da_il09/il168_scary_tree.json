@@ -79,14 +79,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) walks up to the tree very slowly. (subject.His/Her) friends are all holding their breath. (subject.He/She) reaches out and touches the bark. It's warm, and rough, and quite ordinary. A beetle crawls out of the hollow, and every single child screams and runs all the way back to the village, laughing. Even (subject).",
-   "src": "L98"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "\"I don't want to,\" says (subject). One of the others, (teaser), starts to tease, but (ally), another child, says, \"Me neither, actually,\" and suddenly nobody wants to. They decide the tree is very old and probably deserves some peace and quiet. They go and play somewhere else. The tree, for its part, doesn't seem to mind either way.",
    "src": "L101"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) walks up to the tree very slowly. (subject.His/Her) friends are all holding their breath. (subject.He/She) reaches out and touches the bark. It's warm, and rough, and quite ordinary. A beetle crawls out of the hollow, and every single child screams and runs all the way back to the village, laughing. Even (subject).",
+   "src": "L98",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L98"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) walks up to the tree very slowly. (subject.His/Her) friends are all holding their breath. (subject.He/She) reaches out and touches the bark. It's warm, and rough, and quite ordinary. A beetle crawls out of the hollow, and every single child screams and runs all the way back to the village, laughing. Even (subject).",
+   "src": "L98"
   }
  }
 }

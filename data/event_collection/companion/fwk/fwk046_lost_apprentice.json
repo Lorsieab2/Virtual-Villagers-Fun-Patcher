@@ -101,7 +101,8 @@
      "max": -10,
      "src": "L5911"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "outcome_d": {
    "name": "Ending (D)",
@@ -113,7 +114,8 @@
      "role": "apprentice",
      "src": "L5911"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "outcome": {
    "name": "Ending",

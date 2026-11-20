@@ -1,0 +1,195 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Echo Cave",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s022_echo_cave",
+  "source": "rewrites",
+  "lines": [
+   1012,
+   1056
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1012",
+  "ledger": [
+   {
+    "src": "L1013",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1014",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1022",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1031",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1019",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1020",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1023",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1032",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1025",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1028",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1034",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1037",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1040-1056",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Everyone knows the echo cave.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Everyone knows the echo cave. If someone stands at the mouth and shouts their own name, the cave shouts it right back. Children go there to shout rude words and run away giggling. The cave mouth breathes out cool air that smells of wet stone and old bats, and on hot days people sit in front of it just to feel the breeze. The elders say the cave is so old it has heard every voice on the island, and that once in a long while, when someone shouts with all their heart, it gives back more than the voice.\nToday (name) stands at the mouth, cups (his/her) hands, and shouts (his/her) name as loud as (he/she) can.\nThe cave shouts it back. And back. And back, fainter each time. And then, out of the dark, there come footsteps, slow and careful, crunching on the gravel. Someone walks into the light at the mouth of the cave. Someone wearing (name)'s face. Should (name) say hello, or run?",
+   "choices": [
+    {
+     "label": "Shout Hello",
+     "next": "c1",
+     "src": "L1019"
+    },
+    {
+     "label": "Run",
+     "next": "c2",
+     "src": "L1020"
+    }
+   ],
+   "src": "L1015-1017"
+  },
+  "c1o1": {
+   "text": "\"Hello,\" says the stranger, in (name)'s own voice. Then it clears its throat and says, in a completely different voice, deeper and warmer: \"Sorry. I'm (made1).\" The newcomer has (name)'s face, (name)'s hair and (name)'s ears, but none of (his/her) habits. It hums when (name) doesn't. It loves all the jobs (name) hates, and hates all the jobs (name) loves, and has strong opinions about how to cook beans. It walks back to the village with (name), chatting all the way, and is given a hut by the end of the week.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L1026",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "\"Hello,\" the stranger calls back. \"Hello. Hello.\" Each one quieter than the last, exactly like an echo, and with each one the figure grows fainter, until the light is shining straight through it. On the last \"hello,\" barely a whisper, it's gone. (Name) stands there until (his/her) shadow is long, but nothing else comes out of the cave. From then on (he/she) only ever shouts other people's names at it, just in case.",
+   "src": "L1029"
+  },
+  "c1": {
+   "text": "(Name)'s knees are shaking, but (he/she) stands (his/her) ground. \"Hello?\" (he/she) calls out. The figure in the cave mouth stops. It tilts its head, exactly the way (name) does when (he/she) is thinking...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1023"
+  },
+  "c2o1": {
+   "text": "(Name) runs all the way home and hides in (his/her) hut. For an hour nothing happens. Then there are footsteps outside, and the stranger walks into the village, cheerful and very out of breath. \"You run fast,\" it says to (name), bending over with its hands on its knees. \"Is there any dinner?\" Everyone looks from one face to the other. The stranger looks just like (name), but it laughs differently, eats differently, and is much better at fishing. It decides to be called (made1), and somehow nobody can think of a good reason to send it away.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L1035",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) runs. Unfortunately, in (his/her) panic (he/she) runs the wrong way: not out of the cave mouth but deeper into it, straight into the dark, and straight into the cave wall with a hollow thud. (He/She) wakes up a while later on the gravel with a bleeding head and a sore pride, and nobody else there at all. (He/She) staggers home, and the healers clean the cut and wrap (his/her) head in leaves. (Name) is never quite sure afterwards whether (he/she) saw anything at all, or just knocked it out of (his/her) head.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L1038",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) doesn't wait to find out. (He/She) turns and runs, as fast as (he/she) can, not looking back, with the sound of the cave's breathing all around (him/her)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1032"
+  }
+ }
+}

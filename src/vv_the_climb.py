@@ -49,8 +49,8 @@ TEXTS: tuple[tuple[str, str], ...] = (
               "about {his} claims and warn {him} not to take matters into {his} own hands without further proof. {n} "
               "knows that the plan could be dangerous, but what if {he} is right? Should {he} go through with {his} "
               "plan, or follow the other researchers' advice?"),
-    ("LABEL_PLAN", "Go with the plan"),
-    ("LABEL_ADVICE", "Follow the scientists' advice"),
+    ("LABEL_PLAN", "Go with the Plan"),
+    ("LABEL_ADVICE", "Follow the Scientists' Advice"),
     ("PLAN", "{n} revises {his} plan until {he} believes it is practically foolproof. At dawn the next morning, {he} "
              "sneaks out of the hut before anyone else has woken up and makes {his} way toward the waterfall. Setting "
              "up {his} climbing gear, {he} makes the perilous ascent up the falls."),

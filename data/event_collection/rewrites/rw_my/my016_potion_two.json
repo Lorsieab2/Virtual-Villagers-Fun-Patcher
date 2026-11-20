@@ -1,0 +1,302 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Potion with Two Labels",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my016_potion_two",
+  "source": "rewrites",
+  "lines": [
+   10759,
+   10814
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10759",
+  "ledger": [
+   {
+    "src": "L10760",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10761",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10770",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10777",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10784",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10791",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10765",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10766",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10767",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10768",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10771",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10778",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10785",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10792",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10772",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10774",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10779",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10781",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10786",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10788",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10793",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10795",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10798-10814",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Clearing out an old medicine chest at the back of the healers' hut, a villager finds a dark green bottle stoppered with resin.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Clearing out an old medicine chest at the back of the healers' hut, (subject) finds a dark green bottle stoppered with resin. It has two labels. One, painted with a sun, says it heals. The other, scratched with a crescent moon, warns that it brings forgetfulness.\nThe bottle is very old. Nobody knows who made it. The healers are curious, the researchers are curious, and, if (subject) is honest, (subject.he/she) is the most curious of all. A tiny drop couldn't hurt. Could it? What should (subject) do?",
+   "choices": [
+    {
+     "label": "Study the Ingredients",
+     "next": "c1",
+     "src": "L10765"
+    },
+    {
+     "label": "Try a Tiny Drop",
+     "next": "c2",
+     "src": "L10766"
+    },
+    {
+     "label": "Ask the Oldest Healer",
+     "next": "c3",
+     "src": "L10767"
+    },
+    {
+     "label": "Seal It Away",
+     "next": "c4",
+     "src": "L10768"
+    }
+   ],
+   "src": "L10762-10763"
+  },
+  "c1o1": {
+   "text": "After a week of careful work, (friend) has identified four of the herbs in it: two that calm pain, one that brings sleep, and one that, in large amounts, muddles the memory. That explains both labels. Nobody drinks a drop. Instead, the healers write down everything they've learned about each herb, and their medicine is better for it. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10773",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "When (friend) holds the bottle to the light, (friend.he/she) sighs. The mixture has separated into three layers, murky brown, cloudy white and something that might once have been green. \"Whatever it was,\" (friend.he/she) says, \"it isn't that anymore.\" The original recipe is impossible to work out. The bottle goes back in the chest.",
+   "src": "L10775"
+  },
+  "c1": {
+   "text": "(subject) brings the bottle to (friend), who dips a reed in it, sniffs, squints, and spreads tiny smears on leaves to watch how they dry...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10771"
+  },
+  "c2o1": {
+   "text": "At first, nothing. Then, about an hour later, (subject)'s stomach turns over like a fish on the beach. (subject.He/She) spends the next several days curled up in the healers' hut, sweating and groaning and very, very sorry, while the healers take turns telling (subject.him/her) exactly how foolish that was. (subject) recovers in the end. (subject.He/She) does not forget a single moment of it, so at least the second label was wrong.",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "subject"
+    }
+   ],
+   "src": "L10780",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The drop tastes of nothing at all. Not bitter, not sweet, not even like water. (subject) waits. Nothing happens. Nothing happens all day. Somehow, that makes everyone more nervous, not less, and (subject)'s friends check on (subject.him/her) every hour, asking (subject.him/her) what (subject.his/her) name is. (subject) is never more relieved to remember it.",
+   "src": "L10782"
+  },
+  "c2": {
+   "text": "When no one is looking, (subject) pulls the stopper, touches a single drop to (subject.his/her) tongue, and waits...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10778"
+  },
+  "c3o1": {
+   "text": "\"I remember these,\" (friend) says softly. \"When I was a child, the old healers made something like this for people who had lost someone, or seen something terrible. A drop to blur the worst of it. To make the pain softer.\" (friend.He/She) sets it down. \"We stopped making it. Some things you need to remember, even if they hurt.\" (subject) has a lot to think about after that.",
+   "src": "L10787"
+  },
+  "c3o2": {
+   "text": "(friend) puts the bottle down at once. \"Two labels that disagree,\" (friend.he/she) says, \"means at least one person was wrong. And you don't know which one. No trustworthy medicine ever carried two different stories.\" (friend.He/She) makes (subject) wash (subject.his/her) hands twice just for touching it.",
+   "src": "L10789"
+  },
+  "c3": {
+   "text": "(subject) takes the bottle to (friend), the oldest healer in the village, who turns it slowly in (friend.his/her) wrinkled hands...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10785"
+  },
+  "c4o1": {
+   "text": "The bottle gets a new label, in (subject)'s best handwriting: UNKNOWN. DO NOT DRINK. It goes on the highest shelf in the storehouse, well beyond children's reach. It's still there. Nobody has touched it since, except to dust.",
+   "src": "L10794"
+  },
+  "c4o2": {
+   "text": "During the night, there's a faint pop from the storehouse. In the morning, the bottle has cracked from top to bottom. There's no liquid anywhere, not on the shelf, not on the floor. Only a sweet smell, like overripe guava, that drifts through the storehouse for days. Several villagers swear they feel a little foggy whenever they go in there.",
+   "src": "L10796"
+  },
+  "c4": {
+   "text": "(subject) decides this is one mystery best left alone. (subject.He/She) wraps the bottle in leaves and puts it in the storehouse...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10792"
+  }
+ }
+}

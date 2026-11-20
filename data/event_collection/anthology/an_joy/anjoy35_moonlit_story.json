@@ -110,9 +110,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "An absurd ancestor tale delights the crowd.",
-   "src": "L29199"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -162,6 +169,25 @@
    "name": "Outcome D2",
    "text": "The gathering becomes a discussion of cultural boundaries.",
    "src": "L29206"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "An absurd ancestor tale delights the crowd.",
+   "src": "L29199",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L29199"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "An absurd ancestor tale delights the crowd.",
+   "src": "L29199"
   }
  }
 }

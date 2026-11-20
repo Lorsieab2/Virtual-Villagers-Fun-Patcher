@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Silver Web at Dawn",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b332_silver_web_dawn",
+  "source": "balance",
+  "lines": [
+   15348,
+   15388
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15348",
+  "ledger": [
+   {
+    "src": "L15349",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15350",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15357",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15366",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15354",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15355",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15358",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15367",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15360",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15363",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15369",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15372",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15375-15388",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "This morning a villager walks into it face first.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Between two palms on the path to the stream, a spider has spun a web so big and so fine that at dawn, wet with dew, it shines like a sheet of silver. The children say the spider is the oldest creature on the island and that she weaves people's faces into her web, so she won't forget them. This morning (name) walks into it face first.\nThe web clings to (his/her) face, cool and sticky. Somewhere above, the spider is watching, as big as a hand. Should (name) tear it off quickly, or stand very still and peel it away gently?",
+   "choices": [
+    {
+     "label": "Tear It Off",
+     "next": "c1",
+     "src": "L15354"
+    },
+    {
+     "label": "Peel It Away Gently",
+     "next": "c2",
+     "src": "L15355"
+    }
+   ],
+   "src": "L15351-15352"
+  },
+  "c1o1": {
+   "text": "The web comes away, but it seems to take something with it. When (name) looks in the stream, (his/her) face is lined and grey around the temples, as if the spider has woven a few years into it in revenge. (His/her) age is the same. The children say she kept (his/her) young face in a corner of the web, and she won't give it back.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L15361",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "That night, the spider spins her web again. In the morning, someone is standing in the middle of the path, untangling (himself/herself) from silver threads: someone with (name)'s face, made by the spider from the bit of (name) she caught. (He/She) has none of (name)'s habits and all of the spider's patience. The village names (him/her) (made1).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L15364",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) claws at (his/her) face, spluttering, tearing the silver threads away in handfuls. Above (him/her), the spider scuttles to the edge of the ruined web...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15358"
+  },
+  "c2o1": {
+   "text": "By the time the last thread comes away, the sun is high, and when (name) looks back, there is a face in the web, shining in the light: (name)'s face, the way it was. And (name)'s own face, in the stream, looks older now, as if the spider took the old one to keep and left an older one behind. \"At least she asked nicely,\" (name) says. She didn't.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L15370",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The spider watches the whole time, and when (name) has finished, she drops down on a single thread right in front of (his/her) nose, looks at (him/her), and goes back up. That afternoon, (name)'s hands are steadier and (his/her) work finer than ever. The children say the spider has taught (him/her) patience. (Name) says it was just a spider, and goes the long way round from then on.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L15373",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) stands perfectly still and lifts the threads away one at a time, apologising to the spider under (his/her) breath. It takes a very long time...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15367"
+  }
+ }
+}

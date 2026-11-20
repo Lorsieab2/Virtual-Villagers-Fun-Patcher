@@ -1,0 +1,193 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Name Nobody Can Say",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s017_name_nobody_can",
+  "source": "rewrites",
+  "lines": [
+   773,
+   816
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L773",
+  "ledger": [
+   {
+    "src": "L774",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L775",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L783",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L792",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L780",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L781",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L784",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L793",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L786",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L789",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L795",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L798",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L801-816",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The visitor is gracious, gentle, and extremely keen to be polite, and has gone around the whole village learning everyone's names.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A visiting elder has come from very far away, with a carved walking stick taller than (he/she) is and a basket of strange red nuts to share. The visitor is gracious, gentle, and extremely keen to be polite, and has gone around the whole village learning everyone's names.\nEveryone's name except (name)'s.\nThe visitor tries it eleven times. Each try is worse than the last. The ninth one sounds like a sneeze. The tenth sounds like a goat. On the eleventh, the visitor's ears go red. Everyone is far too polite to laugh, except the children, who are rolling in the dust. (Name) is kind of exasperated that the elder can't pronounce (his/her) name. But (he/she) doesn't want to be rude...",
+   "choices": [
+    {
+     "label": "Teach (Him/Her) to Say It",
+     "next": "c1",
+     "src": "L780"
+    },
+    {
+     "label": "Answer to Whatever (He/She) Says",
+     "next": "c2",
+     "src": "L781"
+    }
+   ],
+   "src": "L776-778"
+  },
+  "c1o1": {
+   "text": "On the twelfth try, the visitor gets it perfectly. Every sound in exactly the right place. There's a moment of stunned silence, and then the whole village cheers, and the children cheer loudest. The visitor bows, beaming. (Name) feels unexpectedly proud of (his/her) own name, which (he/she) has never really thought about before, and says it to (himself/herself) a few times on the way home, just to hear how it sounds.",
+   "src": "L787"
+  },
+  "c1o2": {
+   "text": "On the twelfth try, the visitor gets it wrong again, but in a brand new way. This one doesn't sound like a sneeze or a goat. It sounds like water running over stones, soft and round and warm. (Name) blinks. (He/She) asks the visitor to say it again. And again. Then (he/she) decides (he/she) likes it much better than (his/her) own, and takes it. From then on (he/she) is (renamed), and the visitor goes home with the happy feeling of having given someone a present by accident.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L790",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) sits down beside the visitor and says (his/her) name very slowly, one sound at a time, while the visitor watches (his/her) mouth with great concentration and repeats each syllable under (his/her) breath...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L784"
+  },
+  "c2o1": {
+   "text": "One of the visitor's versions catches on. The children start using it, because it's funnier. Then their parents use it, by accident. Then (name) catches (himself/herself) answering to it without thinking. By the end of the week, when the visitor finally leaves, nobody in the village remembers the old name at all. (Name) is (renamed) now. The visitor waves goodbye from the path and shouts the new name, perfectly.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L796",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) answers to every version so cheerfully, and there are so many versions, that by evening (he/she) is laughing too hard to sit up straight. On the visitor's twentieth try, (name) rocks back, topples off the log, and cracks (his/her) head on the visitor's tall walking stick, which was propped up behind (him/her). When (he/she) comes round, there is a lump the size of a red nut on (his/her) head, and (his/her) own name is simply gone, along with every one of the visitor's versions. The healers say it might come back. It never does. (Name) is \"?\" from then on, which (he/she) says, a little dazed, is the easiest name (he/she) has ever had.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L799",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"Don't worry about it,\" (name) says kindly. \"Call me whatever you like. I'll know you mean me.\" The visitor looks enormously relieved, and from then on calls (him/her) something completely different every time...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L793"
+  }
+ }
+}

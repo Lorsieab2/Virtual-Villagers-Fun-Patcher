@@ -1,0 +1,17 @@
+# Text-implied outcome effects (the owner's outcomes pass, v1.35.97): scripts/outcome_effects.py.
+# <file under data/event_collection> | <node> | <OWNER WORDS> | "<the outcome's own words>" | <effect JSON>
+# PENDING: apply after #813 (feat/97-traders-effects) merge(s) into feat/v1.35.97: move this file up
+# to data/event_collection/outcome_effects/, then run python scripts/outcome_effects.py and collection_check.
+anthology/an_joy/anjoy05_unplanned.json | a1 | GROUP dance (everyone) (50%) | "The clearing fills with cheerful dancers." | {"do":"group","kind":"dance","who":"all"}
+drafts_b/dr_hum/hum12_spin_kept_going.json | o2 | GROUP dance (everyone) (50%) | "Everybody dances in a slightly wobbly way for the rest of the night" | {"do":"group","kind":"dance","who":"all"}
+drafts_b/dr_hum/hum14_blame_pig.json | o2 | GROUP song (everyone) (50%) | "Everyone joins in, very loudly" | {"do":"group","kind":"song","who":"all"}
+drafts_b/dr_hum/hum40_rope_swing.json | o2 | GROUP play (everyone) (50%) | "The children line up at once" | {"do":"group","kind":"play","who":"all"}
+drafts_b/dr_tt/tt14_tall_tale_contest.json | o1 | GROUP stories (everyone) (50%) | "It goes on until the fire burns low" | {"do":"group","kind":"stories","who":"all"}
+drafts_c/dr_his/his05_song_nobody_can.json | o1 | GROUP song (everyone) (50%) | "The whole village sings along anyway, at full volume" | {"do":"group","kind":"song","who":"all"}
+drafts_d/dr_hz3/hz128_people_dance.json | c1 | GROUP dance (everyone) (50%) | "The village tries a dance with circles, pairs and solos" | {"do":"group","kind":"dance","who":"all"}
+living/lv_auth/lvauth15_scientist.json | a1 | GROUP CURE (50%) | "Several villagers recover" | {"do":"group","kind":"cure"}
+living/lv_auth/lvauth15_scientist.json | a2 | GROUP SICKNESS 10 (50%) | "Some become sicker" | {"do":"group","kind":"sick","percent":10}
+universal/all_everybodys_winner.json | sa1 | GROUP play (child) (50%) | "spend the rest of the day playing together" | {"do":"group","kind":"play","who":"child"}
+v20/all_v20_d3_cure.json | b2 | GROUP SICKNESS 10 (50%) | "The illness spreads and the hospital is overwhelmed" | {"do":"group","kind":"sick","percent":10}
+v6/vv5_multicultural_festival.json | f2 | GROUP song (everyone) (50%) | "Half the audience joins in anyway, creating a surprisingly beautiful chorus" | {"do":"group","kind":"song","who":"all"}
+v6/vv5_multicultural_festival.json | f6 | WEATHER rain (50%) | "The festival is interrupted by a sudden shower" | {"do":"village","what":"weather","weather":"rain"}

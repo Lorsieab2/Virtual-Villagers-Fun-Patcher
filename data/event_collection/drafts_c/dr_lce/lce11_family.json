@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Family That Reconciled",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce11_family",
+  "source": "draft_lce",
+  "lines": [
+   148,
+   159
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L148",
+  "ledger": [
+   {
+    "src": "L149",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L155",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L159",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two estranged siblings both want to attend their niece's naming feast: go together, or each go at a different time.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "sibling_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have not spoken in five years, after a quarrel neither will discuss. Now their niece's naming feast is coming, and both want to be there. The family is dreading it. (subject) wonders whether to reach out first. What should (subject.he/she) do?",
+   "src": "L151",
+   "choices": [
+    {
+     "label": "Go Together",
+     "next": "o1",
+     "src": "L153"
+    },
+    {
+     "label": "Go at Different Times",
+     "next": "o2",
+     "src": "L157"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) sends word that (subject.he/she) would like to walk to the feast with (friend). (friend) agrees. They walk in silence. At the feast, they sit on the same mat. They do not talk about the quarrel. They talk about the baby. It is the most they have said to each other in five years.",
+   "src": "L155"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) goes in the morning, (friend) in the evening. The family is relieved. The niece is too young to notice. Both siblings ask about each other, quietly, through other people. Maybe next time.",
+   "src": "L159"
+  }
+ }
+}

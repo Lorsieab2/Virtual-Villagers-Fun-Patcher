@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fire From the Mountain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf34_fire_mountain",
+  "source": "draft_lcf",
+  "lines": [
+   470,
+   481
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L470",
+  "ledger": [
+   {
+    "src": "L471",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L477",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L481",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L481",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Villagers who climbed the mountain say they saw lavastones being born in the fire: believe them, or doubt it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and two others climbed the smoking mountain and came back with a story: in a crack near the top, they saw glowing orange-pink stones forming in the heat. (friend) points out that they were tired, frightened and breathing smoke. Some villagers are already calling it the true origin of lavastones. What should the village believe?",
+   "src": "L473",
+   "choices": [
+    {
+     "label": "Believe Them",
+     "next": "o1",
+     "src": "L475"
+    },
+    {
+     "label": "Doubt It",
+     "next": "o2",
+     "src": "L479"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The story spreads, and becomes the most popular origin of lavastones. Then a stone falls from a clear sky onto the beach, nowhere near the mountain, and everyone starts arguing again. (subject) says it was thrown.",
+   "src": "L477"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) organizes a second climb. The crack is still there. The stones are not. Whether they were ever there, nobody can say. The story stays one of many. (subject) still swears by it.",
+   "src": "L481",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L481"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

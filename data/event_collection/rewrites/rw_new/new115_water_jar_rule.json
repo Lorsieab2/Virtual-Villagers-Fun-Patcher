@@ -1,0 +1,242 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Water Jar Rule",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new115_water_jar_rule",
+  "source": "rewrites",
+  "lines": [
+   5385,
+   5430
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5385",
+  "ledger": [
+   {
+    "src": "L5386",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5387",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5395",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5402",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5409",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5391",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5392",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5393",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5396",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5403",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5410",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5397",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5399",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5404",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5406",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5411",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5413",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5416-5430",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It was sensible, right up until noon.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "leader": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The new rule seemed so sensible: water jars may only be filled at the morning spring call, all together, so the spring doesn't get churned into mud by people wandering down all day.\nIt was sensible, right up until noon.\nThat was when the parents with babies, and the villagers nursing the sick, found themselves standing in their huts with empty jars, a crying baby or a feverish patient, and a long wait until tomorrow morning. (subject) has just marched into the middle of the village with an empty jar under each arm and an expression that could curdle milk. How should (leader) answer?",
+   "choices": [
+    {
+     "label": "Listen to the Caregivers",
+     "next": "c1",
+     "src": "L5391"
+    },
+    {
+     "label": "Watch the Spring for a Day",
+     "next": "c2",
+     "src": "L5392"
+    },
+    {
+     "label": "Allow Caregivers a Midday Fill",
+     "next": "c3",
+     "src": "L5393"
+    }
+   ],
+   "src": "L5388-5390"
+  },
+  "c1o1": {
+   "text": "(subject) explains that the sick need fresh water all day long, for drinking, for washing, for cooling fevers, not just at dawn. The gathering listens. Several people who voted for the rule look at their feet. By evening the rule has a sensible exception for anyone caring for the sick or the very young.",
+   "src": "L5398"
+  },
+  "c1o2": {
+   "text": "In the middle of it, (elder), who rarely speaks at gatherings, clears (subject.his/her) throat. \"When I was young there was a second, smaller spring behind the rocks. Nobody's used it in years.\" The discussion changes course entirely. By sunset, a group has cleared the old spring, and the caregivers have water of their own.",
+   "src": "L5400"
+  },
+  "c1": {
+   "text": "(leader) takes one look at (subject)'s face and calls a gathering right then and there, before lunch...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5396"
+  },
+  "c2o1": {
+   "text": "By evening, they have seen the problem: the spring only muddies when people wade into the shallows to fill their jars. When they fill from the big flat rock at the edge, the water stays clear. That practical detail reshapes the whole rule. Now anyone can fill a jar at any time, as long as they use the flat rock, and the village builds a second flat stone step so there's never a queue.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5405",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Nobody muddies the spring all day. Then, late in the afternoon, a light rain starts, and they watch muddy water come trickling straight down the hill and into the spring. Nobody was breaking the rule on purpose; the mud came from the rain all along. Nobody is scolded, and the rule is quietly dropped.",
+   "src": "L5407"
+  },
+  "c2": {
+   "text": "(leader) sits beside the spring from dawn to dusk with (subject), watching every single villager who comes to fill a jar...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5403"
+  },
+  "c3o1": {
+   "text": "It works well enough to keep. The midday fill is quiet and quick, the spring stays clear, and (subject) stops looking as if (subject.he/she) wants to curdle anything. (leader) promises to change it again if it stops working.",
+   "src": "L5412"
+  },
+  "c3o2": {
+   "text": "Somehow, by the third day, the \"caregivers' midday fill\" draws a crowd of nearly everyone in the village, each with a very creative reason for being a caregiver. \\(\"I'm caring for my thirst!\"\\) There is a squabble at the spring, a jar is broken, and the rule is withdrawn.",
+   "src": "L5414"
+  },
+  "c3": {
+   "text": "(leader) announces a compromise: caregivers may make one extra fill at midday...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5410"
+  }
+ }
+}

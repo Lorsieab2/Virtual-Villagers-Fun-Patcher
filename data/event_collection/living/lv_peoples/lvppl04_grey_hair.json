@@ -87,7 +87,8 @@
      "head": "random",
      "src": "L21707"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -107,9 +108,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The elder proudly wears their natural hair.",
-   "src": "L21710"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -129,11 +137,82 @@
    ]
   },
   "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The elder proudly wears their natural hair.",
+   "src": "L21710",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L21710"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The elder proudly wears their natural hair.",
+   "src": "L21710"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The temporary color delights the elder for a day.",
+   "src": "L21713",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L21713"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
    "name": "Outcome C1",
    "text": "The temporary color delights the elder for a day.",
    "src": "L21713"
   },
-  "c2": {
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The elder laughs when the color turns out much brighter than expected.",
+   "src": "L21714",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L21714"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "The elder laughs when the color turns out much brighter than expected.",
    "src": "L21714"

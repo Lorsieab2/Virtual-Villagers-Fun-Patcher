@@ -222,11 +222,14 @@
    ]
   },
   "t2": {
-   "src": "L5551-5552",
-   "text": "The invention fails, but the observations reveal something useful about material strength.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "result"
+     "next": "t2__fx"
+    },
+    {
+     "next": "t2__text"
     }
    ]
   },
@@ -276,11 +279,14 @@
    ]
   },
   "w1": {
-   "src": "L5561-5562",
-   "text": "(Subject) feels humiliated and stops presenting ideas. An elder later encourages a safer project.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "human"
+     "next": "w1__fx"
+    },
+    {
+     "next": "w1__text"
     }
    ]
   },
@@ -449,6 +455,60 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "t2__fx": {
+   "src": "L5551-5552",
+   "text": "The invention fails, but the observations reveal something useful about material strength.",
+   "children": [
+    {
+     "next": "result"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L5551-5552"
+    }
+   ],
+   "auto_text": true
+  },
+  "t2__text": {
+   "src": "L5551-5552",
+   "text": "The invention fails, but the observations reveal something useful about material strength.",
+   "children": [
+    {
+     "next": "result"
+    }
+   ]
+  },
+  "w1__fx": {
+   "src": "L5561-5562",
+   "text": "(Subject) feels humiliated and stops presenting ideas. An elder later encourages a safer project.",
+   "children": [
+    {
+     "next": "human"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L5561-5562"
+    }
+   ],
+   "auto_text": true
+  },
+  "w1__text": {
+   "src": "L5561-5562",
+   "text": "(Subject) feels humiliated and stops presenting ideas. An elder later encourages a safer project.",
+   "children": [
+    {
+     "next": "human"
+    }
+   ]
   }
  }
 }

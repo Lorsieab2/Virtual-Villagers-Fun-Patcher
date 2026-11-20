@@ -1,0 +1,283 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sky Lantern That Came Down",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b322_sky_lantern_came",
+  "source": "balance",
+  "lines": [
+   14905,
+   14945
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14905",
+  "ledger": [
+   {
+    "src": "L14906",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14907",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14914",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14923",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14911",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14912",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14915",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14924",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14917",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14920",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14926",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14929",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14932-14945",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The elders say a lantern that flies high carries a wish to the stars.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For the new moon festival, (name) has made a sky lantern: a frame of thin bamboo covered in bark paper, with a little dish of oil underneath, so that the hot air lifts it into the night. The elders say a lantern that flies high carries a wish to the stars. (Name)'s flies beautifully, high over the village, and the whole village cheers.\nThen the wind changes. The lantern comes down, still burning, onto the dry thatch of the huts by the cooking fire. Should (name) climb up after it with a wet mat, or shout for everyone to bring water?",
+   "choices": [
+    {
+     "label": "Climb Up With a Wet Mat",
+     "next": "c1",
+     "src": "L14911"
+    },
+    {
+     "label": "Shout for Water",
+     "next": "c2",
+     "src": "L14912"
+    }
+   ],
+   "src": "L14908-14909"
+  },
+  "c1o1": {
+   "text": "(Name) beats out the fire with the wet mat, but the roof gives way under (him/her) and (he/she) falls into the smoke. The builders pull (him/her) out, badly burned down one side. The huts are mended within the week. (Name) mends more slowly. The scars never go away, and (he/she) can't go near a fire, not even the cooking fire, without (his/her) hands shaking.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    },
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o1_c2"
+    }
+   ],
+   "src": "L14918",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) smothers the lantern with the wet mat before the flames can spread, and only one roof is scorched. The builders come the next morning to fix it, and while they're up there, they look at all the old dry thatch on the huts by the cooking fire, and decide to re-thatch the lot with the fire-resistant palm the elders used to use. Every builder learns the old way of laying it.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Building"
+     }
+    }
+   ],
+   "src": "L14921",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) soaks a sleeping mat in the water jar, scrambles up the side of the nearest hut and onto the smouldering roof...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14915"
+  },
+  "c2o1": {
+   "text": "The village forms a chain from the stream to the huts and passes water hand to hand until the fire is out. Two roofs are scorched and one is half gone. Everyone who was in the chain helps rebuild them the next week, and by the end of it, several villagers who had never held a bundle of thatch can now lay a decent roof.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "skills": [
+      "Building"
+     ],
+     "target": {
+      "random": 4
+     }
+    }
+   ],
+   "src": "L14927",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The water comes, the fire goes out, and nothing worse is lost than the ends of a few roofs. In the morning, (name) finds the burnt frame of (his/her) lantern on the ground, and remembers (his/her) wish: that the village would do something together for once. \"Not like this,\" (he/she) mutters. But (he/she) has to admit, it counts.",
+   "src": "L14930"
+  },
+  "c2": {
+   "text": "\"FIRE!\" (name) shouts. \"WATER! NOW!\" People drop everything and come running with jars, gourds, cooking pots, anything that will hold water...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14924"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "cooking",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  },
+  "c1o1_g2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "fire",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c2": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g2",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_c1"
+    }
+   ]
+  }
+ }
+}

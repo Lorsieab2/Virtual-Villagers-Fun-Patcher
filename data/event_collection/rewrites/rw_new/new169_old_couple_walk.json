@@ -1,0 +1,232 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Couple's Walk",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new169_old_couple_walk",
+  "source": "rewrites",
+  "lines": [
+   8188,
+   8232
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8188",
+  "ledger": [
+   {
+    "src": "L8189",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8190",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8197",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8204",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8211",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8193",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8194",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8195",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8198",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8205",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8212",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8199",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8201",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8206",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8208",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8213",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8215",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8218-8232",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every evening for forty years, a villager and another villager have walked the same route along the shore.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "grandchild": {
+   "kind": "villager",
+   "min_age": 10
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every evening for forty years, (subject) and (friend) have walked the same route along the shore. Every evening for forty years, they have argued about which rock is the halfway rock. (subject) says it's the big flat one. (friend) says it's the pointy one with the barnacles. Neither has ever given in. It is, the whole village agrees, the most romantic argument on the island.\nLately, the walk has been getting slower. They turn back a little earlier each week. Neither of them says anything about it. They just argue a little louder about the rock. Their family has noticed. Should someone say something?",
+   "choices": [
+    {
+     "label": "Let Them Talk on the Way",
+     "next": "c1",
+     "src": "L8193"
+    },
+    {
+     "label": "Walk the Old Route Together",
+     "next": "c2",
+     "src": "L8194"
+    },
+    {
+     "label": "Ask Their Grandchildren",
+     "next": "c3",
+     "src": "L8195"
+    }
+   ],
+   "src": "L8191-8192"
+  },
+  "c1o1": {
+   "text": "\"It's getting hard,\" (subject) says at last. \"The walk.\" (subject.He/She) doesn't ask (friend) to give it up. (subject.He/She) just says it. (friend) is quiet for a moment, then takes (subject.his/her) arm. \"It's getting hard for me too.\" They stand there together, and somehow, saying it makes the walk home easier.",
+   "src": "L8200"
+  },
+  "c1o2": {
+   "text": "(friend) admits (subject.he/she) would rather walk a shorter way now. (subject) grumbles, a little, but accepts it. They start turning back at a nearer rock, and immediately begin arguing about whether THAT is the new halfway rock. Nobody is surprised.",
+   "src": "L8202"
+  },
+  "c1": {
+   "text": "One evening, about halfway to either rock, (subject) stops walking...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8198"
+  },
+  "c2o1": {
+   "text": "They enjoy a slow walk all the way to the halfway rock, whichever one it is, and sit on it to watch the sunset, holding hands. \"Same time tomorrow?\" \"Same time tomorrow.\" The argument about the rock resumes on the way home, with great affection.",
+   "src": "L8207"
+  },
+  "c2o2": {
+   "text": "Along the way, they discover that one of them wants to keep the long walk and the other really needs the short one. They talk about it more honestly than they have in years. They wouldn't trade each other for anything. They agree to try walking separately part of the way, and meeting at the rock. Either rock.",
+   "src": "L8209"
+  },
+  "c2": {
+   "text": "On a good evening, when neither of them is too stiff, they set off on the full route, slowly, taking all the time in the world...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8205"
+  },
+  "c3o1": {
+   "text": "(grandchild) listens to them both very seriously, and does not tell them what to do. Instead, (subject.he/she) asks to come with them on the walk the next evening. And the next. The walk slows down even more, because (grandchild) stops to look at every crab. Nobody minds at all.",
+   "src": "L8214"
+  },
+  "c3o2": {
+   "text": "(grandchild)'s suggestion is to settle the halfway rock question once and for all with a race. This is not helpful, so the couple follow their own judgment. But they do, privately, consider the race for a moment.",
+   "src": "L8216"
+  },
+  "c3": {
+   "text": "The couple put the question of the walk to (grandchild), who is delighted to be asked anything by grown-ups...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8212"
+  }
+ }
+}

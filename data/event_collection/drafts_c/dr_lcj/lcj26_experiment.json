@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Experiment Everyone Saw",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj26_experiment",
+  "source": "draft_lcj",
+  "lines": [
+   362,
+   373
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L362",
+  "ledger": [
+   {
+    "src": "L363",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a researcher and an adult)"
+   },
+   {
+    "src": "L369",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L369",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L373",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1); small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L373",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A researcher's public demonstration goes completely wrong: laugh it off, or try again.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) invited the whole village to see (subject.his/her) discovery: a mixture of ash and seaweed that makes fire burn hotter. In front of everyone, (subject.he/she) threw it on the fire, which made an enormous cloud of green smoke and went out completely. (friend) is trying very hard not to laugh. What should (subject) do?",
+   "src": "L365",
+   "choices": [
+    {
+     "label": "Laugh It Off",
+     "next": "o1",
+     "src": "L367"
+    },
+    {
+     "label": "Try Again",
+     "next": "o2",
+     "src": "L371"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) laughs, coughing green smoke. The village laughs with (subject.him/her). Afterwards, (subject.he/she) works out why it happened: the seaweed was wet. The dry version works. Nobody comes to that demonstration, but it works.",
+   "src": "L369",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L369"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) asks for another fire and tries again, with dry seaweed. It burns blue-hot and roars. The village gasps, then cheers. (friend) says the green smoke was better.",
+   "src": "L373",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L373"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L373"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

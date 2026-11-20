@@ -106,7 +106,8 @@
      "head": "random",
      "src": "L22072"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -121,9 +122,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The villager grows fond of the unusual look.",
-   "src": "L22074"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -151,6 +159,25 @@
    "name": "Outcome C2",
    "text": "The villager decides the experiment was fun but temporary.",
    "src": "L22078"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The villager grows fond of the unusual look.",
+   "src": "L22074",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L22074"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The villager grows fond of the unusual look.",
+   "src": "L22074"
   }
  }
 }

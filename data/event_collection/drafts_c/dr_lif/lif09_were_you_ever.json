@@ -75,6 +75,32 @@
    "src": "L104"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) asks why (friend) wants to know. (friend) shrugs. \"Someone said grown-ups who don't get married are sad.\" (subject) laughs, a big real laugh. \"Do I look sad?\" (friend) looks. (subject) has mud on (subject.his/her) nose and a flower behind (subject.his/her) ear and is holding a giant squash. \"No,\" says (friend). \"Well, then,\" says (subject).",
+   "src": "L107",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L107"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) asks why (friend) wants to know. (friend) shrugs. \"Someone said grown-ups who don't get married are sad.\" (subject) laughs, a big real laugh. \"Do I look sad?\" (friend) looks. (subject) has mud on (subject.his/her) nose and a flower behind (subject.his/her) ear and is holding a giant squash. \"No,\" says (friend). \"Well, then,\" says (subject).",
    "src": "L107"

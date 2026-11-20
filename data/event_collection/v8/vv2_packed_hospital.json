@@ -533,7 +533,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "end_plain": {
    "name": "Ending",
@@ -571,7 +572,8 @@
      "what": "optional Tech for inventory improvement",
      "reason": "the source makes the Tech optional: this is the equally likely ending without it"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "coda_c4": {
    "popup": "append",

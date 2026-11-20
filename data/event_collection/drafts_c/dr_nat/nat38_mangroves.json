@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "They agree to take only fallen and dead wood from the mangroves and leave the living trees. There's a lot less firewood. Cooking takes longer with other wood, and some of it smokes horribly. (subject) grumbles at every meal. But a few seasons later, there are young mangroves pushing up in the mud where the old ones were cut. The little fish are coming back, a few at a time.",
-   "src": "L452"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) suggests a trade: every tree cut, one seedling planted. (subject) agrees, and they try it. The seedlings are planted in the mud with great ceremony. Half of them wash away in the first storm. The other half grow very slowly. It isn't keeping up. It's better than nothing, though, and (friend) won't stop planting.",
    "src": "L455"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They agree to take only fallen and dead wood from the mangroves and leave the living trees. There's a lot less firewood. Cooking takes longer with other wood, and some of it smokes horribly. (subject) grumbles at every meal. But a few seasons later, there are young mangroves pushing up in the mud where the old ones were cut. The little fish are coming back, a few at a time.",
+   "src": "L452",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L452"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They agree to take only fallen and dead wood from the mangroves and leave the living trees. There's a lot less firewood. Cooking takes longer with other wood, and some of it smokes horribly. (subject) grumbles at every meal. But a few seasons later, there are young mangroves pushing up in the mud where the old ones were cut. The little fish are coming back, a few at a time.",
+   "src": "L452"
   }
  }
 }

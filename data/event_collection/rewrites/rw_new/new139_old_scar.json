@@ -1,0 +1,243 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Scar",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new139_old_scar",
+  "source": "rewrites",
+  "lines": [
+   6535,
+   6581
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6535",
+  "ledger": [
+   {
+    "src": "L6536",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6537",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6546",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6553",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6560",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6542",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6543",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6544",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6547",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6554",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6561",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6548",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6550",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6555",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6557",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6562",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6564",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6567-6581",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It runs from wrist almost to elbow, crooked, like a river on a map.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(young) has always wondered about the long, pale scar on (subject)'s forearm. It runs from wrist almost to elbow, crooked, like a river on a map.\nTonight, by the fire, (subject.he/she) finally asks.\nUsually (subject) changes the subject. Usually (subject.he/she) makes a joke about wrestling a shark, or says \"Oh, that old thing,\" and starts talking about the weather.\nThis time, (subject) goes quiet. (subject.He/She) turns (subject.his/her) arm over in the firelight, looking at the scar as if seeing it for the first time in years. (young) wonders if (subject.he/she) should have asked at all. Should (subject.he/she) let (subject) decide how much to share, or find somewhere quieter to talk?",
+   "choices": [
+    {
+     "label": "Let the Elder Decide What to Share",
+     "next": "c1",
+     "src": "L6542"
+    },
+    {
+     "label": "Learn from the Old Accident",
+     "next": "c2",
+     "src": "L6543"
+    },
+    {
+     "label": "Talk Somewhere Quiet",
+     "next": "c3",
+     "src": "L6544"
+    }
+   ],
+   "src": "L6538-6541"
+  },
+  "c1o1": {
+   "text": "(subject) chooses to tell only part of the story: there was a fall, a long time ago, and someone (subject.he/she) loved was there, and it was a very bad day. Nothing more. (young) doesn't ask for more, and that is respected. (subject) squeezes (subject.his/her) hand before going to bed.",
+   "src": "L6549"
+  },
+  "c1o2": {
+   "text": "\"No,\" (subject) says slowly. \"I think I'd like to tell someone.\" (subject.He/She) asks (young) to sit close, and tells the whole story, quietly, for the first time in decades. (subject.His/Her) relatives, who thought (subject.he/she) would never speak of it, listen from the shadows with tears in their eyes.",
+   "src": "L6551"
+  },
+  "c1": {
+   "text": "(young) says, \"You don't have to tell me,\" and means it. (subject) looks up at (subject.him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6547"
+  },
+  "c2o1": {
+   "text": "(subject) teaches (young) exactly how (subject.he/she) set and bound (subject.his/her) own arm that day: how to pull it straight, how to splint it with two flat sticks, how tight to wrap it, and what to watch for afterwards. It is a useful skill the youngster will not forget, and (subject.he/she) goes to share it with the healers the very next morning.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "young",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L6556",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) starts to tell it, then falters. (subject.He/She) can't remember every detail of that day anymore. Was it raining? Who found (subject.him/her)? (subject.He/She) asks (subject.his/her) oldest friends to help fill in the gaps. They argue about the rain, but they all remember who found (subject.him/her), and the story comes back together.",
+   "src": "L6558"
+  },
+  "c2": {
+   "text": "(subject) traces the scar with one finger. \"I broke it. Badly. And there was nobody to help, so I had to set it myself...\"",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6554"
+  },
+  "c3o1": {
+   "text": "By the lagoon, with only the frogs to hear, (subject) talks comfortably about the scar and the day (subject.he/she) got it, and a lot of other things besides. It turns into one of the longest conversations (young) has ever had with (subject.him/her), and the two of them are friends from then on.",
+   "src": "L6563"
+  },
+  "c3o2": {
+   "text": "On the walk to the lagoon, (subject) slows, and stops. (subject.He/She) decides (subject.he/she) is too tired to go into it today, and asks to rest instead. (young) walks (subject.him/her) home. \"Another time,\" (subject) promises at the door, and somehow (young) believes (subject.him/her).",
+   "src": "L6565"
+  },
+  "c3": {
+   "text": "(young) suggests they go somewhere quieter, away from the fire and all the listening ears...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6561"
+  }
+ }
+}

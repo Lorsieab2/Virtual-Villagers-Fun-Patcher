@@ -69,6 +69,10 @@ SERIES = ("v14_golden_child", "v17_contests", "v18_trials", "v20_crises")
 COMPANION_SERIES = ("cat_bodies", "cat_fins", "cat_foliage", "cat_flowers", "cat_magic_fish", "cat_magic_plants",
                     "cat_creatures")
 ALL = [1, 2, 3, 4, 5]
+# The owner (2026-11-16): chief events run in every game; their chief role prefers The Secret City's robed Tribal Chief
+# (cie-v6-binary.md 35).  The V17 sculpture contest stays The Secret City's shore's.
+CHIEF_GAMES = ALL
+CHIEF_EXCLUSIVE = ("The Child Who Claimed to Be Chief", "The Chief's Impossible Question")
 
 ROWS: list[dict] = []
 
@@ -178,7 +182,7 @@ R("vv2_veterinary_visitor", "The Veterinary Visitor", [2], 2865, 2918, "event", 
   {"A": 5, "(1)": 4, "(2)": 4, "(3)": 4}, ["skill:Healing"])
 R("vv2_hut_sharing_negotiation", "The Hut-Sharing Negotiation", [2], 2920, 2994, "event", "v6", "v6v8", 4,
   {"(1)": 3, "(2)": 4, "(3)": 4, "(4)": 4, "(5)": 5}, ["skill:Building"])
-R("vv3_chiefs_monumental_speech", "The Chief's Monumental Speech", [3], 2996, 3041, "event", "v6", "v6v8", 0,
+R("vv3_chiefs_monumental_speech", "The Chief's Monumental Speech", CHIEF_GAMES, 2996, 3041, "event", "v6", "v6v8", 0,
   {"A": 4, "B": 7})
 R("vv3_gardening_contest", "The Gardening Contest", [3], 3043, 3096, "event", "v6", "v6v8", 2,
   {"A": 6, "(1)": 4, "(2)": 4, "(3)": 5}, ["skill:Farming"])
@@ -229,7 +233,7 @@ R("vv2_experimental_remedy", "The Experimental Remedy", [2], 4733, 4794, "event"
   {"(1)": 4, "(2)": 4, "(3)": 3, "(4)": 3, "(5)": 4})
 R("vv2_stolen_spoon", "The Stolen Spoon", [2], 4796, 4872, "event", "v9", "v9", 4,
   {"(1)": 4, "(2)": 4, "(3)": 4, "(4)": 4, "(8)": 3})
-R("vv3_chief_and_the_pearl", "The Chief and the Pearl", [3], 4874, 4934, "event", "v9", "v9", 4,
+R("vv3_chief_and_the_pearl", "The Chief and the Pearl", CHIEF_GAMES, 4874, 4934, "event", "v9", "v9", 4,
   {"(1)": 4, "(2)": 4, "(3)": 4, "(4)": 4, "(5)": 3})
 R("vv3_duel_terrible_inventors", "The Duel of the Terrible Inventors", [3], 4936, 4973, "event", "v9", "v9", 2,
   {"(1)": 4, "(2)": 4, "(3)": 5})
@@ -318,7 +322,8 @@ _EXCL = [(2, "The Secret Behind the Waterfall", 7842, 7855), (2, "The Hospital's
          (5, "The Convert Who Missed Home", 8008, 8017), (5, "The Guardians' Disagreement", 8019, 8028)]
 for _g, _t, _a, _b in _EXCL:
     _slug = re.sub(r"[^a-z0-9]+", "_", _t.lower().replace("'", "")).strip("_")
-    R(short_id(f"vv{_g}_{_slug}"), _t, [_g], _a, _b, "event", "exclusive", "exclusive", 2, {},
+    R(short_id(f"vv{_g}_{_slug}"), _t, CHIEF_GAMES if _t in CHIEF_EXCLUSIVE else [_g], _a, _b, "event", "exclusive",
+      "exclusive", 2, {},
       ["tech", "food"] if _g in (3, 4, 5) else ["tech", "health_change"])
 R("bank_v17_framework", "V17 - The Five Shores Compete: framework and universal consequence pool", ALL, 8033, 8093,
   "notes", "v17", "v17", 4, {"U": (10, None)})   # notes: every contest shows its common choices (shared_lines)
@@ -1009,6 +1014,7 @@ for _sid, (_topic, _n, _sec, _pre) in lib.DRAFTS_C.items():
     CREDITS[_sec] = ("mixed", [(1, 3)], _sid)
 DRAFTS_C_SERIES = {sid: v[2] for sid, v in lib.DRAFTS_C.items()}      # source id -> its one series (the section)
 DRAFTS_C_VV5_TAG = " (VV5 only)"
+DRAFTS_C_VV4_TAG = " (VV4 only)"      # Tree of Life Supplies (draft_sup): The Tree of Life only
 
 
 def _drafts_c_rows() -> None:
@@ -1027,8 +1033,9 @@ def _drafts_c_rows() -> None:
                 m = re.match(rf"^{pre}-(\d\d)\. (.+)$", lib.line(h))
                 num, src_title = m.group(1), lib.normalize_source_text(m.group(2)).strip()
                 games = ALL
-                if src_title.endswith(DRAFTS_C_VV5_TAG):
-                    games, src_title = [5], src_title[:-len(DRAFTS_C_VV5_TAG)]
+                one = re.search(r" \(VV([1-5]) only\)$", src_title)   # DRAFTS_C_VV5_TAG, _VV4_TAG; Traders: any
+                if one:
+                    games, src_title = [int(one.group(1))], src_title[:one.start()]
                 eid = f"{pre.lower()}{num}"
                 nc = sum(1 for n in range(h + 2, e + 1) if re.match(r"^[^.!?]{1,80}:$", lib.line(n).strip()))
                 R(f"{eid}_{companion_slug(src_title, VV1_ID_MAX - len(eid) - 1)}",
@@ -1173,6 +1180,122 @@ def _drafts_d_rows() -> None:
 _drafts_d_rows()
 
 
+# ---- The owner's GO files (collection_lib.GO_SOURCES; the owner's own layout, src/vv_owner_layout.py) --------------
+#
+# "S001. Title   [VV1, ...]", WHO:, EVENT TEXT, the story, "Choice A: Label" lines, then per choice "CHOICE A: LABEL",
+# "First popup: ...", "Ending A1 -- NAME. Chance 50%. EFFECT: ..." with its text, then "MIXER SEED <code>" (the mixer's
+# pieces, built by scripts/go_events/gen_go.py).  An event's row runs from its heading to its seed's last flavour line;
+# the file's other lines (headings, the writers' count tables) are notes rows.  Each section is one series.
+GO_CREDITS = {   # credit key: the owner's words for the events (Credits.txt and each event's credit)
+    "go_rw": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+    "go_rw_own": "Written by Lorsieab2.",
+    "go_bal": "Written by Claude to Lorsieab2's style guide and direction.",
+}
+GO_HEADING = re.compile(r"^([A-Z]+-?)(\d+)\.\s+(.+?)\s+\[([^\]]*)\]\s*$")
+GO_OWN = 20          # S001-S020: the owner's own (the example events, "written by Lorsieab2")
+
+
+def _go_rows() -> None:
+    for sid, (_name, _n, secs) in lib.GO_SOURCES.items():
+        with lib.use_source(sid):
+            n_all = lib.n_lines()
+            heads = [n for n in range(1, n_all + 1) if GO_HEADING.match(lib.line(n).strip())]
+            taken: set[int] = set()
+            for i, h in enumerate(heads):
+                stop = heads[i + 1] if i + 1 < len(heads) else n_all + 1
+                e, flav = h, False
+                for n in range(h, stop):
+                    s = lib.line(n)
+                    if s.startswith("#") or (lib.is_separator(s) and n > h):
+                        break
+                    if s.strip().startswith(("Flavour lines:", "Flavor lines:")):
+                        flav = True
+                    elif flav and not s.strip().startswith("-"):
+                        if s.strip():
+                            break
+                        if e > h and lib.line(e).strip().startswith("-"):
+                            break
+                        continue
+                    if s.strip():
+                        e = n
+                pre, num, title, games = GO_HEADING.match(lib.line(h).strip()).groups()
+                sec, _topic = secs[pre]
+                code = f"{pre.rstrip('-').lower()}{num}"
+                gs = sorted({int(g) for g in re.findall(r"VV\s*([1-5])", games)}) or ALL
+                if re.search(r"\b[Aa]ll\b", games):
+                    gs = ALL
+                credit = "go_bal" if sid == "balance" else "go_rw_own" if pre == "S" and int(num) <= GO_OWN \
+                    else "go_rw"
+                nc = sum(1 for n in range(h, e + 1) if re.match(r"^Choice [A-Z]\s*:", lib.line(n)))
+                R(f"{code}_{companion_slug(title, VV1_ID_MAX - len(code) - 1)}", lib.normalize_source_text(title).strip(),
+                  gs, h, e, "event", sec, credit, nc, series=sec, source=sid, choice_re=r"^Choice [A-Z]\s*:")
+                taken.update(range(h, e + 1))
+            # the rest: notes rows (runs of lines outside the events, cut at blank lines before a heading)
+            k, sec0 = 0, next(iter(secs.values()))[0]
+            n = 1
+            while n <= n_all:
+                if n in taken or lib.is_blank_or_separator(n):
+                    n += 1
+                    continue
+                a = n
+                while n + 1 <= n_all and n + 1 not in taken and not (
+                        lib.is_blank_or_separator(n + 1) and (n + 2 > n_all or n + 2 in taken
+                                                             or lib.is_blank_or_separator(n + 2))):
+                    n += 1
+                b = n
+                while lib.is_blank_or_separator(b):
+                    b -= 1
+                k += 1
+                N(f"{sec0}_notes{k}", f"{lib.GO_SECTIONS[sec0][1]}: the writers' notes", a, b, sec0, "go_bal"
+                  if sid == "balance" else "go_rw", source=sid)
+                n += 1
+
+
+for _k in GO_CREDITS:
+    CREDITS[_k] = ("mixed", [(1, 1)], "balance" if _k == "go_bal" else "rewrites")
+_go_rows()
+
+
+# ---- The owner's More Island Events file (collection_lib.MIE; scripts/go_events/gen_mie.py) ----------------------------
+#
+# Nine events, each from its "THE ... (games)" heading to its CHANCES table; the file's header (lines 1-29) and The
+# Cooking Contest's draft (816 on: not one of the nine) are notes rows.  Their static form never ships
+# (collection.mixer_only: "VVFP More Island Events.dll" runs them); only their mixer versions do.
+MIE_CREDITS = {"mie_own": "Written by Lorsieab2."}
+MIE_EVENTS = (   # (id, title, games, heading line, the widest question's choices, a regex matching exactly its
+    #               choice lines: the count is recounted from the source)
+    ("mie_adventurer", "The Aspiring Adventurer", ALL, 33, 2, r"^Choice [AB]: "),
+    ("mie_cave_explorers", "The Cave Explorers", [1], 306, 2, r"^(Don't explore -- |Explore the Cave\. )"),
+    ("mie_climb", "The Climb", [2], 443, 2, r"^(Go with the plan\. |Follow the scientists' advice -- )"),
+    ("mie_troubling_signs", "The Troubling Signs", [3], 488, 4, r"^Choice [1-4] -- "),
+    ("mie_diving", "Diving for Treasure", [3], 561, 2, r'^Choice "'),
+    ("mie_mysterious_mask", "The Mysterious Mask", [4], 619, 4, r'^(?:[WH] -- "|"Walk towards the )'),
+    ("mie_dolphins", "The Playful Dolphins", [4], 694, 2, r'^"(?:Swim towards the dolphins|Hang back)"'),
+    ("mie_remembrance", "The Remembrance Ceremony", ALL, 735, 0, r"(?!)"),
+    ("mie_rumblings", "The Rumblings", ALL, 772, 0, r"(?!)"),
+)
+MIE_COOKING = 816      # The Lost Children - The Cooking Contest (a draft; not one of the nine)
+
+
+def _mie_rows() -> None:
+    with lib.use_source(lib.MIE_ID):
+        heads = [h for _i, _t, _g, h, _n, _c in MIE_EVENTS] + [MIE_COOKING]
+        for k, (eid, title, games, h, choices, choice_re) in enumerate(MIE_EVENTS):
+            stop = heads[k + 1] - 1
+            while lib.is_blank_or_separator(stop):
+                stop -= 1
+            R(eid, title, games, h, stop, "event", lib.MIE_SECTION, "mie_own", choices, series=None, source=lib.MIE_ID,
+              choice_re=choice_re)
+        N("mie_notes_head", "More Island Events: the file's title, list and rules for every event", 1, 29,
+          lib.MIE_SECTION, "mie_own", source=lib.MIE_ID)
+        N("mie_notes_cooking", "More Island Events: The Cooking Contest's draft (not one of the nine events)",
+          MIE_COOKING, lib.n_lines(), lib.MIE_SECTION, "mie_own", source=lib.MIE_ID)
+
+
+CREDITS["mie_own"] = ("lorsieab2_original", [(1, 1)], lib.MIE_ID)
+_mie_rows()
+
+
 # ---- The owner's all-in-one Animals anthology, its newest volumes (collection_lib.ANTHOLOGY; its own line numbers) ----
 #
 # The owner's newest all-in-one file (2026-11-15) is the Living Event Engine file with the GLOBAL EDITORIAL OVERRIDE
@@ -1238,6 +1361,49 @@ def _anthology_rows() -> None:
 
 
 _anthology_rows()
+
+
+# ---- "(Name1)'s Harshest Critic" (collection_lib.CRITIC; its own line numbers) -----------------------------------------
+#
+# The owner's random-pool event (2026-11-16, Expanded v3), laid out as the Cooking Contest is: one event whose setup and
+# shared pools are add-on rows.  Its 112 routes are too much text for one .cieg (story_graph.inc CG_MAX_FILE), so the
+# event ships as six collection files, one per route family, ONE series ("hc_critic": one draw in the rare roll); each
+# file lists the add-on rows it shows (collection.addons).  Every line belongs to one row; the rows touch with no blank
+# line between them, so they carry one_line (no blank-line boundary check).  The credit is the owner's own line
+# (2026-11-17), its own one-line file.  Files: data/event_collection/critic/hc/<id>.json, built by
+# scripts/critic/gen_critic.py.
+
+CRIT = lib.CRITIC_ID
+CREDITS["hc"] = ("mixed", [(1, 1)], lib.CRITIC_CREDIT_ID)
+CRITIC_TITLE = "(Name1)'s Harshest Critic"
+# (id, kind, first line, last line, the row's title after the event's: the heading found at the row's top)
+CRITIC_ROWS = [
+    ("hc_setup", "addon", 1, 757, ""),
+    ("hc1_routes", "event", 758, 827, "Routes"),
+    ("hc_setup_devotion", "addon", 828, 862, "Devotion-Specific Punishments"),
+    ("hc_mentor_reactions", "addon", 863, 1154, "The Mentor's Reaction"),
+    ("hc_variant2", "addon", 1155, 1208, "Variant 2: The Harshest Critic Is (Name1)"),
+    ("hc_named_master", "addon", 1209, 1293, "Additional Mad-Lib Module"),
+    ("hc2_pleas", "event", 1294, 1373, "Additional Outcome Routes"),
+    ("hc3_disasters", "event", 1374, 1613, "Catastrophic Examination Disasters"),
+    ("hc_comic_pools", "addon", 1614, 1784, "Expansion: The Big Bang"),
+    ("hc4_noises", "event", 1785, 1856, "Explosions, Noises, Odors, and Corpsing"),
+    ("hc5_victories", "event", 1857, 2033, "Unintended Victories"),
+    ("hc6_sabotage", "event", 2034, 2218, "The Sabotage Twist"),
+]
+
+
+def _critic_rows() -> None:
+    with lib.use_source(CRIT):
+        for rid, kind, a, b, what in CRITIC_ROWS:
+            while not lib.line(b).strip():      # a row ends on its last line with words (the blank before the next)
+                b -= 1
+            title = f"{CRITIC_TITLE}: {what}" if what else CRITIC_TITLE
+            R(rid, title, ALL, a, b, kind, "hc", "hc", 4 if rid == "hc_setup" else 0, series="hc_critic",
+              source=CRIT, one_line=True, choice_re=(r"^Choice [A-D]: " if rid == "hc_setup" else NEVER))
+
+
+_critic_rows()
 
 # ---- Re-verification against the source ------------------------------------------------------------------------------
 
@@ -1457,11 +1623,22 @@ def verify(row: dict) -> tuple[dict, list[str]]:
     return checks, disagreements
 
 
+# The owner, 2026-11-15: the three handwritten events are credited to the owner alone (in place of the ledger's lines).
+OWNER_CREDITS = {
+    "cooking": "* The Cooking Contest (VV2): written by Lorsieab2.",
+    "child": "* The Child of Legend (VV1): written by Lorsieab2.",
+    "faith": "* The Meaning of \"Faith\" (VV5): written by Lorsieab2.",
+}
+
+
 def credit_text(key: str) -> dict:
     who, ranges, *src = CREDITS[key]
     with lib.use_source(src[0] if src else lib.SOURCE_ID):
-        return {"who": who, "lines": [lib.fmt_src(x, y) for x, y in ranges],
-                "text": "\n".join(lib.line(n) for x, y in ranges for n in range(x, y + 1))}
+        text = OWNER_CREDITS.get(key) or GO_CREDITS.get(key) or MIE_CREDITS.get(key) or "\n".join(lib.line(n) for x, y in ranges for n in range(x, y + 1))
+        out = {"who": who, "lines": [lib.fmt_src(x, y) for x, y in ranges], "text": text}
+    if src and src[0] == lib.CRITIC_CREDIT_ID:
+        out["source"] = src[0]      # a credit kept in a file of its own, not in the row's source
+    return out
 
 
 def uncovered(rows: list[dict]) -> list[str]:
@@ -1606,6 +1783,13 @@ def build() -> dict:
         **{sid: whole_file(sid, lib.SOURCES[sid][0], (DRAFTS_D_SERIES[sid],)) for sid in lib.DRAFTS_D},
         # The Animals anthology's newest volumes (collection_lib.ANTHOLOGY): rows with "source" "anthology"
         "anthology": anthology,
+        # The owner's GO files (collection_lib.GO_SOURCES): rows with "source" "rewrites" / "balance"
+        **{sid: whole_file(sid, lib.SOURCES[sid][0], tuple(sec for sec, _t in v[2].values()))
+           for sid, v in lib.GO_SOURCES.items()},
+        # The owner's More Island Events file (collection_lib.MIE): rows with "source" "mie"
+        lib.MIE_ID: whole_file(lib.MIE_ID, lib.MIE, ()),
+        # "(Name1)'s Harshest Critic" (collection_lib.CRITIC): rows with "source" "critic"
+        "critic": whole_file(lib.CRITIC_ID, lib.CRITIC, ("hc_critic",)),
         "rows": rows,
     }
 
@@ -1633,7 +1817,8 @@ def main(argv=None) -> int:
     print(f"companion: {c['counts']}, uncovered {c['uncovered_lines']}, overlaps {c['overlaps']}")
     lv = data["living"]
     print(f"living: {lv['counts']}, uncovered {lv['uncovered_lines']}, overlaps {lv['overlaps']}")
-    for key in ("horizon", "rolemodels", *lib.DRAFTS_B, *lib.DRAFTS_C, *lib.DRAFTS_D, "anthology"):
+    for key in ("horizon", "rolemodels", *lib.DRAFTS_B, *lib.DRAFTS_C, *lib.DRAFTS_D, "anthology",
+                *lib.GO_SOURCES, lib.MIE_ID, "critic"):
         s = data[key]
         print(f"{key}: {s['counts']}, uncovered {s['uncovered_lines']}, overlaps {s['overlaps']}")
     for key, s in data["drafts_a"].items():

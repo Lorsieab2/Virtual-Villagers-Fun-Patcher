@@ -1,0 +1,213 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Three-Day Fever",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b002_three_day_fever",
+  "source": "balance",
+  "lines": [
+   70,
+   112
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L70",
+  "ledger": [
+   {
+    "src": "L71",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L72",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L80",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L89",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L77",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L78",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L81",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L90",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L83",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L86",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L92",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L95",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L98-112",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has had a fever for three days.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has had a fever for three days. (subject.He/She) is burning hot and shivering at the same time, and keeps talking to people who aren't in the hut. On the third night (subject.he/she) sits up and asks (healer), the healer, why the roof is full of fish.\n(healer) has tried every leaf in the basket. There is one thing left: a bitter red root that grows only on the cliff, that the old healers used when nothing else worked. It breaks a fever fast, but it can also take things with it, and nobody is sure what.\nShould (healer) use the root, or keep (subject) cool and wait out the night?",
+   "choices": [
+    {
+     "label": "Use the Red Root",
+     "next": "c1",
+     "src": "L77"
+    },
+    {
+     "label": "Keep (subject.Him/Her) Cool and Wait",
+     "next": "c2",
+     "src": "L78"
+    }
+   ],
+   "src": "L73-75"
+  },
+  "c1o1": {
+   "text": "By morning the fever is gone and (subject) is sitting up, cool and hungry and asking for food. Then (healer) asks how (subject.he/she) is feeling, calling (subject.him/her) by name, and (subject) looks blank. \"Who?\" The root took the fever, and it took (subject.his/her) name along with it. Everything else is still there: (subject.his/her) friends, (subject.his/her) work, the way (subject.he/she) likes (subject.his/her) fish. Just not the name. The village tries saying it to (subject.him/her) for a week. It never sticks. In the end, everyone just calls (subject.him/her) \"?\" and (subject.he/she) answers to it cheerfully.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L84",
+   "text_only": [
+    {
+     "src": "L84",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The fever breaks before dawn, soaking the sleeping mat. (subject) wakes up weak as a newborn bird and very, very thirsty. The root has a strange aftertaste that stays for days. (subject) has always hated the bitter smell of herbs and the clink of remedy bowls, but after three days in the healers' hut, they have become a comfort. \"I nearly died,\" (subject.he/she) says, when someone asks why (subject.he/she) now lingers by the healers' hut. \"It puts things in perspective.\" (healer) writes down the dose very carefully, and hides the rest of the root.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "medicine",
+     "role": "subject"
+    }
+   ],
+   "src": "L87",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(healer) grinds the root into a paste that smells like rust and wet stone, and spoons it between (subject)'s teeth. (subject) swallows, makes a face like (subject.he/she) has bitten a beetle, and falls straight asleep...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L81"
+  },
+  "c2o1": {
+   "text": "It is a long night. Twice (healer) nearly gets up for the root. But somewhere before dawn, (subject)'s breathing slows and evens out, and the heat goes out of (subject.his/her) skin like a fire burning down. In the morning (subject.he/she) is weak, and grumpy, and absolutely fine. \"Why is everyone staring at me?\" (subject.he/she) asks. (healer), who has not slept at all, goes home and sleeps until the next afternoon.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "src": "L93",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The fever hangs on through the night, and the next day, and the next. It doesn't get worse. It doesn't get better either. (subject) sleeps most of the time and complains the rest. (healer) keeps the cool cloths coming and the root in its basket, and the rest of the healers take turns sitting up. It is a slow recovery, when it comes, and nobody is in a hurry to call it one.",
+   "src": "L96"
+  },
+  "c2": {
+   "text": "(healer) puts the root away. (healer.He/She) sits by the mat all night with a bowl of cool water and a cloth, wiping (subject)'s face, listening to (subject) argue with the fish on the roof...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L90"
+  }
+ }
+}

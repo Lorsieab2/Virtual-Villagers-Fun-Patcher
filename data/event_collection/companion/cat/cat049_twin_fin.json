@@ -87,6 +87,61 @@
    "src": "L7690"
   },
   "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d__fx"
+    },
+    {
+     "next": "d__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "The fin structure is clearer; the villager records that this specimen was found dead rather than collected alive.",
+   "src": "L7692",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "fisher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7692"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7692"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "a naturally deceased fish",
+     "reason": "an animal found dead; no villager dies",
+     "src": "L7692"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
    "name": "Answer C",
    "text": "The fin structure is clearer; the villager records that this specimen was found dead rather than collected alive.",
    "src": "L7692",
@@ -108,9 +163,41 @@
      "reason": "an animal found dead; no villager dies",
      "src": "L7692"
     }
-   ]
+   ],
+   "auto_text": true
   },
-  "d": {
+  "d__fx": {
+   "name": "Answer D",
+   "text": "A complete specimen improves comparison but kills the animal; if the population is rare, the choice prompts restrictions on future collecting.",
+   "src": "L7694",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "fisher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7694"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7694"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "kills the animal",
+     "reason": "an animal, not a villager",
+     "src": "L7694"
+    }
+   ],
+   "auto_text": true
+  },
+  "d__text": {
    "name": "Answer D",
    "text": "A complete specimen improves comparison but kills the animal; if the population is rare, the choice prompts restrictions on future collecting.",
    "src": "L7694",
@@ -132,7 +219,8 @@
      "reason": "an animal, not a villager",
      "src": "L7694"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

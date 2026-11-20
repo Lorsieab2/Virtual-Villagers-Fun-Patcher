@@ -66,14 +66,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"Tell me about your day, then,\" says (friend). (subject) thinks hard. \"In my day... we had to walk ALL the way to the beach. Both ways.\" (friend) laughs so hard (friend.he/she) has to wipe (friend.his/her) eyes. (subject) isn't sure what was funny, but stays on the log anyway.",
-   "src": "L164"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "The elders make room. (subject) listens to them talk about weather and fish and their knees, and tries very hard to look interested. By dinnertime (subject.he/she) has decided that forty is quite boring, and ten is better. (subject.He/She) goes off to climb a tree.",
    "src": "L167"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Tell me about your day, then,\" says (friend). (subject) thinks hard. \"In my day... we had to walk ALL the way to the beach. Both ways.\" (friend) laughs so hard (friend.he/she) has to wipe (friend.his/her) eyes. (subject) isn't sure what was funny, but stays on the log anyway.",
+   "src": "L164",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L164"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Tell me about your day, then,\" says (friend). (subject) thinks hard. \"In my day... we had to walk ALL the way to the beach. Both ways.\" (friend) laughs so hard (friend.he/she) has to wipe (friend.his/her) eyes. (subject) isn't sure what was funny, but stays on the log anyway.",
+   "src": "L164"
   }
  }
 }

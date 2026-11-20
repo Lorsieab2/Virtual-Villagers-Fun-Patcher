@@ -112,7 +112,8 @@
      "loss": true,
      "src": "L20788"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -151,7 +152,8 @@
      "loss": true,
      "src": "L20792"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -170,8 +172,15 @@
   },
   "c1": {
    "name": "Outcome C1",
-   "text": "Families learn which foods keep reliably.",
-   "src": "L20794"
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -185,7 +194,27 @@
      "loss": true,
      "src": "L20795"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "Families learn which foods keep reliably.",
+   "src": "L20794",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20794"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "Families learn which foods keep reliably.",
+   "src": "L20794"
   }
  }
 }

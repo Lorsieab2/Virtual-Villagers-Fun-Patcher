@@ -1,0 +1,273 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Thatcher's Ladder",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b188_thatcher_ladder",
+  "source": "balance",
+  "lines": [
+   8718,
+   8761
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8718",
+  "ledger": [
+   {
+    "src": "L8719",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8720",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8728",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8737",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8725",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8726",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8729",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8738",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8731",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8734",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8740",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8743",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8746-8761",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L8744",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "The rains are a week away, and half the roofs in the village still have holes in them from last year.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The rains are a week away, and half the roofs in the village still have holes in them from last year. (subject) is the only builder not already up on a roof, and the only ladder left is the old one: three long poles lashed together, with rungs that have been mended so many times nobody remembers which ones are original.\n(builder) has been using it all morning and says it's \"fine, mostly, if you don't lean.\" The roof (subject) is meant to fix is the highest in the village, on the {@chief}'s hut.\nShould (subject) use the old ladder, or take the time to make a new one first?",
+   "choices": [
+    {
+     "label": "Use the Old Ladder",
+     "next": "c1",
+     "src": "L8725"
+    },
+    {
+     "label": "Make a New One First",
+     "next": "c2",
+     "src": "L8726"
+    }
+   ],
+   "src": "L8721-8723"
+  },
+  "c1o1": {
+   "text": "A rung snaps. (subject) falls, and lands across a rain barrel, and the healers say (subject.he/she) is lucky to be alive. (subject.He/She) walks with a stick from then on, and won't climb so much as a step stool. The other builders, chastened, make a new ladder and finish every roof before the rains, including the {@chief}'s. They carve (subject)'s name on the new ladder.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    },
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L8732",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The ladder creaks and groans and holds. (subject) fixes the {@chief}'s roof, then the next, then the next, carrying the old ladder from hut to hut and climbing it very, very carefully. By the time the rains come, every roof in the village is tight. The old ladder is retired with honours and hung on the wall of the store.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L8735",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) props the old ladder against the {@chief}'s roof and climbs, very carefully, not leaning. At the top, the whole thing gives a long, low creak, like an old man getting out of bed...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8729"
+  },
+  "c2o1": {
+   "text": "It's the best ladder the village has ever had: straight, strong, and tall enough to reach any roof. With two ladders, the builders work twice as fast, and every roof is fixed before the rains. The builders all make a point of learning (subject)'s lashing knot, which turns out to be useful everywhere.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Building"
+     }
+    }
+   ],
+   "src": "L8741",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The ladder takes three days instead of one. The rains come two days early. The {@chief}'s roof leaks all over the {@chief}, and the store's roof leaks all over the food. \"At least it's a very good ladder,\" says (builder), with water dripping off (subject.his/her) nose.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L8744"
+  },
+  "c2": {
+   "text": "(subject) goes into the forest and cuts three straight new poles, and spends the afternoon lashing rungs to them while the other builders shout at (subject.him/her) to hurry up...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8738"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  }
+ }
+}

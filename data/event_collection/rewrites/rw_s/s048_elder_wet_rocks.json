@@ -1,0 +1,232 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder on the Wet Rocks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s048_elder_wet_rocks",
+  "source": "rewrites",
+  "lines": [
+   2273,
+   2317
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2273",
+  "ledger": [
+   {
+    "src": "L2274",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2275",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2283",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2292",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2280",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2281",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2284",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2293",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2286",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2289",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2295",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2298",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2301-2317",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has gathered shellfish on the wet rocks at the point every single morning for sixty years.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has gathered shellfish on the wet rocks at the point every single morning for sixty years. (subject.He/She) knows every rock, every pool, every crack where the fattest shellfish hide. Lately, though, the rocks have been slick with green seaweed after the rains, and the waves have been coming in fast and white, and (subject) isn't as quick on (subject.his/her) feet as (subject.he/she) used to be.\nEveryone has told (subject.him/her) to let someone younger do it. (subject.His/her) family has told (subject.him/her). The healers have told (subject.him/her). The {@chief} has told (subject.him/her).\n(subject) has told everyone, in some detail, where they can put their advice, and is already halfway down the path with (subject.his/her) basket. Should someone go with (subject.him/her), or let (subject.him/her) go alone?",
+   "choices": [
+    {
+     "label": "Go with (subject.Him/Her)",
+     "next": "c1",
+     "src": "L2280"
+    },
+    {
+     "label": "Let (subject.Him/Her) Go Alone",
+     "next": "c2",
+     "src": "L2281"
+    }
+   ],
+   "src": "L2276-2278"
+  },
+  "c1o1": {
+   "text": "They spend the morning on the rocks together, (subject) pointing out every good crack and every hidden pool, (friend) doing the reaching. Once, on the slipperiest rock, (subject)'s foot goes out from under (subject.him/her) on the seaweed, and (subject.he/she) lurches towards the water, and (friend) catches (subject.his/her) arm just in time. Neither of them says anything about it. (subject) grumbles all the way home about being treated like a baby, about young people, about the seaweed. But (subject.he/she) holds (friend)'s hand the whole way, and the next morning, (subject.he/she) knocks on (friend)'s door. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L2287",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) slips anyway. It happens so fast that nobody could have been quick enough, (friend) least of all: one moment (subject.he/she) is standing on the rock, and the next (subject.he/she) is lying in the rock pool below with (subject.his/her) hip twisted under (subject.him/her), white-faced, and not making a sound. (friend) runs for help. The healers carry (subject) home on a board. (subject.He/She) is laid up for a long time, and when (subject.he/she) is finally up again (subject.he/she) walks with a stick, slowly, and never goes down to the rocks at the point again. Some mornings (subject.he/she) sits on the cliff above and watches the young ones do it, and tells them they're doing it wrong.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "the ocean",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L2290",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "A young villager, (friend), grabs a basket and jogs after (subject), calling that (friend.he/she) has nothing better to do and could use the company. (subject) snorts. \"Company,\" (subject.he/she) says. \"Is that what they're calling it.\" But (subject.he/she) doesn't send (friend) back...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2284"
+  },
+  "c2o1": {
+   "text": "(subject) comes back at noon, soaked to the knees, with the biggest basket of shellfish that anyone has seen all year. It's so heavy (subject.he/she) has to drag it the last part. (subject.He/She) drops it in the middle of the village, right where everyone can see, and stands over it with an extremely smug look on (subject.his/her) face, and says nothing at all. (subject.He/She) doesn't need to. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L2296",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Halfway through the morning, (subject) slips on the seaweed and twists (subject.his/her) ankle badly in a crack between two rocks. (subject.He/She) can't stand on it, and the waves are coming in, so (subject.he/she) drags (subject.himself/herself) up onto the highest rock and sits there, in the spray, all through the high tide, wet and cold and furious, until it goes out again and (subject.he/she) can crawl home across the bare rocks. (subject.He/She) staggers into the village just before dark. The healers bind the ankle. (subject) refuses to discuss it.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L2299",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "The village decides that (subject) has been doing this for sixty years, and knows the rocks better than any of them, and would never forgive them for fussing. So they let (subject.him/her) go. Several people find reasons to keep glancing towards the point all morning...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2293"
+  }
+ }
+}

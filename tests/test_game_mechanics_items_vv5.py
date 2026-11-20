@@ -60,13 +60,14 @@ PINNED = (
     ("puzzle", "The Knowing Totem", "villagers dismantle it (\"Dismantling the Knowing Totem\")", C),
     ("puzzle", "The Hydroponic Farm", "30 points, from the aqueduct repair", E),
     ("puzzle", "The Buried Mausoleum", "villagers restore it (\"Restoring the mausoleum\")", C),
-    ("puzzle", "The Blocking Totem", "villagers dismantle it (\"Dismantling the Blocking Totem\")", U),
-    ("puzzle", "The Hollow Totem", "village children break it (\"Squeezing into the Hollow Totem\")", U),
-    ("puzzle", "The Heathen Builder", "a build-off with the Heathen Master Builder", U),
+    ("puzzle", "The Blocking Totem", "40 dismantling actions (\"Dismantling the Blocking Totem\")", C),
+    ("puzzle", "The Hollow Totem", "six village children squeezing into it at once (\"Squeezing into the Hollow "
+                                   "Totem\")", C),
+    ("puzzle", "The Heathen Builder", "a build-off with the Heathen Master Builder", C),
     ("puzzle", "The Lake", "2 points", E),
     ("puzzle", "The Pain Totem", "a Lightning Strike on it, then villagers take it down", E),
-    ("puzzle", "The Rainbow Totem", "villagers put three dyes in the pools and dismantle it", U),
-    ("puzzle", "The Heathen Scientist", "a proof the Heathen Master Scientist examines", U),
+    ("puzzle", "The Rainbow Totem", "villagers put three dyes in the pools and dismantle it", C),
+    ("puzzle", "The Heathen Scientist", "a proof the Heathen Master Scientist examines", C),
     ("puzzle", "The Tribute Statue", "three building stages", E),
     ("puzzle", "The Blind Totem", "villagers make and install a golden eye (panning, smelting, installing)", E),
     ("puzzle", "The Heathen Chief", "four necklace pieces brought to the Chief", E),
@@ -116,10 +117,11 @@ PINNED = (
 
 # Every sub-line's label, by the entry it is under (the entries not named have none).
 PINNED_SUBS = {
-    "Science level 2": (C, E), "Medicine level 2": (U,), "Learning level 1": (C,), "Learning level 3": (C,),
-    "Divine Energy": (U,), "The Hungry Totem": (U, C), "The Knowing Totem": (U,), "The Hydroponic Farm": (U,),
-    "The Tribute Statue": (U, C), "The Heathen Chief": (U,), "The Nursery School": (C,), "The fire pit": (U,),
-    "Fixing a hut (the repair)": (C, C), "Red (rare) mushroom": (E, U, C, C), "Barrel of Babies": (U,),
+    "Science level 2": (C, E), "Medicine level 2": (C,), "Learning level 1": (C,), "Learning level 3": (C,),
+    "Divine Energy": (C,), "The Hungry Totem": (C, C), "The Knowing Totem": (C,), "The Hydroponic Farm": (C,),
+    "The Hollow Totem": (C,), "The Rainbow Totem": (C,),
+    "The Tribute Statue": (C, C), "The Heathen Chief": (C,), "The Nursery School": (C,), "The fire pit": (C,),
+    "Fixing a hut (the repair)": (C, C), "Red (rare) mushroom": (E, C, C, C), "Barrel of Babies": (C,),
     "Story / Cheat Upgrades": (C,),
 }
 
@@ -219,7 +221,7 @@ class Pinned(unittest.TestCase):
         for words in ("÷ 11", "÷ 9", "÷ 7 (catching up ÷ 5)", "5.25%", "1.75%", "a brown mushroom 6 becomes 9",
                       "a red one 70", "0.281% (1 in 356)", "0.171% (1 in 585)", "0.0641% (1 in 1,560)",
                       "34.03% at skill 0", "changing clothes takes 5,000 tech points", "29 outfits (0 to 28)",
-                      "fixes it 70% of the time;", "every mushroom picked up"):
+                      "fixes it 70% of the time;", "noni picks, crop harvests, lake fishing and mushrooms"):
             self.assertIn(words, text)
 
     def test_default_off_matches_the_patcher(self) -> None:

@@ -1,0 +1,259 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mimic Bird",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b136_mimic_bird",
+  "source": "balance",
+  "lines": [
+   6237,
+   6280
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6237",
+  "ledger": [
+   {
+    "src": "L6238",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6239",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6247",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6256",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6244",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6245",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6248",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6257",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6250",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6253",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6259",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6262",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6265-6280",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "There is a bird in the jungle that copies sounds.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "There is a bird in the jungle that copies sounds. Everyone knows it. It does the cooking drum, the {@chief}'s cough, a crying baby, so well that mothers come running. The children call it the Mimic. Nobody has ever got a good look at it.\nToday, for the first time, the Mimic is sitting on (name)'s roof, in plain sight. It is small and brown and very ordinary, except for its eyes, which are bright gold. It is copying (name). Not (his/her) voice: (him/her). As (name) watches, the bird's outline wobbles, and stretches, and for a moment there is a small, feathery (name) on the roof, waving.\nShould (name) try to catch the bird, or leave it alone?",
+   "choices": [
+    {
+     "label": "Catch the Bird",
+     "next": "c1",
+     "src": "L6244"
+    },
+    {
+     "label": "Leave It Alone",
+     "next": "c2",
+     "src": "L6245"
+    }
+   ],
+   "src": "L6240-6242"
+  },
+  "c1o1": {
+   "text": "(Name) grabs, and the bird turns into (name) in (his/her) hands. Completely. A whole, warm, laughing second (name), exactly the same in every way, sitting on the roof beside (him/her) with a feather stuck in (his/her) hair. It never turns back into a bird. It takes the name (made1), and the only difference anyone can ever find is that it whistles better.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L6251",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) grabs, misses, and the bird flutters off the roof, {#made:turning into a perfect (name) in mid-air before it lands|splitting into two in mid-air, each half turning into a perfect (name) before it lands}. Now there are {#made:two|three} of (name) standing outside one hut, looking at each other in horror and then, slowly, starting to laugh in exactly the same way. {#made:The copy takes the name (made1), and they argue|The two copies take the names (made1) and (made2), and argue} for a week about who gets the hut.",
+   "effects": [
+    {
+     "do": "clone",
+     "count": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L6254",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) climbs onto the roof very slowly, making soft cooing noises. The bird watches (him/her) with its gold eyes and makes exactly the same noises back, in exactly the same voice...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6248"
+  },
+  "c2o1": {
+   "text": "By the time (name) comes out again, there is someone sitting on (his/her) doorstep: someone with (his/her) face and (his/her) hair, who likes completely different food and hums completely different songs. \"I wasn't finished,\" says the copy, a little crossly. It is a half-finished copy: the outside of (name), and the inside of a bird who has met a lot of people. It takes the name (made1) and stays.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L6260",
+   "text_only": [
+    {
+     "src": "L6260",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "All afternoon, the bird sits on the roof and sings in (name)'s voice. It sings every song (name) knows, all the wrong notes in all the right places. By evening the whole village has heard what (name) sounds like singing, and some of them have been very honest about it. (Name) never sings again, and hardly says a word to anyone, in case the bird is listening. The bird flies off at dusk, and a few days later the jungle starts to sing in (name)'s voice too.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L6263"
+  },
+  "c2": {
+   "text": "(Name) decides that whatever the bird is doing, (he/she) doesn't want to be part of it. (He/She) goes inside and shuts the door. On the roof, (his/her) own voice starts to sing...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6257"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "talking",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L6254",
+   "before": "splitting into two in mid-air, each half turning into a perfect (name) before it lands",
+   "after": "{#made:turning into a perfect (name) in mid-air before it lands|splitting into two in mid-air, each half turning into a perfect (name) before it lands}"
+  },
+  {
+   "src": "L6254",
+   "before": "Now there are three of (name)",
+   "after": "Now there are {#made:two|three} of (name)"
+  },
+  {
+   "src": "L6254",
+   "before": "The two copies take the names (new name) and (new name 2), and argue",
+   "after": "{#made:The copy takes the name (new name), and they argue|The two copies take the names (new name) and (new name 2), and argue}"
+  }
+ ]
+}

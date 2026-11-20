@@ -42,7 +42,7 @@
     "why": "the list's joining word; one discovery is drawn alone"
    }
   ],
-  "description": "The Golden Child leads his playmates into the jungle and spots something the adults missed."
+  "description": "The Golden Child leads a group of playmates into the jungle and spots something the adults missed."
  },
  "grammar_fixes": [
   {
@@ -131,7 +131,7 @@
   "scene": {
    "name": "The Curious Little Explorer",
    "src": "L7738-7742",
-   "text": "The Golden Child leads his playmates into a familiar part of the jungle and notices something the adults overlooked: {discovery}.\nThe children carefully show a researcher.",
+   "text": "The Golden Child leads (child.his/her) playmates into a familiar part of the jungle and notices something the adults overlooked: {discovery}.\nThe children carefully show a researcher.",
    "effects": [
     {
      "do": "tech",
@@ -139,7 +139,8 @@
      "scaled": true,
      "src": "L7742"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

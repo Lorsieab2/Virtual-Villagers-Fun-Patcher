@@ -82,14 +82,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "The children start tapping along on their knees, and then adding words. By the time the elders wake, the children have made a whole song, and they perform it with great ceremony. The elders are deeply puzzled and very flattered. The song is called \"The Afternoon Song,\" and nobody ever tells them why.",
-   "src": "L314"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "At a particularly fine moment, the children burst into applause. Both elders wake with a start. \"What?\" \"What happened?\" \"You were singing,\" (child), a child, explains. The elders look at each other. Neither of them remembers singing. They decide, on balance, to accept the applause.",
    "src": "L317"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The children start tapping along on their knees, and then adding words. By the time the elders wake, the children have made a whole song, and they perform it with great ceremony. The elders are deeply puzzled and very flattered. The song is called \"The Afternoon Song,\" and nobody ever tells them why.",
+   "src": "L314",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L314"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L314"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The children start tapping along on their knees, and then adding words. By the time the elders wake, the children have made a whole song, and they perform it with great ceremony. The elders are deeply puzzled and very flattered. The song is called \"The Afternoon Song,\" and nobody ever tells them why.",
+   "src": "L314"
   }
  }
 }

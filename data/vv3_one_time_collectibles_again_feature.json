@@ -1,0 +1,29 @@
+{
+  "id": "vv3_one_time_collectibles_again",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv3",
+  "name": "One-Time Collectibles Appear Again",
+  "description": "In the normal game each of the Tablet pieces appears only until it is found: once you have it, the game never puts it out again (that appearance is simply lost). With this patch a piece you already have can appear again, with the same chance as any other piece; picked up again it counts as a duplicate, which pays tech points like every other duplicate collectible. Nothing is forced: it only stops the game refusing them. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play** (checked by emulation of the game's own test).",
+  "output_tag": "One-Time Collectibles Again",
+  "dependencies": [],
+  "conflicts": [],
+  "behavior_changes": [
+    "The test whether a collectible piece is already owned (0x42D830), asked before a piece is put out, answers \"no\" for every id (xor al, al; ret 4), so the Tablet pieces, the only ones it refused, can appear again; the duplicate path pays a second one as for every other collection."
+  ],
+  "explicit_non_changes": [
+    "Which collection and rarity is drawn, how often anything appears, the ghost's own exclusion of the Mausoleum collection (The Tree of Life), the duplicates' tech points and every other collection are unchanged.",
+    "One guarded in-place edit of 5 bytes at the routine's start; no code is added and no executable space is claimed."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; the test is emulated stock and patched for every id, owned and not, in tests/test_one_time_collectibles.py; runtime/player confirmation pending",
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x2D830",
+      "before": "8B44240483",
+      "after": "32C0C20400",
+      "purpose": "the owned-piece test 0x42D830 answers never owned (xor al, al; ret 4)"
+    }
+  ]
+}

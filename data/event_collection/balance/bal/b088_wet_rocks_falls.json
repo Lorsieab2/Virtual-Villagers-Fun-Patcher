@@ -1,0 +1,206 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wet Rocks at the Falls",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b088_wet_rocks_falls",
+  "source": "balance",
+  "lines": [
+   3975,
+   4016
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3975",
+  "ledger": [
+   {
+    "src": "L3976",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3977",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3985",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3994",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3982",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3983",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3986",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3995",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3988",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3991",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3997",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4000",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4003-4016",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The pool at the bottom of the falls is the best swimming on the island, and the rocks around it are the slipperiest.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The pool at the bottom of the falls is the best swimming on the island, and the rocks around it are the slipperiest. The young people jump from a ledge halfway up the falls, and every year at least one of them comes home bruised.\n(Name) has climbed to the ledge. Today the water is high and white after the rains, and the rocks are slick with spray. (His/Her) friends in the pool are shouting for (him/her) to jump.\nShould (name) jump, or climb back down?",
+   "choices": [
+    {
+     "label": "Jump",
+     "next": "c1",
+     "src": "L3982"
+    },
+    {
+     "label": "Climb Back Down",
+     "next": "c2",
+     "src": "L3983"
+    }
+   ],
+   "src": "L3978-3980"
+  },
+  "c1o1": {
+   "text": "The high water has hidden a rock just under the foam. (Name) clips it with (his/her) head on the way in. (His/Her) friends drag (him/her) out, and (he/she) comes round on the bank with a bleeding scalp and a ringing head, knowing them all, the falls, the way home. Not (his/her) own name. The healers say it might come back. It doesn't. The village calls (him/her) \"?\" from then on.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L3989",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) hits the water clean, goes deep, and comes up whooping into the spray. (His/Her) friends cheer. It is, everyone agrees, the best jump of the year. (Name) does it once more, for luck, and then decides that's enough for one lifetime.",
+   "src": "L3992"
+  },
+  "c1": {
+   "text": "(Name) takes a run up along the wet ledge and leaps out over the white water. For a moment (he/she) is flying...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3986"
+  },
+  "c2o1": {
+   "text": "(Name) falls onto the rocks at the edge of the pool. (His/Her) friends reach (him/her) in moments, and one runs for the healers, but there is nothing anyone can do. They carry (him/her) home together. The village buries (name) near the falls, and the young people carve steps into the rock beside the ledge, so that nobody ever has to climb down the slick way again.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject",
+     "line": "injuries"
+    }
+   ],
+   "src": "L3998",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) slides down the rocks and lands in the shallows with a crack. (His/Her) leg is broken in two places, and it heals short and stiff. (He/She) walks with a crutch, and won't go near the pool again. (His/Her) friends visit every day while it mends, still a little ashamed of the jeering, and bring (him/her) the best fruit from the falls.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "swimming",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L4001",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) shakes (his/her) head and starts climbing back down the slick rocks, ignoring the jeers. Halfway down, (his/her) foot slides on the wet stone...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3995"
+  }
+ }
+}

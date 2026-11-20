@@ -80,9 +80,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The neighbor plants in time, and the garden recovers by the end of the season.",
-   "src": "L87"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -102,9 +109,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The neighbor's garden catches up with everyone else's within a few weeks.",
-   "src": "L90"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -124,9 +138,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The work goes quickly, and the gardeners discover they enjoy each other's company.",
-   "src": "L93"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -154,6 +175,63 @@
    "name": "Outcome D2",
    "text": "Nobody can agree on who should keep the store, and the idea waits for another meeting.",
    "src": "L97"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The neighbor plants in time, and the garden recovers by the end of the season.",
+   "src": "L87",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L87"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The neighbor plants in time, and the garden recovers by the end of the season.",
+   "src": "L87"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The neighbor's garden catches up with everyone else's within a few weeks.",
+   "src": "L90",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L90"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The neighbor's garden catches up with everyone else's within a few weeks.",
+   "src": "L90"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The work goes quickly, and the gardeners discover they enjoy each other's company.",
+   "src": "L93",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L93"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The work goes quickly, and the gardeners discover they enjoy each other's company.",
+   "src": "L93"
   }
  }
 }

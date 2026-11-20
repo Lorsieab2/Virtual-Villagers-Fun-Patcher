@@ -246,27 +246,34 @@ class FrozenDraftsB(unittest.TestCase):
 
 class FrozenDraftsC(unittest.TestCase):
     """The owner-approved draft event files, group C (2026-11-15), wired as group B: eight files, 50 events each, one
-    series per file; BLF-26/27 New Believers only; built by scripts/drafts_c/gen_drafts_c.py."""
+    series per file; BLF-26/27 New Believers only; built by scripts/drafts_c/gen_drafts_c.py.  A ninth, Tree of Life
+    Supplies (the owner's request of 2026-11-17): 14 events, every one The Tree of Life only."""
+
+    EVENTS = {"draft_sup": 14, "draft_trd": 13, "draft_vfx": 16}   # the rest: 50 (Island Traders, Village Moments:
+                                                                   # the owner's spec of 2026-11-16/17)
 
     def test_sha256_rows_and_files(self):
         data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
-        self.assertEqual(len(lib.DRAFTS_C), 8)
-        vv5_only = set()
+        self.assertEqual(len([s for s in lib.DRAFTS_C if not s.startswith("draft_lc")]), 11)
+        one_game: dict[int, set] = {}
         for sid, (topic, n, section, prefix) in lib.DRAFTS_C.items():
+            if sid.startswith("draft_lc"):
+                continue                       # Living Culture: class LivingCultureDrafts below
             with self.subTest(sid):
+                want = self.EVENTS.get(sid, 50)
                 self.assertEqual(lib.recorded_sha256(sid), lib.source_sha256(sid))
                 path = lib.SOURCES[sid][0]
                 self.assertEqual(path.read_bytes().count(b"\n"), n)
                 self.assertEqual(data[sid]["uncovered_lines"], [])
                 self.assertEqual(data[sid]["overlaps"], [])
-                self.assertEqual(data[sid]["counts"]["series"], {section: 50})
+                self.assertEqual(data[sid]["counts"]["series"], {section: want})
                 rows = [r for r in data["rows"] if r["source"] == sid and r["kind"] == "event"]
-                self.assertEqual(len(rows), 50)
+                self.assertEqual(len(rows), want)
                 for r in rows:
                     self.assertLessEqual(len(r["id"]), cm.VV1_ID_MAX, r["id"])
                     if r["games"] != [1, 2, 3, 4, 5]:
-                        self.assertEqual(r["games"], [5], r["id"])
-                        vv5_only.add(r["id"][:5])
+                        self.assertEqual(len(r["games"]), 1, r["id"])
+                        one_game.setdefault(r["games"][0], set()).add(r["id"][:5])
                 files = [p for p in cc.collection_files() if lib.DRAFTS_C_DIR / section in p.parents]
                 self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
                 for p in files:
@@ -275,7 +282,58 @@ class FrozenDraftsC(unittest.TestCase):
                     for nd in doc["nodes"].values():      # BLF-36: setup_m / setup_f (the same-sex couple)
                         for c in nd.get("choices", []):
                             self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
-        self.assertEqual(vv5_only, {"blf26", "blf27"})
+        self.assertEqual(one_game, {1: {"trd03"}, 2: {"trd04", "trd05"}, 3: {"trd06", "trd07", "trd08", "vfx15"},
+                                    4: {f"sup{k:02d}" for k in range(1, 15)} | {"trd09", "trd10", "trd11", "vfx06", "vfx16"},
+                                    5: {"blf26", "blf27", "trd12", "trd13"}})
+
+    def test_the_supply_events_change_the_supplies(self):
+        """Every SUP event has a supply effect on at least one outcome, and the existing events of the owner's audit
+        (scripts/supply_effects.py) carry theirs."""
+        import supply_effects
+        for p in sorted((lib.DRAFTS_C_DIR / "dr_sup").glob("*.json")):
+            doc = json.loads(p.read_text(encoding="utf-8"))
+            dos = [e["do"] for nd in doc["nodes"].values() for e in nd.get("effects", [])]
+            self.assertIn("supply", dos, p.name)
+        found = set()
+        for p in cc.collection_files():
+            doc = json.loads(p.read_text(encoding="utf-8"))
+            if doc.get("collection", {}).get("id") in supply_effects.SUPPLY:
+                found.add(doc["collection"]["id"])
+                self.assertEqual(supply_effects.missing(doc), [], p.name)
+        self.assertEqual(found, set(supply_effects.SUPPLY))
+
+
+class LivingCultureDrafts(unittest.TestCase):
+    """Living Culture (the owner's concepts of 2026-11-17, drafted 2026-11-18; the owner waived review): group C files
+    "New Events - Living Culture <n> (draft for owner).txt", one series each, built by scripts/drafts_c/gen_drafts_c.py.
+    Every ending's "[Solidarity: raise|lower|neutral]" tag is a ledger note, never shown; every event logs its
+    15-point review in the annotation."""
+
+    def test_files_rows_and_tags(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        lc = {sid: v for sid, v in lib.DRAFTS_C.items() if sid.startswith("draft_lc")}
+        self.assertTrue(lc)
+        sys.path.insert(0, str(ROOT / "scripts" / "drafts_c"))
+        import drafts_c_parse as P
+        for sid, (topic, n, section, prefix) in lc.items():
+            with self.subTest(sid):
+                self.assertTrue(topic.startswith("Living Culture "))
+                self.assertEqual(lib.recorded_sha256(sid), lib.source_sha256(sid))
+                self.assertEqual(lib.SOURCES[sid][0].read_bytes().count(b"\n"), n)
+                self.assertEqual(data[sid]["uncovered_lines"], [])
+                self.assertEqual(data[sid]["overlaps"], [])
+                rows = [r for r in data["rows"] if r["source"] == sid and r["kind"] == "event"]
+                files = [p for p in cc.collection_files() if lib.DRAFTS_C_DIR / section in p.parents]
+                self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+                anns = P.read_annotations(sid)
+                for p in files:
+                    doc = json.loads(p.read_text(encoding="utf-8"))
+                    code = f"{prefix}-{p.stem[len(prefix):len(prefix) + 2]}"
+                    self.assertTrue(anns[code]["REVIEW"].startswith("15/15 pass"), code)
+                    for nd in doc["nodes"].values():
+                        self.assertNotIn("Solidarity", nd.get("text", ""), p.name)
+                    tags = [e for e in doc["collection"]["ledger"] if "Solidarity" in e.get("text", "")]
+                    self.assertTrue(all(e["kind"] == "note" for e in tags), p.name)
 
 
 class FrozenDraftsD(unittest.TestCase):
@@ -303,7 +361,11 @@ class FrozenDraftsD(unittest.TestCase):
                 for p in files:
                     doc = json.loads(p.read_text(encoding="utf-8"))
                     self.assertEqual(doc["games"], [1, 2, 3, 4, 5], p.name)
-                    self.assertFalse(any(nd.get("effects") for nd in doc["nodes"].values()), p.name)
+                    # No effects, but the owner's supply audit of 2026-11-17 (scripts/supply_effects.py: tim133) and
+                    # the outcomes pass (#821, scripts/outcome_effects.py), whose effects are only on the "__fx" half
+                    # of each 50% split
+                    self.assertFalse(any(e["do"] != "supply" for nid, nd in doc["nodes"].items()
+                                         if not nid.endswith("__fx") for e in nd.get("effects", [])), p.name)
                     for c in doc["nodes"]["setup"].get("choices", []):
                         self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
                     if sid in ("moments500", "draft_tim2"):
@@ -352,20 +414,70 @@ class FrozenAnthology(unittest.TestCase):
         files = [p for p in cc.collection_files() if lib.ANTHOLOGY_DIR in p.parents]
         self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
         effects = {}
+        outcome_fx = {}   # the outcomes pass (#821): the "__fx" half of each 50% split
         for p in files:
             doc = json.loads(p.read_text(encoding="utf-8"))
             self.assertEqual(doc["collection"]["label_case"], "title", p.name)
             for c in (c for nd in doc["nodes"].values() for c in nd.get("choices", [])):   # REL-04/26: two copies
                 self.assertEqual(c["label"], lib.title_case_label(c["label"].replace("{@Chief}", "Chief")).replace(
                     "Chief", "{@Chief}"), p.name)
-            for nd in doc["nodes"].values():
+            for nid, nd in doc["nodes"].items():
+                into = outcome_fx if nid.endswith("__fx") else effects
                 for e in nd.get("effects", []):
-                    effects[e["do"]] = effects.get(e["do"], 0) + 1
+                    into[e["do"]] = into.get(e["do"], 0) + 1
             for r in doc["roles"].values():
-                if r.get("special") == "nursing_parent":     # a carrying or nursing parent: an adult woman
-                    self.assertEqual((r["sex"], r["min_age"] >= 18), ("female", True), p.name)
+                if r.get("special") == "nursing_parent":     # a carrying or nursing parent: an adult born female
+                    # (the engine casts only villagers born female; the owner, 2026-11-16: no "sex", the words follow
+                    # the villager -- collection_lib.carrier_words)
+                    self.assertEqual(("sex" in r, r["min_age"] >= 18), (False, True), p.name)
         # nothing harmful: hair dye (the random head look), REL-15's sex change, two couples' celebrations
-        self.assertEqual(effects, {"appearance": 5, "sex_change": 1, "celebrate": 4})
+        # ... and the owner's supply audit of 2026-11-17 (scripts/supply_effects.py): EXPR-61's retired blade
+        self.assertEqual(effects, {"appearance": 5, "sex_change": 1, "celebrate": 4, "supply": 1})
+        # The outcomes pass (#821): each "__fx" page is its "__text" twin's effects (above, kept on both halves:
+        # celebrate 3, appearance 3, sex_change 1) plus the lines in data/event_collection/outcome_effects/.
+        self.assertEqual(outcome_fx, {"tech": 31, "mood": 298, "skill": 12, "health_change": 13, "food": 5,
+                                      "celebrate": 3, "appearance": 3, "sex_change": 1})
+
+
+class FrozenCritic(unittest.TestCase):
+    """The owner's "(Name1)'s Harshest Critic" (2026-11-16, Expanded v3), frozen byte for byte: one event in six files
+    (its route families), one series, the setup and shared pools as add-on rows (authoring-rules.md 15i)."""
+
+    def test_sha256_rows_and_files(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        sid = lib.CRITIC_ID
+        self.assertEqual(lib.recorded_sha256(sid), "a4445778c71f7e23c01c476258e6d002f785ef7d37d058e2b9d34f0018993149")
+        self.assertEqual(lib.source_sha256(sid), lib.recorded_sha256(sid))
+        self.assertEqual(lib.source_sha256(lib.CRITIC_CREDIT_ID), lib.recorded_sha256(lib.CRITIC_CREDIT_ID))
+        self.assertEqual(lib.CRITIC.read_bytes().count(b"\n"), lib.CRITIC_LINES)
+        self.assertEqual(lib.CRITIC_CREDIT.read_text(encoding="utf-8"), "Created by Lorsieab2, Claude and ChatGPT.\n")
+        self.assertEqual(data[sid]["uncovered_lines"], [])
+        self.assertEqual(data[sid]["overlaps"], [])
+        rows = [r for r in data["rows"] if r["source"] == sid]
+        self.assertEqual(sum(r["kind"] == "event" for r in rows), 6)
+        self.assertEqual(sum(r["kind"] == "addon" for r in rows), 6)
+        self.assertEqual({r["series"] for r in rows}, {"hc_critic"})
+        files = [p for p in cc.collection_files() if lib.CRITIC_DIR in p.parents]
+        self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows if r["kind"] == "event"))
+        routes = 0
+        for p in files:
+            doc = json.loads(p.read_text(encoding="utf-8"))
+            self.assertEqual(doc["games"], [1, 2, 3, 4, 5], p.name)
+            self.assertEqual(doc["title"], "(Name1)'s Harshest Critic")
+            # the lists' title (the owner, 2026-11-18); the popups keep the event's own
+            k = sorted(q.stem for q in files).index(p.stem) + 1
+            self.assertEqual(doc["collection"]["list_title"], f"The Harshest Critic ({k} of 6)")
+            self.assertEqual(doc["collection"]["credit"], "Created by Lorsieab2, Claude and ChatGPT.")
+            self.assertIn("hc_setup", doc["collection"]["addons"])
+            self.assertIn("hc_variant2", doc["collection"]["addons"])
+            for c in (c for nd in doc["nodes"].values() for c in nd.get("choices", [])):
+                self.assertEqual(lib.title_case_label(c["label"]), c["label"], p.name)
+            routes += len(doc["nodes"]["routes"]["children"])
+            # Variant 2: the mentor's kind word after a fail or a stumble
+            self.assertTrue(any(n.get("text") == "{V2}" for n in doc["nodes"].values()), p.name)
+            # every group's question copies: four each, labels from the owner's lists
+            self.assertEqual(sum(1 for n in doc["nodes"].values() if n.get("type") == "question"), 24)
+        self.assertEqual(routes, 112)
 
 
 class Manifest(unittest.TestCase):
@@ -427,8 +539,18 @@ class Manifest(unittest.TestCase):
     def test_ids_unique_and_credit_verbatim(self):
         ids = [r["id"] for r in self.data["rows"]]
         self.assertEqual(len(ids), len(set(ids)))
+        owner = set(cm.OWNER_CREDITS.values())     # the owner's three handwritten events (the owner, 2026-11-16)
+        # The owner's GO and More Island Events files: their credits are the owner's own words for the events
+        # (collection_manifest GO_CREDITS / MIE_CREDITS), not a line of the source.
+        written = set(cm.GO_CREDITS.values()) | set(cm.MIE_CREDITS.values())
         for r in self.data["rows"]:
-            with lib.use_source(r["source"]):
+            if r["credit"]["text"] in owner:
+                self.assertEqual(r["credit"]["who"], "lorsieab2_original", r["id"])
+                continue
+            if r["credit"]["text"] in written:
+                self.assertIn(r["source"], {*lib.GO_SOURCES, lib.MIE_ID}, r["id"])
+                continue
+            with lib.use_source(r["credit"].get("source", r["source"])):   # a credit file of its own (critic)
                 text = "\n".join(lib.line(n) for spec in r["credit"]["lines"] for n in lib.src_lines(spec))
             self.assertEqual(r["credit"]["text"], text, r["id"])
 

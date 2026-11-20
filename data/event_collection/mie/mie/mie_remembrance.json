@@ -1,0 +1,221 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Remembrance Ceremony",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "mie_remembrance",
+  "source": "mie",
+  "lines": [
+   735,
+   769
+  ],
+  "section": "mie",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L735",
+  "ledger": [
+   {
+    "src": "L737",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L739-743",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L745-746",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L749",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L753-755",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L757-765",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L767-769",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   }
+  ],
+  "description": "The villagers gather for the Day of Remembrance, to honor those who came before them.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "mixer_only": true,
+  "approximations": [
+   "everyone honors (or, in The Lost Children and The Secret City, everyone reflects: one of the two for the whole village, 50% each) -- the owner's 50% per villager needs a per-villager pick the format lacks",
+   "the requirement (at least one grave; New Believers also The Last Heathen done) has no condition in the format: not checked",
+   "the feast's 10 food a villager has no effect in the format: not made",
+   "New Believers' hovel destination (with the Memorial Actions patch) is not made: everyone honors at the mausoleum's action"
+  ]
+ },
+ "roles": {},
+ "start": "start",
+ "nodes": {
+  "day1_1": {
+   "text": "Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.",
+   "src": "L751",
+   "effects": [
+    {
+     "do": "action",
+     "target": {
+      "all": true
+     },
+     "action": "Honoring the Dead"
+    }
+   ],
+   "auto_text": true
+  },
+  "day2_1": {
+   "text": "Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.",
+   "src": "L751",
+   "effects": [
+    {
+     "do": "action",
+     "target": {
+      "all": true
+     },
+     "action": "Honoring the Dead (Day of Honor)"
+    }
+   ],
+   "auto_text": true
+  },
+  "day2_2": {
+   "text": "Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.",
+   "src": "L751",
+   "effects": [
+    {
+     "do": "action",
+     "target": {
+      "all": true
+     },
+     "action": "Reflecting"
+    }
+   ],
+   "auto_text": true
+  },
+  "day3_1": {
+   "text": "Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.",
+   "src": "L751",
+   "effects": [
+    {
+     "do": "action",
+     "target": {
+      "all": true
+     },
+     "action": "Honoring the Dead"
+    }
+   ],
+   "auto_text": true
+  },
+  "day3_2": {
+   "text": "Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.",
+   "src": "L751",
+   "effects": [
+    {
+     "do": "action",
+     "target": {
+      "all": true
+     },
+     "action": "Reflecting"
+    }
+   ],
+   "auto_text": true
+  },
+  "day4_1": {
+   "text": "Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.",
+   "src": "L751",
+   "effects": [
+    {
+     "do": "action",
+     "target": {
+      "all": true
+     },
+     "action": "Honoring the dead (Day of Honor)"
+    }
+   ],
+   "auto_text": true
+  },
+  "day5_1": {
+   "text": "Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.",
+   "src": "L751",
+   "effects": [
+    {
+     "do": "action",
+     "target": {
+      "all": true
+     },
+     "action": "Honoring the dead [Day of Honor]"
+    }
+   ],
+   "auto_text": true
+  },
+  "start": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "day1_1",
+     "if": {
+      "game": 1
+     }
+    },
+    {
+     "next": "day2_1",
+     "if": {
+      "game": 2
+     }
+    },
+    {
+     "next": "day2_2",
+     "if": {
+      "game": 2
+     }
+    },
+    {
+     "next": "day3_1",
+     "if": {
+      "game": 3
+     }
+    },
+    {
+     "next": "day3_2",
+     "if": {
+      "game": 3
+     }
+    },
+    {
+     "next": "day4_1",
+     "if": {
+      "game": 4
+     }
+    },
+    {
+     "next": "day5_1",
+     "if": {
+      "game": 5
+     }
+    }
+   ]
+  }
+ }
+}

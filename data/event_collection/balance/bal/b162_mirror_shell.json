@@ -1,0 +1,236 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mirror Shell",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b162_mirror_shell",
+  "source": "balance",
+  "lines": [
+   7478,
+   7522
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7478",
+  "ledger": [
+   {
+    "src": "L7479",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7480",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7488",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7497",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7485",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7486",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7489",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7498",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7491",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7494",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7500",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7503",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7506-7522",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has been carrying it around all day.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "trader": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A trader has left a shell behind in payment for a night's food: a flat, silver shell polished so bright it shows a face as clearly as still water. (trader) said it came from a beach where the sand is black and the sea is warm as soup, and that it \"shows you what you could be.\" Then (trader) left at dawn, rather quickly.\n(subject) has been carrying it around all day. When (subject.he/she) looks in it, (subject.his/her) reflection is just a little different every time: a different expression, a different way of holding (subject.his/her) head, as if someone else is trying (subject.his/her) face on.\nShould (subject) keep looking in the shell, or throw it in the sea?",
+   "choices": [
+    {
+     "label": "Keep Looking",
+     "next": "c1",
+     "src": "L7485"
+    },
+    {
+     "label": "Throw It in the Sea",
+     "next": "c2",
+     "src": "L7486"
+    }
+   ],
+   "src": "L7481-7483",
+   "text_only": [
+    {
+     "src": "L7481",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "The reflection climbs out of the shell, which shouldn't be possible, since the shell is only as big as a hand. It stands up on the doorstep: (subject)'s face, (subject)'s body, and none of (subject)'s habits. It likes everything (subject) doesn't, and dislikes everything (subject) loves. It is, apparently, what (subject) could be. It takes the name (made1), and the shell is just a shell afterwards.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L7492",
+   "text_only": [
+    {
+     "src": "L7492",
+     "what": "\"dislikes\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The reflection climbs out, and then the shell flashes again, {#made:but nothing else comes out|and a second one climbs out after it}. {#made:One of them: (subject)'s face, and a completely different person inside|Two of them: (subject)'s face, twice, and two completely different people inside}. One is loud, one is quiet. {#made:The copy disagrees with (subject) about everything|Both of them disagree with (subject) and with each other}. {#made:The copy takes the name (made1)|They take the names (made1) and (made2)}. The shell cracks right across, as if it is exhausted.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    },
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L7495",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) sits down on the doorstep and looks into the shell for a long time. The reflection looks back, and tilts its head, and slowly, very slowly, starts to lean forward out of the silver...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7489"
+  },
+  "c2o1": {
+   "text": "Something swims in from where the shell sank, and walks up out of the waves, dripping: someone with (subject)'s face, who is very cross about being thrown in the sea. \"That was rude,\" it says. It has (subject)'s looks and none of (subject)'s ways. It takes the name (made1) and refuses to go near the water ever again, which is the only thing it and (subject) agree on.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L7501",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The churning stops. Nothing comes up. (subject) stands on the beach until the tide comes in, then goes home. For a week (subject.he/she) avoids every pool and pot of water, in case of reflections. Then, slowly, (subject.he/she) stops worrying. A month later, a fisher finds the shell in a net, and throws it back without looking at it.",
+   "src": "L7504"
+  },
+  "c2": {
+   "text": "(subject) walks down to the beach and throws the shell as far as (subject.he/she) can. It skips once on the water, flashing silver, and sinks. Then, a little way out, the water starts to churn...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7498"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L7495",
+   "before": "and a second one climbs out after it",
+   "after": "{#made:but nothing else comes out|and a second one climbs out after it}"
+  },
+  {
+   "src": "L7495",
+   "before": "Two of them: (name)'s face, twice, and two completely different people inside",
+   "after": "{#made:One of them: (name)'s face, and a completely different person inside|Two of them: (name)'s face, twice, and two completely different people inside}"
+  },
+  {
+   "src": "L7495",
+   "before": "Both of them disagree with (name) and with each other",
+   "after": "{#made:The copy disagrees with (name) about everything|Both of them disagree with (subject) and with each other}"
+  },
+  {
+   "src": "L7495",
+   "before": "They take the names (new name) and (new name 2)",
+   "after": "{#made:The copy takes the name (new name)|They take the names (new name) and (new name 2)}"
+  }
+ ]
+}

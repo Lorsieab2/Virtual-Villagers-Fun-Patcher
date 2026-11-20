@@ -87,7 +87,15 @@
   "a2": {
    "name": "Outcome A2",
    "text": "A believer finds the idea lonely and unconvincing.",
-   "src": "L22444"
+   "src": "L22444",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "A villager of faith finds the idea lonely and unconvincing."
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -103,8 +111,15 @@
   },
   "b1": {
    "name": "Outcome B1",
-   "text": "A fortunate harvest inspires conflicting interpretations.",
-   "src": "L22446"
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -132,6 +147,28 @@
    "name": "Outcome C2",
    "text": "A spiritual elder reminds them that practical care and prayer can coexist.",
    "src": "L22450"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "A fortunate harvest inspires conflicting interpretations.",
+   "src": "L22446",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22446"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "A fortunate harvest inspires conflicting interpretations.",
+   "src": "L22446"
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

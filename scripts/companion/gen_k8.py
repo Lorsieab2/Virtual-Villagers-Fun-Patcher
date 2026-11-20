@@ -69,7 +69,7 @@ BUILDER = c.skilled(V, "Building")
 WOMAN = c.sexed(G, "female")
 MAN = c.sexed(G, "male")
 OLD_WOMAN = c.sexed(EL, "female")
-NURSING = {"kind": "villager", "min_age": 18, "sex": "female", "special": "nursing_parent"}
+NURSING = {"kind": "villager", "min_age": 18, "special": "nursing_parent"}
 
 MAGIC = [3, 4, 5]                                                  # a magician acts: magic is VV3-VV5 lore (lead)
 T = c.text_only

@@ -1,0 +1,204 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sleeping Sickness",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b106_sleeping_sickness",
+  "source": "balance",
+  "lines": [
+   4789,
+   4831
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4789",
+  "ledger": [
+   {
+    "src": "L4790",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4791",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4799",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4808",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4796",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4797",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4800",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4809",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4802",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4805",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4811",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4814",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4817-4831",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It works, but it's harsh, and the old healers argued about whether it helped or harmed.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has a fever that makes (subject.him/her) sleep and sleep. For four days (subject.he/she) has woken only to drink, and then gone straight back under. (healer) knows the illness: the old healers called it the sleeping fever, and said it passes, slowly, on its own, but sometimes takes a little of the sleeper with it.\nThere's a way to wake (subject.him/her): a sharp smoke of burned pepper-leaf held under the nose. It works, but it's harsh, and the old healers argued about whether it helped or harmed.\nShould (healer) use the smoke, or let (subject) sleep it off?",
+   "choices": [
+    {
+     "label": "Use the Smoke",
+     "next": "c1",
+     "src": "L4796"
+    },
+    {
+     "label": "Let (subject.Him/Her) Sleep It Off",
+     "next": "c2",
+     "src": "L4797"
+    }
+   ],
+   "src": "L4792-4794"
+  },
+  "c1o1": {
+   "text": "(subject) is awake, and stays awake, and by evening the fever is breaking. In three days (subject.he/she) is up, thin and hungry and complaining about the taste of pepper, which stays for a week. (healer) writes in the notes that the smoke worked this time, and underlines \"this time.\"",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "src": "L4803",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) wakes, and the fever breaks. But (subject.he/she) wakes not knowing (subject.his/her) own name. The sleeping fever took that much with it, before the smoke drove it out. Everything else is there. The village tries saying the name to (subject.him/her) for days, and it never sticks. (subject.He/She) is \"?\" now, and quite cheerful about it.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L4806",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(healer) lights a pepper-leaf and holds the smoke under (subject)'s nose. (subject) coughs, and sneezes, and sits bolt upright, eyes streaming...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4800"
+  },
+  "c2o1": {
+   "text": "On the ninth day, (subject) wakes up, stretches, and asks what's for breakfast. The fever is gone. And (subject.he/she) looks wonderful, rested as if (subject.he/she) slept a year: years younger in the face, bright-eyed, glowing. \"Best sleep of my life,\" (subject.he/she) says. (healer) has not slept in nine days and doesn't find this funny.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L4812",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The sleep goes on, and on. (subject) wakes in the end, weeks later, weak and confused and thin, but alive. It takes (subject.him/her) the rest of the season to get back on (subject.his/her) feet. The fever is gone, and so is a whole season of (subject.his/her) life, and (subject.he/she) sometimes says (subject.he/she) remembers dreaming the entire time.",
+   "src": "L4815"
+  },
+  "c2": {
+   "text": "(healer) puts the pepper-leaf away and keeps watch instead, cooling (subject)'s face, giving (subject.him/her) water whenever (subject.he/she) stirs...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4809"
+  }
+ }
+}

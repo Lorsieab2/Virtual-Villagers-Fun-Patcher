@@ -1,0 +1,263 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new172_wrong_name",
+  "source": "rewrites",
+  "lines": [
+   8331,
+   8377
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8331",
+  "ledger": [
+   {
+    "src": "L8332",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8333",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8342",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8349",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8356",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8338",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8339",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8340",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8343",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8350",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8357",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8344",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8346",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8351",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8353",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8358",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8360",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8363-8377",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Half the village still uses the old one.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Years ago, (subject) stopped using (subject.his/her) childhood name. (subject.He/She) chose a new one, the one everyone is supposed to call (subject.him/her) now.\nHalf the village still uses the old one.\nEspecially the elders. Especially (elder), who shouts it across the beach at the top of (subject.his/her) voice, every morning, as if it's a tradition. This morning at the well, (subject) heard the old name four times before breakfast. One of those times, it was from someone who wasn't even born when (subject.he/she) changed it.\n(subject) is standing by the well with (subject.his/her) jar, very, very calm, the way a volcano is calm. Should (subject) explain where the old name came from, or finally make everyone use the new one?",
+   "choices": [
+    {
+     "label": "Keep the Story of the Old Name",
+     "next": "c1",
+     "src": "L8338"
+    },
+    {
+     "label": "Ask Who Gave the Old Name",
+     "next": "c2",
+     "src": "L8339"
+    },
+    {
+     "label": "Announce the Chosen Name",
+     "next": "c3",
+     "src": "L8340"
+    }
+   ],
+   "src": "L8334-8337"
+  },
+  "c1o1": {
+   "text": "The old name, it turns out, came from an old word for a fishing knot, one so old that nobody uses it anymore. (subject) shows them the knot, the way (subject.his/her) grandmother taught it. It's a good knot, a strong one, and the fishers are delighted. The knot is written down so the village doesn't lose it, and somehow, now that it belongs to the knot, people start using the old name less.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8345",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The only bark sheet explaining the village's old naming customs, and where names like (subject)'s came from, is fetched from the record hut. It's so old and dry that it crumbles while it is being copied, and that bit of old knowledge is lost. (subject) is sad about it, which surprises (subject.him/her).",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L8347",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) decides that if people are going to remember the old name, they might as well know where it came from. (subject.He/She) gathers a few curious listeners and explains...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8343"
+  },
+  "c2o1": {
+   "text": "The relatives' stories reveal something nobody remembered: the old name began as a nickname, given by a great-uncle because baby (subject) wouldn't let go of his fishing line. It was never meant to be permanent. It's a forgotten detail about how names were once given in the village, and the record keepers write it down. (elder), hearing the story, looks thoughtful.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8352",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The relatives can't agree on why the name was given. One says it was a great-uncle's idea. One says it was a dream. One says it was a mistake, and the baby was supposed to be called something else entirely. Nobody pretends to know, and (subject) gives up.",
+   "src": "L8354"
+  },
+  "c2": {
+   "text": "(subject) goes to (subject.his/her) relatives, and to (elder), and asks who gave (subject.him/her) the old name in the first place, and why...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8350"
+  },
+  "c3o1": {
+   "text": "\"I would like to be known as Lani,\" (subject.he/she) announces, \"from now on. Only Lani. Thank you.\" There is a moment's surprised silence, and then (elder) calls out \"Lani!\" from the back, and everyone cheers. From that day on, (subject.his/her) neighbours call (subject.him/her) Lani. Even the elders get it right, most of the time.",
+   "effects": [
+    {
+     "do": "change_name",
+     "name": "Lani",
+     "role": "subject"
+    }
+   ],
+   "src": "L8359",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "Standing on the log, looking at all the faces, (subject) changes (subject.his/her) mind. The story behind (subject.his/her) name is nobody else's business. (subject.He/She) climbs down and keeps it private. \"What were you going to say?\" someone asks. \"Pass the fish,\" says (subject).",
+   "src": "L8361"
+  },
+  "c3": {
+   "text": "(subject) waits until the whole village is gathered for the evening meal, climbs onto a log, and clears (subject.his/her) throat. Loudly...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8357"
+  }
+ }
+}

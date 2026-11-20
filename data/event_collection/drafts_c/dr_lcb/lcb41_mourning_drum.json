@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mourning Drum",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb41_mourning_drum",
+  "source": "draft_lcb",
+  "lines": [
+   568,
+   579
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L568",
+  "ledger": [
+   {
+    "src": "L569",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L575",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L579",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The slow mourning drum is beaten for three days after a death, and some find it hard to bear: keep it, or shorten it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "When someone dies on Isola, the slow mourning drum is beaten from dawn to dusk for three days. (subject) beats it now, for (subject.his/her) uncle. (friend) lost a child last year, and the sound of the drum brings it all back. (friend.He/she) has asked, quietly, if it could be shorter. What should (subject) do?",
+   "src": "L571",
+   "text_only": [
+    {
+     "what": "\"dies\"",
+     "reason": "a death only talked about (or the word's everyday sense); nobody dies -- the draft's notes: everything but the marked effects is story only",
+     "src": "L571"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Keep the Three Days",
+     "next": "o1",
+     "src": "L573"
+    },
+    {
+     "label": "Shorten It",
+     "next": "o2",
+     "src": "L577"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) keeps the drum for three days, as the custom asks. On the second day, (subject.he/she) notices (friend) has gone fishing alone, far out, where the drum cannot be heard. When (friend) comes back, (subject) sits with (friend.him/her) a while. Neither of them says anything about it.",
+   "src": "L575"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) beats the drum for one day only, and then sits by it in silence for the other two. Some of the older villagers are upset. (friend) brings (subject) a bowl of soup at the end of the third day, and stays to eat it with (subject.him/her).",
+   "src": "L579"
+  }
+ }
+}

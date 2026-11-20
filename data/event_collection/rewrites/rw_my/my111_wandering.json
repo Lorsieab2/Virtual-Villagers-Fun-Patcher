@@ -1,0 +1,306 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wandering Herbalist's Box",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my111_wandering",
+  "source": "rewrites",
+  "lines": [
+   16310,
+   16365
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L16310",
+  "ledger": [
+   {
+    "src": "L16311",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16312",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16320",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16327",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16334",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16341",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16315",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16316",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16317",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16318",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16321",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16328",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16335",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16342",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16322",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16324",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16329",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16331",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16336",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16338",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16343",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16345",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16348-16365",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It is black, painted with tiny white flowers, and smells powerfully of camphor and dried ginger.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A traveling herbalist stops at (subject)'s door just long enough to press a small lacquered box into (subject.his/her) hands. It is black, painted with tiny white flowers, and smells powerfully of camphor and dried ginger. \"Keep this safe for me,\" the herbalist says. \"I'll come back for it when the moon is full.\" And (subject.he/she) is gone up the road before (subject) can ask a single question.\nThat was two weeks ago. The moon is nearly full. And now (friend) has fallen sick with a fever that the village healers cannot seem to break. Should (subject) break (subject.his/her) promise and open the box?",
+   "choices": [
+    {
+     "label": "Open the Box for an Emergency",
+     "next": "c1",
+     "src": "L16315"
+    },
+    {
+     "label": "Keep It Sealed",
+     "next": "c2",
+     "src": "L16316"
+    },
+    {
+     "label": "Study the Labels",
+     "next": "c3",
+     "src": "L16317"
+    },
+    {
+     "label": "Search for the Herbalist",
+     "next": "c4",
+     "src": "L16318"
+    }
+   ],
+   "src": "L16313-16314"
+  },
+  "c1o1": {
+   "text": "The healers recognize a few of the herbs, and after much careful discussion, brew a weak tea from one of them, a feathery grey leaf. They give (friend) a few sips at a time through the night. By morning, the fever has broken. (friend) sleeps through the next night for the first time in days, and wakes up demanding food, which the healers take to be a very good sign. (subject) closes the box carefully, and hopes the herbalist will understand.",
+   "src": "L16323",
+   "text_only": [
+    {
+     "src": "L16323",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "The healers try a dark, bitter powder they do not recognize, and it is a mistake. (friend) becomes dizzy and sick on top of the fever, and spends several miserable days unable to keep anything down. (subject.He/she) recovers in the end, thanks to the healers' care. The healers put the rest of that powder away for good, and write a large warning on its compartment. (subject) feels awful, and spends a lot of time sitting at (friend)'s bedside apologizing.",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "friend"
+    }
+   ],
+   "src": "L16325",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) hesitates for a long time, then decides a promise is worth less than a life. (subject.He/she) carries the box to the healers' hut and opens it. Inside, packed in tiny compartments, are dozens of dried herbs, powders and roots...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16321"
+  },
+  "c2o1": {
+   "text": "On the night of the full moon, there is a knock at the door. The herbalist has returned, exactly as promised. When (subject.he/she) hears about (friend), (subject.he/she) goes straight to the healers' hut, opens the box, and mixes a remedy with practised hands. (friend) is better within two days. \"Thank you for keeping it safe,\" the herbalist says to (subject). \"Some of these could kill someone, in the wrong hands.\" (subject.He/she) shows the healers which herbs are which before (subject.he/she) leaves.",
+   "src": "L16330"
+  },
+  "c2o2": {
+   "text": "The full moon rises, and sets. No herbalist comes. Nor the next night, nor the one after. (friend) slowly recovers on (subject.his/her) own with the healers' help, weak but alive. The box sits on (subject)'s shelf, sealed, still smelling of camphor and ginger. (subject) keeps it there for years. Every full moon, (subject.he/she) glances at the door. The herbalist never does come back for it.",
+   "src": "L16332"
+  },
+  "c2": {
+   "text": "(subject) made a promise. (subject.He/she) keeps the box closed on the shelf, and helps the healers care for (friend) in the ordinary way, with cool cloths and broth, through the long nights...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16328"
+  },
+  "c3o1": {
+   "text": "The labels are a revelation, not for what is inside, but for how it is arranged. The herbalist has sorted every remedy by what it treats, how strong it is, and how it should be taken, with little coloured marks that the healers can read at a glance. The healers immediately reorganize their own herb store the same way. They are faster and make fewer mistakes from then on. (friend) recovers on (subject.his/her) own, and the remedies stay untouched.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L16337",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "Most of the labels are written in a language none of the healers have ever seen: tiny, looping script, nothing like anything on Isola. A few have little pictures, a leaf, a moon, a sleeping face, but nobody dares guess what they mean. The healers put the box back on the shelf, and (friend) recovers slowly with ordinary care. One of the healers copies out the strange script, and spends years trying to read it.",
+   "src": "L16339"
+  },
+  "c3": {
+   "text": "(subject) does not open the remedies, but (subject.he/she) does take the box to the healers so they can look at the tiny painted labels on each compartment, in case any of them might help...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16335"
+  },
+  "c4o1": {
+   "text": "Three villages along, (subject) finds the herbalist in a hut full of sick people, working day and night through an outbreak of fever. \"My box!\" (subject.he/she) says, relieved. \"I wondered why I'd left it with you.\" When (subject) explains about (friend), the herbalist hands over a small packet of remedy and careful instructions, and goes straight back to work. (subject) runs home with it. (friend) is better in two days.",
+   "src": "L16344"
+  },
+  "c4o2": {
+   "text": "The trail leads off the road and into the hills, and ends at a campsite: a cold fire pit, a torn bedroll, a scattering of dried flowers. Nobody is there, and from the look of it, nobody has been for days. There is no sign of where the herbalist went. (subject) walks home slowly, worried, and finds that (friend) has begun to recover on (subject.his/her) own. The box goes back on the shelf.",
+   "src": "L16346"
+  },
+  "c4": {
+   "text": "(subject) decides the best thing to do is find the herbalist and bring (subject.him/her) back. (subject.He/she) sets off up the road the herbalist took, box in (subject.his/her) bag, asking at every village (subject.he/she) passes...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16342"
+  }
+ }
+}

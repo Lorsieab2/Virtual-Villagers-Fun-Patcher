@@ -70,6 +70,40 @@
    "src": "L26"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"I can give you one hour,\" says (subject). \"Then I'm going to lie under a tree and nobody can stop me.\" (friend) laughs. \"Deal.\" They work hard for exactly one hour. Then (subject) puts down the last basket, walks to (subject.his/her) tree and lies down, and (friend), after a moment's thought, lies down under the next tree over.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L29"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 15,
+     "max": 30,
+     "src": "L29"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"I can give you one hour,\" says (subject). \"Then I'm going to lie under a tree and nobody can stop me.\" (friend) laughs. \"Deal.\" They work hard for exactly one hour. Then (subject) puts down the last basket, walks to (subject.his/her) tree and lies down, and (friend), after a moment's thought, lies down under the next tree over.",
    "src": "L29"

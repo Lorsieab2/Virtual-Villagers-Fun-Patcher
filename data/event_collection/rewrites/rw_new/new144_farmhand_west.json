@@ -1,0 +1,311 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Farmhand from the West",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new144_farmhand_west",
+  "source": "rewrites",
+  "lines": [
+   6808,
+   6863
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6808",
+  "ledger": [
+   {
+    "src": "L6809",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6810",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6819",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6826",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6833",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6840",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6814",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6815",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6816",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6817",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6820",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6827",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6834",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6841",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6821",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6823",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6828",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6830",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6835",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6837",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6842",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6844",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6847-6863",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A farmhand has come all the way from a settlement in the west to show the village their way of harvesting.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A farmhand has come all the way from a settlement in the west to show the village their way of harvesting.\nThey dig taro with a curved stick instead of a straight one. And they always, always leave a piece of each plant in the ground, so it grows again. \"Why dig a new hole,\" the farmhand says, \"when the old one is already there?\"\nThe village farmers are fascinated. They are also a little offended. (Name), who has been farming the same way for as long as (he/she) can remember, is standing with (his/her) arms folded, watching the curved stick with deep suspicion. Should (name) give these new ways a chance, or prove the village way is better?",
+   "choices": [
+    {
+     "label": "Welcome Them with Fresh Fruit",
+     "next": "c1",
+     "src": "L6814"
+    },
+    {
+     "label": "Ask About Western Farming",
+     "next": "c2",
+     "src": "L6815"
+    },
+    {
+     "label": "Offer a Plot of Their Own",
+     "next": "c3",
+     "src": "L6816"
+    },
+    {
+     "label": "Harvest Side by Side",
+     "next": "c4",
+     "src": "L6817"
+    }
+   ],
+   "src": "L6811-6813"
+  },
+  "c1o1": {
+   "text": "The farmhand is given the mango and the shadiest spot in the village to eat it in, and the two of them end up chatting about soil for an hour. By the end, (name) has stopped looking suspicious, and has started looking curious, which is much more dangerous.",
+   "src": "L6822"
+  },
+  "c1o2": {
+   "text": "The farmhand is so touched that (he/she) shares a pouch of roasted nuts from home, a kind nobody here has tasted before, smoky and sweet. It adds a little food, and (name) eats far more than (his/her) share, while pretending not to.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6824",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) unfolds (his/her) arms with some effort, and offers the farmhand a ripe mango...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6820"
+  },
+  "c2o1": {
+   "text": "The farmhand explains how (his/her) people rest each field every third season, letting it grow wild so the soil can recover, and how the harvests are bigger afterwards. (Name) argues with every word, and then goes out and looks at (his/her) tiredest field for a long time. The village learns something useful about the harvest, and (name) rests that field the next season.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6829",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "When (name) asks about the curved stick, the farmhand smiles and taps (his/her) nose. Some of (his/her) home's farming secrets stay private, and nobody insists. (Name) spends the evening trying to carve a curved stick of (his/her) own. It breaks.",
+   "src": "L6831"
+  },
+  "c2": {
+   "text": "(Name) finally gives in to curiosity, and asks how they farm in the west...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6827"
+  },
+  "c3o1": {
+   "text": "The farmhand chooses to settle in the village as a new adult villager, and help with every harvest to come. (He/She) and (name) argue about farming every single day from then on, and both of them grow the best taro on the island.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L6836",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The farmhand thanks them warmly, but (his/her) own fields are waiting back home, and they won't harvest themselves. (He/She) heads west in the morning, leaving (name) one curved digging stick as a gift.",
+   "src": "L6838"
+  },
+  "c3": {
+   "text": "To everyone's surprise, it's (name) who offers. \"There's a spare plot by the stream. If you want to show us properly.\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6834"
+  },
+  "c4o1": {
+   "text": "Working the rows with the village farmers, competing furiously, the farmhand helps bring in a fine harvest. Nobody can agree who won. The baskets add a good amount of food to the stores, which everyone agrees is the real victory, though (name) still insists (he/she) was faster.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L6843",
+   "auto_text": true
+  },
+  "c4o2": {
+   "text": "Halfway down the first row, the farmhand's curved stick cracks clean in two. (He/She) looks heartbroken. The villagers carve (him/her) a new curved digging stick from good hard wood, and (name) does most of the carving. The farmhand goes home with it, very pleased.",
+   "src": "L6845"
+  },
+  "c4": {
+   "text": "(Name) issues a challenge: one row each, the village way and the western way, and see whose basket fills first...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6841"
+  }
+ }
+}

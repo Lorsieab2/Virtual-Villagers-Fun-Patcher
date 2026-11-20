@@ -1,0 +1,272 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Name Lost to Magic",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new173_name_lost_magic",
+  "source": "rewrites",
+  "lines": [
+   8380,
+   8426
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8380",
+  "ledger": [
+   {
+    "src": "L8381",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8382",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8391",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8398",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8405",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8387",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8388",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8389",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8392",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8399",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8406",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8393",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8395",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8400",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8402",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8407",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8409",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8412-8426",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Not for a moment, like everyone does sometimes.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Walking on the beach yesterday, (subject) picked up an old charm half-buried in the sand: a carved shell disc on a braided cord, worn smooth by the sea. It was pretty. (subject.He/She) wore it to bed.\nThis morning, (subject) woke up, and couldn't remember (subject.his/her) own name.\nNot for a moment, like everyone does sometimes. Properly. (subject.He/She) knows (subject.his/her) family, (subject.his/her) hut, (subject.his/her) favourite food. But when (friend) asks, gently, \"What's your name?\", (subject) opens (subject.his/her) mouth, and nothing comes. Only pieces. The first sound, maybe.\nAnd the charm, lying on the mat beside (subject.him/her), feels heavier than it did yesterday. It is warm to the touch, warm as skin. What should (friend) do?",
+   "choices": [
+    {
+     "label": "Hold on to What Is Left",
+     "next": "c1",
+     "src": "L8387"
+    },
+    {
+     "label": "Ask Their Friends to Remember",
+     "next": "c2",
+     "src": "L8388"
+    },
+    {
+     "label": "Carve Every Name Somewhere Safe",
+     "next": "c3",
+     "src": "L8389"
+    }
+   ],
+   "src": "L8383-8386",
+   "text_only": [
+    {
+     "src": "L8385",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "While (subject) can still recall the first part of (subject.his/her) name, (friend) writes it down, and then, carefully, writes down everything else: the carvings on the charm, where it was found, how warm it is. By evening, with the bark in front of (subject.him/her), the name comes back to (subject) in full. The charm goes into the record hut in a sealed pot, and the village gains a little useful knowledge about it.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8394",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) tries, and tries. And as (subject.he/she) tries, (friend) sees it happen: a thin thread of light rises out of (subject)'s mouth, like breath on a cold morning, and sinks into the shell disc. The charm goes cool. The name is gone, for good: the charm has taken it, and with it every memory of it, from (subject) and from everyone else. Whenever anyone tries to say it, or write it, only \"?\" comes out. (subject.He/She) is still (subject.himself/herself) in every other way, and the village makes very sure (subject.he/she) knows it.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    },
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L8396",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(friend) grabs bark and charcoal. \"Say it. Whatever's left. Say it, and I'll write it down.\" (subject) screws up (subject.his/her) face, concentrating...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8392"
+  },
+  "c2o1": {
+   "text": "In the middle of it, an old woman stops and stares at the charm. She remembers her grandmother wearing one like it. It was a name keeper, she says, used long ago to hold names safe for sleeping children, so spirits couldn't steal them. It's not meant for grown-ups. It's a forgotten detail, and once the charm is taken away, (subject)'s name comes drifting back, slowly, over the evening.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8401",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The friends tell stories, and say (subject.his/her) name a hundred times, and then start disagreeing about where the charm came from: a shipwreck, a spirit, a joke. Nobody pretends to know. The name comes back to (subject) by morning on its own, and nobody can say if the circle helped.",
+   "src": "L8403"
+  },
+  "c2": {
+   "text": "(friend) gathers everyone who knows (subject), and they sit in a circle around (subject.him/her), telling stories about (subject.him/her), saying (subject.his/her) name over and over...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8399"
+  },
+  "c3o1": {
+   "text": "The village carves every villager's name onto a tall new name post in the middle of the village, one by one, with great ceremony. (subject)'s is carved first, and when (subject.he/she) sees it carved there, (subject.he/she) reads it aloud, and remembers. The post becomes a careful record for future generations, and the record keepers learn a great deal about carving letters that last.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L8408",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "(subject)'s name returns, by itself, by evening. But (subject.he/she) decides some memories of that morning, and of what (subject.he/she) felt when the name wasn't there, should stay private. The charm is thrown back into the sea. (subject) never talks about it again.",
+   "src": "L8410"
+  },
+  "c3": {
+   "text": "Shaken, the village decides that no one should ever lose their name again without a way to find it...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8406"
+  }
+ }
+}

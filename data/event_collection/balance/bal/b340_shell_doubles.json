@@ -1,0 +1,211 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shell That Doubles",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b340_shell_doubles",
+  "source": "balance",
+  "lines": [
+   15705,
+   15747
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15705",
+  "ledger": [
+   {
+    "src": "L15706",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15707",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15714",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15723",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15711",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15712",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15715",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15724",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15717",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15720",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15726",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15729",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15732-15747",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Put one coconut under it, lift it, and there are two.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "keeper": {
+   "kind": "villager"
+  },
+  "apprentice": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(keeper), the spell-keeper, has been trying to make a spell that doubles things: one fish into two, one basket of yams into two. After a month of trying, (subject.he/she) has made a pink shell that does it. Put one coconut under it, lift it, and there are two. (keeper) is very excited and wants to try it on something bigger.\n(subject) has come by to borrow a basket and finds (keeper) looking at (subject.him/her) thoughtfully. \"Would you sit under the big one?\" (subject.he/she) asks. \"Just for a moment. I want to see if it works on a person.\" Should (subject) agree, or say no and take the basket?",
+   "choices": [
+    {
+     "label": "Agree",
+     "next": "c1",
+     "src": "L15711"
+    },
+    {
+     "label": "Say No",
+     "next": "c2",
+     "src": "L15712"
+    }
+   ],
+   "src": "L15708-15709"
+  },
+  "c1o1": {
+   "text": "When the shell lifts, there are two people sitting cross-legged under it, both exactly (subject), both blinking in the light. \"It works!\" (keeper) shouts. The two (subject)s look at each other, and then at (keeper), with exactly the same expression. The village names the newcomer (made1), and (keeper) is told firmly to stick to coconuts.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L15718",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "When the shell lifts, there are two people under it. One is (subject). The other has (subject)'s face, but sits differently, talks differently, and immediately asks what's for lunch, which (subject) would never do. \"It's not perfect,\" (keeper) admits, scribbling notes. \"The outside doubles. The inside comes out different.\" The village names the newcomer (made1).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L15721",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) sits down cross-legged. (keeper) lowers a huge pink shell over (subject.him/her), and everything goes dark and smells of the sea...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15715"
+  },
+  "c2o1": {
+   "text": "There is a soft pop. (apprentice) jumps up, and someone else jumps up beside (subject.him/her): someone with (apprentice)'s face and a completely different opinion about everything. \"That's not how it's meant to work,\" (keeper) says faintly. The village names the newcomer (made1), and the shell is locked away.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "apprentice"
+    }
+   ],
+   "src": "L15727",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) takes the basket, and (keeper), making the best of it, puts the shell over (subject)'s basket of yams. When (subject.he/she) lifts it, there are two baskets of yams. Then four. Then (keeper) can't stop. By evening the food store is full of yams and the spell-keeper has sworn never to touch the shell again. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L15730",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"Not a chance,\" says (subject). (keeper) sighs and puts the big shell down on the mat. Then (subject.his/her) apprentice, (apprentice), wanders in, and sits down on it to rest...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15724"
+  }
+ }
+}

@@ -114,7 +114,8 @@
      "max": 10,
      "src": "L5001"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "name": "Outcome 2",
@@ -136,7 +137,8 @@
      "max": 10,
      "src": "L5003"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

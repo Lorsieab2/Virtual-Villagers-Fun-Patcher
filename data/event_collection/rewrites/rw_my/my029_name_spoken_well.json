@@ -1,0 +1,296 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Name Spoken from the Well",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my029_name_spoken_well",
+  "source": "rewrites",
+  "lines": [
+   11526,
+   11581
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11526",
+  "ledger": [
+   {
+    "src": "L11527",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11528",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11537",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11544",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11551",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11558",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11532",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11533",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11534",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11535",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11538",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11545",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11552",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11559",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11539",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11541",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11546",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11548",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11553",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11555",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11560",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11562",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11565-11581",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Early one morning, a villager lets the bucket down into the old well, rope creaking.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Early one morning, (subject) lets the bucket down into the old well, rope creaking. The well is mossy and cool, and a breath of cold air always rises from it, smelling of wet stone.\nThen, from deep in the dark, comes a whisper. \"(subject).\" Just (subject.his/her) name, soft and clear. (subject) jerks back from the edge. Nobody else is around. The bucket swings gently on its rope. And again, softer: \"(subject).\" What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Answer the Voice",
+     "next": "c1",
+     "src": "L11532"
+    },
+    {
+     "label": "Lower a Lantern",
+     "next": "c2",
+     "src": "L11533"
+    },
+    {
+     "label": "Ask Another Villager to Listen",
+     "next": "c3",
+     "src": "L11534"
+    },
+    {
+     "label": "Cover the Well for a Night",
+     "next": "c4",
+     "src": "L11535"
+    }
+   ],
+   "src": "L11529-11530"
+  },
+  "c1o1": {
+   "text": "The whisper answers. It gives directions, slow and careful: up past the fallen tree, along the gully, behind the ferns. That afternoon, (subject) follows them, feeling ridiculous the whole way, and finds a spring hidden behind a curtain of ferns, bubbling up cold and clear. It's the sweetest water anyone in the village has ever tasted. Nobody can explain how a voice in a well knew it was there.",
+   "src": "L11540"
+  },
+  "c1o2": {
+   "text": "\"I'm here,\" says the well. \"What do you want?\" Exactly what (subject) said, in exactly (subject.his/her) voice. (subject) tries again. \"Hello?\" \"Hello?\" says the well. It's an echo. A very good, very clear echo, which the builders later explain is down to the shape of the stones inside. But that doesn't explain the first whisper, which (subject) never said. (subject) decides not to think about that too hard.",
+   "src": "L11542"
+  },
+  "c1": {
+   "text": "(subject) leans over the edge, heart pounding. \"Y-yes? I'm here. What do you want?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11538"
+  },
+  "c2o1": {
+   "text": "The light catches something just above the water: a carving set into the stone wall of the well, very old and worn, showing a ring of hands all reaching toward the centre. Nobody knew it was there. The researchers spend days dangling lamps down the well to sketch it, and they learn a great deal about the people who built it long before the village was here. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11547",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The lamp sinks down and down. Then, just before it reaches the water, the flame gutters and goes out, as if someone had blown on it. The whisper doesn't come again. (subject) pulls up the rope very, very quickly and decides to fetch water from the river for a while.",
+   "src": "L11549"
+  },
+  "c2": {
+   "text": "(subject) ties a little oil lamp to the bucket rope and lowers it, slowly, hand over hand, down into the dark...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11545"
+  },
+  "c3o1": {
+   "text": "(friend) leans over the edge, rolling (friend.his/her) eyes. Then (friend.he/she) goes perfectly still. \"It said a name,\" (friend.he/she) whispers. \"Not yours. Someone else's.\" Someone (friend.he/she) lost a long time ago. (friend) turns pale and walks away without another word, and (subject) doesn't follow, because some things are private.",
+   "src": "L11554"
+  },
+  "c3o2": {
+   "text": "(friend) listens for a long time, (subject) beside (friend.him/her), holding (subject.his/her) breath. Nothing. Not a whisper. \"I don't hear anything,\" (friend) says at last. \"But I believe you heard it.\" And (friend.he/she) means it. That, somehow, is enough to make (subject) feel much better.",
+   "src": "L11556"
+  },
+  "c3": {
+   "text": "(subject) runs to fetch (friend). \"Come and listen to the well. Please. Just listen.\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11552"
+  },
+  "c4o1": {
+   "text": "In the morning, the stones are still in place. (subject) lifts the lid and listens. Only the drip of water and the creak of the rope. The whispers have stopped. The well is reopened, the villagers draw water as usual, and it never speaks again.",
+   "src": "L11561"
+  },
+  "c4o2": {
+   "text": "Late that night, a faint knocking starts up from beneath the lid. Knock. Knock. Patient, regular, all through the dark hours. At dawn, half the village gathers as (subject) pulls the lid off. There's nothing there. Nothing knocking, nothing floating, nothing at all. Just a well. The villagers draw water from it anyway, because they need water, but nobody lingers.",
+   "src": "L11563"
+  },
+  "c4": {
+   "text": "(subject) drags a big wooden lid over the well and weighs it down with stones. \"Let's see you whisper through that,\" (subject.he/she) mutters...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11559"
+  }
+ }
+}

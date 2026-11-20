@@ -145,9 +145,16 @@
    "src": "L30513"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The baskets hold up well, and (elder) cheerfully admits the theory was wrong.",
-   "src": "L30514"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -214,6 +221,25 @@
    "name": "Outcome D2",
    "text": "(elder) reveals the whole theory began as a joke, embarrassing their devoted audience.",
    "src": "L30523"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The baskets hold up well, and (elder) cheerfully admits the theory was wrong.",
+   "src": "L30514",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L30514"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The baskets hold up well, and (elder) cheerfully admits the theory was wrong.",
+   "src": "L30514"
   }
  }
 }

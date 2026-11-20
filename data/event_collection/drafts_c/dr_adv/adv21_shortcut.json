@@ -74,6 +74,32 @@
    "src": "L248"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) waves, says thanks and takes the path anyway. (subject.He/she) gets there at the usual time. Later (subject.he/she) mentions the shortcut to someone else, who says, \"Oh, (friend)'s shortcut? Nobody's ever found it. Not even (friend).\" (subject) laughs all the way home.",
+   "src": "L251",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L251"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) waves, says thanks and takes the path anyway. (subject.He/she) gets there at the usual time. Later (subject.he/she) mentions the shortcut to someone else, who says, \"Oh, (friend)'s shortcut? Nobody's ever found it. Not even (friend).\" (subject) laughs all the way home.",
    "src": "L251"

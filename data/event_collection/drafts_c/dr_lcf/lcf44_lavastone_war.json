@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lavastone War Story",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf44_lavastone_war",
+  "source": "draft_lcf",
+  "lines": [
+   610,
+   621
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L610",
+  "ledger": [
+   {
+    "src": "L611",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child)"
+   },
+   {
+    "src": "L617",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L621",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A child asks if lavastones were ever used in war: tell the old story, or say it is not for children.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has heard a whisper that long ago, people used lavastones to fight. (friend.He/she) asks (subject), who knows the old stories, if it is true. (subject) knows it is. (subject.He/she) also knows the story is a sad one. What should (subject) say?",
+   "src": "L613",
+   "choices": [
+    {
+     "label": "Tell the Old Story",
+     "next": "o1",
+     "src": "L615"
+    },
+    {
+     "label": "Not for Children Yet",
+     "next": "o2",
+     "src": "L619"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells it gently: long ago, in the old days, some people used the stones to harm, and many were hurt, and the stones themselves seemed to grow darker. Afterwards, the people agreed never to do it again. (friend) listens with wide eyes, and asks if the promise has been kept. (subject) says, so far.",
+   "src": "L617"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says it is a story for when (friend) is older, and tells (friend.him/her) about the stone that grew a garden instead. (friend) is suspicious, but enjoys the garden story. Some day, (subject) will tell (friend.him/her) the other one.",
+   "src": "L621"
+  }
+ }
+}

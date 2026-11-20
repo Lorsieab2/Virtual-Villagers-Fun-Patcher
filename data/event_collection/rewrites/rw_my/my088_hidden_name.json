@@ -1,0 +1,288 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hidden Name of the Mountain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my088_hidden_name",
+  "source": "rewrites",
+  "lines": [
+   14976,
+   15031
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14976",
+  "ledger": [
+   {
+    "src": "L14977",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14978",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14986",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14993",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15000",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15007",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14981",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14982",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14983",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14984",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14987",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14994",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15001",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15008",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14988",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14990",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14995",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14997",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15002",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15004",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15009",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15011",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15014-15031",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A traveler resting at the village edge nods up at the mountain, wrapped as always in its cloak of cloud.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A traveler resting at the village edge nods up at the mountain, wrapped as always in its cloak of cloud. \"You know it has a secret name?\" (he/she) says to (name). \"An old one. Speak it on the slopes, and the path beneath your feet will change.\" The traveler says it with such quiet respect, glancing up at the peak as if it might be listening, that (name) does not laugh.\nThe mountain has always been hard to cross. Every season, someone gets lost or hurt on its slopes. If there really were a hidden path... (Name) is tempted. Should (he/she) ask for the name?",
+   "choices": [
+    {
+     "label": "Ask for the Name",
+     "next": "c1",
+     "src": "L14981"
+    },
+    {
+     "label": "Try a Name of Their Own",
+     "next": "c2",
+     "src": "L14982"
+    },
+    {
+     "label": "Study the Trails",
+     "next": "c3",
+     "src": "L14983"
+    },
+    {
+     "label": "Leave the Mountain Alone",
+     "next": "c4",
+     "src": "L14984"
+    }
+   ],
+   "src": "L14979-14980"
+  },
+  "c1o1": {
+   "text": "At the edge of the mist, the traveler leans close and whispers a word: long, soft, and full of sounds (name) has never heard. And in front of them, the mist thins, and there is a trail. It winds up through ferns and mossy boulders, as plain as if it had always been there. (Name) is sure (he/she) has walked past this exact spot a hundred times. The two of them climb it together. It is the easiest climb (name) has ever made. When (he/she) comes back down alone, (he/she) cannot find the start of it again.",
+   "src": "L14989"
+  },
+  "c1o2": {
+   "text": "The traveler shakes (his/her) head. \"A name like that is not given,\" (he/she) says. \"It's earned. You listen to the mountain for long enough, and one day it tells you.\" (Name) feels cheated. But over the next season, (he/she) finds (himself/herself) walking the mountain's lower slopes more and more, listening to the wind and the streams and the birds. (He/she) never hears a name. But (he/she) comes to know the mountain better than anyone in the village.",
+   "src": "L14991"
+  },
+  "c1": {
+   "text": "\"Tell me the name,\" (name) says. The traveler studies (him/her) for a long moment, then beckons (him/her) to follow, up to the foot of the mountain where the mist begins...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14987"
+  },
+  "c2o1": {
+   "text": "The mountain echoes it back. But not in (name)'s voice. The name comes back deeper, slower, in a tone like stones grinding together, and it seems to take a very long time to fade. (Name) stands there with (his/her) mouth open. Then (he/she) bows, rather quickly, and goes home. (He/she) does not shout at the mountain again.",
+   "src": "L14996"
+  },
+  "c2o2": {
+   "text": "Nothing happens. The echo comes back in (his/her) own voice, as an echo should. So (name) tries another, and another: Great Grumbly Peak! Lord Cloudy-Head! The Big Pointy One! By the time (he/she) runs out of breath, (he/she) is laughing so hard (he/she) has to sit down. The village children hear about it and spend the next week inventing names for the mountain. \"The Big Pointy One\" sticks.",
+   "src": "L14998"
+  },
+  "c2": {
+   "text": "(Name) does not see why the mountain cannot have a new name. (He/she) marches up to the first slope, takes a deep breath, and shouts the grandest name (he/she) can think of up into the clouds...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14994"
+  },
+  "c3o1": {
+   "text": "It is hard, tiring work, but it pays off. They discover exactly where the ground is unstable and where the old landslides hide under the ferns, and they find a long, winding route around all of it. They mark it with cairns of stones and draw it on a map for the village. That season, for the first time anyone can remember, nobody gets hurt on the mountain. The traveler, passing through again, looks at the map and smiles. \"That's one of its names, too,\" (he/she) says.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L15003",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "They map what they can, but the mountain does not cooperate. Paths they marked one week are gone the next under fallen rock. Mist rolls in without warning and sends them home. A stream changes its course overnight. By the end of the season, the map is full of gaps, crossings-out and question marks, and the mountain is as hard to cross as ever. \"It doesn't want to be drawn,\" one of the mappers grumbles. Nobody laughs.",
+   "src": "L15005"
+  },
+  "c3": {
+   "text": "Secret names or not, (name) thinks the mountain could do with a proper map. (He/she) gathers a few of the bravest villagers, and they spend weeks walking the slopes, marking every path, stream and landslide...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15001"
+  },
+  "c4o1": {
+   "text": "And (he/she) is surprised to find (he/she) is quite content. (He/she) does not need to know everything. The mountain can keep its name, its clouds and its hidden paths. (Name) goes on with (his/her) life, and every evening (he/she) looks up at the cloudy peak and nods to it, the way someone would to a neighbour they respect but do not know very well.",
+   "src": "L15010"
+  },
+  "c4o2": {
+   "text": "That evening, as the sun sets behind the mountain, its shadow stretches out across the valley, and (name), sitting outside (his/her) hut, sees that it is shaped exactly like a doorway: two straight sides and a rounded top, standing open across the fields. Then the last light goes, and the doorway fades into the dark. (Name) watches the sunset every evening after that. (He/she) never sees it again.",
+   "src": "L15012"
+  },
+  "c4": {
+   "text": "(Name) thinks about it and decides some secrets are best left with the mountain. (He/she) thanks the traveler for the story, and goes home...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15008"
+  }
+ }
+}

@@ -1,0 +1,930 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cave Explorers",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "mie_cave_explorers",
+  "source": "mie",
+  "lines": [
+   306,
+   439
+  ],
+  "section": "mie",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L306",
+  "ledger": [
+   {
+    "src": "L320",
+    "kind": "structural",
+    "text": "First popup (the opening). The player chooses \"",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L320",
+    "kind": "structural",
+    "text": "\" or \"",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L320",
+    "kind": "structural",
+    "text": "\".",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L330",
+    "kind": "structural",
+    "text": "Explore the Cave. Then the player chooses \"",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L330",
+    "kind": "structural",
+    "text": "\" or \"",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L330",
+    "kind": "structural",
+    "text": "\".",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L355",
+    "kind": "structural",
+    "text": "The player chooses \"",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L355",
+    "kind": "structural",
+    "text": "\" or \"",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L355",
+    "kind": "structural",
+    "text": "\" (the odds are the same either way):",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L391",
+    "kind": "structural",
+    "text": "STAY HERE. Then the player chooses \"",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L391",
+    "kind": "structural",
+    "text": "\" or \"",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L391",
+    "kind": "structural",
+    "text": "\"",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L309-312",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L314-317",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L325",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L336",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L341-342",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L346",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L352",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L358",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L360",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L364",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L367",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L371-372",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L376",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L378",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L381",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L384",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L387",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L396",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L400",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L403",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L405",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L408",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L411",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L415-416",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L418-428",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L430-432",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L434-437",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L439",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   }
+  ],
+  "description": "Two friends wonder what lies deeper in the cave: explore it together, or stay out of it.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "mixer_only": true
+ },
+ "pools": {
+  "SCREAM": {
+   "items": [
+    {
+     "text": "\"I stepped on something slimy!\"",
+     "src": "L347"
+    },
+    {
+     "text": "\"I felt something scratch me!\"",
+     "src": "L348"
+    },
+    {
+     "text": "\"I ran into something sticky!\"",
+     "src": "L349"
+    },
+    {
+     "text": "\"I heard something growling!\"",
+     "src": "L350"
+    }
+   ]
+  }
+ },
+ "requirement": {
+  "min_eligible": 2,
+  "puzzles": {
+   "1": [
+    "The Cave"
+   ]
+  }
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "protected": "exclude"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "protected": "exclude",
+   "max_age_gap": {
+    "role": "subject",
+    "years": 5
+   }
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "text": "(subject) has been curious about the cave. (subject.He/She) wonders why the other villagers have not explored it more thoroughly, and speculates that there must be more to it than meets the eye. (subject) is trying to convince (friend), (subject.his/her) special friend, to come with (subject.him/her). (friend) is also curious, but is not sure whether to sneak off from work to go spelunking.  \"We'll be safer if we're together. Come on, it'll be fun!\", says (subject). \"So, what do you say?\"",
+   "src": "L322",
+   "choices": [
+    {
+     "label": "Explore the Cave",
+     "next": "explore",
+     "src": "L320"
+    },
+    {
+     "label": "Don't Explore",
+     "next": "dont",
+     "src": "L320"
+    }
+   ]
+  },
+  "dont": {
+   "text": "\"Sorry, I'm not going,\" says (friend). \"What if we get lost? What if people discover we're gone? We'll get in trouble. I don't want to risk getting hurt. And neither should you,\" (friend.he/she) says. \"Please reconsider. Let the tribe handle this and maybe we can tag along later.\" (Subject) is saddened, but realizes that (friend) is right. After much reflection, (subject.he/she) thanks (friend.him/her) for setting their mind straight. \"I may not always have my best interests in mind, but I'm glad to have such a good friend looking out for me!\" (friend) promises to protect (subject) if (subject.he/she) will do the same. \"Of course! After all, I'm here for you!\" (subject) and (friend) may not always get along, but one thing's for certain: their bond is stronger than ever.",
+   "src": "L327"
+  },
+  "explore": {
+   "text": "\"Okay, let's go!\" (friend) says. (subject) and (friend) pack up their supplies and steal away to the cave in secret. By torchlight, they see intricate drawings depicting the island's history painted on the walls, and numerous artifacts scattered around the area. \"Fascinating!\" (friend) says. \"I never thought I'd see such beautiful things!\"",
+   "src": "L332",
+   "children": [
+    {
+     "next": "explore_q"
+    }
+   ]
+  },
+  "explore_q": {
+   "type": "question",
+   "text": "\"Toldja it'd be worth it,\" says (subject), beaming. (subject.He/She) asks (friend) if they should head in further to see if any more things can be found.",
+   "src": "L333",
+   "choices": [
+    {
+     "label": "Proceed Further",
+     "next": "deeper",
+     "src": "L330"
+    },
+    {
+     "label": "Stay Here",
+     "next": "stay",
+     "src": "L330"
+    }
+   ]
+  },
+  "deeper": {
+   "text": "The two head in deeper. The place becomes darker and narrower until only a small sliver of light remains.",
+   "src": "L338",
+   "children": [
+    {
+     "next": "scream1"
+    },
+    {
+     "next": "scream2"
+    },
+    {
+     "next": "dig1"
+    },
+    {
+     "next": "dig2"
+    }
+   ]
+  },
+  "scream1": {
+   "text": "Suddenly (subject) screams. (subject.He/She) tries to run to (friend), but they can't see each other, and their torches have all burned out. All they can hear is their voices echoing throughout the chamber, and some loud, ominous stomping. \"What's wrong?!\" says (friend).",
+   "src": "L344",
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "what1"
+    }
+   ]
+  },
+  "what1": {
+   "text": "{SCREAM}",
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "run_q1"
+    }
+   ]
+  },
+  "run_q1": {
+   "type": "question",
+   "text": "\"Quick, run! Something's chasing us!\" (subject.he/she) cries. Unfortunately, they have ventured too deep, and they are not sure where the exit is. They see two light-streaked tunnels in front of them: one on the left, and one on the right. Neither of them remembers exactly where they came from, and whatever (subject) encountered seems to be coming closer. Which path should they run down?",
+   "src": "L353",
+   "choices": [
+    {
+     "label": "Run Towards the Left Path",
+     "next": "run_left",
+     "src": "L355"
+    },
+    {
+     "label": "Run Towards the Right Path",
+     "next": "run_right",
+     "src": "L355"
+    }
+   ]
+  },
+  "scream2": {
+   "text": "Suddenly (friend) screams. (friend.He/She) tries to run to (subject), but they can't see each other, and their torches have all burned out. All they can hear is their voices echoing throughout the chamber, and some loud, ominous stomping. \"What's wrong?!\" says (subject).",
+   "src": "L344",
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "what2"
+    }
+   ]
+  },
+  "what2": {
+   "text": "{SCREAM}",
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "run_q2"
+    }
+   ]
+  },
+  "run_q2": {
+   "type": "question",
+   "text": "\"Quick, run! Something's chasing us!\" (friend.he/she) cries. Unfortunately, they have ventured too deep, and they are not sure where the exit is. They see two light-streaked tunnels in front of them: one on the left, and one on the right. Neither of them remembers exactly where they came from, and whatever (friend) encountered seems to be coming closer. Which path should they run down?",
+   "src": "L353",
+   "choices": [
+    {
+     "label": "Run Towards the Left Path",
+     "next": "run_left",
+     "src": "L355"
+    },
+    {
+     "label": "Run Towards the Right Path",
+     "next": "run_right",
+     "src": "L355"
+    }
+   ]
+  },
+  "run_left": {
+   "text": "(subject) and (friend) run down the left path screaming like little children. Things whiz by until the tunnel grows brighter and brighter. Suddenly as they reach the end they are blinded by dazzling white sunshine.",
+   "src": "L356",
+   "children": [
+    {
+     "next": "fall_out"
+    },
+    {
+     "next": "fall_out"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "chasm1"
+    },
+    {
+     "next": "chasm2"
+    }
+   ],
+   "src_cut": [
+    {
+     "src": "L356",
+     "text": "/right"
+    }
+   ]
+  },
+  "run_right": {
+   "text": "(subject) and (friend) run down the right path screaming like little children. Things whiz by until the tunnel grows brighter and brighter. Suddenly as they reach the end they are blinded by dazzling white sunshine.",
+   "src": "L356",
+   "children": [
+    {
+     "next": "fall_out"
+    },
+    {
+     "next": "fall_out"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "make_up"
+    },
+    {
+     "next": "chasm1"
+    },
+    {
+     "next": "chasm2"
+    }
+   ],
+   "src_cut": [
+    {
+     "src": "L356",
+     "text": "left/"
+    }
+   ]
+  },
+  "fall_out": {
+   "text": "As they burst out of the cave, they flop onto familiar ground. They pant heavily as their friends, family and soon the entire village crowds around them in concern. \"W-we w-went in th-the c-cave, and heard s-something c-chasing us,\" (subject) stammers. \"We barely made it out alive!\" (friend), frightened, starts crying. \"This was YOUR idea! We almost got ourselves killed because of your stupid plan! I should have never agreed to come along!\" (friend) shouts.\n(subject) and (friend)'s argument lasts for a while until both storm off to their homes. Although thankfully unhurt, neither of them wants anything to do with each other anymore.",
+   "src": "L361-362",
+   "popup": "append",
+   "join": "paragraph"
+  },
+  "make_up": {
+   "text": "As they burst out of the cave, they flop onto familiar ground. They pant heavily as their friends, family and soon the entire village crowds around them in concern. \"W-we w-went in th-the c-cave, and heard s-something c-chasing us,\" (subject) stammers. Suddenly, (friend) starts crying. \"It was terrifying! If we hadn't made it out...\" \"I'm so sorry, (friend),\" (subject) says. \"I should have listened to you. You were right all along, about everything.\" The two embrace, sobbing for a while as the others help care for them. They quickly make amends and promise never to let each other do anything like that again.",
+   "src": "L365",
+   "popup": "append",
+   "join": "paragraph"
+  },
+  "chasm1": {
+   "text": "As they burst out of the cave, they flop onto what seems to be solid ground. However, (subject)'s foot slips and (subject.he/she) falls down a slippery chasm. Horrified, (friend) has no time to react before (friend.he/she), too tumbles down the winding waterfall. All that's left of them is their fading screams and a bowl of fresh berries.",
+   "src": "L368",
+   "popup": "append",
+   "join": "paragraph",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject",
+     "line": "leaves"
+    },
+    {
+     "do": "vanish",
+     "role": "friend",
+     "line": "leaves"
+    }
+   ],
+   "auto_text": true
+  },
+  "chasm2": {
+   "text": "As they burst out of the cave, they flop onto what seems to be solid ground. However, (friend)'s foot slips and (friend.he/she) falls down a slippery chasm. Horrified, (subject) has no time to react before (subject.he/she), too tumbles down the winding waterfall. All that's left of them is their fading screams and a bowl of fresh berries.",
+   "src": "L368",
+   "popup": "append",
+   "join": "paragraph",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "friend",
+     "line": "leaves"
+    },
+    {
+     "do": "vanish",
+     "role": "subject",
+     "line": "leaves"
+    }
+   ],
+   "auto_text": true
+  },
+  "dig1": {
+   "text": "The two trek on, searching high and low for anything they can find. After a while with no luck, (subject) finds something buried in the ground. Wow! It's",
+   "src": "L374",
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "coins"
+    },
+    {
+     "next": "coins"
+    },
+    {
+     "next": "coins"
+    },
+    {
+     "next": "map"
+    },
+    {
+     "next": "treasure"
+    },
+    {
+     "next": "treasure"
+    },
+    {
+     "next": "treasure"
+    },
+    {
+     "next": "preserved"
+    },
+    {
+     "next": "preserved"
+    },
+    {
+     "next": "preserved"
+    }
+   ]
+  },
+  "dig2": {
+   "text": "The two trek on, searching high and low for anything they can find. After a while with no luck, (friend) finds something buried in the ground. Wow! It's",
+   "src": "L374",
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "coins"
+    },
+    {
+     "next": "coins"
+    },
+    {
+     "next": "coins"
+    },
+    {
+     "next": "map"
+    },
+    {
+     "next": "treasure"
+    },
+    {
+     "next": "treasure"
+    },
+    {
+     "next": "treasure"
+    },
+    {
+     "next": "preserved"
+    },
+    {
+     "next": "preserved"
+    },
+    {
+     "next": "preserved"
+    }
+   ]
+  },
+  "coins": {
+   "text": "a sack of gold coins! (subject) and (friend) haul the heavy sack back home to the delight of the villagers. Your village gains (award) tech points.",
+   "src": "L379",
+   "popup": "append",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "auto_text": true
+  },
+  "map": {
+   "text": "a map! (subject) and (friend) follow the map to a strange place that was previously unknown by the villagers. No one knows where they went, but they left a note saying they were 'alive and well' along with a drawing of their whereabouts. 'I hope you'll come and follow us someday,' the note says. 'You'll love it here. - (subject) and (friend)'",
+   "src": "L382",
+   "popup": "append",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject",
+     "line": "leaves"
+    },
+    {
+     "do": "vanish",
+     "role": "friend",
+     "line": "leaves"
+    }
+   ],
+   "auto_text": true
+  },
+  "treasure": {
+   "text": "a treasure map! (subject) and (friend) follow the map to the X marked on the ground, where they dig up a large chest full of jewels and gold! They drag the chest all the way back home to the utter delight of the villagers. Your villagers gain (award) of tech points.",
+   "src": "L385",
+   "popup": "append",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "huge",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "auto_text": true
+  },
+  "preserved": {
+   "text": "a sack of preserved food! (subject) and (friend) haul the large sack back to the village, to the delight of the villagers. Your villagers gain (award) food.",
+   "src": "L388",
+   "popup": "append",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "auto_text": true
+  },
+  "stay": {
+   "text": "(friend) is too enamored by all the glittering sights and objects and decides to stay put. (friend.he/she) tries to take some to show the researchers, but (subject) stops them.",
+   "src": "L393",
+   "children": [
+    {
+     "next": "stay_q"
+    }
+   ]
+  },
+  "stay_q": {
+   "type": "question",
+   "text": "\"Wait. I don't think that's a good idea. What if you get cursed or something?\" What should (friend) say?",
+   "src": "L393",
+   "choices": [
+    {
+     "label": "You're Right, I'll Return Them.",
+     "next": "returned",
+     "src": "L391"
+    },
+    {
+     "label": "Curses Schmurses. I'm Keeping Them.",
+     "next": "keep",
+     "src": "L391"
+    }
+   ]
+  },
+  "returned": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "ret_food"
+    },
+    {
+     "next": "ret_tech"
+    }
+   ]
+  },
+  "ret_food": {
+   "text": "(Friend) carefully rearranges the objects exactly where (friend.he/she) found them, and offers a quick prayer of apology to the spirits. When the two return home, they find that someone has left a bundle of food at their doorsteps. Your villagers gain (award) food.",
+   "src": "L397",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L397",
+     "alt": "food"
+    },
+    {
+     "src": "L397",
+     "alt": "food"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L397",
+     "what": "\"tech\"",
+     "reason": "the word in the owner's story; what changes in the game is the outcome's own effects (the owner's spec beside it), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "ret_tech": {
+   "text": "(Friend) carefully rearranges the objects exactly where (friend.he/she) found them, and offers a quick prayer of apology to the spirits. When the two return home, they find that someone has left a bundle of strange devices at their doorsteps. Your villagers gain (award) tech points.",
+   "src": "L397",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L397",
+     "alt": "strange devices"
+    },
+    {
+     "src": "L397",
+     "alt": "tech points"
+    }
+   ],
+   "auto_text": true
+  },
+  "keep": {
+   "text": "(Friend) decides to take some of the objects for further study. \"Surely the researchers will want to come here now.\" When they return home,",
+   "src": "L401",
+   "children": [
+    {
+     "next": "k3"
+    },
+    {
+     "next": "k3"
+    },
+    {
+     "next": "k1"
+    },
+    {
+     "next": "k2"
+    }
+   ]
+  },
+  "k1": {
+   "text": "(friend) suddenly feels a strange pain in their chest. Over the next few days (friend.he/she) develops a high fever and convulsions. No matter what the healers do, (friend) becomes weaker and weaker, until (friend.he/she) passes away in agony. (subject), in (subject.his/her) guilt, stops eating until (subject.he/she) too, quietly passes away. The villagers mourn for them both, and upon discovering the stolen artifacts, perform a complicated ritual to appease any angered spirits. Hopefully, this will put them, and poor (subject) and (friend), to rest in peace.",
+   "src": "L406",
+   "popup": "append",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "friend",
+     "cause": "unknown"
+    },
+    {
+     "do": "kill",
+     "role": "subject",
+     "cause": "unknown"
+    }
+   ],
+   "auto_text": true
+  },
+  "k2": {
+   "text": "(friend) suddenly feels a strange pain in their chest. Over the next few days (friend.he/she) develops a high fever and convulsions. No matter what the healers do, (friend) becomes weaker and weaker, until (friend.he/she) passes away in agony. The villagers mourn for (friend.him/her), and upon discovering the stolen artifacts, perform a complicated ritual to appease any angered spirits. Hopefully, this will put them, and poor (friend), to rest in peace.",
+   "src": "L409",
+   "popup": "append",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "friend",
+     "cause": "unknown"
+    }
+   ],
+   "auto_text": true
+  },
+  "k3": {
+   "text": "(friend) informs the researchers about the objects (subject) and (friend) found. Intrigued, they start launching investigations into the strange artifacts along with the mysterious cave. Their discoveries astonish the historians and scientists greatly, yielding much information about the island's history and previous inhabitants. Your villagers gain (award) tech points.",
+   "src": "L412",
+   "popup": "append",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

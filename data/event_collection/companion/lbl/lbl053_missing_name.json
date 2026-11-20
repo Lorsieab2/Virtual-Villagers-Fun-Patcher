@@ -102,9 +102,16 @@
    "src": "L4495"
   },
   "e2": {
+   "type": "branch",
    "name": "Outcome 2",
-   "text": "They laugh and invent a nickname.",
-   "src": "L4496"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Outcome 3",
@@ -117,6 +124,31 @@
      "src": "L4497"
     }
    ]
+  },
+  "e2__fx": {
+   "name": "Outcome 2",
+   "text": "They laugh and invent a nickname.",
+   "src": "L4496",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L4496"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L4496"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Outcome 2",
+   "text": "They laugh and invent a nickname.",
+   "src": "L4496"
   }
  }
 }

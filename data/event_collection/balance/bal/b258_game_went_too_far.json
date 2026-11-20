@@ -1,0 +1,279 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Game That Went Too Far",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b258_game_went_too_far",
+  "source": "balance",
+  "lines": [
+   12037,
+   12078
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12037",
+  "ledger": [
+   {
+    "src": "L12038",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12039",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12046",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12055",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12043",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12044",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12047",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12056",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12049",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12052",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12058",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12061",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12064-12078",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager have been playing the same game of stones on the same flat rock every evening for a year.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) have been playing the same game of stones on the same flat rock every evening for a year. They are very evenly matched. Lately, though, the games have been getting louder. Last night (friend) accused (subject) of moving a stone while (subject.he/she) was looking at the sunset, and (subject) accused (friend) of looking at the sunset on purpose.\nTonight half the village has gathered to watch, and the two of them are glaring at each other across the rock. Somebody has to say something. Should (subject) offer to call the whole game off, or play one last game, winner takes all?",
+   "choices": [
+    {
+     "label": "Call It Off",
+     "next": "c1",
+     "src": "L12043"
+    },
+    {
+     "label": "One Last Game",
+     "next": "c2",
+     "src": "L12044"
+    }
+   ],
+   "src": "L12040-12041"
+  },
+  "c1o1": {
+   "text": "They're right: it isn't fun any more, and it doesn't come back. The flat rock sits empty in the evenings. (subject) and (friend) stay friendly enough, but neither of them ever wants to play anything again, not stones, not races, not the children's games. The children find this deeply strange.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "playing",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "like": "playing"
+    }
+   ],
+   "src": "L12050",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "With their evenings suddenly empty, (subject) and (friend) don't know what to do with themselves. So they start helping in the gardens in the cool of the evening, because it's something to do together. Neither of them has ever been able to stand kneeling in the dirt. It turns out that dirt is much easier to put up with when someone is grumbling about it alongside. By the end of the season the soil doesn't bother either of them.",
+   "children": [
+    {
+     "next": "c1o2_c2"
+    }
+   ],
+   "src": "L12053"
+  },
+  "c1": {
+   "text": "(subject) sweeps the stones off the rock into the bag. \"That's it,\" (subject.he/she) says. \"No more. It's not fun any more.\" The crowd goes quiet...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12047"
+  },
+  "c2o1": {
+   "text": "It goes on until the moon is high, and it ends in a perfect draw, the first in a year of games. Nobody can believe it. (subject) and (friend) stare at the board, then at each other, and then burst out laughing, and the whole crowd laughs with them. They start a new game the next evening, and it is quiet and friendly again.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L12059",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) wins, with the very last stone. (friend) stands up, shakes (subject.his/her) hand, and walks away without a word, and that is the end of (friend)'s playing days. (subject.He/She) gives the bag of stones to the children. \"You have it,\" (subject.he/she) says. \"I'm done.\" (subject) plays with the children instead, and lets them win.",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "like": "playing"
+    }
+   ],
+   "src": "L12062",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"One last game,\" says (subject). \"Winner takes all.\" (friend) nods. The crowd closes in. The first stone goes down with a click that everyone hears...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12056"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "turnips",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "dislike": "turnips"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       1
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  },
+  "c1o2_g2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "vegetables",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "dislike": "vegetables"
+    }
+   ]
+  },
+  "c1o2_c2": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g2",
+     "if": {
+      "game": [
+       2
+      ]
+     },
+     "else": "c1o2_c1"
+    }
+   ]
+  }
+ }
+}

@@ -117,7 +117,8 @@
     {
      "next": "pp"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "src": "L8459",

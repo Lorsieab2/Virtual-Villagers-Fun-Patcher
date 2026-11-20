@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Are People Entitled to the Land",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf23_are_people",
+  "source": "draft_lcf",
+  "lines": [
+   316,
+   327
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L316",
+  "ledger": [
+   {
+    "src": "L317",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L323",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L323",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L327",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village wants to clear more forest for gardens: take what is needed, or only what the forest can spare.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village is growing, and (subject) wants to clear a big piece of forest for new gardens. (friend), of the Nature school, says people are not entitled to take whatever they want, and should take only what the island readily gives: fallen trees, open ground, the edges. Children are hungry. What should the village do?",
+   "src": "L319",
+   "choices": [
+    {
+     "label": "Clear What Is Needed",
+     "next": "o1",
+     "src": "L321"
+    },
+    {
+     "label": "Take Only What Is Spared",
+     "next": "o2",
+     "src": "L325"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village clears the forest. The new gardens are rich, and nobody goes hungry that season. The birds that lived in that part of the forest are gone. (friend) plants a new grove at the far edge of the gardens. It will take fifty years to grow.",
+   "src": "L323",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L323"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village plants in the open ground and the forest edges, and the fallen trees are used for firewood. The gardens are smaller and scattered and harder to tend. Nobody goes hungry, but some go to bed less full. The forest stays.",
+   "src": "L327"
+  }
+ }
+}

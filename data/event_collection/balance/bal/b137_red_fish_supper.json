@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Red Fish Supper",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b137_red_fish_supper",
+  "source": "balance",
+  "lines": [
+   6284,
+   6328
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6284",
+  "ledger": [
+   {
+    "src": "L6285",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6286",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6294",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6303",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6291",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6292",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6295",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6304",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6297",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6300",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6306",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6309",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6312-6328",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The old fishers say it comes up from the deep only once in a generation, and that it's either very lucky to eat or very unlucky.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "fisher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has caught a fish nobody has seen before: bright red, with blue spots and a sulky expression, and fins like little fans. The old fishers say it comes up from the deep only once in a generation, and that it's either very lucky to eat or very unlucky. \"Depends,\" says (fisher), the oldest fisher, \"on who's asking.\"\n(subject) is hungry, and it smells wonderful on the fire. But (fisher)'s grandmother, (subject.he/she) remembers, ate one once and woke up with a fever and a different name.\nShould (subject) eat the red fish, or throw it back in the sea?",
+   "choices": [
+    {
+     "label": "Eat the Fish",
+     "next": "c1",
+     "src": "L6291"
+    },
+    {
+     "label": "Throw It Back",
+     "next": "c2",
+     "src": "L6292"
+    }
+   ],
+   "src": "L6287-6289"
+  },
+  "c1o1": {
+   "text": "That night (subject) has a fever so hot that the healers keep (subject.his/her) feet in a bucket of cold water until dawn. In (subject.his/her) dreams, (subject.he/she) swims down into the deep water after the red fish, calling (subject.his/her) own name, and the name swims away from (subject.him/her) like a fish. When (subject.he/she) wakes, the fever is gone, and so is the name. The village calls (subject.him/her) \"?\" while they wait for it to come back. It doesn't.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L6298",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The fever burns all night. In the morning (subject) sits up, cool as a stone, and says (subject.his/her) name is (made1). (subject.He/She) is perfectly sure about it. Everyone else is perfectly sure it isn't. But after a while, as (fisher) points out, it's hard to argue with someone who knows their own name. \"My grandmother was the same,\" (subject.he/she) says. \"Called herself something new for sixty years.\"",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L6301",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) eats the whole fish, every bite, with a little salt. It tastes like nothing (subject.he/she) has ever eaten, sweet and smoky and a little bit like lightning. By the time (subject.he/she) has licked (subject.his/her) fingers, (subject.his/her) cheeks are burning...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6295"
+  },
+  "c2o1": {
+   "text": "The next morning (subject)'s fish traps are so full they are bending at the corners. And the next morning. And the next. The old fishers nod wisely and say that's what happens to people who are polite to the red fish. (subject) carries baskets of fish up to the village for a week, and finds (subject.he/she) doesn't mind the smell of fish guts any more, or anything else much. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L6307",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The red fish stares at (subject) for a very long time. Then it sinks. (subject) goes home hungry and eats cold breadfruit. (fisher) says that's a good sign. When (subject) asks why, (fisher) says the last person who got stared at like that lived to be a hundred.",
+   "src": "L6310"
+  },
+  "c2": {
+   "text": "(subject) carries the red fish down to the water and lets it go. It swims a little way, then turns round and looks at (subject.him/her), sulkily, with one eye...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6304"
+  }
+ }
+}

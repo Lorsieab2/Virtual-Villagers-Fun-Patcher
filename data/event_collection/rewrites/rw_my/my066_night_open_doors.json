@@ -1,0 +1,306 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night of the Open Doors",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my066_night_open_doors",
+  "source": "rewrites",
+  "lines": [
+   13703,
+   13758
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13703",
+  "ledger": [
+   {
+    "src": "L13704",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13705",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13713",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13720",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13727",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13734",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13708",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13709",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13710",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13711",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13714",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13721",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13728",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13735",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13715",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13717",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13722",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13724",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13729",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13731",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13736",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13738",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13741-13758",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Cold air flows through the huts.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "neighbour": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the middle of the night, every unlatched door in the village swings open at exactly the same moment, with one long, creaking sigh. Cold air flows through the huts. Every cooking fire gutters and leans. Villagers sit bolt upright on their sleeping mats, and several of them see the same thing through their open doorways: a tall, cloaked figure walking slowly between the houses, unhurried, as though checking on each one.\n(subject) is already standing in (subject.his/her) doorway, heart hammering. The figure is just turning the corner by the storehouse. Some of the elders whisper that the island's old guardians walk through a village once in a lifetime, to see that it is cared for. Whatever is going on, someone needs to do something, and everyone else seems to be hiding under their blankets. Should (subject) go after the figure?",
+   "choices": [
+    {
+     "label": "Follow the Figure",
+     "next": "c1",
+     "src": "L13708"
+    },
+    {
+     "label": "Check the Wind",
+     "next": "c2",
+     "src": "L13709"
+    },
+    {
+     "label": "Invite the Visitor to Speak",
+     "next": "c3",
+     "src": "L13710"
+    },
+    {
+     "label": "Secure the Village",
+     "next": "c4",
+     "src": "L13711"
+    }
+   ],
+   "src": "L13706-13707"
+  },
+  "c1o1": {
+   "text": "(subject) follows its gaze and sees that the old roof is sagging badly. Without thinking, (subject.he/she) darts inside and drags out as many baskets as (subject.he/she) can carry, yelling for help. Villagers come running and haul out the rest. (subject) has barely stepped out with the last basket when the whole roof gives way with a tremendous crash, right where the food had been. When the dust settles, the cloaked figure is nowhere to be seen. The rescued food is stored in a sounder hut, and somehow there seems to be more of it than anyone remembered.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L13716",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The figure walks around the side of the last hut, and (subject) hurries after it, torch held high. There is nothing there. The hut backs right onto a wall of rock, with no gap, no path, no rear exit of any kind. (subject) holds up the torch and looks for a long time at the bare stone. Then (subject.he/she) walks home very quickly, without once looking behind (subject.him/her).",
+   "src": "L13718"
+  },
+  "c1": {
+   "text": "(subject) grabs a torch and creeps after the figure, keeping to the shadows. It does not look back. It walks to the old food store at the edge of the village, pauses at the door, and seems to look up at the roof...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13714",
+   "text_only": [
+    {
+     "src": "L13714",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o1": {
+   "text": "The researchers grumble, but they come, and soon discover that the air has gone strangely heavy, the way it does right before a big storm. \"A sudden change in the air like this can push doors open all at once,\" one explains, yawning. \"It means bad weather is coming. Fast.\" Sure enough, a storm hits before dawn, but the village is ready for it. The researchers write down everything they noticed, so next time they will know the signs. Nobody can explain the cloaked figure, so nobody tries.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L13723",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "There is no wind. None at all. The leaves hang motionless, the smoke from the fires rises straight up, and the sea is flat and silent. The researchers check everything twice and find no reason for the doors to have opened. Eventually they go back to bed, leaving (subject) standing alone in the perfectly still night, listening to (subject.his/her) own heartbeat.",
+   "src": "L13725"
+  },
+  "c2": {
+   "text": "(subject) is a sensible sort of person, and sensible people know that doors do not open by themselves without a reason. (subject.He/she) wets a finger, holds it up, and goes to wake the researchers...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13721"
+  },
+  "c3o1": {
+   "text": "A voice answers, quiet and very clear, coming from everywhere and nowhere at once: \"Close what you wish to keep.\" Then the figure is simply gone, and the doors, one by one, creak gently shut. No one in the village can agree on what the words meant. Some think it was a warning. Some think it was advice. A few elderly couples take it as a hint to hold each other a little tighter. All of them latch their doors from then on.",
+   "src": "L13730"
+  },
+  "c3o2": {
+   "text": "The figure turns around, blinks, and lets out a startled yelp. It is (neighbour), one of the neighbours, wrapped head to toe in a fishing net that (subject.he/she) seems to be wearing as a cloak, and very much asleep until a moment ago. \"Wh... where am I? Why am I wearing the net?\" The doors, it turns out, were (subject.his/her) doing; (subject.he/she) had been wandering from door to door, apparently looking for (subject.his/her) own. (neighbour) is mortified for weeks. Everyone else is delighted.",
+   "src": "L13732"
+  },
+  "c3": {
+   "text": "(subject) steps out into the moonlight, takes a deep breath, and calls out: \"Whoever you are, you are welcome here. If you have something to say, say it!\" The figure stops...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13728"
+  },
+  "c4o1": {
+   "text": "The builders grumble about being woken in the middle of the night, but the new latches are good ones, and everyone sleeps much more soundly for it. The cloaked figure is never seen again. Within a month, the story has grown in the telling so much that the figure is now three heads taller and carries a lantern made from a star, and (subject), naturally, has become the hero who saved the village.",
+   "src": "L13737"
+  },
+  "c4o2": {
+   "text": "Just before dawn, as (subject) finally lies down to rest, (subject.he/she) hears a soft creak. Every door in the village is still firmly latched. Every door except (subject.his/her) own, which stands wide open, its brand-new latch hanging neatly unfastened. Outside, the path is empty. (subject) lies awake until sunrise, staring at the doorway, and never quite decides whether something had come in, or gone out.",
+   "src": "L13739"
+  },
+  "c4": {
+   "text": "(subject) does not care who or what is out there. (subject.He/she) runs from hut to hut, pulling doors shut, waking the builders and calling for rope and pegs. By the time the sky begins to grey, every door in the village has a fresh latch...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13735"
+  }
+ }
+}

@@ -115,14 +115,40 @@
    "src": "L943"
   },
   "o2": {
+   "type": "branch",
    "name": "Outcome 2",
-   "text": "The canopy tears during testing and inspires stronger weaving.",
-   "src": "L945"
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
   },
   "o3": {
    "name": "Outcome 3",
    "text": "Researchers disagree whether the ancient description is literal or symbolic.",
    "src": "L947"
+  },
+  "o2__fx": {
+   "name": "Outcome 2",
+   "text": "The canopy tears during testing and inspires stronger weaving.",
+   "src": "L945",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L945"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome 2",
+   "text": "The canopy tears during testing and inspires stronger weaving.",
+   "src": "L945"
   }
  }
 }

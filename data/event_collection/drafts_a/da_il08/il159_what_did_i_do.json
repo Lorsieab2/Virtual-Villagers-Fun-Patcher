@@ -82,6 +82,32 @@
    "src": "L224"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"That's alright,\" says (friend). \"Some days are like that.\" (subject) isn't completely convinced. But (subject.he/she) eats dinner, and watches the fire, and talks a bit, and goes to bed, and in the morning (subject.he/she) finds (pupil), a child, proudly tying the knot (subject.he/she) taught yesterday. (subject) had forgotten all about that.",
+   "src": "L227",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "pupil",
+     "mood": "good",
+     "src": "L227"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"That's alright,\" says (friend). \"Some days are like that.\" (subject) isn't completely convinced. But (subject.he/she) eats dinner, and watches the fire, and talks a bit, and goes to bed, and in the morning (subject.he/she) finds (pupil), a child, proudly tying the knot (subject.he/she) taught yesterday. (subject) had forgotten all about that.",
    "src": "L227"

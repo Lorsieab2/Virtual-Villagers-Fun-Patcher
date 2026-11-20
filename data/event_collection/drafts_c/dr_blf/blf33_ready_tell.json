@@ -71,14 +71,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"(subject.He/she) is fine,\" says (friend). \"Just thinking about things.\" The parent nods and leaves it. Later (friend) tells (subject) about it. \"You didn't say anything?\" \"It's yours to say,\" says (friend). \"If you ever want to.\" (subject) is so grateful (subject.he/she) can't speak for a moment. (subject.He/she) isn't ready yet. It helps to know (subject.he/she) doesn't have to be.",
-   "src": "L398"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"(subject.He/she) is alright,\" says (friend), and keeps the secret. But later (friend.he/she) says to (subject), \"Your family loves you. I think they'd listen, if you wanted to tell them. Only if you want to.\" (subject) thinks about it for a long time. \"Maybe,\" (subject.he/she) says. \"Not yet.\" \"Not yet is fine,\" says (friend). It stays not yet for a while.",
    "src": "L401"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"(subject.He/she) is fine,\" says (friend). \"Just thinking about things.\" The parent nods and leaves it. Later (friend) tells (subject) about it. \"You didn't say anything?\" \"It's yours to say,\" says (friend). \"If you ever want to.\" (subject) is so grateful (subject.he/she) can't speak for a moment. (subject.He/she) isn't ready yet. It helps to know (subject.he/she) doesn't have to be.",
+   "src": "L398",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L398"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"(subject.He/she) is fine,\" says (friend). \"Just thinking about things.\" The parent nods and leaves it. Later (friend) tells (subject) about it. \"You didn't say anything?\" \"It's yours to say,\" says (friend). \"If you ever want to.\" (subject) is so grateful (subject.he/she) can't speak for a moment. (subject.He/she) isn't ready yet. It helps to know (subject.he/she) doesn't have to be.",
+   "src": "L398"
   }
  }
 }

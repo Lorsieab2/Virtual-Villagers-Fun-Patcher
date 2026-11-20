@@ -121,7 +121,8 @@
      "max": 10,
      "src": "L598"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome 2",
@@ -138,7 +139,8 @@
      "who": "all",
      "src": "L602"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

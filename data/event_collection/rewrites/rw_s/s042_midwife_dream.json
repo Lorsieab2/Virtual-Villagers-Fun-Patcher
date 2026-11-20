@@ -1,0 +1,208 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Midwife's Dream",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s042_midwife_dream",
+  "source": "rewrites",
+  "lines": [
+   1981,
+   2027
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1981",
+  "ledger": [
+   {
+    "src": "L1982",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1983",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1992",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2001",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1989",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1990",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1993",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2002",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1995",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1998",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2004",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2007",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2010-2027",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "You're going to have a baby. a villager laughs.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 45,
+   "sex": "female"
+  },
+  "healer": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Just after dawn, the village's best healer, (healer), walks straight through the village in \\(healer: his/her\\) sleeping wrap, barefoot, with a feather from \\(healer: his/her\\) pillow still stuck in one ear. \\(Healer: He/She\\) doesn't stop to greet anyone. \\(Healer: He/She\\) walks right up to (subject)'s hut and knocks on the doorpost.\n\"I had a dream,\" (healer) says, when (subject) opens the door, yawning. \"A very clear one. You're going to have a baby.\"\n(subject) laughs. Then (subject) waits for the healer to laugh too.\n(Healer) does not laugh. (Healer) has delivered half the babies in the village and has a way of knowing things, and is looking at (subject) with complete, calm certainty. Behind (subject), (friend) has gone very still. Should (subject) believe (healer), or laugh it off?",
+   "choices": [
+    {
+     "label": "Believe the Healer",
+     "next": "c1",
+     "src": "L1989"
+    },
+    {
+     "label": "Laugh It Off",
+     "next": "c2",
+     "src": "L1990"
+    }
+   ],
+   "src": "L1984-1987"
+  },
+  "c1o1": {
+   "text": "(Healer) is right, as usual. Within a couple of weeks, (subject) is feeling sick in the mornings and tired in the afternoons and very, very hungry for pickled fish, and there's no doubt about it. (subject) and (friend) are thrilled. And also a little nervous. And then thrilled again. (Healer) visits every week, checks on (subject), and never once says \"I told you so,\" which (subject) thinks is very generous of \\(healer: him/her\\).",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L1996",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They wait. Nothing happens. A month goes by. Then another. (Healer) gets quieter and quieter, and starts avoiding (subject)'s side of the village. \"I was so sure,\" \\(healer: he/she\\) says, to anyone who'll listen. Then, a whole season later, just when everybody has stopped thinking about it, (subject) wakes up one morning feeling very strange, and very sick, and suddenly wants pickled fish more than anything in the world. The dream was true after all. It was just a season early. (Healer) is so relieved \\(healer: he/she\\) cries.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L1999",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) stops laughing. (subject.He/She) looks at (friend), and (friend) looks back, and then they both look at the healer. \"Are you sure?\" (subject) whispers. (Healer) just pulls the feather out of \\(healer: his/her\\) ear and nods...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1993"
+  },
+  "c2o1": {
+   "text": "They laugh about it all week. They tell everyone about the healer and the feather. Everybody laughs. Next month, nobody is laughing, except for joy. (subject) is pregnant, exactly as the dream said. (subject) and (friend) go round to the healer's hut together, very sheepishly, carrying a basket of the best fruit they can find, to apologise. (Healer) accepts the fruit graciously, and the apology, and then leans in and whispers which it will be. (Healer) won't say it out loud.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2005",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "It really was just a dream. The weeks go by and nothing changes at all. (Healer), slightly embarrassed, stops mentioning it, and goes back to bed a little earlier than usual for a while. (subject) and (friend) are surprised to find they're a tiny bit disappointed. They don't say so to each other. But that evening they sit by the fire a little closer together than usual, and talk, for the first time, about what it might be like.",
+   "src": "L2008"
+  },
+  "c2": {
+   "text": "(subject) laughs again, harder. \"A dream! Go back to bed!\" (friend) laughs too, a bit nervously. (Healer) just shrugs, as if to say \"we'll see,\" and turns round and walks back home...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2002"
+  }
+ }
+}

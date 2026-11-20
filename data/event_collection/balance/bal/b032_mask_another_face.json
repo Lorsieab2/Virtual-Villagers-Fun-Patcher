@@ -1,0 +1,195 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mask with Another Face",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b032_mask_another_face",
+  "source": "balance",
+  "lines": [
+   1435,
+   1476
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1435",
+  "ledger": [
+   {
+    "src": "L1436",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1437",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1445",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1454",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1442",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1443",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1446",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1455",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1448",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1451",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1457",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1460",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1463-1476",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Clearing out an old storehouse, a villager finds a carved wooden mask wrapped in bark cloth.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Clearing out an old storehouse, (name) finds a carved wooden mask wrapped in bark cloth. It's beautiful work: a calm face with half-closed eyes, painted with fading red and white. Scratched on the back is a name, \"Azizi,\" and a line the elders read out slowly: \"for anyone who wants to be someone else for a while.\"\nThe elders say a carver made it long ago for a cousin who was unhappy with who they were, and that the cousin wore it at a festival and was \"never quite the same.\"\n(Name) is holding it up to (his/her) face, not quite touching. Should (he/she) put it on?",
+   "choices": [
+    {
+     "label": "Put It On",
+     "next": "c1",
+     "src": "L1442"
+    },
+    {
+     "label": "Hang It on the Wall",
+     "next": "c2",
+     "src": "L1443"
+    }
+   ],
+   "src": "L1438-1440"
+  },
+  "c1o1": {
+   "text": "When (name) takes the mask off at sunset, (his/her) friends stare. The face underneath isn't the one that went in. It isn't the mask's face either. It's something between, new and (his/her) own at once. \"Never quite the same,\" says the elder, softly. (Name) looks in the water bowl for a long time, and decides (he/she) likes it.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L1449",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) wears the mask all day, and by evening (he/she) is answering to the name scratched on the back. \"Azizi,\" (he/she) says, when someone calls (him/her) by (his/her) old name, quite firmly. When the mask comes off, the name stays on. (He/She) seems happier as Azizi, and the village gets used to it within a week.",
+   "effects": [
+    {
+     "do": "change_name",
+     "name": "Azizi",
+     "role": "subject"
+    }
+   ],
+   "src": "L1452",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) ties the mask on. It's warm, as if someone just took it off. Through the eye holes, the village looks a little brighter, a little sharper, as if (he/she) is seeing it with someone else's eyes...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1446"
+  },
+  "c2o1": {
+   "text": "(Name) sleeps under the mask that night. In the morning, (his/her) face in the water bowl is younger, by years, the way (he/she) looked before the work and the worry set in. (Name) looks up at the mask. The mask's painted mouth, which was straight yesterday, seems to be smiling.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L1458",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Nothing happens. The mask hangs on the wall, beautiful and quiet, and gradually (name) stops noticing its eyes. Visitors admire it. Children are scared of it. Years later, (name) gives it to a young carver who wants to learn the old style, and it's carved again and again, a calm face with half-closed eyes, all over the village.",
+   "src": "L1461"
+  },
+  "c2": {
+   "text": "(Name) decides it's too old and too strange to wear. (He/She) hangs it on the wall of (his/her) hut, where its half-closed eyes seem to follow (him/her) round the room...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1455"
+  }
+ }
+}

@@ -1,0 +1,238 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cracking Cliff",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b103_cracking_cliff",
+  "source": "balance",
+  "lines": [
+   4654,
+   4696
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4654",
+  "ledger": [
+   {
+    "src": "L4655",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4656",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4664",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4673",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4661",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4662",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4665",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4674",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4667",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4670",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4676",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4679",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4682-4696",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Above the eastern huts there's a cliff, and this morning a crack has opened along the top of it, wide enough to put a hand in.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Above the eastern huts there's a cliff, and this morning a crack has opened along the top of it, wide enough to put a hand in. Little stones keep pattering down onto the roofs below. The families in those huts are packing.\n(subject) is the closest to the cliff. (builder) thinks they can wedge the crack with logs and buy time to move the huts. Others want everyone well away, now, and to let the cliff do what it's going to do.\nWhat should (subject) do?",
+   "choices": [
+    {
+     "label": "Help Wedge the Crack",
+     "next": "c1",
+     "src": "L4661"
+    },
+    {
+     "label": "Get Everyone Away",
+     "next": "c2",
+     "src": "L4662"
+    }
+   ],
+   "src": "L4657-4659"
+  },
+  "c1o1": {
+   "text": "The cliff comes down before they've wedged half of it. (builder) jumps clear. (subject) doesn't. The village digs for a day and a night. They bury (subject) where the cliff used to be, under the rubble, and plant a tree there, and nobody builds below a cliff in that village again.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L4668",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The wedges hold long enough for the families to get out, and then a chunk of the edge breaks off under (subject)'s feet. (subject.He/She) falls only a short way, but (subject.his/her) back is badly hurt. (subject.He/She) heals slowly, and walks with a stick after that, and won't go higher than a roof ever again. The families from the eastern huts take turns bringing (subject.him/her) meals for a year.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L4671",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) climbs up with (builder) and starts hammering logs into the crack with a stone. The cliff groans under them...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4665"
+  },
+  "c2o1": {
+   "text": "That night the cliff comes down with a roar like the end of the world, burying the eastern huts. Nobody is under it. The whole village rebuilds those huts in the open, well away from any cliff, and they turn out better than before. (subject) gets the first new roof.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L4677",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The cliff doesn't fall. It groans for a week, and patters, and then stops. The builders go up and wedge it properly, at their leisure, while the families sleep elsewhere. Some people say (subject) panicked. The builders, who've seen the crack up close, tell them to be quiet.",
+   "src": "L4680"
+  },
+  "c2": {
+   "text": "(subject) runs from hut to hut, shouting, herding families and children and goats out from under the cliff and across to the far side of the village...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4674"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

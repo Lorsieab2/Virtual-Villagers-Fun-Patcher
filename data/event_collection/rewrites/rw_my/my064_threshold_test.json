@@ -1,0 +1,288 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Threshold Test",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my064_threshold_test",
+  "source": "rewrites",
+  "lines": [
+   13587,
+   13642
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13587",
+  "ledger": [
+   {
+    "src": "L13588",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13589",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13597",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13604",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13611",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13618",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13592",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13593",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13594",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13595",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13598",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13605",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13612",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13619",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13599",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13601",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13606",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13608",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13613",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13615",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13620",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13622",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13625-13642",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At dusk, a stranger in worn sandals stops at a villager's door and asks politely to come inside.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At dusk, a stranger in worn sandals stops at (name)'s door and asks politely to come inside. (Name) steps back to let (him/her) in, but the stranger does not move. (He/she) stands just outside the doorframe, hands clasped, toes exactly at the edge of the threshold, and says, \"I may not enter until I am invited by name.\"\n(Name) blinks. The cooking fire crackles behind (him/her). The stranger waits with enormous patience, as though (he/she) could stand there all night, and perhaps all of tomorrow too. (Name) has heard old stories about guests who must be invited in. In none of those stories did it go entirely well. Should (name) say the words and invite the stranger in?",
+   "choices": [
+    {
+     "label": "Offer a Warm Welcome",
+     "next": "c1",
+     "src": "L13592"
+    },
+    {
+     "label": "Ask for the Stranger's Name",
+     "next": "c2",
+     "src": "L13593"
+    },
+    {
+     "label": "Offer Food Outside",
+     "next": "c3",
+     "src": "L13594"
+    },
+    {
+     "label": "Turn the Stranger Away",
+     "next": "c4",
+     "src": "L13595"
+    }
+   ],
+   "src": "L13590-13591"
+  },
+  "c1o1": {
+   "text": "After supper, the stranger tells a story about a fisher who learned to listen to the birds: which ones dive when the shoals are close, which ones circle when the water is empty, which ones laugh when a storm is coming. It is a lovely story, and by the end of it, (name) realizes it is also a lesson. (He/she) tries it the very next evening, watches the birds, and paddles exactly where they dive. The fishers are amazed, and the new method spreads through the village within a week.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L13600",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The stranger eats, talks about the weather, praises the stew twice, and falls asleep by the fire, snoring gently. When (name) wakes at dawn, the stranger is gone, (his/her) blanket folded neatly in the corner. There are no footprints in the dew outside. The only sign anyone was there is the empty bowl, scraped completely clean. Whoever (he/she) was, (he/she) certainly liked the stew.",
+   "src": "L13602"
+  },
+  "c1": {
+   "text": "\"Well, come in then, traveler, come in, you're letting the mosquitoes in!\" (Name) says, and the stranger smiles and steps over the threshold as if crossing a river. (He/she) sits by the fire, warms (his/her) hands, and gratefully accepts a bowl of stew...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13598"
+  },
+  "c2o1": {
+   "text": "The stranger says a name, an old and unusual one, and (name) invites (him/her) in by it. The visit is quiet and pleasant. But the next morning, while working near the old carved stones at the edge of the village, (name) stops dead. There, worn almost smooth by centuries of rain, is that exact name, cut into the oldest stone of all. The researchers have no idea how old it is. When (name) hurries home, the stranger has already gone.",
+   "src": "L13607"
+  },
+  "c2o2": {
+   "text": "The stranger gives a perfectly ordinary name, the kind half the island has, and (name) invites (him/her) in. Over supper, (name) cannot help asking about the threshold business. The stranger bursts out laughing. \"It's just a custom where I come from! Rude to walk in uninvited. You lot looked so serious, I didn't have the heart to tell you.\" The story is told around the village for weeks, mostly at (name)'s expense.",
+   "src": "L13609"
+  },
+  "c2": {
+   "text": "\"I'll gladly invite you,\" (name) says, \"but first, what's your name? I can't invite you by name if I don't know it.\" The stranger seems pleased by the question...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13605"
+  },
+  "c3o1": {
+   "text": "The stranger sits right there on the step and eats every bite, then hands the bowl back with a little bow. \"Thank you,\" (he/she) says. \"That was kindly done.\" Then (he/she) shoulders (his/her) pack and walks on down the path, humming. (Name) watches until (he/she) is out of sight, and spends the rest of the evening wondering what would have happened if (he/she) had just said the words.",
+   "src": "L13614"
+  },
+  "c3o2": {
+   "text": "When (name) goes to collect the bowl later, the stranger is gone and the stew is untouched, still warm. Beside it, on the doorstep, sits a polished shell the colour of the inside of a sunset. (Name) is fairly sure it was not there before. (He/she) keeps it on the shelf by the door, and from that night on, (his/her) house seems to stay a little warmer than the others, even on the coldest nights.",
+   "src": "L13616"
+  },
+  "c3": {
+   "text": "(Name) decides to be kind, but careful. (He/she) does not say the words. Instead, (he/she) brings a bowl of stew and a cup of water and sets them on the step outside the door...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13612"
+  },
+  "c4o1": {
+   "text": "...and walks off into the dusk. Nothing happens. No curse, no storm, no strange noises in the night. The fire crackles and the stew bubbles and the evening is exactly like every other evening. And yet, for months afterward, whenever someone knocks at the door, (name) finds (himself/herself) wondering who that stranger really was, and wishes (he/she) had found out.",
+   "src": "L13621"
+  },
+  "c4o2": {
+   "text": "...then pauses. \"A word of advice,\" (he/she) says, without turning around. \"The third beam from the left. See to it before the rains.\" And (he/she) is gone. (Name) thinks nothing of it until the next storm, when a horrible crack echoes through the hut and the roof sags. When the builders come to look, they find that one beam has split clean through. It is the third beam from the left.",
+   "src": "L13623"
+  },
+  "c4": {
+   "text": "\"I'm sorry,\" (name) says firmly. \"Not tonight.\" The stranger nods as though (he/she) expected it, and turns to go...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13619"
+  }
+ }
+}

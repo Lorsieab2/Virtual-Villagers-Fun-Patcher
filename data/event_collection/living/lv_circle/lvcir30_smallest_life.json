@@ -104,7 +104,8 @@
      "max": 10,
      "src": "L21625"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",

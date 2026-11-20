@@ -176,8 +176,15 @@
    "variants": [
     {
      "if": {
-      "game": [
-       1
+      "all": [
+       {
+        "game": [
+         1
+        ]
+       },
+       {
+        "special_present": "golden_child"
+       }
       ]
      },
      "text": "Years or generations after (First) first found the object, (Second) discovers it again. The original discoverer may now be elderly or dead.\n{v20_relics}\nThe Golden Child inexplicably recognizes a function no adult knows.",
@@ -262,7 +269,8 @@
      "scaled": true,
      "src": "L9326"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "r6": {
    "popup": "append",

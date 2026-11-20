@@ -1,0 +1,299 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Broken Seal",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my042_broken_seal",
+  "source": "rewrites",
+  "lines": [
+   12293,
+   12348
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12293",
+  "ledger": [
+   {
+    "src": "L12294",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12295",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12304",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12311",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12318",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12325",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12299",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12300",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12301",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12302",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12305",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12312",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12319",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12326",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12306",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12308",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12313",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12315",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12320",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12322",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12327",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12329",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12332-12348",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The lid is sealed with dark resin stamped with a sun sinking into a wave.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Clearing land for a new garden, (name) hacks through the roots of an ancient tree and finds a box tangled deep inside them, wrapped in roots as thick as (his/her) arms. The lid is sealed with dark resin stamped with a sun sinking into a wave.\nScratched into the lid are a few words: 'Do not open until the last light.' (Name) has no idea what the last light means. Sunset? The end of the world? The researchers are arguing about it already, and the children want it opened right now. What should (name) do?",
+   "choices": [
+    {
+     "label": "Open It at Sunset",
+     "next": "c1",
+     "src": "L12299"
+    },
+    {
+     "label": "Open It at Noon",
+     "next": "c2",
+     "src": "L12300"
+    },
+    {
+     "label": "Wait Until Night",
+     "next": "c3",
+     "src": "L12301"
+    },
+    {
+     "label": "Leave It for Its Owner",
+     "next": "c4",
+     "src": "L12302"
+    }
+   ],
+   "src": "L12296-12297"
+  },
+  "c1o1": {
+   "text": "Inside, wrapped in oiled cloth, is a stack of bark sheets covered in drawings and marks: a record of an old expedition across the island, long before the village was founded. Maps, sketches of plants and animals, notes on where to find water. The researchers stay up all night reading by torchlight, and they learn more about the island in a week than they have in years. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L12307",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The lid lifts, and out drifts a cloud of tiny glowing insects, hundreds of them, rising slowly into the evening air like sparks from a fire. They don't bite. They don't sting. They just float up, and up, and scatter among the treetops, twinkling, until the whole forest edge looks like it's full of stars. The children are speechless. The box is empty.",
+   "src": "L12309"
+  },
+  "c1": {
+   "text": "(Name) waits until the very last sliver of sun slips beneath the sea, and then, with the whole village watching, breaks the seal...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12305"
+  },
+  "c2o1": {
+   "text": "Inside are three ordinary river stones and a small piece of bark with a note on it. (Name) unfolds it. It reads, in neat old script: \"Why couldn't you wait?\" Everyone laughs. (Name) does not. (He/She) goes rather pink and puts the stones back in the box.",
+   "src": "L12314"
+  },
+  "c2o2": {
+   "text": "The seal breaks with a hiss, and a sharp, sour smell bursts out from whatever has rotted inside, so strong it makes everyone's eyes water. (Name), who was leaning right over it, gets a full lungful and staggers back, coughing. By evening (he/she) is laid up in the healers' hut with a pounding headache and a churning stomach, and stays there for several days. The healers close the box with a stick and bury it far, far away.",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "subject"
+    }
+   ],
+   "src": "L12316",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"Last light, first light, who cares? Let's just open it,\" (name) says impatiently, and cracks the seal in the full blaze of midday...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12312"
+  },
+  "c3o1": {
+   "text": "Just before dawn, when the last stars are fading, (name) tries the lid, and it opens easily, the seal crumbling away like dust. Inside, on a bed of soft moss, lies a single shell that shines silver in the starlight, smooth as a mirror. It's the most beautiful thing (name) has ever seen. (He/She) has no idea what it's for, and decides it doesn't need to be for anything.",
+   "src": "L12321"
+  },
+  "c3o2": {
+   "text": "(Name) waits all night. (He/She) tries the lid at midnight, and before dawn, and at every hour in between. It won't budge. And as the sun rises, (name) notices that the words on the lid are harder to read than they were yesterday, fading, as if the box is slowly forgetting what it says. Maybe (he/she) got it wrong. Maybe it'll never open.",
+   "src": "L12323"
+  },
+  "c3": {
+   "text": "(Name) decides 'last light' means the very last light of all, the end of the night. (He/She) sits up with the box under the stars, waiting...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12319"
+  },
+  "c4o1": {
+   "text": "A few weeks later, a traveler arrives asking about a box buried in the roots of a great tree, an old family keepsake left by a great-great-grandparent. The traveler is overjoyed to find it safe and unopened, and thanks the village again and again for respecting it. \"Not everyone would have waited,\" the traveler says.",
+   "src": "L12328"
+  },
+  "c4o2": {
+   "text": "Nobody comes. The box sits on its shelf, wrapped in cloth, through one season, then another, then another. Years pass. Children grow up asking about it. (Name) grows older and still doesn't open it. It becomes part of the village, a promise kept to someone nobody knows.",
+   "src": "L12330"
+  },
+  "c4": {
+   "text": "(Name) decides this box was hidden on purpose by someone, and isn't (his/hers) to open. (He/She) wraps it in cloth and leaves it in a safe place...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12326"
+  }
+ }
+}

@@ -152,9 +152,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The child squeals and the father laughs aloud.",
-   "src": "L419"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -233,6 +240,25 @@
    "name": "Outcome D2",
    "text": "The toy is immediately discarded in favor of the spoon.",
    "src": "L429"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The child squeals and the father laughs aloud.",
+   "src": "L419",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L419"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The child squeals and the father laughs aloud.",
+   "src": "L419"
   }
  }
 }

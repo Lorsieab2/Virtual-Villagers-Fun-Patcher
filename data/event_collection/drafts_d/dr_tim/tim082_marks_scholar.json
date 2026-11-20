@@ -122,21 +122,141 @@
    ]
   },
   "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), a scholar, practices making clear marks with a handmade writing tool. (Name1) worries the words sound awkward but sends them anyway.",
+   "src": "L1375",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L1375"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
    "name": "Ending 1",
    "text": "(Name1), a scholar, practices making clear marks with a handmade writing tool. (Name1) worries the words sound awkward but sends them anyway.",
    "src": "L1375"
   },
-  "e2": {
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1), a scholar, practices making clear marks with a handmade writing tool. The reader smiles at a tiny drawing in the margin.",
+   "src": "L1379",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L1379"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Ending 2",
    "text": "(Name1), a scholar, practices making clear marks with a handmade writing tool. The reader smiles at a tiny drawing in the margin.",
    "src": "L1379"
   },
-  "e3": {
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1), a scholar, practices making clear marks with a handmade writing tool. Someone pauses to remember the exact wording.",
+   "src": "L1383",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L1383"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
    "name": "Ending 3",
    "text": "(Name1), a scholar, practices making clear marks with a handmade writing tool. Someone pauses to remember the exact wording.",
    "src": "L1383"
   },
-  "e4": {
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), a scholar, practices making clear marks with a handmade writing tool. The finished page feels more precious than its materials suggest.",
+   "src": "L1387",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L1387"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1), a scholar, practices making clear marks with a handmade writing tool. The finished page feels more precious than its materials suggest.",
    "src": "L1387"

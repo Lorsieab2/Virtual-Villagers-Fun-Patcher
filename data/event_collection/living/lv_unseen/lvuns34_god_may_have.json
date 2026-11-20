@@ -110,7 +110,15 @@
   "b1": {
    "name": "Outcome B1",
    "text": "Believers continue honoring the figure without demanding proof.",
-   "src": "L22615"
+   "src": "L22615",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "The faithful continue honoring the figure without demanding proof."
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -139,5 +147,8 @@
    "text": "Some visitors leave more puzzled than before.",
    "src": "L22619"
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

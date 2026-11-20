@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Resort",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf04_last_resort",
+  "source": "draft_lcf",
+  "lines": [
+   50,
+   61
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L50",
+  "ledger": [
+   {
+    "src": "L51",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a healer and an adult)"
+   },
+   {
+    "src": "L57",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L57",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L61",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L61",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A badly injured villager might be saved by the forbidden practice of implanting a lavastone: do it, or refuse.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A climber has fallen from the cliffs and the healers cannot stop (other.him/her) slipping away. (friend), (other.his/her) closest friend, has begged (subject) to do the forbidden thing: set a lavastone against the climber's heart, the way the oldest stories describe. It is said to work sometimes. It is said to cost terribly. What should (subject) do?",
+   "src": "L53",
+   "choices": [
+    {
+     "label": "Do the Forbidden Thing",
+     "next": "o1",
+     "src": "L55"
+    },
+    {
+     "label": "Refuse",
+     "next": "o2",
+     "src": "L59"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) does it. The stone flares so bright the whole hut turns orange, and (subject) is thrown backwards and does not wake until morning. The climber lives. (other.He/she) is never quite the same: quieter, with a faint glow in the eyes on dark nights. The elders do not speak to (subject) for a month. (friend) does not leave (friend.his/her) friend's side.",
+   "src": "L57",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -50,
+     "max": -30,
+     "src": "L57"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) refuses, gently, and stays with the climber through the night, doing everything the healers know. By dawn, the climber has steadied, barely. Whether (other.he/she) will walk again, nobody knows yet. (friend) cannot forgive (subject) for not trying. Maybe one day.",
+   "src": "L61",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L61"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

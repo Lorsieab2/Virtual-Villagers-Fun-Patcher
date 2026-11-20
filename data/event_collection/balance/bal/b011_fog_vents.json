@@ -1,0 +1,193 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fog from the Vents",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b011_fog_vents",
+  "source": "balance",
+  "lines": [
+   481,
+   522
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L481",
+  "ledger": [
+   {
+    "src": "L482",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L483",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L491",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L500",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L488",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L489",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L492",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L501",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L494",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L497",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L503",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L506",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L509-522",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The elders say the fog takes impressions, like wet clay.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every few years, the hot vents on the far side of the island breathe out a thick yellow fog that rolls down the valley and smells of eggs. The elders say the fog \"takes impressions,\" like wet clay. Things left out in it are sometimes found twice the next morning: two baskets, two hoes, once a pair of identical goats.\nThis year the fog has come early, and (name) is caught out in it, gathering firewood at the edge of the valley. (He/She) can barely see (his/her) own hands. Somewhere close by, footsteps are moving when (name) moves, and stopping when (he/she) stops.\nShould (name) call out to whoever it is, or feel (his/her) way home as quietly as possible?",
+   "choices": [
+    {
+     "label": "Call Out",
+     "next": "c1",
+     "src": "L488"
+    },
+    {
+     "label": "Feel the Way Home Quietly",
+     "next": "c2",
+     "src": "L489"
+    }
+   ],
+   "src": "L484-486"
+  },
+  "c1o1": {
+   "text": "Out of the yellow murk steps (name). Same face, same hair, same scratched shins from the firewood. But it looks around at the trees with wide, delighted eyes, as if it has never seen a tree, and in a way it hasn't. It remembers nothing (name) remembers and likes nothing (name) likes. The two of them walk home together, (name) explaining everything, the newcomer asking \"why?\" about all of it. It chooses the name (made1), and settles in as if it was always meant to.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L495",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The voice calls again from deeper in the fog, and (name), confused, follows it. \"Wait,\" (he/she) shouts. \"Wait!\" The footsteps go further. When the fog lifts at noon, there's a bundle of firewood at the edge of the valley, neatly tied, and two sets of footprints leading towards the vents, side by side. The village searches every gully for days. Neither of them is ever seen again.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L498",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "\"Who's there?\" (name) calls. From the fog, in (his/her) own voice, something answers: \"Who's there?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L492"
+  },
+  "c2o1": {
+   "text": "At the edge of the village the fog thins, and (name) turns round, and there's (name) right behind (him/her), looking just as scared. Except (name) isn't scared of the fog. This one is scared of the chickens, and loves the rain, and wants to be a builder. \"Fog child,\" the elders say, nodding, as if this happens all the time. The newcomer takes the name (made1), and is soon arguing with (name) about everything.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L504",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) reaches the first huts, and turns, and there's nobody there. Only the fog, rolling back up the valley like a tide going out. Whatever was walking beside (him/her) has stayed behind, or was never there. (Name) sits by the fire for a long time that night, and jumps every time (he/she) hears (his/her) own footsteps.",
+   "src": "L507"
+  },
+  "c2": {
+   "text": "(Name) holds (his/her) breath and puts one foot in front of the other, feeling for the path with (his/her) toes. The footsteps beside (him/her) do the same, every step, all the way down the valley...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L501"
+  }
+ }
+}

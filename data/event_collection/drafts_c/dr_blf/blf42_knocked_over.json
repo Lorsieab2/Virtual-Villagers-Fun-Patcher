@@ -70,11 +70,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) picks (friend) up and checks (friend.his/her) knees. \"Are you hurt?\" (friend) shakes (friend.his/her) head, nearly crying. \"I broke it.\" \"It was an accident,\" says (subject). \"Will you help me put it back?\" They pick up the shells together. The cracked figure gets a little binding of string. (subject) says it looks even better now. (friend) isn't sure about that, but feels a lot better.",
+   "src": "L506",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L506"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) picks (friend) up and checks (friend.his/her) knees. \"Are you hurt?\" (friend) shakes (friend.his/her) head, nearly crying. \"I broke it.\" \"It was an accident,\" says (subject). \"Will you help me put it back?\" They pick up the shells together. The cracked figure gets a little binding of string. (subject) says it looks even better now. (friend) isn't sure about that, but feels a lot better.",
    "src": "L506"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"It's alright,\" says (subject). \"But would you like to help fix it?\" (friend) nods hard. (friend.He/she) spends all afternoon carefully arranging the shells, adding a few of (friend.his/her) own, and drawing a little picture in the sand in front. When (friend.he/she) finishes, (friend.he/she) looks up anxiously. (subject) studies it seriously. \"It's beautiful,\" (subject.he/she) says. \"Thank you.\" (friend) glows.",
+   "src": "L509",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L509"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"It's alright,\" says (subject). \"But would you like to help fix it?\" (friend) nods hard. (friend.He/she) spends all afternoon carefully arranging the shells, adding a few of (friend.his/her) own, and drawing a little picture in the sand in front. When (friend.he/she) finishes, (friend.he/she) looks up anxiously. (subject) studies it seriously. \"It's beautiful,\" (subject.he/she) says. \"Thank you.\" (friend) glows.",
    "src": "L509"

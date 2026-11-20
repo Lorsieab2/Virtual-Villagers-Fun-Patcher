@@ -1,4 +1,6 @@
 #define WIN32_LEAN_AND_MEAN
+/* The Golden Child may change sex: his draws stay a boy's (native/shared/sex_change.h, option 1). */
+#define VV_SEX_GC_OPTION1 1
 #include <windows.h>
 #include <shlobj.h>   /* SHGetFolderPathA / CSIDL_PERSONAL (mask sidecar path) */
 #include <string.h>   /* strrchr / memcpy for the sidecar */
@@ -2452,7 +2454,6 @@ static int vv_prefs_purchase(HWND owner, int kind) {
     world = *(unsigned char **)(UINT_PTR)0x0048AEDCu;
     records = world != NULL ? *(unsigned char **)(world + 0xADE8) : NULL;
 #else
-    typedef unsigned char *(__cdecl *vv_prefs_records_fn)(void);
     static const int job_code[5] = { 1, 5, 4, 3, 2 };
     static const int skill_offset[5] = { 0x7EC, 0x7E8, 0x7F4, 0x7F0, 0x7E4 };
     const int tech_offset = 0x2EADC, stride = 0xE48C;
@@ -2461,7 +2462,8 @@ static int vv_prefs_purchase(HWND owner, int kind) {
     sex_offset = 0x538;
     male_value = 1;
     world = *(unsigned char **)(UINT_PTR)0x004997BCu;
-    records = world != NULL ? ((vv_prefs_records_fn)0x0044F4E0)() : NULL;
+    /* the record array the getter 0x44F4E0 keeps at 0x499F24: read, never the getter, which builds it */
+    records = world != NULL ? *(unsigned char *volatile *)(UINT_PTR)0x00499F24u : NULL;
 #endif
     vv1_format_cost(price, cost_text);
     wsprintfA(message,
@@ -3040,7 +3042,8 @@ static int appearance_extra(HWND window, unsigned int command) {
         if (!vvfp_ax_change_sex(window, 1, appearance_state.villager, vv1_mask_index(appearance_state.villager))) {
             return 1;
         }
-        appearance_state.male = *(int *)(appearance_state.villager + VV_GENDER_OFFSET) == VV_GENDER_MALE;
+        /* the drawn sex: the Golden Child stays a boy (option 1, gender_presentation.h vvfp_gp_window_sex) */
+        appearance_state.male = vvfp_gp_window_sex(&appearance_gp, 1, appearance_state.villager) == VV_GENDER_MALE;
     } else {
         return 0;
     }

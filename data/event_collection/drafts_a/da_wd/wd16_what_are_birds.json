@@ -61,14 +61,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(name1) sits on a rock to wait. It's a long wait. The birds splash and squabble and shake themselves off, and go back for seconds. By the time they finally fly off in a cloud, (name1) has been sitting there for ages, and is laughing about it. (He/She) has a quick bath in water full of feathers.",
-   "src": "L194"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(name1) wades in anyway. The birds hop out of the way, then decide (he/she) is harmless and hop back. For a few minutes (name1) is having a bath surrounded by tiny splashing birds, which is one of the most ridiculous and wonderful things that has ever happened to (him/her). Nobody believes (him/her) later.",
    "src": "L197"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) sits on a rock to wait. It's a long wait. The birds splash and squabble and shake themselves off, and go back for seconds. By the time they finally fly off in a cloud, (name1) has been sitting there for ages, and is laughing about it. (He/She) has a quick bath in water full of feathers.",
+   "src": "L194",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L194"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) sits on a rock to wait. It's a long wait. The birds splash and squabble and shake themselves off, and go back for seconds. By the time they finally fly off in a cloud, (name1) has been sitting there for ages, and is laughing about it. (He/She) has a quick bath in water full of feathers.",
+   "src": "L194"
   }
  }
 }

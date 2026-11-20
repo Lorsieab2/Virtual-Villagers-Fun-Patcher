@@ -82,6 +82,39 @@
    "src": "L134"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) lets (friend) complain all the way through the plain root. \"It's horrible.\" \"It is horrible.\" \"Why do we have to?\" \"Because the old people did.\" It isn't much of an answer. But when the drums start and the real food comes out, (friend) whoops with joy, and (subject) thinks maybe the plain root does its job without anyone needing to explain it.",
+   "src": "L137",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L137"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L137"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) lets (friend) complain all the way through the plain root. \"It's horrible.\" \"It is horrible.\" \"Why do we have to?\" \"Because the old people did.\" It isn't much of an answer. But when the drums start and the real food comes out, (friend) whoops with joy, and (subject) thinks maybe the plain root does its job without anyone needing to explain it.",
    "src": "L137",

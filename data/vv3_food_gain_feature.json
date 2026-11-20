@@ -1,0 +1,108 @@
+{
+  "id": "vv3_food_gain",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv3",
+  "name": "Food Gained per Food Source",
+  "description": "Each food source gives more or less food each time: 0.1 to 10 times its normal food, as you choose with the Food Gained per Food Source slider in the patcher window (it reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game; 1 unless you move it; type it in the box beside the slider too); the rest of a whole food is a chance, so on average it is exact. The sources: crab, fish, fruit, honey, mushroom, the chief's food grant, the chief's fruit bonus, the chief's honey bonus, the cliff top's fruit, the rain lift's fruit, the rain lift's fruit delivered at the food bin. What the source itself loses is the game's own, and so is every other food gain: island events, puzzles' and messages' rewards, purchases and cheats. **Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. **Unverified in play** (checked by emulation of the game's own code). The companion is \"VVFP Food Gain.dll\", started by VVFP More Companions.dll, and the slider's number is written beside it in \"VVFP Food Gain.txt\"; nothing is written to a save.",
+  "output_tag": "Food Gain",
+  "dependencies": [],
+  "conflicts": [],
+  "behavior_changes": [
+    "Food Gained per Food Source: the companion's sites 0x434AEC, 0x434B15, 0x431C2A, 0x431C4C, 0x458EE5, 0x458FE1, 0x42E079, 0x434C06, 0x434D7F, 0x434C77, 0x459068 (see runtime_detours), installed only when the slider is not 1; N is read at start from \"VVFP Food Gain.txt\" beside the companion in tenths (0.1 to 10; none is 1)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes (all of them, or none; an optional site another patch owns is left alone).",
+    "At 1x nothing is installed. The game's rand is never drawn more or less often: the companion's chances are its own numbers.",
+    "Nothing is written to a save, a villager record or a file; no text is shown."
+  ],
+  "evidence_status": "implemented from exact-build disassembly of the stock executable; the companion's install and its effect emulated on the rendered executable (tests/test_new_sliders.py); runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/food_gain/VVFP Food Gain.dll",
+      "destination": "VVFP Food Gain.dll",
+      "sha256": "45AE3AA7E16160342D5AA4E07D1DF2083369C59274D4F035462A9134D338189F"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x434AEC",
+      "stock_bytes": "E8FF18FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "fruit: the call of the food writer 0x4263F0 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x434B15",
+      "stock_bytes": "E8D618FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the chief's fruit bonus: the call of the food writer 0x4263F0 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x431C2A",
+      "stock_bytes": "E8C147FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "honey: the call of the food writer 0x4263F0 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x431C4C",
+      "stock_bytes": "E89F47FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the chief's honey bonus: the call of the food writer 0x4263F0 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x458EE5",
+      "stock_bytes": "E806D5FCFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "fish: the call of the food writer 0x4263F0 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x458FE1",
+      "stock_bytes": "E80AD4FCFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "crab: the call of the food writer 0x4263F0 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x42E079",
+      "stock_bytes": "E87283FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "mushroom: the call of the food writer 0x4263F0 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x434C06",
+      "stock_bytes": "E8E517FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the rain lift's fruit (left alone while Fruit is Harvested at the Food Bin owns the call): the call of the food writer 0x4263F0 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer; optional",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x434D7F",
+      "stock_bytes": "E86C16FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the cliff top's fruit (likewise): the call of the food writer 0x4263F0 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer; optional",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x434C77",
+      "stock_bytes": "E87417FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the rain lift's fruit delivered at the food bin (only with Fruit is Harvested at the Food Bin): the call of the food writer 0x4263F0 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer; optional",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x459068",
+      "stock_bytes": "E883D3FCFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the chief's food grant: the call of the food writer 0x4263F0 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    }
+  ]
+}

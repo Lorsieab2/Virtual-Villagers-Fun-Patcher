@@ -91,7 +91,8 @@
      "max": 30,
      "src": "L20547"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -105,7 +106,8 @@
      "max": -40,
      "src": "L20548"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -138,7 +140,8 @@
      "cause": "unknown",
      "src": "L20551"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",

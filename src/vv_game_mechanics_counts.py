@@ -70,7 +70,10 @@ MEANING = {
     "Tech Points Earned": "tech points earned",
     "People Cured": "villagers cured",
     "Mushrooms Found": "mushrooms picked",
-    "Highest Population": "the most villagers the village has had at once",
+    # The game's own high-water mark of its population counter (VV1 0x42F16C, VV2 0x43C0C5, VV3 0x428CB0, VV4
+    # 0x420603, VV5 0x4261B8), which adds the babies being carried (src/vv_game_mechanics_carried.py).
+    "Highest Population": "the most people the game's population count has reached at once, babies being carried "
+                          "included",
     "Village Elders": "villagers who ever held Master in 3 or more skills, each counted once",
     "Oldest Villager": "the oldest age a villager has reached, in villager years",
     "Island Events Seen": "island events",
@@ -151,8 +154,9 @@ def statistics_lines(village: gm.Village, facts: list[gm.Fact]) -> list[gm.Fact]
     if log is None:
         out.append(gm.Fact(COUNTS, (
             "Village Statistics: the patcher's Village Statistics log for this save was not found (the patcher's "
-            "Village Statistics patch writes it after each save), so the rows below are read from the save, and the "
-            "rows only that log keeps are not shown." + believers), gm.SAVE))
+            "Village Statistics patch writes it after each save), so the rows below are read from the save. The rows "
+            "the save itself never keeps cannot be known without that log: with the patch in the game, they show "
+            "here after the game's next save." + believers), gm.SAVE))
     else:
         behind = ""
         try:
@@ -195,8 +199,11 @@ def statistics_lines(village: gm.Village, facts: list[gm.Fact]) -> list[gm.Fact]
         elif logged is not None:
             text = f"{lead}{_value(row, *logged)} ({meaning}; patcher only)."
         else:
-            text = (f"{lead}not shown (only the patcher's log keeps it"
-                    + (")." if log is None else ", and its log for this save has no such row)."))
+            # The save holds no field for this row (SAVE_ROWS), so only the patcher's log can give it.
+            text = (f"{lead}not known: the game's save does not keep this count, only the patcher's Village "
+                    "Statistics log does"
+                    + (" (with that patch in the game, it shows here after the game's next save)." if log is None
+                       else ", and its log for this save has no such row."))
         out.append(gm.Fact(COUNTS, text, gm.SAVE, sub=True))
     return out
 
@@ -567,7 +574,10 @@ def collectible_lines(village: gm.Village, group: str) -> list[gm.Fact]:
         if vv2_words:
             out.append(gm.Fact(group, vv2_words, gm.SAVE))
         elif counts is None and village.game not in life.COLLECTIBLE_PAY:
-            out.append(gm.Fact(group, "Collectibles found: not read from this save by this page.", gm.SAVE))
+            # Only The Lost Children reaches here, and only when its save ends before the found bytes
+            # (vv2.collections_line returns None for a short file).
+            out.append(gm.Fact(group, "Collectibles found: not in this save (the file ends before them); the game's "
+                                      "Collections screen shows them.", gm.SAVE))
         else:
             # The one full copy (Vital statistics points here): owned, found, found again and its pay, the sets.
             lines, _complete = life.collectible_lines(village, life.COLLECTIBLE_PAY[village.game], full=True)
@@ -582,14 +592,46 @@ def collectible_lines(village: gm.Village, group: str) -> list[gm.Fact]:
     return out
 
 
+GOLDEN_KIND = "Golden Mushrooms"
+GOLDEN_LINE = re.compile(r"^(\d{4}-\d{2}-\d{2}) \d{2}:\d{2}:\d{2}$")
+
+
+def golden_record(folder: Path, slot: int) -> list[str] | None:
+    """The dates (YYYY-MM-DD, in order) of the finds the patcher recorded for the slot, or None when there is
+    no record file.  native/vvfp_golden_mushroom appends one "YYYY-MM-DD HH:MM:SS" line per find to
+    "Golden Mushrooms - Save S.txt" (older layout "Virtual Villagers Fun Patcher Data\\Golden Mushrooms\\",
+    routed to the save's own "Virtual Villagers Fun Patcher\\Save S\\Data\\Golden Mushrooms\\"); the file only
+    grows, so of both places the one with more lines holds the other's."""
+    import vv_save_layout as layout
+    relative = f"{layout.DATA}\\{GOLDEN_KIND}\\{GOLDEN_KIND} - Save {int(slot)}.txt"
+    best: list[str] | None = None
+    try:
+        paths = layout.both_places(Path(folder), relative)
+    except OSError:
+        return None
+    for path in paths:
+        try:
+            raw = Path(path).read_bytes()
+        except OSError:
+            continue
+        dates = [m.group(1) for m in (GOLDEN_LINE.match(line.strip())
+                                      for line in raw.decode("ascii", errors="replace").splitlines()) if m]
+        if best is None or len(dates) > len(best):
+            best = dates
+    return best
+
+
 def golden_finds(village: gm.Village) -> list[gm.Fact]:
     if village.has(GOLDEN.format(game=village.game)) is not True:
         return []
-    # The patcher's code: native/vvfp_golden_mushroom (it keeps no record of a find).
-    return [gm.Fact(COUNTS, (
-        "Golden Mushrooms found: not kept. The patcher's Golden Mushroom writes no record of a find, and the game "
-        "counts one only inside Mushrooms Found, as a mushroom, so neither how many were found nor when the first "
-        "one was can be told."), gm.RUNNING)]
+    # The patcher's record (native/vvfp_golden_mushroom, THE FINDS RECORD): one line per find, kept outside the
+    # save; the game itself counts a find only inside Mushrooms Found, as a mushroom.
+    dates = golden_record(village.folder, village.slot)
+    if not dates:
+        return [gm.Fact(COUNTS, "Golden Mushrooms found: none recorded yet (counting started with this version).",
+                        False)]
+    when = f"on {dates[0]}" if len(dates) == 1 else f"first {dates[0]}, latest {dates[-1]}"
+    return [gm.Fact(COUNTS, f"Golden Mushrooms found: {len(dates):,} ({when}).", False)]
 
 
 GAME_LINES = {1: vv1_lines, 2: vv2_lines, 3: vv3_lines, 4: vv4_lines, 5: vv5_lines}

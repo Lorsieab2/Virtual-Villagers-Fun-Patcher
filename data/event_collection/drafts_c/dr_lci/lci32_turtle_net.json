@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Turtle in the Net",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci32_turtle_net",
+  "source": "draft_lci",
+  "lines": [
+   442,
+   453
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L442",
+  "ledger": [
+   {
+    "src": "L443",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child and a healer)"
+   },
+   {
+    "src": "L449",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L449",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L453",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L453",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Children find a sea turtle tangled in an old net: free it on the beach, or carry it to the healers.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and the other children found a big sea turtle on the beach, tangled in an old, torn fishing net. It is tired and has a cut on its flipper. (friend), a healer, has come running. What should they do?",
+   "src": "L445",
+   "choices": [
+    {
+     "label": "Free It on the Beach",
+     "next": "o1",
+     "src": "L447"
+    },
+    {
+     "label": "Carry It to the Healers",
+     "next": "o2",
+     "src": "L451"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) cuts the net away carefully while the children keep the turtle calm by pouring seawater over it. The turtle rests, then drags itself to the water and swims away. The children cheer until it is out of sight.",
+   "src": "L449",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L449"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "It takes eight children and two adults to carry the turtle to the healing hut. (friend) cleans the cut and binds it. The turtle stays three days in a pool by the hut, glaring at everyone. On the fourth day, they carry it back to the sea.",
+   "src": "L453",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L453"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

@@ -102,7 +102,7 @@ static void label_of(const story_event *e, char *out, size_t size);
    is an encounter / a two-choice event); the other games: the villager its
    own condition picked, read from the event object after asking it. */
 static int oc_unlock_possible(int game, const story_event *e) {
-    unsigned int table;
+    unsigned int table, world;
     getter_fn getter;
     void *object;
     if (!oc_event_unlockable(game, e->slot)) {
@@ -111,13 +111,14 @@ static int oc_unlock_possible(int game, const story_event *e) {
     switch (game) {
     case 1: return vv1_base_possible(e);
     case 2: return vv2_base_possible(e);
-    case 3: table = VV3_EVENT_TABLE; getter = (getter_fn)(uintptr_t)VV3_EVENT_GETTER; break;
-    case 4: table = VV4_EVENT_TABLE; getter = (getter_fn)(uintptr_t)VV4_EVENT_GETTER; break;
-    case 5: table = VV5_EVENT_TABLE; getter = (getter_fn)(uintptr_t)VV5_EVENT_GETTER; break;
+    case 3: table = VV3_EVENT_TABLE; getter = (getter_fn)(uintptr_t)VV3_EVENT_GETTER; world = VV3_MANAGER_GLOBAL; break;
+    case 4: table = VV4_EVENT_TABLE; getter = (getter_fn)(uintptr_t)VV4_EVENT_GETTER; world = VV4_WORLD_GLOBAL; break;
+    case 5: table = VV5_EVENT_TABLE; getter = (getter_fn)(uintptr_t)VV5_EVENT_GETTER; world = VV5_WORLD_GLOBAL; break;
     default: return 0;
     }
     object = *(void **)(uintptr_t)(table + 4u * (unsigned int)e->slot);
-    if (object == NULL) {
+    /* the event manager is built only once the game object exists (table_event_object) */
+    if (object == NULL && *(void *volatile *)(uintptr_t)world != NULL) {
         getter();
         object = *(void **)(uintptr_t)(table + 4u * (unsigned int)e->slot);
     }
@@ -588,7 +589,7 @@ static void chooser_description(int index, char *out, int size) {
         }
     } else if (size >= 1100) {
         wsprintfA(out, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_description.s1", "%s\r\n\r\nNot possible right now: %s", 200),
-                  description, event_text(ev, EVENT_REQUIRES, ev->requires, 300));
+                  description, event_requires(ev));
     }
 }
 

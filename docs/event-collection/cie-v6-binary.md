@@ -51,7 +51,7 @@ patches, **pools, items**, (relations), strings. The engine must use the offsets
 | 6 | `B` | age-gap role + 1 (0 none) |
 | 7 | `B` | age-gap years |
 | 8 | `B` | max_age years, 0 = none (the villager's age in whole years must be at most this) |
-| 9 | `B` | special: 0 none, 1 golden_child, 2 tribal_chief, 3 nursing_parent (the role MUST be that villager) |
+| 9 | `B` | special: 0 none, 1 golden_child, 2 tribal_chief, 3 nursing_parent (the role MUST be that villager); **4 prefer golden_child, 5 prefer tribal_chief** (section 35: taken when they may be cast) |
 | 10 | `H` | skill requirement: the skills' names, comma separated (`NONE` = no skill requirement) |
 | 12 | `B` | skill min (the villager's value in at least one listed skill the game has is at least this) |
 | 13 | `B` | pick: 0 random, 1 highest (keep only the villagers with the top value of the listed skills, then draw) |
@@ -102,7 +102,7 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
 
 ## 4. Pools and items
 
-- **Pool: 12 bytes (G3; was 8).** `H name string, H first item, H item count, B flags (1 = distinct), B 0,
+- **Pool: 12 bytes (G3; was 8).** `H name string, H first item, H item count, B flags (1 = distinct, **2 = linked**, section 37), B 0,
   H distinct_from (a string: the pool names, comma separated; NONE = none), H 0`.
 - `distinct_from` (G3): an instance of this pool never draws an item whose TEXT equals the text of an item already
   drawn on the run by any instance of a listed pool (see 6.3).
@@ -131,7 +131,7 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
   - v6 pronouns (male word, female word): `himself/herself`, `woman/man` (man, woman), `boy/girl`, `son/daughter`,
     each with an optional `role.` prefix and a capital form (`(Himself/Herself)`);
   - **role-sex words:** `mother/father`, `father/mother`, `mom/dad`, `sister/brother`, `aunt/uncle`, `girl/boy`,
-    `lady/gentleman` -- the word of the pair that matches the role's sex (a male role: father, father, dad, brother,
+    `lady/gentleman`, **`headman/headwoman`** (section 37) -- the word of the pair that matches the role's sex (a male role: father, father, dad, brother,
     uncle, boy, gentleman), with the optional `role.` prefix, the capital form and ALL CAPS, exactly as the pronouns
     (worst case: the longer word). E.g. The Lullaby's nursing parent: `(parent.mother/father)`. In the engine they
     are `CG_PH_MOTHER` .. `CG_PH_LADY`, after `CG_PH_SON`;
@@ -148,7 +148,8 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
 - `{NAME}` or `{NAME.k}`, k = 1..8: pool `NAME`, instance k (`{NAME}` is instance 1). `NAME` is a pool name
   string (it may start with `@` or `_`). Braces never nest in the binary. A pool item's text may itself hold
   placeholders and pool tokens (not its own pool, depth at most 3, checked by the compiler).
-- Labels (choice labels): placeholders, `\(` `\)` and game words `{@w}` only. At most 95 bytes in v6 (v1-v5: 39).
+- Labels (choice labels): placeholders, `\(` `\)` and game words `{@w}` only. At most 95 bytes in v6 (v1-v5: 39);
+  with Scrolling Popups up to 4,095 (section 19).
 - **Pronoun hint (labels only, section 15):** a name placeholder may end in `|` and a pronoun pair, e.g.
   `(ACCUSED|HE/SHE)`, `(Name1|his/her)`: the form its fallback takes (`he/she`, `him/her`, `his/her`,
   `himself/herself`, any case). Without a hint the fallback is `him/her`. The hint is refused in body text.
@@ -257,9 +258,13 @@ Effect record unchanged (16 bytes: `B code, B role, B flags, B 0, i a, i b, H st
 | 22 | sex_change | role index | 0, 0 | NONE (section 29) |
 | 23 | presentation | role index | a = 1 the other sex's look, 0 the villager's own again; b = 0 | NONE (section 31) |
 | 24 | deliver_early | role index | 0, 0, or a..b: the newborn's extra health loss (-99..-1) | NONE (section 30) |
+| 25 | supply | 0xFF | a..b the change, a gain 1..9999 or a loss -9999..-1 (the three VV4 supplies: 1..99) | a good's word (sections 38, 39) |
+| 41 | trade | 0xFF | a = given (1..9999), b = got (1..9999) | `give,get`: two goods' words (section 39) |
+| 42 | group | role index, or 0xFF = the whole village | a = the share made sick (1..100, `sick` only), else 0; b = 0 | the kind's word (section 40) |
+| 43 | village | 0xFF | a..b: hours (event_timer), points (construction), the step +1 / -1 (tech_level), 0, 0 (weather) | `event_timer`, `construction`, `tech_level` or `tech_level:<area>`, `weather:<word>` (section 41) |
 
 A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22; code 20 is section 23, code 21 section 27,
-code 22 section 29, code 23 section 31, code 24 section 30. **Numbering:** the new name of section 28 is a role kind
+code 22 section 29, code 23 section 31, code 24 section 30, code 25 section 38. **Numbering:** the new name of section 28 is a role kind
 (a stranger's flag), not an effect code.
 
 Preference (8) in v6 may be **random** (section 24): flags bit 8 set, string `NONE` (bit 4 still says dislikes).
@@ -267,6 +272,8 @@ Preference (8) in v6 may be **random** (section 24): flags bit 8 set, string `NO
 | Op | cond | a | Holds when |
 |---|---|---|---|
 | 17 | has_dead_relative | role index | the role's villager is bound, not gone, and has lost a recorded parent or a co-parent (section 21a) |
+| 18 | is_special | role index | the role's villager is bound, not gone, and is A New Home's Golden Child or The Secret City's Tribal Chief (section 37) |
+| 19 | has_supply | the good's word (string); the next H = at least (0..9999) | the village has at least that much of the good to give now; 0: the game keeps the good now (section 39): a run-time fact, allowed in a child's, a variant's, an item's and the requirement's `if`, never a choice's |
 
 | Op | cond | a | Holds when |
 |---|---|---|---|
@@ -500,12 +507,32 @@ Collection, Custom Island Events; the games' own events stay as they are) appear
   next trigger after its intro page and the village's opening event took it) cannot happen.
 - **Effects** are made when the text that tells them is shown (an answer's at its click, with its text); the Island
   Events log keeps ONE entry (a "Choice:" line for each answer). Island Events Seen counts the event once.
-- **Bytes.** A text may hold at most 1990 bytes at its widest (the later games' popup holds 2,000), 8000 in A New
-  Home and The Lost Children (their dialog holds 9,999; `CG_TEXT_MAX_12`, `ONE_POPUP_TEXT_MAX_12`). Lines do not
-  count: the popup scrolls.
+- **Bytes (practically unlimited, the owner 2026-11-16).** A text may hold up to `CE_LONG_TEXT_MAX` = 100,000
+  bytes at its widest (Python `LONG_TEXT_MAX`), a title or a choice's label up to 4,095 (`CE_LONG_LINE_BYTES` 4,096
+  with the NUL; Python `LONG_LINE_BYTES`) -- sanity caps sized to the file (`CG_MAX_FILE` 16 MiB, read into memory as large as the file; `validate` checks the compiled size, Python `MAX_FILE_BYTES`, and one run's words against `CG_DISPLAY_BYTES` 1 MiB, `DISPLAY_BYTES`). The dialog's own
+  field holds 2,000 bytes in the later games and 9,999 in A New Home and The Lost Children: a longer text is put
+  there as its start (`one_popup.h op_long_text_put`: a little short of the field, at a space) and Scrolling Popups
+  draws the WHOLE text (`VvfpPopupWholeText`); a label longer than `op_rows.labels` holds is handed over whole
+  (`op_rows.label_text`). Lines do not count: the popup scrolls. A choice is a row that wraps its label into as many
+  lines as it needs (never the screen-width rule of section 15, never pronouns for width); in the later games a
+  title wider than the text box wraps at the top of the scrolled box (A New Home and The Lost Children lead the
+  text with the title: its first line, the rest after the picture's gap, `cg_title_wrap`). The run file is version
+  5 (`CG_DISPLAY_BYTES` 1 MiB of displays' words; versions 2 to 4 kept 49,152 and are read widened,
+  `cg_file_widen`).
+- **Without Scrolling Popups** the old caps stay (1,990 bytes a text, 95 a label or a title as written, the pages);
+  `validate(scrolling=False)` says so in each problem, and the engine refuses to queue an event whose texts are
+  longer than them where the popups do not scroll (`cg_g.long_text`, `cg_refusal`).
 - **The popup's size**: the constructor's own, for its first text, with the rows and the room OK keeps below them
   (5/2 of OK's height) instead of the room for the game's buttons, capped to the screen; later texts scroll in it.
 - Without Scrolling Popups everything is as before (pages, button room, G1).
+
+### 19a. A fresh page without a question (`"new_page": true`, the owner, 2026-11-16)
+
+A popup node (popup "new") may carry `"new_page": true` (node flags bit 1, `0x02`): with Scrolling Popups it starts
+the event's one popup afresh, as an answer does, instead of joining the text before it -- so a long event never has
+to cut its words to fit the game's popup (1,990 bytes; 8,000 in A New Home and The Lost Children). Without
+Scrolling Popups it changes nothing (that node opens a popup of its own anyway). The fit check measures each part on
+its own (`one_popup`).
 
 ## 20. Sentence case
 
@@ -729,10 +756,20 @@ one may also be written `"preference": "random"`.
   nothing is changed and nothing is refused.
 - A random dislike is harmful (section 7), as a fixed one.
 
+**24a. Taking a like or dislike away (the owner, 2026-11-15).** `{"do": "preference", "list": "likes" | "dislikes",
+"preference": w | "random", "remove": true}` (or `"like"` / `"dislike"` with `"remove": true`): flags bit 16 set
+(bit 4 still says dislikes, bit 8 random), a = b = 0. With a word, that like or dislike is removed; with `random`,
+one the villager holds. Automatic lines (section 25): "unlike" `<R> no longer likes <W>.` and "undislike"
+`<R> no longer dislikes <W>.`. Removing a like is harmful (section 7); removing a dislike is not.
+
 ## 25. Automatic outcome lines (the owner, 2026-11-14)
 
 Some outcomes are written only as instructions ("change hair color", "random like", "skill loss"). The effect is
 made, and the popup says what happened in a short plain line, in the style of the Island Events log's lines.
+**True changes only** (the owner, 2026-11-19): a food or tech line, and the `(award)` amount, are the change the
+game's limits let through (never below 0, never above CE_MAX_AMOUNT), counted through the pages' effects in order
+from the store as it stands when the pages are laid out (`cg_applied`): a village with no food is not told it loses
+food, and an award shows what is paid.
 
 JSON (v6): `"auto_text": true` on a popup node (node flags bit 0, section 2a). The node's text is followed by one
 line for each of the node's effects that has one, in effect order, each after a line break (`"\n"`; a node with no
@@ -908,7 +945,132 @@ parent lives. `birth_then_die` (section 23) always kills the parent, so this is 
   25), as `birth_then_die`.
 - Not offered in the Custom Island Event library's Add menu (a collection effect for now; an owner question).
 
-## 31. The gender presentation (`presentation`, code 23; the owner, 2026-11-15)
+## 31. The content controls (the owner, 2026-11-15): up to 32 patch names; code 25 reserved
+
+`src/vv_event_content.py` writes the island events' content controls into every NEW event as it is compiled (the
+collection's builder and the Living Event Engine's mixer); the event files are never changed, each source's tags are
+in `data/event_collection/content_tags/<source>.json`.
+
+- **Patch names:** a graph may name up to **32** patches (the engine's `cg.patches` mask; before, 8). The content
+  filters are `island_event_filter_f01` .. `f28`, the content notes `island_event_content_notes`: the patcher writes
+  each ticked row in "VVFP Installed Patches.txt", which `cg_installed_has` reads.
+- **Dropped outcomes:** a weighted child (never a player's choice) whose own part of the graph carries a filter gets
+  `{"not": {"patch": "island_event_filter_fNN"}}` (several: `not any`).
+- **Skipped events:** the requirement gets `not (any group covered)` -- a filter still reachable with its edges
+  dropped, or every child of one node dropped. Strict casts (the rare roll, Pick Island Event) refuse it with "the
+  island event content filters to allow it"; a bought event is refused by these parts too ("is kept out by the island
+  event content filters"), never by the requirement's other parts.
+- **The content note:** the first text node(s) get variants "Content note: <labels>\n<text>", each with the
+  condition `island_event_content_notes` and which labels the ticked filters leave.
+- **Code 25 is reserved:** it was a rest period (`rest`); the owner took the rest periods out (2026-11-15), so nothing writes it and the engine refuses a file that holds it.
+
+## 32. Story traits (`trait`, code 26) and speaking roles (the owner, 2026-11-15)
+
+- **`{"do": "trait", "role": r, "trait": "mute"}`** (a = the trait's bit, 1 "mute"; b 0; no string): made at its
+  place, it keeps the trait for the villager in the same per-villager file as the rest periods (`story_rest.inc`),
+  whatever is ticked; it follows them as every patcher sidecar does. "The Quiet Hands" (Inner Life 3, `il003_*`)
+  gives it to the villager it casts (`src/vv_event_content.py` TRAIT_EVENTS writes the effect on its start, or on
+  each answer's first node when the start is a question). Never a change, never a line, never logged.
+- **A speaking role:** byte 13 of a villager role (the skill pick, 0 or 1) carries bit 7 (`0x80`) when the event's
+  words have that role speak (a quoted line attributed to them: `speaking_roles`, kept in the source's tag table as
+  `"speaks"`). Such a role never takes a villager with the trait "mute" (`cg_eligible`).
+- **Dislikes talking = mute** (the owner, 2026-11-17): in a game whose like / dislike list has "talking" (The Lost
+  Children .. New Believers; A New Home has none), any villager who dislikes talking counts as mute, however they
+  came by it (`story_traits.inc` rs_has_trait). The "mute" trait effect also gives the villager that dislike there,
+  through the preference effect's own write (24); in A New Home it keeps the trait only.
+- **A sex change keeps the trait:** the file keys villagers by an identity that holds the sex, so the companion's
+  `VvfpVillagerSexChanged` carries the entry to the new identity (`rs_sex_changed`); a save from before a change finds
+  it through the Sex Changes log.
+
+## 33. Count tokens: text that fits what the effects made (the owner, 2026-11-15)
+
+Twins and triplets (pregnant / nursing flags bits 1-2), up to two clones (clone a = 2) and several new villagers come
+only as far as the game's room allows, so the text says how many actually came:
+
+- **`{#babies:A|B|C}`**: the babies the page's `pregnant` / `nursing` effects actually put on their way (each
+  game's own conception, its room check included).
+- **`{#made:A|B|C}`**: the villagers the page's `new_villager` and `clone` effects actually made.
+- **The option:** A for 1 (and for 0 or nothing known), B for 2, C for 3 or more; with fewer options the last one
+  is used for anything past it. Examples: `{#babies:a baby|twins|triplets}`, `{#babies:it|them}`,
+  `{#babies:is|are}`, `{#made:one|two|three}`, `{#made:a newcomer|two newcomers|three newcomers}`.
+- **Which count:** the page's own count once its effects are made (the engine fills the tokens after it makes
+  them, before the page is shown); a page that makes no such effect uses the last earlier page's count of the same
+  event ("the following page"). Nothing made yet on the event: A. The counts are memory only: after a quit and a
+  restore between pages, A.
+- **Syntax:** `{#`, the count's name (`babies` or `made`), `:`, then 1 to 3 options separated by `|`, then `}`.
+  Each option is 1 to 160 bytes of the plain text set (letters, digits, space, `, : - ' "` and `; / & %`) and
+  placeholders: the event's own names and pronouns (`(name)`, `(Name1)`, `(child.he/she)`, `(his/hers)`, ...; no
+  label hint) and `(made1)` / `(made2)`. No pool or game word, brace, line break or `.` `!` `?` (so a page break never
+  falls inside one). Body text only, never a button label or a title. Any other `{#...}` is refused by the loader.
+  The option is chosen first, then its placeholders are filled (and VV1/VV2's glyph fallback made) as the rest of the
+  page's were.
+- **Fit:** the worst case is the widest option with its placeholders at their widest (CG_EXPAND_WORST; Python
+  `worst_v6` the same), so the pages are laid out for it.
+
+### 33a. The names of the villagers the event made: `(made1)`, `(made2)`
+
+- **`(made1)`** is the name of the newest villager the event's `new_villager` (not a child of the newest, flags bit
+  0) or `clone` effects made; **`(made2)`** the one made before it. With only one made, both are that villager (so
+  `(made2)` is never empty); with none, "a newcomer". The game's own name, read after the page's effects are made
+  (any case: `(Made1)` the same). Body text and count options only, never a label or a title.
+- **When:** filled when the page is shown, after its effects; on a later page of the same event the same villagers
+  (memory only: after a quit and a restore between pages, "a newcomer").
+- **Fit:** the worst case is `W` x the game's name room.
+
+- **`(renamed)`** (any case) is the name the event's latest `change_name` (33) gave (random or fixed), filled after
+  the page's effects as `(made1)` is; before any rename, the current name of the villager the event's first
+  `change_name` is for. Body text and count options only.
+- **A renamed villager's role** (change_name, the lost name "?", a mind swap) keeps following them: the role's own
+  `(name)` / `(Name)` and the role shorthand show the new name on every later page -- pages laid out before the
+  rename have the old name put back as the new one (whole words), pages laid out after it have it already -- and the
+  role's later effects still reach them (their identity, which holds the name, is taken again). The rename's own
+  page keeps the names it was written with, so "(subject) is now called (renamed)." reads "Ana is now called Lani.".
+  Memory only for the old pages: after a quit and a restore between pages, a page laid out before the rename may
+  show the old name.
+
+### 33c. New Believers' Heathens and Faith (the owner, 2026-11-16; "VV5 Heathen Events - What Vanilla Does")
+
+- **A Heathen's role (`"heathen_ok": true` on a villager role):** role byte 13 bit 6 (`0x40`, beside SPEAKS `0x80`;
+  the flags byte 1 is full). Keep `believers_only` as it is (true): the engine casts such a role only among the
+  Heathens whatever byte 1 says, so a believer is never cast in it. In New Believers the role is cast as the
+  game's own picker `0x471870` casts a Heathen (Heathens-only on, special roles off): a Heathen, never roles 12-17
+  (the Heathen Doctor, the Heathen Chief, the three Masters, the Heathen Mommy), never sick, health above 0, listed
+  (present, not a body or a spirit); carrying or nursing allowed; the role's own ages and sex apply (a child under
+  14 for a child's story, 14 or more for an envoy). Default stays believers only. In the other games the bit is
+  ignored. Vanilla casts one Heathen an event; an event may name more.
+- **What may happen to a Heathen's role** (refused when the file is loaded, whatever is ticked, No Safeguards too):
+  `faith`, `join`, `action` (stopped, walked, posed), `health_change` down to -30 (minor harm, as The Missing Kids),
+  `sick`, `trait`. Never a death, a disappearance, an age, a skill, a like or dislike, a lower Faith.
+- **`faith` (code 38):** role; a = the Faith gained, 1..35 (vanilla +5..+35); b 0; no string. The game's
+  FAITH_ADD `0x468020`: a Heathen whose Faith ends above 0 joins the tribe the game's own way (its message, role,
+  counters, puzzle check; below 5 becomes 55). Auto line "<R> feels closer to the tribe."
+- **`join` (code 39):** role; a = b = 0; no string. A Heathen joins: SetFaith `0x467F90`(20, 1), then
+  `0x466880`(0), as The Defector. A believer already: nothing. Auto line "<R> joins the tribe."
+- **`apostasy` (code 40):** role (a believer's, never a Heathen's role); a = b = 0; no string. A believer becomes a
+  Heathen by their own choice (write it only where the player's answer has the believer choose it): SetFaith(-10,
+  1), then `0x466880`(1), as The Spa and The Cracked Mask. Harmful (protected villagers kept out). Auto line
+  "<R> becomes a Heathen."
+- Only in New Believers; in the other games the three do nothing. UNCONFIRMED live: the three routines are called
+  as thiscall on the villager's record, as the vanilla events call them.
+
+### 33b. Other forms (the owner's files, 2026-11-16)
+
+- **`(his/hers)`**: the standalone possessive ("the choice was hers"), with the role prefix, the capital and ALL
+  CAPS forms as every pronoun (`(friend.his/hers)`, `(His/Hers)`, `(HIS/HERS)`). Engine `CG_PH_HIS_HERS`.
+- **Role-prefixed pronouns** were already read: `(<role id>.he/she)`, `(<role id>.his/her)`, `(<role id>.him/her)`,
+  `(<role id>.himself/herself)`, `(<role id>.man/woman)`, `(<role id>.woman/man)`, `(<role id>.boy/girl)`,
+  `(<role id>.son/daughter)`, the role-sex words of section 5, and now `(<role id>.his/hers)`. `name1` / `name2` take
+  no prefix: `(name2.his/her)` is not a form; write `(friend.his/her)` (name2 is the role `friend`).
+- **Group targets by age:** role byte 254 with byte 3 = 4 every elder (55 or more), 5 every child (under 14), 6 every
+  teen (14 to 17), 7 every adult (18 or more); the last H 0. A random like or dislike (preference with flags bit 8)
+  may now take a group too: each member draws their own word.
+- **Group targets on `appearance` (17):** role byte 254 takes `appearance` too; with a random head or body each
+  member draws their own row (the game's random routine), so "a new look for three random villagers" gives three
+  looks.
+- **Python (the compiler, the importer):** accept the token in text, measure it as its longest option, `simulate`
+  with a count of 1 unless the facts give `count:babies:<n>` / `count:made:<n>`; `normalize` keeps it as written.
+
+## 34. The gender presentation (`presentation`, code 23; the owner, 2026-11-15)
 
 JSON (v6): `{"do": "presentation", "role": r, "on": true}` (`on` defaults to true; a = 1 when on, 0 when off; b = 0,
 string `NONE`; no roll). The villager keeps the sex the game records for them and is drawn with the other sex's heads
@@ -937,3 +1099,354 @@ Appearance's "Gender presentation: use the other sex's look" offers.
   their own look again." (off); the automatic line (section 25): `R's look changes.`
 - No game capability bit: whether it can be made is known only at run time, so the patcher's checks accept it in
   every game.
+
+## 35. New villagers, pregnancy, nursing, clones, body swaps, names and ages (codes 27-37; the owner, 2026-11-15)
+
+Collection effects, added only where an outcome's own text says it (`scripts/food_tech_additions.py`
+EFFECT_ADDITIONS; `docs/event-collection/food-tech-log.md`). `scripts/collection_check.py` validates them (check e);
+`src/vv_cie_graph.py` has their codes, so `normalize`, `_compile_v6` and `_decompile_v6` carry them (the round trip is
+exact). `new_villager`'s role byte is its `copy_of` role (0xFF none). (`graph_for_engine` would leave out any of these
+codes that a `vv_cie_graph` without them does not know.) The run-time side (story_graph.inc) is the engine's.
+
+| Code | do | role byte | flags | a | b | string |
+|---|---|---|---|---|---|---|
+| 27 | new_villager | `copy_of` role index (or 253 / 252), or 0xFF (a random new villager) | 1 a child of the two newest villagers | age: 0 any, 1 child, 2 teen, 3 adult, 4 elder | sex: 0 random, 1 male, 2 female | NONE |
+| 28 | pregnant | the carrier's role index | 1 any_birth_sex; 2 the game's multiple-birth roll, 4 twins, 6 triplets; 8 partner_may_carry | the partner's role index (or 253 / 252), or 0xFF | 0 | NONE |
+| 29 | nursing | the carrier's role index | 1 any_birth_sex; 2 the game's multiple-birth roll, 4 twins, 6 triplets; 8 partner_may_carry | the partner's role index (or 253 / 252), or 0xFF | 0 | NONE |
+| 30 | clone | role index | 0 | how many: 0 or 1 = one double, 2 = two | 0 | NONE |
+| 31 | body_swap | role index | 0 | the other role's index | 0 | NONE |
+| 32 | lose_name | role index | 0 | 0 | 0 | NONE |
+| 33 | change_name | role index | 0 | 0 | 0 | the fixed name (offset 12), or NONE / empty: a random default name |
+| 34 | change_age | role index | mode: 0 child (1-13), 1 teen (14-17), 2 "18", 3 adult (20-49), 4 "50", 5 elder (55-75), 6 add years | add: min years (-120..120); else 0 | add: max years (min <= max); else 0 | NONE; the last H = the age cap in years (0 none, at most 120) |
+| 35 | cure | role index (or 254) | 0 | 0 | 0 | NONE |
+| 36 | repair | 0xFF | 0 | 0 | 0 | the structures, comma separated, or `any` (as damage's) |
+| 37 | young_look | role index (or 254) | 0 | 0 | 0 | NONE |
+
+- **`{"do": "new_villager"}`**, optionally `"copy_of": r` and `"age": "child" | "teen" | "adult" | "elder"`: a new
+  villager joins the tribe (a newcomer who stays, a castaway). With `copy_of`, the newcomer has the role's villager's
+  looks (head, body, sex) but its own likes, dislikes and skills, rolled from the game's lists (a lookalike, a double).
+  Never for visitors who leave.
+- **`{"do": "pregnant", "role": r}`** and **`{"do": "nursing", "role": r}`**, optionally `"partner": p` and
+  `"any_birth_sex": true`: the role's villager becomes pregnant, or has a nursing baby now. The carrier is cast born
+  female (any current sex), 18 or older, and never a villager already pregnant or nursing (the engine checks the
+  carrier when the effect applies; one that cannot carry is a refused change). The partner is `p` (the event's
+  recorded spouse or partner role) or, left out, an adult of the other birth sex. Parentage is recorded at conception
+  as usual. `any_birth_sex` (flags bit 0, value 1) lets a born-male villager carry: where the text involves magic (a
+  spell, a blessing, an enchanted spring, a spirit, a potion), or, for `nursing`, where the text has him caring for a
+  baby (his partner's, a single father, a deceased mother's child, a nursery or orphanage, an abandoned or rescued
+  infant, an adopted or refugee child, someone who cannot care for their child) or a villager who transitioned from
+  female to male. Otherwise born-male villagers never conceive from these events (Custom Island Events can, with Male
+  Pregnancy). `"partner_may_carry": true` (flags bit 3, value 8; needs `partner`): the carrier is still checked as
+  above, then, at the player's "a man may carry the baby by chance" percent (10 unless moved), the partner carries
+  instead, of any birth sex, when they are 18 or older and not expecting already; else the carrier does. **Who
+  carries is decided once, when the run starts (the cast made and the aliases drawn), before any page is written**
+  (the owner, 2026-11-18; `story_graph.inc cg_partner_carry_decide`, `vv_cie_graph.partner_carry_pairs`): each
+  such effect's pair once (an alias role as its member drawn), in effect order, one roll (none at 0 or 100 percent);
+  on a yes the two roles' villagers change places for the whole run, so every page's names, pronouns and carrier
+  words name the villager who carries, the effect makes that villager carry (the born-female check skipped for them)
+  and the conception records the other as the other parent. Another outcome's `nursing` for the swapped role (a
+  foundling the couple takes in) also goes to the villager the page names, whatever their birth sex.
+  The run's file (version 5) keeps the swap (`carry_swapped`): a loaded run keeps the choice whatever the setting
+  says by then; a version 4 file loads with nobody swapped. The new events set it on every couple pregnancy (`pregnant` with a partner and without `any_birth_sex`); a reason-based
+  one (`any_birth_sex`), a single parent and a `nursing` foundling never do.
+- **`{"do": "clone", "role": r}`**, optionally `"count": 1 | 2` (default 1; value a, 0 or 1 = one, 2 = two): an exact double of the role's villager joins the tribe (looks, likes, dislikes and
+  skills copied). A clone and a `copy_of` duplicate ALWAYS get a name different from the original's.
+- **`{"do": "change_name", "role": r}`**, optionally `"name": "Lani"`: a real rename, to that name or (left out) to a
+  random default name from the game's own name lists (either sex's), for "a villager wants to change their name".
+  A fixed name is 1-31 characters: a letter first, then letters, spaces, apostrophes, hyphens or full stops, no
+  trailing space (normalize and collection_check refuse anything else).
+- **`{"do": "change_age", "role": r, "to": "child" | "teen" | "18" | "adult" | "50" | "elder"}`**, or
+  **`"years": n | [a, b]`** (-120..120, not 0; negative is younger): "teen" is 14-17, "adult" 20-49, "elder" 55-75;
+  "years" rolls a..b once at its place in the walk.
+- **Authoring (the owner, 2026-11-15):** a death is `kill` (a skeleton and a grave); a disappearance is `vanish` (no
+  skeleton). A permanent disability the text states may be a health loss (`health_change`, 10-90), a dislike of
+  running, work or learning (or another fitting dislike from the game's list), or the old head look (`old_look`) for
+  stress. Anything a stock event of that game can already do is allowed; an outcome may stay flavor only.
+- **`{"do": "body_swap", "role": a, "with": b}`**: the two villagers swap heads and bodies (looks only; names, ages,
+  skills and likes stay).
+- **`{"do": "lose_name", "role": r}`**: the villager's name becomes "?", as the stock bump-on-the-head event does.
+- Not harmful (section 7) and no automatic line (section 25) until the engine side is built.
+
+**The engine's further layouts (feat/97-island-events-ui 3a3651283, 8ebafe54f; the effect record is `B code, B role,
+B flags, B byte 3, i a, i b, H string, H last`):**
+
+- **`{"do": "cure", "role": r}`** (35): the villager is cured; line "<R> is cured.". **`{"do": "repair", "structures":
+  "any" | [names]}`** (36): the damaged buildings are repaired; line "The damaged buildings are being repaired.".
+  **`{"do": "young_look", "role": r}`** (37): the villager's young head look (section 27's twin).
+- **Group targets:** `"target": {"all": true} | {"skill": "Healing"} | {"random": 3}` in place of a role, on health,
+  preference (a word, never random), skill and skill set, sick, action, mood, health_change, cure, young_look,
+  old_look and celebrate: role byte 254; byte 3 the selector (1 every villager, last H 0; 2 every villager with that
+  skill at 50 or more, last H the skill name's string; 3 N villagers at random, last H = N, 1..255). Byte 3 and the
+  last H are 0 on every other effect (change_age's cap aside). No automatic line from the compiler (the engine's).
+- **The best skill:** skill (9) and skill set (15) with `"best": true` in place of the skills: flags bit 32, the
+  string "best"; line "<R> gets better at what <P> does best.".
+- **The event's new villagers:** `"$newest"` (role byte 253) and `"$previous"` (252), the villagers this event's
+  new_villager or clone made, stand for a role in any villager effect, as a pregnant / nursing partner (a) and as
+  new_villager's `copy_of`; no role is declared for them. new_villager also takes `"sex": "male" | "female"` (b;
+  random when left out) and `"child_of_newest": true` (flags bit 0: a child of the two newest villagers).
+- **change_age's cap:** `"max_age": 75` (the last H): never past that age ("never past elder").
+- **The babies of pregnant / nursing:** `"babies": "roll" | 2 | 3` (left out: one): flags bit 1 the game's own
+  multiple-birth roll (7% more than one, a quarter of those triplets) without its technology gate; bit 2 twins; bits 1
+  and 2 triplets; any other bit is refused.
+
+## 36. Count tokens and the other new forms: the compiler's side (engine 0853e8327; section 33 is the engine's)
+
+`{#babies:A|B|C}` and `{#made:A|B|C}` stand in BODY text only (a page, a variant, a pool item), never in a button label
+or a title. They show A for a count of 1 (or 0, or unknown), B for 2, C for 3 or more (a missing option: the last one
+given): `#babies` counts the babies the event's pregnancy or nursing effect brought, `#made` the villagers its
+new_villager and clone effects made. One to three options, each 1-160 bytes: letters, digits, space,
+`, : - ' " ; / & %` and placeholders (engine 5ee2b3dc0) -- no braces, line breaks or `. ! ?`.
+
+The compiler keeps the token as written (it is never an inline pick; the engine shows the option). A page is measured
+by the token's widest option, its placeholders at their widest. `simulate` shows the count of 1 unless its facts give `count:babies:<n>` or
+`count:made:<n>`. `collection_check` reads a count token's options as the source's "(A/B/C)".
+
+**More text (engine 5ee2b3dc0):**
+
+- **`(made1)` / `(made2)`** (any capitals, `(Made1)`, `(MADE1)`; no role prefix): the name of the newest villager this
+  event made (new_villager, clone) and of the one before (the effects' `$newest` / `$previous`). Body text only, never
+  a button label or a title; measured as a full name.
+- **`(his/hers)`**, with capitals (`(His/Hers)`, `(HIS/HERS)`) and a role prefix (`(friend.his/hers)`): the possessive
+  that stands alone ("the choice was hers").
+- **appearance (17) takes a group target** (`"target"`, role byte 254) like the effects of section 35.
+- **`(renamed)`** (any capitals; engine a4f4f1d0b, section 33a): the latest change_name's new
+  name (before any rename, the current name of the first change_name's villager). Body text and count options only,
+  never a label or a title; measured as a full name. `expand_v6` shows the binding `"$renamed"` when given, else the
+  graph's fixed change_name name, else "Renamed".
+
+**A cast Heathen (`"heathen_ok": true`, VV5; the owner, 2026-11-16).** As vanilla does, a New Believers event about an
+Isolan who lives on the island casts a real Heathen villager for that one role (never a Heathen role character such
+as their Chief or a Master, never sick); a traveller from elsewhere stays a stranger. Such a role takes only faith,
+join, actions and minor harm (health -5..-30, sick); collection_check refuses anything more. Until the engine's own
+role flag is in `src/vv_cie_graph.py`, `collection_check.graph_for_engine` gives the engine the role as
+`believers_only: false`. The roles (`scripts/food_tech_additions.py` HEATHEN_ROLES, applied on disk and by the
+generators): blf26_isolan_feast friend, blf27_songs_across friend, vv5_v17_cooking isolan, vv5_great_laundry_mishap
+isolan, vv5_great_woodworking isoleader, vv5_potluck_dispute isolan, vv5_gift_or_insult visitor,
+vv5_multicultural_festival visitor (each a villager of 14 or more; none takes an effect).
+
+## 37. Preferred special villagers, the chief's title and words that follow the villager (the owner, 2026-11-16)
+
+**A role that prefers a special villager.** JSON (v6): a villager role's `"prefer": "golden_child"` or
+`"prefer": "tribal_chief"` (never with `special`). Binary: the role's byte 9 = **4** (prefer the Golden Child) or
+**5** (prefer the Tribal Chief); the loader refuses more than 5. Unlike `special` (1-3: the role MUST be that
+villager), the role is cast as usual -- every requirement, safety rule and the protected filter -- and then, among
+the villagers that may take it (the ones that keep the other roles fillable, after a `"pick": "highest"`), the
+Golden Child (A New Home) or The Secret City's Tribal Chief is taken when one of them is there (`cg_bind`; only one
+lives, so no roll); else any of them, by the usual draw. Allowed in every game (only A New Home has a Golden Child,
+only The Secret City a Tribal Chief). A protected role (section 7) keeps them out as before.
+
+**Cond op 18, `is_special`.** JSON `{"is_special": r}` (a role; on an alias, its member drawn): the role's villager
+is bound, not gone, and is the game's special villager (A New Home's Golden Child, The Secret City's Tribal Chief),
+by the game's own kind (`cg_special_kind`), whatever No Safeguards says. A run-time fact like `age` (section 8):
+`simulate` takes it from `facts` (`"is_special:<role>"`); never in a requirement or a choice's `if`.
+
+**The chief's title (linked pools).** A game word named `chief`, `Chief`, `a_chief`, `A_chief`,
+`chiefs_possessive`, `village_chief`, `tribal_chief` or `Tribal_chief` (or a label's title-case copy, `w_tc` /
+`w_tcN`) whose texts hold a chief or leader noun is the chief's title (`vv_cie_graph.CHIEF_WORDS`). `lower` writes
+its pool `@w` as:
+
+1. one item per distinct text with its games (`{"game": [...]}`, weight 1) -- the author's words, as every game
+   word; `lift` reads back only these;
+2. then, for each of those texts in the same order, the text with its noun replaced by each other title of
+   `CHIEF_TITLES` -- "chief", "leader", "elder", "headman" / "headwoman", "council head" -- with the same games
+   (`{"all": [{"game": [...]}, ...]}`, weight 1), plus `{"not": {"is_special": c}}` when the event has a chief role
+   `c` (a villager role whose `special` or `prefer` is `tribal_chief`). "elder" is left out when any text puts an
+   article before a chief word ("A {@chief}"); a noun after "a" in the word's own text takes "an" before "elder".
+   "headman" is only for a chief role: the role-sex word `(c.headman/headwoman)` (section 5's list, after `his/hers`:
+   `CG_PH_HEADMAN`). The title takes the noun's case: capitals for a capital noun alone or a label's word ("Council
+   Head"), a capital first letter when the noun opens the text, else lower case.
+
+Every title of a game is equally likely; with the real Tribal Chief cast in the chief role only the author's VV3
+word is eligible ("the Chief"). The pools have flags bit **2 (linked)**. **The draw** (section 6.3): an instance of a
+linked pool, when the run (the path's picks, then the segment's) already holds a pick of a linked pool with an item,
+takes that item NUMBER -- no roll, no condition asked again -- so every chief word of the run says the same title,
+and a resumed run (its picks are in the run's file) shows the same word. Otherwise it is drawn as any pool. Linked
+pools of one event hold the same games and titles in the same order (`lower` links them only then). The fit check
+measures the longest item as for every pool.
+
+**Words that follow the villager.** A role's words (pronouns and role-sex words, section 5) follow the sex the game
+records for the villager -- and, for a carrier (a `nursing_parent` role, or the role a `baby_lost` effect names) and
+a role that is or prefers the Tribal Chief, the sex they are DRAWN as with "VVFP Gender Presentation.dll" (section
+34: `VvfpGenderPresentationGet`; without the companion, the recorded sex): `story_graph.inc cg_word_female`. A
+`sex_change` (section 29) and a `presentation` effect (section 34) set the role's words again, so later pages follow
+the change (pages are laid out with the longer word). The Golden Child's words are his recorded sex (his presentation
+is never changed).
+## 38. The Tree of Life's supplies (`supply`, code 25; the owner, 2026-11-17)
+
+JSON (v6): `{"do": "supply", "item": "cutting_tools" | "soap" | "cloth", "min": a, "max": b}` (the village's; role
+byte 0xFF; a..b a gain 1..99 or a loss -99..-1, `min <= max`; the string is the item word). The walk rolls the change
+as `damage`'s percent (a..b, each equally likely). An island event's words about The Tree of Life's cutting tools,
+bars of soap or cloth bolts change the real count: **a "sack" in an event is a cloth bolt** (the sacks are made per
+trip, "Cloth Sacks for Yellow Fruit").
+
+- **The counts** (story_c4.inc `C4_SUPPLY_*`): each object's own saved dword, cutting tools [0x4D8618], bars of soap
+  [0x4D8D98], cloth bolts [0x4D8ACC] (`native/vvfp_vv4_supply_cap/vvfp_vv4_supply_cap.c` lists the stock code).
+- **The limits:** cutting tools and cloth bolts 0..6, the stock game's own cap; 0..99 when Up to 99 Cutting
+  Tools/Soap/Cloth is in place ("VVFP VV4 Supply Cap.dll" loaded and its export `VvfpSupplyCapInstalled` says 1, every
+  site written). Soap has no stock cap: an event keeps it within 0..99. Never below 0. A gain never lowers a count
+  already above its cap (a save made with the cap raised, opened without it, keeps its count as the stock game does).
+- **Not invented yet:** before the item's puzzle is solved (The Cutting Tool, Soap Invented, Cloth Invented; the
+  adapter's `puzzle_solved`, the flag the game's Puzzles screen reads) the effect changes nothing: the words are
+  story only.
+- **Other games:** nothing (the effect is The Tree of Life's). The patcher refuses it in an event whose games do not
+  include 4; an event for all five games keeps its words as story elsewhere.
+- **The log:** one line in the event's Island Events log entry, `  Cutting tools: 4 -> 6` (`Bars of soap`, `Cloth
+  bolts`), only when the count changed.
+- **No automatic line** (section 25): whether it changes anything is known only in the game, so the event's own words
+  say it.
+- **Harmless** (section 7): nobody is changed.
+- Tests: `tests/test_vv4_supply_effect.py` (the stock The Tree of Life executable in the emulator: 6 and 99, never
+  below 0, the cap kept, nothing before the puzzle, the log line; every new supply event, every choice).
+
+## 39. Goods and traders (`supply`, `trade`, `has_supply`; the owner, 2026-11-16/17)
+
+> Merge note (v1.35.97): #813 numbered these sections 33-35 and its codes trade 26, group 27, village 28 and
+> cond has_supply 18; round 6 already held those numbers, so they are sections 39-41, codes 41, 42, 43 and
+> cond 19 here. Any other 26/27/28/18 below that means trade/group/village/has_supply reads 41/42/43/19.
+
+
+docs/event-collection/traders-and-effects-research.md lists every address and its evidence; the engine is
+`native/vvfp_story_upgrades/story_graph_village.inc` (`CG_GOODS`).
+
+- **The goods** (`vv_cie_graph.GOODS`): `food`, `tech` (every game); `berries` (VV1); `coconuts`, `fish` (VV2);
+  `honey`, `fruit` (VV3: the three trees, a gain to the emptiest planted tree, a loss from the fullest);
+  `blackberries`, `cutting_tools`, `soap`, `cloth` (VV4); `noni` (VV5); `collectible` (VV2-VV5). A word the game does
+  not keep is story only there; the patcher refuses an effect no game of the event keeps.
+- **Never below 0; a gain stops at the game's own ceiling** (the adapter's value limits: berries 5000, coconuts 1500,
+  fish 2200, honey 3000, a tree 1000, blackberries 1000, noni 1000; The Tree of Life's three supplies as section 38).
+- **Collectibles**: a gain is +1 to a random piece (VV2: a piece not found yet becomes found); a loss takes only a
+  duplicate (a count above 1), never a piece's last one, so no set and no population room is ever lost. VV2 has no
+  duplicates: it never gives one. The pickup's own messages and trophies are not paid (only the pickup pays them);
+  each game reads a set's room live, so a piece that completes a set gives its room at once.
+- **`trade`** (code 41): `{"do": "trade", "give": g, "give_amount": n, "get": h, "get_amount": m}`. All or nothing:
+  nothing happens when the village has less than n of g, when the game keeps either good not, or when it has no room
+  for any more of h. No roll.
+- **`has_supply`** (op 19): `{"has_supply": {"item": g, "min": n}}`: the village has at least n of g to give now
+  (collectibles: duplicates); `"min": 0` holds when the game keeps the good now (VV3's fruit with a tree planted, The
+  Tree of Life's supplies once invented). A trader event offers a trade only behind both (what it gives, n; what it
+  gets, 0), so nothing is offered that the village cannot give or the game cannot keep. In Python it is a fact (`has_supply:<item>:<n>`) taken either way.
+- **The log**: one line a change, `  Honey: 2990 -> 3000` (food and tech are in the entry's own comparison).
+- **No automatic line** (section 25).
+- Tests: `tests/test_traders_and_village_effects.py`.
+
+## 40. Group behaviours (`group`, code 42)
+
+`{"do": "group", "kind": k, "who": "all" | role}`, and `"percent": p` for `sick`. Every living, listed villager (VV5:
+believers; never The Secret City's stand-in record) of the kind's ages takes the game's closest real action
+(`CG_GROUPS`): `relax`, `swim`, `dance`, `pray` (VV5 Praising), `celebrate`, `pond`, `play` (children only),
+`stories` (elders 55+ tell, children listen), and **songs, chants and speeches** -- `song`, `chant`, `speech` -- through
+each game's celebration, dance, Chief's Address (VV3), praising or honoring (VV5): the song itself is the event's
+words. With a role, that villager alone takes the kind's action. `sick` makes p% (rounded up) of the villagers no harm
+may reach not (section 7) sick by the adapter's own sickening; `cure` clears every villager's sickness field. Both are
+the whole village's only. No roll; no automatic line.
+
+## 41. The village (`village`, code 43)
+
+- `{"what": "event_timer", "min": a, "max": b}`: below 0, the next island event comes as the Gong of Wonder's "luck" brings it (VV2 0x44ECE1: the timer set to now + 60 s), never later than it already was; above 0, a..b hours later (1..72), never past now + the game's own longest gap after an event (A New Home 23 h, The Lost Children 19 h, the later three 15 h). Never before now; which event comes and its odds are never touched. Each game's own timer and clock (`sc_clock`). Every stock write of the timer (VV1 0x41C4AE / 0x42386D..0x423A6F / 0x42E930, VV2 0x4252A2 / 0x42EF7D..0x42F17F / 0x43B6C8, VV3 0x4280B9 / 0x428C8B / 0x4687E5..0x4688D4, VV4 0x41F322 / 0x420359 / 0x43FAE7..0x43FBD0, VV5 0x42485B / 0x425E54 / 0x44279E..0x442834) is a new village's, the pause's shift, or the scheduler's when an event fires -- before its popup shows -- so an event's own write is never overwritten by the event that carries it.
+- `{"what": "tech_level", "step": 1 | -1, "area": name?}`: one area (named, or any that can move) up or down within
+  1..3. Up by the game's own raise in The Secret City (0x426FD0), The Tree of Life (0x41E1D0) and New Believers
+  (0x423610, no trophy); A New Home and The Lost Children by a plain write, as their island events do. Down is a plain
+  write (no game lowers a level; every reader reads it live; what was built stays). The Secret City's Nature and Magic
+  are never moved from 0 (that would choose the faction) nor back to it. An event with this effect is not gated on tech.
+- (words only since the owner's final list) `{"what": "construction", "min": a, "max": b}`: a..b more points (1..2000) on one hut a builder has begun, at random;
+  it stops one short of the hut's total so the builder's next trip finishes it the stock way.
+- `{"what": "weather", "weather": w}`: `clear`, `sun`, `rain`, `storm`, `fog` by the game's own starter, as its island
+  events call it (type, 0): The Secret City 0x41FB40 (no sun), The Tree of Life 0x46BC30, New Believers 0x477060.
+  **A New Home and The Lost Children have no weather**: nothing there.
+- Each change has its log line (`  Tech level (Science): 2 -> 3`, `  Construction: 1200 -> 1350 of 2000`,
+  `  Weather: rain`, `  The next island event: 3 hours sooner`). No automatic line.
+- **Not possible:** a fish run outside VV2 (no store: VV2's is `supply fish`). The spawn burst, the work rush and the
+  temporary effects are section 42.
+
+## 42. Work rush, a spawn burst, temporary effects, yellow fruit (the owner, 2026-11-18)
+
+> Merge note (v1.35.97): #813 numbered this section 36 and the next 37; sections 36-41 were taken, so they are 42
+> and 43 here.
+
+- **Work rush** (`group`, string `work:<Skill>`, the whole village only): `{"do": "group", "kind": "work", "skill":
+  "Farming" | "Building" | "Research" | "Healing" | "Parenting" | "Devotion"}`. **That skill's workers** (the owner,
+  2026-11-18) are every listed adult (14+; VV5 believers) who has that job ticked on the Details screen
+  (VV1 [+0x3D0] 1..5, VV2 [+0x7F8] 1..5, VV3 [+0xEC0], VV4 [+0x1C70], VV5 [+0x1C74] a skill index, -1 none), or who has
+  no job ticked and whose highest skill it is (the owner, 2026-11-18: the highest number on the Details screen; a tie
+  is the skill the Village screen's Action bar shows under "Skill", its own routine: VV1 0x43B520 (from 0x41FB34) and
+  VV2 0x44B4D0 (from 0x429B75) read Parenting, Building, Healing, Farming, Research, the earlier kept; VV3 0x462460
+  (from 0x468DDE) Farming, Parenting, Healing, Research, Building, the earlier kept; VV4 0x46AC20 (from 0x4402EA) and
+  VV5 0x4755C0 (from 0x442E8B, Devotion sixth) the same order of float skills, each against the best so far cut to a
+  whole number (_ftol): 40.2 after 40.7 wins, 40.0 does not). Another job ticked: never. They take the game's own job action for it (`CG_WORK`, the adapters' labels: Foraging, Harvesting coconuts,
+  Fishing (VV3), Harvesting blackberries, Harvesting noni; Researching; Fixing hut / Exercising / Doing exercise;
+  Healing someone / Studying medicine / Health chanting; Telling a story; Praising). Every other adult takes the busy
+  state with no skill: **VV3 "Working 'til he/she drops!"** (action 0x3A), VV4 / VV5 "Needs to sit down" (0x4F /
+  0x55), VV1 / VV2 "Sitting". Children are left as they are, and so is anyone carrying a baby (the adapter's
+  `off_pregnant`) or sick (`cg_is_sick`): the stock games never send them to work (the owner, 2026-11-19). A game with
+  no action for the skill leaves everyone as they are. That the busy states give no skill is traced in the emulator (`tests/test_work_rush_rest_gives_no_skill.py`:
+  ten runs of each to its end change no skill, while ten Research / job trips do).
+  **The busy state is done at the job's site** (the owner, 2026-11-18; the adapters' `behave_at`): the job's own
+  starter runs for the busy villager and picks the place it would give a worker (its first walk step: VV1-VV4 type 3,
+  VV5 type 4), none of its steps is kept; then VV1 / VV2 queue that walk (0x4399F0 / 0x449B70) before Sitting, and
+  VV3-VV5 queue the busy action and replace its own walks with that one walk, its other steps kept in order. A job that
+  walks nowhere (VV1 / VV2 Healing someone: it heals where the healer stands) leaves the busy villager where they
+  stand. The tips a VV1 / VV2 job starter leaves for the selected villager are put back. **Crowded:** a spot within 20
+  pixels of one already taken (every worker's first, then each busy villager's) is crowded; the busy villager is
+  given the nearest free spot among up to 8 of the job's own picks (its starter run again), or the first when every
+  pick is crowded (VV2's palm has one foot: they share it). Tests: `tests/test_work_rush_busy_at_job_site.py`.
+- **Spawn burst** (words only: the owner's final list, 2026-11-18) (`village`, `{"what": "spawn"}`): the game's own random spawner fills its free map spots: VV2 0x415490
+  (one spot, only when empty, 0x4152D0), VV3 0x42D940 (-1, 0, 0) and VV4 0x413EE0 (-1, 0, 0) twice (two spots),
+  VV5 0x4141E0 (-1, 0, 0, 1, 1, 1, 1) twice (random items take a spot only while fewer than two lie out). A New Home
+  makes its mushroom inline in its update: nothing there. One log line, `  Something new lies on the island`.
+- **Temporary effects** (words only: the owner's final list, 2026-11-18; no vanilla island event makes any; the compiler refuses them) (`group`, string `effect:<word>`; one role or the whole village): `{"do": "group", "kind":
+  "effect", "effect": w, "who": ...}`, each by its game's own setter, so each is an entry of the game's own effect list
+  and Fix Vanilla Bugs' effect timers (PRs #773/#782: paused with the game, kept only by the autosave, ended only by
+  its own action) cover it with no bookkeeping:
+  - VV3 potions, 0x4583A0 on the villager (the pot's source 0x582610, the potion's id; its own switch sets the length):
+    `smarter` 3, `inspired` 4, `healing` 9, `bouncy` 11, `hiccups` 18, `swift` 24, `stinky_breath` 36, `soapy_taste` 37,
+    `nonsense_talk` 38. Never 26/27 (the vial: The Sharks), never the harmful or owner-question ones.
+  - VV4: `clean` (0x437EC0 on 0x4D8B18, mode 1: the soapy pond's sparkles, 240 s), `glow` (mode 0: the meditation's,
+    240 s; research x3), `gunk` (0x438CA0 on 0x4D8CCC, 180 s; wiped off on the tree), `stew_wait` (0x460A90, the pit's
+    source 0x4D6F50, stew 8: a little health and the 600 s "no more stew so soon" wait; a bare wait has no setter).
+    **Allowed together (the owner, 2026-11-18):** `clean` and `glow` are the two marks The Tree of Life's purification test asks of a villager (0x45EBE0 / 0x45EB90), so a villager with both counts as pure of body for Purify Tree: dropped on the Tree within their 240 s (with Dendrology 3) it purifies it, the bath and the meditation skipped. An effect alone never advances a puzzle.
+- **Yellow fruit** (`supply` / `trade` / `has_supply` word `yellow_fruit`, The Tree of Life): "VVFP VV4 Fruit
+  Supply.dll"'s own count through its new export `VvfpYellowFruitAdd(delta)` (0..1,000; 0 reads; -1 not installed or
+  no village; nothing written until the next save). Without "Yellow Fruit Trees are No Longer Unlimited" the tree has no
+  count: words only. PRs #794 and #805 also change that DLL: this change only adds the export after the refill.
+- Tests: `tests/test_traders_and_village_effects.py` (`WorkRushSpawnTempEffects`), `tests/test_vv4_yellow_fruit_trees_limited.py`
+  (`IslandEventAdd`; it needs research/game-data/vv4).
+
+## 43. The owner's final list (2026-11-18): what is real, what is words only
+
+Anything not real is words only: an event may say it, the game never changes for it, and the patcher refuses it as an
+effect (`group` kinds and `village` whats not listed, `effect:<word>`).
+
+| Effect | Real? | Notes |
+|---|---|---|
+| `supply` / `trade` / `has_supply` (food, tech, items, collectibles; PR #806's VV4 supplies; yellow fruit) | real | never below 0; a gain never completes a collection set; never a VV3 Tablet piece |
+| Cloth as a material (VV4) | real | PR #806's `supply cloth` |
+| `group`: relax, swim, dance, pray, celebrate, pond, play, stories, song, chant, speech | real | actions only: the adapters' non-"Unsafe" stock actions, no stored value, no skill unless the stock action trains one |
+| `group`: sick / cure | real | as the vanilla events: protected villagers are never made sick |
+| `group work:<Skill>` (work rush) | real | the ticked job, or (none ticked) the highest skill, a tie the Action bar's pick; others take the busy state at the job's site with no skill; Parenting is storytelling only (VV2, VV3), nothing where there is none (VV1, VV4, VV5) |
+| `village tech_level` | real | exactly one level, within 1..3 |
+| `village weather` | real | VV3-VV5 only |
+| `food` / `tech` (pre-.97) | real | unchanged |
+| `damage` (hut damage, pre-#806) | real | any building, the owner's ruling |
+| `village event_timer` | real | sooner = the Gong of Wonder's luck (VV2 0x44ECE1: now + 60 s), never later than it was; later = the hours given, never past now + the game's longest gap (23 / 19 / 15 / 15 / 15 h); never before now; which event and its odds are untouched |
+| `effect:` potions, clean, gunk, glow, stew wait | words only | refused |
+| fish run, research progress | words only | no such effect is made (VV2's fish stays a trade good) |
+| `village construction`, `village spawn` | words only | refused |
+
+Effects the engine had before PRs #806 / #813 (codes 1-24 and conds 1-17: food, tech, pay_award, kill, vanish,
+status, health, preference, skill, sick, celebrate, action, mood, health_change, skill_set, damage, appearance,
+die_unrecovered, baby_lost, birth_then_die, old_look, sex_change, presentation, deliver_early) are not part of this
+cut and are unchanged.
+
+The work rush's busy villagers go to the job's site (section 42). Parenting rushes are storytelling only (VV2, VV3), nothing elsewhere, so the Birth Control patches are never bypassed.
+
+## 44. Village Solidarity tags (the owner, 2026-11-17)
+
+A page (`popup` or `question` node, never a `branch`) may carry `"solidarity": "raise" | "lower" | "neutral"`, in
+every format version. In the .cieg it is the node flags byte (offset 3), bits 2-3: 1 raise, 2 lower, 3 neutral
+(`SOLIDARITY_CODES`, `NODE_SOLIDARITY_MASK` 12; bit 1 is section 19a's new page); bit 0 stays the automatic outcome lines (25). An untagged node keeps
+0, so an untagged graph compiles to the same bytes as before. With "VVFP Village Solidarity.dll" in the game, the
+Story companion passes a reached page's tag on (`VvfpVillageScoreTag`: raise +5, lower -5, kept within 0..100) and
+weights a chance split's children by the tags of their next pages (`VvfpVillageScoreFactor`); without it the tag is
+only a word in the file. The collection's tags are kept apart from the event files, in
+`data/event_collection/solidarity_tags.json` (`scripts/tag_village_solidarity.py`), and applied when the collection
+is built; an event's own kind (`cooperative` / `repair`) is the manifest's tenth column.

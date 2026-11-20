@@ -556,40 +556,47 @@ def new_heathen_feature() -> dict:
 CAVE = 0x494E00
 WALK_SITE = 0x46003B                     # 0x5E "Playing in puddles": call 0x4744C0 (area 0x6A)
 GATE = (0x46E527, "84C0751E")            # its chooser 0x46E4F7: test al,al / jne (the lake holds water)
-# The north-west sandy shore the owner marked: a random point on the line from world (1348, 2116) to (1599, 2050),
-# the feet's point -- x = 1348 + r, y = 2116 - (17r >> 6), r = rand(252).  Every one of the 252 points is an
-# lcmap.dat cell that is walkable, not lake (areas 0x69 / 0x6A), with every neighbour walkable, connected to the
-# village (tests/test_apprentice_faith_puddles.py); the owner's screenshot matched the map art at 1.5x, top-left
-# world (1345, 1870).  Pure code, no data: the cave lies in the .text tail whose every byte must be reached
+# The grass above the lake's north-west edge and the sandy dirt strip below it (the owner, 2026-11-20: "i don't want
+# the children to go in the lake water"; the grass field between the river, the broken Hollow Totem (the log pile)
+# and the lake's sandy edge; "they can go in the dirt where the line is too"; "the playing in the dirt spot should
+# not overlap the Hollow Totem").  A slanted box whose bottom edge is the old shore line (below), never lower:
+# x = 1304 + rx, y = 2127 - (17rx >> 6) - ry, rx = rand(296), ry = rand(273) -- x 1304..1599, y 1781..2127, the
+# feet's point -- less the Hollow Totem's corner, x >= 1560 with y < 1995, drawn again: the totem's ground (area
+# 0x56, 1600..1679 by 1776..1903) and its entrance (area 0x43, 1624..1647 by 1912..1919) stay 41 pixels or more from
+# every point and from the spot 35 pixels above it where the villager stands.  Every point is an lcmap.dat cell that
+# is walkable, not lake (areas 0x69 / 0x6A) nor totem, with every neighbour the same, and connected to the village
+# (tests/test_apprentice_faith_puddles.py); matched to the owner's screenshot on the map tiles LargeMap*.jpg (1:1
+# with world pixels).  Until 2026-11-20 the points were the shore line alone, x = 1348 + r, y = 2116 - (17r >> 6),
+# r = rand(252).  Pure code, no data: the caves lie in the .text tail whose every byte must be reached
 # (tests/test_vv5_origins_dead_code_removed.py).
-SHORE_X, SHORE_Y, SHORE_SPAN, SHORE_SLOPE = 1348, 2116, 252, (17, 6)
+GRASS_X, GRASS_Y, GRASS_W, GRASS_H, GRASS_SLOPE = 1304, 2127, 296, 273, (17, 6)
+TOTEM_CUT = (1560, 1995)
+OLD_SHORE_X, OLD_SHORE_Y, OLD_SHORE_SPAN = 1348, 2116, 252
 
 
-def shore_point(r: int) -> tuple[int, int]:
-    return SHORE_X + r, SHORE_Y - ((r * SHORE_SLOPE[0]) >> SHORE_SLOPE[1])
+def in_totem_cut(x: int, y: int) -> bool:
+    return x >= TOTEM_CUT[0] and y < TOTEM_CUT[1]
 
 
-def puddle_cave() -> bytes:
+def grass_point(rx: int, ry: int) -> tuple[int, int]:
+    return GRASS_X + rx, GRASS_Y - ((rx * GRASS_SLOPE[0]) >> GRASS_SLOPE[1]) - ry
+
+
+def old_shore_point(r: int) -> tuple[int, int]:
+    return OLD_SHORE_X + r, OLD_SHORE_Y - ((r * 17) >> 6)
+
+
+def puddle_cave(point: int | None = None) -> bytes:
     return asm(f"""
         push ecx
         call 0x43c5d0
         pop ecx
         test al,al
         je stock
-        push ecx
-        push {SHORE_SPAN}
-        call 0x403660
-        pop edx
-        pop ecx
+        call {point or point_at():#x}
         push dword ptr [esp+0xc]
         push dword ptr [esp+0xc]
-        mov edx,eax
-        imul edx,edx,{SHORE_SLOPE[0]}
-        sar edx,{SHORE_SLOPE[1]}
-        neg edx
-        add edx,{SHORE_Y}
         push edx
-        add eax,{SHORE_X}
         push eax
         call 0x4745a0
         ret 0xc
@@ -598,30 +605,58 @@ def puddle_cave() -> bytes:
         """, CAVE)
 
 
+def point_at() -> int:
+    """The shared point routine: right after the dirt cave (the .text tail's every byte must be reached).  Every
+    call in the two caves is a rel32 one, so their lengths do not depend on where the routine lies."""
+    return dirt_cave_at() + len(dirt_cave(dirt_cave_at(), CAVE))
+
+
+def point_routine() -> bytes:
+    """A random point of the grass: eax = x, edx = y; ecx kept (the villager).  A point in the Hollow Totem's corner
+    is drawn again."""
+    return asm(f"""
+        push ecx
+    again:
+        push {GRASS_W}
+        call 0x403660
+        pop edx
+        push eax
+        push {GRASS_H}
+        call 0x403660
+        pop edx
+        pop edx
+        imul ecx,edx,{GRASS_SLOPE[0]}
+        sar ecx,{GRASS_SLOPE[1]}
+        add eax,ecx
+        neg eax
+        add eax,{GRASS_Y}
+        add edx,{GRASS_X}
+        xchg eax,edx
+        cmp eax,{TOTEM_CUT[0]}
+        jl done
+        cmp edx,{TOTEM_CUT[1]}
+        jl again
+    done:
+        pop ecx
+        ret
+        """, point_at())
+
+
 # "Playing in the dirt" (the routine 0x45ED40, say-event 504) moves to the same shore, always (the owner,
 # 2026-11-08: before and after The Lake has water; "Those specific actions only and NOT ANY OTHERS!!!").  The
 # routine queues six go-tos (0x4745A0 at 0x45ED99, ecx the villager, arguments x, y, speed 0x64, flag 0) to points
 # it picks in its own strip; the call is re-aimed at a cave that puts a random point of the puddles' shore line in
 # place of the x and y and jumps on to 0x4745A0, so the routine's steps, speed, gestures and say-event stay its own.
-# Move the "Playing in the dirt" Spot (vv5_playing_in_the_dirt_spot) moves the same walk to the flower patch: the
+# Move the "Playing in the dirt" Spot (vv5_playing_in_the_dirt_spot) moves the same walk to a box of the same grass
+# (1304..1559 by 1855..2059, recoded in the routine's own bytes; until 2026-11-20 the flower patch): the
 # two name each other in "conflicts", and ticking one unticks the other (UNTICKING_CONFLICT_IDS).
 DIRT_SITE = 0x45ED99                     # "Playing in the dirt": call 0x4745A0, six times in its loop
 DIRT_SPOT_ID = "vv5_playing_in_the_dirt_spot"
 
 
-def dirt_cave(at: int) -> bytes:
+def dirt_cave(at: int, point: int | None = None) -> bytes:
     return asm(f"""
-        push ecx
-        push {SHORE_SPAN}
-        call 0x403660
-        pop edx
-        pop ecx
-        mov edx,eax
-        imul edx,edx,{SHORE_SLOPE[0]}
-        sar edx,{SHORE_SLOPE[1]}
-        neg edx
-        add edx,{SHORE_Y}
-        add eax,{SHORE_X}
+        call {point or point_at():#x}
         mov dword ptr [esp+4],eax
         mov dword ptr [esp+8],edx
         jmp 0x4745a0
@@ -630,25 +665,28 @@ def dirt_cave(at: int) -> bytes:
 
 def dirt_cave_at() -> int:
     """Right after the puddles' cave (the .text tail's every byte must be reached)."""
-    return CAVE + len(puddle_cave())
+    return CAVE + len(puddle_cave(CAVE))
 
 
 def puddles_feature() -> dict:
     cave = puddle_cave()
     dirt_at = dirt_cave_at()
     dirt = dirt_cave(dirt_at)
-    assert dirt_at + len(dirt) <= 0x494E80, "the Fix Vanilla Bugs picker cave starts at 0x494E80"
+    point = point_routine()
+    assert point_at() + len(point) <= 0x494E80, "the Fix Vanilla Bugs picker cave starts at 0x494E80"
     description = (
         "When it rains, children in New Believers go \"Playing in puddles\" in the dry lake bed. Once The Lake holds "
         "water the game never starts that action again, because they cannot swim. With this patch, after The Lake "
-        "has water, children still go \"Playing in puddles\" when it rains, on the north-west sandy shore of the "
-        "lake (between the lake's west tip and the rocks with the red flower), never in the water: each of the "
-        "action's five walks goes to a random point along that shore. Before The Lake has water nothing changes. "
-        "Children \"Playing in the dirt\" play on that same sandy shore, always, before and after The Lake has "
-        "water: each of the action's six steps goes to a random point along it. The actions, their text and their "
-        "length are the game's own; \"Excited about the puddles\", \"Chasing fish\" and every other action are "
-        "not changed. **Cannot be used with Move the \"Playing in the dirt\" Spot, which moves \"Playing in the "
-        "dirt\" to the flower patch instead (ticking one unticks the other).**")
+        "has water, children still go \"Playing in puddles\" when it rains, on the big grass field above the "
+        "lake's north-west edge and the sandy strip along its shore (between the river, the Hollow Totem and the "
+        "lake), never in the water and never on the Hollow Totem: each of the action's five walks goes to a random "
+        "point of that ground. Before The Lake has water nothing changes: they play in the dry lake bed's puddles "
+        "as in the normal game. Children \"Playing in the dirt\" play on that same ground, always, before and "
+        "after The Lake has water: each of the action's six steps goes to a random point of it. The actions, "
+        "their text and their length "
+        "are the game's own; \"Excited about the puddles\", \"Chasing fish\" and every other action are not "
+        "changed. **Cannot be used with Move the \"Playing in the dirt\" Spot, which moves only \"Playing in the "
+        "dirt\" (ticking one unticks the other).**")
     return {
         "id": PUDDLES_ID,
         "enabled": True,
@@ -664,13 +702,17 @@ def puddles_feature() -> dict:
             "rain level [0x718EB8] is 50 or more, rand(100) < 75 and it is raining (0x477040), as stock; stock also "
             "needed the lake to hold no water (0x43C5D0).",
             "0x5E's walk (0x46003B, five times): with water in the lake (0x43C5D0), a walk (0x4745A0) to a random point "
-            "of the north-west sandy shore, x = 1348 + r, y = 2116 - (17r >> 6), r = rand(252) (world pixels, the "
-            "feet's point: 1348..1599 by 2116..2050); without, the stock walk to a random point of the lake bed "
-            "(area 0x6A, 0x4744C0).",
+            f"of the grass and sandy strip above the lake's north-west edge (the point routine 0x{point_at():X}): "
+            "x = 1304 + rx, y = 2127 - (17rx >> 6) - ry, rx = rand(296), ry = rand(273), drawn again when x >= 1560 "
+            "and y < 1995 (world pixels, the feet's point: a slanted box x 1304..1599 by y 1781..2127 whose bottom "
+            "edge is the old shore line, less the Hollow Totem's corner; the totem's areas 0x56 and 0x43 stay 41 "
+            "pixels or more away); without, the stock walk to a random point of the lake bed (area 0x6A, 0x4744C0).",
             "\"Playing in the dirt\" (routine 0x45ED40, say-event 504), with the lake dry or full: each of its six "
-            f"go-tos (0x4745A0 at 0x45ED99) goes to a random point of the same shore line, x = 1348 + r, y = 2116 - "
-            f"(17r >> 6), r = rand(252) (the cave 0x{dirt_at:X} replaces the routine's own x and y and jumps on to "
-            "0x4745A0); stock: 236..453 by 442..475, a strip from the rainbow totem's side across the river.",
+            f"go-tos (0x4745A0 at 0x45ED99) goes to a random point of the same grass (the cave 0x{dirt_at:X} calls "
+            f"0x{point_at():X}, replaces the routine's own x and y and jumps on to 0x4745A0); stock: 236..453 by "
+            "442..475, a strip from the rainbow totem's side across the river.",
+            "Until v1.35.97 both went to a line along the lake's sandy shore alone (1348..1599 by 2116..2050); that "
+            "line is now the area's lowest edge.",
         ],
         "explicit_non_changes": [
             "Before the lake holds water \"Playing in puddles\" is as stock. Its text (string 0x229), its gestures, "
@@ -688,14 +730,18 @@ def puddles_feature() -> dict:
             patch(5, WALK_SITE, asm(f"call {CAVE:#x}", WALK_SITE),
                   "0x5E's walk: call 0x4744C0 (area 0x6A) -> call the shore cave 0x494E00"),
             patch(5, CAVE, cave,
-                  "the shore cave: lake holds water (0x43C5D0)? r = rand(252); a walk 0x4745A0 to (1348 + r, 2116 - "
-                  "(17r >> 6)) with the caller's speed and flag, ret 0xC; else jmp 0x4744C0 (stock)",
+                  f"the shore cave: lake holds water (0x43C5D0)? a grass point (call 0x{point_at():X}); a walk "
+                  "0x4745A0 to it with the caller's speed and flag, ret 0xC; else jmp 0x4744C0 (stock)",
                   bytes(len(cave))),
             patch(5, DIRT_SITE, asm(f"call {dirt_at:#x}", DIRT_SITE),
                   f"\"Playing in the dirt\" (0x45ED40)'s go-to: call 0x4745A0 -> call the dirt shore cave 0x{dirt_at:X}"),
             patch(5, dirt_at, dirt,
-                  "the dirt shore cave: r = rand(252); the go-to's x and y become (1348 + r, 2116 - (17r >> 6)); "
+                  f"the dirt shore cave: a grass point (call 0x{point_at():X}) becomes the go-to's x and y; "
                   "jmp 0x4745A0 with the routine's own speed and flag", bytes(len(dirt))),
+            patch(5, point_at(), point,
+                  "the grass point routine: rx = rand(296), ry = rand(273); eax = 1304 + rx, edx = 2127 - "
+                  "(17rx >> 6) - ry, drawn again when eax >= 1560 and edx < 1995 (the Hollow Totem's corner); "
+                  "ecx kept; ret", bytes(len(point))),
         ],
     }
 

@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Seed Keepers' Disagreement",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg14_seed_keepers",
+  "source": "draft_lcg",
+  "lines": [
+   190,
+   201
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L190",
+  "ledger": [
+   {
+    "src": "L191",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two farmers)"
+   },
+   {
+    "src": "L197",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L197",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L201",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Visiting farmers want some of the village's rare red taro: share the seed, or keep it for the village.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Visiting farmers from another island have asked for some of the village's red taro, which grows nowhere else. (subject) says sharing seeds is how good plants survive. (friend) says the village has only a little, and if the visitors' crop fails, the red taro might be gone everywhere. What should the village do?",
+   "src": "L193",
+   "choices": [
+    {
+     "label": "Share the Seed",
+     "next": "o1",
+     "src": "L195"
+    },
+    {
+     "label": "Keep It for the Village",
+     "next": "o2",
+     "src": "L199"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village shares a handful. The visitors send back, a year later, a basket of their own striped beans. Then a blight hits Isola's red taro, and the visitors send back red taro from their own fields. (friend) admits sharing saved it.",
+   "src": "L197",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L197"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village keeps its red taro. The visitors understand and leave. The red taro grows well. (friend) keeps a reserve of it buried in a jar, just in case. (subject) still thinks one day the village will wish it had shared.",
+   "src": "L201"
+  }
+ }
+}

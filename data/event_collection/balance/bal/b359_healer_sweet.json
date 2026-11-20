@@ -1,0 +1,251 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer's Sweet Tonic",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b359_healer_sweet",
+  "source": "balance",
+  "lines": [
+   16554,
+   16595
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L16554",
+  "ledger": [
+   {
+    "src": "L16555",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16556",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16563",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16572",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16560",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16561",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16564",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16573",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16566",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16569",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16575",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16578",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16581-16595",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has had a deep cough for two weeks.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has had a deep cough for two weeks. (healer) has made a new tonic for it out of honey, wild ginger and a pinch of crushed coral, which (subject.he/she) learned from a traveller. It tastes wonderful, which is suspicious, because everyone knows good medicine tastes terrible.\n(healer) says to take one spoonful every morning. (subject), who loves the taste, is tempted to drink the whole gourd at once and be done with it. Should (subject) take it a spoonful at a time, or drink the lot?",
+   "choices": [
+    {
+     "label": "A Spoonful at a Time",
+     "next": "c1",
+     "src": "L16560"
+    },
+    {
+     "label": "Drink the Lot",
+     "next": "c2",
+     "src": "L16561"
+    }
+   ],
+   "src": "L16557-16558"
+  },
+  "c1o1": {
+   "text": "By the end of the week the cough is gone. (healer) is delighted, and writes the recipe down with the traveller's name at the top. The tonic becomes the most popular medicine the healers have ever made. Several villagers develop suspicious little coughs whenever the healers brew a new batch.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "src": "L16567",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The cough goes, but slowly, and by the end of the week, (subject) is so tired of the taste of honey and coral every morning that (subject.he/she) can't stand the thought of it. \"It's lovely,\" (subject.he/she) says. \"For the first three days.\" After that, even the smell of the healers' hut makes (subject.him/her) wince, and (subject.he/she) never asks for anything from it again unless (subject.he/she) has to.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "medicine",
+     "role": "subject"
+    }
+   ],
+   "src": "L16570",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) takes one spoonful every morning, as told, and makes the gourd last a whole week, which takes a great deal of willpower...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16564"
+  },
+  "c2o1": {
+   "text": "...and then the coral catches up with (subject.him/her). (subject) spends the whole night being very, very sick. In the morning, the cough is gone, along with everything else in (subject.his/her) stomach. (healer) adds a line to the recipe: ONE SPOONFUL. IT MEANS IT. (subject) is weak for a week.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L16576",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "...and nothing happens. The cough is still there in the morning. And the taste of that much honey, all at once, has put (subject) off sweet things, and then off food of almost any kind, for a very long time. (healer) gives (subject.him/her) the usual bitter root instead, which works in three days, and tastes like a wet boot.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L16579",
+   "text_only": [
+    {
+     "src": "L16579",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(subject) drinks the whole gourd in one go, licking the last drops off the rim. It is the best thing (subject.he/she) has ever tasted. For a moment...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16573"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "eating",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,193 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shadow That Stood Up",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b284_shadow_stood_up",
+  "source": "balance",
+  "lines": [
+   13211,
+   13252
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13211",
+  "ledger": [
+   {
+    "src": "L13212",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13213",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13221",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13230",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13218",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13219",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13222",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13231",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13224",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13227",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13233",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13236",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13239-13252",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At midday on the longest day of the year, the sun stands so straight overhead that shadows shrink to puddles at people's feet.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At midday on the longest day of the year, the sun stands so straight overhead that shadows shrink to puddles at people's feet. The old saying goes that on that one day a shadow can get tired of following, and stand up by itself. Nobody believes it. Mostly.\n(Name) is working in the gardens at midday when (he/she) notices (his/her) shadow is not a puddle. It's long. It's pointing the wrong way. And it's starting to peel up off the ground, like a mat being lifted at one corner.\nShould (name) stamp on it to hold it down, or let it get up?",
+   "choices": [
+    {
+     "label": "Stamp on It",
+     "next": "c1",
+     "src": "L13218"
+    },
+    {
+     "label": "Let It Get Up",
+     "next": "c2",
+     "src": "L13219"
+    }
+   ],
+   "src": "L13214-13216"
+  },
+  "c1o1": {
+   "text": "The shadow tears free with a sound like ripping cloth, and stands up, and fills in, until it is a person with (name)'s face and (name)'s shape, blinking in the sun. It is not, however, (name). It hates gardening, loves fishing, and announces that its name is (made1). It moves into the empty hut by the river. (Name), shadowless until sunset, spends the afternoon very carefully standing out of the sun.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L13225",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) holds on until the sun moves a little past noon, and the shadow gives up and slumps back to the ground, sulking. For the rest of the day it follows (him/her) a fraction of a moment late. By morning it has settled down, but (name) never quite trusts it again, and always checks it at midday.",
+   "src": "L13228"
+  },
+  "c1": {
+   "text": "(Name) stamps down hard on the corner of the shadow with both feet. It wriggles. It pulls. It is surprisingly strong...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13222"
+  },
+  "c2o1": {
+   "text": "It fills in until it is (name), exactly, from the dirt on (his/her) knees to the hum (he/she) always hums when (he/she) is weeding. It picks up the hoe and starts weeding beside (him/her), humming the same hum. \"Fair enough,\" says (name). The village names the newcomer (made1), and the gardens have never been so tidy.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L13234",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "It fills in until it looks just like (name), and then it opens its mouth and says, in (name)'s voice, \"I'm going for a swim,\" and walks off towards the beach. It doesn't come back to the gardens. It joins the village under the name (made1), has completely different ideas about everything, and argues with (name) about almost all of them.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L13237",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) steps back and lets it go. The shadow peels off the ground and stands up in front of (him/her), flat and dark, and then it begins to fill in...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13231"
+  }
+ }
+}

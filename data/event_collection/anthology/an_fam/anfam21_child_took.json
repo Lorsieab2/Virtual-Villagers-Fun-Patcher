@@ -165,9 +165,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "Sharing becomes a happy part of the festival.",
-   "src": "L28606"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -217,6 +224,31 @@
    "name": "Outcome D2",
    "text": "(adult) realizes the portions were unclear and changes the instructions.",
    "src": "L28613"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Sharing becomes a happy part of the festival.",
+   "src": "L28606",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L28606"
+    },
+    {
+     "do": "mood",
+     "role": "adult",
+     "mood": "good",
+     "src": "L28606"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "Sharing becomes a happy part of the festival.",
+   "src": "L28606"
   }
  }
 }

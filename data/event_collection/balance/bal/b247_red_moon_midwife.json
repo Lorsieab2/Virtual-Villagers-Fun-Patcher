@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Red Moon and the Midwife",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b247_red_moon_midwife",
+  "source": "balance",
+  "lines": [
+   11537,
+   11580
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11537",
+  "ledger": [
+   {
+    "src": "L11538",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11539",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11547",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11556",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11544",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11545",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11548",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11557",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11550",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11553",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11559",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11562",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11565-11580",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Everyone else says it with a wink.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "midwife": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Once in a long while the moon rises red over the sea, and the old midwives say any child conceived under a red moon comes into the world in company. (midwife), the oldest healer, says it with a straight face. Everyone else says it with a wink.\nTonight the moon is red. (subject) and (friend) are sitting on the beach watching it come up, and (midwife) walks past them with (subject.his/her) lantern, stops, and says, very seriously, \"I'd go inside, if I were you two. Unless you want to be busy.\"\nDo (subject) and (friend) laugh it off and stay to watch the moon, or take the old healer's advice?",
+   "choices": [
+    {
+     "label": "Stay and Watch the Moon",
+     "next": "c1",
+     "src": "L11544"
+    },
+    {
+     "label": "Take the Advice and Go In",
+     "next": "c2",
+     "src": "L11545"
+    }
+   ],
+   "src": "L11540-11542"
+  },
+  "c1o1": {
+   "text": "A few weeks later (subject) is pregnant, and some weeks after that (midwife) presses an ear to her belly, listens for a long time, and holds up {#babies:one finger|two fingers|three fingers}. (friend) has to sit down. \"It's only a story,\" (friend) says weakly, to anyone who will listen. (midwife) just smiles and starts weaving {#babies:a sleeping basket|a second sleeping basket|two more sleeping baskets}.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L11551",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "In time (subject) is pregnant, with one baby, just one. (midwife) seems almost disappointed. \"Well,\" (subject.he/she) says, \"the moon can't be right every time.\" (subject) and (friend) decide that's the best kind of story: the kind that doesn't come true.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L11554",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They laugh, and (midwife) shrugs and walks on. The red moon climbs higher and the sea turns the colour of embers...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11548"
+  },
+  "c2o1": {
+   "text": "On the healers' doorstep sits a basket with a baby in it, wrapped in a red cloth. Nobody in the village is missing one. (midwife) comes back, looks at the baby, looks at the moon, and looks at (subject). \"Well,\" (subject.he/she) says. \"Company, I said.\" (subject) and (friend) take the baby home that night.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L11560",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They go inside and sleep soundly. In the morning (midwife) asks how they slept, with a suspicious look, and they say \"very well, thank you,\" and (subject.he/she) seems satisfied. Three huts over, the neighbours who stayed on the beach are very quiet at breakfast.",
+   "src": "L11563"
+  },
+  "c2": {
+   "text": "(friend) laughs, but (subject) gets up. \"Better safe,\" she says. They head back up the path, past the healers' hut, where a small sound is coming from the doorstep...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11557"
+  }
+ }
+}

@@ -140,14 +140,34 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The apprentice spots a shared water source.",
-   "src": "L23340"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The apprentice guesses incorrectly, and the {@chief} teaches careful checking.",
-   "src": "L23341"
+   "src": "L23341",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L23341"
+    }
+   ],
+   "auto_text": true
   },
   "d": {
    "type": "branch",
@@ -170,6 +190,25 @@
    "name": "Outcome D2",
    "text": "The debate takes precious time, and the {@chief} must make a difficult choice.",
    "src": "L23344"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The apprentice spots a shared water source.",
+   "src": "L23340",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23340"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The apprentice spots a shared water source.",
+   "src": "L23340"
   }
  },
  "title_variants": [

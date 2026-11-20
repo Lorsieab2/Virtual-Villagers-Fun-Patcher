@@ -1,0 +1,319 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Orchard of One Night",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my028_orchard_night",
+  "source": "rewrites",
+  "lines": [
+   11467,
+   11522
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11467",
+  "ledger": [
+   {
+    "src": "L11468",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11469",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11478",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11485",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11492",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11499",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11473",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11474",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11475",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11476",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11479",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11486",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11493",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11500",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11480",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11482",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11487",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11489",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11494",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11496",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11501",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11503",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11506-11522",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Yesterday evening, the patch of ground beyond the gardens was a low, flat tangle of grey vine.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Yesterday evening, the patch of ground beyond the gardens was a low, flat tangle of grey vine. (subject) is quite sure of that, because (subject.he/she) tripped over a rock there on the way home.\nThis morning, it's an orchard. A whole grove of fruit trees, tall and heavy and ripe, with bees already busy in the blossoms and the air thick with the smell of nectar. Fallen fruit is splitting open in the grass. (subject) pinches (subject.himself/herself), hard. It hurts. The trees are still there. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Harvest Carefully",
+     "next": "c1",
+     "src": "L11473"
+    },
+    {
+     "label": "Examine the Trees",
+     "next": "c2",
+     "src": "L11474"
+    },
+    {
+     "label": "Leave the Fruit Untouched",
+     "next": "c3",
+     "src": "L11475"
+    },
+    {
+     "label": "Return at Sunset",
+     "next": "c4",
+     "src": "L11476"
+    }
+   ],
+   "src": "L11470-11471"
+  },
+  "c1o1": {
+   "text": "The fruit is sweet, juicy and absolutely delicious, and there's more of it than anyone can believe. The baskets come back so heavy that the children have to help carry them, staggering and giggling. They dry some, cook some, and eat a great deal more straight off the branch. Everyone is sticky for a week. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11481",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The fruit looks perfect. It smells perfect. But the moment anyone takes a bite, they spit it straight back out. It's horribly, eye-wateringly bitter, every single one, from every tree. The whole harvest has to be thrown away. The bees, at least, seem to enjoy the blossoms.",
+   "src": "L11483"
+  },
+  "c1": {
+   "text": "(subject) runs back to the village yelling for baskets, and soon half the village is in the grove, picking fruit as fast as they can...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11479"
+  },
+  "c2o1": {
+   "text": "(friend) crawls around the tree roots for an hour and comes back covered in leaves and very pleased. \"Look, here: dead vines, piles of them. The whole grove was buried under a thick mat of strangler vine. Last night's storm must have torn the whole mat away at once.\" It's been there all along! The researchers learn a lot about how vines can smother a forest, and how to clear them. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11488",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(friend) comes back pale. \"These trees have unfamiliar leaves. I don't know what kind they are. And look at the bark. These trees are old. A hundred years, maybe more.\" (subject) points out that yesterday there were no trees at all. (friend) says (friend.he/she) knows. Neither of them knows what to say after that.",
+   "src": "L11490"
+  },
+  "c2": {
+   "text": "(subject) brings (friend), the most knowledgeable farmer in the village, to take a good, hard look at the mysterious grove...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11486"
+  },
+  "c3o1": {
+   "text": "The birds have no such worries. Within a day, the grove is full of them: parrots, pigeons, little yellow finches, all squabbling and gorging themselves. The villagers bring their work out to the edge of the gardens just to watch, and the children try to count the colours. It's the loveliest week anyone can remember.",
+   "src": "L11495"
+  },
+  "c3o2": {
+   "text": "Overnight, every single fruit falls at once. In the morning, the ground under the grove is carpeted in seeds, thousands upon thousands, the fruit melted away to nothing around them. The trees stand bare. The farmers gather up armfuls of seeds, not quite sure whether to plant them.",
+   "src": "L11497"
+  },
+  "c3": {
+   "text": "(subject) decides that fruit which appears overnight is not fruit (subject.he/she) wants to eat. (subject.He/She) tells everyone to leave the grove alone...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11493"
+  },
+  "c4o1": {
+   "text": "At sunset, the grove is still there. In the fading light it looks quite ordinary, a few trees, some fruit, a few tired bees going home. (subject) feels almost let down. The grove stays, and after a few weeks people stop calling it the magic orchard and start just calling it the orchard.",
+   "src": "L11502"
+  },
+  "c4o2": {
+   "text": "At sunset, the trees are gone. The ground where they stood is a flat tangle of vine again, as if nothing had ever grown there, and (subject) trips over that same rock. But scattered in the grass all around are dozens of fresh, ripe fruits, real enough to pick up and real enough to eat. (subject) fills (subject.his/her) arms and walks home very slowly, thinking. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11504",
+   "auto_text": true
+  },
+  "c4": {
+   "text": "(subject) decides to wait and see whether the grove is still there at the end of the day...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11500"
+  }
+ }
+}

@@ -18,8 +18,9 @@
    came (the later games' slot-0 pick is delivered or refused here, as any picked event). */
 
 #define SM_ROW 0x10000                  /* a list entry's data: SM_ROW + the registry index */
-#define SM_MAX 2048                     /* list entries: the registry's, then the collection's (cie-v6-binary.md 26) */
+#define SM_MAX STORY_TABLE_LIMIT                     /* list entries: the registry's, then the collection's (cie-v6-binary.md 26) */
 #define SM_COLL_BASE 0x4000             /* a list entry's k for collection entry i: SM_COLL_BASE + i */
+#define SM_PROC_BASE 0x40000000         /* ... for a procedural event's row r (story_procedural.inc): SM_PROC_BASE + r */
 #define SM_INDEX 0x3E                   /* A New Home / The Lost Children: the family's index of a More pick */
 #define SM_QUEUE_BASE (-1000)           /* the queue file's pick_index of a More pick: SM_QUEUE_BASE - k */
 #define SM_TEXT 400
@@ -35,12 +36,30 @@ static char sm_title[SM_TEXT], sm_needs[SM_TEXT], sm_desc[SM_TEXT];
 /* The list's More entries, filled as the chooser opens. */
 static struct {
     int count;
-    int k[SM_MAX];                      /* registry index */
-    int possible[SM_MAX];
-    char title[SM_MAX][SM_TEXT];
-    char description[SM_MAX][SM_TEXT];
-    char needs[SM_MAX][SM_TEXT];
+    int cap;                            /* entries the arrays below hold (sm_reserve) */
+    int *k;                             /* registry index */
+    int *possible;
+    char (*title)[SM_TEXT];
+    char (*description)[SM_TEXT];
+    char (*needs)[SM_TEXT];
 } sm_list;
+
+/* The list grown to hold `need` entries (all five arrays together); 1 when it does. */
+static int sm_reserve(int need) {
+    int cap = sm_list.cap, c1 = cap, c2 = cap, c3 = cap, c4 = cap;
+    if (need <= cap) {
+        return 1;
+    }
+    if (!story_grow((void **)&sm_list.k, &cap, need, sizeof(int))
+        || !story_grow((void **)&sm_list.possible, &c1, need, sizeof(int))
+        || !story_grow((void **)&sm_list.title, &c2, need, SM_TEXT)
+        || !story_grow((void **)&sm_list.description, &c3, need, SM_TEXT)
+        || !story_grow((void **)&sm_list.needs, &c4, need, SM_TEXT)) {
+        return 0;
+    }
+    sm_list.cap = cap;
+    return 1;
+}
 
 static FARPROC sm_proc(const char *name) {
     HMODULE more = GetModuleHandleA("VVFP More Island Events.dll");
@@ -62,12 +81,17 @@ static int sm_info(int game, int k, char *title, char *description, char *needs)
     return info(k, title, description, needs, SM_TEXT);
 }
 
+static int sc_more_filtered(int game, int k);   /* story_collection.inc: a ticked content filter keeps it out */
+
 /* The More entries of `game` (none without More Island Events). */
 static void sm_fill_more(int game) {
     sm_count_fn count = (sm_count_fn)(void *)sm_proc("VvfpMoreIslandEventsPickCount");
     int k, n = count != NULL && sm_installed(game) ? count() : 0;
     sm_list.count = 0;
-    for (k = 0; k < n && sm_list.count < SM_MAX; ++k) {
+    if (!sm_reserve(n)) {
+        n = sm_list.cap;
+    }
+    for (k = 0; k < n && sm_list.count < sm_list.cap; ++k) {
         int i = sm_list.count;
         int state = sm_info(game, k, sm_list.title[i], sm_list.description[i], sm_list.needs[i]);
         if (state < 0 || sm_list.title[i][0] == '\0') {
@@ -75,6 +99,11 @@ static void sm_fill_more(int game) {
         }
         sm_list.k[i] = k;
         sm_list.possible[i] = state;
+        if (sc_more_filtered(game, k)) {
+            sm_list.possible[i] = 0;
+            lstrcpynA(sm_list.needs[i], vvfp_tr("vvfp.story/story_more_events.sm_fill_more.s0",
+                                                "the island event content filters to allow it", 200), SM_TEXT);
+        }
         ++sm_list.count;
     }
 }
@@ -84,6 +113,7 @@ static void sm_fill_more(int game) {
 static void sm_fill(int game) {
     sm_fill_more(game);
     (void)sc_pick_fill(game);
+    (void)pc_pick_fill(game);          /* the procedural events: each setup one row, "<title> (varies)" */
 }
 
 /* "<title> needs <what it needs>." */
@@ -200,6 +230,9 @@ __declspec(dllexport) void __stdcall VvfpStoryMoreEventDone(int game, int delive
 static int sm_buy(int game, HWND owner, int k) {
     char message[1800];
     int state;
+    if (k >= SM_PROC_BASE) {
+        return pc_pick_buy(game, owner, k - SM_PROC_BASE);   /* a procedural event (story_procedural.inc) */
+    }
     if (k >= SM_COLL_BASE) {
         return sc_pick_buy(game, owner, k - SM_COLL_BASE);   /* an Isola Grand Event Collection event */
     }

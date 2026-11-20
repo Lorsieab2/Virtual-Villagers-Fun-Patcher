@@ -66,7 +66,7 @@
   "food": {
    "name": "A food reward",
    "src": "L7797-7799",
-   "text": "The boy plants seeds in several small patches, varying the soil and amount of water while keeping careful marks on a stone. Farmers notice that his simple comparison reveals which conditions help seedlings grow.",
+   "text": "The (child.boy/girl) plants seeds in several small patches, varying the soil and amount of water while keeping careful marks on a stone. Farmers notice that (child.his/her) simple comparison reveals which conditions help seedlings grow.",
    "effects": [
     {
      "do": "food",
@@ -81,12 +81,13 @@
      "what": "farming-skill reward",
      "reason": "the other half of food OR farming skill: the farming page gives it"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "farming": {
    "name": "A farming reward",
    "src": "L7797-7799",
-   "text": "The boy plants seeds in several small patches, varying the soil and amount of water while keeping careful marks on a stone. Farmers notice that his simple comparison reveals which conditions help seedlings grow.",
+   "text": "The (child.boy/girl) plants seeds in several small patches, varying the soil and amount of water while keeping careful marks on a stone. Farmers notice that (child.his/her) simple comparison reveals which conditions help seedlings grow.",
    "effects": [
     {
      "do": "skill",
@@ -105,7 +106,8 @@
      "what": "food reward",
      "reason": "the other half of food OR farming skill: the food page gives it"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

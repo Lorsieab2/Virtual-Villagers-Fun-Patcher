@@ -184,7 +184,145 @@ typedef struct {
        babies made, 0 when the parent was not nursing, -1 when the game did not deliver (nothing changed); *early
        = 1 when the nursing was cut short.  NULL = not offered. */
     int (*deliver)(int index, int *early);
+    /* The work rush (cie-v6-binary.md 42): behaviour `behaviour` done at the place behaviour `job` walks to first
+       (the job's own first walk step, its site), with no step of the job kept.  NULL = not offered. */
+    int (*behave_at)(int index, int job, int behaviour);
 } ce_adapter;
+
+/* While a work rush is applied: its job behaviour (-1 none).  Every other behaviour of that event is the busy
+   state, done at the job's site through behave_at. */
+static int ce_site_job = -1;
+
+/* A step queue `q` (`cap` steps of `size` bytes, type the first dword, 0 = the end) rebuilt for the work rush: every
+   walk step (type `walk`) taken out, the rest kept in order, and the walk `w` put first. */
+static void ce_queue_at_site(unsigned char *q, unsigned int size, int cap, int walk, const unsigned char *w) {
+    int i, n = 0, used = 0;
+    while (used < cap && *(const int *)(q + (unsigned int)used * size) != 0) {
+        ++used;
+    }
+    for (i = 0; i < used; ++i) {
+        if (*(const int *)(q + (unsigned int)i * size) != walk) {
+            if (n != i) {
+                memmove(q + (unsigned int)n * size, q + (unsigned int)i * size, size);
+            }
+            ++n;
+        }
+    }
+    if (n >= cap) {
+        n = cap - 1;
+    }
+    memmove(q + size, q, (unsigned int)n * size);
+    memcpy(q, w, size);
+    /* cleared after the new last step: the end marker right after it -- also when no walk was taken out and the
+       queue grew one past its old end marker -- and every old step left behind */
+    for (i = n + 1; i < cap && (i < used || i == n + 1); ++i) {
+        memset(q + (unsigned int)i * size, 0, size);
+    }
+}
+
+/* The first walk step (type `walk`) of queue `q`, copied to `w`: 0 when there is none. */
+static int ce_queue_walk(const unsigned char *q, unsigned int size, int cap, int walk, unsigned char *w) {
+    int i;
+    for (i = 0; i < cap && *(const int *)(q + (unsigned int)i * size) != 0; ++i) {
+        if (*(const int *)(q + (unsigned int)i * size) == walk) {
+            memcpy(w, q + (unsigned int)i * size, size);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Each game's step queue in a villager record: where it is, a step's size, how many, the walk step's type and its
+   target's x and y (A New Home 0x4399F0 / 0x439470, The Lost Children 0x449B70 / 0x4492A0, The Secret City 0x460E30 /
+   0x460F70, The Tree of Life 0x468B20 / 0x468C60, New Believers' stop 0x473440; the walk adders 0x4611B0, 0x468FC0). */
+typedef struct {
+    unsigned int queue, size;
+    int cap, walk;
+    unsigned int x, y;
+} ce_queue_shape;
+static const ce_queue_shape CE_QUEUE[6] = {
+    { 0, 0, 0, 0, 0, 0 },
+    { 0x44, 0x18, 29, 3, 4, 8 }, { 0x4C, 0x18, 49, 3, 4, 8 }, { 0, 0x2C, 80, 3, 8, 0xC },
+    { 0, 0x58, 80, 3, 8, 0xC }, { 0, 0x58, 80, 4, 8, 0xC },
+};
+#define CE_STEP_MAX 0x58
+
+/* The work rush's sites taken so far (the workers' first, then each busy villager's): a spot is crowded when one of
+   them is within CE_SITE_ROOM pixels.  A crowded busy villager is given the nearest free spot among up to
+   CE_SITE_DRAWS of the job's own picks (its starter run again: the place it would give another worker); when every
+   pick is crowded (a job with one place) the first, as close as the game allows. */
+#define CE_SITE_MAX 256
+#define CE_SITE_ROOM 20
+#define CE_SITE_DRAWS 8
+static int ce_site_taken[CE_SITE_MAX][2];
+static int ce_site_count;
+
+static void ce_site_note(int x, int y) {
+    if (ce_site_count < CE_SITE_MAX) {
+        ce_site_taken[ce_site_count][0] = x;
+        ce_site_taken[ce_site_count][1] = y;
+        ++ce_site_count;
+    }
+}
+
+static int ce_site_crowded(int x, int y) {
+    int i;
+    for (i = 0; i < ce_site_count; ++i) {
+        int dx = x - ce_site_taken[i][0], dy = y - ce_site_taken[i][1];
+        if (dx * dx + dy * dy < CE_SITE_ROOM * CE_SITE_ROOM) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* A worker's site, noted once the job is started (its first walk). */
+static void ce_site_worker(const ce_adapter *a, int game, int index) {
+    const ce_queue_shape *s = &CE_QUEUE[game >= 1 && game <= 5 ? game : 0];
+    unsigned char w[CE_STEP_MAX];
+    unsigned char *r = a->record(index);
+    if (s->size != 0 && r != NULL && ce_queue_walk(r + s->queue, s->size, s->cap, s->walk, w)) {
+        ce_site_note(*(const int *)(w + s->x), *(const int *)(w + s->y));
+    }
+}
+
+/* The site of job `job` for busy villager `index`: the job's own first walk step copied to `w` (the job started by
+   the adapter's behave, its steps then replaced by the caller), 0 when the job walks nowhere (done where they stand). */
+static int ce_site_pick(const ce_adapter *a, int game, int index, int job, unsigned char *w) {
+    const ce_queue_shape *s = &CE_QUEUE[game >= 1 && game <= 5 ? game : 0];
+    unsigned char cand[CE_STEP_MAX];
+    int k, have = 0, fx = 0, fy = 0;
+    double best = -1.0;
+    for (k = 0; s->size != 0 && k < CE_SITE_DRAWS; ++k) {
+        unsigned char *r;
+        int x, y;
+        if (!a->behave(index, job) || (r = a->record(index)) == NULL
+            || !ce_queue_walk(r + s->queue, s->size, s->cap, s->walk, cand)) {
+            break;
+        }
+        x = *(const int *)(cand + s->x);
+        y = *(const int *)(cand + s->y);
+        if (k == 0) {
+            fx = x;
+            fy = y;
+            memcpy(w, cand, s->size);
+            have = 1;
+            if (!ce_site_crowded(x, y)) {
+                break;
+            }
+        } else if (!ce_site_crowded(x, y)) {
+            double d = (double)(x - fx) * (x - fx) + (double)(y - fy) * (y - fy);
+            if (best < 0.0 || d < best) {
+                best = d;
+                memcpy(w, cand, s->size);
+            }
+        }
+    }
+    if (have) {
+        ce_site_note(*(const int *)(w + s->x), *(const int *)(w + s->y));
+    }
+    return have;
+}
 
 static const ce_adapter *ce_adapter_for(int game);
 
@@ -1144,11 +1282,46 @@ static int ce_label_width(const ce_adapter *a) {
     return a->label_width > 0 ? a->label_width : CE_LABEL_DEFAULT_WIDTH;
 }
 
+/* PRACTICALLY UNLIMITED TEXT IN THE SIMPLE EDITOR (the owner, 2026-11-17).  The bytes (NUL included) a description,
+   question or result text may hold: with Scrolling Popups practically any (CE_TEXT_STORE: every popup scrolls, the
+   owner 2026-11-16); without it the island event panel's old cap (CE_TEXT_BYTES), and the editor says why. */
+static int ce_text_cap(void) {
+    return cg_scrolls() ? CE_TEXT_STORE : CE_TEXT_BYTES;
+}
+
+/* A button label's characters at most: with Scrolling Popups practically any (the simple question runs in ONE popup
+   whose choice rows grow to as many lines as a label needs, native/shared/one_popup.h); without it the game's own
+   button (ce_label_width, under CE_BUTTON_BYTES). */
+static int ce_label_cap(const ce_adapter *a) {
+    int width = ce_label_width(a);
+    if (cg_scrolls()) {
+        return CE_LABEL_STORE - 1;
+    }
+    return width > CE_BUTTON_BYTES - 1 ? CE_BUTTON_BYTES - 1 : width;
+}
+
+/* Why `text` (the event's `what`: "description", "question", "result text") is too long now, or NULL. */
+static const char *ce_text_cap_refusal(const char *text, const char *what) {
+    static char reason[400];
+    int cap = ce_text_cap() - 1;
+    if (lstrlenA(text) <= cap) {
+        return NULL;
+    }
+    if (cg_scrolls()) {
+        wsprintfA(reason, "The %s is longer than %d characters. Shorten it.", what, cap);
+    } else {
+        wsprintfA(reason, "The %s is longer than %d characters: without the Scrolling Popups patch that is all the "
+                          "island event panel holds. Shorten it, or install Scrolling Popups: with it the popup "
+                          "scrolls and the text can be practically unlimited.", what, cap);
+    }
+    return reason;
+}
+
 /* For the editor's counter: the panel lines the title and text take when
    laid out exactly as ce_compose_in lays them out with `l` (outcome lines
    aside), counted past the panel's limit. */
 static int ce_lines_used_in(const ce_layout *l, const char *title, const char *text) {
-    static char scratch[4096];
+    static char scratch[CE_LONG_BUF];
     ce_writer w;
     memset(&w, 0, sizeof w);
     w.out = scratch;
@@ -1217,6 +1390,11 @@ static int ce_compose_in(const ce_adapter *a, const ce_layout *l, const char *ti
     return fits;
 }
 
+/* ONE popup (the owner, 2026-11-14, as a library event's cg_op_lead): the label of the choice just picked, set by
+   ce_choice_resolve while it composes a simple question's result in the same popup -- its own first line after the
+   title, then a blank line, then the result. */
+static const char *ce_compose_lead;
+
 static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const char *title,
                               const ce_event *e, const ce_result *r, char *out, int size) {
     ce_writer w;
@@ -1225,7 +1403,9 @@ static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const cha
     w.out = out;
     w.size = size;
     w.width = l->width;
-    w.max_lines = l->lines - 1;
+    /* With Scrolling Popups every popup scrolls (the owner, 2026-11-16): the text is as tall as it is, limited only
+       by the bytes `out` holds; without it the panel's lines, as before. */
+    w.max_lines = cg_scrolls() ? 0x7FFFFFFF : l->lines - 1;
     out[0] = '\0';
     if (l->check_title && lstrlenA(title) > a->title_width) {
         return 0;                      /* the title is one line */
@@ -1235,6 +1415,11 @@ static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const cha
         ce_wrap(&w, title);
         ce_newline(&w);
         ce_newline(&w);
+        ce_newline(&w);
+        ce_newline(&w);
+    }
+    if (ce_compose_lead != NULL && ce_compose_lead[0] != '\0') {
+        ce_wrap(&w, ce_compose_lead);
         ce_newline(&w);
         ce_newline(&w);
     }
@@ -1739,8 +1924,13 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             && !titles_set(e->game, c->index, c->title_op == CE_TITLE_SET ? c->title : NULL)) {
             ce_refuse(r, CE_WHY_TITLE);
         }
-        if ((a->caps & CAP_BEHAVIOUR) && c->behaviour != CE_KEEP && !a->behave(c->index, c->behaviour)) {
+        if ((a->caps & CAP_BEHAVIOUR) && c->behaviour != CE_KEEP
+            && !(ce_site_job >= 0 && c->behaviour != ce_site_job && a->behave_at != NULL
+                     ? a->behave_at(c->index, ce_site_job, c->behaviour)
+                     : a->behave(c->index, c->behaviour))) {
             ce_refuse_as(r, CE_WHY_BEHAVIOUR);
+        } else if (ce_site_job >= 0 && c->behaviour == ce_site_job) {
+            ce_site_worker(a, e->game, c->index);
         }
         if (c->health != CE_KEEP && c->health >= 1 && c->health <= CE_HEALTH_MAX && a->set_health != NULL) {
             a->set_health(c->index, c->health);
@@ -1938,7 +2128,7 @@ static const char *ce_room_refusal(const ce_adapter *a, const ce_event *e) {
 static const char *ce_refusal(int game, const ce_event *e) {
     const ce_adapter *a = ce_adapter_for(game);
     const char *reason;
-    char text[1024];
+    static char text[CE_LONG_BUF];
     if (a == NULL) {
         return "Custom Island Event is not available in this game.";
     }
@@ -1948,9 +2138,15 @@ static const char *ce_refusal(int game, const ce_event *e) {
     if (!ce_text_ok(e->title, 0) || !ce_text_ok(e->text, 1)) {
         return "The title and description may use letters, numbers, spaces and . , ! ? : - ' only.";
     }
+    reason = ce_text_cap_refusal(e->text, "description");
+    if (reason != NULL) {
+        return reason;
+    }
     if (!ce_compose(a, e, NULL, text, sizeof text)) {
-        return "The title must fit on one line and the description must fit the island event panel. "
-               "Shorten them.";
+        return cg_scrolls() ? "The title must fit on one line. Shorten it."
+                            : "The title must fit on one line and the description must fit the island event panel. "
+                              "Shorten them, or install the Scrolling Popups patch: with it the popup scrolls and "
+                              "the text can be practically unlimited.";
     }
     reason = a->arm_refusal();
     if (reason != NULL) {
@@ -2044,16 +2240,53 @@ static int ce_label_max_px(const ce_adapter *a) {
 }
 
 /* Why `label` cannot be a button's label in this game, or NULL. */
+/* The widest word of `label` (runs between spaces), measured as ce_label_px measures a label. */
+static int ce_label_widest_word_px(const ce_adapter *a, const char *label) {
+    static char word[CE_LABEL_STORE];
+    int widest = 0, n;
+    while (*label != '\0') {
+        while (*label == ' ') {
+            ++label;
+        }
+        for (n = 0; label[n] != '\0' && label[n] != ' ' && n < (int)sizeof word - 1; ++n) {
+            word[n] = label[n];
+        }
+        word[n] = '\0';
+        label += n;
+        while (*label != '\0' && *label != ' ') {
+            ++label;                    /* (never: a label is shorter than the buffer) */
+        }
+        if (n > 0 && ce_label_px(a, word) > widest) {
+            widest = ce_label_px(a, word);
+        }
+    }
+    return widest;
+}
+
 static const char *ce_label_refusal(const ce_adapter *a, const char *label) {
-    static char reason[96];
+    static char reason[400];
     if (ce_word_count(label) == 0) {
         return "Give both buttons a label.";
     }
     if (!ce_text_ok(label, 0)) {
         return "A button label may use letters, numbers, spaces and . , ! ? : - ' only.";
     }
-    if (lstrlenA(label) > ce_label_width(a)) {
-        wsprintfA(reason, "A button label is %d characters at most in this game.", ce_label_width(a));
+    if (cg_scrolls()) {
+        /* With Scrolling Popups the question runs in ONE popup whose choice rows grow to as many lines as a label
+           needs (native/shared/one_popup.h): only its length is free -- a single word wider than the screen cannot
+           wrap (as src/vv_cie_graph.py checks a library event's labels). */
+        if (lstrlenA(label) > ce_label_cap(a)) {
+            wsprintfA(reason, "A button label is %d characters at most.", ce_label_cap(a));
+            return reason;
+        }
+        if (ce_label_widest_word_px(a, label) > ce_label_max_px(a)) {
+            return "A word in that button label is wider than the screen in this game. Shorten it.";
+        }
+        return NULL;
+    }
+    if (lstrlenA(label) > ce_label_cap(a)) {
+        wsprintfA(reason, "A button label is %d characters at most in this game without the Scrolling Popups patch "
+                          "(with it, labels can be practically unlimited).", ce_label_cap(a));
         return reason;
     }
     if (ce_label_px(a, label) > ce_label_max_px(a)) {
@@ -2065,16 +2298,22 @@ static const char *ce_label_refusal(const ce_adapter *a, const char *label) {
 /* Why `e` cannot be an outcome (its result text and changes) of an event
    titled `title`, or NULL. */
 static const char *ce_result_refusal(const ce_adapter *a, const ce_event *e, const char *title) {
-    static char text[2048];
+    static char text[CE_LONG_BUF];
     ce_layout l = ce_result_layout(a);
+    const char *why;
     if (ce_word_count(e->text) == 0) {
         return "Give each outcome a result text.";
     }
     if (!ce_text_ok(e->text, 1)) {
         return "The result text may use letters, numbers, spaces and . , ! ? : - ' only.";
     }
+    why = ce_text_cap_refusal(e->text, "result text");
+    if (why != NULL) {
+        return why;
+    }
     if (!ce_compose_in(a, &l, title, e, NULL, text, sizeof text)) {
-        return "The result text must fit the island event panel. Shorten it.";
+        return "The result text must fit the island event panel. Shorten it, or install the Scrolling Popups "
+               "patch: with it the popup scrolls and the text can be practically unlimited.";
     }
     return ce_room_refusal(a, e);
 }
@@ -2122,7 +2361,7 @@ static const char *ce_buttons_refusal(const ce_adapter *a, const ce_choice *c, c
 static const char *ce_choice_refusal(int game, const ce_event *e, const ce_choice *c) {
     const ce_adapter *a = ce_adapter_for(game);
     const char *why;
-    char text[1024];
+    static char text[CE_LONG_BUF];
     if (a == NULL || !c->enabled) {
         return ce_refusal(game, e);
     }
@@ -2135,11 +2374,17 @@ static const char *ce_choice_refusal(int game, const ce_event *e, const ce_choic
     if (!ce_text_ok(e->title, 0) || !ce_text_ok(e->text, 1)) {
         return "The title and question may use letters, numbers, spaces and . , ! ? : - ' only.";
     }
+    why = ce_text_cap_refusal(e->text, "question");
+    if (why != NULL) {
+        return why;
+    }
     {
         ce_layout l = ce_question_layout(a);
         if (!ce_compose_in(a, &l, e->title, e, NULL, text, sizeof text)) {
-            return "The title must fit on one line and the question must fit the island event panel. "
-                   "Shorten them.";
+            return cg_scrolls() ? "The title must fit on one line. Shorten it."
+                                : "The title must fit on one line and the question must fit the island event panel. "
+                                  "Shorten them, or install the Scrolling Popups patch: with it the popup scrolls "
+                                  "and the text can be practically unlimited.";
         }
     }
     if (ce_has_effects(e)) {
@@ -2364,11 +2609,21 @@ static int ce_choice_begin(int game, char *text, int size) {
     ce_asked_village = ce_armed_village;
     lstrcpynA(ce_asked_title, ce_armed_event.title, sizeof ce_asked_title);
     ce_asked_event = ce_armed_event;
+    ce_op_simple = 0;
     if (graph) {
         cg_begin_question(game, text, size);
     } else {
         l = ce_question_layout(a);
         ce_compose_in(a, &l, ce_armed_event.title, &ce_armed_event, NULL, text, size);
+        if (cg_scrolls()) {
+            /* ONE popup (the owner, 2026-11-14 and 2026-11-17): with Scrolling Popups a simple question runs in one
+               popup as a library event's does -- its choices are rows drawn after the text (so a label of any
+               length wraps in its own row, native/shared/one_popup.h), the result replaces the text in the same
+               popup, OK ends it.  The host takes it (cg_op_begun_take); its rows, labels and title come through
+               cg_op_rows / cg_label / cg_op_title (story_graph.inc). */
+            ce_op_simple = game;
+            cg_op_begin_simple(game);
+        }
     }
     STORY_COUNT(delivered);
     /* The question coming on screen is written to the queue file now, not at
@@ -2447,11 +2702,14 @@ static int ce_choice_resolve(int game, int button, char *text, int size) {
     o = &c->outcomes[button][k];
     ce_apply(a, &o->effects, &ce_last_result);
     l = ce_result_layout(a);
+    /* One popup: the choice picked leads the result (its own line, then a blank line). */
+    ce_compose_lead = ce_op_simple == game && button < 2 ? c->labels[button] : NULL;
     if (!ce_compose_in(a, &l, ce_asked_title, &o->effects, &ce_last_result, text, size)) {
         /* The outcome lines do not fit: the result text was checked when
            the event was queued, so show it alone. */
         ce_compose_in(a, &l, ce_asked_title, &o->effects, NULL, text, size);
     }
+    ce_compose_lead = NULL;
     ce_last_button = button;
     ce_last_outcome = k;
     return 1;

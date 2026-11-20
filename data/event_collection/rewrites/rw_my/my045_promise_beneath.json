@@ -1,0 +1,304 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Promise Beneath the Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my045_promise_beneath",
+  "source": "rewrites",
+  "lines": [
+   12470,
+   12525
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12470",
+  "ledger": [
+   {
+    "src": "L12471",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12472",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12481",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12488",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12495",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12502",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12476",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12477",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12478",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12479",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12482",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12489",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12496",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12503",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12483",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12485",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12490",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12492",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12497",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12499",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12504",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12506",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12509-12525",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "I can grant you one wish, the stranger says.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Beneath the old banyan, whose roots hang down like curtains, (name) meets a stranger with a voice so soft the rustling leaves almost drown it out.\n\"I can grant you one wish,\" the stranger says. \"Only one. But you must never speak it aloud. Not now, not ever. Just think it.\" The stranger closes (his/her) eyes and waits. (Name) laughs nervously, then stops, because the stranger isn't laughing. What will (name) wish for, silently, in (his/her) heart?",
+   "choices": [
+    {
+     "label": "Wish for Abundance",
+     "next": "c1",
+     "src": "L12476"
+    },
+    {
+     "label": "Wish for Knowledge",
+     "next": "c2",
+     "src": "L12477"
+    },
+    {
+     "label": "Wish for Someone's Return",
+     "next": "c3",
+     "src": "L12478"
+    },
+    {
+     "label": "Refuse the Wish",
+     "next": "c4",
+     "src": "L12479"
+    }
+   ],
+   "src": "L12473-12474"
+  },
+  "c1o1": {
+   "text": "The very next morning, the lagoon boils with silver. An enormous school of fish has swept in from the open sea, so thick the water seems solid. The fishers cheer from their canoes and haul in net after net after net, laughing like children. It's the biggest catch anyone can remember. (Name) says nothing, as promised, and just smiles. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L12484",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The next harvest comes, and it's... fine. An ordinary harvest. Not bad, not good. (Name) waits and waits for something magical to happen. Nothing does. (He/She) starts to wonder whether wishing changed anything at all, or whether the stranger was just a stranger. Still, nobody goes hungry that season. Maybe that's the wish, quietly coming true.",
+   "src": "L12486"
+  },
+  "c1": {
+   "text": "(Name) closes (his/her) eyes and wishes, very hard, that the village will never go hungry. When (he/she) opens them, the stranger is gone...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12482"
+  },
+  "c2o1": {
+   "text": "That night, (name) dreams of hands weaving a net, fast and sure, in a pattern (he/she) has never seen: a clever double knot that doesn't slip, with wider gaps so the little fish escape and the big ones don't. When (he/she) wakes, (he/she) can still see it. (He/She) runs to the fishers and shows them. They try it, and it works brilliantly. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L12491",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Nothing changes. (Name) doesn't wake up any smarter. The questions (he/she) always had are still questions. But over the next weeks, (he/she) realizes something: some questions just stay unanswered, even after a wish. And somehow that's all right. (He/She) starts enjoying the questions instead.",
+   "src": "L12493"
+  },
+  "c2": {
+   "text": "(Name) closes (his/her) eyes and wishes to understand things, to know how the world works. When (he/she) opens them, the stranger is gone...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12489"
+  },
+  "c3o1": {
+   "text": "Three days later, a long-absent traveler walks into the village: someone who left years ago to see the world and was given up for lost. Thin, weathered, grinning, carrying a bag full of stories. Was it the wish? (Name) will never know, and will never say. But (he/she) cries harder than anyone at the welcoming feast. \\(Story only: the traveler does not join the village.\\)",
+   "src": "L12498"
+  },
+  "c3o2": {
+   "text": "Nobody comes. Days pass, then weeks. (Name) watches the road every evening, but the person (he/she) wished for doesn't come home. In the end, (name) has to learn to live with not knowing, with the hope and the sadness all mixed together. It's hard. (He/She) does it anyway, one day at a time.",
+   "src": "L12500"
+  },
+  "c3": {
+   "text": "(Name) closes (his/her) eyes and wishes, with all (his/her) heart, that someone (he/she) has lost would come home. When (he/she) opens them, the stranger is gone...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12496"
+  },
+  "c4o1": {
+   "text": "The stranger opens (his/her) eyes and smiles warmly. \"Then you already know what matters,\" (he/she) says, and walks away through the hanging roots. (Name) stands under the banyan for a while, puzzled, then goes home feeling oddly light.",
+   "src": "L12505"
+  },
+  "c4o2": {
+   "text": "The stranger says nothing, only presses something into (name)'s palm and walks off through the roots. It's a seed, black and shiny and shaped like a tiny heart. No explanation. No instructions. (Name) plants it beside (his/her) hut. Whatever grows from it, (he/she) has decided, will be a surprise.",
+   "src": "L12507"
+  },
+  "c4": {
+   "text": "(Name) shakes (his/her) head. \"No, thank you. I don't think I want a wish I can't talk about.\"...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12503"
+  }
+ }
+}

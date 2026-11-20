@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Carver's Masks of the Ancestors",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b310_carver_masks",
+  "source": "balance",
+  "lines": [
+   14372,
+   14413
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14372",
+  "ledger": [
+   {
+    "src": "L14373",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14374",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14381",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14390",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14378",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14379",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14382",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14391",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14384",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14387",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14393",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14396",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14399-14413",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "In the meeting hut hang the ancestor masks, carved by the first people, each one the face of somebody who lived long ago.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the meeting hut hang the ancestor masks, carved by the first people, each one the face of somebody who lived long ago. Once a generation, the elders say, an ancestor chooses someone living to wear their face for a while. Today the mask of a long-dead fisher has fallen off its peg, twice, right at (subject)'s feet, and (friend) laughs and says it's obviously chosen (subject.him/her).\n(subject) picks it up. The wood is warm. Should (subject) hang it back on its peg, or try it on to see if the elders are right?",
+   "choices": [
+    {
+     "label": "Try It On",
+     "next": "c1",
+     "src": "L14378"
+    },
+    {
+     "label": "Hang It Back",
+     "next": "c2",
+     "src": "L14379"
+    }
+   ],
+   "src": "L14375-14376"
+  },
+  "c1o1": {
+   "text": "When (subject) takes the mask off, (subject.his/her) face is different: broader in the cheek, heavier in the brow, a fisher's face from long ago. The elders gather to look, and one of them says it's the very image of the carving. (subject) hangs the mask back on its peg. It doesn't fall off again.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L14385",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Nothing happens. (subject) takes the mask off and, laughing, holds it up to (friend)'s face. \"Your turn.\" The mask sticks for a moment. When it comes off, (friend) has a different face entirely, broad and weathered, and has stopped laughing. \"Apparently,\" says the eldest, \"it chose the one who laughed.\"",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "friend",
+     "head": "random"
+    }
+   ],
+   "src": "L14388",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) holds the mask to (subject.his/her) face. It fits perfectly, as if carved for (subject.him/her). There is a smell of salt and fish oil, and the sound of oars, very far away...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14382"
+  },
+  "c2o1": {
+   "text": "It has fallen a third time, face down, and when (subject) picks it up, the inside of it is damp, like a face that has been breathing. That night (subject) dreams of oars and salt, and in the morning (subject.his/her) face has changed: still (subject), but older-looking around the eyes, broader, weathered, like the fisher in the carving. The mask stays on its peg after that.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L14394",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) looks at the peg, finds it loose, and fixes it with a new wooden pin. The mask stays up. (friend) is disappointed. The elders say it was just a loose peg, and some of them even believe it. Every so often, though, someone notices the fisher's mask is turned slightly towards (subject)'s usual seat.",
+   "src": "L14397"
+  },
+  "c2": {
+   "text": "(subject) hangs the mask carefully back on its peg and steps away. Behind (subject.him/her), there is a soft clatter...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14391"
+  }
+ }
+}

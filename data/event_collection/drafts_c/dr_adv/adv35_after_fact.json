@@ -69,11 +69,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) stares at (subject.him/her), then bursts out laughing. \"Then why are you asking me?\" (subject) shrugs. \"I wanted to know if I'd done something silly.\" \"Well, you did,\" says (friend). \"But they're probably good yams.\" They are, in fact, very good yams. (subject) shares them with (friend), which helps.",
+   "src": "L416",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L416"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L416"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) stares at (subject.him/her), then bursts out laughing. \"Then why are you asking me?\" (subject) shrugs. \"I wanted to know if I'd done something silly.\" \"Well, you did,\" says (friend). \"But they're probably good yams.\" They are, in fact, very good yams. (subject) shares them with (friend), which helps.",
    "src": "L416"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Well,\" says (friend) quickly, \"it's done now. And you can always make another spear.\" (subject) nods. \"That's what I thought.\" (subject.He/she) seems a lot happier. (friend) realizes (subject) didn't really want advice. (subject.He/she) wanted someone to tell (subject.him/her) it was alright. And it is alright. Mostly. It was a good spear.",
+   "src": "L419",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L419"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Well,\" says (friend) quickly, \"it's done now. And you can always make another spear.\" (subject) nods. \"That's what I thought.\" (subject.He/she) seems a lot happier. (friend) realizes (subject) didn't really want advice. (subject.He/she) wanted someone to tell (subject.him/her) it was alright. And it is alright. Mostly. It was a good spear.",
    "src": "L419"

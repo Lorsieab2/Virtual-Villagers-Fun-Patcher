@@ -1,0 +1,317 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "da_il02",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "il011_great_inventor": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il012_wrong_dream": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "il013_important_list": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "il014_bravest_person": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "a": [
+     "F26"
+    ],
+    "b": [
+     "F26"
+    ],
+    "setup": [
+     "F26"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "il015_perfect": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "il016_secret_ambition": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "a": [
+     "F21"
+    ]
+   }
+  },
+  "il017_unanswered": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "il018_other_path": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il019_compliment": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "il020_mystery_missing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il021_small_envy": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "a": [
+     "F04"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "il022_famous_words": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "a": [
+     "F21"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "il023_thing_under_bed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "il024_day_decisions": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "il025_most_important": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il026_long_awaited": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "il027_terrible_poet": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il028_fear_success": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "il029_private": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "il030_worst_case": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F21"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il031_boring_afternoon": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "a": [
+     "F26"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "il032_old_song": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "il033_unreasonable": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il034_impossible": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il035_reluctant_hero": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "il036_terrible": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "il037_little_lie": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "il038_quiet_dreamer": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il039_unexpected_tears": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il040_dream_can_wait": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

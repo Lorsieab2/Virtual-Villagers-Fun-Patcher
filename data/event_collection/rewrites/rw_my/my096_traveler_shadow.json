@@ -1,0 +1,295 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Traveler's Shadow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my096_traveler_shadow",
+  "source": "rewrites",
+  "lines": [
+   15440,
+   15495
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15440",
+  "ledger": [
+   {
+    "src": "L15441",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15442",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15450",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15457",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15464",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15471",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15445",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15446",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15447",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15448",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15451",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15458",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15465",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15472",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15452",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15454",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15459",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15461",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15466",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15468",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15473",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15475",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15478-15495",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "An elderly traveler, bent and slow and leaning heavily on a stick, asks a villager for shelter for the night.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "An elderly traveler, bent and slow and leaning heavily on a stick, asks (name) for shelter for the night. (Name) waves (him/her) in toward the hearth. And as the traveler shuffles past the fire, (name) glances at the wall and goes still.\nThe traveler's shadow on the wall is not bent. It stands straight and tall. It steps lightly, like someone young, and as the traveler lowers (himself/herself) onto a stool with a groan, the shadow seems to sit down with a little bounce. The traveler does not appear to have noticed. Or is pretending not to. Should (name) still let the traveler stay the night?",
+   "choices": [
+    {
+     "label": "Welcome the Traveler",
+     "next": "c1",
+     "src": "L15445"
+    },
+    {
+     "label": "Ask About the Shadow",
+     "next": "c2",
+     "src": "L15446"
+    },
+    {
+     "label": "Offer a Meal Outside",
+     "next": "c3",
+     "src": "L15447"
+    },
+    {
+     "label": "Turn the Traveler Away",
+     "next": "c4",
+     "src": "L15448"
+    }
+   ],
+   "src": "L15443-15444"
+  },
+  "c1o1": {
+   "text": "A storm blows in that night, and lasts three days, and the traveler stays through all of it, telling stories. They are stories of a very long life: of the island when the reef was still sand, of chiefs nobody remembers, of a great wave that came long before the oldest elder was born. The whole village crowds into (name)'s hut to listen. When the storm passes, the traveler leaves, and the young-looking shadow on the wall waves goodbye. The old traveler does not.",
+   "src": "L15453"
+  },
+  "c1o2": {
+   "text": "The traveler eats, sleeps soundly, and departs at dawn with many thanks. On the stool where (he/she) sat, (name) finds a small leaf packet of seeds and a note scratched on bark: \"These grow fast. Plant them by the water.\" (Name) does, and the seeds sprout within days into a patch of fat, quick-growing beans that feed the household for weeks. Whoever the traveler was, (he/she) knew a thing or two about gardens.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L15455",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "Shadow or no shadow, a guest is a guest. (Name) fetches a blanket and a bowl of stew, and the old traveler smiles a toothless smile of thanks...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15451"
+  },
+  "c2o1": {
+   "text": "\"Ah,\" says the traveler, and smiles fondly at the straight young shadow, as if greeting an old friend. \"Perhaps shadows remember us differently than we remember ourselves.\" The shadow, (name) could swear, gives a little bow. The traveler says nothing more about it, and eats (his/her) stew. (Name) lies awake for a long time that night, watching (his/her) own shadow on the wall, wondering what it remembers.",
+   "src": "L15460"
+  },
+  "c2o2": {
+   "text": "Before the traveler can answer, (name)'s youngest relative pipes up from the corner. \"It's the fire. Look.\" The child gets up and walks past the hearth, bent over like an old person, and sure enough, (his/her) shadow on the wall leaps up tall and straight, because the flames are low and the wall is curved. Everyone laughs, including the traveler, who laughs so hard (he/she) has to wipe (his/her) eyes. The shadow laughs too, of course.",
+   "src": "L15462"
+  },
+  "c2": {
+   "text": "(Name) cannot help it. \"Forgive me,\" (he/she) says, pointing at the wall, \"but your shadow... it doesn't look like you.\" The traveler turns slowly to look at it...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15458"
+  },
+  "c3o1": {
+   "text": "The traveler eats gratefully, sitting on the mat with (his/her) back to a tree, chatting about the weather and the price of fish. In the soft evening light, with no fire behind (him/her), (he/she) casts no strange shadow at all, just an ordinary bent one. When the meal is done, (he/she) thanks (name) warmly and continues on toward the shore, humming. (Name) wonders whether (he/she) imagined the whole thing.",
+   "src": "L15467"
+  },
+  "c3o2": {
+   "text": "The traveler does not touch the food. \"Thank you,\" (he/she) says, \"but I'm not hungry. Could you tell me the way to the old memorial?\" (Name) points the way, and the traveler sets off slowly up the path in the dusk. (Name) follows a little way, curious. At the memorial, the old traveler kneels before one of the oldest stones, and in the light of the rising moon, (his/her) shadow on the grass is young, and kneeling, and weeping.",
+   "src": "L15469",
+   "text_only": [
+    {
+     "src": "L15469",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3": {
+   "text": "(Name) decides (he/she) would rather not have that shadow on (his/her) walls. Politely, (he/she) suggests they eat outside in the cool evening air, and brings out a bowl and a mat...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15465"
+  },
+  "c4o1": {
+   "text": "The traveler leaves quietly, without complaint. Nothing at all happens. But that night, lying awake, (name) keeps thinking of the bent old figure walking off alone into the dark, and of how frightened (he/she) had been of a shadow on a wall. In the morning, (he/she) goes looking along the road, meaning to apologize. There is no sign of the traveler anywhere. The whole household is quieter than usual for days.",
+   "src": "L15474"
+  },
+  "c4o2": {
+   "text": "The moment the traveler steps out of the door, the hearth fire goes out. One moment the flames are high and bright, and the next there is only grey smoke curling up from cold ashes, as though it had been out for hours. The family sit in the sudden dark, very quietly. It takes (name) a long time to get the fire lit again, and the whole family wonders whether the visitor was offended, or whether the fire simply went with (him/her).",
+   "src": "L15476"
+  },
+  "c4": {
+   "text": "(Name) does not like it. \"I'm sorry,\" (he/she) says, \"on second thought, we haven't room tonight.\" The traveler nods slowly, and shuffles back out of the door...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15472"
+  }
+ }
+}

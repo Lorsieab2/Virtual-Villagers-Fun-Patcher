@@ -69,11 +69,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I'm sorry!\" says (subject). \"I don't know what's wrong with me. I know your name. It's (friend). (friend), (friend), (friend).\" (friend) is laughing. Everyone is laughing. By the end of the night, half the village is calling (friend) by the wrong name too, just to be funny. (friend) doesn't seem to mind at all.",
+   "src": "L386",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L386"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"I'm sorry!\" says (subject). \"I don't know what's wrong with me. I know your name. It's (friend). (friend), (friend), (friend).\" (friend) is laughing. Everyone is laughing. By the end of the night, half the village is calling (friend) by the wrong name too, just to be funny. (friend) doesn't seem to mind at all.",
    "src": "L386"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"It's been a wrong-name day,\" says (subject). \"I don't know why. Tomorrow will be better.\" (friend) says it's fine. It is fine. (subject) is still embarrassed all evening. The next morning (subject.he/she) greets (friend) very carefully, by (friend.his/her) right name, and (friend) applauds.",
+   "src": "L389",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L389"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"It's been a wrong-name day,\" says (subject). \"I don't know why. Tomorrow will be better.\" (friend) says it's fine. It is fine. (subject) is still embarrassed all evening. The next morning (subject.he/she) greets (friend) very carefully, by (friend.his/her) right name, and (friend) applauds.",
    "src": "L389"

@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The People's Assembly",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce15_people_assembly",
+  "source": "draft_lce",
+  "lines": [
+   204,
+   215
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L204",
+  "ledger": [
+   {
+    "src": "L205",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L211",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L215",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The leader asks every household to speak on whether to move the village inland: hold the long assembly, or choose speakers.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After the last flood, the {@chief} has asked the village whether to move the huts inland. (subject) wants every single household to speak at the assembly. (friend) points out there are a great many households, and some of them talk for a very long time. How should the assembly be run?",
+   "src": "L207",
+   "choices": [
+    {
+     "label": "Every Household Speaks",
+     "next": "o1",
+     "src": "L209"
+    },
+    {
+     "label": "Choose Speakers",
+     "next": "o2",
+     "src": "L213"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The assembly takes two full days. Some families want to move. Some will never leave. One family wants to move to a tree. In the end, the village decides to move the huts nearest the water and keep the rest. Nobody is fully satisfied. Everybody was heard.",
+   "src": "L211"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Each part of the village chooses one speaker. The assembly takes an afternoon. The decision is the same: move the huts nearest the water. But three families feel nobody spoke for them, and they say so loudly for a month.",
+   "src": "L215"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

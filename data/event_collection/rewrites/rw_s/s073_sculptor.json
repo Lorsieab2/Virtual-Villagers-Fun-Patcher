@@ -1,0 +1,230 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sculptor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s073_sculptor",
+  "source": "rewrites",
+  "lines": [
+   3441,
+   3483
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3441",
+  "ledger": [
+   {
+    "src": "L3442",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3443",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3451",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3460",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3448",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3449",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3452",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3461",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3454",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3457",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3463",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3466",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3469-3483",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A small figure of a sitting elder, about as tall as a forearm, with folded hands and a gentle, sleepy face.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For months, every spare moment, (name) has been sitting outside (his/her) hut with a lump of soft grey stone between (his/her) knees and a sharp little chisel in (his/her) hand. Tap, tap, tap. There are stone chips in (his/her) hair, in (his/her) bed, in (his/her) sandals, and very possibly in (his/her) dinner.\nToday it's finished. A small figure of a sitting elder, about as tall as a forearm, with folded hands and a gentle, sleepy face.\nIt's so lifelike that people keep saying hello to it as they walk past. One of the elders sat down next to it for a chat this morning, and was halfway through a story before realising. (Name) is proud of it, and wonders what to do next. Carve another, or give this one to someone who'll treasure it?",
+   "choices": [
+    {
+     "label": "Carve Another",
+     "next": "c1",
+     "src": "L3448"
+    },
+    {
+     "label": "Give It Away",
+     "next": "c2",
+     "src": "L3449"
+    }
+   ],
+   "src": "L3444-3446"
+  },
+  "c1o1": {
+   "text": "The second figure takes half as long, and is twice as good. A woman holding a baby, so real that people swear they can see the baby breathing. The third is better still. By the end of the season, (name) is carving door posts for the meeting hut, and the elders are asking (him/her) to carve the posts for every new hut in the village. (His/her) hands know stone and wood the way a fisher's hands know the sea. (Name) has become a true master, and everyone can see it.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "set": 100,
+     "role": "subject"
+    }
+   ],
+   "src": "L3455",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The second figure is going beautifully, even better than the first, right up until the morning (name) taps the chisel once too hard, and with a little dry crack, the head falls off. Right off. It lands on (his/her) foot. (Name) sits there with the headless figure in (his/her) lap for a long time, not saying anything. Then (he/she) throws the chisel into the bushes, and doesn't go and get it. (He/She) gives up carving for good, and can't stand the feel of wood after that.",
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L3458"
+  },
+  "c1": {
+   "text": "(Name) looks at the finished figure for a long time, with a little frown. It's good. But (he/she) can already see how it could be better. The very next morning, (he/she) is out by the quarry, choosing another stone...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3452"
+  },
+  "c2o1": {
+   "text": "(Name) gives it to the elders. They unwrap it in their hut, all crowding round, and go very quiet. Then they put it in the place of honour, by the elders' fire, where everyone can see it. And the oldest of them asks (name), very politely, if (he/she) would consider carving the posts for the new huts that the builders are putting up. (Name) says yes. (He/She) carves post after post, and gets better with every one, and soon the whole village is full of carved faces and birds and waves.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "skills": [
+      "Building"
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L3464",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) gives it to a little child who has been staring at it every day for weeks. The child is overjoyed, hugs it, kisses it, carries it everywhere, and loses it within a week. Nobody knows where. The child cries for a day. Then the child forgets about it completely and moves on to a shell. (Name) is a little hurt. A long time later, the figure turns up in the river shallows, watching the fish go by with its sleepy face, and (name) decides to leave it there.",
+   "src": "L3467"
+  },
+  "c2": {
+   "text": "(Name) didn't carve it to keep. (He/She) picks it up carefully, wraps it in a soft cloth, and carries it through the village, trying to decide who should have it...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3461"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "wood",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

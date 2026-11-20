@@ -1,0 +1,251 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fishing Line Dispute",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new111_fishing_line",
+  "source": "rewrites",
+  "lines": [
+   5196,
+   5241
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5196",
+  "ledger": [
+   {
+    "src": "L5197",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5198",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5206",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5213",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5220",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5202",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5203",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5204",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5207",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5214",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5221",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5208",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5210",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5215",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5217",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5222",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5224",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5227-5241",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L5197",
+    "kind": "note",
+    "why": "WHO names the tribal chief for (leader); outside The Secret City any villager leads"
+   }
+  ],
+  "description": "Two households both say the rocky stretch past the reef is theirs to fish.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "leader": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "name3": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 20
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Two households both say the rocky stretch past the reef is theirs to fish. Both have scratched marker stones to prove it. Both stones, annoyingly, look exactly alike.\nTwice now, nets have been moved in the night. The first time, (subject)'s family found their net tangled on the rocks. The second time, (friend)'s family found theirs floating halfway to the horizon. Accusations have been flying across the cooking fires ever since, and yesterday somebody threw a fish. Not AT anyone. Near them. Pointedly.\n(leader) wants this settled before somebody's whole net ends up in another village. How should (subject.he/she) settle it?",
+   "choices": [
+    {
+     "label": "Let Both Households Speak",
+     "next": "c1",
+     "src": "L5202"
+    },
+    {
+     "label": "Walk the Reef at Low Tide",
+     "next": "c2",
+     "src": "L5203"
+    },
+    {
+     "label": "Split the Day Between Them",
+     "next": "c3",
+     "src": "L5204"
+    }
+   ],
+   "src": "L5199-5201"
+  },
+  "c1o1": {
+   "text": "(subject) explains, more quietly than anyone expected, that (subject.his/her) nets need the calm water at dawn to feed four hungry children, and that the other spots are all too rough for (subject.his/her) bad knee. The gathering listens without interrupting. Even (friend) uncrosses (subject.his/her) arms. Nothing is decided tonight, but nobody throws anything either, and the two families walk home side by side.",
+   "src": "L5209"
+  },
+  "c1o2": {
+   "text": "Before (friend) can start, (name3), who mends nets for both families and has never spoken at a gathering in (subject.his/her) life, stands up, goes bright red, and blurts it out: the stretch was always shared, until a storm rolled one of the marker stones two summers ago. Nobody noticed. The whole conversation turns on its head. (subject) and (friend) stare at each other, and then, slowly, both start to laugh.",
+   "src": "L5211"
+  },
+  "c1": {
+   "text": "(leader) calls everyone to the fire and lays down one rule: no interrupting, and absolutely no fish-throwing. (subject) goes first, arms folded...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5207"
+  },
+  "c2o1": {
+   "text": "Halfway along, (leader) stops and points. The fish are all gathered on the north side of the rocks this early in the morning. By evening, when they come back to check, the fish have moved around to the south side. Neither family has been fishing the best spot at the best time! That one detail shapes a much fairer decision, and the fishers start keeping careful track of where the fish go by the hour.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5216",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "In a crevice near the end of the reef, they find tatters of both families' net ropes wedged in the rock, where the tide has been dragging and dropping anything left loose. Neither family touched the other's nets. The sea did. Nobody is blamed or punished, and (subject) awkwardly offers (friend) a hand back over the slippery rocks.",
+   "src": "L5218"
+  },
+  "c2": {
+   "text": "At dawn, (leader), (subject) and (friend) wade out along the reef together, picking their way between the rock pools in an extremely awkward silence...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5214"
+  },
+  "c3o1": {
+   "text": "It works well enough to keep. The mornings are calm, the evenings are calm, and the nets stay exactly where they were left. (leader) promises to look at the arrangement again after the big tides, and the fish-throwing is never mentioned again, except as a joke.",
+   "src": "L5223"
+  },
+  "c3o2": {
+   "text": "By the end of the week, both families have spent half of every day standing on the beach with nothing to do, glaring at the other family fishing. \"This is worse!\" (subject) complains. \"For once I agree with (subject.him/her)!\" says (friend). (leader) calls the whole thing off, and they go back to arguing, though somehow a little more cheerfully than before.",
+   "src": "L5225"
+  },
+  "c3": {
+   "text": "(leader) decides to stop the arguing with a plain rule: (subject)'s family fishes the stretch in the mornings, (friend)'s in the evenings. Both families grumble. Then, for a week, they try it...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5221"
+  }
+ }
+}

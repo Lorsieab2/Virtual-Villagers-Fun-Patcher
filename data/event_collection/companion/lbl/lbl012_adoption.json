@@ -111,7 +111,8 @@
      "max": 10,
      "src": "L3946"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "name": "Outcome 2",

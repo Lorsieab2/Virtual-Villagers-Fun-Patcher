@@ -77,11 +77,104 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The fish disappears for days. When it returns, a different observer notes a variation that complicates the original classification.",
+   "src": "L7442",
+   "text_only": [
+    {
+     "what": "The fish disappears for days",
+     "reason": "an animal, not a villager; no one vanishes",
+     "src": "L7442"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The drawing captures the Idle silhouette, but the clown fin detail is disputed; an apprentice marks the page \"unconfirmed.\"",
+   "src": "L7436",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7436"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "The drawing captures the Idle silhouette, but the clown fin detail is disputed; an apprentice marks the page \"unconfirmed.\"",
    "src": "L7436"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The fish reveals details missed underwater; careful husbandry and release become part of the record, though handling stresses it.",
+   "src": "L7438",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7438"
+    },
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L7438"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "handling stresses it",
+     "reason": "the fish is stressed, not a villager",
+     "src": "L7438"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "The fish reveals details missed underwater; careful husbandry and release become part of the record, though handling stresses it.",
    "src": "L7438",
@@ -103,9 +196,10 @@
      "reason": "the fish is stressed, not a villager",
      "src": "L7438"
     }
-   ]
+   ],
+   "auto_text": true
   },
-  "c": {
+  "c__fx": {
    "name": "Answer C",
    "text": "The record gains anatomical detail but the fish dies; villagers debate whether the knowledge justified the loss, especially if numbers are low.",
    "src": "L7440",
@@ -119,6 +213,12 @@
      "min": 5,
      "max": 10,
      "src": "L7440"
+    },
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L7440"
     }
    ],
    "text_only": [
@@ -127,19 +227,39 @@
      "reason": "an animal, not a villager",
      "src": "L7440"
     }
-   ]
+   ],
+   "auto_text": true
   },
-  "d": {
-   "name": "Answer D",
-   "text": "The fish disappears for days. When it returns, a different observer notes a variation that complicates the original classification.",
-   "src": "L7442",
+  "c__text": {
+   "name": "Answer C",
+   "text": "The record gains anatomical detail but the fish dies; villagers debate whether the knowledge justified the loss, especially if numbers are low.",
+   "src": "L7440",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7440"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7440"
+    }
+   ],
    "text_only": [
     {
-     "what": "The fish disappears for days",
-     "reason": "an animal, not a villager; no one vanishes",
-     "src": "L7442"
+     "what": "the fish dies",
+     "reason": "an animal, not a villager",
+     "src": "L7440"
     }
-   ]
+   ],
+   "auto_text": true
   }
  },
  "grammar_fixes": [

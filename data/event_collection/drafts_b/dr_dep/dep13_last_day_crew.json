@@ -64,14 +64,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) brings fruit and fish for everyone at midday. They eat together in the shade and tell the old stories: the day the ladder broke, the day somebody fell asleep standing up. \"You'll come and visit,\" someone says. \"I'll be right over there,\" says (name1), pointing. Everybody laughs, but they all mean it.",
-   "src": "L158"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) isn't one for fuss. At the end of the day (he/she) puts (his/her) tools away neatly, nods to everyone as usual, and walks off. The next morning (he/she) finds a small bundle outside (his/her) hut: (his/her) favorite old tool, which (he/she) had left behind, wrapped up with a bit of string and a note that just says, \"Forgot this.\"",
    "src": "L161"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) brings fruit and fish for everyone at midday. They eat together in the shade and tell the old stories: the day the ladder broke, the day somebody fell asleep standing up. \"You'll come and visit,\" someone says. \"I'll be right over there,\" says (name1), pointing. Everybody laughs, but they all mean it.",
+   "src": "L158",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L158"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) brings fruit and fish for everyone at midday. They eat together in the shade and tell the old stories: the day the ladder broke, the day somebody fell asleep standing up. \"You'll come and visit,\" someone says. \"I'll be right over there,\" says (name1), pointing. Everybody laughs, but they all mean it.",
+   "src": "L158"
   }
  }
 }

@@ -85,9 +85,36 @@
      "scaled": true,
      "src": "L566"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides that as long as the bees leave (subject.him/her) alone, (subject.he/she) will leave them alone. The hut hums all summer. Visitors find it unsettling. (subject) finds it oddly soothing, like a song (subject.he/she) can't quite hear the words of. At the end of the season (friend) takes out some of the honey through a gap in the thatch, leaving plenty for the bees. It's the best honey anyone has tasted.",
+   "src": "L569",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "src": "L569"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) decides that as long as the bees leave (subject.him/her) alone, (subject.he/she) will leave them alone. The hut hums all summer. Visitors find it unsettling. (subject) finds it oddly soothing, like a song (subject.he/she) can't quite hear the words of. At the end of the season (friend) takes out some of the honey through a gap in the thatch, leaving plenty for the bees. It's the best honey anyone has tasted.",
    "src": "L569"

@@ -74,6 +74,33 @@
    "src": "L566"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) asks both of them to leave, please, and let (subject.him/her) think. (subject.He/she) asks friends, asks an elder with the same aches, and thinks for a few days. Then (subject.he/she) chooses: the compresses and the movement, no tea. The tea healer is a little offended. \"It's my body,\" (subject) says, \"and I know how it feels better than anyone.\" (subject.He/she) isn't cured. (subject.He/she) does feel a little better.",
+   "src": "L569",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 10,
+     "max": 20,
+     "src": "L569"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) asks both of them to leave, please, and let (subject.him/her) think. (subject.He/she) asks friends, asks an elder with the same aches, and thinks for a few days. Then (subject.he/she) chooses: the compresses and the movement, no tea. The tea healer is a little offended. \"It's my body,\" (subject) says, \"and I know how it feels better than anyone.\" (subject.He/she) isn't cured. (subject.He/she) does feel a little better.",
    "src": "L569"

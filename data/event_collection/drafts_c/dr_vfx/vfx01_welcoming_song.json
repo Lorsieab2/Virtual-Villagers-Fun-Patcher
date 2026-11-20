@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Welcoming Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "vfx01_welcoming_song",
+  "source": "draft_vfx",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "dr_vfx",
+  "credit": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_vfx",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L14",
+    "kind": "instruction",
+    "text": "[effect: the whole village sings]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L17",
+    "kind": "instruction",
+    "text": "[effect: (name1) sings]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A family arrives from across the island: welcome them with the old song, all together or sung alone.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A family from the far side of the island has come to live in the village, and they are standing at the edge of the clearing with their bundles, not quite sure where to put them. (name1) remembers the welcoming song the grandparents used to sing, the one that names each hut and asks the newcomers to rest there. It has not been sung in years.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Sing It Together",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Sing It Alone",
+     "next": "o2",
+     "src": "L16"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) starts the first line, a little shaky, and one by one the others join in until the whole village is singing. The newcomers do not know the words, but they understand. By the last verse they are clapping along.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "group",
+     "kind": "song",
+     "who": "all",
+     "src": "L14"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) steps forward and sings it alone, slowly, so every word is clear. The village listens in silence. When it is over, the oldest of the newcomers puts down her bundle and bows her head in thanks.",
+   "src": "L17",
+   "effects": [
+    {
+     "do": "group",
+     "kind": "song",
+     "who": "subject",
+     "src": "L17"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

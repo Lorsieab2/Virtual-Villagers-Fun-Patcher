@@ -1,0 +1,212 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Round Stones",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b151_two_round_stones",
+  "source": "balance",
+  "lines": [
+   6955,
+   6999
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6955",
+  "ledger": [
+   {
+    "src": "L6956",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6957",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6965",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6974",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6962",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6963",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6966",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6975",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6968",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6971",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6977",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6980",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6983-6999",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The elders call them the Twins.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the stream below the waterfall there are two round stones that sit side by side, worn so smooth and so alike that nobody can tell them apart. The elders call them the Twins. The story is that a couple who lift one stone each, at the same moment, and carry them to the top of the falls, will be blessed with children, \"as many as the stones think fair.\"\n(subject) and (friend) have come down to the stream to look at them. They are much bigger than either of them expected, about the size of a sleeping pig each, and the climb to the top of the falls is steep and slippery.\nShould they try to carry the Twins up together, or just leave a gift beside them and hope?",
+   "choices": [
+    {
+     "label": "Carry the Twins Up",
+     "next": "c1",
+     "src": "L6962"
+    },
+    {
+     "label": "Leave a Gift Beside Them",
+     "next": "c2",
+     "src": "L6963"
+    }
+   ],
+   "src": "L6958-6960"
+  },
+  "c1o1": {
+   "text": "They reach the top at sunset and drop the stones in the grass, too tired to speak. The next morning both stones are back in the stream, side by side, as if they had never moved. A few weeks later, (subject) is pregnant, and the healers, counting heartbeats, tell them to expect {#babies:a baby|twins|triplets}. \"{#babies:One, the stones are stingy|Two, the stones are fair|Three, the stones are generous},\" says (friend), and sits down rather suddenly.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L6969",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Halfway up, (friend)'s stone slips out of (friend.his/her) arms and goes bounding back down into the stream with a tremendous splash. (subject) carries the other one the rest of the way, alone, out of sheer stubbornness. A few weeks later (subject) is pregnant with one baby. \"The stones thought one was fair,\" says (subject). \"Given the circumstances.\"",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L6972",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They count to three and lift. The stones are heavy and cold and slippery with moss, and they have to stop every few steps on the climb, panting, their arms shaking, the waterfall roaring beside them...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6966"
+  },
+  "c2o1": {
+   "text": "The next morning the shells and the flower are gone, and the Twins are sitting a little closer together than before. A few weeks later (subject) is pregnant. They go back to the stream and leave another string of shells, as a thank you, and the stones move closer again.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L6978",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The next morning the shells are scattered across the bank, and the flower is floating in the pool. The elders shake their heads. \"The Twins like you to work for it,\" they say. (subject) and (friend) go home a little disappointed, and come back the next month with stronger arms.",
+   "src": "L6981"
+  },
+  "c2": {
+   "text": "They look at the stones, then at the climb, then at each other. (friend) lays a string of shells on the bank beside the Twins, and (subject) adds a flower. They sit on the bank for a while, holding hands, and listening to the falls...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6975"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L6969",
+   "before": "{#babies:One. The stones are stingy|Two. The stones are fair|Three. The stones are generous}",
+   "after": "{#babies:One, the stones are stingy|Two, the stones are fair|Three, the stones are generous}"
+  }
+ ]
+}

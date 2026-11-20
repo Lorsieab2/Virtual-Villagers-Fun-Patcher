@@ -1,0 +1,307 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Woman's Three Questions",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my041_woman_three",
+  "source": "rewrites",
+  "lines": [
+   12234,
+   12289
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12234",
+  "ledger": [
+   {
+    "src": "L12235",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12236",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12245",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12252",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12259",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12266",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12240",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12241",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12242",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12243",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12246",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12253",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12260",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12267",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12247",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12249",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12254",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12256",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12261",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12263",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12268",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12270",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12273-12289",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L12264",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "A storm is lashing the village when there's a knock at a villager's door.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A storm is lashing the village when there's a knock at (name)'s door. On the step stands an old woman, water streaming from her grey braids, leaning on a walking stick topped with a shell.\nBefore (name) can say a word, she holds up one bony finger. \"Before I ask for shelter,\" she says, \"three questions. What is hunger? What is kindness? What is truth?\" She asks each one slowly, as if it matters very much. The rain is pouring off her. She doesn't seem to notice. What should (name) do?",
+   "choices": [
+    {
+     "label": "Answer and Welcome Her",
+     "next": "c1",
+     "src": "L12240"
+    },
+    {
+     "label": "Welcome Her Without Answering",
+     "next": "c2",
+     "src": "L12241"
+    },
+    {
+     "label": "Answer but Refuse Shelter",
+     "next": "c3",
+     "src": "L12242"
+    },
+    {
+     "label": "Turn Her Away Angrily",
+     "next": "c4",
+     "src": "L12243"
+    }
+   ],
+   "src": "L12237-12238"
+  },
+  "c1o1": {
+   "text": "The old woman nods at each answer, saying nothing, and settles by the fire. As the storm rages, she watches (name) set fish out to dry and tuts. \"Salt, smoke, and wrap it in this leaf,\" she says, plucking one from the thatch. \"It'll keep twice as long.\" By morning she has shown (name) the whole method, and she's gone. The dried fish lasts all season. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L12248",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "She sleeps soundly by the hearth, snoring like a pig, and is gone before (name) wakes. On the mat where she slept, scratched carefully into a piece of bark, is a short note: \"Thank you. Your answers were wrong, but your door was right.\" (Name) doesn't know whether to laugh or be offended, and decides on both.",
+   "src": "L12250"
+  },
+  "c1": {
+   "text": "(Name) thinks hard, then answers each question as honestly as (he/she) can, and then steps aside. \"Now come in, before you drown.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12246"
+  },
+  "c2o1": {
+   "text": "The old woman laughs, a big, croaky, delighted laugh. \"Ha! You'd make a terrible scholar,\" she says, wringing out her braids by the fire. \"But warmth matters more than cleverness. Always has.\" She stays the night, telling (name) stories about storms she has seen, and leaves at dawn, whistling.",
+   "src": "L12255"
+  },
+  "c2o2": {
+   "text": "She sits by the fire for a long while, steaming, saying nothing. Then she looks at (name) very seriously. \"You know,\" she says, \"refusing a test can itself be a wise answer. You chose what mattered over what was asked.\" She pats (name)'s hand. (Name) has no idea whether that was a compliment, but it felt like one.",
+   "src": "L12257"
+  },
+  "c2": {
+   "text": "\"Never mind the questions,\" (name) says, pulling her in out of the rain. \"You're soaked through. Sit down and get warm.\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12253"
+  },
+  "c3o1": {
+   "text": "The old woman listens to all three answers, nodding slowly. \"Thank you,\" she says, and seems to mean it. Then she turns and walks back out into the rain, the shell on her stick clicking against the stones, until she's gone. (Name) closes the door. The fire doesn't feel quite as warm as it did.",
+   "src": "L12262"
+  },
+  "c3o2": {
+   "text": "The old woman listens, nods, and leaves. In the morning, the storm has passed, but the village's drying racks have been knocked flat by the wind, every single one, and grain lies scattered all across the wet ground. The chickens are delighted. The villagers are not. Nobody's sure whether it was the storm, but a few people look thoughtfully at (name).",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L12264"
+  },
+  "c3": {
+   "text": "(Name) answers the three questions as best (he/she) can, then shakes (his/her) head. \"I'm sorry. There's no room in here. You'll have to try the next hut.\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12260"
+  },
+  "c4o1": {
+   "text": "The old woman knocks at the next hut. The neighbor takes her in without a question, sits her by the fire and feeds her stew. In the morning, she's gone, and the neighbor won't stop talking about what a lovely old lady she was, and what wonderful stories she told. (Name) feels quite small for the rest of the week.",
+   "src": "L12269"
+  },
+  "c4o2": {
+   "text": "A week of unsettling dreams follows. In every one, (name) is standing at a door in the rain, knocking, and nobody will let (him/her) in. On the seventh night, the door finally opens, and the old woman is there, holding out a cup. (Name) wakes up crying. Nobody knows whether the visitor caused the dreams. (Name) leaves (his/her) door unlatched after that.",
+   "src": "L12271"
+  },
+  "c4": {
+   "text": "\"I don't have time for riddles in the middle of a storm!\" (name) snaps. \"Go away!\" And (he/she) slams the door...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12267"
+  }
+ }
+}

@@ -1,0 +1,290 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shore's Unseen Companion",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my094_shore_unseen",
+  "source": "rewrites",
+  "lines": [
+   15324,
+   15379
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15324",
+  "ledger": [
+   {
+    "src": "L15325",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15326",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15334",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15341",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15348",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15355",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15329",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15330",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15331",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15332",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15335",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15342",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15349",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15356",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15336",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15338",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15343",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15345",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15350",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15352",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15357",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15359",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15362-15379",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It is low tide, and the beach is empty and gleaming, the wet sand reflecting the sky like glass.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It is low tide, and the beach is empty and gleaming, the wet sand reflecting the sky like glass. (subject) is wandering along the tideline collecting shells when (subject.he/she) hears it: footsteps, crunching softly on the shells, right beside (subject.him/her). Keeping pace. (subject) stops. The footsteps stop. (subject.He/she) takes a step. So do they.\nThere is nobody there. Not on the sand, not in the dunes, not in the water. Just (subject), and the gulls, and a set of footsteps that seem to belong to no one at all. Should (subject) speak to whatever it is, or head for home?",
+   "choices": [
+    {
+     "label": "Speak to the Companion",
+     "next": "c1",
+     "src": "L15329"
+    },
+    {
+     "label": "Look for Footprints",
+     "next": "c2",
+     "src": "L15330"
+    },
+    {
+     "label": "Walk Toward the Village",
+     "next": "c3",
+     "src": "L15331"
+    },
+    {
+     "label": "Leave a Shell Behind",
+     "next": "c4",
+     "src": "L15332"
+    }
+   ],
+   "src": "L15327-15328"
+  },
+  "c1o1": {
+   "text": "For a moment, there is only the sound of the waves. Then a soft voice, very close, says: \"I used to walk here. Every day.\" It sounds wistful, and kind, and not at all frightening. (subject) does not know what to say, so (subject.he/she) just says, \"It's a good place to walk.\" The voice laughs softly, and then it fades with the tide, and the footsteps do not come again. (subject) walks that beach every day after that, and never feels alone on it.",
+   "src": "L15337"
+  },
+  "c1o2": {
+   "text": "\"Lovely day!\" a voice wheezes from behind the nearest dune, and then collapses into helpless laughter. It is (friend), (subject)'s best friend, who has been creeping along behind the dunes the whole time, crunching shells in (subject.his/her) hands to make footstep noises, and is now laughing far too hard to stand up. (subject) chases (subject.him/her) all the way down the beach and pushes (subject.him/her) into the sea. They are still laughing about it years later.",
+   "src": "L15339",
+   "text_only": [
+    {
+     "src": "L15339",
+     "what": "\"collapses\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1": {
+   "text": "(subject) swallows, and says to the empty air beside (subject.him/her), as casually as (subject.he/she) can manage: \"Nice day for shells, isn't it?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15335"
+  },
+  "c2o1": {
+   "text": "There, right beside (subject.his/her) own prints, is a second set: bare feet, a little smaller than (subject.his/her) own, walking along with (subject.him/her) step for step. They come from nowhere and lead nowhere; they simply begin, a little way back, at (subject.his/her) side. As (subject) stares at them, a wave rushes up the beach, washes over both sets of prints, and slides back. (subject)'s prints are still faintly there. The others are gone.",
+   "src": "L15344"
+  },
+  "c2o2": {
+   "text": "There is only one set of footprints on the sand: (subject)'s own, trailing back along the tideline as far as (subject.he/she) can see. (subject.He/she) walks on, slowly, listening hard. The crunching footsteps keep pace. (subject.He/she) looks down again. Still only (subject.his/her) own prints. (subject) decides, on the whole, that this is a very good day to go home early.",
+   "src": "L15346"
+  },
+  "c2": {
+   "text": "(subject) turns slowly and looks down at the wet, smooth sand beside (subject.his/her) own feet...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15342"
+  },
+  "c3o1": {
+   "text": "They follow (subject.him/her) right up off the sand, along the path and through the trees. And then, at the very edge of the village, beside the first house, they stop. (subject) walks on a few steps, then turns around. Nothing. Just the path, and the sea beyond it, sparkling. It is as if whoever it was walked (subject.him/her) home, safe to the door, and then went back to the beach. (subject) feels, unexpectedly, rather looked after.",
+   "src": "L15351"
+  },
+  "c3o2": {
+   "text": "They do not stop at the edge of the village. They follow (subject) past the first house, past the fire, past the huts, all the way to (subject.his/her) own door. Nobody else seems to hear them. (subject) asks a neighbour; the neighbour hears nothing. (subject.He/she) goes inside and shuts the door. The footsteps stop outside. In the morning, there is a little heap of shells on (subject.his/her) doorstep, exactly like the ones (subject.he/she) dropped on the beach.",
+   "src": "L15353"
+  },
+  "c3": {
+   "text": "(subject) decides that whatever it is, (subject.he/she) would rather be among people. (subject.He/she) turns and walks briskly up the beach toward the village, and the footsteps crunch along beside (subject.him/her) all the way...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15349"
+  },
+  "c4o1": {
+   "text": "The next day, (subject) goes back to the rock. The pink shell is gone. In its place sits a smooth white pebble, perfectly round and perfectly white, and still warm from the sun though it is early morning. (subject) takes it home and keeps it in (subject.his/her) pocket. Whenever (subject.he/she) walks on that beach after that, (subject.he/she) leaves a shell on the rock, and every time, a white pebble is waiting the next day.",
+   "src": "L15358"
+  },
+  "c4o2": {
+   "text": "The next day, the shell is still there on the rock, exactly where (subject) left it, a little bleached by the sun. (subject) laughs at (subject.himself/herself), and feels a little foolish, and a little amused. (subject.He/she) picks the shell back up and pockets it. The footsteps are never heard again. Probably, (subject) decides, it was the wind, crunching the shells about. Probably.",
+   "src": "L15360"
+  },
+  "c4": {
+   "text": "(subject) picks out the prettiest shell in (subject.his/her) basket, a pink spiral one, and sets it gently on a flat rock above the tideline. \"For you,\" (subject.he/she) says to the empty air, feeling rather silly, and walks home...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15356"
+  }
+ }
+}

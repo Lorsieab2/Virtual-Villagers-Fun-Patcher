@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"It's not strange at all,\" says (friend). \"Plenty of people raise children on their own, or with family, or with friends helping.\" (subject) breathes out. \"I don't know how it would happen yet.\" \"You don't have to know tonight,\" says (friend). \"You just had to say it.\" (subject) smiles. It feels real now. That's a start.",
-   "src": "L374"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"What do you imagine?\" asks (friend). (subject) describes it: teaching a child to swim, showing them the stars, being the one they run to. (friend) listens to all of it. \"You'd be good at it,\" (friend.he/she) says at the end. Nothing is decided. Nothing has to be. But (subject) walks home thinking it might, one day, really happen.",
    "src": "L377"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"It's not strange at all,\" says (friend). \"Plenty of people raise children on their own, or with family, or with friends helping.\" (subject) breathes out. \"I don't know how it would happen yet.\" \"You don't have to know tonight,\" says (friend). \"You just had to say it.\" (subject) smiles. It feels real now. That's a start.",
+   "src": "L374",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L374"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"It's not strange at all,\" says (friend). \"Plenty of people raise children on their own, or with family, or with friends helping.\" (subject) breathes out. \"I don't know how it would happen yet.\" \"You don't have to know tonight,\" says (friend). \"You just had to say it.\" (subject) smiles. It feels real now. That's a start.",
+   "src": "L374"
   }
  }
 }

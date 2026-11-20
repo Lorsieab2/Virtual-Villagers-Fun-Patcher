@@ -1,0 +1,100 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Teen Heartbreak",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd28_teen_heartbreak",
+  "source": "draft_lcd",
+  "lines": [
+   386,
+   397
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L386",
+  "ledger": [
+   {
+    "src": "L387",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two teens)"
+   },
+   {
+    "src": "L393",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L397",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A teen's sweetheart has said they just want to be friends: give them space, or ask why.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 2
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) told (subject) today, very awkwardly, behind the canoe house, that (friend.he/she) just wants to be friends. (subject) said fine, and walked away, and has been sitting on the rocks at the end of the beach ever since, not crying, absolutely not crying. What should (subject) do?",
+   "src": "L389",
+   "choices": [
+    {
+     "label": "Give (friend) Space",
+     "next": "o1",
+     "src": "L391"
+    },
+    {
+     "label": "Ask Why",
+     "next": "o2",
+     "src": "L395"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) stays away from (friend) for a while. It is the worst month of (subject.his/her) life. Then, one day, they end up on the same side in a game of catch-the-crab, and laugh at something, and it is a little bit easier. It takes a long time to stop hurting. It does stop.",
+   "src": "L393"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) finds (friend) and asks why. (friend) says it is nothing (subject) did: (friend.he/she) just does not feel that way, and is sorry. (subject) is glad to know, and also wishes (subject.he/she) had not asked. Both are true.",
+   "src": "L397"
+  }
+ }
+}

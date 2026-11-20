@@ -32,6 +32,14 @@
   "label_case": "title",
   "cast_only": [
    "subject"
+  ],
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A villager nobody would guess is a person of faith talks quietly each night to whatever is out there, and falls asleep less alone."
+   }
   ]
  },
  "requirement": {
@@ -48,7 +56,18 @@
   "setup": {
    "name": "The scene",
    "text": "Nobody in the village would guess that (name1) is a believer. (He/she) doesn't go to the songs, doesn't keep a shrine, doesn't say prayers aloud. But every night, lying in the dark before sleep, (he/she) talks quietly in (his/her) head to whatever (he/she) believes is out there: about the day, about (his/her) worries, about the people (he/she) loves. (He/she) has done it since (he/she) was small. (He/she) has never told anyone, and probably never will. It isn't a secret exactly. It just belongs to (him/her), the way a favorite memory does. Tonight (he/she) says thank you for the good fish, and asks for the rain to hold off, and says goodnight. Whether anything hears (him/her), (he/she) doesn't know. (He/she) falls asleep feeling, as (he/she) always does, a little less alone.",
-   "src": "L539"
+   "src": "L539",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "Nobody in the village would guess that (name1) is a person of faith. (He/she) doesn't go to the songs, doesn't keep a shrine, doesn't say prayers aloud. But every night, lying in the dark before sleep, (he/she) talks quietly in (his/her) head to whatever (he/she) believes is out there: about the day, about (his/her) worries, about the people (he/she) loves. (He/she) has done it since (he/she) was small. (He/she) has never told anyone, and probably never will. It isn't a secret exactly. It just belongs to (him/her), the way a favorite memory does. Tonight (he/she) says thank you for the good fish, and asks for the rain to hold off, and says goodnight. Whether anything hears (him/her), (he/she) doesn't know. (He/she) falls asleep feeling, as (he/she) always does, a little less alone."
+    }
+   ]
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

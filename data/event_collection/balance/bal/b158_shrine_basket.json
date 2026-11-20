@@ -1,0 +1,263 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shrine Basket",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b158_shrine_basket",
+  "source": "balance",
+  "lines": [
+   7287,
+   7331
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7287",
+  "ledger": [
+   {
+    "src": "L7300",
+    "kind": "instruction",
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): a nursing baby (any birth sex)"
+   },
+   {
+    "src": "L7288",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7289",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7297",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7306",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7294",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7295",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7298",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7307",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7300",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7303",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7309",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7312",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7315-7331",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The babies wake at the same moment and start to cry at the same moment, like two halves of one noise.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the old shrine on the hill, where people leave flowers for the island spirits, (subject) and (friend) have found something that was not left for the spirits: a basket with two babies in it, asleep, one at each end, wrapped in fine cloth nobody in the village could have woven. There's a fresh offering of fruit on the shrine stone, and a message scratched in the dirt in front of it, in a language nobody knows.\nThe babies wake at the same moment and start to cry at the same moment, like two halves of one noise. (subject) picks up one. (friend) picks up the other. They look at each other over the top of two screaming heads.\nShould they take one baby each, or take both to the healers?",
+   "choices": [
+    {
+     "label": "One Each",
+     "next": "c1",
+     "src": "L7294"
+    },
+    {
+     "label": "Take Both to the Healers",
+     "next": "c2",
+     "src": "L7295"
+    }
+   ],
+   "src": "L7290-7292"
+  },
+  "c1o1": {
+   "text": "(subject) and (friend) raise one baby each, in huts across the path from each other. The babies cry if they can't see each other, so the doors are always open. The village gets used to the two of them yelling across the path at night, and to (subject) and (friend) yelling at each other to see to them. The fine cloth is kept, folded, in case anyone ever comes.",
+   "src": "L7301",
+   "effects": [
+    {
+     "do": "nursing",
+     "role": "subject",
+     "any_birth_sex": true
+    }
+   ],
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The babies will not be separated. Every time (subject) and (friend) go to their own huts, {#babies:the baby screams|both babies scream} until they're back together. On the third night (friend) gives up and moves into (subject)'s hut with (friend.his/her) mat. \"Just until they're bigger,\" (friend.he/she) says. They raise {#babies:the baby|the twins} together, and the village stops pretending to be surprised.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "babies": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L7304",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They carry the babies down the hill, one each, and the babies stop crying halfway down and stare at each other across the gap between their new parents' shoulders...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7298"
+  },
+  "c2o1": {
+   "text": "(healer) has raised five children and says {#made:one more|two more} won't make much difference. It makes a great deal of difference, and (subject.he/she) says so loudly every night for a year. {#made:The baby grows|The babies grow} up in the healers' hut, among the herbs and the pots, and {#made:when old enough, becomes a healer|both of them, when they are old enough, become healers}.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "child"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L7310",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "A visiting trader that week can read the message in the dirt. It says, \"For the one who finds them first.\" (subject) saw the basket first, by a step. The researchers are fascinated by the language, and the trader teaches them a little of it. {#babies:The baby goes|The babies go} home with (subject), who did not expect any of this, and gets used to it fast. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "babies": 2,
+     "role": "subject"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L7313",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "They carry the basket down between them, to the healers' hut, where (healer) takes one look and puts the cooking pot on for warm milk...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7307"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L7304",
+   "before": "both babies scream until",
+   "after": "{#babies:the baby screams|both babies scream} until"
+  },
+  {
+   "src": "L7304",
+   "before": "They raise the twins together",
+   "after": "They raise {#babies:the baby|the twins} together"
+  },
+  {
+   "src": "L7310",
+   "before": "says two more won't",
+   "after": "says {#made:one more|two more} won't"
+  },
+  {
+   "src": "L7310",
+   "before": "The babies grow up",
+   "after": "{#made:The baby grows|The babies grow} up"
+  },
+  {
+   "src": "L7310",
+   "before": "and both of them, when they are old enough, become healers.",
+   "after": "and {#made:when old enough, becomes a healer|both of them, when they are old enough, become healers}."
+  },
+  {
+   "src": "L7313",
+   "before": "The babies go home with",
+   "after": "{#babies:The baby goes|The babies go} home with"
+  }
+ ]
+}

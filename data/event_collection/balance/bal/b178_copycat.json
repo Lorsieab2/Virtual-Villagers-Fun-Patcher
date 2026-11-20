@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Copycat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b178_copycat",
+  "source": "balance",
+  "lines": [
+   8245,
+   8287
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8245",
+  "ledger": [
+   {
+    "src": "L8246",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8247",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8255",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8264",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8252",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8253",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8256",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8265",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8258",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8261",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8267",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8270",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8273-8287",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For a week, someone has been copying a villager.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For a week, someone has been copying (name). (He/She) hangs (his/her) washing on the left post, and the next morning there's identical washing on the post opposite. (He/She) cooks fish with lime, and the smell of fish with lime drifts from the empty hut at the end of the path. (He/She) sings while fetching water, and from the jungle, a moment later, the same song.\nTonight (name) has followed the singing to the empty hut at the end of the path. There is a light inside. Through the gap in the door, (he/she) can see someone sitting by a little fire with (his/her) back to the door, wearing (name)'s spare clothes.\nShould (name) go in, or call out from the doorway?",
+   "choices": [
+    {
+     "label": "Go In",
+     "next": "c1",
+     "src": "L8252"
+    },
+    {
+     "label": "Call Out from the Doorway",
+     "next": "c2",
+     "src": "L8253"
+    }
+   ],
+   "src": "L8248-8250"
+  },
+  "c1o1": {
+   "text": "\"I've been practising,\" it says, in (name)'s voice. \"Am I doing it right?\" It isn't, quite. It likes things (name) doesn't, and laughs in the wrong places. But it has been very lonely, and it is very good at washing. (Name) brings it to the village in the morning. It takes the name (made1), and does its own washing on its own post.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L8259",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "\"I've been practising being you,\" it says. \"I'm better at it now. Look.\" It's right, in a way: by the end of the evening, it is so much more like (name) than (name) is that the village, the next morning, cheerfully calls it by (name)'s old name, and nothing will change their minds. (Name) has to pick a new one. (He/She) picks (made2). (He/She) still isn't sure how it happened.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    },
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L8262",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) pushes the door open. The figure by the fire turns round. It has (name)'s face. It smiles, (name)'s own smile, a little shy...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8256"
+  },
+  "c2o1": {
+   "text": "It turns round, and it's not (name) at all. It's a teenager, thin and nervous, who has been living alone in the jungle since (his/her) canoe was wrecked a year ago, and who has been copying the village to learn how to live in it. (Name) brings (him/her) home. (He/She) still sings (name)'s songs, all the way through.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "teen"
+    }
+   ],
+   "src": "L8268",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The fire goes out, all at once, as if someone breathed on it. When (name) brings a torch, the hut is empty: just the spare clothes, folded neatly, and a little pile of fish bones. Nobody copies (name)'s washing or cooking after that. Sometimes, though, from far away in the jungle, (he/she) hears someone singing (his/her) song, a little wrong.",
+   "src": "L8271"
+  },
+  "c2": {
+   "text": "\"Who are you?\" calls (name), staying very close to the door. The figure by the fire goes very still. Then, without turning round, it says, in (name)'s own voice, \"I was hoping you'd know...\"",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8265"
+  }
+ }
+}

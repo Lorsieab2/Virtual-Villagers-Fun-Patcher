@@ -79,6 +79,32 @@
    "src": "L6128"
   },
   "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "Their wishes are quietly honored. They continue working, laughing, and arguing like anyone else.",
+   "src": "L6130",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L6130"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
    "name": "Answer C",
    "text": "Their wishes are quietly honored. They continue working, laughing, and arguing like anyone else.",
    "src": "L6130"

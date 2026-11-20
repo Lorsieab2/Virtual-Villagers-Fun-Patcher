@@ -110,9 +110,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The friends learn to read the clouds themselves.",
-   "src": "L435"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -162,6 +169,29 @@
    "name": "Outcome D2",
    "text": "The weather holds, and the fisher enjoys the trip as much as anyone.",
    "src": "L442"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The friends learn to read the clouds themselves.",
+   "src": "L435",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L435"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The friends learn to read the clouds themselves.",
+   "src": "L435"
   }
  }
 }

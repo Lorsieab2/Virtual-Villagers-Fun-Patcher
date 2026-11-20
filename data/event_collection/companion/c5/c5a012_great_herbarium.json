@@ -121,12 +121,23 @@
      "max": 10,
      "src": "L338"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome 2",
    "text": "Poor storage ruins a season of delicate specimens.",
-   "src": "L340"
+   "src": "L340",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L340"
+    }
+   ],
+   "auto_text": true
   },
   "o3": {
    "name": "Outcome 3",

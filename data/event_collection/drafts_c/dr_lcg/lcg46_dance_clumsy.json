@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dance of the Clumsy Chief",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg46_dance_clumsy",
+  "source": "draft_lcg",
+  "lines": [
+   638,
+   649
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L638",
+  "ledger": [
+   {
+    "src": "L639",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L645",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L645",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L649",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The leader tries a complicated dance and falls flat on their face: laugh, or pretend not to see.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the harvest festival, the {@chief} decided to show everyone the old spinning dance. It went beautifully for exactly four spins. On the fifth, the {@chief} spun straight into the fish-gutting tub. Everyone has gone silent. (name1) is standing right next to the tub. What should (name1) do?",
+   "src": "L641",
+   "choices": [
+    {
+     "label": "Laugh",
+     "next": "o1",
+     "src": "L643"
+    },
+    {
+     "label": "Pretend Not to See",
+     "next": "o2",
+     "src": "L647"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) bursts out laughing. Then the {@chief}, dripping and covered in fish scales, starts laughing too. The whole village joins in. The {@chief} insists on finishing the dance, still dripping, and gets the loudest cheer of the night.",
+   "src": "L645",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L645"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) helps the {@chief} out of the tub with a perfectly straight face and says nothing. The rest of the village takes its lead. The {@chief} is grateful. Later that night, in private, the {@chief} laughs about it with (name1) until they both cry.",
+   "src": "L649"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

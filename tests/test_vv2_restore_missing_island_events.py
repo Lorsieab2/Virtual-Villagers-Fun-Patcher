@@ -230,7 +230,11 @@ class ByteTests(unittest.TestCase):
         at 0x426110, or between 0x426110's call (0x42EEF7) and the branch
         (0x42F030) -- except Story / Cheat Upgrades' two family rolls, plain
         cdecl calls that keep edi (tested in DeadBranchTests)."""
-        allowed = {0x42EF28, 0x42EF4A}
+        # ...and More Frequent Island Events' two wait draws in that stretch (0x42EF93, 0x42F01A): each `add eax,
+        # 10; imul eax, eax, 0xE10` becomes a call to a stub that puts the shortened wait in eax, as the imul does,
+        # and keeps every other register, edi included (native/vvfp_island_frequency; tests/test_island_frequency.py
+        # runs it).
+        allowed = {0x42EF28, 0x42EF4A, 0x42EF93, 0x42F01A}
         spans = {0x400000 + i for i in _spans()}
         for p in patcher.load_public_fun_patches():
             if p.game_id != "vv2":

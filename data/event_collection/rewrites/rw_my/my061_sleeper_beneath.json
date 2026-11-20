@@ -1,0 +1,312 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sleeper Beneath the Hill",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my061_sleeper_beneath",
+  "source": "rewrites",
+  "lines": [
+   13413,
+   13468
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13413",
+  "ledger": [
+   {
+    "src": "L13414",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13415",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13423",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13430",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13437",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13444",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13418",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13419",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13420",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13421",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13424",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13431",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13438",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13445",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13425",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13427",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13432",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13434",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13439",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13441",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13446",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13448",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13451-13468",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Your hill, the traveler says, is not a hill.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A traveler passing through the village sits by the fire with (name) and points at the round grassy hill just beyond the huts, the one crowned with a single leaning palm. \"Your hill,\" the traveler says, \"is not a hill. An ancient sleeper rests beneath it, and will wake when the island needs help.\" (Name) laughs politely. The traveler does not.\nThat night, (name) cannot sleep. The air is still, and yet the ground beneath (his/her) mat seems to rise and fall, slowly, like something breathing. When (he/she) walks out to the hill in the moonlight, the grass on its slopes is warm to the touch, like the flank of a sleeping animal. Something is under there. Should (name) try to find out what, or leave well alone?",
+   "choices": [
+    {
+     "label": "Listen at the Hill",
+     "next": "c1",
+     "src": "L13418"
+    },
+    {
+     "label": "Dig a Small Test Pit",
+     "next": "c2",
+     "src": "L13419"
+    },
+    {
+     "label": "Leave the Hill Untouched",
+     "next": "c3",
+     "src": "L13420"
+    },
+    {
+     "label": "Tell the Tale at the Fire",
+     "next": "c4",
+     "src": "L13421"
+    }
+   ],
+   "src": "L13416-13417"
+  },
+  "c1o1": {
+   "text": "...a low, rushing rumble. Not breathing at all, but water, a great deal of it, flowing somewhere deep below. (Name) fetches the researchers the next morning, and with ears and sticks and a great deal of crawling about, they trace an underground stream running right beneath the hill. It explains the warmth, the rumbling, and why the well on that side of the village never runs dry. The researchers scribble excitedly for days. The traveler, when told, just shrugs. \"Even sleepers need something to drink.\"",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L13426",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "...a long, slow sigh, rising up through the stones, the kind a person makes when they roll over in a deep sleep. (Name) lies very still. The sigh fades. Nothing else happens. After a long time, (he/she) gets up, brushes the grass from (his/her) clothes, and tiptoes back to the village, though there is no one around to hear (him/her) tiptoe. From then on, (name) walks around the hill instead of over it. Just in case.",
+   "src": "L13428"
+  },
+  "c1": {
+   "text": "(Name) kneels in the warm grass, takes a deep breath, and presses (his/her) ear flat against the ground. At first there is nothing. Then, very faintly...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13424"
+  },
+  "c2o1": {
+   "text": "An arm's length down, their spades hit a thick layer of clay unlike anything the potters have ever used: smooth, faintly blue, and so fine it feels like butter between the fingers. The potters are ecstatic. Pots made from it come out of the fire hard as stone and ring like bells when tapped. No sleeper is found, but the village gains something very nearly as good, and (name) is very proud of (his/her) hole.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L13433",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) is waist-deep in the pit when the side of it slumps without warning. Heavy, warm soil pours in around (his/her) legs and pins (him/her) fast. \"Help! Get me out!\" (Name)'s friends dig frantically with their bare hands, hauling (him/her) free just as more earth slides down, and carry (him/her) to the healers with bruised, aching legs. As they leave, someone glances back at the hill. The collapsed pit has filled in so neatly that it looks as though no one ever dug there at all.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L13435",
+   "text_only": [
+    {
+     "src": "L13435",
+     "what": "\"collapsed\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"If something's down there, there's only one way to find out,\" (name) says, and the next morning (he/she) and a couple of curious friends start digging a small pit into the side of the hill. The soil is soft and warm and comes away easily. A little too easily...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13431"
+  },
+  "c3o1": {
+   "text": "It rains heavily for the next three days. When the rain finally stops, so does the rumbling, and the hill goes back to being a perfectly ordinary hill with a perfectly ordinary leaning palm on top. The children roll down its slopes, the goats graze on it, and (name) eventually decides the whole thing was the rain soaking through the ground. (He/she) is almost entirely sure of this.",
+   "src": "L13440"
+  },
+  "c3o2": {
+   "text": "The breathing stops after a few nights, but one patch of grass near the top of the hill stays warm long after the rest of the ground has cooled. The village cats discover it first, then the dogs, then the oldest elders, who start taking their afternoon naps there and swear it eases their aching bones. (Name) joins them one afternoon and falls into the deepest, most peaceful sleep of (his/her) life. (He/she) dreams of nothing at all, and wakes feeling as though someone very large had been keeping watch.",
+   "src": "L13442"
+  },
+  "c3": {
+   "text": "(Name) decides that whatever is under the hill, it has been there a lot longer than (he/she) has, and does not need (his/her) help. (He/she) goes back to bed and pulls the blanket over (his/her) head...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13438"
+  },
+  "c4o1": {
+   "text": "The village musicians love it. By the end of the week, they have turned it into a song about a great sleeper who waits patiently beneath the earth, ready to rise whenever the island needs a friend. The children sing it while they work, the elders hum it while they weave, and it becomes a favorite for long, rainy nights. (Name) insists that the verse about the sleeper's enormous snore was (his/her) idea.",
+   "src": "L13447"
+  },
+  "c4o2": {
+   "text": "Half the village loves the story. The other half does not. \"So there's a giant under the hill?\" one villager says. \"And it might wake up? And you want us to sleep next to it?\" An argument breaks out that lasts well past midnight, and by morning several families have quietly moved their sleeping mats to the far side of their huts. (Name) learns that a good story and a comforting story are not always the same thing.",
+   "src": "L13449"
+  },
+  "c4": {
+   "text": "That evening, (name) gathers everyone around the fire and repeats the traveler's story, adding a few dramatic pauses and one or two details the traveler definitely did not say...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13445"
+  }
+ }
+}

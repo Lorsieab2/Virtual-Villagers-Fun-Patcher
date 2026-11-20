@@ -692,9 +692,10 @@ def facts(village: gm.Village, **kw) -> list[gm.Fact]:
     return out + sickness_patch_facts(village)
 
 
-def sickness_multiplier_in_game(village: gm.Village) -> int | None:
-    """2-10x Sickness's multiplier in the game's executable: N when each of the roll's moduli holds round(stock / N)
-    at the sites its build has (scripts/build_sickness_features.py); None when it cannot be read."""
+def sickness_multiplier_in_game(village: gm.Village) -> int | float | None:
+    """0.1-10x Sickness's multiplier in the game's executable: N (0.1 to 10 in tenths; an int when whole) when each
+    of the roll's moduli holds round(stock / N) at the sites its build has (scripts/build_sickness_features.py); None
+    when it cannot be read."""
     import json
     import struct
     from pathlib import Path
@@ -708,16 +709,19 @@ def sickness_multiplier_in_game(village: gm.Village) -> int | None:
     except (OSError, ValueError):
         return None
     for rows in record["sickness_multiplier"]["sites"].values():
-        found = set()
+        # The N, in tenths, that gives every one of the rolls' moduli (0.1 to 10; two neighbours can round alike:
+        # then the number is not told).
+        found = set(range(1, 1001))
         for row in rows:
             at, stock = int(row["offset"], 16), int(row["modulus"])
             if data[at - 1:at] != b"h":
                 break
             value = struct.unpack_from("<I", data, at)[0]
-            found.update(n for n in range(2, 11) if value == (2 * stock + n) // (2 * n))
+            found &= {t for t in found if value == (20 * stock + t) // (2 * t)}
         else:
             if len(found) == 1:
-                return found.pop()
+                tenths = found.pop()
+                return tenths // 10 if tenths % 10 == 0 else tenths / 10
     return None
 
 
@@ -730,7 +734,7 @@ def sickness_patch_facts(village: gm.Village) -> list[gm.Fact]:
         n = sickness_multiplier_in_game(village) if village.has(slider) is True else None
         out.append(gm.Fact(DEATH, gm.patch_words(village, slider, (
             f"every natural chance of falling sick is "
-            f"{f'{n} times as large' if n else '2 to 10 times as large (the number set on its slider)'}: each "
+            f"{f'{n} times as large' if n else '0.1 to 10 times as large (the number set on its slider)'}: each "
             "Medicine level's roll and the old villagers' extra roll, at every difficulty"
             # (Only The Tree of Life and New Believers have "Sickness works like VV1-3".)
             + (f", and the rolls of \"{gm.feature_name(f'vv{game}_sickness_like_vv3')}\" when the game has that too"

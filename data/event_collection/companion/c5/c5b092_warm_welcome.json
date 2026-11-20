@@ -77,6 +77,35 @@
    ]
   },
   "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Someone simply offers a place to rest.",
+   "src": "L1944",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "traveler",
+     "min": 15,
+     "max": 30,
+     "src": "L1944"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Ending 2",
    "popup": "append",
    "join": "paragraph",

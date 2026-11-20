@@ -16,7 +16,7 @@ and the picker 0x471870 are as docs/reports/island-event-conditions.txt (New Bel
 """
 from __future__ import annotations
 
-from vv_game_mechanics_events import Event, Line, scaling_rules, with_scaling
+from vv_game_mechanics_events import Event, Line, scaling_rules, with_every_event, with_scaling
 
 STORY = "vv5_story_cheat_upgrades"
 SLOTS = 55
@@ -220,10 +220,14 @@ EVENTS = (
         "\"Research potions that kill aphids\": noni cut to 50 if above.")),
     # The Defector: "Accept the heathen" 0x416988 (the coin is rolled with the condition, at 0x416902); the Faith
     # setter SetFaith 0x467F90 converts them and keeps the 20.
+    # Fix Vanilla Bugs: the picker's minimum age 0x118 (14 years) in the condition's pick, as Outreach?'s envoy
+    # (data/builds.json vv5_fix_vanilla_bugs, offset 0x1690E).
     Event("The Defector", "needs a living Heathen who is not sick", (
         "\"Accept the heathen\": 50.05% a genuine defector -- Faith set to 20, so they join the tribe and keep "
         "the 20 (a convert is raised to 55 only when given less than 5); 49.95% a spy -- -2,000 tech points.",
-        "\"Better not\": nothing changes.")),
+        "\"Better not\": nothing changes."),
+        patched=(("vv5_fix_vanilla_bugs", "the Heathen is 14 or more, like the envoy in Outreach? (in the normal "
+                                          "game any age, a child too)"),)),
     # The Straw Hat: "Wear it" 0x416A38; "Use it as a cooking strainer" 0x416A56.
     Event("The Straw Hat", f"needs {BELIEVER}", (
         "\"Wear it\": Devotion +35.",
@@ -251,6 +255,18 @@ EVENTS = with_scaling(5, EVENTS, frozenset({
     "The Pesky Critter", "Mushroom Day!", "News From Another Tribe (a message)", "Spying on the Heathens",
     "You're Doing It Wrong!", "Outreach?", "The Advanced Artifacts", "Trick Or Trade", "The Aphids in the Noni Bush",
     "The Defector", "The Straw Hat", "The Strange Nectar"}))
+
+# Every Island Event Can Happen (the owner, 2026-11-17): the technology tests 0x415FD8, 0x41643F, 0x416496 and
+# 0x416733 always pass and "Teach them" raises Science below 3 (0x41608D), in
+# scripts/build_every_island_event_can_happen_features.py; the raise 0x423610 stops at 3.
+EVENTS = with_every_event(5, EVENTS, {
+    "You're Doing It Wrong!": "it can happen at any Science level; \"Teach them to reduce explosions.\" raises Science "
+                              "1 level, up to 3 (at 3 the level stays 3).",
+    "The Advanced Artifacts": "it can happen at any Science level; \"Prepare an independent report.\" still raises "
+                              "Science 1 level, up to 3 (at 3 the level stays 3).",
+    "The Migrating Fruit Bats": "it can happen at any Food Mastery level; \"Observe them\" still raises Food Mastery 1 "
+                                "level, up to 3 (at 3 the level stays 3).",
+})
 
 # The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
 from vv_game_mechanics_adventurer import adventurer_event  # noqa: E402

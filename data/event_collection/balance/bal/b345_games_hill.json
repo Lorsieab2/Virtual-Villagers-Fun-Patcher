@@ -1,0 +1,240 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Games With the Hill Village",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b345_games_hill",
+  "source": "balance",
+  "lines": [
+   15930,
+   15973
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15930",
+  "ledger": [
+   {
+    "src": "L15931",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15932",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15939",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15948",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15936",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15937",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15940",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15949",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15942",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15945",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15951",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15954",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15957-15973",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The loser hosts a feast for the winner.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "chief": {
+   "kind": "villager"
+  },
+  "runner": {
+   "kind": "villager"
+  },
+  "champion": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A messenger comes down from the little village in the hills with a challenge: their best against the village's best, in running, climbing, swimming and canoe racing, at the next full moon. The loser hosts a feast for the winner. (chief) accepts at once, and puts (subject) in charge of getting the village ready.\n(subject) has a month. Should (subject.he/she) pick the village's best four and train them hard, or get everyone in the village practising and choose the best at the end?",
+   "choices": [
+    {
+     "label": "Train the Best Four",
+     "next": "c1",
+     "src": "L15936"
+    },
+    {
+     "label": "Everyone Practises",
+     "next": "c2",
+     "src": "L15937"
+    }
+   ],
+   "src": "L15933-15934"
+  },
+  "c1o1": {
+   "text": "The four are in the best shape of their lives, and they win three events out of four. The hill village hosts the feast, very graciously, and the two villages dance together until dawn. The four come home better at everything they do than they've ever been, and are carried into the village on everyone's shoulders.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "target": {
+      "random": 4
+     }
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L15943",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Three days before the games, (runner), pushed too hard for too long, feels something tear at the back of (subject.his/her) leg. The healers do what they can, but it never heals right. The village loses the running and two other events, and hosts the feast. The hill village is kind about it. (subject) isn't kind to (subject.himself/herself) for a long time.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "runner",
+     "min": -30,
+     "max": -30
+    },
+    {
+     "do": "preference",
+     "dislike": "running",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L15946",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) picks the fastest runner, the best climber, the strongest swimmer and the canoe crew, and works them from dawn to dusk for a month...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15940"
+  },
+  "c2o1": {
+   "text": "They don't win: the hill village takes three events out of four. But a month of the whole village practising has turned dozens of people into better runners, climbers and swimmers than they ever expected to be, and the village hosts the feast happily. \"Next year,\" says (chief), \"we'll beat them.\"",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "target": {
+      "random": 5
+     }
+    }
+   ],
+   "src": "L15952",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "At the end of the month, the best swimmer turns out to be (champion), who has never been good at anything much and has never once been picked for anything. (subject.He/She) wins the swimming by a whole length. The village loses the other three events and hosts the feast, and nobody cares, because (champion) is so happy (subject.he/she) can't stop crying.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "champion",
+     "min": 20,
+     "max": 20,
+     "best": true
+    }
+   ],
+   "src": "L15955",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) announces that every villager who wants to can practise, and every evening for a month the beach is full of people racing, climbing palms and splashing in the shallows...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15949"
+  }
+ }
+}

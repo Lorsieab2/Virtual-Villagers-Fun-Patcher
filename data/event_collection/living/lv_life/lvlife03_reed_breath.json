@@ -104,7 +104,8 @@
      "max": 10,
      "src": "L20671"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -151,6 +152,32 @@
    "src": "L20677"
   },
   "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The tube's sound conflicts with other signs, and the healers record their uncertainty.",
+   "src": "L20678",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L20678"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "The tube's sound conflicts with other signs, and the healers record their uncertainty.",
    "src": "L20678"

@@ -1,0 +1,302 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Guest Who Left No Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my044_guest_left_name",
+  "source": "rewrites",
+  "lines": [
+   12411,
+   12466
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12411",
+  "ledger": [
+   {
+    "src": "L12412",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12413",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12422",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12429",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12436",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12443",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12417",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12418",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12419",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12420",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12423",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12430",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12437",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12444",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12424",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12426",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12431",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12433",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12438",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12440",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12445",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12447",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12450-12466",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "One morning, a silent visitor in a plain brown wrap appears at the well and starts carrying water.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "One morning, a silent visitor in a plain brown wrap appears at the well and starts carrying water. Jar after jar, from the spring to the cooking huts, from the cooking huts to the gardens, without a word, without a rest, as if it were nothing at all.\nAll day long the visitor works. Nobody asks them to. Nobody knows who they are. By evening, every jar in the village is full, the gardens are soaked and the cooks are delighted. And then, as the sun goes down, the visitor is simply gone, before anyone thought to ask their name. (subject) was the last person to see them. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Search for the Helper",
+     "next": "c1",
+     "src": "L12417"
+    },
+    {
+     "label": "Leave a Gift at the Well",
+     "next": "c2",
+     "src": "L12418"
+    },
+    {
+     "label": "Tell the Story",
+     "next": "c3",
+     "src": "L12419"
+    },
+    {
+     "label": "Inspect the Work",
+     "next": "c4",
+     "src": "L12420"
+    }
+   ],
+   "src": "L12414-12415"
+  },
+  "c1o1": {
+   "text": "At the next village along the coast, the people recognize the description at once and break into smiles. \"That's one of ours! Always wandering off to help someone.\" A few days later, a runner arrives at (subject)'s village with a basket of sweet potatoes and a message of thanks for the kindness shown to one of their own. \"Kindness shown?\" (subject) says. \"They did all the work!\"",
+   "src": "L12425"
+  },
+  "c1o2": {
+   "text": "Nobody has seen anyone matching the description. Not on the roads, not in the villages, not on the shore. (subject) searches for days and comes home empty-handed. The visitor in brown simply isn't anywhere. (subject) can't decide whether that's sad, or wonderful, or both.",
+   "src": "L12427"
+  },
+  "c1": {
+   "text": "(subject) sets off down the road the visitor might have taken, asking every traveler and every neighboring village, \"Have you seen someone in a plain brown wrap?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12423"
+  },
+  "c2o1": {
+   "text": "By morning, the gift is gone. In its place lies a brand-new well rope, thick and strong and perfectly coiled, made of fibre twisted so tightly it's almost like wood. The old frayed rope has been taken away. Nobody heard a thing. The new rope lasts for years.",
+   "src": "L12432"
+  },
+  "c2o2": {
+   "text": "The gift sits there all night. In the morning, (child) carries it carefully up to (subject)'s door. \"Somebody lost this,\" (child) explains solemnly. \"I found it at the well.\" (subject) thanks (child) and laughs, and decides that maybe the helper doesn't need a gift after all.",
+   "src": "L12434"
+  },
+  "c2": {
+   "text": "In case the helper comes back, (subject) leaves a basket of food and a good woven mat beside the well, with a note of thanks...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12430",
+   "text_only": [
+    {
+     "src": "L12430",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3o1": {
+   "text": "The story touches everyone. Before long, the village has a new tradition: once a season, each villager does one helpful thing for someone without saying who did it. Mysterious mended baskets, fixed fences, surprise piles of firewood. Nobody ever owns up. Everyone seems very happy about it.",
+   "src": "L12439"
+  },
+  "c3o2": {
+   "text": "Some villagers are moved. Others just shrug. \"Probably a shy traveler who wanted a meal,\" one says. \"Didn't even stay for it, though,\" someone points out. \"Very shy, then.\" The argument goes on until late. (subject) doesn't mind. (subject.He/She) knows what (subject.he/she) saw.",
+   "src": "L12441"
+  },
+  "c3": {
+   "text": "That evening by the fire, (subject) tells everyone the whole story of the silent helper, from the first jar of water to the last...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12437"
+  },
+  "c4o1": {
+   "text": "It wasn't just water carrying. Along the way, the visitor fixed things: a cracked jar, a leaking basin, and best of all, a new channel of split bamboo running from the spring all the way down to the cooking huts, so the water flows there on its own. It's very clever work. The builders study it carefully and copy it all over the village. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L12446",
+   "auto_text": true
+  },
+  "c4o2": {
+   "text": "Everywhere (subject) looks, there are repairs. The basins, the jars, the steps down to the spring, all fixed, and fixed well. It's sound work. Good work. But the builders who look at it with (subject) shake their heads. \"This is a week of work,\" they say. \"Maybe two.\" The visitor was only here for one day.",
+   "src": "L12448"
+  },
+  "c4": {
+   "text": "(subject) walks the whole route the visitor took, from the spring to the cooking huts, looking at everything carefully...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12444"
+  }
+ }
+}

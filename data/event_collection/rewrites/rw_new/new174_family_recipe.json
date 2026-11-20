@@ -1,0 +1,262 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Family Recipe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new174_family_recipe",
+  "source": "rewrites",
+  "lines": [
+   8429,
+   8475
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8429",
+  "ledger": [
+   {
+    "src": "L8430",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8431",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8440",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8447",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8454",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8436",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8437",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8438",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8441",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8448",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8455",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8442",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8444",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8449",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8451",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8456",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8458",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8461-8475",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every feast for as long as anyone can remember, a villager's grandmother made her famous coconut and taro pudding.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "almost": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every feast for as long as anyone can remember, (subject)'s grandmother made her famous coconut and taro pudding. It was sweet and smooth and smoky, and people walked from the far side of the island for a bowl.\nShe died last season. And it turns out she never taught anyone the recipe.\n(subject) has tried to make it four times since. The first attempt tasted like wet sand. The second tasted like dry sand. The third exploded. The fourth was eaten by the dog, who was then sick.\nThe feast is in three days. How can (subject) bring the recipe back in time?",
+   "choices": [
+    {
+     "label": "Write Down What Is Remembered",
+     "next": "c1",
+     "src": "L8436"
+    },
+    {
+     "label": "Ask Her Old Friends",
+     "next": "c2",
+     "src": "L8437"
+    },
+    {
+     "label": "Start a Recipe Board",
+     "next": "c3",
+     "src": "L8438"
+    }
+   ],
+   "src": "L8432-8435"
+  },
+  "c1o1": {
+   "text": "Bit by bit, the steps come back: grate the coconut fresh, never dried; wrap the taro in leaves; cook it in the ground, not the pot. (subject) writes down every step the family can recall, and the pudding, on the fifth try, tastes almost right. It's useful cooking knowledge, saved for the village, and the dog is allowed a very small bowl.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8443",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Someone remembers that Grandmother used to scratch little marks on the wall beside her cooking spot. They run to look, and find the wall freshly scrubbed clean by a well-meaning cousin, \"to tidy up.\" The marks were the recipe. That part of it is lost, and the cousin is very, very sorry.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L8445",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) gathers the whole family together, and asks everyone to say everything they remember about watching Grandmother cook...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8441"
+  },
+  "c2o1": {
+   "text": "Her old friends laugh. \"You don't know about the ash?\" She always added a pinch of ash from the cooking fire to the pot, right at the end. That was where the smoky taste came from. It was the detail everyone had missed. (subject) adds it to the fifth pudding, and the first spoonful makes (subject.him/her) cry.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8450",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Her old friends disagree about the recipe. One says honey. One says no honey, never honey. One says it was the leaves, and another says it was the love, which doesn't help at all. Nobody pretends to be sure, and the fifth pudding tastes like slightly sweeter sand.",
+   "src": "L8452"
+  },
+  "c2": {
+   "text": "(subject) goes to Grandmother's oldest friends, the women she cooked beside at every feast for fifty years...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8448"
+  },
+  "c3o1": {
+   "text": "The village starts a carved board of family recipes, kept in the cooking hut, a careful record for future generations. Every family adds their best dish. The board fills up fast, and the cooks learn a great deal from each other. At the top, in pride of place, is \"Grandmother's Pudding (almost).\"",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L8457",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "As the board fills up, (subject) realizes some of Grandmother's secrets should stay secret, kept in the family, the way she would have wanted. (subject.He/She) leaves the pudding off the board. Some things should only be learned standing beside someone at the fire.",
+   "src": "L8459"
+  },
+  "c3": {
+   "text": "(subject) decides this must never happen to any family again. (subject.He/She) proposes a carved board of every family's recipes...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8455"
+  }
+ }
+}

@@ -1,0 +1,340 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shells with Holes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new193_shells_holes",
+  "source": "rewrites",
+  "lines": [
+   9380,
+   9435
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L9380",
+  "ledger": [
+   {
+    "src": "L9381",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9382",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9391",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9398",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9405",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9412",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9386",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9387",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9388",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9389",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9392",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9399",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9406",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9413",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9393",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9395",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9400",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9402",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9407",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9409",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9414",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9416",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9419-9435",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Little a villager staggers into the village with a whole basket of shells.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "novice": {
+   "kind": "villager",
+   "min_age": 10,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Little (subject) staggers into the village with a whole basket of shells.\nEvery single one has a tiny hole in it. A perfectly round hole, smooth-edged, as if someone had drilled it very carefully with a very small drill.\n(subject) is absolutely convinced that a very small person, with a very small drill, lives on the beach, drilling shells at night. (subject.He/She) has a name for this person. (subject.He/She) has a drawing of this person. (subject.He/She) wants to leave out a very small bowl of food for this person, and has already started making one. What could really be making the holes?",
+   "choices": [
+    {
+     "label": "Sort the Shells by Hole",
+     "next": "c1",
+     "src": "L9386"
+    },
+    {
+     "label": "Compare the Drill and the Snail",
+     "next": "c2",
+     "src": "L9387"
+    },
+    {
+     "label": "Ask Whether Waves Could Do It",
+     "next": "c3",
+     "src": "L9388"
+    },
+    {
+     "label": "Teach the Shell Count",
+     "next": "c4",
+     "src": "L9389"
+    }
+   ],
+   "src": "L9383-9385",
+   "text_only": [
+    {
+     "src": "L9385",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "Sorting them, (subject) finds the holes are always in the same spot on the same kind of shell: near the hinge on the round ones, near the point on the long ones. Every time. It's a repeatable pattern that adds to village knowledge. (subject) declares that the tiny driller is \"very neat.\"",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9394",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The holes seem to be in a different spot on every shell, with no pattern at all. (subject) writes down, in big careful letters, that (subject.he/she) is not sure. Then (subject.he/she) draws the tiny driller looking confused.",
+   "src": "L9396"
+  },
+  "c1": {
+   "text": "(adult) suggests that if there's a tiny driller, they might learn something from the holes. (subject) tips the basket out and begins sorting, very seriously...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9392"
+  },
+  "c2o1": {
+   "text": "In a rock pool, they catch a small snail sitting on a shell, and when they take it off, there's a tiny round hole starting, exactly like the ones in the basket. The snail drills into other shells to eat what's inside! It's a far better fit than tiny people, and a useful discovery: the fishers start checking clam beds for the drilling snails. (subject) is a little disappointed, then decides the snail IS the tiny driller, and names it.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L9401",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They don't catch any snails drilling. Both ideas stay on the table: the snail, and the tiny people. More shells are needed. (subject) leaves out the very small bowl of food that night anyway, just in case. In the morning, it's empty. \\(A crab.\\) \\(Probably.\\)",
+   "src": "L9403",
+   "text_only": [
+    {
+     "src": "L9403",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(adult) remembers something about snails, and takes (subject) down to the rock pools to look...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9399"
+  },
+  "c3o1": {
+   "text": "Someone asks whether waves grinding sand against the shells could wear holes in them, over a long time. Everyone had assumed that something alive must have made them. It's a hidden assumption, exposed, and it makes everyone look at the beach differently. (subject) is horrified at the idea that the tiny driller might not exist, and refuses to believe it.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9408",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The group argues about how to measure a hole. By eye? By finger? By how many grains of sand fit through? They finally agree to use a thorn, pushed in until it stops. It's very slow. (subject) gets bored and goes to play.",
+   "src": "L9410"
+  },
+  "c3": {
+   "text": "(adult) gathers a few curious villagers and asks: what else could make holes like this?...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9406"
+  },
+  "c4o1": {
+   "text": "(subject) teaches (novice), very seriously, how to repeat the shell count on a different beach: walk in a straight line, pick up every shell, count the holes, don't skip the ugly ones. (novice) is surprised to find it's actually a good method, and learns a great deal about counting things properly. They find holes on the second beach too.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "novice",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L9415",
+   "auto_text": true
+  },
+  "c4o2": {
+   "text": "(novice) notices that half the shells in the basket came from one single rock pool, because (subject) found a good spot and stayed there. That might explain everything, or nothing. The group revises its notes, and (subject) is sent back to collect from somewhere else.",
+   "src": "L9417"
+  },
+  "c4": {
+   "text": "(subject) decides that (novice) needs to learn how to properly count shells with holes, and takes on the job of teacher...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9413"
+  }
+ }
+}

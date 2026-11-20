@@ -240,14 +240,40 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "(child) feels relieved that forgiveness is not demanded.",
-   "src": "L28657"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "(parent) learns to manage their own disappointment privately.",
    "src": "L28658"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(child) feels relieved that forgiveness is not demanded.",
+   "src": "L28657",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L28657"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(child) feels relieved that forgiveness is not demanded.",
+   "src": "L28657"
   }
  }
 }

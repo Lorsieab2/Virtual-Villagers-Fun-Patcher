@@ -1,0 +1,211 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Last Winter",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b038_elder_last_winter",
+  "source": "balance",
+  "lines": [
+   1707,
+   1749
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1707",
+  "ledger": [
+   {
+    "src": "L1708",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1709",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1717",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1726",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1714",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1715",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1718",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1727",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1720",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1723",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1729",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1732",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1735-1749",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has been ill since the rains came.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has been ill since the rains came. (subject.He/She) is very old, and (subject.his/her) breathing rattles, and (subject.he/she) sleeps most of the day. (healer) has a strong remedy, bark from a tree on the far side of the island, but it's a hard journey, two days there and back.\n(subject) doesn't want anyone making a fuss. \"I've had a long life,\" (subject.he/she) says, each word slow. \"Spend the two days with me instead.\"\nShould (healer) make the journey for the bark, or stay?",
+   "choices": [
+    {
+     "label": "Fetch the Bark",
+     "next": "c1",
+     "src": "L1714"
+    },
+    {
+     "label": "Stay with (subject.Him/Her)",
+     "next": "c2",
+     "src": "L1715"
+    }
+   ],
+   "src": "L1710-1712"
+  },
+  "c1o1": {
+   "text": "The bark tea is bitter as anything, and (subject) complains about every sip. But within a week, the rattle is gone, and within two (subject.he/she) is out in the sun again, and something about getting well seems to have taken years off (subject.his/her) face. \"I told you not to make a fuss,\" (subject.he/she) says to (healer), and then hugs (healer.him/her) for a long time.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L1721",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(healer) runs into the village with the bark, and is met at the edge of the clearing by (subject)'s family. (subject) went that afternoon, peacefully, in (subject.his/her) sleep, with (subject.his/her) family around (subject.him/her). They tell (healer) that (subject) asked after (healer.him/her) at the end, and sent (healer.him/her) thanks, and not to be sad about the bark. The village buries (subject) in the sun, where (subject.he/she) liked to sit.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L1724",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(healer) leaves at dawn, running most of the way, and comes back on the second evening, scratched and limping, with a bundle of grey bark under (healer.his/her) arm...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1718"
+  },
+  "c2o1": {
+   "text": "On the second night, the rattle in (subject)'s chest fades, slowly, and (subject.his/her) breathing grows easy. By the end of the week (subject.he/she) is sitting up, demanding fish. \"See?\" (subject.he/she) says. \"No fuss. Just company.\" (healer) writes down in (healer.his/her) notes that sometimes the remedy is a person sitting beside the mat.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "src": "L1730",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) sleeps most of the two days, but in the waking hours (subject.he/she) talks, slowly, about everything (subject.he/she) knows: which plants, which leaves, which old stories. (healer) listens and remembers it all. (subject) stays poorly for a long time, but comfortable. (healer) never forgets those two days, and is a better healer for every word.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "min": 10,
+     "max": 20,
+     "best": true
+    }
+   ],
+   "src": "L1733",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(healer) puts the bundle of travelling things away and sits down by the mat. For two days, (healer.he/she) and (subject)'s family take turns holding (subject)'s hand and telling (subject.him/her) the village news...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1727"
+  }
+ }
+}

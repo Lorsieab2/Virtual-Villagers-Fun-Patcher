@@ -1,0 +1,221 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night the Roofs Flew",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b241_night_roofs_flew",
+  "source": "balance",
+  "lines": [
+   11263,
+   11305
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11263",
+  "ledger": [
+   {
+    "src": "L11264",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11265",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11273",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11282",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11270",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11271",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11274",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11283",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11276",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11279",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11285",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11288",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11291-11305",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The wind came in off the sea just after dark and did not stop until dawn.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The wind came in off the sea just after dark and did not stop until dawn. It howled through the palms, rattled every door, and pulled the thatch off three huts as easily as someone peeling a banana. In the grey morning light the village looks plucked. Bundles of thatch hang in the trees. One roof is sitting, almost whole, in the middle of the taro patch.\n(subject) stands with (builder), the village's best builder, looking at the bare rafters. \"We could fix it all today if everyone helps,\" (builder) says, \"or we wait for the ground to dry and do it properly. Wet thatch rots.\"\nShould (subject) gather the whole village now, or wait for dry weather?",
+   "choices": [
+    {
+     "label": "Gather Everyone Now",
+     "next": "c1",
+     "src": "L11270"
+    },
+    {
+     "label": "Wait for Dry Weather",
+     "next": "c2",
+     "src": "L11271"
+    }
+   ],
+   "src": "L11266-11268"
+  },
+  "c1o1": {
+   "text": "By sunset every roof is back on. Some of them are a little lumpy, and one has a coconut stuck in it that nobody can get out, but none of them leak. The builders, who did most of the shouting, learned more in one day than in a season of ordinary work. (builder) climbs down last, stiff and sunburnt, and declares the coconut \"structural.\"",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Building"
+     }
+    }
+   ],
+   "src": "L11277",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The roof in the taro patch turns out to be in such good shape that eight people simply pick it up and carry it back, singing a work song in time with their steps. It drops onto its old hut with a thump and fits perfectly. Everyone cheers so loudly that the pigs run off. That night the village eats together under the newly mended roofs, sore-armed and proud.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L11280",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) walks from hut to hut, knocking on doors that are still standing and calling into the ones that aren't. Soon there is a line of villagers passing thatch up ladders, and (builder) is shouting directions from a rooftop...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11274"
+  },
+  "c2o1": {
+   "text": "The sun comes out on the third day and stays. (builder) re-thatches every roof with dry, tight bundles, tied the way (subject.his/her) grandmother taught (subject.him/her), and the new roofs are better than the old ones ever were. People keep stopping to look up at them. \"That,\" says (builder), \"is what waiting gets you.\"",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "role": "builder",
+     "min": 10,
+     "max": 10,
+     "best": true
+    }
+   ],
+   "src": "L11286",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "It drizzles for a week. Nobody gets any sleep, because every hut that still has a roof now has two families in it, and somebody in every family snores. By the time the thatch is dry enough to use, people have started fixing their own roofs with whatever they can find. The village ends up with three roofs that look like birds' nests, and a great many opinions about whose fault that is.",
+   "src": "L11289"
+  },
+  "c2": {
+   "text": "\"Properly, then,\" says (subject). The families with no roofs squeeze in with neighbours, and everyone waits for the sun, which takes its time...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11283"
+  }
+ }
+}

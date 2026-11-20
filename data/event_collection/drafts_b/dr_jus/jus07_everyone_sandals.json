@@ -86,6 +86,32 @@
    "src": "L86"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) asks the elders to look at the racks more carefully. Among the sandal prints are pig tracks, and the marks of a fallen pole; a strong wind and a curious pig seem to have done most of it. The sandal prints could belong to anyone who came to look in the morning, (friend) included. The elders find nobody at fault. (friend) is very quiet for the rest of the day.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L89"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) asks the elders to look at the racks more carefully. Among the sandal prints are pig tracks, and the marks of a fallen pole; a strong wind and a curious pig seem to have done most of it. The sandal prints could belong to anyone who came to look in the morning, (friend) included. The elders find nobody at fault. (friend) is very quiet for the rest of the day.",
    "src": "L89"

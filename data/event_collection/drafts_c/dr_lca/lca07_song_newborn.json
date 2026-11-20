@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Song for the Newborn",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca07_song_newborn",
+  "source": "draft_lca",
+  "lines": [
+   96,
+   107
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L96",
+  "ledger": [
+   {
+    "src": "L97",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a nursing parent and an elder)"
+   },
+   {
+    "src": "L103",
+    "kind": "instruction",
+    "text": "[effect: small Parenting skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L103",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L107",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The neighbors want to sing a welcome song for a new baby: sing it at the hut door, or wait until the parent is rested.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "special": "nursing_parent"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s baby is only a few days old, and the neighbors have been practicing a welcome song all week. (friend) wants to sing it tonight, at the door of (subject)'s hut, the way it was sung for (friend.his/her) own children. (subject) is exhausted, has not slept properly in days, and the baby has only just stopped crying. What should the neighbors do?",
+   "src": "L99",
+   "choices": [
+    {
+     "label": "Sing at the Door Tonight",
+     "next": "o1",
+     "src": "L101"
+    },
+    {
+     "label": "Wait Until the Parent Is Rested",
+     "next": "o2",
+     "src": "L105"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The neighbors gather quietly at the door and sing very, very softly. The baby opens its eyes, looks around, and to everyone's astonishment goes straight back to sleep. (subject) leans in the doorway, smiling and half-asleep, and mouths thank you.",
+   "src": "L103",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L103"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) decides the song can wait. Instead, the neighbors leave a pot of soup and a pile of clean cloths by the door. A week later, when (subject) has slept, they sing the welcome song in the morning sunshine, and (subject) sings along with the last verse.",
+   "src": "L107"
+  }
+ }
+}

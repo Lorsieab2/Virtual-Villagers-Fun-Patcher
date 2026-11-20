@@ -74,6 +74,32 @@
    "src": "L518"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) waits. It's a long talk. The leaf bobs. (subject) nods along, eyes fixed politely on (friend)'s face and absolutely not on the leaf. At the end (subject.he/she) says, \"That's very sensible. Also, there's a leaf in your hair.\" (friend) reaches up, finds it, and laughs. \"Through the whole thing?\" \"It was agreeing with you.\"",
+   "src": "L521",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L521"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) waits. It's a long talk. The leaf bobs. (subject) nods along, eyes fixed politely on (friend)'s face and absolutely not on the leaf. At the end (subject.he/she) says, \"That's very sensible. Also, there's a leaf in your hair.\" (friend) reaches up, finds it, and laughs. \"Through the whole thing?\" \"It was agreeing with you.\"",
    "src": "L521"

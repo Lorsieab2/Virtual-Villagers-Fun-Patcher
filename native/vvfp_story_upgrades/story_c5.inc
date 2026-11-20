@@ -655,6 +655,23 @@ static int c5_behave(int index, int behaviour) {
     return 1;
 }
 
+/* The work rush's busy state at the job's site (cie-v6-binary.md 42), as The Secret City's c3_behave_at; New
+   Believers' walk step is type 4 (80 steps of 0x58 bytes at record +0): Harvesting noni a point of the noni area,
+   Researching, Health chanting and Praising their own places; then "Needs to sit down" queues its steps, its walk is
+   taken out and the job's walk put first. */
+static int c5_behave_at(int index, int job, int behaviour) {
+    unsigned char *r = c5_record(index);
+    unsigned char w[0x58];
+    if (!ce_site_pick(&C5_ADAPTER, 5, index, job, w)) {
+        return c5_behave(index, behaviour);
+    }
+    if (!c5_behave(index, behaviour)) {
+        return 0;
+    }
+    ce_queue_at_site(r, 0x58, 80, 4, w);
+    return 1;
+}
+
 /* ---- Pregnancy: none, a different number of babies, the father --------- */
 
 /* "0 babies": the pregnancy +0x1C4C and its litter +0x1C50 cleared, then
@@ -736,11 +753,16 @@ static int c5_skeleton(const unsigned char *r) {
    under way: its stand-in corpse is a second body of the same villager. */
 static int c5_revive(int index, int health, int cure) {
     unsigned char *r = c5_record(index);
+    /* the game object 0x425950 keeps at 0x4DACE0: read, never the getter (which would build it) */
+    unsigned char *world = *(unsigned char *volatile *)(uintptr_t)VV5_WORLD_GLOBAL;
     if (c5_reanimating()) {
         return ce_because(CE_WHY_REVIVE);
     }
+    if (world == NULL) {
+        return 0;
+    }
     TC2(0x4758B0u, r + 0x1C34, health, -1);
-    *(int *)(r + 0x1C38) = TC0(0x4036E0u, ((getter_fn)(uintptr_t)0x425950u)());
+    *(int *)(r + 0x1C38) = TC0(0x4036E0u, world);
     if (cure) {
         r[0x1C48] = 0;
     }
@@ -1087,7 +1109,8 @@ static const ce_adapter C5_ADAPTER = {
     "or break those puzzles.",
     5,
     c5_set_health                                /* the note is for purple, the Chief and the Mommy */,
-    c5_deliver
+    c5_deliver,
+    c5_behave_at
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

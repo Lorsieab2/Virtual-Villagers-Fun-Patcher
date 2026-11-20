@@ -1,0 +1,244 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Well",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b156_old_well",
+  "source": "balance",
+  "lines": [
+   7192,
+   7237
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7192",
+  "ledger": [
+   {
+    "src": "L7193",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7194",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7202",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7211",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7199",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7200",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7203",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7212",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7205",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7208",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7214",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7217",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7220-7237",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The old well at the edge of the village has been dry for years.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager"
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The old well at the edge of the village has been dry for years. Someone put a cover of woven branches over it long ago, and since then everyone has forgotten it is there. This morning, a goat has fallen through the cover. It is bleating at the bottom, a long way down, in the dark.\nThe goat belongs to (child), who is crying at the edge. The walls of the well are old stones, loose and slippery. There is a rope, but nobody knows if it is long enough, or if the stones will hold.\nShould (subject) climb down for the goat, or wait for (builder) to bring a ladder?",
+   "choices": [
+    {
+     "label": "Climb Down",
+     "next": "c1",
+     "src": "L7199"
+    },
+    {
+     "label": "Wait for the Ladder",
+     "next": "c2",
+     "src": "L7200"
+    }
+   ],
+   "src": "L7195-7197"
+  },
+  "c1o1": {
+   "text": "The stones give way all at once. The rope holds, but the wall of the well comes down on top of (subject). The village digs all afternoon. They get the goat out alive, filthy and furious. (subject) they carry home on a door. They fill in the old well that week, every stone, and plant a fig tree on top of it, and the goat lives to a great age and won't go near it.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L7206",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) reaches the goat and ties it on, and the village hauls it up. Then a stone falls on (subject)'s back. It takes three people and two ropes to get (subject.him/her) out. The healers do what they can, but (subject)'s back is never the same. (subject.He/She) walks bent from then on, slowly, with a stick, and won't go near a ladder or a rope again. (child) brings (subject.him/her) a cup of goat's milk every morning for the rest of (subject.his/her) life.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L7209",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) ties the rope round a tree, then round (subject.his/her) waist, and starts down into the dark, feet against the stones. The goat bleats louder. A stone comes loose under (subject.his/her) hand and falls for a long time...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7203"
+  },
+  "c2o1": {
+   "text": "The ladder reaches. Just. (builder) climbs down, and comes back up with an armful of very indignant goat. (child) is so happy (subject.he/she) cries all over again. The village covers the well properly, with planks and stones, and has a little feast for the goat, who eats everyone's flowers.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L7215",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The ladder is two steps too short. In the end (builder) climbs down to the end of the ladder and hangs off it by one hand while (subject) holds the top, and grabs the goat by one ear. Everybody shouts. The goat is saved, and so is (builder), just. They fill in the well the next day, every stone.",
+   "src": "L7218"
+  },
+  "c2": {
+   "text": "\"Wait,\" says (subject), and holds (child)'s hand while they wait, telling the goat to be brave. (builder) comes running with the long ladder from the store, the one they use for the roofs...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7212"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

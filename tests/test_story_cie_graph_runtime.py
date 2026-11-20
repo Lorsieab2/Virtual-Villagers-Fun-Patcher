@@ -58,7 +58,7 @@ CIEG = cg.compile_graph(GRAPH)
 NODES = list(GRAPH["nodes"])
 IDLE, QUEUED, PRE, ASKED, CHAIN, DONE = range(6)
 
-CIEG_BUF = EVENT_BUF + 0x40000
+CIEG_BUF = EVENT_BUF + 0x48000
 FORCE_BUF = SCRATCH + 0x400
 ROLLS_BUF = SCRATCH + 0x600
 STATE_BUF = SCRATCH + 0x800
@@ -1190,7 +1190,10 @@ class SourceAndLayout(unittest.TestCase):
         self.assertIn('"From the library...", 1141', rc)
         self.assertIn("312 DIALOGEX", rc)
         queue = (src / "story_queue.inc").read_text(encoding="utf-8")
-        self.assertIn("#define SQ_VERSION 1u", queue, "the queue file's layout is unchanged")
+        # Version 2 since the simple editor's text grew (2026-11-17); version 1 is still read
+        # (tests/test_unlimited_editor_text.py).  A graph's run never changes it.
+        self.assertIn("#define SQ_VERSION 2u", queue)
+        self.assertIn("#define SQ_VERSION_1 1u", queue)
         self.assertIn("!cg_owns_armed(game)", queue, "a graph's page is never written into it")
         h = (src / "story_custom.h").read_text(encoding="utf-8")
         self.assertIn("#define CE_TEXT_BYTES 600", h)

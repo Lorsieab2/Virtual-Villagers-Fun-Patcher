@@ -85,9 +85,37 @@
      "max": 30,
      "src": "L293"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) gets up and does a little, then a little more. By the evening (subject.he/she) is coughing worse. (friend) sits down beside (subject.him/her). \"Resting isn't the same as doing nothing,\" (friend.he/she) says gently. \"It's what your body is working on right now. Let it.\" (subject) lies back down. It still feels wrong. (subject.He/she) does it anyway, because (subject.he/she) is too tired not to.",
+   "src": "L296",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L296"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) gets up and does a little, then a little more. By the evening (subject.he/she) is coughing worse. (friend) sits down beside (subject.him/her). \"Resting isn't the same as doing nothing,\" (friend.he/she) says gently. \"It's what your body is working on right now. Let it.\" (subject) lies back down. It still feels wrong. (subject.He/she) does it anyway, because (subject.he/she) is too tired not to.",
    "src": "L296"

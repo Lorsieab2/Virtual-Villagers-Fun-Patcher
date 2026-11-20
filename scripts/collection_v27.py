@@ -372,7 +372,7 @@ def main() -> int:
     for num in sorted(E):
         eid, doc = build(num)
         p = OUT / f"{eid}.json"
-        p.write_text(cc.canonical(doc), encoding="utf-8", newline="\n")
+        p.write_text(cc.canonical(cc.with_outcome_effects(doc, p)), encoding="utf-8", newline="\n")
         paths.append(str(p))
     return subprocess.call([sys.executable, str(ROOT / "scripts" / "collection_check.py"), "--format", *paths])
 

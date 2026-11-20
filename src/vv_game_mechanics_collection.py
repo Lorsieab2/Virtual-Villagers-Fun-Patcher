@@ -7,8 +7,9 @@ from data/event_collection_index.json, which `build_index` makes from the source
 data/event_collection/<section>/<id>.json (the graphs the .cieg files are compiled from; they are not shipped) --
 scripts/build_event_collection_features.py writes it (with the Living Event Engine's seeds, from the repository-only
 vv_living_mixer), tests/test_game_mechanics_collection.py keeps it equal to
-the sources and to every game's manifest.  The roll's rules are native/vvfp_story_upgrades/story_collection.inc's (tests/test_collection_trigger.py);
-its chance per game is vv_game_mechanics_adventurer.RARE_ROLL_PERCENT, kept equal to the C table by
+the sources and to every game's manifest.  When the new events come is native/vvfp_story_upgrades/story_collection.inc's
+rule (tests/test_collection_trigger.py): from vv_game_mechanics_adventurer.REPLACE_MIN_POPULATION villagers, each
+natural island event is replaced with a chance in REPLACE_PERCENT (rolled each time), kept equal to the C constants by
 tests/test_more_island_events_stock_odds.py.
 """
 from __future__ import annotations
@@ -18,7 +19,7 @@ from functools import lru_cache
 from pathlib import Path
 
 import vv_game_mechanics as gm
-from vv_game_mechanics_adventurer import PROTECTED, RARE_ROLL_PERCENT
+from vv_game_mechanics_adventurer import PROTECTED, REPLACE_MIN_POPULATION, REPLACE_PERCENT
 
 ROOT = Path(__file__).resolve().parents[1]
 PATCH = "vv{}_isola_grand_event_collection"
@@ -74,6 +75,7 @@ SECTIONS = (
     ("dr_div", "New Events: Disability and Diversity"),
     ("dr_his", "New Events: History and Collective Memory"),
     ("dr_lif", "New Events: Pondering How Life Has Gone"),
+    ("dr_sup", "New Events: Tree of Life Supplies"),
     # The owner-approved files, group D (data/event_collection/drafts_d/<section>/)
     ("dr_rm2", "New Events: Role Models and Good Examples, RM-41 to RM-90"),
     ("dr_hz3", "New Events: Beyond the Horizon, Events 081 to 130"),
@@ -94,6 +96,8 @@ SECTIONS = (
     ("an_jus", "Anthology: Justice, Bullying, Consequences, Trauma, Recovery and Defense"),
     ("an_expr", "Anthology: Self-Expression, Art, Sport, Ecology, Governance and Belief"),
     ("an_fauna", "Anthology: Animals of Fur, Feathers, Scales, Claws and Hooves"),
+    # The owner's "(Name1)'s Harshest Critic" (data/event_collection/critic/hc/): one event in six files, one series
+    ("hc", "(Name1)'s Harshest Critic"),
     # The Living Event Engine (living.pak): one row per seed, a category's seeds sharing its title (one series).
     ("living_engine", "The Living Event Engine"),
 )
@@ -101,19 +105,24 @@ LIVING_SECTION = "living_engine"
 SECTION_WORDS = dict(SECTIONS)
 
 
-def manifest_path(game: int) -> Path:
-    return ROOT / "assets" / "event_collection" / f"vv{game}" / "manifest.txt"
+def manifest_paths(game: int) -> list[Path]:
+    """The game's manifest files: one per source section and per living series (living-pack.md 1)."""
+    return sorted((ROOT / "assets" / "event_collection" / f"vv{game}").glob("manifest-*.txt"))
 
 
 @lru_cache(maxsize=None)
 def manifest(game: int) -> tuple[tuple[str, str, str], ...]:
-    """(id, title, series) of each event the patcher ships for this game, in the manifest's order."""
+    """(id, title, series) of each event the patcher ships for this game, in its manifests' order.  The static
+    events' mixer versions (living_st_*) are those events again, so the page lists the events once."""
     rows = []
-    for line in manifest_path(game).read_text(encoding="utf-8").splitlines():
-        if not line or line.startswith("#"):
-            continue
-        cells = line.split("\t")
-        rows.append((cells[0], cells[1], cells[4] if len(cells) > 4 else ""))
+    for path in manifest_paths(game):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line or line.startswith("#"):
+                continue
+            cells = line.split("\t")
+            if cells[0].startswith("living_st_"):
+                continue
+            rows.append((cells[0], cells[1], cells[4] if len(cells) > 4 else ""))
     return tuple(rows)
 
 
@@ -141,26 +150,36 @@ def _effects(node) -> set[str]:
     return out
 
 
+def _supplies(node) -> bool:
+    """Whether a graph has a "supply" effect (The Tree of Life's cutting tools, soap, cloth; cie-v6-binary.md 38)."""
+    if isinstance(node, dict):
+        if node.get("do") == "supply":
+            return True
+        return any(_supplies(value) for value in node.values())
+    if isinstance(node, list):
+        return any(_supplies(value) for value in node)
+    return False
+
+
 def build_index(living_seeds=()) -> dict:
     """{event id: {"section": ..., "harm": [...]}} from the source graphs (repository only: not shipped).
     `living_seeds`: (manifest id, variant graph) of every Living Event Engine variant -- the caller makes them with
     vv_living_mixer.generate(), a repository-only module this shipped one never imports."""
     out = {}
     base = ROOT / "data" / "event_collection"
-    for source in sorted(list(base.glob("*/*.json")) + list((base / "companion").glob("*/*.json"))
-                         + list((base / "living").glob("*/*.json")) + list((base / "horizon").glob("*/*.json"))
-                         + list((base / "rolemodels").glob("*/*.json"))
-                         + list((base / "drafts_a").glob("*/*.json"))
-                         + list((base / "drafts_b").glob("*/*.json"))
-                         + list((base / "drafts_c").glob("*/*.json"))
-                         + list((base / "drafts_d").glob("*/*.json"))
-                         + list((base / "anthology").glob("*/*.json"))):
+    # Every event file at any depth (the GO and More Island Events folders included), as the collection's builder
+    # reads them; the content tag tables are not events.
+    for source in sorted(p for p in base.rglob("*.json") if "content_tags" not in p.relative_to(base).parts):
         graph = json.loads(source.read_text(encoding="utf-8"))
         if not isinstance(graph, dict) or "collection" not in graph:
             continue                                       # manifest.json, shared_pools.json
+        if graph["collection"].get("mixer_only") is True:
+            continue                                       # More Island Events' own: listed by that patch's rows
         out[source.stem] = {"section": graph["collection"]["section"], "harm": sorted(_effects(graph))}
         if _allows(graph):
             out[source.stem]["allow"] = True
+        if _supplies(graph):
+            out[source.stem]["supply"] = True
     # The Living Event Engine's seeds (docs/event-collection/living-pack.md): one manifest row per seed, its event one
     # of the seed's variants in living.pak -- the seed can make what any of its variants makes.
     for manifest_id, graph in living_seeds:
@@ -168,6 +187,8 @@ def build_index(living_seeds=()) -> dict:
         entry["harm"] = sorted(set(entry["harm"]) | _effects(graph))
         if _allows(graph):
             entry["allow"] = True
+        if _supplies(graph):
+            entry["supply"] = True
     return {"format": "vvfp-event-collection-index", "version": 1, "events": out}
 
 
@@ -217,29 +238,41 @@ def series_count(game: int) -> int:
 def lines(game: int) -> list[tuple[str, bool]]:
     """(text, sub) of each line, without the patch check."""
     events = manifest(game)
-    pct = RARE_ROLL_PERCENT[game]
     kill, vanish = deadly(game)
     out = [
-        (f"Isola Grand Event Collection: {len(events)} events in this game. They are rare and never take a share of "
-         "the game's own draw, so the game's own island events keep exactly their chances.", False),
-        (f"How one comes: after each natural island event, once the village has seen two, a separate roll comes up "
-         f"{pct}% of the time (made by Story / Cheat Upgrades with the game's own random routine). Then a rare event "
-         "comes later, 30% to 70% of the way to the next natural event (on the same clock as the game's own island "
-         "events). It waits while another event is on its way, and gives way when the natural event comes first.",
-         True),
+        (f"Isola Grand Event Collection: {len(events)} events in this game. They never take a share of the game's own "
+         "draw: they come in place of some of the game's natural island events.", False),
+        (f"How one comes: each natural island event has a {REPLACE_PERCENT[0]}-{REPLACE_PERCENT[1]}% chance (rolled "
+         "each time) to be one of the new events instead (Story / Cheat Upgrades, with the game's own random "
+         "routine); the game's own event then does not come that time, and the next natural event is due as after "
+         "the game's own. The village's two opening events are never replaced.", True),
+        (f"Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has "
+         f"{REPLACE_MIN_POPULATION} or more villagers (counting the babies being carried"
+         f"{'; believers only' if game == 5 else ''}), unless \"No Safeguards for Island Events (and Additional Events too)\" is installed. From "
+         f"{REPLACE_MIN_POPULATION} villagers the food and tech points of the new events come in a random size each "
+         "time (small, normal, large or huge, in the game's own ranges).", True),
         ("It never comes while the village is in trouble: the game's own rescue rule (too few men or women, or fewer "
          "than 3 people counting the babies being carried), food below 10 a villager, half the village sick, or "
-         "fewer than 6 villagers of 14 villager years or more. So it never takes a rescue event's place.", True),
+         "fewer than 6 villagers of 14 villager years or more. So a rescue event is never replaced. When no new "
+         "event can happen, the game's own event comes.", True),
         ("Which one: every event that can happen is equally likely, whether it is one of More Island Events', the "
          "collection's or the Companion Anthology's; a series counts as one event, its parts equally likely "
          f"({series_count(game)} series in this game). An event whose villagers cannot be found is left out and "
          "another is drawn.", True),
         ("Pick Island Event lists every event with what it needs, and the Custom Island Event library has them in "
          "its own \"Isola Grand Event Collection\" group.", True),
-        ("Needs Story / Cheat Upgrades (it runs the roll and the events) and Scrolling Popups (it keeps every page "
+        ("Needs Story / Cheat Upgrades (it runs the events) and Scrolling Popups (it keeps every page "
          "on the screen).", True),
         (f"Who can be harmed: never a nursing mother or father, {PROTECTED[game]}, or anyone the game's own island "
          "events never pick. They may still take part in harmless roles (speaking, celebrating).", True),
+        # cie-v6-binary.md 35 (the owner, 2026-11-16)
+        ("An event's chief is called the Chief, the leader, the elder, the headman or headwoman, or the council head: "
+         "one title drawn each time, the same on every page (and after a reload)."
+         + (" The robed Tribal Chief takes a chief's part whenever they can, and is then always the Chief."
+            if game == 3 else ""), True),
+        ("A nursing parent's words (mother or father, he or she) follow how the villager is drawn with Gender "
+         "Presentation, else their recorded sex, and change on the next page after a sex change."
+         + (" The Golden Child's words follow the Golden Child's recorded sex." if game == 1 else ""), True),
     ]
     out.append((("Can kill a villager (a grave, cause \"Unknown causes\"): "
                  + ", ".join(kill) + ".") if kill else "No event in this game kills a villager.", True))
@@ -260,19 +293,79 @@ def lines(game: int) -> list[tuple[str, bool]]:
     if early:
         out.append(("Can make a nursing mother or father give birth early (the parent lives; the baby is born younger "
                     "and weaker the earlier it is): " + ", ".join(early) + ".", True))
+    supplies = [title for event_id, title, _ in manifest(game) if index()[event_id].get("supply")] \
+        if game == 4 else []
+    if supplies:
+        out.append(("Can change the village's cutting tools, bars of soap or cloth bolts (a sack is a cloth bolt) as "
+                    "the story says: cutting tools and cloth bolts stay 0 to 6 (0 to 99 with Up to 99 Cutting "
+                    "Tools/Soap/Cloth), soap 0 to 99, never below 0; before The Cutting Tool, Soap Invented or Cloth "
+                    "Invented is solved, that item's words are story only: " + ", ".join(supplies) + ".", True))
     if allowed:
         who = {1: ", the Golden Child", 3: ", the Tribal Chief"}.get(game, "")
         out.append((f"Where the story calls for it, these may harm a nursing mother or father{who}: "
                     + ", ".join(allowed) + ".", True))
+    out.extend((text, True) for text in work_rush_lines(game))
     for words, titles in sections(game):
         out.append((f"{words} ({len(titles)}): " + ", ".join(titles) + ".", True))
+    return out
+
+
+# The work rush (the owner, 2026-11-18; native/vvfp_story_upgrades/story_graph_village.inc CG_WORK / CG_WORK_REST and
+# cg_highest_skill; tests/test_work_rush_busy_at_job_site.py pins these words to it).  Per skill: each game's job.
+WORK_JOBS = {
+    "Farming": {1: "Foraging", 2: "Harvesting coconuts", 3: "Fishing", 4: "Harvesting blackberries",
+                5: "Harvesting noni"},
+    "Building": {1: "Fixing hut", 2: "Exercising", 3: "Doing exercise", 4: "Doing exercise"},
+    "Research": {1: "Researching", 2: "Researching", 3: "Researching", 4: "Researching", 5: "Researching"},
+    "Healing": {1: "Healing someone", 2: "Healing someone", 3: "Studying medicine", 5: "Health chanting"},
+    "Parenting": {2: "Telling a story", 3: "Telling a story"},
+    "Devotion": {5: "Praising"},
+}
+WORK_BUSY = {1: "sit down (\"Sitting\")", 2: "sit down (\"Sitting\")",
+             3: "work at nothing (\"Working 'til he drops!\" / \"Working 'til she drops!\")",
+             4: "sit down (\"Needs to sit down\")", 5: "sit down (\"Needs to sit down\")"}
+WORK_TIE = {
+    1: "the first of Parenting, Building, Healing, Farming, Research",
+    2: "the first of Parenting, Building, Healing, Farming, Research",
+    3: "the first of Farming, Parenting, Healing, Research, Building",
+    4: "Farming, Parenting, Healing, Research, Building in turn, each skill taking over when it is above the best so "
+       "far with that best's fraction dropped (so 40.2 after 40.7 takes over, 40.0 does not)",
+    5: "Farming, Parenting, Healing, Research, Building, Devotion in turn, each skill taking over when it is above the "
+       "best so far with that best's fraction dropped (so 40.2 after 40.7 takes over, 40.0 does not)",
+}
+
+
+def work_rush_lines(game: int) -> list[str]:
+    """The work rush an event may call (all five games), in plain words."""
+    jobs = "; ".join(f"{skill}: {by_game[game]}" for skill, by_game in WORK_JOBS.items() if game in by_game)
+    # skills this game has but no job for (Devotion is New Believers' own skill; Parenting has its own line)
+    none = [skill for skill, by_game in WORK_JOBS.items()
+            if game not in by_game and skill not in ("Devotion", "Parenting")]
+    out = [
+        "Work rush (an event may call the village to one skill's work): the workers are the adults with that job "
+        "ticked on the Details screen, and the adults with no job ticked whose highest skill on the Details screen "
+        f"is that one (a tie goes to the skill the Village screen's Action bar shows under \"Skill\": {WORK_TIE[game]}). "
+        "Children never take part: they neither work nor stop what they are doing. Nor does anyone carrying a baby "
+        "or sick, as the game itself never sends them to work.",
+        f"The work in this game: {jobs}." + (f" A {' or '.join(none)} rush does nothing here (no such job)."
+                                             if none else ""),
+        f"Every other adult goes where the workers go and there they {WORK_BUSY[game]}: no skill and nothing made. "
+        "Each gets the spot the job would give a worker; when that spot is within 20 pixels of one already taken, "
+        "they try up to 8 of the job's other spots and take the nearest free one, or share a spot when every one is "
+        "taken.",
+    ]
+    if game in (1, 2):
+        out.append("Healing someone has no place of its own (it is done where the healer stands), so in a Healing "
+                   "rush the others sit where they are.")
+    out.append("A Parenting rush is storytelling only, so Birth Control is never bypassed (no one is sent to embrace)"
+               + ("." if game in (2, 3) else "; this game has no storytelling job, so a Parenting rush does nothing."))
     return out
 
 
 def facts(village: gm.Village) -> list[gm.Fact]:
     """The collection's lines, shown only when the game's exe has the patch."""
     game = village.game
-    if game not in RARE_ROLL_PERCENT or village.has(PATCH.format(game)) is not True:
+    if game not in (1, 2, 3, 4, 5) or village.has(PATCH.format(game)) is not True:
         return []
     return [gm.Fact(GROUP, text, gm.RUNNING, sub=sub) for text, sub in lines(game)]
 

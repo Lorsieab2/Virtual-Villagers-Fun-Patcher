@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Prisoner Who Ran",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc10_prisoner_ran",
+  "source": "draft_lcc",
+  "lines": [
+   134,
+   145
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L134",
+  "ledger": [
+   {
+    "src": "L135",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L141",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L141",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L145",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The captured raider escaped in the night with a canoe: chase them, or let them go.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The raider the village took in, fed and tended has gone. Sometime in the night, (other.he/she) slipped away and took (subject)'s best canoe. (subject) is shaking with anger. (friend) says (other.he/she) is probably heading back to (other.his/her) own people, and might tell them everything about the village. What should they do?",
+   "src": "L137",
+   "choices": [
+    {
+     "label": "Chase Them",
+     "next": "o1",
+     "src": "L139"
+    },
+    {
+     "label": "Let Them Go",
+     "next": "o2",
+     "src": "L143"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) paddle hard after the stolen canoe, following its wake. By noon they can see it, a speck on the horizon, and by mid-afternoon they have lost it. They come home exhausted and empty-handed. (subject) carves a new canoe that season, angrily, and it is the best (subject.he/she) has ever made.",
+   "src": "L141",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L141"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) says the sea is wide and the raider has chosen. The village doubles the watch on the headlands. Nothing happens for a long time. Then, one morning, (subject)'s canoe is found pulled up on the beach, with a carved shell inside it. Nobody knows what it means.",
+   "src": "L145"
+  }
+ }
+}

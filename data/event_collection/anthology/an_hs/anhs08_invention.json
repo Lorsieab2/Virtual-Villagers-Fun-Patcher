@@ -121,9 +121,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "It saves a little effort but requires frequent repairs.",
-   "src": "L29548"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -143,9 +150,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "A hidden practical insight becomes clear.",
-   "src": "L29551"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -165,9 +179,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "(apprentice), an apprentice, finds a stable design (elder) had overlooked.",
-   "src": "L29554"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -192,6 +213,89 @@
    "src": "L29557"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "It saves a little effort but requires frequent repairs.",
+   "src": "L29548",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L29548"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "It saves a little effort but requires frequent repairs.",
+   "src": "L29548"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "A hidden practical insight becomes clear.",
+   "src": "L29551",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L29551"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "A hidden practical insight becomes clear.",
+   "src": "L29551"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(apprentice), an apprentice, finds a stable design (elder) had overlooked.",
+   "src": "L29554",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L29554"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(apprentice), an apprentice, finds a stable design (elder) had overlooked.",
+   "src": "L29554"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "(elder) cheerfully declares the village unready for greatness.",
+   "src": "L29558",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L29558"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "(elder) cheerfully declares the village unready for greatness.",
    "src": "L29558"

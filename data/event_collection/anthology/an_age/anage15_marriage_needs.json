@@ -98,9 +98,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "A simple walk restores some warmth between them.",
-   "src": "L30353"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -172,6 +179,31 @@
    "name": "Outcome D2",
    "text": "One partner feels lonely, leading to a conversation about balancing solitude and closeness.",
    "src": "L30363"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "A simple walk restores some warmth between them.",
+   "src": "L30353",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L30353"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L30353"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "A simple walk restores some warmth between them.",
+   "src": "L30353"
   }
  }
 }

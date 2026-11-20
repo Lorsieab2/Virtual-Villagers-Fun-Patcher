@@ -66,6 +66,33 @@
    "src": "L564"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(name1) moves the stone to a shelf across the room. That night, (he/she) sleeps badly. The next night, worse. (He/She) puts it back under the floor. (He/She) sleeps like a baby. (name1) isn't sure what (he/she) feels about having been helped all these years without knowing it. Grateful, mostly. A tiny bit cheated.",
+   "src": "L567",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L567"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(name1) moves the stone to a shelf across the room. That night, (he/she) sleeps badly. The next night, worse. (He/She) puts it back under the floor. (He/She) sleeps like a baby. (name1) isn't sure what (he/she) feels about having been helped all these years without knowing it. Grateful, mostly. A tiny bit cheated.",
    "src": "L567"

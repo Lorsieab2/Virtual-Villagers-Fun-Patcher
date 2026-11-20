@@ -70,6 +70,32 @@
    "src": "L38"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"What are you doing in there?\" (subject) asks. The crab waves a claw. (friend), passing, says, \"Maybe it heard you make good stew.\" (subject) decides to take that as a compliment, carries the crab out to the rocks, and makes the stew without it. The stew is, everyone agrees, very good. The crab would have been impressed.",
+   "src": "L41",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L41"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"What are you doing in there?\" (subject) asks. The crab waves a claw. (friend), passing, says, \"Maybe it heard you make good stew.\" (subject) decides to take that as a compliment, carries the crab out to the rocks, and makes the stew without it. The stew is, everyone agrees, very good. The crab would have been impressed.",
    "src": "L41"

@@ -74,6 +74,32 @@
    "src": "L260"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) says (subject.he/she) honestly doesn't know how much was work and how much was luck. (friend) wants an answer. (subject) doesn't have one. \"Both, probably. In some mix I'll never work out.\" They argue about it pleasantly for an hour, with examples. Neither wins. (subject) quite enjoys not knowing.",
+   "src": "L263",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L263"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) says (subject.he/she) honestly doesn't know how much was work and how much was luck. (friend) wants an answer. (subject) doesn't have one. \"Both, probably. In some mix I'll never work out.\" They argue about it pleasantly for an hour, with examples. Neither wins. (subject) quite enjoys not knowing.",
    "src": "L263"

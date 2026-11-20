@@ -104,14 +104,40 @@
    "src": "L755"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "Several neighbors agree to share responsibility for a difficult chore. (Name1) feels embarrassed and offers a sincere apology.",
-   "src": "L759"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "Several neighbors agree to share responsibility for a difficult chore. The agreement is simple enough to remember without writing it down.",
    "src": "L763"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "Several neighbors agree to share responsibility for a difficult chore. (Name1) feels embarrassed and offers a sincere apology.",
+   "src": "L759",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L759"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "Several neighbors agree to share responsibility for a difficult chore. (Name1) feels embarrassed and offers a sincere apology.",
+   "src": "L759"
   }
  }
 }

@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) tries to get rid of the goat. The goat will not leave. It wanders across the sand. It eats some of the sunset. (subject) starts to giggle. (friend) waits. \"Is it working?\" (friend) asks. \"There's a goat,\" says (subject). \"That's fine,\" says (friend). \"Keep the goat.\" The calm place works quite well from then on. The goat is always there.",
-   "src": "L497"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) opens (subject.his/her) eyes and announces there's a goat. \"Then pick another place,\" says (friend). (subject) pictures the inside of (subject.his/her) family's hut, on a rainy evening, everyone asleep. No goat. It's very calm. Strangely, (subject.he/she) misses the goat a little. (subject.He/she) still uses the hut, though, and it still works, sometimes.",
    "src": "L500"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tries to get rid of the goat. The goat will not leave. It wanders across the sand. It eats some of the sunset. (subject) starts to giggle. (friend) waits. \"Is it working?\" (friend) asks. \"There's a goat,\" says (subject). \"That's fine,\" says (friend). \"Keep the goat.\" The calm place works quite well from then on. The goat is always there.",
+   "src": "L497",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L497"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) tries to get rid of the goat. The goat will not leave. It wanders across the sand. It eats some of the sunset. (subject) starts to giggle. (friend) waits. \"Is it working?\" (friend) asks. \"There's a goat,\" says (subject). \"That's fine,\" says (friend). \"Keep the goat.\" The calm place works quite well from then on. The goat is always there.",
+   "src": "L497"
   }
  }
 }

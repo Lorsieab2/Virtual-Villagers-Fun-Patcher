@@ -75,6 +75,44 @@
    "src": "L3347"
   },
   "e2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A builder adapts its mechanism for a useful tool.",
+   "src": "L3348",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3348"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L3348"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Outcome B",
    "popup": "append",
    "join": "paragraph",
@@ -91,7 +129,8 @@
      "max": 10,
      "src": "L3348"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

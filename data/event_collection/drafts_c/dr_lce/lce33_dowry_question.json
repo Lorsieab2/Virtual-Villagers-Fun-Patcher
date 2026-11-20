@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dowry Question",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce33_dowry_question",
+  "source": "draft_lce",
+  "lines": [
+   456,
+   467
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L456",
+  "ledger": [
+   {
+    "src": "L457",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L463",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L463",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L467",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A family asks for a great gift of fish before a marriage: pay it, or refuse the custom.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) wants to marry (friend), and (friend)'s family has asked for the old wedding gift: a hundred baskets of fish, to show (subject) can provide. (subject) is a poor fisher, in every sense. (friend) is mortified and says the custom is nonsense. What should (subject) do?",
+   "src": "L459",
+   "choices": [
+    {
+     "label": "Pay It",
+     "next": "o1",
+     "src": "L461"
+    },
+    {
+     "label": "Refuse the Custom",
+     "next": "o2",
+     "src": "L465"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) fishes from dawn to dark for two months, with half the village helping. The hundred baskets are delivered. (friend)'s family is impressed, and gives most of the fish away at the wedding feast. (subject) never wants to see a fish again.",
+   "src": "L463",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L463"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) tells (friend.his/her) family that (friend.he/she) is not a trade, and that the wedding will happen anyway. The family is offended. They come to the wedding anyway, looking stern. By the end of the feast, they are dancing.",
+   "src": "L467"
+  }
+ }
+}

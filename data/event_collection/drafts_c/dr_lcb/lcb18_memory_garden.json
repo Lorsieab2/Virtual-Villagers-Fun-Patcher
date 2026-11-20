@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Memory Garden",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb18_memory_garden",
+  "source": "draft_lcb",
+  "lines": [
+   246,
+   257
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L246",
+  "ledger": [
+   {
+    "src": "L247",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L253",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L253",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L257",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An elder wants a garden where families plant a flower for each person they have lost: start it, or keep the graves as they are.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has an idea: a memory garden behind the graves, where every family can plant a flower for each person they have lost, and come to sit among them. (friend) points out that the space behind the graves is where the children play, and that the village would need to find them somewhere else. What should the village do?",
+   "src": "L249",
+   "choices": [
+    {
+     "label": "Start the Memory Garden",
+     "next": "o1",
+     "src": "L251"
+    },
+    {
+     "label": "Keep Things as They Are",
+     "next": "o2",
+     "src": "L255"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The memory garden is planted over a single season. Families come and go, planting, weeding, sitting. The children are moved to a new playing field, and complain for exactly one day. Before long they are bringing flowers to the garden too.",
+   "src": "L253",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L253"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village decides to leave the space for the children. (subject) is disappointed, and plants a single flower beside the graves anyway, for (subject.his/her) own lost ones. Within a month there are twenty flowers beside it. The garden is starting itself.",
+   "src": "L257"
+  }
+ }
+}

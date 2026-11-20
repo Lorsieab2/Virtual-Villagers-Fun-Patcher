@@ -85,9 +85,36 @@
      "scaled": true,
      "src": "L446"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) gives way. (friend) and (subject.he/she) cover the bones again with fresh earth and stones, so the stream can't reach them. (friend) speaks quietly over the grave. (subject) is a little sad about all the things they'll never know. But (subject.he/she) also feels that whoever it was would rather be left in peace than drawn on bark. They walk home without talking.",
+   "src": "L449",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L449"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) gives way. (friend) and (subject.he/she) cover the bones again with fresh earth and stones, so the stream can't reach them. (friend) speaks quietly over the grave. (subject) is a little sad about all the things they'll never know. But (subject.he/she) also feels that whoever it was would rather be left in peace than drawn on bark. They walk home without talking.",
    "src": "L449"

@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song for the Uncelebrated",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg47_song",
+  "source": "draft_lcg",
+  "lines": [
+   652,
+   663
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L652",
+  "ledger": [
+   {
+    "src": "L653",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L659",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L659",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L663",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The musicians argue over a song honoring the people whose work nobody notices: let them make one song, or one verse for each.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) want to write a song for the people nobody ever sings about: the ones who carry water, sweep the meeting hut, mend the fences and sit with the sick. But they disagree: (subject) wants slow and solemn, (friend) wants fast and silly. What should they do?",
+   "src": "L655",
+   "choices": [
+    {
+     "label": "One Song, Both Ways",
+     "next": "o1",
+     "src": "L657"
+    },
+    {
+     "label": "A Verse for Each",
+     "next": "o2",
+     "src": "L661"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They argue for a week, and end up with a song that starts slow and solemn and suddenly turns fast and silly in the middle. It should not work. It does. The water carriers dance to it.",
+   "src": "L659",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L659"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They write a verse for each person, by name: the sweeper, the water carrier, the old man who mends the fences. Some of those people hear their names in a song for the first time in their lives. One of them has to leave the gathering for a while.",
+   "src": "L663"
+  }
+ }
+}

@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ancestors Were People Too",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg49_ancestors_were",
+  "source": "draft_lcg",
+  "lines": [
+   680,
+   691
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L680",
+  "ledger": [
+   {
+    "src": "L681",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a teen)"
+   },
+   {
+    "src": "L687",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L691",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A storyteller wants to tell the founders' jokes and mistakes too: tell the whole of them, or keep to the honored stories.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is the village storyteller, and (subject.he/she) has decided the children should know the founders as real people: the one who was afraid of crabs, the one who sang terribly, the one who got lost going to the toilet. (friend) thinks that is disrespectful. What should (subject) tell?",
+   "src": "L683",
+   "choices": [
+    {
+     "label": "Tell the Whole of Them",
+     "next": "o1",
+     "src": "L685"
+    },
+    {
+     "label": "Keep to the Honored Stories",
+     "next": "o2",
+     "src": "L689"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells the funny stories and the brave ones together. The children love the founders more than ever. (friend) laughs despite (friend.him/her)self at the crab story. Some elders are scandalized. Some are delighted.",
+   "src": "L687"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tells only the great deeds. The children are impressed and a little bored. Later, (subject) tells (friend) the crab story privately. (friend) laughs so hard (friend.he/she) has to sit down, and asks for more.",
+   "src": "L691"
+  }
+ }
+}

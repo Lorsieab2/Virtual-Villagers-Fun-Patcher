@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Day Nobody Worked",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj43_nobody_worked",
+  "source": "draft_lcj",
+  "lines": [
+   600,
+   611
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L600",
+  "ledger": [
+   {
+    "src": "L601",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L607",
+    "kind": "instruction",
+    "text": "[effect: (name2) gains health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L607",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L611",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village tries a whole day of rest, but someone still has to cook and care for the sick: take turns, or let volunteers do it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has convinced the village to try a day where nobody works. It is a wonderful idea until breakfast, when everyone realizes someone still has to cook, the babies still need feeding and the sick still need tending. (friend) is a healer and was looking forward to resting too. What should the village do?",
+   "src": "L603",
+   "choices": [
+    {
+     "label": "Take Turns",
+     "next": "o1",
+     "src": "L605"
+    },
+    {
+     "label": "Volunteers Do It",
+     "next": "o2",
+     "src": "L609"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village draws lots for the necessary work, an hour each. Everyone gets most of a day off, (friend) included. It is lovely. The next rest day, people want two.",
+   "src": "L607",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 10,
+     "max": 30,
+     "src": "L607"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "A few volunteers do the cooking and caring. The rest of the village lies in the sun. (friend) is one of the volunteers, and is tired and a little resentful by evening. (subject) notices, and takes (friend.his/her) place next time.",
+   "src": "L611"
+  }
+ }
+}

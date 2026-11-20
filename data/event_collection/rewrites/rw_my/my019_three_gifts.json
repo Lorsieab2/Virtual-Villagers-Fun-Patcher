@@ -1,0 +1,329 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Three Gifts of the Wanderer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my019_three_gifts",
+  "source": "rewrites",
+  "lines": [
+   10936,
+   10991
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10936",
+  "ledger": [
+   {
+    "src": "L10937",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10938",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10947",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10954",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10961",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10968",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10942",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10943",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10944",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10945",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10948",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10955",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10962",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10969",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10949",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10951",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10956",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10958",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10963",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10965",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10970",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10972",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10975-10991",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L10952",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "You've an honest face, the wanderer says.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A wandering traveler sits down in the shade beside (subject)'s hut, unrolls a woven mat, and lays out three things on it with great ceremony: a fat sack of grain, a book bound in fish skin and filled with symbols nobody can read, and a plain grey stone that steams faintly in the cool morning air.\n\"You've an honest face,\" the wanderer says. \"Choose one. Only one. It's yours to keep.\" The wanderer folds (subject.his/her) hands and waits, smiling, as if this is the most important decision (subject) will ever make. Maybe it is. What will (subject) choose?",
+   "choices": [
+    {
+     "label": "Choose the Grain",
+     "next": "c1",
+     "src": "L10942"
+    },
+    {
+     "label": "Choose the Book",
+     "next": "c2",
+     "src": "L10943"
+    },
+    {
+     "label": "Choose the Stone",
+     "next": "c3",
+     "src": "L10944"
+    },
+    {
+     "label": "Refuse All Three",
+     "next": "c4",
+     "src": "L10945"
+    }
+   ],
+   "src": "L10939-10940"
+  },
+  "c1o1": {
+   "text": "The sack is even heavier than it looked. When (subject) opens it at home, it's packed to the top with clean, golden grain, enough to feed several households for a good long while. The family next door gets some, and the family next to them, and the family next to them. Nobody goes hungry that season. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10950",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The top of the sack is lovely clean grain. But when (subject) digs a hand in deeper, it comes out grey and clumped, smelling of damp earth. The whole sack is spoiled underneath. Worse, (subject) tipped it straight into the storehouse bin before checking, and now the bad grain has to be picked out of the good. By the time (subject) goes looking for the wanderer, the wanderer is long gone.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L10952"
+  },
+  "c1": {
+   "text": "\"Food is food,\" (subject) says practically, and picks up the heavy sack. The wanderer nods as if (subject.he/she) expected exactly that...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10948",
+   "text_only": [
+    {
+     "src": "L10948",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o1": {
+   "text": "The symbols are a mystery, but the drawings aren't. Page after page shows clay jars set in cool pits, lids sealed with wax, channels that catch rainwater from roofs. The researchers study it day and night, and soon the village is storing water better than it ever has. \"Best choice you ever made,\" the researchers tell (subject). Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10957",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) studies the book every night by firelight, and every morning (subject.he/she) is sure (subject.he/she) remembers what the symbols said. But each morning (subject.he/she) remembers them differently. The researchers have the same problem. No two people can agree on what a single page means, and after a while the arguments get so heated that the book is put away in a basket for everyone's sake.",
+   "src": "L10959"
+  },
+  "c2": {
+   "text": "(subject) can't resist. (subject.He/She) picks up the book with both hands and opens it carefully. The pages are covered in neat little drawings between the strange symbols...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10955"
+  },
+  "c3o1": {
+   "text": "Three nights later, a cold rain sweeps in, and (child), the little one next door, is shivering with a chill that won't go away. (subject) remembers the stone and presses it into (child)'s hands. It stays warm, steady as a heartbeat, all night long. By morning, (child) is sleeping peacefully, pink-cheeked. The healers can't explain it. (subject) doesn't try.",
+   "src": "L10964"
+  },
+  "c3o2": {
+   "text": "By the time (subject) gets home, the stone is cool. The researchers take one look and laugh: plain basalt, the most common rock on the island. It must have been warmed in the wanderer's pack. But (subject) doesn't care. (subject.He/She) keeps it on the shelf by (subject.his/her) door and touches it every morning for luck, and (subject.he/she) has had rather good luck lately.",
+   "src": "L10966"
+  },
+  "c3": {
+   "text": "The plain little stone is warm in (subject)'s palm, warmer than the morning sun could make it. \"This one,\" (subject.he/she) says, surprising (subject.himself/herself)...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10962"
+  },
+  "c4o1": {
+   "text": "The wanderer looks at (subject) for a long moment, then smiles and nods. \"Not many say that,\" (subject.he/she) says, rolling up the mat. \"Good for you.\" And off the wanderer goes, gifts and all, whistling down the road toward the next village.",
+   "src": "L10971"
+  },
+  "c4o2": {
+   "text": "The wanderer's smile grows very wide. \"Ah,\" (subject.he/she) says softly. \"You've chosen the fourth gift.\" Before (subject) can ask what that means, the wanderer has rolled up the mat and walked off into the trees. (subject) spends weeks wondering what the fourth gift was, and whether (subject.he/she) has already been given it.",
+   "src": "L10973"
+  },
+  "c4": {
+   "text": "(subject) looks at the three gifts for a long time, then shakes (subject.his/her) head. \"Thank you. But I don't need any of them. Give them to someone who does.\"...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10969"
+  }
+ }
+}

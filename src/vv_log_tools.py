@@ -100,6 +100,7 @@ class CheckResult:
     text: str                                   # the checker's own report, as the CLI prints it
     counts: dict[str, int] = field(default_factory=dict)
     reconciliation: object | None = None        # src/vv_reconcile.py Reconciliation (the window exports it)
+    kinds: list | None = None                   # vv_log_additions.plan's kinds, made once (None: not made)
 
     @property
     def wrong(self) -> int:
@@ -143,10 +144,21 @@ def check_logs(folder: Path, slot: int, game: int, game_folders: list[Path] | No
     # What older records lack that Repair Saves & Logs can add (src/vv_log_additions.py; the checker
     # itself reports the Sex lines).
     import vv_log_additions as additions
+    # The reconciliation is made once, here, and handed to the plan (its "reconcile" kind) and to the
+    # report below: it is the slowest read of a large village, and was made twice.
+    import vv_reconcile
+    reconciled = None
+    reconcile_error = None
     try:
-        kinds = additions.plan(Path(folder), game, slot, game_folders)
+        reconciled = vv_reconcile.reconcile(Path(folder), game, slot)
+    except (vv_reconcile.ReconcileError, OSError, ValueError, struct.error) as exc:
+        reconcile_error = exc
+    try:
+        kinds = additions.plan(Path(folder), game, slot, game_folders, rec=reconciled)
+        planned = kinds                         # Repair Saves & Logs' checklist uses these, not a second plan
     except OSError as exc:
         kinds = []
+        planned = None
         report.add(f"{LOGS} (older records)", "UNCHECKED", f"a log could not be read ({exc.strerror or exc})")
     # Wrong last names (the owner, 2026-10-07): the ones the village's rule does not give.
     import vv_genealogy
@@ -226,13 +238,9 @@ def check_logs(folder: Path, slot: int, game: int, game_folders: list[Path] | No
     # The always-on read-only reconciliation of records, logs and files (src/vv_reconcile.py; the owner,
     # 2026-10-11: "MAKE SURE ABSOLUTELY NOTHING IS LOST. IF THERE ARE CONTRADICTIONS ASK THE PLAYER"):
     # every villager followed through every source; each contradiction an ASK line, numbered.
-    import vv_reconcile
     label = f"{LOGS}\\Save {slot} (read-only reconciliation of records, logs and files)"
-    reconciled = None
-    try:
-        reconciled = vv_reconcile.reconcile(Path(folder), game, slot)
-    except (vv_reconcile.ReconcileError, OSError, ValueError, struct.error) as exc:
-        report.add(label, "UNCHECKED", f"the reconciliation could not run ({exc})")
+    if reconciled is None:
+        report.add(label, "UNCHECKED", f"the reconciliation could not run ({reconcile_error})")
     else:
         for verdict, text in reconciled.lines():
             report.add(label, verdict, text)
@@ -280,7 +288,7 @@ def check_logs(folder: Path, slot: int, game: int, game_folders: list[Path] | No
         report.add(f"{LOGS} ({kind.label})", "NOTE",
                    f"{kind.decided} line(s) the save, the patcher's files or the logs settle{asked}; "
                    "Repair Saves & Logs can add them")
-    return CheckResult(Path(folder), slot, game, report.render(), report.counts(), reconciled)
+    return CheckResult(Path(folder), slot, game, report.render(), report.counts(), reconciled, planned)
 
 
 # ---------------------------------------------------------------------------

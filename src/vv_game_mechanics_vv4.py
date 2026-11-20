@@ -19,6 +19,7 @@ from pathlib import Path
 
 import vv_game_mechanics as gm
 import vv_game_mechanics_children_play as children_play
+import vv_game_mechanics_solidarity as solidarity
 import vv_game_mechanics_death as death
 import vv_game_mechanics_events as events
 import vv_game_mechanics_life as life
@@ -64,6 +65,19 @@ FRUIT_MAGIC = 0x46345656            # 'V' 'V' '4' 'F'
 PARTIAL = "vv4_yellow_fruit_refills_partially"
 FRUIT_PARTIAL_UNITS, FRUIT_PARTIAL_PER_10_UNITS = 30, 37
 FRUIT_PARTIAL_GAIN = FRUIT_PARTIAL_UNITS * FRUIT_PARTIAL_PER_10_UNITS // 10     # 111
+# Cloth Sacks for Yellow Fruit ("VVFP VV4 Cloth Sacks.dll", native/vvfp_vv4_cloth_sacks): a villager dropped under the
+# Clothing Hut's awning uses one cloth bolt (0x4369F0(1) on 0x4D8AC8, as the cutting tool's 0x46E872) and brings a
+# sack of yellow fruit to the food bin: its job event pays like the harvest's event 14 (0x4644EE), the fruit, at most
+# 30 (with the limited tree, what is left, even none), through 0x41D920 (Food Mastery).  Only a drop starts one: the
+# Farming dispatcher is never touched (farmers never harvest with a cutting tool either).
+CLOTH_SACKS = "vv4_cloth_sacks_for_yellow_fruit"
+# Up to 99 Cutting Tools/Soap/Cloth ("VVFP VV4 Supply Cap.dll"): the tools' and cloth's cap of 6 (0x43142F, 0x4368E2 and the
+# use-up's clamp 0x436A09) is 99; soap is never capped in the stock game.
+SUPPLY_CAP = "vv4_up_to_99_supplies"
+# Fix Vanilla Bugs' no tool harvest from an empty bush ("VVFP VV4 Empty Sources.dll"): the harvest's tool use 0x46E86F refuses at 0
+# berries (action 0x3F, text 0xA7); Cloth Sacks refuses an empty limited tree the same way when it is loaded.
+EMPTY_SOURCES = "vv4_fix_vanilla_bugs"
+SACK_FRUIT = 30
 
 # The recipes 0x42ECF0 (herbs 0x1F spicy, 0x20 sweet, 0x21 soapy, 0x22 pulpy vines) and what each stew does, the
 # stew's effect switch 0x41DEE0 (CPotion, vtable 0x48D5C4): 5 sends the villager "Burping up soap bubbles"
@@ -78,9 +92,12 @@ STEW_LINES = (
     ("Sweet x3: honours the tree; sweet, sweet, soapy: the children get hiccups; sweet, soapy, soapy: heals 25 to "
      "59 health (5 to 14 with under 100 food), and that villager cannot eat that stew again for 10 real-life "
      "minutes (real time, the same at every speed); soapy x3: \"I feel sick!\" and \"Throwing up soapy stew!\" (it "
-     "does not make the villager sick), with the same 10-minute wait. In salt water, pulpy vines x3 make soap; any "
-     "other mix tastes nasty or too salty.", gm.RUNNING),
+     "does not make the villager sick), with the same 10-minute wait. In salt water, soapy x3 makes soap and "
+     "pulpy vines x3 the pulp for cloth; any other mix tastes nasty or too salty.", gm.RUNNING),
 )
+# The salt-water pair (2026-11-18): the recipes 0x42EDB2 (stew 10, soapy 0x21 x3, state 0xA) and 0x42EDC3 (stew 11,
+# pulpy vines 0x22 x3); the pot says "Soap is ready to stack." for 10 (0x42E58A) and "Pulp for cloth is ready." for
+# 11 (0x42E5A5).  The line used to give soap to the pulpy vines.
 # The stew pot (0x4D76D8) and its herb table (0x4D8220), the same design as The Secret City's potion: a stew
 # made (0x42EDE0) sets the table's deadline +8 to the real clock 0x403750 + 300 (0x42F240, from 0x42EEB2); the
 # table's update 0x42F1D0 empties the pot there (0x42F060 -> 0x42DA30, the herbs put back).  The pot's countdown
@@ -122,13 +139,41 @@ REHEAT_CODE_LINE = (
     "speed). In play, though, not every stew can be reheated this way: some just evaporate.")
 # "That villager can't eat more stew so soon." (string 0x203) is said when the villager dropped on the pot
 # (0x42E920) is refused by the add-effect 0x460A90: the same stew's effect is already on them (0x45EB40) or they
-# have 12 (+0x1E5C).  An effect ends at a real-clock deadline (0x403750 + its length, 0x460B60); saving ends every
-# villager's effects first (0x4660C4 -> 0x45EAA0), so no save holds one.
+# have 12 (+0x1E5C).  An effect ends at a real-clock deadline (0x403750 + its length, 0x460B60); the save writer
+# ends every villager's effects first (0x4660C4 -> 0x45EAA0) -- the 10-minute autosave too -- and the saved entry
+# (0x45DB30) never holds them, so a loaded village has none.  Fix Vanilla Bugs drops that call (EFFECTS_FIX_LINE).
+# The saves (every caller of the slot saver 0x41F160): the autosave 0x41F1A0 (0x41F1C4, every 10 real-life
+# minutes) and the menus' and quitting's saves (0x4185A1, 0x418D83, 0x419055, 0x419481, 0x41F440).  Fix Vanilla
+# Bugs' companion keeps the effects through the first only.
 CANT_EAT_LINE = (
     "\"That villager can't eat more stew so soon.\" is the game's answer when that villager already has the same "
     "stew's effect, or already has 12 effects: it lasts until that effect ends (10 real-life minutes at every speed "
-    "for the healing and sick stews), for that villager and that stew only. Saving the game ends every villager's stew effects, so a save "
-    "holds none to count down.")
+    "for the healing and sick stews), for that villager and that stew only. The save does not keep a villager's "
+    "effects, so a loaded village starts with none; in the base game saving (the 10-minute autosave too) also ends "
+    "every villager's effects at once.")
+FIX_VANILLA = "vv4_fix_vanilla_bugs"
+EFFECTS_FIX_LINE = (
+    "the 10-minute autosave no longer ends a villager's effects (every other save still does: quitting, leaving "
+    "the village for the slot menu, a menu's save; effects are never saved), and every villager effect stops "
+    "while the game is paused and goes on when it runs again, so each lasts its full time of play: the clean body and the Purify Tree's glow their 4 real-life minutes, the sticky gunk its 3 and a "
+    "stew's wait its 10 (real time while the game runs, the same at every speed; the save is written exactly as "
+    "before); a bath in the rain makes a villager clean as it does in fine weather; and wiping sticky gunk off on "
+    "the tree takes off only the gunk, so the clean body, the glow and a stew's wait stay")
+STEW_WAIT_FIX_LINE = ("the autosave no longer ends a villager's stew effects and the wait stops while the game is "
+                      "paused, "
+                      "so the healing and sick stews' wait lasts its full 10 real-life minutes of play (real time "
+                      "while the game runs, the same at every speed)")
+# The soapy pond: "Adding soap to the pond" (action 0x96, 0x43A430) ends with step 0x2E (0x4698D0, 0x43A4CD) turning
+# world state 0x1A on through 0x46D530, whose table gives 0x1A 60 seconds of the game clock 0x4D6F18 (0x46D54E);
+# 0x46D7F0 turns it off when the game clock reaches that.  Nothing else sets or clears 0x1A.  A villager dropped on
+# the pond (0x438500, drop spot 0x38) gets "Getting clean in soapy pond" (action 0x97) only with The Stream solved,
+# the stream's flow level 2 (0x4396E0: debris 75 or less) and state 0x1A on.  Unchanged by the patcher (the owner,
+# 2026-11-16: the soap stays as it is).
+SOAPY_POND_LINE = (
+    "Adding soap to the pond makes it soapy for 1 minute of the game's clock: 1 real-life minute on Normal speed, "
+    "30 seconds on Fast and 1 minute 40 seconds on Slow; it does not run down while the game is paused. A villager "
+    "dropped in the pond goes \"Getting clean in soapy pond\" only while it is soapy, The Stream is solved and the "
+    "stream's debris is 75 or less (of 100).")
 # Conception, births, health, sickness and the skill check's odds are under Chances and Births and gender; these
 # are what those groups do not give.
 # The skill check 0x462A80, one case per skill (jump table 0x4634B8): a success raises the skill by (70 - skill)
@@ -148,6 +193,13 @@ LIFE_LINES = (
      "one of 51.05%, then a roll of 0 to 99 at or above the skill; otherwise nothing. The odds of the check itself "
      "are under Chances.",
      gm.RUNNING),
+    # A failure: 0x461930 (the skill is exactly 0.0) then +4.0 (0x4AA908) through the writer 0x46AD80 -- je past
+    # it in Farming (0x462B98), Healing (0x462FE0), Building (0x46316C) and Research (0x46335D), jne in Parenting
+    # (0x462E29), as in New Believers (0x46B517) and The Secret City (0x45A55C).
+    ("A failed check gives nothing, except 4 points to a villager whose Farming, Healing, Research or Building is "
+     "exactly 0; Parenting is the other way round: a failed check gives 4 at any Parenting except 0 (at "
+     "Parenting 10 and Learning level 1: 56% fail for +4, 44% succeed for +6). This is the normal game's "
+     "behaviour.", gm.RUNNING),
     ("Building: every building needs 2,000 build points; each build step adds 12 to Hut 1, 4 to Hut 2, 1 to Hut 3, "
      "12 to the Clothing Hut, 200 to the Love Shack and 50 to the Nursery School and the Hospital.", gm.RUNNING),
     ("The Fire Pit stays lit 10, 20 or 33 hours 20 minutes of real-life play on Fast, Normal or Slow speed; feeding "
@@ -211,17 +263,29 @@ CHANCE_V4 = (
      "(Refills, Villager timers), births (Births and gender), ghost visits and the hummingbird (Collectibles), how "
      "long an item lies (Mushrooms), the stews and the Fire Pit (Other), weather an event brings (Island "
      "events).", gm.RUNNING),
-    # Read from the coordinator's spec (mech_vv4\\spec.md), not traced in the game's code.
-    ("A new village: one of the first five villagers has a 30% chance of liking running (not traced in the game's "
-     "code).", False),
+    # Traced 2026-11-18: every villager made (0x45EF10, the new village's first ones through 0x466270 included) gets
+    # its likes from 0x45D840 -- two rand(100) < 25 rolls for how many (0 to 2), each a different one of the 81 likes
+    # (rand(81)) -- and its dislikes from 0x45D300 the same way, never one it likes.  Nothing in the new village
+    # (0x41FEF0) or in making a villager singles out running (id 38); the spec's "30%" is not in the code.
+    ("A new villager, the first five of a new village included, gets 0, 1 or 2 likes at random (none 56.25% of "
+     "the time, 1 37.5%, 2 6.25%), each one of the game's 81 likes, so 1 villager in 162 likes running; that one "
+     "of a new village's first five does is 3.05%. Dislikes come the same way, never one the villager likes.",
+     gm.CODE),
     # The refresh 0x466D20 runs at 0x43F801 when the game's clock reaches [game+0x171BC]; the 2-second step sets
     # that to the clock + 40 every time (0x43F962), as does the pause (0x43F7E3) and the refresh itself (0x43F814).
     ("Every villager's queue of actions is refreshed only when 40 seconds of the game's clock (whole real-life "
      "seconds) go by without the village's 2-second step, and each step pushes that moment 40 seconds ahead: so "
      "not every 40 seconds in normal play, only after the village has stopped updating for 40 real-life seconds "
      "or more.", gm.CODE),
-    ("Clear weather lasts 4 to 15, 8 to 30 or 13 to 50 real-life minutes on Fast, Normal or Slow speed (not traced "
-     "in the game's weather code).", False),     # read from the coordinator's spec (mech_vv4\\spec.md)
+    # Traced 2026-11-18: setting the weather 0x46BC30 gives it an end on the game's clock (0x41DB20): clear (0)
+    # 480 + rand(1320) seconds, any other 180 + rand(180) (0x46BD18..0x46BD55).  When it ends (0x46C08C) a weather an
+    # event queued comes next; else clear is followed by rand(5) redrawn until not 0 (one of the four others,
+    # equally likely) and any other by clear.  The game's clock runs 2, 1 and 0.6 times real time on Fast, Normal
+    # and Slow (the Fire Pit's 72,000 seconds above are 10, 20 and 33 h 20 min).
+    ("Clear weather lasts 4 to 15, 8 to 30 or 13 to 50 real-life minutes on Fast, Normal or Slow speed (480 to "
+     "1,799 seconds on the game's clock); then comes one of the four other kinds of weather, each equally likely, "
+     "for 1.5 to 3, 3 to 6 or 5 to 10 real-life minutes (180 to 359 seconds on the game's clock), and then clear "
+     "weather again, unless an island event brings a weather of its own. Paused, the weather waits.", gm.CODE),
     # Traced in the stock exe (the coordinator, 2026-11-10): setting the weather 0x46BC30 clears the flute timer
     # (weather object +0xC) for every kind but fog (state 4, 0x46BCA0), which sets it to the game's clock (0x41DB20)
     # + 60 + rand(30); the weather update 0x46BE10 re-arms it the same way when it passes and, with at least 1 Wind
@@ -243,8 +307,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     data = village.data
     found = vv_save_backup.save_speed(GAME, data)
     if found is not None and found[0] != SPEED:
+        # Kept, truly unknowable: the older layout has a 12-byte header (src/vv_save_backup.py _SAVE_LAYOUTS) without
+        # the newer header's 64-bit real-life clock base at 8, which every date on this page is counted from.  The
+        # stock game's own reader (0x403840..0x4038C4) reads 24 bytes and needs the buffer length at +0x10, so this
+        # version of the game refuses such a save too: nothing it does says where an older save's clock starts.
         return [gm.Fact("Other", f"{village.save.name} could not be read: it is in the older Tree of Life save "
-                                 "layout, which this page does not read.")]
+                                 "layout of an earlier version of the game, which this version of the game does not "
+                                 "load either (it reads only the newer layout), so its clocks cannot be read.",
+                        gm.CODE)]
     if found is None:
         return [gm.Fact("Other", f"{village.save.name} could not be read: it is not a Tree of Life save.")]
     base = struct.unpack_from("<q", data, 8)[0]
@@ -323,7 +393,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Food sources", "The fruit never runs out (nothing counts it). The 4 spots limit only the start of a trip, and "
                         "a spot frees itself 45 seconds on the game's clock after it is claimed (22.5, 45 or 75 real-life "
                         "seconds on Fast, Normal or Slow) even while its villager is still busy, so more than 4 can be "
-                        "on fruit trips at once: about 14, 7 or 5 (an estimate). A villager dropped on the tree does "
+                        "on fruit trips at once: about 14, 7 or 5 on average (4 spots x the 162-second trip, "
+                        "divided by how long a trip holds its places: 45 or 90 real-life seconds on Fast or Normal, "
+                        "about 130 on Slow, where a trip's own steps end some holds before the 75 seconds are up). "
+                        "A villager dropped on the tree does "
                         "one trip (no task is set); a farmer the game sends picks the bush, the fruit or the nets at "
                         "random among those open, and one who dislikes fruit runs away 60 times in 100.", gm.CODE)
     add("Food sources", "While catching up nobody is sent to the fruit and no fruit trip runs. Instead, once The "
@@ -355,7 +428,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         f"{levels(55)}; a brown mushroom {levels(6)}, a red one {levels(35)}."
                         + gm.flat_pick_mastery(village, FLAT, flat, levels), gm.RUNNING)
     if village.has(SCALES) is not False:
-        add("Food sources", gm.patch_words(village, SCALES, "a Golden Fish needs all 12 scales"))
+        add("Food sources", gm.patch_words(village, SCALES, "a Golden Fish shows in the nets and is caught only with all 12 scales"))
     # The fishing nets need the piers fixed (stage [0x4D86AC] >= 2, 0x4334CC) and the Clothing Hut built (0x4334FC).
     # Cloth Invented's drop 0x436D40: the Clothing Hut finished -> cutting the pulpy vines (action 0x7A, the only start
     # of the cloth chain); with the patch also Science 3.  Fixing the piers (action 0x80: the drop 0x4334D5, the
@@ -369,6 +442,28 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                            "necessary.\", and builders leave them alone), so the fishing nets, "
                                            "which need both, wait for them; piers already fixed and cloth the "
                                            "village already has still count"))
+    if village.has(CLOTH_SACKS) is not False:
+        add("Food sources", gm.patch_words(
+            village, CLOTH_SACKS, "an adult dropped under the Clothing Hut's awning (its left side) uses one cloth "
+                                  f"bolt to make a sack and brings {food(SACK_FRUIT)} food from the yellow fruit "
+                                  f"trees ({SACK_FRUIT} fruit before Food Mastery, as a blackberry harvest with a "
+                                  "cutting tool: with the limited trees, what is left when fewer, even none); with no "
+                                  "cloth the villager refuses; only villagers you drop make sacks, farmers never do on "
+                                  "their own" + mastery_words + "; while the stew pot makes The Grand Feast and still "
+                                  "needs its fruit, the sack goes into the stew instead and counts as its fruit (no "
+                                  "food from that sack)"), gm.CODE)
+    if village.has(SUPPLY_CAP) is not False:
+        add("Food sources", gm.patch_words(village, SUPPLY_CAP, "up to 99 cutting tools and 99 cloth bolts can be "
+                                           "stored instead of 6 (still made 3 at a time; soap was never "
+                                           "limited)"), gm.CODE)
+    if village.has(EMPTY_SOURCES) is not False:
+        add("Food sources", gm.patch_words(village, EMPTY_SOURCES, "a villager dropped to harvest the "
+                                           "blackberries with a cutting tool refuses when the bush is empty "
+                                           "and keeps the tool (with Cloth Sacks, the same for a sack and an "
+                                           "empty yellow fruit tree); while the stew pot makes The Grand Feast and "
+                                           "still needs its berries, a cutting-tool harvest takes them to the stew "
+                                           "as picked berries and they count as its berries (no food from that "
+                                           "harvest)"), gm.CODE)
     fruit_patch = village.has(YELLOW_FRUIT)
     supply = fruit_supply(village) if fruit_patch is not False else None
     fruit_at = fruit_next_at = None
@@ -444,14 +539,19 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # The appearance: 0x413EE0 (at most 2 at a time, 0x413EFA); a mushroom when rand(100) < 30, or always in rain
     # (weather 2 or 3) or with the weather level above 20 (0x413F33..0x413F5C); red (0x77) when rand(100) < 8, else
     # brown (0x76) (0x413F8F); the item lies 90 real-life seconds (0x4140EC, the wall clock 0x403750).  Picked: brown
-    # 6, red 35 (0x4145DE..0x414660), and Mushrooms Found +1 (0x414665).  How many updates the village gets each
-    # real-life second is the game loop's and is not read here, so "about every 45 seconds" stays an estimate.
+    # 6, red 35 (0x4145DE..0x414660), and Mushrooms Found +1 (0x414665).  The update rate (traced 2026-11-18): the
+    # roll 0x4142A0 is called once per scene update 0x43F750 (0x43FFE0, outside the 2-second step); the scene runner
+    # 0x401D40 calls the update (+0x10 -> 0x40C140 -> +0x20) and the draw once a loop, then the frame limiter
+    # 0x409370, which sleeps (SDL_Delay) to a frame of 1000 / 30 = 33 ms (0x408150, the 30 from 0x403020); so 24 in
+    # 32,768 a frame averages 1,365.3 frames, 45.06 real-life seconds.
     add("Mushrooms", "While playing (not paused) a mushroom or a collectible appears by the roll under Collectibles: "
-                     "about every 45 real-life seconds (an estimate: the roll is made once per update of the village, "
-                     "and how many updates come each real-life second is not read here); at most 2 lie at a time, "
-                     "each gone after 90 real-life seconds (real time, the same at every speed: it runs on the "
+                     "about every 45 real-life seconds on average. The roll is made once per update of the village, "
+                     "and the game updates the village once a frame, 30 frames a second (a frame every 33 "
+                     "thousandths of a second), so the roll's 24 in 32,768 comes up about once in 1,365 frames, 45 "
+                     "seconds; a computer too slow to keep 30 frames a second rolls less often. At most 2 lie at a "
+                     "time, each gone after 90 real-life seconds (real time, the same at every speed: it runs on the "
                      "computer's clock).",
-                     False)
+                     gm.CODE)
     # The roll 0x4143A8: rand(6000) < 4 (fog: (Wind Flute pieces / 2) x 4); above weather strength 50 a second < 4
     # (0x4143CF).  The Secret City's is < 3 and < 3 (0x42DD7A, 0x42DD95).
     add("Mushrooms", "The roll: 4 in 6,000 each update of the village (The Secret City: 3 in 6,000); in fog (Wind "
@@ -534,14 +634,38 @@ def facts(village: gm.Village) -> list[gm.Fact]:
               f"(Lab Equipment pieces found - 1) more, each equally likely; then 1 more 10.01% of the time while "
               f"the Fire Pit burns. While catching up the skill ÷ {5 if lvl >= 3 else 7}, at every speed."),
             gm.RUNNING)
-        # 0x45EB90 looks for the villager's effect kind 1 on 0x4CE1C0, which only the Purify Tree's result 0
+        # 0x45EB90 looks for the villager's effect kind 1 on 0x4CE1C0, which only the Purify Tree object's result 0
         # (CPurifyTree vtable 0x48E9F8 +0x30 = 0x437EC0 -> 0x438089) gives, for 240 real-life seconds (0x4380CF ->
         # 0x460A90); 0x464E4F triples the research.  The Lab Equipment bonus: rand(pieces) (0x464E5D..0x464E82).
-        # Its end is set on the computer's clock: 0x460A90 -> 0x403750.
-        add("Tech points and effects", "The Purify Tree's glow: one of the Purify Tree's two results gives the "
-                                       "villager a glow for 4 real-life minutes (240 seconds; real time, the same "
-                                       "at every speed, and paused time counts too), and while it lasts their "
+        # Its end is set on the computer's clock: 0x460A90 -> 0x403750.  Result 0 is the last step (0x469B90(0xE, 0),
+        # 0x43834E) of "Meditating to purify the mind" (action 0x99, 0x438320); result 1, the clean body (kind 2), the
+        # last step (0x438221) of "Getting clean in soapy pond" (action 0x97, 0x438180).  A villager dropped on the
+        # tree starts purifying it (action 0x98) only when clean (0x45EBE0, 0x43848A; else message 0x4A), and the
+        # purifying works only with the glow (0x45EB90, 0x438278; else message 0x4B).  Saving ends both
+        # (0x4660C4 -> 0x45EAA0) unless Fix Vanilla Bugs is in.
+        add("Tech points and effects", "The Purify Tree's glow: a villager who finishes \"Meditating to purify the "
+                                       "mind\" glows for 4 real-life minutes (240 seconds; real time, the same at "
+                                       "every speed, and paused time counts too), and while it lasts their "
                                        "research brings 3 times the tech points.", gm.RUNNING)
+    # The rain: the sparkle maker 0x41CEC0 lets kinds 0x13, 0x14 and 2 use only slots 0..100 (0x41CEDB..0x41CEE3);
+    # the rain's splashes (kind 0x14, 0x13 on water; 0x46B69E) are made while fewer than 128 x the rain's strength
+    # exist (0x46B5C8..0x46B600), so in heavy rain they hold all 101 and the bath's 6 kind-2 sparkles fail; the
+    # entry then records kind -1 and 0x45EBE0 finds no clean body (tests/test_vv4_effects_survive_save.py RainTests).
+    # Fix Vanilla Bugs lets kind 2 use every slot (0x41CEDB cmp ecx,2 -> cmp ecx,0x13).
+    add("Tech points and effects", "Clean body: a villager who finishes \"Getting clean in soapy pond\" is clean for 4 "
+                                   "real-life minutes (240 seconds; real time, the same at every speed, and paused "
+                                   "time counts too). Only a clean villager dropped on the tree starts purifying it "
+                                   "(any other: \"Only those pure of body can purify the tree.\"), and only one who "
+                                   "also has the Purify Tree's glow can finish (\"Only those pure of mind can see the "
+                                   "corruption.\"). In the base game every save, the 10-minute autosave included, "
+                                   "ends the glow and the clean body at once, and while it rains hard a bath often "
+                                   "leaves the villager not clean at all: the rain's splashes take all the room the "
+                                   "clean body's sparkles may use, and with no sparkle the game does not count the "
+                                   "villager clean (the same when the village view is opened again in the rain). "
+                                   "The glow is not affected by the rain. Wiping sticky gunk off on the tree ends every "
+                                   "effect the villager has, the glow and the clean body too, not only the gunk.", gm.CODE)
+    out.append(gm.Fact("Tech points and effects", gm.patch_words(village, FIX_VANILLA, EFFECTS_FIX_LINE),
+                       gm.RUNNING, True))
     # The bonus 0x464E6F: cmp al,12 / jne instead of test / jle (scripts/build_science_collectibles_complete_features.py).
     if divisor and village.has(SCIENCE_SET) is not False:
         add("Tech points and effects", gm.patch_words(village, SCIENCE_SET, "the Lab Equipment pieces add nothing to "
@@ -560,9 +684,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # Hungrier Villagers: both meal immediates x N (scripts/build_hungrier_villagers_features.py).
     if village.has(HUNGRIER) is not False:
         add("Food earned", gm.patch_words(village, HUNGRIER, "each villager's meal, and the difficulty's extra, "
-                                        "take 2 to 10 times the food (the slider); food never goes below 0"))
+                                        "take 0.1 to 10 times the food (the slider, 1 the normal game; at most 64 "
+                                        "times; a number like 0.3 on "
+                                        "average); food never goes below 0"))
     if village.has(CLASSIC) is not False:
-        add("Food earned", gm.patch_words(village, CLASSIC, "it ticks Food Gains are Flat, Hungrier Villagers, 2-10x "
+        add("Food earned", gm.patch_words(village, CLASSIC, "it ticks Food Gains are Flat, Hungrier Villagers, 0.1-10x "
                                          "Tech Cost, Science Collectibles Only Count When Complete, Harder Fishing Unlock in "
                                          "VV4 and Collectible Spawn Timing works like VV1-3 together; each one's own line on this page says what it changes"))
 
@@ -583,11 +709,15 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Other", line, ok)
     for line, ok in children_play.lines(village):   # tag and sandcastles (vv_game_mechanics_children_play)
         add("Other", line, ok)
+    for line, ok in solidarity.lines(village):      # Village Solidarity (vv_game_mechanics_solidarity)
+        add("Other", line, ok)
     add("Other", stew_pot_line(speed), gm.RUNNING)
     add("Other", GRATE_LINE, gm.OWNER)
     add("Other", REHEAT_LINE, gm.OWNER)
     add("Other", REHEAT_CODE_LINE, gm.RUNNING)
     add("Other", CANT_EAT_LINE, gm.RUNNING)
+    out.append(gm.Fact("Other", gm.patch_words(village, FIX_VANILLA, STEW_WAIT_FIX_LINE), gm.RUNNING, True))
+    add("Other", SOAPY_POND_LINE, gm.CODE)
     for line, ok in LIFE_LINES:
         add("Other", line, ok)
     # The owner (2026-10-24); the Cold Snap's apply 0x414BD0 ends the fire (tail jmp 0x432620 on 0x4D867C).
@@ -710,7 +840,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
 
     ctx_ref = []
     ctx = life.Context(
-        village, speed_value, real(LAST_TICK), _i32(data, FOOD), low_food=500, extra_from=8000,
+        village, speed_value, real(LAST_TICK), _i32(data, FOOD), low_food=500, extra_from=8000, created=clock.created,
         sources=[life.Source("Blackberries", berries, BERRY_CAP, 2.0, growth_at, f"+2 {life.every_real(360, speed_value)}",
                              verified=gm.SAVE, step=2, interval=gm.real_seconds(360, speed_value),
                              next_at=real(NEXT_TICK), first_in=max(0, _i32(data, NEXT_TICK) - _i32(data, LAST_TICK)), rule=gm.RUNNING),
@@ -741,7 +871,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                              "shaking, stomping, cooking and walking to the food bin for 3 food, and a "
                                              "trip can start only while one of its 4 fruit spots is free (each frees "
                                              "itself after 45 seconds on the game's clock, so about 14, 7 or 5 "
-                                             "villagers work it at once on Fast, Normal or Slow, an estimate)",
+                                             "villagers work it at once on Fast, Normal or Slow, on average)",
                                 verified=gm.CODE,
                                 capped_words="the Cooking Pit fruit never runs out, but live only about 14, 7 or 5 "
                                              "villagers work it at once on Fast, Normal or Slow, and while catching up only the Cooking Pit's own food comes "
@@ -776,10 +906,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                ("fish in the net", net_food if _i32(data, PUZZLE_ENTRIES + 8 * 11) >= PUZZLE_THRESHOLDS[11] else 0,
                 "The fishing net"),
                ("fruit stomps", 3 if pit else 0, "The Cooking Pit fruit")],
-        catch_up_bonus=pit_bonus, closed_budget=fruit_budget)
+        catch_up_bonus=pit_bonus, closed_budget=fruit_budget,
+        fishing_trip="fish in the net",
+        fishing_unlock="fishing opens once Fishing Nets is solved (the piers fixed and the nets mended); it is not "
+                       "solved in this village yet.")
     ctx_ref.append(ctx)
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=base))
+    out.extend(gm.slider_facts(village))   # the 0.1x-10x sliders in the game
     return out
 
 

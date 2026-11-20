@@ -1,0 +1,251 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lost Shell Collection",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new128_lost_shell",
+  "source": "rewrites",
+  "lines": [
+   6002,
+   6047
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6002",
+  "ledger": [
+   {
+    "src": "L6003",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6004",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6012",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6019",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6026",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6008",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6009",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6010",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6013",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6020",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6027",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6014",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6016",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6021",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6023",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6028",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6030",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6033-6047",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "There are tiny, sandy tracks running across the floor, up the wall, along the ledge and out the door.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For weeks, little (subject) has been sorting (subject.his/her) shell collection along the ledge of the family hut: biggest to smallest, pink to white, spiky to smooth, with a special space at the end for the \"best ones.\"\nThis morning, they are gone. Nearly all of them.\nThere are tiny, sandy tracks running across the floor, up the wall, along the ledge and out the door. (subject) is standing in the doorway looking at them with an expression of deep betrayal. \"Somebody,\" (subject.he/she) says darkly, \"is a THIEF.\" How should (adult) help?",
+   "choices": [
+    {
+     "label": "Ask About the Special Shells",
+     "next": "c1",
+     "src": "L6008"
+    },
+    {
+     "label": "Help Follow the Tracks",
+     "next": "c2",
+     "src": "L6009"
+    },
+    {
+     "label": "Let the Child Watch the Crabs",
+     "next": "c3",
+     "src": "L6010"
+    }
+   ],
+   "src": "L6005-6007"
+  },
+  "c1o1": {
+   "text": "There was the pink one shaped like an ear, the one with a hole that whistles, the stripy one from the day (subject.his/her) grandparent took (subject.him/her) to the far beach... (subject) explains which shells were special and why, and feels taken seriously, and somehow that helps. That afternoon, (adult) quietly leaves a new pink shell on the ledge.",
+   "src": "L6015"
+  },
+  "c1o2": {
+   "text": "Halfway through the list, (subject) stops and thinks. \"Actually,\" (subject.he/she) says, \"I was getting bored of those. I want to start a NEW collection. Of rocks.\" The adults happily go along with it. By evening, the ledge is covered in rocks, and it is somehow much heavier.",
+   "src": "L6017"
+  },
+  "c1": {
+   "text": "(adult) asks which shells were the most special. (subject) sniffs and starts counting them off on (subject.his/her) fingers...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6013"
+  },
+  "c2o1": {
+   "text": "The tracks lead to a burrow in the sand, where a hermit crab is sitting proudly in (subject)'s whistling shell, and several of the others are scattered nearby. (adult) explains that hermit crabs need to move into bigger shells as they grow, and go looking for the perfect fit. (subject) learns a little about how crabs move house, and decides the crab can keep the whistling shell, \"because it looks happy.\"",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Research"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L6022",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "At the edge of the path, (subject) asks if (subject.he/she) can follow the tracks alone now, like a real tracker. (adult) agrees, and waits by the path. Some time later, (subject) returns triumphantly with an armful of shells and a very indignant crab, which (subject.he/she) is persuaded to put back.",
+   "src": "L6024"
+  },
+  "c2": {
+   "text": "(adult) crouches to look at the little tracks. \"Shall we find your thief?\" (subject) nods fiercely. They follow the trail out the door, across the path and down toward the beach...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6020"
+  },
+  "c3o1": {
+   "text": "That night (subject) watches by moonlight as two hermit crabs climb the wall and pick over the shells. They only take the ones of one particular size, and leave the rest. (subject) proudly explains to the adults which shells are safe on the ledge and which ones the crabs want. The adults, who have been losing small shell tools and beads for years, finally know why, and start storing them high up.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6029",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "(subject) waits up half the night, but the crabs refuse to show themselves. Eventually (subject.he/she) falls asleep watching, and in the morning the shells are still there. \"They KNEW I was watching,\" (subject.he/she) says. \"I'll catch them tomorrow.\"",
+   "src": "L6031"
+  },
+  "c3": {
+   "text": "(adult) suggests (subject) puts a few spare shells back on the ledge tonight, hides, and watches to see who comes...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6027"
+  }
+ }
+}

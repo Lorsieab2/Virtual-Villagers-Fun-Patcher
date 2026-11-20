@@ -107,6 +107,52 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "The demonstration stains everyone's clothing.",
+   "src": "L190"
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "A scholar realizes the color depends on the vessel rather than the potion.",
+   "src": "L192"
+  },
+  "o1__fx": {
+   "name": "Outcome 1",
+   "text": "The color change becomes a useful experimental indicator.",
+   "src": "L188",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "potionmaker",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L188"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L188"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome 1",
    "text": "The color change becomes a useful experimental indicator.",
    "src": "L188",
@@ -121,17 +167,8 @@
      "max": 10,
      "src": "L188"
     }
-   ]
-  },
-  "o2": {
-   "name": "Outcome 2",
-   "text": "The demonstration stains everyone's clothing.",
-   "src": "L190"
-  },
-  "o3": {
-   "name": "Outcome 3",
-   "text": "A scholar realizes the color depends on the vessel rather than the potion.",
-   "src": "L192"
+   ],
+   "auto_text": true
   }
  }
 }

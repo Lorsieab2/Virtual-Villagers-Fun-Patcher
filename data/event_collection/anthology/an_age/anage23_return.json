@@ -69,7 +69,6 @@
   "mother": {
    "kind": "villager",
    "min_age": 18,
-   "sex": "female",
    "special": "nursing_parent"
   },
   "relative": {
@@ -86,11 +85,11 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "(mother), a skilled nursing mother, wants to resume her workshop duties, but others assume she should remain home.",
+   "text": "(mother), a skilled nursing (mother.mother/father), wants to resume (mother.his/her) workshop duties, but others assume (mother.he/she) should remain home.",
    "src": "L30479",
    "choices": [
     {
-     "label": "Ask Her to Define Her Own Schedule",
+     "label": "Ask (mother.Him/Her) to Define (mother.His/Her) Own Schedule",
      "next": "a",
      "src": "L30480"
     },
@@ -125,12 +124,12 @@
   },
   "a1": {
    "name": "Outcome A1",
-   "text": "She chooses shorter shifts that suit her family.",
+   "text": "(mother.He/She) chooses shorter shifts that suit (mother.his/her) family.",
    "src": "L30481"
   },
   "a2": {
    "name": "Outcome A2",
-   "text": "She returns to full duties with breaks she has arranged herself.",
+   "text": "(mother.He/She) returns to full duties with breaks (mother.he/she) has arranged (mother.himself/herself).",
    "src": "L30482"
   },
   "b": {
@@ -152,7 +151,7 @@
   },
   "b2": {
    "name": "Outcome B2",
-   "text": "A hazardous task is reassigned temporarily while she chooses other meaningful work.",
+   "text": "A hazardous task is reassigned temporarily while (mother.he/she) chooses other meaningful work.",
    "src": "L30485"
   },
   "c": {
@@ -169,7 +168,7 @@
   },
   "c1": {
    "name": "Outcome C1",
-   "text": "Coworkers realize they were making decisions for her.",
+   "text": "Coworkers realize they were making decisions for (mother.him/her).",
    "src": "L30487"
   },
   "c2": {
@@ -191,12 +190,12 @@
   },
   "d1": {
    "name": "Outcome D1",
-   "text": "(apprentice), an apprentice, handles lifting while she directs delicate work.",
+   "text": "(apprentice), an apprentice, handles lifting while (mother.he/she) directs delicate work.",
    "src": "L30490"
   },
   "d2": {
    "name": "Outcome D2",
-   "text": "She prefers independent work, and the group supports her choice.",
+   "text": "(mother.He/She) prefers independent work, and the group supports (mother.his/her) choice.",
    "src": "L30491"
   }
  }

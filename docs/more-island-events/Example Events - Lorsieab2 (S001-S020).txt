@@ -1,0 +1,952 @@
+====================
+S001. The Spring That Talks Back   [VV1, VV2, VV3, VV4, VV5]
+WHO: one villager aged 14 or older (not protected)
+EVENT TEXT
+(Name) has been walking in the hills all morning and is thirsty enough to drink a river. At last (he/she) finds a little spring tucked under a rock, where ferns lean over the water and a single blue dragonfly keeps guard on a reed. (Name) kneels and cups (his/her) hands. Before (he/she) can drink, the water clears its throat.
+"Ask me anything," it says, in a voice like a very old aunt who has been interrupted in the middle of something. "But only one thing. I'm busy."
+(Name) looks around for whoever is playing the joke. There is nobody, only the dragonfly, which looks as if it has heard all this before.
+
+Choice A: Ask What to Be Good At
+Choice B: Ask Nothing and Just Drink
+
+CHOICE A: ASK WHAT TO BE GOOD AT
+First popup: (Name) clears (his/her) own throat, feeling very silly. "What am I meant to be good at?" (he/she) asks. The spring bubbles thoughtfully for a long moment, the way a person drums their fingers on a table...
+
+Ending A1 -- THE GREEN THUMB. Chance 50%. EFFECT: gains 20 to 30 Farming; now likes farming
+"Plants," says the spring. "You've always liked plants. You just never noticed. Who do you think kept that bean vine alive by your door all last summer?" (Name) opens (his/her) mouth to argue, and finds (he/she) can't. On the walk home (he/she) stops to look at every leaf, every seedling, every weed pushing through a crack in the path. By the end of the week (he/she) has dirt under every fingernail and can't stop talking about soil. The farmers, who have been asking for help for years, are delighted. Everyone else is a little tired of hearing about soil.
+
+Ending A2 -- THE RUDE SPRING. Chance 50%. EFFECT: now dislikes swimming
+"Not swimming, that's for sure," says the spring, and gurgles with laughter. "I've seen you paddle. You swim like a coconut with ambitions." It goes on for some time about (name)'s kicking, (his/her) splashing, and one particular afternoon at the lagoon that (name) had hoped nobody remembered. (Name) gets up, red to the ears, and stomps off down the hill without drinking a drop. From that day on, (he/she) can't stand the sound of running water, and nobody can talk (him/her) into so much as wading.
+
+CHOICE B: ASK NOTHING AND JUST DRINK
+First popup: (Name) decides that talking water is none of (his/her) business. (He/She) says "No thank you," politely, and drinks. The spring goes very quiet, as if it is deciding whether to be offended...
+
+Ending B1 -- JUST WATER. Chance 50%. EFFECT: none
+The spring seems almost insulted to be treated like a spring, and says nothing more. The water is cold, sweet and perfectly ordinary. (Name) drinks until (his/her) belly sloshes, fills (his/her) gourd, thanks the spring anyway, and walks home very refreshed. When (he/she) tells the story at supper, half the village laughs and the other half goes quiet and asks exactly which rock it was.
+
+Ending B2 -- A TASTE OF HONEY. Chance 50%. EFFECT: loses one dislike (at random)
+The water tastes faintly of honey, and something else, something like the first warm day after the rains. (Name) drinks, sits back on (his/her) heels, and feels a knot (he/she) didn't know (he/she) had come undone somewhere in (his/her) chest. (He/She) comes home humming. The next morning (he/she) picks up the one job (he/she) has always grumbled about, and does it, and doesn't grumble once. The others keep glancing at (him/her) as if (he/she) might be ill. "The spring," is all (name) will say.
+^ i feel like this should give a random skill increase that's not farming instead of removing a dislike. or 50:50 remove dislike or add skill, same for mixer version
+
+MIXER SEED S001
+Premise: Thirsty after a long walk, (name) kneels at a fern-hung spring in the hills, and the water clears its throat and offers to answer one question.
+Roles:
+  seeker: one villager aged 14 or older (not protected)
+Approaches: Ask What to Be Good At | Just Drink | Argue with the Spring | Run Back Down the Hill
+Outcome pool:
+  - "Plants," says the spring. "You just never noticed." (Name) comes home talking about soil and doesn't stop for a week. [answers: Ask What to Be Good At] [mood: warm] [EFFECT: gains 20 to 30 Farming; now likes farming]
+  - The spring makes fun of (name)'s swimming at great length. (Name) storms off and never wades again. [answers: Ask What to Be Good At, Argue with the Spring] [mood: funny] [EFFECT: now dislikes swimming]
+  - The water is cold, sweet and completely ordinary. The spring sulks in silence. [answers: Just Drink, Run Back Down the Hill] [mood: funny] [EFFECT: none]
+  - The water tastes of honey, and a job (name) always hated stops feeling like a weight. [answers: Just Drink] [mood: warm] [EFFECT: loses one dislike (at random)]
+  - (Name) tells the spring it's only an echo. The spring answers by telling (him/her) exactly what (he/she) had for breakfast. (Name) leaves at a run. [answers: Argue with the Spring, Run Back Down the Hill] [mood: eerie] [EFFECT: none]
+  - "Patience," says the spring, "you're good at waiting for people." (Name) goes home and is suddenly wonderful with the little ones. [answers: Ask What to Be Good At, Argue with the Spring] [mood: warm] [EFFECT: gains 10 to 20 Parenting]
+  - (Name) bolts, trips on a root and skins both knees. Behind (him/her) the spring laughs like a gurgling drain. [answers: Run Back Down the Hill] [mood: funny] [EFFECT: none]
+Flavour lines:
+  - A single blue dragonfly keeps guard on a reed, as if it has heard all this before.
+  - The spring's voice sounds like a very old aunt who has been interrupted.
+  - Ferns lean over the water as if they are listening too.
+  - Somewhere below, the village's cooking smoke rises straight up into the still air.
+
+
+==============================================================================
+S002. A Face in the Tide Pool   [VV1, VV2, VV3, VV4, VV5]
+WHO: one villager aged 14 or older (not protected)
+EVENT TEXT
+At low tide the rocks are a maze of warm, still pools, and (name) has come down to look for crabs. The air smells of salt and sun-dried weed, and a single hermit crab is the only one watching. (Name) leans over a perfectly round pool to see what's in it. (His/her) reflection leans over too.
+Then the reflection smiles, a moment too late. Then it waves.
+(Name) did not wave. (Name) is not smiling. The reflection keeps waving, friendly and patient, as if it has been waiting a long time for (him/her) to come by.
+^ahem. sundried SEAWEED. NOT WEED.
+
+Choice A: Wave Back
+Choice B: Throw a Pebble In
+
+CHOICE A: WAVE BACK
+First popup: Slowly, feeling very foolish, (name) lifts a hand and waves. The reflection's smile grows wider. The water in the pool begins to tremble, though there is no wind at all...
+
+Ending A1 -- THE ONE WHO CLIMBED OUT. Chance 50%. EFFECT: DUPLICATE of (name), named (new name); joins the village
+The reflection reaches up, takes hold of the rock, and climbs out of the pool, dripping, to shake (name)'s hand. It has (name)'s face, (name)'s hair and (name)'s knobbly knees. It does not have (name)'s opinions. "Is that how you wear your hair?" it says. "On purpose?" It follows (name) home, criticising the path, the weather and (name)'s walk the whole way. The village takes a week to tell them apart, and then decides it doesn't matter. The newcomer chooses the name (new name), takes up all the jobs (name) never liked, and has never once been seen near a tide pool again.
+
+Ending A2 -- POLITELY TURNED DOWN. Chance 50%. EFFECT: none
+The reflection waves again, a slow, kind little wave, the way you'd wave to a child on a passing canoe. Then it sinks back into the dark of the pool and is gone, and the water shows only (name), looking very confused. (He/She) sits on the rocks until the tide comes back in, waiting for it to return. It never does. (Name) walks home with the strange feeling of having been politely turned down by (himself/herself).
+
+CHOICE B: THROW A PEBBLE IN
+First popup: (Name) picks up a pebble and, before (he/she) can think better of it, tosses it straight at the smiling face. Plop...
+
+Ending B1 -- JUST A POOL. Chance 50%. EFFECT: none
+The ripples spread out and break the face into a hundred wobbling pieces. When the water settles, the pool is just a pool, with (name)'s ordinary, worried face in it. A small striped fish swims out from under a rock, looks at the pebble, then looks at (name) with deep reproach, and swims back under again. (Name) apologises to the fish. It does not accept.
+
+Ending B2 -- THE POOL GOES DARK. Chance 50%. EFFECT: now dislikes swimming or crabs or similar if available
+The pebble hits the reflection right on the nose. The face flinches, really flinches, and the pool goes dark and cold, as if a cloud has passed over just that one small circle of water. The hermit crab drops off its rock and hurries away. (Name) is very cross with (himself/herself) for the rest of the day, and can't shake the feeling that (he/she) hurt someone. (He/She) never swims near the tide pools again, and if anyone asks why, (he/she) changes the subject.
+^what hermit crab?
+
+MIXER SEED S002
+Premise: Leaning over a round tide pool at low tide, (name) sees (his/her) reflection smile a moment too late, and then wave.
+Roles:
+  looker: one villager aged 14 or older (not protected)
+Approaches: Wave Back | Throw a Pebble In | Call Someone Over | Walk Away Without Looking Back
+Outcome pool:
+  - The reflection climbs out, dripping, with (name)'s face and none of (name)'s habits, and moves into the village as (new name). [answers: Wave Back, Call Someone Over] [mood: funny] [EFFECT: DUPLICATE of (name), named (new name); joins the village]
+  - The reflection gives a kind little wave and sinks away for good. [answers: Wave Back, Walk Away Without Looking Back] [mood: eerie] [EFFECT: none]
+  - The ripples break the face apart and a reproachful fish swims out. Just a pool after all. [answers: Throw a Pebble In] [mood: funny] [EFFECT: none]
+  - The pebble hits the face, the pool goes dark and cold, and (name) never swims near the rocks again. [answers: Throw a Pebble In] [mood: eerie] [EFFECT: now dislikes swimming]
+  - By the time a friend comes running, only one face looks up from the pool. The friend thinks (name) has had too much sun. [answers: Call Someone Over] [mood: funny] [EFFECT: none]
+  - (Name) walks away fast, and that night finds wet footprints on the floor of (his/her) hut, leading in and back out. [answers: Walk Away Without Looking Back] [mood: eerie] [EFFECT: none]
+Flavour lines:
+  - A hermit crab is the only one watching.
+  - The tide pool is perfectly round, as if someone measured it.
+  - The air smells of salt and warm, drying weed.
+  - Far out, the waves are only a murmur.
+
+
+==============================================================================
+S003. The Very Long Nap   [VV1, VV2, VV3, VV4, VV5]
+WHO: one villager aged 18 to 40 (not protected)
+EVENT TEXT
+It is the hottest afternoon of the year. The cicadas are whirring like a hundred tiny saws and even the chickens have given up and lain down in the dust. (Name) has been working since dawn and spots a strange tree at the edge of the clearing, with leaves the soft blue of a morning sky and a patch of shade beneath it that looks cool as a river.
+"Five minutes," (he/she) tells nobody, and lies down.
+When (name) wakes, (his/her) back aches. (His/her) knees creak like an old door. And there are little white flowers growing in (his/her) hair, rooted in it, as though (he/she) were part of the ground.
+
+Choice A: Hurry Home
+Choice B: Lie Back Down
+
+CHOICE A: HURRY HOME
+First popup: (Name) scrambles up, groaning, brushing at the flowers, and hobbles towards the village as fast as (his/her) complaining knees will go. Behind (him/her), the blue leaves rustle, though there is no wind...
+
+Ending A1 -- TWENTY YEARS IN ONE NIGHT. Chance 50%. EFFECT: changes age (20 years older; never past elder)
+Nobody recognises (him/her) at first. A child points and asks if a visitor has come. Only one night has passed in the village, but while (name) slept, the tree's roots drank years from (him/her) and pushed them out again as those little white flowers. The elders look at the flowers for a long time and say nothing helpful. (Name) sits down heavily on (his/her) own doorstep, looks at (his/her) wrinkled hands, and takes it surprisingly well. "At least I'm well rested," (he/she) says. "Somebody else can do the afternoon work."
+
+Ending A2 -- A LITTLE DISTINGUISHED. Chance 50%. EFFECT: changes age (5 years older); new look (the "old" head look)
+(Name) gets away before the roots can drink more than a few years. One by one the little white flowers drop out of (his/her) hair on the path home, and wither the moment they touch the ground. By the time (he/she) reaches the village, all that's left is a streak of grey at (his/her) temples and a few new lines around (his/her) eyes. "You look distinguished," everyone says, very kindly, which is what people say when they mean older. (Name) avoids the blue tree from then on, and spends the next hot afternoon resting in the most ordinary shade (he/she) can find.
+
+CHOICE B: LIE BACK DOWN
+First popup: (Name) is very comfortable, and very tired, and the shade is very cool. (He/She) remembers something the elders once said about blue trees, though not quite what. (He/She) closes (his/her) eyes to think about it...
+
+Ending B1 -- EAT THE FLOWERS. Chance 50%. EFFECT: none
+Then (he/she) remembers. Whoever eats the blue tree's flowers gets back what the tree drank. (Name) sits up and picks every single white flower out of (his/her) hair, wincing, and eats them one by one. They are horribly bitter, like chewing a sandal. Then (he/she) lies down and naps again, just to be sure. (He/She) wakes up with (his/her) own knees, (his/her) own back, and (his/her) own dark hair, and runs home, and is late for supper. Nobody believes a word of it, which (name) feels is very unfair.
+
+Ending B2 -- THE LONGEST NAP. Chance 50%. EFFECT: changes age (to elder)
+The second nap is even longer. The roots go deeper, and drink more, and the flowers grow thicker until (name)'s hair is a white crown of them. When (he/she) finally wakes, the sun is setting and (name) is an elder, with soft grey skin and slow, careful hands. (He/She) lies there for a while looking up through the blue leaves. "Well," (he/she) says at last. "That's that, then." (He/She) is so comfortable under the tree that (he/she) doesn't mind one bit, and the village has to send two strong young people to carry (him/her) home for dinner.
+
+^ dark -> luscious (because not all villagers have dark hair)
+
+MIXER SEED S003
+Premise: On a blazing afternoon, (name) naps "for five minutes" under a strange blue-leaved tree and wakes with aching knees and white flowers rooted in (his/her) hair.
+Roles:
+  sleeper: one villager aged 18 to 40 (not protected)
+Approaches: Hurry Home | Lie Back Down | Pull the Flowers Out | Ask the Tree to Give Them Back
+Outcome pool:
+  - Only a night has passed, but the roots drank twenty years. "At least I'm well rested," says (name). [answers: Hurry Home, Ask the Tree to Give Them Back] [mood: funny] [EFFECT: changes age (20 years older; never past elder)]
+  - The flowers fall out on the way home, leaving only a little grey. Everyone says (he/she) looks distinguished. [answers: Hurry Home, Pull the Flowers Out] [mood: warm] [EFFECT: changes age (5 years older); new look (the "old" head look)]
+  - (Name) eats the bitter flowers, as the elders' old saying goes, and wakes up exactly as before. [answers: Lie Back Down, Pull the Flowers Out] [mood: funny] [EFFECT: none]
+  - The second nap is longer still. (Name) wakes an elder and is too comfortable to mind. [answers: Lie Back Down] [mood: warm] [EFFECT: changes age (to elder)]
+  - (Name) pleads with the tree. A single blue leaf drops onto (his/her) chest, and the years seep back in with the evening dew. [answers: Ask the Tree to Give Them Back] [mood: eerie] [EFFECT: none]
+  - Each flower comes out with a sting like a plucked hair, and a year comes back with each one, all but a handful. [answers: Pull the Flowers Out] [mood: tense] [EFFECT: changes age (3 years older)]
+Flavour lines:
+  - The cicadas whir like a hundred tiny saws.
+  - The blue leaves rustle, though there is no wind.
+  - The shade under the tree is cool as a river.
+  - A child points and asks if a visitor has come.
+
+
+==============================================================================
+S004. Two Hammocks, One Storm   [VV1, VV2, VV3, VV4, VV5]
+WHO: two villagers aged 14 or older (not protected)
+EVENT TEXT
+A summer storm rolls in after dark, smelling of hot stone and green rain. The palms bend and whip like dancers who have had too much to drink, and the whole village is shut up tight. Except (name1) and (name2), who both decided it was too hot to sleep inside and strung their hammocks between the same two palms on the beach. Both of them sleep through everything.
+At midnight a bolt of lightning strikes the sand between the hammocks with a crack that shakes every hut on the island.
+In the morning, (name1) wakes up, yawns, and finds (himself/herself) looking at (name1)'s own face, snoring in the other hammock. (Name2) wakes up a moment later and screams in (name1)'s voice.
+
+Choice A: Try to Switch Back
+Choice B: Make the Best of It
+
+CHOICE A: TRY TO SWITCH BACK
+First popup: The healers have never heard of anything like it. The elders say lightning took them, so lightning must give them back. That evening (name1) and (name2) sit back to back on the sand between the two palms, under a sky that is, very annoyingly, clear...
+
+Ending A1 -- THE SECOND STORM. Chance 50%. EFFECT: body swap, then swapped back (no lasting change)
+They sit there for three nights. On the third, the clouds come boiling back over the hills and the thunder rolls in like a wave. Both of them squeeze their eyes shut. CRACK! The lightning strikes the sand between them again, almost exactly where it struck before, and in the morning they're back in their own bodies, ears ringing and very glad of it. "Your knees are terrible," says (name1), rubbing (his/her) own. "Your stomach is worse," says (name2). "What do you even eat?" They don't speak for a day, and then they laugh about it for the rest of their lives.
+
+Ending A2 -- THE STORM THAT NEVER CAME. Chance 50%. EFFECT: BODY SWAP between (name1) and (name2) (permanent)
+They wait all through the stormy season. The rain comes, the wind comes, but the lightning never strikes the beach again. In the end (name1) and (name2) give up, and learn to live each other's lives. It is harder than either of them expected. (Name1) finds out why (name2) always walks so slowly in the mornings. (Name2) finds out why (name1) never sits on the left side of the fire. By the end of the season they know more about each other than anyone else in the village, and they argue less than they used to, which their families find very strange.
+
+CHOICE B: MAKE THE BEST OF IT
+First popup: "Well," says (name2), in (name1)'s voice. "We can't go anywhere like this. Could be worse. I've always wondered what you actually do all day." (Name1) looks down at (name2)'s hands, and has to admit (he/she) has wondered the same...
+
+Ending B1 -- THE NEW JOBS. Chance 50%. EFFECT: BODY SWAP between (name1) and (name2) (permanent); each gains 10 to 20 in the other's best skill
+They each try the other's job for a day, with a great deal of shouting across the village for advice. "Which end of this do I hold?" "The END THAT ISN'T SHARP!" By evening they're both exhausted and oddly proud of themselves. It goes so well that they do it again the next day, and the next. They never do swap back, and after a while they stop trying. Both of them end up better at the other one's work than they ever were at their own.
+
+Ending B2 -- THE HEALERS' TEA. Chance 50%. EFFECT: body swap reversed; both now dislike healing or similar if available
+By midday they can't stand it. (Name1) keeps tripping over (name2)'s feet and (name2) keeps eating (name1)'s lunch "because this stomach is always hungry." They march to the healers together and demand that something be done. The healers mix up something thick, grey and bubbling and make them drink every drop. It tastes like a swamp. It smells worse. But in the time it takes to stop gagging, each of them is back behind their own eyes. Neither of them can taste anything for a week, and from then on neither of them will go near the healers' hut unless they're carried.
+
+MIXER SEED S004
+Premise: Lightning strikes the sand between (name1) and (name2)'s hammocks during a summer storm, and in the morning each wakes up in the other's body.
+Roles:
+  sleeper1: one villager aged 14 or older (not protected)
+  sleeper2: another villager aged 14 or older (not protected)
+Approaches: Try to Switch Back | Make the Best of It | Go to the Healers | Wait for the Next Storm
+Outcome pool:
+  - The next storm's lightning strikes the same spot and swaps them back. "Your knees are terrible." "Your stomach is worse." [answers: Try to Switch Back, Wait for the Next Storm] [mood: funny] [EFFECT: body swap, then swapped back (no lasting change)]
+  - The lightning never comes back, and the two of them learn each other's lives the hard way. [answers: Try to Switch Back, Wait for the Next Storm] [mood: warm] [EFFECT: BODY SWAP between (name1) and (name2) (permanent)]
+  - They try each other's jobs, and are better at them than at their own. [answers: Make the Best of It] [mood: warm] [EFFECT: BODY SWAP between (name1) and (name2) (permanent); each gains 10 to 20 in the other's best skill]
+  - The healers' grey swamp-tea works, and neither of them can taste anything for a week. [answers: Go to the Healers] [mood: funny] [EFFECT: body swap reversed; both now dislike healing]
+  - The healers try everything and nothing works. They send the two of them home with a pat on the shoulder each, the wrong shoulder. [answers: Go to the Healers] [mood: funny] [EFFECT: BODY SWAP between (name1) and (name2) (permanent)]
+  - A storm comes, but the bolt strikes the palm instead, and both hammocks catch light. They tumble out swapped back, singed and shaking. [answers: Wait for the Next Storm, Try to Switch Back] [mood: tense] [EFFECT: body swap reversed; both injured (minor burns; need the healers)]
+Flavour lines:
+  - The palms bend like dancers who have had too much to drink.
+  - The storm smells of hot stone and green rain.
+  - A little glassy crust of melted sand marks where the lightning struck.
+  - Their families keep calling the wrong one to supper.
+
+
+==============================================================================
+S005. The Wind That Took a Name   [VV1, VV2, VV3, VV4, VV5]
+WHO: one villager aged 14 or older (not protected)
+EVENT TEXT
+A warm wind comes through the village one morning, from no direction in particular. It picks up leaves, feathers and loose bits of string, and smells faintly of cinnamon bark. All the chickens turn to face the same way as it passes, which chickens never do.
+Just then, (name) steps out of (his/her) hut and calls good morning to a neighbour. The gust snatches the words right out of (his/her) mouth, name and all, and blows them into a dry seed pod rolling past. The pod rattles away down the path.
+(Name) opens (his/her) mouth to say something else, and realises (he/she) can't remember what (he/she) is called. The neighbour scratches their head. Neither can they. Neither, it turns out, can anyone.
+
+Choice A: Chase the Wind
+Choice B: Pick a New One
+
+CHOICE A: CHASE THE WIND
+First popup: (Name) takes off after the seed pod, barefoot, past the huts, through the gardens, scattering chickens in every direction. The pod bounces ahead along the path towards the cliffs, never quite close enough to grab...
+
+Ending A1 -- THE POD AT THE CLIFFS. Chance 50%. EFFECT: none (the name comes back)
+At the cliff edge, the wind finally runs out of island and lets go of everything it took. A feather, somebody's hat, a long tangle of string and the little seed pod come tumbling down at (name)'s feet. (He/She) snatches up the pod and cracks it open, and very faintly, in (his/her) own voice, hears (his/her) name whispered inside. It comes back at once, like remembering a word that was on the tip of (his/her) tongue. (Name) walks home saying it out loud to everyone (he/she) passes, just to be sure. (He/She) also returns the hat.
+
+Ending A2 -- THE WIND IS FASTER. Chance 50%. EFFECT: LOSES NAME (name becomes "?")
+The wind is faster. It swings the pod up over the trees and away out to sea, and that is the last anyone sees of it. (Name) comes home out of breath, with burrs in (his/her) feet and nothing to show for it. The villagers try every name they can think of, but none of them is right, and none of them sticks. In the end they call (him/her) "?" for now. (He/She) answers to it cheerfully enough. Sometimes, on windy days, (he/she) stands at the cliff edge for a while and listens.
+
+CHOICE B: PICK A NEW ONE
+First popup: "Well, there's no use running after the wind," says one of the elders. "Nobody's ever caught it yet. Somebody fetch the drum." In no time at all, half the village has gathered around (name) in a ring...
+
+Ending B1 -- THE NAMING CEREMONY. Chance 50%. EFFECT: CHANGES NAME (to a random default name)
+The village holds a little naming ceremony right there in the middle of the path. Everyone shouts suggestions at once. Some are lovely. Some are rude. One is the name of a fish. The elders bang the drum and tell everyone to shout louder, and at last one name rises above all the others, and (name) hears it and thinks, "Yes. That one." The name that sticks is (new name). There's a small cheer, the chickens turn back to face their normal directions, and everyone goes back to work.
+
+Ending B2 -- THEY NEVER AGREE. Chance 50%. EFFECT: LOSES NAME (name becomes "?")
+Nobody can agree. Every name gets shouted down. One family insists on a name that another family thinks is unlucky. The children want something that rhymes with "pudding." The argument goes on past lunch, past dinner, and into the next day, and the next week. In the meantime, everyone calls (him/her) "?", just until they decide. They never decide. Years later, (name) is still "?", and quite likes it, and the argument still flares up every so often at festivals.
+
+MIXER SEED S005
+Premise: A cinnamon-scented gust snatches (name)'s good-morning, name and all, into a rolling seed pod, and nobody can remember what (he/she) is called.
+Roles:
+  nameless: one villager aged 14 or older (not protected)
+Approaches: Chase the Wind | Pick a New One | Ask the Elders | Wait for the Wind to Turn
+Outcome pool:
+  - At the cliffs, the wind drops the pod. (Name) cracks it and hears (his/her) name inside. [answers: Chase the Wind, Wait for the Wind to Turn] [mood: warm] [EFFECT: none]
+  - The wind carries the pod out to sea. (Name) is "?" from now on. [answers: Chase the Wind] [mood: sad] [EFFECT: LOSES NAME (name becomes "?")]
+  - A drum, a ring of villagers, a hundred shouted suggestions, and one that fits: (new name). [answers: Pick a New One, Ask the Elders] [mood: funny] [EFFECT: CHANGES NAME (to a random default name)]
+  - The village argues for a week and never agrees, so (name) stays "?". [answers: Pick a New One] [mood: funny] [EFFECT: LOSES NAME (name becomes "?")]
+  - The elders say a name taken by the wind comes back with the evening breeze. It does, in through the doorway, at supper. [answers: Ask the Elders, Wait for the Wind to Turn] [mood: eerie] [EFFECT: none]
+  - (Name) waits a day, and a different name blows in on the turning wind. Nobody is sure whose it was before. [answers: Wait for the Wind to Turn] [mood: eerie] [EFFECT: CHANGES NAME (to a random default name)]
+Flavour lines:
+  - Every chicken in the village turns to face the same way.
+  - The wind smells faintly of cinnamon bark.
+  - A loose feather spirals up past the huts and is gone.
+  - Somebody's hat goes bowling down the path.
+
+
+==============================================================================
+S006. The Basket on the Beach   [VV1, VV2, VV3, VV4, VV5]
+WHO: one villager aged 18 or older (not protected), any birth sex; (name2) is (name)'s partner, if (he/she) has one
+EVENT TEXT
+The sea is pink and flat as a plate at dawn, and gulls are squabbling over something along the tideline. (Name) has come down early to check the fish traps, and nearly steps on a woven basket tangled in the seaweed at the water's edge.
+Inside, wrapped in a dry blanket, is a baby. Fast asleep. Completely unbothered.
+(Name) looks up and down the beach. There is no boat. No footprints but (his/her) own. No note, no sign, nothing at all but the sea, which is very calm and very quiet, as if it has done nothing and would rather not discuss it. The baby yawns, opens one eye, looks at (name) and goes back to sleep.
+
+Choice A: Take the Baby Home
+Choice B: Wait for the Owner
+
+CHOICE A: TAKE THE BABY HOME
+First popup: (Name) scoops up the basket, blanket and all, and hurries back to the village with the baby tucked against (his/her) chest. By the time (he/she) reaches the huts, there is a small crowd following (him/her), and everyone has an opinion about what should be done...
+
+Ending A1 -- "I FOUND THE BASKET." Chance 50%. EFFECT: (ANY BIRTH SEX) (name) becomes NURSING a foundling baby (single parent)
+Plenty of people offer to take the baby. (Name) refuses every one of them. "I found the basket," (he/she) says, holding on tight. "So I'm the one who gets up at night." Everyone smiles and assumes (he/she) will give in by the end of the week. (He/She) does not. (He/She) gets up every night, and every early morning, and walks the baby up and down the beach when nothing else will settle it. (Name) has never looked so tired, or so sure of anything in (his/her) life.
+
+Ending A2 -- TWO PAIRS OF ARMS. Chance 50%. EFFECT: (ANY BIRTH SEX) (name) becomes NURSING a foundling baby, with (name2) as the other parent (if (name) has no partner, this ending becomes A1)
+(Name2) meets them at the door of their hut, sees what's in the basket, and goes completely still. Then (name2) holds out (name2: his/her) arms, and the baby goes into them without a murmur, as if it had been waiting for exactly that pair. (Name) and (name2) take the foundling in together. By evening the whole village has come by with something: blankets, a carved rattle, a little woven mat, advice nobody asked for. The baby sleeps through all of it.
+
+CHOICE B: WAIT FOR THE OWNER
+First popup: Someone, somewhere, must be missing this baby. (Name) sits down on the warm sand beside the basket, facing the sea, and settles in to wait. The sun climbs. The gulls lose interest. The baby wakes, and is hungry, and says so...
+
+Ending B1 -- NOBODY COMES. Chance 50%. EFFECT: NEW VILLAGER (a baby) joins the village
+(Name) waits all day. Nobody comes. People from the village bring water, then milk, then food, then more people come just to sit and wait too. The tide goes out and comes back in. Nothing comes over the horizon but clouds. By evening the baby has a name, a favourite song (something about a turtle), a dozen people who would fight a shark for (him/her), and a village. Nobody ever finds out where the basket came from. Every year, on the same morning, someone leaves a flower at the tideline.
+
+Ending B2 -- THE FRANTIC BOAT. Chance 50%. EFFECT: NEW VILLAGERS (two adults) arrive and stay, with their baby
+Around noon a small boat comes skidding in through the waves, rowed by a frantic young couple who are both shouting at once. They leap out before the boat stops and run up the sand. The basket slipped off the side in last night's swell, they say, they've been searching since before dawn, they thought they'd... They can't finish. They hug the baby, then hug (name), then hug the baby again, and thank (name) over and over until (he/she) is quite embarrassed. They were on their way somewhere else. They decide to stay where people are kind.
+
+^ "the owner" is not natural. "wait for its parents" is better. "They decide to stay." is enough instead of "where people are kind"
+
+MIXER SEED S006
+Premise: At a pink, flat dawn, (name) finds a woven basket tangled in the kelp, with a baby fast asleep inside and no boat, footprints or note anywhere.
+Roles:
+  finder: one villager aged 18 or older (not protected), any birth sex
+  partner: (name)'s partner, if (he/she) has one (optional)
+Approaches: Take the Baby Home | Wait for the Owner | Search the Coast | Ask the Elders
+Outcome pool:
+  - "I found the basket, so I'll take care of them." And (name) does, every night and day. [answers: Take the Baby Home] [mood: warm] [EFFECT: (ANY BIRTH SEX) (name) becomes NURSING a foundling baby (single parent)]
+  - (Name) and (his/her) partner take the foundling in together, and the village brings blankets. [answers: Take the Baby Home, Ask the Elders] [mood: warm] [EFFECT: (ANY BIRTH SEX) (name) becomes NURSING a foundling baby, with (name2) as the other parent]
+  - Nobody ever comes. By evening the baby has a name, a song and a village. [answers: Wait for the Owner, Ask the Elders] [mood: warm] [EFFECT: NEW VILLAGER (a baby) joins the village]
+  - A frantic young couple row in at noon, weeping with relief, and decide to stay where people are kind. [answers: Wait for the Owner, Search the Coast] [mood: warm] [EFFECT: NEW VILLAGERS (two adults) arrive and stay, with their baby]
+  - Around the point, (name) finds the couple's wrecked canoe and the two of them clinging to a rock, cold and frightened. (He/She) brings all three home. [answers: Search the Coast] [mood: tense] [EFFECT: NEW VILLAGERS (two adults) arrive and stay, with their baby]
+  - The elders say the sea sometimes gives back what it takes. Nobody claims the baby, and the whole village raises (him/her). [answers: Ask the Elders, Search the Coast] [mood: eerie] [EFFECT: NEW VILLAGER (a baby) joins the village]
+Flavour lines:
+  - The sea is very calm, as if it has done nothing and would rather not discuss it.
+  - The baby opens one eye, looks at (name), and goes back to sleep.
+  - The gulls are squabbling over something along the tideline.
+  - Someone has already started carving a rattle.
+
+
+==============================================================================
+S007. The Granary Gets Wet   [VV1, VV2, VV3, VV4, VV5]
+WHO: no one picked (the whole village)
+EVENT TEXT
+The roof of the food store has been leaking for weeks. It started as one drip. Then a brown stain appeared on the inside wall, and grew, slowly, day after day, until it turned into a large mushy mess. Several people pointed it out to each other. Everyone thought someone had told the builders.
+Nobody did.
+ This morning the store is ankle-deep in water, the baskets are sagging and dripping, and most of the food is waterlogged.
+
+Choice A: Dry What's Left
+Choice B: Blame Someone
+
+CHOICE A: DRY WHAT'S LEFT
+First popup: The whole village forms a chain, passing dripping baskets hand to hand out of the store and into the open air. Every flat rock, every roof and every mat is covered with soggy food spread out in hopes the sun will dry it out...
+
+Ending A1 -- MOSTLY A SMELL. Chance 50%. EFFECT: food loss (normal amount)
+The sun takes its time. By noon the village smells like a wet dog that has rolled in fruit. Some of the food dries well enough to keep, and is carried back in, wrinkled and sad-looking. Most of it does not, and by evening it is just a smell, and then a pile, and then the pigs' problem. The builders finally go up on the roof and find eleven holes. "Eleven," they keep saying, to anyone who'll listen. "You should have said something when there was one." Your village loses (award) food.
+
+Ending A2 -- THE SUN SHOWS UP. Chance 50%. EFFECT: food loss (small amount)
+Just as the last basket comes out, the clouds tear open and the sun blazes down like it's trying to make up for last night. Steam rises off every rock in the village. By afternoon almost everything is dry and only a little is spoiled. The roof is mended by lunchtime the next day, mostly out of embarrassment, and somebody patches over the mushy parts. Your village loses (award) food.
+
+CHOICE B: BLAME SOMEONE
+First popup: "Who was supposed to fix it?" someone asks, and the whole village turns to look at someone else. Within moments everyone is pointing, and everyone is pointing at a different person...
+
+Ending B1 -- THE BIRDS WIN. Chance 50%. EFFECT: food loss (large amount)
+The argument goes on for most of the day. The builders say nobody told them. The farmers say they told the builders, sort of, once, in passing. Someone brings up something that happened at a festival two years ago, and that starts a whole new argument. Nobody wins. While they argue, a great flock of birds settles on the soaked baskets left outside the door and eats until they can barely fly. Your village loses (award) food.
+
+Ending B2 -- THE ROOF-MENDING PICNIC. Chance 50%. EFFECT: food loss (small amount)
+Everyone blames everyone. Voices are raised. Someone stomps off. And then, slowly, everyone starts to feel a bit bad, because they all knew about the mess. One by one, people start climbing onto the roof with armfuls of thatch, still muttering. By evening the roof is mended, the food is drying in the sun, and somehow it has all ended with a picnic on the grass. The villagers end up eating up the food that wouldn't keep anyway. Your village loses (award) food.
+
+MIXER SEED S007
+Premise: The food store's leak, a brown stain shaped like a duck that everyone noticed and nobody reported, finally lets a night of heavy rain soak half the stores.
+Roles:
+  (none; the whole village)
+Approaches: Dry What's Left | Blame Someone | Fix the Roof First | Eat the Soggy Food Now
+Outcome pool:
+  - The sun takes its time, and most of the food becomes a smell. The builders find eleven holes. [answers: Dry What's Left, Fix the Roof First] [mood: funny] [EFFECT: food loss (normal amount)]
+  - The clouds tear open and the sun dries almost everything. Someone paints over the duck. [answers: Dry What's Left] [mood: warm] [EFFECT: food loss (small amount)]
+  - The argument lasts all day, and the birds eat the soaked baskets while everyone shouts. [answers: Blame Someone] [mood: funny] [EFFECT: food loss (large amount)]
+  - Everyone blames everyone, then everyone feels bad, then everyone mends the roof, and it ends with a picnic. [answers: Blame Someone, Eat the Soggy Food Now] [mood: warm] [EFFECT: food loss (small amount)]
+  - The roof is mended in an hour, but by the time anyone turns to the baskets, they've gone sour. [answers: Fix the Roof First] [mood: sad] [EFFECT: food loss (normal amount)]
+  - The village eats soggy food for three days straight. Nobody is happy, but very little is wasted. [answers: Eat the Soggy Food Now] [mood: funny] [EFFECT: food loss (small amount)]
+Flavour lines:
+  - The stain on the wall is quite clearly the shape of a duck.
+  - The store is ankle-deep in brown water.
+  - Steam rises from every flat rock in the village.
+  - "Eleven holes," the builders keep saying. "Eleven."
+
+
+==============================================================================
+S008. The Coconut Bonanza   [VV1, VV2, VV3, VV4, VV5]
+WHO: no one picked (the whole village); in ending A2 one random villager aged 14 or older (not protected)
+EVENT TEXT
+Every palm on the island has decided, all at once, that this is the year to sprout coconuts. Nobody knows why. The elders say it happens once in a lifetime, if you're lucky. The whole village smells of split husks and sweet milk, and ripe, tasty coconuts fall day and night, thudding into the sand, bouncing off roofs, rolling down the paths and into the cooking pots.
+You can hear the thuds from every hut. Babies have stopped flinching at them. Nobody walks under a palm tree any more without looking straight up first, and the chickens have learned to run in zigzags.
+
+Choice A: Gather Them All
+Choice B: Throw a Coconut Festival
+
+CHOICE A: GATHER THEM ALL
+First popup: The village puts down every other job and turns out with baskets. Children race each other to the fallen nuts, adults haul full baskets on their shoulders, and the elders sit in the open sand well away from the trees, shouting directions...
+
+Ending A1 -- FULL TO THE RAFTERS. Chance 50%. EFFECT: food gain (large amount)
+Every basket in the village is filled, then every pot, then every bowl, then every hat. When they run out of hats, they start piling coconuts in a great pyramid in the middle of the village, and the children climb it and refuse to come down. The stores have never been so full. For a whole season the village drinks coconut milk with every meal, and the coconut-shell pile grows into a little hill that the goats use as a lookout. Your villagers gain (award) food.
+
+Ending A2 -- THE ONE THAT FOUND (NAME). Chance 50%. EFFECT: food gain (normal amount); (name) is INJURED (loses health)
+The gathering goes well, right up until (name) stops under a palm to tie a sandal and forgets to look up. The coconut that finds (him/her) is a big one. There's a loud, hollow thunk, and (name) sits down very suddenly in the sand. (He/She) gets a bump the size of a hen's egg and sees two of everything, including two healers, who keep (him/her) for a day and make (him/her) count their fingers until (he/she) gets the right answer. Everyone else is a little more careful after that. Your villagers gain (award) food.
+
+CHOICE B: THROW A COCONUT FESTIVAL
+First popup: "We'll never eat all these anyway," someone says, "so let's not try. Let's celebrate!" The idea catches like fire in dry grass. Within an hour there are cooking fires lit all over the village and the first drums are going...
+
+Ending B1 -- THE COCONUT-SHELL BAND. Chance 50%. EFFECT: food gain (normal amount); every villager is happier (stock island-event effect)
+There is coconut milk and coconut bread and coconut stew and coconut sweets. There are coconut-rolling races and coconut-catching contests and a very serious coconut-balancing competition that one of the elders wins easily. There's even a band of coconut-shell drummers, who are terrible and loud and wonderful. Everyone eats too much and nobody regrets it. The leftovers alone fill the stores. Your villagers gain (award) food.
+
+Ending B2 -- EATEN ON THE SPOT. Chance 50%. EFFECT: food gain (small amount)
+The festival is so good that it goes on for three days, and half the coconuts on the island are eaten right there, on the spot, by people lying in the sand with their eyes closed. By the time anybody thinks about filling the stores, the palms have gone quiet again and there are only a few baskets' worth left. Nobody minds. Your villagers gain (award) food.
+
+MIXER SEED S008
+Premise: Every palm on the island fruits at once in a once-in-a-lifetime coconut year, and the thuds of falling nuts can be heard from every hut.
+Roles:
+  unlucky: one random villager aged 14 or older (not protected), only for the falling-coconut outcomes
+Approaches: Gather Them All | Throw a Coconut Festival | Trade the Extras Away | Leave Them to Sprout
+Outcome pool:
+  - Every basket, pot and hat in the village is filled, and the children climb the coconut pyramid. [answers: Gather Them All] [mood: warm] [EFFECT: food gain (large amount)]
+  - A big coconut finds (name)'s head. Two of everything, including two healers. [answers: Gather Them All, Leave Them to Sprout] [mood: funny] [EFFECT: food gain (normal amount); (name) is INJURED (needs the healers)]
+  - A coconut festival with a terrible, wonderful coconut-shell band. [answers: Throw a Coconut Festival] [mood: warm] [EFFECT: food gain (normal amount); every villager is happier (stock island-event effect)]
+  - The festival lasts three days and eats most of the harvest. Nobody minds anything. [answers: Throw a Coconut Festival] [mood: funny] [EFFECT: food gain (small amount)]
+  - Passing canoes trade carved tools and strange seeds for boatloads of coconuts. [answers: Trade the Extras Away] [mood: warm] [EFFECT: tech gain (normal amount)]
+  - The sprouted nuts become a young grove that feeds the village for years to come. [answers: Leave Them to Sprout] [mood: warm] [EFFECT: food gain (small amount)]
+Flavour lines:
+  - The chickens have learned to run in zigzags.
+  - Thunk. Thunk. Thunk. Day and night.
+  - The whole village smells of split husks and sweet milk.
+  - Nobody walks under a palm without looking up.
+
+
+==============================================================================
+S009. The Elder Who Forgot to Get Old   [VV1, VV2, VV3, VV4, VV5]
+WHO: one elder (not protected)
+EVENT TEXT
+(Name) has been an elder for as long as anyone in the village can remember. There is a sitting stone by the cooking fire worn smooth in exactly (his/her) shape, and everyone knows not to sit on it. Every morning (he/she) gets up slowly, complains about (his/her) back, and makes (his/her) way to the stone.
+This morning (name) wakes up, stretches, and touches (his/her) toes. There is no creak. There is no complaint. (He/She) stands up straight and looks down at (his/her) hands: smooth, strong, the hands of someone thirty years younger. (His/her) hair, when (he/she) pulls it in front of (his/her) eyes, is dark again.
+"Well," says (name), out loud, to nobody. "That's odd. How'd I get so limber?"
+
+Choice A: Enjoy It
+Choice B: Ask the Healers
+
+CHOICE A: ENJOY IT
+First popup: (Name) does not waste a moment wondering. (He/She) walks straight out of (his/her) hut, past the sitting stone, past (his/her) astonished neighbours, and up to the tallest climbing tree in the village...
+
+Ending A1 -- THE MAGIC HOLDS. Chance 50%. EFFECT: changes age (to 30); new look (the young head look)
+(Name) climbs it, all the way to the top, for the first time in forty years. Then (he/she) climbs back down, very pleased with (himself/herself), and goes for a swim, and a run, and picks a fight with the strongest farmer over who can carry more. The next morning (he/she) wakes up and is still young. And the morning after that. The magic holds. Nobody knows why, and (name) refuses to let anyone poke at it in case it stops. The sitting stone by the fire sits empty, and after a while the children start using it to crack nuts.
+
+Ending A2 -- ONE PERFECT DAY. Chance 50%. EFFECT: none (age unchanged)
+It lasts exactly one day. (Name) spends every moment of it. (He/She) runs on the beach, swims out past the reef, dances at the fire until the drummers are too tired to drum, and kisses every baby in the village. (He/She) goes to bed the happiest (he/she) has been in years. In the morning (he/she) wakes up an elder again, with (his/her) creaking knees, bad back and (his/her) grey hair, and lies there for a while, smiling at the roof. Then (he/she) gets up slowly, complains about (his/her) knees, and goes to (his/her) stone. "Worth it," (he/she) tells anyone who asks.
+
+CHOICE B: ASK THE HEALERS
+First popup: (Name) walks, very quickly and with no pain at all, to the healers' hut. "Something has happened to me," (he/she) says, "and I'd like to know if it's going to un-happen." The healers stare at (him/her) for a long time...
+
+Ending B1 -- SETTLED HALFWAY. Chance 50%. EFFECT: changes age (to 50); tech gain (small amount)
+The healers are fascinated. They spend the whole afternoon poking and prodding (him/her), listening to (his/her) heart, bending (his/her) body, writing down everything. They learn a great deal they didn't know about how bodies change with age. By evening, though, the magic seems to have settled halfway, like water finding its own level. When (name) wakes the next morning (he/she) is about fifty, and stays that way. "Fifty," (he/she) says. "I'll take it." Your villagers gain (award) tech points.
+
+Ending B2 -- THE HEALERS DO NOTHING. Chance 50%. EFFECT: changes age (to 40)
+The healers look at each other, look at (name), and admit they have no idea what to do. So, wisely, they do nothing. (Name) stays young, about forty, for good. At first (he/she) is delighted. Then (he/she) finds out that forty-year-old knees are just as tired by evening as old ones, only nobody gives you a seat. (He/She) complains about it constantly, and the sitting stone by the fire is still worn smooth in exactly (his/her) shape, so (he/she) sits on it anyway.
+
+^ where does the magic come from? explain it. (One of the elder's grandsons/daughters was trying out a new spell)
+
+MIXER SEED S009
+Premise: (Name), the elder with the sitting stone worn to (his/her) shape, wakes up able to touch (his/her) toes, with smooth hands and dark hair.
+Roles:
+  elder: one elder (not protected)
+Approaches: Enjoy It | Ask the Healers | Keep It a Secret | Go Back to Bed
+Outcome pool:
+  - The magic holds. (Name) climbs the tallest tree in the village and doesn't come down until supper. [answers: Enjoy It, Keep It a Secret] [mood: warm] [EFFECT: changes age (to 30); new look (the young head look)]
+  - One perfect day of running, swimming and dancing, and then an elder again. "Worth it." [answers: Enjoy It, Go Back to Bed] [mood: warm] [EFFECT: none]
+  - The healers poke and prod and learn a great deal, and the magic settles at about fifty. [answers: Ask the Healers] [mood: funny] [EFFECT: changes age (to 50); tech gain (small amount)]
+  - The healers wisely do nothing. (Name) stays forty and complains that young knees are just as tired. [answers: Ask the Healers, Keep It a Secret] [mood: funny] [EFFECT: changes age (to 40)]
+  - (Name) tries to hide it under a big hat and a pretend limp. Nobody is fooled for a moment, but the magic holds anyway. [answers: Keep It a Secret] [mood: funny] [EFFECT: changes age (to 30)]
+  - (Name) assumes it's a dream and goes back to sleep. (He/She) wakes up old, and never finds out it wasn't. [answers: Go Back to Bed] [mood: sad] [EFFECT: none]
+Flavour lines:
+  - The sitting stone by the fire is worn smooth in exactly (his/her) shape.
+  - (Name) touches (his/her) toes. There is no creak.
+  - A child asks who the stranger in (name)'s hut is.
+  - "Well," says (name). "That's odd."
+
+
+==============================================================================
+S010. The Bee Hat   [VV1, VV2, VV3, VV4, VV5]
+WHO: one villager aged 14 or older (not protected)
+EVENT TEXT
+For days now, golden drips have been running down a fallen log by the stream, and the air around it hums like a whispered song. (Name) has worked out what that means: a wild hive in the hollow log, full to bursting with honey.
+(He/She) has a clever plan. (He/She) has made a big hat out of leaves, so big it comes down past (his/her) shoulders. (He/She) will move slowly, like a bush. (He/She) will take only a little honey. The bees will never know.
+The bees also have a plan. As soon as (name) reaches into the log, they pour out in a golden cloud and start circling (his/her) hat, slowly, thoughtfully, getting closer with every turn. (name) is afraid of getting stung, but the honey...
+
+Choice A: Move Very Slowly
+Choice B: Forget It and Run
+
+CHOICE A: MOVE VERY SLOWLY
+First popup: (Name) freezes. Then, slowly, so slowly it hurts, (he/she) starts drawing (his/her) hand out of the log, honeycomb and all. The humming gets louder. A bee lands on (his/her) nose and walks across it, considering (him/her) with its stinger...
+
+Ending A1 -- AN UNUSUALLY TALL BUSH. Chance 50%. EFFECT: food gain (small amount); NEW LOOK (a leafy hat)
+It works. The bees seem to decide that (name) is an unusually tall bush, and a not very interesting one. The cloud drifts back into the log, still grumbling, and (name) backs away one tiny step at a time with a dripping slab of honeycomb in (his/her) hands. (He/She) comes home with a full pot of honey and combs, sticky to the elbows and grinning, with a hat (he/she) now refuses to take off. "It's lucky," (he/she) says. The children call (him/her) "the walking bee-bush." Your villagers gain (award) food.
+
+Ending A2 -- THE SNEEZE. Chance 50%. EFFECT: INJURED (stings; needs the healers); now dislikes gathering/farming  or similar if available
+It works, right up until the leaves of the hat tickle (his/her) nose. (Name) tries to hold it in as long as possible. Until (he/she) can't. "Ah... ahh... AHCHOO!" Every bee in the log takes it personally. (Name) comes home very, very quickly, without honey, without the hat, and with stings in places (he/she) would rather not talk about. The healers pull the stingers out one at a time, counting out loud, and stop counting at thirty. (Name) never goes gathering in the woods again if (he/she) can help it.
+
+CHOICE B: FORGET IT AND RUN
+First popup: No honey is worth some nasty stings. (Name) flings the hat at the bees and runs for (his/her) life, crashing through the bushes towards the stream with a roaring golden cloud right behind (him/her)...
+
+Ending B1 -- INTO THE RIVER. Chance 50%. EFFECT: none
+(Name) reaches the river and jumps in, holding (his/her) breath under the water for as long as (he/she) can. When (he/she) finally comes up, gasping, the bees are circling over the hat on the bank, stinging it furiously. They give up eventually and go home. So does (name), soaked and shivering but almost unstung. (Name) gives up on beekeeping on the spot. The hat is never recovered. The bees, as far as anyone can tell, are still angry at it.
+
+Ending B2 -- THE BERRY PATCH. Chance 50%. EFFECT: food gain (small amount)
+(Name) runs, trips over a root, and goes headfirst into a big patch of thick bushes. The bees sweep straight over (him/her) and on towards the river, chasing the noise. (Name) lies very still, face down. Then (he/she) opens (his/her) eyes. The bushes are covered in ripe wild berries, more than (he/she) has ever seen in one place. It's not honey, but it's something. (He/She) fills (his/her) shirt and comes home stained purple from head to foot. Your villagers gain (award) food.
+
+MIXER SEED S010
+Premise: (Name) tries to rob a wild hive in a fallen log, disguised in a huge hat of leaves, and the bees pour out to circle the hat.
+Roles:
+  honey-seeker: one villager aged 14 or older (not protected)
+Approaches: Move Very Slowly | Forget It and Run | Smoke Them Out | Hum to the Bees
+Outcome pool:
+  - The bees decide (name) is a tall, dull bush. A pot of honey and a hat (he/she) won't take off. [answers: Move Very Slowly, Hum to the Bees] [mood: funny] [EFFECT: food gain (small amount); NEW LOOK (a leafy hat)]
+  - A sneeze. Thirty stings, and then the healers stop counting. [answers: Move Very Slowly, Smoke Them Out] [mood: funny] [EFFECT: INJURED (stings; needs the healers); now dislikes gathering]
+  - (Name) jumps in the river. The bees sting the hat instead. [answers: Forget It and Run] [mood: funny] [EFFECT: none]
+  - (Name) trips into a hidden berry patch and comes home purple. [answers: Forget It and Run] [mood: warm] [EFFECT: food gain (small amount)]
+  - A smoky fire of green leaves makes the bees drowsy, and (name) takes a big slab of comb. [answers: Smoke Them Out] [mood: warm] [EFFECT: food gain (normal amount)]
+  - (Name) hums, and the bees hum back, and settle all over (his/her) arms without stinging. (He/She) has a way with bees after that. [answers: Hum to the Bees] [mood: eerie] [EFFECT: food gain (small amount); now likes gathering]
+Flavour lines:
+  - Golden drips run down the side of the fallen log.
+  - A bee walks slowly across (name)'s nose.
+  - The humming gets louder.
+  - The hat comes down past (his/her) shoulders.
+
+
+==============================================================================
+S011. The Second (Name)   [VV1, VV2, VV3, VV4, VV5]
+WHO: one villager aged 14 or older (not protected)
+EVENT TEXT
+The fireflies are just coming out and the cooking pots are bubbling when (name) walks back into the village from the jungle, carrying a basket of mushrooms. (He/She) waves to the cooks, sets the basket down by the fire and goes to wash.
+Ten minutes later, another (name) walks back into the village from the jungle at dusk, carrying a basket of mushrooms.
+The cooks drop their spoons and do a double-take. Both of the (name)s stop dead and stare at each other, then at the cooks. They are holding the same basket, with the same broken handle, full of the same mushrooms. They have the same scratch on the same elbow. Then at the same time, they turn to (name of cook) and say: "Who are YOU?" How should (cookname) respond?
+
+Choice A: Ask Them Questions Only (Name) Would Know
+Choice B: Let Them Sort It Out
+
+CHOICE A: ASK THEM QUESTIONS ONLY (NAME) WOULD KNOW
+First popup: (Name)'s oldest friend is fetched, and sits both of them down on opposite sides of the fire. "Right," the friend says, cracking (his/her) knuckles. "What did you hide under my mat when we were nine?" Both of them answer at the same time, and both of them go red...
+
+Ending A1 -- EVERY ANSWER RIGHT. Chance 50%. EFFECT: CLONE of (name), named (new name); joins the village
+Both of them get every answer right. The name of the first fish (name) ever caught. The song (name)'s mother sang. The secret about the festival. They even blush at the same story, at the same moment, and cover their faces with the same hand. By midnight the friend gives up. "You're both (name)," (he/she) says, a little unsteadily. "I don't know how, but you are." The village has no idea what to do, so it does the kind thing and welcomes the second one, who chooses the name (new name) "so it's less confusing." It is not less confusing. But (new name) turns out to be good company, and the two of them become inseparable.
+
+Ending A2 -- THE LAST QUESTION. Chance 50%. EFFECT: food gain (small amount)
+The second one gets every answer right, right up until the very last question: "What's your favourite food?" The real (name) says "mashed taro." The second one hesitates, smiles a slow, strange smile, and says, "Moonlight." Then it laughs, a soft papery laugh, and comes apart into a little cloud of grey moths, which flutter up past the fire and away into the dark. Nobody moves for a long time. The second basket of mushrooms is still sitting on the ground. Eventually, very carefully, someone cooks them. They're delicious. Your villagers gain (award) food.
+
+CHOICE B: LET THEM SORT IT OUT
+First popup: "Well, I'm not getting in the middle of that," says (cook name), the head cook, and goes back to stirring. The rest of the village quietly drifts away and leaves the two of them alone by the fire, staring at each other...
+
+Ending B1 -- BEST FRIENDS BY MORNING. Chance 50%. EFFECT: CLONE of (name), named (new name); joins the village
+The two of them sit by the fire all night, talking. They talk about everything: the things (name) has never told anybody, the things (name) has been afraid of, the things (name) is secretly proud of. It's the easiest conversation either of them has ever had. By morning they are best friends, and one of them has decided to be called (new name). Nobody ever finds out which one came home first. When anyone asks, both of them say "me" and laugh.
+
+Ending B2 -- ONLY ONE IN THE MORNING. Chance 50%. EFFECT: none
+They argue about who is the real one. They argue long into the night, louder and louder, until the elders come out in their sleeping wraps and send them both to bed in the same hut. In the morning, there is only one (name), asleep on the mat, with one basket of mushrooms beside the door. (He/She) remembers nothing about the argument, or the other one. "What other one?" (he/she) asks, and gets quite annoyed when everyone keeps asking.
+
+MIXER SEED S011
+Premise: (Name) comes home from the jungle at dusk with a basket of mushrooms, and ten minutes later (name) comes home again with the same basket.
+Roles:
+  original: one villager aged 14 or older (not protected)
+Approaches: Ask Them Questions Only (Name) Would Know | Let Them Sort It Out | Call the Elders | Feed Them Both
+Outcome pool:
+  - Both get every answer right, and the second one takes the name (new name). [answers: Ask Them Questions Only (Name) Would Know, Call the Elders] [mood: warm] [EFFECT: CLONE of (name), named (new name); joins the village]
+  - The second one gets the last question wrong, laughs, and comes apart into moths. The mushrooms stay. [answers: Ask Them Questions Only (Name) Would Know] [mood: eerie] [EFFECT: food gain (small amount)]
+  - They talk all night and become best friends. [answers: Let Them Sort It Out, Feed Them Both] [mood: warm] [EFFECT: CLONE of (name), named (new name); joins the village]
+  - By morning there's only one (name), who remembers nothing. [answers: Let Them Sort It Out, Call the Elders] [mood: eerie] [EFFECT: none]
+  - Both of them eat three bowls each. Only one of them is still there when the bowls are cleared, and nobody saw the other leave. [answers: Feed Them Both] [mood: eerie] [EFFECT: food loss (small amount)]
+  - The elders say the jungle sometimes sends back an echo. They name the echo (new name) and give it a hut. [answers: Call the Elders] [mood: eerie] [EFFECT: CLONE of (name), named (new name); joins the village]
+Flavour lines:
+  - Same basket, same broken handle, same scratch on the same elbow.
+  - The cooks drop their spoons.
+  - Fireflies drift up past the fire.
+  - "Who are YOU?" they both say, at once.
+
+
+==============================================================================
+S012. The Biggest Fish in the Bay   [VV1, VV2, VV3, VV4, VV5]
+WHO: one villager aged 18 or older (not protected)
+EVENT TEXT
+Everyone has heard of the giant fish in the bay. The old fishers talk about it around the fire: as long as two canoes, older than anyone alive, with a white scar across its back like a bolt of lightning. Some say it has broken a hundred spears. Some say it can't be caught at all.
+(Name) is certain (he/she) can catch it, alone, with a brand new spear and a very small canoe. Everyone tells (him/her) not to. The old fishers tell (him/her) about the time it swallowed a person. (His/her) family tells (him/her) him its teeth could crack a boulder.
+(Name) has already left. Out in the middle of the bay, the water goes dark and still, and something very large and very slow rolls just under the surface, close enough to touch. The lightning scar gleams.
+
+Choice A: Throw the Spear
+Choice B: Let It Go
+
+CHOICE A: THROW THE SPEAR
+First popup: (Name) stands up in the rocking canoe, braces (his/her) feet, and draws back the spear. (His/her) heart is pounding so hard (he/she) can hear it. The great fish turns one huge, round eye up towards (him/her), as if it knows exactly what (he/she) is about to do...
+
+Ending A1 -- THE CATCH OF A LIFETIME. Chance 50%. EFFECT: food gain (large amount); gains 20 to 30 Farming
+(Name) throws, and strikes true. The bay explodes. The great fish dives, and the line goes taut, and the little canoe is yanked forward so hard that (name) nearly goes over the front. The fish drags (him/her) halfway round the bay, past the reef and back, while the whole village gathers on the shore to watch and scream advice. At last, as the sun is going down, the fish tires. (Name) comes home soaked, sunburnt, triumphant, and dragging enough fish for a week. The old fishers say nothing for a long time. Then the oldest one says, "Well done," and that's worth more to (name) than the fish. Your villagers gain (award) food.
+
+Ending A2 -- THE CANOE COMES DOWN. Chance 50%. EFFECT: PERMANENT DISABILITY (health loss 30%); now dislikes swimming; "old" head look
+(Name) throws. The spear glances off the great fish's scar as if it were rock. The fish rolls, lazily, almost gently, and its tail lifts the little canoe clean out of the water. For a moment (name) is in the air. Then the canoe comes down hard on top of (him/her). (He/She) makes it to shore somehow, clinging to the wreck, and the fishers pull (him/her) up the sand. The healers do what they can, for weeks. (Name) walks again, but slowly, bent over a little, and (his/her) back is never quite right. (He/She) never goes out in the bay again, and won't even wade at the shore.
+
+CHOICE B: LET IT GO
+First popup: (Name) holds the spear for a long, long time. The great fish just lies there in the dark water, breathing, watching (him/her) with its old round eye. Very slowly, (name) lowers the spear...
+
+Ending B1 -- IT HAS EARNED ITS OLD AGE. Chance 50%. EFFECT: none
+(Name) watches the great fish roll past, silver and enormous and slow, the lightning scar flashing once in the sun, until it sinks away into the deep blue at the mouth of the bay. (He/She) decides it has earned its old age. (He/She) paddles home with no fish at all, and nothing but a good story. The old fishers listen to the whole thing without interrupting. When (he/she) gets to the part where (he/she) lowered the spear, the oldest one nods, and gives (him/her) the best seat by the fire.
+
+Ending B2 -- THE STORM. Chance 50%. EFFECT: DIES (a grave)
+(Name) sits there too long, watching the great fish go. (He/She) doesn't see the clouds piling up over the far headland until the first cold gust hits the canoe. The storm comes up fast, faster than anyone can remember, and the village can only watch from the shore as the little canoe disappears behind a grey curtain of rain. The canoe washes up the next morning, broken in two. (Name)'s half-eaten body washes up with it. The village lays (him/her) to rest on the headland, looking out over the bay (he/she) loved, and the old fishers say that on calm days the great fish comes in close to that headland and stays a while.
+
+MIXER SEED S012
+Premise: (Name) paddles out alone in a tiny canoe after the legendary giant fish of the bay, and it rises right beside (him/her), its lightning scar gleaming.
+Roles:
+  fisher: one villager aged 18 or older (not protected)
+Approaches: Throw the Spear | Let It Go | Follow It Out | Paddle Home for Help
+Outcome pool:
+  - A true throw, a wild ride round the bay, and enough fish for a week. "Well done," says the oldest fisher. [answers: Throw the Spear] [mood: warm] [EFFECT: food gain (large amount); gains 20 to 30 Farming]
+  - The fish's tail lifts the canoe and drops it on (name). (His/her) back never mends. [answers: Throw the Spear, Follow It Out] [mood: sad] [EFFECT: PERMANENT DISABILITY (health loss 30%); now dislikes swimming; "old" head look]
+  - (Name) lowers the spear and lets the old fish go. The fishers give (him/her) the best seat by the fire. [answers: Let It Go, Paddle Home for Help] [mood: warm] [EFFECT: none]
+  - A storm comes up while (name) watches it go. (He/She) is laid to rest on the headland. [answers: Let It Go, Follow It Out] [mood: sad] [EFFECT: DIES (a grave)]
+  - The fish leads (name) to a cove so full of smaller fish that the water boils with them. [answers: Follow It Out] [mood: eerie] [EFFECT: food gain (normal amount)]
+  - Five canoes come back with (name), and together they bring the old fish in, but most of the meat spoils before it's smoked. [answers: Paddle Home for Help] [mood: funny] [EFFECT: food gain (small amount)]
+Flavour lines:
+  - As long as two canoes, the old fishers say.
+  - The water in the middle of the bay goes dark and still.
+  - The great fish turns one huge, round eye upward.
+  - Everyone on the shore is shouting advice.
+
+
+==============================================================================
+S013. The Researchers' Bonfire   [VV1, VV2, VV3, VV4, VV5]
+WHO: one villager with 20 or more Research (not protected)
+EVENT TEXT
+The research hut smells of smoke and old ink, and the night is so cold that everyone has crowded close to the hearth. (Name) has had a clever idea: some priceless old scrolls have gone soft and damp in the rainy season, so (he/she) has been drying them by the fire, a few at a time, to make them easier to read.
+The scrolls are very dry now. Maybe a bit too much. (Name) is piling them up beside the hearth, admiring how crisp they've become, when a fat orange spark jumps out of the fire, lands on the pile, and sits there glowing. All of a sudden, the whole pile catches fire. The blaze is burning fast, and (name) has only a few seconds to act. Should (name) try to salvage them, or is it too late to save them?
+
+Choice A: Attempt to salvage the Scrolls
+Choice B: It is too late
+
+CHOICE A: Attempt to salvage the Scrolls
+First popup: (Name) doesn't think. (He/She) tears off (his/her) cloak and throws (himself/herself) at the flames, beating at them with both hands while the other researchers shout and scramble for water...
+
+Ending A1 -- THE IMPORTANT ONES. Chance 50%. EFFECT: tech loss (small amount); (name) is INJURED (burns; needs the healers/loses health)
+(Name) beats out the flames with (his/her) own cloak, smothering them, stamping on the sparks, (his/her) eyes streaming from the smoke. By the time the water arrives it is nearly over. Half the scrolls are blackened ash. But (name) dragged the oldest, most important ones out of the pile first, and those have survived, scorched at the edges but readable. (His/her) hands and arms are blistered red. The healers wrap them in cool leaves and tell (him/her) (he/she) is very brave and very stupid, in that order. Your villagers lose (award) tech points.
+
+Ending A2 -- EVERY SCROLL is burnt. Chance 50%. EFFECT: tech loss (large amount)
+The fire is too fast and too hungry. (Name) beats at it until the other researchers drag (him/her) away by the back of (his/her) shirt, coughing. They stand outside in the cold and watch through the doorway as every scroll burns: years of notes, measurements, drawings, the old stories copied out by hand. When it is over there is nothing but a pile of grey flakes, drifting up the chimney like snow. Nobody says anything for a long time. Nobody blames (name), out loud, but inside they are seething. Your villagers lose (award) tech points.
+
+CHOICE B: It is too late
+First popup: (Name) drags the other researchers outside, away from the smoke. "Let it burn," (he/she) says, through gritted teeth. "It's too late now. Luckily I've read every one of those scrolls a hundred times. I can rewrite them." (He/She) sits down on a log, picks up a fresh sheet of bark, and starts to write...
+
+Ending B1 -- THREE MISTAKES. Chance 50%. EFFECT: tech gain (small amount); gains 10 to 20 Research
+(Name) writes all night, by the light of the fire that ate the scrolls. Then all the next day. (He/She) remembers far more than (he/she) thought (he/she) would: whole pages, the drawings, even the little notes in the margins. As (he/she) writes, (he/she) finds three mistakes in the old scrolls that nobody ever noticed, and fixes them. The new scrolls are better than the old ones. The other researchers read them in silence, and then ask (him/her) to teach them how (he/she) does it. Your villagers gain (award) tech points.
+
+Ending B2 -- MOSTLY MARGINS. Chance 50%. EFFECT: tech loss (normal amount)
+(Name) writes and writes. Then (he/she) stops and reads back what (he/she) has written, and goes very pale. It turns out what (he/she) remembers best from all those years of study is the drawings in the margins: a researcher's doodle of a grumpy fish, a little sketch of somebody's goat, a very good picture of a nimbus cloud. The real notes, the measurements and the numbers, have mostly gone from (his/her) memory. The other researchers are kind about it. They pin the grumpy fish on the wall. Your villagers lose (award) tech points.
+
+MIXER SEED S013
+Premise: (Name) has been drying the old bark scrolls by the research hut fire, and a spark lands on the pile.
+Roles:
+  researcher: one villager with 20 or more Research (not protected)
+Approaches: Save the Scrolls | Write Them Out Again from Memory | Throw Water on Everything | Run for Help
+Outcome pool:
+  - (Name) beats out the flames with (his/her) cloak and saves the important scrolls, but burns (his/her) hands. [answers: Save the Scrolls] [mood: tense] [EFFECT: tech loss (small amount); (name) is INJURED (burns; needs the healers)]
+  - Every scroll burns. The ash drifts up the chimney like snow. [answers: Save the Scrolls, Run for Help] [mood: sad] [EFFECT: tech loss (large amount)]
+  - (Name) rewrites everything from memory and finds three old mistakes. [answers: Write Them Out Again from Memory] [mood: warm] [EFFECT: tech gain (small amount); gains 10 to 20 Research]
+  - What (name) remembers best is the doodles in the margins. [answers: Write Them Out Again from Memory] [mood: funny] [EFFECT: tech loss (normal amount)]
+  - The fire goes out at once. So does the ink. Every scroll is a soggy grey smear. [answers: Throw Water on Everything] [mood: funny] [EFFECT: tech loss (normal amount)]
+  - By the time help comes running, (name) has already stamped it out, and only the top few scrolls are lost. [answers: Run for Help, Throw Water on Everything] [mood: warm] [EFFECT: tech loss (small amount)]
+Flavour lines:
+  - The scrolls are very, very dry.
+  - A fat orange spark sits on the pile, glowing.
+  - The hut smells of smoke and old ink.
+  - WHUMPH.
+
+
+==============================================================================
+S014. The Fog Walker   [VV1, VV2, VV3, VV4, VV5]
+WHO: one villager aged 14 or older (not protected)
+EVENT TEXT
+A thick fog has been sitting over the village for three days. It came in from the sea and simply stayed. Huts vanish ten steps away. Voices come from nowhere. Everyone's hair is beaded with tiny condensation drops, and the fires hiss and smoke and won't burn properly. The children have been told not to wander, and for once they listen.
+On the third night, (name) lies awake on (his/her) mat and hears someone singing, far off in the white mist. It's a woman's voice, or a man's, soft and low. The tune is one (he/she) almost remembers. Something from when (he/she) was very small, something someone sang to (him/her) once, a long time ago.
+(Name) gets up and goes to the doorway. The fog is so thick (he/she) can't see (his/her) own feet. The singing goes on, patient, as if it's waiting for (him/her).
+
+Choice A: Follow the Song
+Choice B: Stay Inside and Hum Along
+
+CHOICE A: FOLLOW THE SONG
+First popup: (Name) steps out into the fog. It closes behind (him/her) like a curtain. (He/She) walks towards the singing, one hand out in front, and the singing moves too, always a little ahead, never any closer...
+
+Ending A1 -- INTO THE WHITE. Chance 50%. EFFECT: DISAPPEARS (no grave)
+(Name) walks and walks, and the song walks ahead of (him/her), and the village falls away behind (him/her) until there is nothing but fog and the tune, which (he/she) almost knows. (He/She) never comes back. When the fog lifts the next morning, as suddenly as it came, (name)'s mat is empty and (his/her) footprints lead out of the village and stop in the middle of an open field, as if (he/she) simply flew up into the air. The village searches for days. They never find anything. Some say that on misty nights, if you listen, you can still hear the tune, and that now there are two voices singing it.
+
+Ending A2 -- THE SHELTERED GROVE. Chance 50%. EFFECT: food gain (normal amount)
+The song leads (name) a long way, over roots and stones (he/she) can't see, down a slope, through wet ferns that soak (him/her) to the waist. Then, all at once, it stops. The fog is thinner here. (Name) is standing in a sheltered grove (he/she) has never seen before, full of trees so heavy with ripe fruit that the branches touch the ground. There is nobody there. Nobody at all. (He/She) gathers all (he/she) can carry, and finds (his/her) way home by the smell of the village's cooking fires. Nobody can ever find the grove again, though (name) tries every misty morning. Your villagers gain (award) food.
+
+CHOICE B: STAY INSIDE AND HUM ALONG
+First popup: (Name) stays in the doorway, one hand on the post. Something about the fog feels like a held breath. But (he/she) can't stop listening to the song, so quietly, very quietly, (he/she) begins to hum along...
+
+Ending B1 -- THE VILLAGE SONG. Chance 50%. EFFECT: every villager is happier (stock island-event effect)
+(Name) hums the tune all night, until (he/she) falls asleep sitting in the doorway. By morning the fog has gone, and so has the singing, but (name) wakes up knowing all the words. They were there all along, (he/she) realises, somewhere at the very back of (his/her) mind. It's a song about the sea coming home. (He/She) teaches it to the children that afternoon, and they sing it to their parents, and by the end of the week the whole village is singing it. It becomes a village song, sung at every festival, and nobody remembers that it came out of the fog.
+
+Ending B2 -- A GRUMPY WEEK. Chance 50%. EFFECT: none
+The singing stops as soon as (name) starts humming, as if someone has been caught out. The fog lies there, silent and empty. (Name) stands in the doorway until dawn, waiting for it to start again. It never does. (He/She) can't sleep for wondering what the song was, and who was singing it, and why (he/she) almost knew it, and (he/she) is grumpy with everybody for a whole week. When the fog lifts, the village is exactly as it was. Nobody else heard a thing.
+
+MIXER SEED S014
+Premise: On the third night of a thick sea fog, (name) hears someone singing out in the white, a tune (he/she) almost remembers from childhood.
+Roles:
+  listener: one villager aged 14 or older (not protected)
+Approaches: Follow the Song | Stay Inside and Hum Along | Wake Someone Up | Call Out to the Singer
+Outcome pool:
+  - (Name) follows the song and is never seen again. The footprints stop in the middle of an open field. [answers: Follow the Song, Call Out to the Singer] [mood: eerie] [EFFECT: DISAPPEARS (no grave)]
+  - The song leads (name) to a hidden grove heavy with fruit, then stops. [answers: Follow the Song] [mood: eerie] [EFFECT: food gain (normal amount)]
+  - (Name) wakes knowing the words, and it becomes the village song. [answers: Stay Inside and Hum Along] [mood: warm] [EFFECT: every villager is happier (stock island-event effect)]
+  - The singing stops the moment (name) hums. (He/She) is grumpy for a week. [answers: Stay Inside and Hum Along, Call Out to the Singer] [mood: eerie] [EFFECT: none]
+  - By the time a sleepy neighbour comes to the door, there's nothing to hear. The neighbour is not pleased. [answers: Wake Someone Up] [mood: funny] [EFFECT: none]
+  - Two of them listen together until dawn, and the next morning both of them can play it on the flute. [answers: Wake Someone Up] [mood: warm] [EFFECT: every villager is happier (stock island-event effect)]
+Flavour lines:
+  - Huts vanish ten steps away.
+  - Everyone's hair is beaded with tiny drops.
+  - The fires hiss and smoke and won't burn properly.
+  - The singing moves, always a little ahead.
+
+
+==============================================================================
+S015. The Visitor with the Enormous Hat   [VV1, VV2, VV3, VV4, VV5]
+WHO: no one picked for the event; (name) is one random villager aged 14 or older (not protected) who sees the visitor off
+EVENT TEXT
+A traveller arrives one afternoon by canoe, and the first thing anyone notices is their hat. It is the biggest hat anyone has ever seen. It has feathers. It has shells. It has a small living ferns growing out of the top, and something on the brim that might be a nest. The children run along the shore beside the canoe all the way in, just to stare at it.
+The traveller is friendly and tired, eats with the village, tells stories about islands nobody has heard of, and sleeps by the fire. At dawn (he/she) packs up to leave. (Name) is the one who walks (him/her) down to the beach, and as the traveller bends to push the canoe off, the hat wobbles alarmingly, and something in the nest cheeps. (name)'s curious about this peculiar traveller, and wants to interact with (him/her) before (he/she) leaves.
+
+Choice A: Trade Something for the Hat
+Choice B: Ask Where (He/She) Is Going
+
+CHOICE A: TRADE SOMETHING FOR THE HAT
+First popup: "I'll give you anything for that hat," (name) blurts out, before (he/she) can stop (himself/herself). The traveller straightens up slowly, one hand on the brim, and gives (name) a long, measuring look...
+
+Ending A1 -- THE NEST IS OCCUPIED. Chance 50%. EFFECT: NEW LOOK for (name) (feathered clothes)
+"Your best basket," says the traveller. (Name) runs all the way back to the village and all the way back to the beach with it, and the traveller hands over the hat with great ceremony. It's wonderful. It's enormous. It's surprisingly heavy. The nest, it turns out, is occupied by a very small, very cross bird, which has no intention of moving out. (Name) wears it anyway. (He/She) wears it to work, to dinner and to bed, and over the season adds feathers to (his/her) clothes to match. The bird stays. It sings every morning, right in (name)'s ear. (name) decides to name it "Sweetie".
+
+Ending A2 -- THE BUNDLE OF TOOLS. Chance 50%. EFFECT: tech gain (normal amount)
+The traveller laughs and pats the hat fondly. "Oh no. I can't part with this. This hat and I have been through too much together." But (he/she) rummages in the bottom of the canoe and brings out a bundle wrapped in oiled leaves. "Take these instead. I've no more use for them." Inside are clever little tools of bone and stone and shell, some that the village has never seen before: a hook that folds, a tiny saw, a thing with a spiral in it that nobody can work out. The researchers work out the spiral thing in a week, and are very excited about it. Your villagers gain (award) tech points.
+
+CHOICE B: ASK WHERE (HE/SHE) IS GOING
+First popup: "Where are you going, anyway?" asks (name). The traveller stops, the canoe halfway into the water, and looks out at the horizon for a long moment, as if (he/she) has never really thought about it...
+
+Ending B1 -- FOR THE ROAD YOU AREN'T TAKING. Chance 50%. EFFECT: food gain (normal amount)
+"Somewhere else," says the traveller, which is not very helpful. Then (he/she) smiles and hauls a heavy bag out of the canoe and drops it on the sand at (name)'s feet. "For the road you aren't taking," (he/she) says, and pushes off. Something in the hat waves goodbye on its own as the canoe rides over the first wave. The bag is full of strange dried food: fish rolled in spices, hard little cakes, fruit nobody can name. It lasts the village a long time. Your villagers gain (award) food.
+
+Ending B2 -- NICER THAN SOMEWHERE ELSE. Chance 50%. EFFECT: NEW VILLAGER (an adult) arrives and stays
+"Somewhere else," says the traveller. Then (he/she) stops pushing the canoe. (He/She) looks back up the beach at the village, where the cooking smoke is rising and the children are already running down to wave. (He/She) looks at the empty sea. "Although," (he/she) says slowly, "I've been to a great many somewhere elses." (He/She) pulls the canoe back up the sand. The traveller decides that this village is nicer than somewhere else, and stays, tipping (his/her) hat to (name).
+
+MIXER SEED S015
+Premise: A friendly traveller in a gigantic hat of feathers, shells, a fern and possibly a nest stays one night, and (name) walks (him/her) down to the canoe at dawn.
+Roles:
+  host: one random villager aged 14 or older (not protected)
+Approaches: Trade Something for the Hat | Ask Where (He/She) Is Going | Ask (Him/Her) to Stay | Pack (Him/Her) Some Food
+Outcome pool:
+  - (Name) trades (his/her) best basket for the hat. The nest is occupied. [answers: Trade Something for the Hat] [mood: funny] [EFFECT: NEW LOOK for (name) (feathered clothes)]
+  - The traveller keeps the hat but hands over a bundle of clever little tools. [answers: Trade Something for the Hat, Pack (Him/Her) Some Food] [mood: warm] [EFFECT: tech gain (normal amount)]
+  - "Somewhere else," says the traveller, and leaves a bag of strange dried food. [answers: Ask Where (He/She) Is Going] [mood: warm] [EFFECT: food gain (normal amount)]
+  - The traveller decides this village is nicer than somewhere else, and stays. [answers: Ask Where (He/She) Is Going, Ask (Him/Her) to Stay] [mood: warm] [EFFECT: NEW VILLAGER (an adult) arrives and stays]
+  - The traveller laughs, says no, and paddles off. The hat bobs on the horizon for a very long time. [answers: Ask (Him/Her) to Stay] [mood: sad] [EFFECT: none]
+  - The traveller accepts the food and gives back a fistful of seeds "that grow anywhere." They do. [answers: Pack (Him/Her) Some Food] [mood: warm] [EFFECT: food loss (small amount); then food gain (normal amount)]
+Flavour lines:
+  - There is a small living fern growing out of the top of the hat.
+  - Something in the nest cheeps.
+  - The children run along the shore beside the canoe.
+  - The hat seems to wave goodbye on its own.
+
+
+==============================================================================
+S016. The Fertility Stone   [VV1, VV2, VV3, VV4, VV5]
+WHO: one villager aged 18 to 45, born female (not protected), with a partner (name2)
+EVENT TEXT
+At the edge of the jungle, half covered in moss, there is an old carved stone. Its face has been worn almost smooth by rain and hands, and lichen has grown into a little green smile across the front of it. The elders say that anyone who leaves a flower on it will be blessed with a baby. There are always flowers on it, fresh and wilted, in every colour.
+(Name) has always thought this was nonsense, and has said so, loudly, at several festivals.
+This morning, walking past with (name2), (name) stops. There's a fresh red flower sitting on top of the stone. (Name2) is looking very hard at a nearby tree and whistling. Could (name2) have placed this flower? (name) thinks. What should I do?
+
+Choice A: Laugh It Off
+Choice B: Leave a Flower Too
+
+CHOICE A: LAUGH IT OFF
+First popup: (Name) laughs out loud. "You didn't!" (Name2) goes pink and says (name2: he/she) was just passing, and the flower just happened to be in (name2: his/her) hand. (Name) laughs all the way home, and teases (name2) about it for days...
+
+Ending A1 -- NOT SO SURE NOW. Chance 50%. EFFECT: PREGNANT with one baby, with (name2) as the other parent
+"It's just a stone," (name) says, every time it comes up, which is often. A few weeks later (name) is feeling oddly tired, and odder still in the mornings, and the healers take one look at (him/her) and smile. (Name) is pregnant. (Name2) is over the moon. (Name) is thrilled too, though (he/she) stops saying "it's just a stone" quite so loudly. The next time (he/she) passes it, (he/she) stops, looks around to make sure nobody is watching, and gives the mossy smile a little pat.
+
+Ending A2 -- JUST A STONE. Chance 50%. EFFECT: none
+It really is just a stone, this time at least. The seasons go round and nothing changes. (Name2) is a little disappointed, though (name2: he/she) pretends not to be. (Name) catches (name2: him/her) slipping off one morning with another flower, and doesn't tease (name2: him/her) about it this time. Instead (he/she) walks along too, and the two of them sit by the stone in the green shade for a while without saying anything, which is nice.
+
+CHOICE B: LEAVE A FLOWER TOO
+First popup: (Name) rolls (his/her) eyes. Then, without a word, (he/she) picks a white flower from the bush beside the path and sets it on the stone, right beside (name2)'s red one. "Just so it's fair," (he/she) says. The mossy face seems to smile a little wider...
+
+Ending B1 -- AND THEN SOME. Chance 50%. EFFECT: PREGNANT, with (name2) as the other parent (twins or triplets, if the game allows twins)
+Two flowers seem to do the trick, and then some. A few weeks later (name) is pregnant. A few weeks after that, the healers press their ears to (his/her) belly, look at each other, and say they think they can hear two heartbeats. (Name2) has to sit down. (Name) laughs until (he/she) cries. The whole village hears about it by nightfall, and the next morning the stone is buried in flowers.
+
+Ending B2 -- THE POINT OF IT. Chance 50%. EFFECT: (name) now likes (name2)'s favourite job and (name2) now likes (name)'s favourite job
+The stone is unmoved. Nothing happens. But (name) and (name2) have a lovely, slow, wandering walk home, holding hands, talking about everything, stopping to look at birds, and they agree that this was probably the point. From then on, each of them starts helping with the other's favourite job, just to spend more time together, and both of them find that they've come to like it.
+
+^ add a chance for B1 to allow triplets!!! and twins too!
+
+MIXER SEED S016
+Premise: An old mossy stone at the jungle's edge is said to bring babies to anyone who leaves a flower on it, and (name) catches (his/her) partner (name2) leaving one.
+Roles:
+  carrier: one villager aged 18 to 45, born female (not protected), with a partner
+  partner: (name)'s partner (name2)
+Approaches: Laugh It Off | Leave a Flower Too | Sit with the Stone a While | Pretend Not to Notice
+Outcome pool:
+  - "It's just a stone." A few weeks later, (name) is pregnant and not so sure. [answers: Laugh It Off, Pretend Not to Notice] [mood: warm] [EFFECT: PREGNANT, with (name2) as the other parent]
+  - It really is just a stone, this time. (Name2) leaves another flower anyway. [answers: Laugh It Off, Pretend Not to Notice] [mood: sad] [EFFECT: none]
+  - Two flowers, two heartbeats. (Name2) has to sit down. [answers: Leave a Flower Too] [mood: warm] [EFFECT: PREGNANT, with (name2) as the other parent (twins, if the game allows twins)]
+  - Nothing happens, but the walk home is lovely, and each of them comes to like the other's favourite job. [answers: Leave a Flower Too, Sit with the Stone a While] [mood: warm] [EFFECT: each now likes the other's favourite job]
+  - They sit with the stone until dusk, and a soft rain starts that smells of flowers. Weeks later, (name) is pregnant. [answers: Sit with the Stone a While] [mood: eerie] [EFFECT: PREGNANT, with (name2) as the other parent]
+Flavour lines:
+  - Moss has grown into a little green smile.
+  - There are always flowers on it, fresh and wilted.
+  - (Name2) is looking very hard at a nearby tree and whistling.
+  - The next morning, the stone is buried in flowers.
+
+
+==============================================================================
+S017. The Name Nobody Can Say   [VV1, VV2, VV3, VV4, VV5]
+WHO: one villager aged 14 or older (not protected)
+EVENT TEXT
+A visiting elder has come from very far away, with a carved walking stick taller than (he/she) is and a basket of strange red nuts to share. The visitor is gracious, gentle, and extremely keen to be polite, and has gone around the whole village learning everyone's names.
+Everyone's name except (name)'s.
+The visitor tries it eleven times. Each try is worse than the last. The ninth one sounds like a sneeze. The tenth sounds like a goat. On the eleventh, the visitor's ears go red. Everyone is far too polite to laugh, except the children, who are rolling in the dust. (name) is kind of exasperated that the elder can't pronounce (his/her) name. But (he/she) doesn't want to be rude...
+
+Choice A: Teach (Him/Her) to Say It
+Choice B: Answer to Whatever (He/She) Says
+
+CHOICE A: TEACH (HIM/HER) TO SAY IT
+First popup: (Name) sits down beside the visitor and says (his/her) name very slowly, one sound at a time, while the visitor watches (his/her) mouth with great concentration and repeats each syllable under (his/her) breath...
+
+Ending A1 -- THE TWELFTH TRY. Chance 50%. EFFECT: none
+On the twelfth try, the visitor gets it perfectly. Every sound in exactly the right place. There's a moment of stunned silence, and then the whole village cheers, and the children cheer loudest. The visitor bows, beaming. (Name) feels unexpectedly proud of (his/her) own name, which (he/she) has never really thought about before, and says it to (himself/herself) a few times on the way home, just to hear how it sounds.
+
+Ending A2 -- A NEW AND LOVELY WAY. Chance 50%. EFFECT: CHANGES NAME (to a random default name)
+On the twelfth try, the visitor gets it wrong again, but in a brand new way. This one doesn't sound like a sneeze or a goat. It sounds like water running over stones, soft and round and warm. (Name) blinks. (He/She) asks the visitor to say it again. And again. Then (he/she) decides (he/she) likes it much better than (his/her) own, and takes it. From then on (he/she) is (new name), and the visitor goes home with the happy feeling of having given someone a present by accident.
+
+CHOICE B: ANSWER TO WHATEVER (HE/SHE) SAYS
+First popup: "Don't worry about it," (name) says kindly. "Call me whatever you like. I'll know you mean me." The visitor looks enormously relieved, and from then on calls (him/her) something completely different every time...
+
+Ending B1 -- THE VISITOR'S VERSION. Chance 50%. EFFECT: CHANGES NAME (to a random default name)
+One of the visitor's versions catches on. The children start using it, because it's funnier. Then their parents use it, by accident. Then (name) catches (himself/herself) answering to it without thinking. By the end of the week, when the visitor finally leaves, nobody in the village remembers the old name at all. (Name) is (new name) now. The visitor waves goodbye from the path and shouts the new name, perfectly.
+
+Ending B2 -- JUST "?". Chance 50%. EFFECT: LOSES NAME (name becomes "?")
+(Name) answers to every version so cheerfully, and there are so many versions, that the visitor eventually gives up altogether. With a shrug and a smile, the visitor just points at (him/her) and raises (his/her) eyebrows, as if asking a question. "?" It sticks. Soon everyone is doing it: pointing, eyebrows up, "?". The old name falls out of use completely, and (name) is "?" from then on, which (he/she) says is the easiest name (he/she) has ever had.
+
+MIXER SEED S017
+Premise: A gracious visiting elder from far away can say everyone's name except (name)'s, and has tried eleven times while the children roll in the dust.
+Roles:
+  named: one villager aged 14 or older (not protected)
+Approaches: Teach (Him/Her) to Say It | Answer to Whatever (He/She) Says | Write It Down | Offer a Nickname
+Outcome pool:
+  - The twelfth try is perfect. The children cheer loudest. [answers: Teach (Him/Her) to Say It, Write It Down] [mood: warm] [EFFECT: none]
+  - The visitor gets it wrong in a lovely new way, and (name) takes it. [answers: Teach (Him/Her) to Say It, Offer a Nickname] [mood: warm] [EFFECT: CHANGES NAME (to a random default name)]
+  - The visitor's version catches on, and nobody remembers the old name. [answers: Answer to Whatever (He/She) Says, Offer a Nickname] [mood: funny] [EFFECT: CHANGES NAME (to a random default name)]
+  - The visitor gives up and just points with raised eyebrows. (Name) is "?" from then on. [answers: Answer to Whatever (He/She) Says] [mood: funny] [EFFECT: LOSES NAME (name becomes "?")]
+  - The visitor can't read the marks either, and holds the bark upside down, but says the name perfectly by guessing. [answers: Write It Down] [mood: funny] [EFFECT: none]
+Flavour lines:
+  - The ninth try sounds like a sneeze. The tenth sounds like a goat.
+  - The visitor's ears go red.
+  - A basket of strange red nuts is passed around.
+  - The carved walking stick is taller than its owner.
+
+
+==============================================================================
+S018. The Pig Who Knew Better   [VV1, VV2, VV3, VV4, VV5]
+WHO: one villager aged 14 or older (not protected)
+EVENT TEXT
+(Name) has been trying to plant one row of seeds for an hour. The soil is baked as hard as a rock, the sun is high and merciless, and sweat is running into (his/her) eyes. (He/She) has broken one digging stick and is working on breaking a second.
+A pig has been watching (him/her) the entire time. A big, mud-coloured pig, lying in the shade of a bush, chewing something, with an expression of deep and patient pity.
+Finally the pig sighs, heaves itself up, and walks over. It shoves (name) aside with its shoulder, roots up the whole row in three quick snorts, leaving the soil dark and crumbly, and then lies down in the sun right where (name) was standing. (name) is stunned that a pig just bested (him/her) at (his/her) job...!
+
+Choice A: Do It the Pig's Way
+Choice B: Shoo the Pig
+
+CHOICE A: DO IT THE PIG'S WAY
+First popup: (Name) looks at the pig. The pig does not look at (name). With great dignity, (name) kneels down, digs (his/her) fingers into the loose soil the way the pig's snout went in, and plants the seeds...
+
+Ending A1 -- NEVER ADMITS IT. Chance 50%. EFFECT: gains 20 to 30 Farming
+The seeds come up in four days, faster and greener than any in the village. People come from the other fields to look. They ask (name) what (he/she) did. (Name) says (he/she) has been "trying a new method." (He/She) starts digging all (his/her) rows the pig's way, loose and deep, and gets better at it every day. (Name) never, ever admits where (he/she) learned it, not even when the pig wanders past the fields and snorts at (him/her) in a very knowing way.
+
+Ending A2 -- THE PIG'S APPRENTICE. Chance 50%. EFFECT: Farming becomes MASTER (100)
+The pig's way works so well that (name) starts following the pig around. Everywhere it roots, (name) watches. Where it digs, (name) plants. Which plants it eats and which it leaves alone, (name) writes down. It is a very undignified season. People talk. But by harvest time (name)'s fields are the best on the island, heavy and green and overflowing, and (he/she) is, without any argument, the best farmer in the village. At the harvest feast (name) saves the best scraps from (his/her) plate and leaves them, quietly, under a certain bush.
+
+CHOICE B: SHOO THE PIG
+First popup: "Thank you," says (name), stiffly, "but I know what I'm doing." (He/She) flaps (his/her) arms. The pig opens one eye, looks at (him/her) for a long moment, then gets up and walks off with its nose in the air...
+
+Ending B1 -- THE PIG KNEW. Chance 50%. EFFECT: loses 10 Farming; now dislikes farming
+The pig leaves. (Name) plants the seeds in the hard ground (his/her) own way, waters them, waits. The seeds don't come up. Not one. (He/She) tries again. Nothing. Across the field, the pig is lying in the shade watching (him/her), and (name) is absolutely certain it knew. Something goes out of (him/her) after that. (Name) starts to dread the fields, does the work badly and with a scowl, and gets worse at it every week.
+
+Ending B2 -- THE PIG'S REVENGE. Chance 50%. EFFECT: food loss (small amount)
+The pig leaves, deeply offended. It walks straight across the field, straight through the village, straight into the vegetable store, and eats a whole basket of the village's best roots on its way out, slowly, looking at (name) the entire time. Nobody manages to stop it. Nobody really tries. It's a very big pig. Your village loses (award) food.
+
+MIXER SEED S018
+Premise: (Name) has been fighting baked-hard soil for an hour while a big pig watches with pity, until the pig roots up the whole row in three snorts and lies down in the sun.
+Roles:
+  farmer: one villager aged 14 or older (not protected)
+Approaches: Do It the Pig's Way | Shoo the Pig | Thank the Pig | Bribe the Pig to Do Another Row
+Outcome pool:
+  - The seeds come up in four days. (Name) never admits where (he/she) learned it. [answers: Do It the Pig's Way, Thank the Pig] [mood: funny] [EFFECT: gains 20 to 30 Farming]
+  - (Name) follows the pig all season and becomes the best farmer on the island. [answers: Do It the Pig's Way] [mood: warm] [EFFECT: Farming becomes MASTER (100)]
+  - The seeds don't come up, and (name) is sure the pig knew. (He/She) comes to hate farming. [answers: Shoo the Pig] [mood: sad] [EFFECT: loses 10 Farming; now dislikes farming]
+  - The offended pig eats a basket from the store on its way out. [answers: Shoo the Pig, Bribe the Pig to Do Another Row] [mood: funny] [EFFECT: food loss (small amount)]
+  - The pig accepts a bribe of fruit and roots up the whole field. It is a very good field. [answers: Bribe the Pig to Do Another Row, Thank the Pig] [mood: funny] [EFFECT: food gain (small amount)]
+Flavour lines:
+  - The soil is baked as hard as a cooking pot.
+  - The pig chews something, with an expression of deep and patient pity.
+  - The pig opens one eye.
+  - It's a very big pig.
+
+
+==============================================================================
+S019. The Glowing Berries   [VV1, VV2, VV3, VV4, VV5]
+WHO: one villager aged 14 or older (not protected); in ending B2, also one random villager with the highest Healing (the healer)
+EVENT TEXT
+At dusk, on the way home from the far gardens, (name) notices a faint light in the undergrowth. It's a bush, low and dark-leaved, covered in berries that glow. Not brightly. Just softly, from the inside, like coals in a fire that's nearly out. They hang in heavy clusters like tiny paper lanterns, and moths are already circling them in slow, dizzy loops.
+They smell wonderful: sweet, sharp, a little like honey, a little like rain.
+Nobody in the village has ever seen anything like them. Nobody knows if they're safe. Which, of course, is exactly why (name) is tempted.
+
+Choice A: Eat One
+Choice B: Take Some to the Healers
+
+CHOICE A: EAT ONE
+First popup: (Name) picks the biggest, brightest berry. It's warm in (his/her) fingers. (He/She) sniffs it, shrugs, and pops it into (his/her) mouth. It bursts on (his/her) tongue like a little star...
+
+Ending A1 -- THE GLOWING VILLAGER. Chance 50%. EFFECT: none
+It's the best thing (he/she) has ever tasted. By the time (he/she) gets home, (his/her) fingertips are glowing faintly. By bedtime, so are (his/her) ears. For two whole days (name) glows softly in the dark, like a lamp turned down low, and feels absolutely fantastic. Nothing else happens. The healers can't find a thing wrong. The only trouble is the children, who follow (him/her) around everywhere at night in a long giggling line, and a few very determined moths.
+
+Ending A2 -- COLOURS THAT AREN'T THERE. Chance 50%. EFFECT: ILLNESS (needs the healers)
+It's the best thing (he/she) has ever tasted, for about an hour. By midnight (name) is burning with fever, shivering and sweating at once, and telling (his/her) family about the colours. Colours that aren't there. Colours that don't have names, crawling on the roof, singing. The healers are fetched in a hurry. They keep (him/her) in the healers' hut for a week, spooning bitter tea into (him/her), until the colours fade and (he/she) can tell the difference between the healers and the walls again. The healers pin a drawing of the glowing bush on the hut door, with a big cross through it.
+
+CHOICE B: TAKE SOME TO THE HEALERS
+First popup: (Name) wraps a few clusters carefully in a leaf, trying not to squash them, and carries them home like something precious. The healers unwrap them by the fire and all lean in at once, faces lit green-gold...
+
+Ending B1 -- A REAL DISCOVERY. Chance 50%. EFFECT: tech gain (normal amount); (name) gains 10 to 20 Healing
+The healers spend three days with the berries, boiling them, drying them, crushing them, mixing them with this and that. (Name) helps with all of it. At the end of the third day, they have a thick golden paste that eases aches and stiff joints better than anything they've ever made. The elders rub it on their knees and sigh with relief. It's a real discovery, and the healers make sure everybody knows it was (name) who found it. Your villagers gain (award) tech points.
+
+Ending B2 -- THE HEALER WHO TASTED. Chance 50%. EFFECT: (healer) has an ILLNESS (needs the healers); (name) gains 10 to 20 Healing
+The best healer in the village, (healer), turns one berry over and over in (his/her) fingers and decides there's only one way to be sure. "Just a small taste," (healer) says. "For science." By morning (healer) is sick with a roaring fever and talking to the roof beams. With the best healer out of action, (name) has to look after (him/her), mixing teas, cooling (his/her) forehead, sitting up through the nights. It takes a week. (Healer) gets better. And (name) learns more about healing in that one week than (he/she) ever expected to.
+
+MIXER SEED S019
+Premise: At dusk, (name) finds a bush covered in softly glowing berries that smell of honey and rain, which nobody in the village has ever seen.
+Roles:
+  finder: one villager aged 14 or older (not protected)
+  healer: the villager with the highest Healing (not protected), only for the healer outcomes
+Approaches: Eat One | Take Some to the Healers | Feed One to a Pig First | Leave Them for the Moths
+Outcome pool:
+  - (Name) glows softly for two days and feels fantastic. The children follow (him/her) around at night. [answers: Eat One] [mood: funny] [EFFECT: none]
+  - A fever and colours that aren't there. A week with the healers. [answers: Eat One] [mood: tense] [EFFECT: ILLNESS (needs the healers)]
+  - The healers turn the berries into a golden paste for aching joints. [answers: Take Some to the Healers] [mood: warm] [EFFECT: tech gain (normal amount); (name) gains 10 to 20 Healing]
+  - The head healer tastes one "for science" and gets sick, and (name) nurses (him/her) back. [answers: Take Some to the Healers] [mood: funny] [EFFECT: (healer) has an ILLNESS; (name) gains 10 to 20 Healing]
+  - The pig eats one, glows all night, and seems perfectly happy. (Name) decides that's proof enough and gathers a basketful. [answers: Feed One to a Pig First] [mood: funny] [EFFECT: food gain (small amount)]
+  - The moths settle on the bush until it's covered in soft wings, and the glow goes out. Nobody can find the bush again. [answers: Leave Them for the Moths] [mood: eerie] [EFFECT: none]
+Flavour lines:
+  - The berries glow like coals in a fire that's nearly out.
+  - Moths circle in slow, dizzy loops.
+  - It smells a little like honey and a little like rain.
+  - The healers' faces are lit green-gold.
+
+
+==========================================================
+
+====================
+S020. The Grumpy Morning   [VV1, VV2, VV3, VV4, VV5]
+WHO: one elder (not protected)
+EVENT TEXT
+(Name) has woken up on the wrong side of the mat. Everyone can tell from across the village. Even the fat little lizard that lives in (his/her) roof thatch is keeping well out of the way today.
+The fire smoked. The water was warm. The birds are too loud. Somebody has been whistling, and it was the same three notes, over and over. And now (name) is standing in the middle of the path with (his/her) arms folded, informing everyone who passes exactly what (he/she) thinks of birds, water, fires, whistling, and the general state of young people today. "You whippersnappers nowadays..."
+People are starting to take the long way round to the well. Should the village leave (name) to grumble it out, or try to sweeten (his/her) mood?
+
+Choice A: Leave (Him/Her) Alone
+Choice B: Bring (Him/Her) Breakfast
+
+CHOICE A: LEAVE (HIM/HER) ALONE
+First popup: The village decides that some storms are best waited out. Everyone keeps their heads down, their whistling to themselves, and a good distance between them and (name), and goes about their day...
+
+Ending A1 -- GRUMBLED OUT. Chance 50%. EFFECT: none
+By midday (name) has run out of people to grumble at. By mid-afternoon (he/she) has run out of things to grumble about, and is sitting on a log, rather tired, looking at (his/her) feet. By evening (he/she) has grumbled (himself/herself) right out, and is back in (his/her) usual seat by the fire, telling the children the story about the turtle who wanted to fly. Nobody mentions the morning. The lizard comes back out onto the roof and goes to sleep.
+
+Ending A2 -- THE GRUMPINESS SETTLES IN. Chance 50%. EFFECT: now dislikes parenting or similar if available
+The grumpiness doesn't wear off. It settles in, like damp in a wall. By the end of the day (name) has decided that (he/she) has never liked noise, and the noisiest thing in the village is the children, with their games and their shrieking and their endless questions. From that day on (name) wants nothing to do with minding the little ones, and if a child wanders too close (he/she) waves them off like a fly. The children, who used to love (his/her) stories, are puzzled and a little hurt.
+
+CHOICE B: BRING (HIM/HER) BREAKFAST
+First popup: One brave young villager fills a bowl with warm mash, adds a spoonful of honey on top, and walks straight up to (name) with it, holding it out at arm's length like someone offering fruit to a crocodile...
+
+Ending B1 -- THE BEST BREAKFAST. Chance 50%. EFFECT: now likes eating; loses one dislike (at random)
+(Name) glares at the bowl. Then (he/she) takes it. Then (he/she) takes a spoonful, and stops glaring. A warm bowl of mash with honey on top does wonders. (Name) finishes it, scrapes the bowl, and declares it the best breakfast of (his/her) entire life. (He/She) is so cheered up that one of (his/her) oldest grudges, against something (he/she) has complained about for years, seems to melt away too. From then on (name) is a changed elder in the mornings, always first at the cooking pot, and the lizard on the roof grows fatter on the crumbs.
+
+Ending B2 -- TOO WARM. Chance 50%. EFFECT: food loss (small amount)
+(Name) takes one spoonful and announces that it's too warm. And too sweet. And too lumpy. And not as good as mash used to be. (He/She) complains about it all the way through the bowl, and then holds it out and says "More." (He/She) complains all the way through the second bowl too, and the third. By the time (he/she) is finished, a good part of the morning's food is gone, and (name) is, grudgingly, almost in a good mood. Your village loses (award) food.

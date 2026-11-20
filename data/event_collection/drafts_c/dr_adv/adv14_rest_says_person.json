@@ -69,11 +69,78 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"And when did YOU last rest?\" asks (subject). (friend) opens (friend.his/her) mouth. Closes it. Looks at the hammer. \"That's different,\" (friend.he/she) says. \"How?\" says (subject). There is a long pause. \"...It's not different,\" (friend) admits. They both take the next afternoon off and lie in hammocks side by side. (friend) fidgets the whole time. It's a start.",
+   "src": "L164",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L164"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 15,
+     "max": 30,
+     "src": "L164"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"And when did YOU last rest?\" asks (subject). (friend) opens (friend.his/her) mouth. Closes it. Looks at the hammer. \"That's different,\" (friend.he/she) says. \"How?\" says (subject). There is a long pause. \"...It's not different,\" (friend) admits. They both take the next afternoon off and lie in hammocks side by side. (friend) fidgets the whole time. It's a start.",
    "src": "L164"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides that good advice is good advice, no matter who gives it. (subject.He/she) takes a day off. It's wonderful. (subject.He/she) sleeps, swims, eats fruit in the shade. In the evening (subject.he/she) walks past (friend), still working by torchlight. (subject) doesn't say anything. (subject.He/she) just leaves a mango on (friend)'s step. (friend) gets the message, mostly.",
+   "src": "L167",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L167"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L167"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) decides that good advice is good advice, no matter who gives it. (subject.He/she) takes a day off. It's wonderful. (subject.He/she) sleeps, swims, eats fruit in the shade. In the evening (subject.he/she) walks past (friend), still working by torchlight. (subject) doesn't say anything. (subject.He/she) just leaves a mango on (friend)'s step. (friend) gets the message, mostly.",
    "src": "L167"

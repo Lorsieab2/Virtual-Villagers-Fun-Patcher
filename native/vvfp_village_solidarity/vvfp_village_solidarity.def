@@ -1,0 +1,10 @@
+LIBRARY "VVFP Village Solidarity"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpVillageScoreGet=_VvfpVillageScoreGet@8
+    VvfpVillageScoreTag=_VvfpVillageScoreTag@16
+    VvfpVillageScoreFactor=_VvfpVillageScoreFactor@12
+    VvfpVillageScoreStrength=_VvfpVillageScoreStrength@4
+    VvfpVillageScoreCounterInstalled=_VvfpVillageScoreCounterInstalled@4
+    VvfpVillageScoreReset=_VvfpVillageScoreReset@8
+    VvfpVillageScoreTagOnce=_VvfpVillageScoreTagOnce@28

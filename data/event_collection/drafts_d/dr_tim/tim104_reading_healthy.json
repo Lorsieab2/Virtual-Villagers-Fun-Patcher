@@ -122,9 +122,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1), an elder, teaches how to recognize healthy leaves. Someone proposes keeping notes on the next planting.",
-   "src": "L1743"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -132,14 +139,59 @@
    "src": "L1747"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "(Name1), an elder, teaches how to recognize healthy leaves. The progress is tiny, but it brightens the morning.",
-   "src": "L1751"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "(Name1), an elder, teaches how to recognize healthy leaves. (Name1) worries about the weather and checks the sky again.",
    "src": "L1755"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), an elder, teaches how to recognize healthy leaves. Someone proposes keeping notes on the next planting.",
+   "src": "L1743",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1743"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1), an elder, teaches how to recognize healthy leaves. Someone proposes keeping notes on the next planting.",
+   "src": "L1743"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1), an elder, teaches how to recognize healthy leaves. The progress is tiny, but it brightens the morning.",
+   "src": "L1751",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1751"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1), an elder, teaches how to recognize healthy leaves. The progress is tiny, but it brightens the morning.",
+   "src": "L1751"
   }
  }
 }

@@ -29,6 +29,8 @@ sys.path.insert(0, str(ROOT / "src"))
 import vv_fun_patcher_gui as gui  # noqa: E402
 
 NO_TK = 3
+# Birth Control is in all five games (The Tree of Life and New Believers since 2026-11-19), in the games' order.
+BIRTH_CONTROL = [f"vv{game}_birth_control" for game in range(1, 6)]
 
 
 class _Var:
@@ -79,11 +81,9 @@ class NameGroupTests(unittest.TestCase):
         patches = gui.load_public_fun_patches()
         groups = dict(gui.patches_by_name(builds, patches))
         self.assertEqual(sum(len(v) for v in groups.values()), len(patches))
-        self.assertEqual({p.id for p in groups["Birth Control"]},
-                         {"vv1_birth_control", "vv2_birth_control", "vv3_birth_control"})
+        self.assertEqual({p.id for p in groups["Birth Control"]}, set(BIRTH_CONTROL))
         # In the games' order, not the catalog's.
-        self.assertEqual([p.id for p in groups["Birth Control"]],
-                         ["vv1_birth_control", "vv2_birth_control", "vv3_birth_control"])
+        self.assertEqual([p.id for p in groups["Birth Control"]], BIRTH_CONTROL)
 
 
 class TickTheseTests(unittest.TestCase):
@@ -93,7 +93,7 @@ class TickTheseTests(unittest.TestCase):
         win._set_named_fun_patches(["Birth Control"], True)
         after = _ticks(win)
         named = {p.id for p in win.fun_patches if p.name == "Birth Control"}
-        self.assertEqual(len(named), 3)
+        self.assertEqual(len(named), 5)
         for patch_id in named:
             self.assertTrue(after[patch_id], patch_id)
         # Birth Control needs nothing else, so nothing else moved.
@@ -137,7 +137,7 @@ class TickTheseTests(unittest.TestCase):
         win._set_named_fun_patches(["Birth Control"], False)
         after = _ticks(win)
         unticked = {pid for pid, value in after.items() if not value}
-        self.assertEqual(unticked, {"vv1_birth_control", "vv2_birth_control", "vv3_birth_control"})
+        self.assertEqual(unticked, set(BIRTH_CONTROL))
 
     def test_the_companion_row_follows_as_for_a_manual_tick(self):
         name = _name("vv1_story_cheat_upgrades")
@@ -268,8 +268,7 @@ class RealWindowTests(unittest.TestCase):
     def test_the_settings_window_ticks_and_unticks_in_every_game(self):
         r = self.result
         self.assertEqual(r["buttons"], ["Close", "Tick These", "Untick These"])
-        self.assertEqual(r["ticked_after_tick_these"],
-                         ["vv1_birth_control", "vv2_birth_control", "vv3_birth_control"])
+        self.assertEqual(r["ticked_after_tick_these"], BIRTH_CONTROL)
         self.assertEqual(r["ticked_after_untick_these"], [])
 
 

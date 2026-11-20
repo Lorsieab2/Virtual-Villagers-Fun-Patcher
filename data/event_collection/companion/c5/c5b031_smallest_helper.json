@@ -100,6 +100,32 @@
    "src": "L1411"
   },
   "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "The toddler proudly carries a single leaf.",
+   "src": "L1412",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "toddler",
+     "mood": "good",
+     "src": "L1412"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Ending 2",
    "text": "The toddler proudly carries a single leaf.",
    "src": "L1412"

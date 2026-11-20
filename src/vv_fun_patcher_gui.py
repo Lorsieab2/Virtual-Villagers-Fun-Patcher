@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import struct
 import subprocess
@@ -43,11 +44,13 @@ import vv_translations
 import vv_translations_window
 import vv_vv2_totem_store
 import vv_vv2_totems
+import vv_village_scores
 import vv_genealogy
 import vv_genealogy_window
 import vv_game_mechanics_window
 import vv_stew_recipes_window
 import vv_cie_library_window
+import vv_player_events_ui
 import vv_picture_studio
 import vv_unicode_font
 import vv_tool_fonts
@@ -70,9 +73,25 @@ from vv_fun_patcher import (
     MEAL_MULTIPLIER_RANGE,
     SICKNESS_MULTIPLIER_DEFAULT,
     SICKNESS_MULTIPLIER_RANGE,
+    LOUDER_FLUTES_MULTIPLIER_DEFAULT,
+    LOUDER_FLUTES_MULTIPLIER_RANGE,
+    ISLAND_FREQUENCY_MULTIPLIER_DEFAULT,
+    ISLAND_FREQUENCY_MULTIPLIER_RANGE,
+    PARTNER_CARRY_DEFAULT,
+    PARTNER_CARRY_RANGE,
+    RUNTIME_SLIDER_DEFAULT,
+    RUNTIME_SLIDER_RANGE,
+    RUNTIME_SLIDERS,
     UNICODE_FONT_DEFAULT_FACE,
     conflict_ids,
+    multiplier_text,
+    parse_multiplier,
+    set_louder_flutes_multiplier,
+    set_island_frequency_multiplier,
+    set_runtime_slider_multiplier,
     set_unicode_font_face,
+    set_village_solidarity_strength,
+    village_solidarity_strength,
     set_unicode_font_file,
     unicode_font_file,
     patch_requirement_text,
@@ -135,7 +154,7 @@ ALTERNATIVE_OFF_FUN_PATCH_IDS = ALTERNATIVE_FUN_PATCH_IDS
 #
 # Matched by exact id rather than by substring or display name, so a future
 # patch whose name merely mentions learning is not excluded by accident.
-# 2-10x Tech Cost, one row per game: only ever ticked by the player's own
+# 0.1-10x Tech Cost, one row per game: only ever ticked by the player's own
 # click on it (the owner, 2026-11-06: "7 should be default off for
 # everything. players who want it must explicitly choose it.").
 TECH_COST_MULTIPLIER_FUN_PATCH_IDS = ["vv%d_tech_cost_multiplier" % game for game in range(1, 6)]
@@ -151,10 +170,121 @@ LEGACY_OF_ISOLA_TITLE_COLOUR = "#1e8a3c"
 TITLE_COLOURS = {
     **{patch_id: ("ClassicDifficulty.TCheckbutton", CLASSIC_DIFFICULTY_TITLE_COLOUR)
        for patch_id in CLASSIC_DIFFICULTY_FUN_PATCH_IDS},
+    **{"vv%d_island_events_any_time" % game: ("ClassicDifficulty.TCheckbutton", CLASSIC_DIFFICULTY_TITLE_COLOUR)
+       for game in range(1, 6)},
     LEGACY_OF_ISOLA_FUN_PATCH_ID: ("LegacyOfIsola.TCheckbutton", LEGACY_OF_ISOLA_TITLE_COLOUR),
 }
+# The island events' content controls (the owner, 2026-11-15; scripts/build_island_event_content_features.py):
+# Content Notes is on in Owner's Defaults and off everywhere else; the 28 content filters are off
+# everywhere, Owner's Defaults too.
+ISLAND_EVENT_NOTES_IDS = ["vv%d_island_event_content_notes" % game for game in range(1, 6)]
+# No Safeguards for Island Events (and Additional Events too) ("for masochists"; the owner, 2026-11-15): off everywhere, Owner's Defaults and Select All too.
+ISLAND_EVENT_ANY_TIME_IDS = ["vv%d_island_events_any_time" % game for game in range(1, 6)]
+ISLAND_EVENT_FILTER_IDS = ["vv%d_island_event_filter_f%02d" % (game, n) for game in range(1, 6) for n in range(1, 29)]
+# Each game's Island Events section holds these rows (by the id after "vvN_"), in this order, and the filters below
+# them; the main list leaves them out.
+ISLAND_EVENT_SECTION_ROWS = ("more_island_events", "isola_grand_event_collection", "island_event_content_notes")
+# "More Island Events and Creator" (the owner, 2026-11-16): one row per game for every added island event, its
+# tick ticking (and unticking) these rows together; each keeps its own id, defaults and rules as a setting inside it,
+# so saved settings and installed games need no migration.  The event creator and the partner-carry setting sit
+# under it.
+MIE_CREATOR_NAME = "More Island Events and Creator"
+MIE_CREATOR_ROWS = ("more_island_events", "isola_grand_event_collection")
+MIE_CREATOR_NOTE = (
+    "Every island event the patcher adds, in one row: ticking it ticks More Island Events and the Isola Grand Event "
+    "Collection below (each can still be unticked on its own). Needs Story / Cheat Upgrades and Scrolling Popups; "
+    "ticking it ticks them. Owner's Defaults, Select All and Classic VV Difficulty tick the whole row. Write your "
+    "own events with the Custom Island Event Library below.")
+# No Safeguards for Island Events (and Additional Events too) sits under Classic VV Difficulty in the main list (the
+# owner, 2026-11-15), with its title colour -- never ticked by it (off everywhere).
+NO_SAFEGUARDS_TAIL = "island_events_any_time"
+
+
+def place_after_classic(rows: list) -> list:
+    """The game's main-list rows with No Safeguards moved right after Classic VV Difficulty (when the game has it;
+    else it keeps its place by name)."""
+    mine = [r for r in rows if r[0].id.endswith("_" + NO_SAFEGUARDS_TAIL)]
+    if not mine:
+        return rows
+    rest = [r for r in rows if r not in mine]
+    at = next((k for k, r in enumerate(rest) if r[0].id in CLASSIC_DIFFICULTY_FUN_PATCH_IDS), None)
+    if at is None:
+        return rows
+    return rest[:at + 1] + mine + rest[at + 1:]
+ISLAND_EVENT_FILTER_PREFIX = "island_event_filter_"
+
+
+def island_event_section_kind(patch_id: str) -> str | None:
+    """"row" for a row of the Island Events section, "filter" for a content filter, None for the main list."""
+    tail = patch_id.split("_", 1)[1] if "_" in patch_id else patch_id
+    if tail.startswith(ISLAND_EVENT_FILTER_PREFIX):
+        return "filter"
+    return "row" if tail in ISLAND_EVENT_SECTION_ROWS else None
+
+
+# The red content advisories of the island-event rows (the owner, 2026-11-15, word for word), by the id after
+# "vvN_", and the information note shown after them (not red).  Custom Island Events live in Story / Cheat Upgrades.
+ISLAND_EVENT_ADVISORY_COLLECTION = (
+    "CONTENT ADVISORY: These events include occasional illness, injury, grief, death, pregnancy loss and other "
+    "difficult situations. Serious outcomes are rare and described without graphic detail. Some events involve "
+    "difficult choices, uncertainty or lasting consequences. Ordinary village life, kindness and community remain "
+    "central.")
+ISLAND_EVENT_ADVISORY_MORE = (
+    "Content advisory: Some events involve danger, disasters or difficult choices; outcomes are non-graphic.")
+ISLAND_EVENT_ADVISORY_CUSTOM = (
+    "Player-created events may contain sensitive subjects. Their content and outcomes depend on the creator; review "
+    "custom events before enabling them.")
+ISLAND_EVENT_ADVISORY_ANY_TIME = (
+    "Events that can kill a villager, make one disappear or lose a pregnancy can happen even in a small or new village.")
+ISLAND_EVENT_ADVISORY_PICK = (
+    "Warning: Pick Island Event and Custom Island Events ignore the island event safeguards (the 61-villager limit for "
+    "deadly events, rescue events, the opening events and a village in trouble). A picked or custom event can kill a "
+    "villager, make one disappear or lose a pregnancy at any time.")
+ISLAND_EVENT_INFO_NOTE = (
+    "Original game events and their appearance rates remain unchanged. New events can take the place of natural "
+    "island events (never rescue events or the two opening events). "
+    "Includes original and expanded Isola stories; credits are retained where applicable. Optional content controls "
+    "affect added events only.")
+ISLAND_EVENT_ADVISORIES = {
+    "isola_grand_event_collection": (ISLAND_EVENT_ADVISORY_COLLECTION, True),
+    "more_island_events": (ISLAND_EVENT_ADVISORY_MORE, True),
+    # Story / Cheat Upgrades holds Pick Island Event and Custom Island Events: the owner's two warnings (2026-11-15).
+    "story_cheat_upgrades": (ISLAND_EVENT_ADVISORY_CUSTOM + "\n\n" + ISLAND_EVENT_ADVISORY_PICK, False),
+    "island_events_any_time": (ISLAND_EVENT_ADVISORY_ANY_TIME, False),
+}
+ADVISORY_COLOUR = "#c00000"
+# A big red warning at the very top of a row's description (the owner, 2026-11-15), by the id after "vvN_".
+ISLAND_EVENT_BIG_WARNINGS = {
+    "island_events_any_time": "Warning: with this patch on, the game may be unpredictable.",
+}
+
+
+def island_event_big_warning(patch_id: str) -> str | None:
+    tail = patch_id.split("_", 1)[1] if "_" in patch_id else patch_id
+    return ISLAND_EVENT_BIG_WARNINGS.get(tail)
+# The filters never hide a kind of person (the owner, 2026-11-15).
+ISLAND_EVENT_FILTERS_NOTE = (
+    "Applied before the random draw picks an event: a filtered outcome is dropped where the event still makes sense, "
+    "otherwise the event is skipped. Added events only; off everywhere, Owner's Defaults too. Filters never hide a "
+    "kind of person (diversity, disability, identity, sex or gender changes, same-sex relationships, religion, "
+    "romance in general, family forms, singlehood).")
+
+
+def island_event_advisory(patch_id: str) -> tuple[str, bool] | None:
+    """A row's red advisory and whether the information note follows it, or None."""
+    tail = patch_id.split("_", 1)[1] if "_" in patch_id else patch_id
+    return ISLAND_EVENT_ADVISORIES.get(tail)
+
+
+# Birth Control rows new in The Tree of Life and New Believers (catch-up babies only): on in Owner's Defaults only.
+VV4_VV5_BIRTH_CONTROL_IDS = ["vv4_birth_control", "vv5_birth_control"]
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
+
+# The rows of the 0.1x-10x sliders (all five games): the owner, 2026-11-17.
+NEW_SLIDER_ROW_IDS = [f"vv{game}{slider.row_suffix}" for slider in RUNTIME_SLIDERS for game in range(1, 6)]
+# One-Time Collectibles Appear Again (The Secret City, The Tree of Life).
+ONE_TIME_COLLECTIBLES_IDS = ["vv3_one_time_collectibles_again", "vv4_one_time_collectibles_again"]
 
 DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     ["vv%d_learning_never_fails" % game for game in range(1, 6)]
@@ -186,7 +316,7 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # table and changes the save format. Owner's Defaults ticks it (owner,
     # 2026-10-03); Select All does not (SELECT_ALL_OFF_FUN_PATCH_IDS).
     + ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
-    # 2-10x Tech Cost (all five games) makes the game super hard: the owner
+    # 0.1-10x Tech Cost (all five games) makes the game super hard: the owner
     # (2026-11-06): "Default OFF", and "players who want it must explicitly
     # choose it" -- so Owner's Defaults and Select All leave it off too
     # (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS, SELECT_ALL_OFF_FUN_PATCH_IDS).
@@ -196,14 +326,14 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Believers): a difficulty change too, so off by default; Owner's Defaults
     # ticks it like every default-off patch it does not name.
     + ["vv4_science_collectibles_complete", "vv5_science_collectibles_complete"]
-    # Hungrier Villagers (2-10x Meals) (all five games): a difficulty change,
+    # Hungrier Villagers (0.1-10x Meals) (all five games): a difficulty change,
     # off by default; Owner's Defaults ticks it like every default-off patch
     # it does not name.
     + ["vv%d_hungrier_villagers" % game for game in range(1, 6)]
     # Classic VV Difficulty (The Tree of Life, New Believers): ticks the
     # harder-game patches; off by default. The owner (2026-11-07): "have the
     # classic vv difficulty on default for owner's defaults! (set the sliders
-    # to 2x." -- Owner's Defaults ticks it, which ticks its pieces (2-10x Tech
+    # to 2x." -- Owner's Defaults ticks it, which ticks its pieces (0.1-10x Tech
     # Cost included, there), and sets both sliders to 2.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
     # Collectible Spawn Timing works like VV1-3 (The Tree of Life): a
@@ -212,7 +342,7 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Harder Fishing Unlock in VV4 (The Tree of Life, the owner 2026-11-08:
     # "Default ON in Owner's Defaults"), in Classic VV Difficulty.
     + ["vv4_harder_fishing_unlock"]
-    # 2-10x Sickness (all five games) and Sickness works like VV1-3 (The Tree
+    # 0.1-10x Sickness (all five games) and Sickness works like VV1-3 (The Tree
     # of Life, New Believers; in Classic VV Difficulty): the owner
     # (2026-11-08): off by default, Owner's Defaults ticks both.
     + ["vv%d_sickness_multiplier" % game for game in range(1, 6)]
@@ -227,6 +357,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Yellow Breadfruit Refills Partially Every Time (The Tree of Life; the owner, 2026-11-11): off by default and
     # off in Owner's Defaults too (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
     + ["vv4_yellow_fruit_refills_partially"]
+    # Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life; the owner, 2026-11-17): off by default, on in Owner's
+    # Defaults.
+    + ["vv4_up_to_99_supplies"]
     # Picked Up Collectibles Stay Collected When Dropped (all five games; the owner, 2026-11-12): off by default,
     # on in Owner's Defaults, which ticks it like every default-off patch it does not name.
     + ["vv%d_collectibles_stay_collected" % game for game in range(1, 6)]
@@ -236,17 +369,44 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Owner's Defaults too (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
     + ["vv%d_island_events_scale_with_population" % game for game in (1, 4, 5)]
     # Scrolling Popups (all five games; the owner, 2026-11-12): off by default, on in
-    # Owner's Defaults, which ticks it like every default-off patch it does not name; not in Classic VV Difficulty.
+    # Owner's Defaults, which ticks it like every default-off patch it does not name; Classic VV Difficulty ticks it
+    # for the Isola Grand Event Collection (the owner, 2026-11-16).
     + ["vv%d_scrolling_popups" % game for game in (1, 2, 3, 4, 5)]
     # The Aspiring Adventurer (all five games; the owner, 2026-11-12): a new island event, off by default, on in
     # Owner's Defaults (and in Classic VV Difficulty where a game has it).
     + ["vv%d_more_island_events" % game for game in range(1, 6)]
-    # Isola Grand Event Collection (all five games; the owner, 2026-11-14): "Default ON in Owner's Defaults, OFF
-    # everywhere else" -- off here and in Select All, not in Classic VV Difficulty.
+    # Isola Grand Event Collection (all five games): off by default; Owner's Defaults, Select All and Classic VV
+    # Difficulty tick it with More Island Events -- the whole "More Island Events and Creator" row (the owner,
+    # 2026-11-16).
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
+    # The island events' content controls (the owner, 2026-11-15): Content Notes on in Owner's
+    # Defaults only; the content filters off everywhere (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS too).
+    + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
     # Change Sex and Gender Presentation (all five games; the owner, 2026-11-15): every new option "ON in Owner's
     # Defaults and OFF everywhere else" -- off here and in Select All.
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
+    # More Frequent Island Events (all five games; the owner, 2026-11-15: new v1.35.97 patches are on in Owner's
+    # Defaults, off everywhere else) -- off here and in Select All.
+    + ["vv%d_more_frequent_island_events" % game for game in range(1, 6)]
+    # Its option The Golden Child May Be Born Female (50:50) (A New Home; the owner, 2026-11-16): "ON in Owner's
+    # Defaults, off elsewhere".
+    + ["vv1_golden_child_born_female"]
+    # The 0.1x-10x sliders' rows (the owner, 2026-11-17; new v1.35.97 patches are on in Owner's Defaults, off
+    # everywhere else) -- off here and in Select All.
+    + NEW_SLIDER_ROW_IDS
+    # One-Time Collectibles Appear Again (The Secret City, The Tree of Life; the owner, 2026-11-17): likewise.
+    + ONE_TIME_COLLECTIBLES_IDS
+    # Every Island Event Can Happen (A New Home, The Lost Children, The Secret City, New Believers; the owner,
+    # 2026-11-17): off by default, on in Owner's Defaults, which ticks it like every default-off patch it does not
+    # name.
+    + ["vv%d_every_island_event_can_happen" % game for game in (1, 2, 3, 5)]
+    # Village Solidarity (all five games; the owner, 2026-11-17): off by default and in Select All, on in Owner's
+    # Defaults.
+    + ["vv%d_village_solidarity" % game for game in range(1, 6)]
+    # Birth Control (The Tree of Life, New Believers; new 2026-11-19): a new option, so "ON in Owner's Defaults and
+    # OFF everywhere else" -- off here and in Select All.  A New Home to The Secret City keep their Birth Control
+    # rows on by default, as before.
+    + VV4_VV5_BIRTH_CONTROL_IDS
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -283,7 +443,7 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner (2026-11-01): "For Owner's Defaults, I'd like to have the ingame fonts toggled on." --
     # Render Unicode with In-Game Fonts on, its alternative Use Unicode Font (overrides in-game fonts) off.
     + ["vv%d_unicode_font" % game for game in range(1, 6)]
-    # 2-10x Tech Cost is NOT here: the owner (2026-11-07), after Classic VV
+    # 0.1-10x Tech Cost is NOT here: the owner (2026-11-07), after Classic VV
     # Difficulty ticked it in The Tree of Life and New Believers: "sure,
     # default them on in vv1-3 too!" -- Owner's Defaults ticks it in all five
     # games, with the slider at 2.
@@ -300,6 +460,9 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner (2026-11-12): Island Events Scale With Stored Food and Tech Points is the alternative, off in
     # Owner's Defaults; Island Events Scale With Population (like The Lost Children) is ticked there instead.
     + ["vv%d_island_events_scale_with_stored_amounts" % game for game in (1, 4, 5)]
+    # The owner (2026-11-15): the island events' content filters are off everywhere, Owner's Defaults too, and so is
+    # No Safeguards for Island Events (and Additional Events too).
+    + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select
@@ -307,14 +470,28 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
 # separate "- Modded 256" game with its own save folder and save format.
 SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
-    # The owner (2026-11-06): 2-10x Tech Cost is ticked only by its own row.
+    # The owner (2026-11-06): 0.1-10x Tech Cost is ticked only by its own row.
     + TECH_COST_MULTIPLIER_FUN_PATCH_IDS
-    # Classic VV Difficulty would tick 2-10x Tech Cost through its dependencies.
+    # Classic VV Difficulty would tick 0.1-10x Tech Cost through its dependencies.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
-    # Isola Grand Event Collection: on in Owner's Defaults only (the owner, 2026-11-14).
-    + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
+    # (The Isola Grand Event Collection is NOT here: the owner (2026-11-16), Select All ticks the whole "More Island
+    # Events and Creator" row, the collection too.)
+    # The island events' content controls (the owner, 2026-11-15): notes on in Owner's Defaults
+    # only, the filters off everywhere.
+    + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
     # Change Sex and Gender Presentation: on in Owner's Defaults only (the owner, 2026-11-15).
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
+    # More Frequent Island Events: on in Owner's Defaults only (the owner, 2026-11-15).
+    + ["vv%d_more_frequent_island_events" % game for game in range(1, 6)]
+    + ["vv1_golden_child_born_female"]
+    # The 0.1x-10x sliders' rows: likewise (the owner, 2026-11-17).
+    + NEW_SLIDER_ROW_IDS
+    # One-Time Collectibles Appear Again: likewise (the owner, 2026-11-17).
+    + ONE_TIME_COLLECTIBLES_IDS
+    # Village Solidarity: on in Owner's Defaults only (the owner, 2026-11-17).
+    + ["vv%d_village_solidarity" % game for game in range(1, 6)]
+    # Birth Control in The Tree of Life and New Believers: on in Owner's Defaults only.
+    + VV4_VV5_BIRTH_CONTROL_IDS
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
@@ -388,28 +565,144 @@ def refresh_conflict_rows(win) -> None:
             del rows[patch_id]
 
 
-def saved_tech_cost_multiplier(settings: dict) -> int:
-    """The 2-10x Tech Cost multiplier a settings file holds: a whole number 2 to 10, else the default 3."""
-    value = settings.get("tech_cost_multiplier", TECH_COST_MULTIPLIER_DEFAULT) if isinstance(settings, dict) else None
-    if isinstance(value, bool) or not isinstance(value, int) or value not in TECH_COST_MULTIPLIER_RANGE:
-        return TECH_COST_MULTIPLIER_DEFAULT
+def saved_multiplier(settings: dict, key: str, multipliers, default):
+    """A multiplier slider's number a settings file holds, kept within its range (0.1 to its maximum, to a tenth:
+    the owner, 2026-11-17, every slider goes less as well as more): a saved number outside it is the nearest end (an
+    old 0 or below is 0.1, an old 500 is 100), a missing one or anything not a number (text, true) the default."""
+    value = settings.get(key, default) if isinstance(settings, dict) else None
+    clamped = multipliers.clamp(value)
+    return default if clamped is None else clamped
+
+
+def saved_solidarity_strength(settings: dict) -> int | float:
+    """Village Solidarity's strength the settings file keeps (0.1 to 10), else 1 (the normal strength)."""
+    value = settings.get("village_solidarity_strength") if isinstance(settings, dict) else None
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or vv_village_scores.strength_tenths(
+            round(float(value), 1)) is None:
+        return vv_village_scores.STRENGTH_DEFAULT
+    return vv_village_scores.strength_number(round(float(value), 1))
+
+
+def saved_tech_cost_multiplier(settings: dict):
+    """The 0.1-10x Tech Cost multiplier a settings file holds (saved_multiplier; default 3)."""
+    return saved_multiplier(settings, "tech_cost_multiplier", TECH_COST_MULTIPLIER_RANGE, TECH_COST_MULTIPLIER_DEFAULT)
+
+
+def saved_partner_carry(settings: dict) -> int:
+    """"A man may carry the baby by chance": the percent a settings file holds, 0 to 100, else the default 10."""
+    value = settings.get("partner_carry_percent", PARTNER_CARRY_DEFAULT) if isinstance(settings, dict) else None
+    if isinstance(value, bool) or not isinstance(value, int) or value not in PARTNER_CARRY_RANGE:
+        return PARTNER_CARRY_DEFAULT
     return value
 
 
-def saved_meal_multiplier(settings: dict) -> int:
-    """Hungrier Villagers' multiplier a settings file holds: a whole number 2 to 10, else the default 2."""
-    value = settings.get("meal_multiplier", MEAL_MULTIPLIER_DEFAULT) if isinstance(settings, dict) else None
-    if isinstance(value, bool) or not isinstance(value, int) or value not in MEAL_MULTIPLIER_RANGE:
-        return MEAL_MULTIPLIER_DEFAULT
-    return value
+def saved_meal_multiplier(settings: dict):
+    """Hungrier Villagers' multiplier a settings file holds (saved_multiplier; default 2)."""
+    return saved_multiplier(settings, "meal_multiplier", MEAL_MULTIPLIER_RANGE, MEAL_MULTIPLIER_DEFAULT)
 
 
-def saved_sickness_multiplier(settings: dict) -> int:
-    """2-10x Sickness's multiplier a settings file holds: a whole number 2 to 10, else the default 2."""
-    value = settings.get("sickness_multiplier", SICKNESS_MULTIPLIER_DEFAULT) if isinstance(settings, dict) else None
-    if isinstance(value, bool) or not isinstance(value, int) or value not in SICKNESS_MULTIPLIER_RANGE:
-        return SICKNESS_MULTIPLIER_DEFAULT
-    return value
+def saved_sickness_multiplier(settings: dict):
+    """0.1-10x Sickness's multiplier a settings file holds (saved_multiplier; default 2)."""
+    return saved_multiplier(settings, "sickness_multiplier", SICKNESS_MULTIPLIER_RANGE, SICKNESS_MULTIPLIER_DEFAULT)
+
+
+def saved_louder_flutes_multiplier(settings: dict):
+    """Louder Wind Flutes' multiplier a settings file holds (saved_multiplier; default 5)."""
+    return saved_multiplier(settings, "louder_flutes_multiplier", LOUDER_FLUTES_MULTIPLIER_RANGE,
+                            LOUDER_FLUTES_MULTIPLIER_DEFAULT)
+
+
+def saved_island_frequency_multiplier(settings: dict):
+    """More Frequent Island Events' multiplier a settings file holds (saved_multiplier; default 2)."""
+    return saved_multiplier(settings, "island_frequency_multiplier", ISLAND_FREQUENCY_MULTIPLIER_RANGE,
+                            ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+
+
+def saved_runtime_slider_multiplier(settings: dict, key: str):
+    """A 0.1x-10x slider's number a settings file holds (saved_multiplier, "<key>_multiplier"; default 1)."""
+    return saved_multiplier(settings, f"{key}_multiplier", RUNTIME_SLIDER_RANGE, RUNTIME_SLIDER_DEFAULT)
+
+
+# The sliders' labels (the owner, 2026-11-17: "-10 to 10" is JUST THE LABEL -- 10 is x 10, -10 the opposite, a
+# tenth, the middle the normal game; nothing is truly negative).  A multiplier of 1 or more is shown as itself ("2",
+# "10"); below 1 as minus what it divides by ("-2" is half, "-10" a tenth).  The number kept, saved, written beside
+# a companion and given on the command line is the multiplier itself (0.1 to the maximum in tenths), so saved
+# settings keep their effect; every tenth below 1 reads back as itself (0.3 is "-3.3", which is 0.3 again).
+def multiplier_label(value) -> str:
+    """A slider's label for a multiplier: "2" for x 2, "-2" for half, "1" the normal game."""
+    if value >= 1:
+        return multiplier_text(value)
+    divisor = round(1 / value, 1)
+    return "-" + (str(int(divisor)) if divisor == int(divisor) else f"{divisor:g}")
+
+
+# The Difficulty Sliders page (the owner, 2026-11-18: every slider on its own page, grouped by game, the patch's
+# name beside each; the patch rows stay on the main page).  Each entry: the App's variable (None: a 0.1x-10x slider,
+# found by its help key), its range, its "?" guide (also its settings key) and the row it belongs to in each game.
+DIFFICULTY_SLIDERS_TITLE = "Difficulty Sliders"
+DIFFICULTY_SLIDERS_BUTTON = "Difficulty Sliders..."
+DIFFICULTY_SLIDERS_INTRO = (
+    "Each slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, in the middle, the normal game. One "
+    "number is shared by every game that has its patch, and it is used only while that patch is ticked on the main "
+    "page. Patch again after changing a slider.")
+DIFFICULTY_SLIDER_OFF_NOTE = "(its patch is not ticked)"
+# Every line above, and the page's "?" guide, is shown in the player's language (the template rows
+# vvfp.gui/difficulty_sliders.*, scripts/build_patch_text_inventory.py).
+
+
+def gui_text(english: str, game=None) -> str:
+    """A line of the patcher window in the language the player chose (for `game`, else the first game that has
+    one; vv_translations.display_text), or the English itself."""
+    import vv_translations
+    for number in ((game,) if game is not None else range(1, 6)):
+        shown = vv_translations.display_text(number, english)
+        if shown != english:
+            return shown
+    return english
+DIFFICULTY_SLIDERS = (
+    ("tech_cost_var", TECH_COST_MULTIPLIER_RANGE, "tech_cost_multiplier", "_tech_cost_multiplier"),
+    ("meal_var", MEAL_MULTIPLIER_RANGE, "meal_multiplier", "_hungrier_villagers"),
+    ("sickness_var", SICKNESS_MULTIPLIER_RANGE, "sickness_multiplier", "_sickness_multiplier"),
+    ("louder_flutes_var", LOUDER_FLUTES_MULTIPLIER_RANGE, "louder_flutes_multiplier", "_louder_wind_flutes"),
+    ("island_frequency_var", ISLAND_FREQUENCY_MULTIPLIER_RANGE, "island_frequency_multiplier",
+     "_more_frequent_island_events"),
+) + tuple((None, RUNTIME_SLIDER_RANGE, f"{slider.key}_multiplier", slider.row_suffix) for slider in RUNTIME_SLIDERS)
+
+
+def typed_multiplier(text: str, multipliers):
+    """A slider's type-in box: the label typed ("2", "-2", "2x", "1,5"; see multiplier_label) as the multiplier it
+    stands for, rounded to a tenth and kept within the slider's range (0.1 to its maximum), or None when nothing like
+    a number was typed (the box then shows the slider's label again).  -1 to 0 is the middle, the normal game; a
+    fraction typed (0.5) is taken as that multiplier, as before the labels."""
+    value = parse_multiplier(text)
+    if value is None:
+        return None
+    if value <= -1:
+        value = 1 / -value
+    elif value <= 0:
+        value = 1
+    return multipliers.clamp(value)
+
+
+# The sliders run on a logarithmic track (the owner, 2026-11-17: 0.1x to 10x, -10 to 10 on the label, 1x the normal
+# game): 1,000 steps from 0.1 to 10, so the small numbers are as easy to pick as the large ones and 1 sits in the
+# middle.  The track's step is only where the knob is; the number is always the one in the box beside it.
+SLIDER_STEPS = 1000
+
+
+def slider_position(value, multipliers) -> int:
+    """The track step (0 to SLIDER_STEPS) nearest a multiplier."""
+    low, high = multipliers[0], multipliers[-1]
+    value = min(max(float(value), low), high)
+    return round(math.log(value / low) / math.log(high / low) * SLIDER_STEPS)
+
+
+def slider_value(position, multipliers):
+    """The multiplier at a track step, rounded to a tenth (whole numbers above 10, where a step is wider than 0.1)."""
+    low, high = multipliers[0], multipliers[-1]
+    position = min(max(float(position), 0.0), SLIDER_STEPS)
+    raw = low * (high / low) ** (position / SLIDER_STEPS)
+    return multipliers.clamp(round(raw) if raw >= 10 else raw)
 
 
 def select_all_fun_patch_selection(patch_id: str) -> bool:
@@ -947,6 +1240,11 @@ def _regrab(window) -> None:
         window.grab_set()
 
 
+class WaitCancelled(BaseException):
+    """The player cancelled a read-only "Please wait".  A BaseException, so no handler's `except
+    Exception` takes it for a failure; App.report_callback_exception ends it quietly."""
+
+
 class WaitWindow:
     """A small "Please wait..." window shown over blocking work.
 
@@ -956,22 +1254,27 @@ class WaitWindow:
     crash.  This gives the wait a face that says so.
     """
 
-    def __init__(self, parent, title: str, message: str, modal: bool = True) -> None:
+    def __init__(self, parent, title: str, message: str, modal: bool = True, on_cancel=None) -> None:
         self._parent = parent
         self._modal = modal
         window = tk.Toplevel(parent)
         self._window = window
         window.title(title)
         window.resizable(False, False)
-        # The work cannot be cancelled partway without leaving a half-copied
-        # game folder behind, so the close button does nothing.
-        window.protocol("WM_DELETE_WINDOW", lambda: None)
+        # With no on_cancel (the startup splash) the close button does nothing.  With one, the close
+        # button and a Cancel button both call it: _run_with_wait decides whether the work may stop.
+        window.protocol("WM_DELETE_WINDOW", on_cancel or (lambda: None))
         frame = ttk.Frame(window, padding=28)
         frame.pack(fill="both", expand=True)
-        ttk.Label(frame, text=message, justify="center").pack()
+        self._label = ttk.Label(frame, text=message, justify="center")
+        self._label.pack()
         self._bar = ttk.Progressbar(frame, mode="indeterminate", length=300)
         self._bar.pack(pady=(18, 0))
         self._bar.start(12)
+        self._cancel = None
+        if on_cancel is not None:
+            self._cancel = ttk.Button(frame, text="Cancel", command=on_cancel)
+            self._cancel.pack(pady=(16, 0))
         if modal:
             window.transient(parent)
         self._center()
@@ -1052,6 +1355,15 @@ class WaitWindow:
                 except tk.TclError:
                     pass
                 time.sleep(GRAB_POLL_SECONDS)
+
+    def cannot_stop(self, message: str) -> None:
+        """Cancel pressed on work that writes files: say why it carries on, and stop offering Cancel."""
+        try:
+            self._label.configure(text=message)
+            if self._cancel is not None:
+                self._cancel.configure(state="disabled")
+        except tk.TclError:
+            pass
 
     def close(self) -> None:
         try:
@@ -1353,19 +1665,35 @@ class App(tk.Tk):
             # "Can you make the check logs automatically default on?"); a
             # per-install choice, written into each game built from now on.
             self.check_logs_var = tk.BooleanVar(value=True)
-            # 2-10x Tech Cost's multiplier, the slider beside the patch settings (the owner, 2026-11-07: "how
-            # about a slider? 2-10x Tech Cost"): a whole number 2 to 10, 3 unless moved; written into each game
+            # 0.1-10x Tech Cost's multiplier, the slider beside the patch settings (the owner, 2026-11-07: "how
+            # about a slider? 2-10x Tech Cost"): a whole number 2 to 100, 3 unless moved; written into each game
             # built with that row ticked.
-            self.tech_cost_var = tk.IntVar(value=TECH_COST_MULTIPLIER_DEFAULT)
-            # Hungrier Villagers' multiplier, the second slider (the owner, 2026-11-07): 2 to 10, 2 unless moved.
-            self.meal_var = tk.IntVar(value=MEAL_MULTIPLIER_DEFAULT)
-            # 2-10x Sickness's multiplier, the third slider (the owner, 2026-11-08): 2 to 10, 2 unless moved.
-            self.sickness_var = tk.IntVar(value=SICKNESS_MULTIPLIER_DEFAULT)
+            # Every multiplier slider goes from 0.1 to its maximum in tenths (the owner, 2026-11-17: "less as well
+            # as more", 1 the normal game), so each holds a number, not a whole one.
+            self.tech_cost_var = tk.DoubleVar(value=TECH_COST_MULTIPLIER_DEFAULT)
+            # Hungrier Villagers' multiplier, the second slider (the owner, 2026-11-07): 2 unless moved.
+            self.meal_var = tk.DoubleVar(value=MEAL_MULTIPLIER_DEFAULT)
+            # 0.1-10x Sickness's multiplier, the third slider (the owner, 2026-11-08): 2 unless moved.
+            self.sickness_var = tk.DoubleVar(value=SICKNESS_MULTIPLIER_DEFAULT)
+            # Louder Wind Flutes' multiplier (The Tree of Life; the owner, 2026-11-15: "control how loud the wind
+            # flutes are too! (same slider)"): 5 unless moved; written beside its companion.
+            self.louder_flutes_var = tk.DoubleVar(value=LOUDER_FLUTES_MULTIPLIER_DEFAULT)
+            # More Frequent Island Events' multiplier (all five games; the owner, 2026-11-15): 2 unless moved;
+            # written beside its companion.
+            self.island_frequency_var = tk.DoubleVar(value=ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+            # "A man may carry the baby by chance" (the owner, 2026-11-16): 0 to 100 percent, 10 unless moved; the
+            # slider and its box in every game's Island Events section share it.
+            self.partner_carry_var = tk.IntVar(value=PARTNER_CARRY_DEFAULT)
+            # The 0.1x-10x sliders (all five games; the owner, 2026-11-17): 1 unless moved; each written beside its
+            # companion.
+            self.runtime_slider_vars = {slider.key: tk.DoubleVar(value=RUNTIME_SLIDER_DEFAULT)
+                                        for slider in RUNTIME_SLIDERS}
             self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
             self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
             # Game Mechanics' Browse...: the game exe the player chose for each save folder.
             self.game_mechanics_exes: dict = {}
+            self.game_mechanics_minimum = False   # Game Mechanics' Minimum Detail, off by default
             self.all_folder_vars = {build.id: tk.StringVar() for build in self.builds}
             self.status_var = tk.StringVar(
                 value="Choose a population mode and one game or all five."
@@ -1395,7 +1723,7 @@ class App(tk.Tk):
         # the window is up (the owner, v1.35.66).
         self.after(1500, self._ask_startup_questions)
 
-    def _run_with_wait(self, message: str, work):
+    def _run_with_wait(self, message: str, work, cancellable: bool | None = None):
         """Run ``work`` off the main thread while a wait window stays alive.
 
         ``work`` must not touch Tk.  Every caller therefore reads its Tk
@@ -1406,7 +1734,28 @@ class App(tk.Tk):
         progress bar moving, which is the whole point: the same call made
         directly would leave the patcher looking hung for its whole duration.
         """
-        wait = WaitWindow(self, "Please wait", message)
+        # Cancel and the close button (the owner, v1.35.97: a "Checking the logs" wait on a large village
+        # on a busy computer could not be closed).  Work that only reads -- its message says "Nothing is
+        # changed." or the caller passes cancellable=True -- stops at once: its result is thrown away (the
+        # worker finishes on its own, reading only) and WaitCancelled goes up to report_callback_exception,
+        # which says nothing was changed.  Work that writes files carries on, so no game folder or save is
+        # ever left half-written, and the window says so.
+        if cancellable is None:
+            cancellable = "Nothing is changed" in message
+        state = {"cancelled": False}
+
+        def cancel() -> None:
+            if cancellable:
+                state["cancelled"] = True
+            else:
+                wait.cannot_stop(message + "\n\nThis changes files, so it cannot stop partway\nwithout leaving "
+                                 "them half done. This window\ncloses by itself when it finishes.")
+
+        try:
+            held = self.grab_current()
+        except (KeyError, tk.TclError):
+            held = None
+        wait = WaitWindow(self, "Please wait", message, on_cancel=cancel)
         # The wait window's own close is disabled, but that does nothing for the
         # ROOT window: while this pumps the event loop, closing the app from its
         # title bar or the taskbar would run App._close, destroy every widget,
@@ -1425,16 +1774,38 @@ class App(tk.Tk):
         worker = threading.Thread(target=run, daemon=True)
         worker.start()
         try:
-            while worker.is_alive():
+            while worker.is_alive() and not state["cancelled"]:
                 self.update()
                 time.sleep(WAIT_POLL_SECONDS)
-            worker.join()
+            if not state["cancelled"]:
+                worker.join()
         finally:
             wait.close()
             self.protocol("WM_DELETE_WINDOW", self._close)
+        if state["cancelled"]:
+            if held is not None and held is not self:
+                _regrab(held)               # the dialog that started the work is modal again
+            raise WaitCancelled()
         if "error" in outcome:
             raise outcome["error"]
         return outcome["value"]
+
+    def report_callback_exception(self, exc, val, tb) -> None:
+        """An error no handler caught, from a button or a "Please wait" worker: shown, never silent (the
+        patcher has no console).  A cancelled read-only wait is not an error."""
+        if isinstance(val, WaitCancelled):
+            try:
+                self.status_var.set("Cancelled. Nothing was changed.")
+            except (AttributeError, tk.TclError):
+                pass
+            return
+        super().report_callback_exception(exc, val, tb)
+        try:
+            messagebox.showerror("Virtual Villagers Fun Patcher",
+                                 f"Something went wrong, and that step stopped.\n\n{val.__class__.__name__}: {val}",
+                                 parent=self)
+        except tk.TclError:
+            pass
 
     def _build_ui(self) -> None:
         viewport = ttk.Frame(self)
@@ -1624,36 +1995,36 @@ class App(tk.Tk):
         unicode_font_box.bind("<<ComboboxSelected>>", lambda _e: self._unicode_font_changed())
         unicode_font_box.bind("<FocusOut>", lambda _e: self._unicode_font_changed())
         self._help_button(font_group, "unicode_font").pack(side="left", padx=(2, 0))
-        # 2-10x Tech Cost: the multiplier, a slider of whole numbers 2 to 10 (only used with that row ticked).
-        tech_cost_group = ttk.Frame(fun_settings)
-        tech_cost_group.pack(side="left", padx=(0, 16))
-        ttk.Label(tech_cost_group, text="2-10x Tech Cost:").pack(side="left", padx=(0, 4))
-        self.tech_cost_scale = tk.Scale(
-            tech_cost_group, variable=self.tech_cost_var, orient="horizontal",
-            from_=TECH_COST_MULTIPLIER_RANGE[0], to=TECH_COST_MULTIPLIER_RANGE[-1], resolution=1,
-            length=120, showvalue=True, command=lambda _value: self._save_settings())
-        self.tech_cost_scale.pack(side="left")
-        self._help_button(tech_cost_group, "tech_cost_multiplier").pack(side="left", padx=(2, 0))
-        # Hungrier Villagers: the meal multiplier, whole numbers 2 to 10 (only used with that row ticked).
-        meal_group = ttk.Frame(fun_settings)
-        meal_group.pack(side="left", padx=(0, 16))
-        ttk.Label(meal_group, text="Hungrier Villagers:").pack(side="left", padx=(0, 4))
-        self.meal_scale = tk.Scale(
-            meal_group, variable=self.meal_var, orient="horizontal",
-            from_=MEAL_MULTIPLIER_RANGE[0], to=MEAL_MULTIPLIER_RANGE[-1], resolution=1,
-            length=120, showvalue=True, command=lambda _value: self._save_settings())
-        self.meal_scale.pack(side="left")
-        self._help_button(meal_group, "meal_multiplier").pack(side="left", padx=(2, 0))
-        # 2-10x Sickness: whole numbers 2 to 10 (only used with that row ticked).
-        sickness_group = ttk.Frame(fun_settings)
-        sickness_group.pack(side="left")
-        ttk.Label(sickness_group, text="2-10x Sickness:").pack(side="left", padx=(0, 4))
-        self.sickness_scale = tk.Scale(
-            sickness_group, variable=self.sickness_var, orient="horizontal",
-            from_=SICKNESS_MULTIPLIER_RANGE[0], to=SICKNESS_MULTIPLIER_RANGE[-1], resolution=1,
-            length=120, showvalue=True, command=lambda _value: self._save_settings())
-        self.sickness_scale.pack(side="left")
-        self._help_button(sickness_group, "sickness_multiplier").pack(side="left", padx=(2, 0))
+        # The multiplier sliders live on their own page, Difficulty Sliders (the owner, 2026-11-18): the patch rows
+        # stay here, and this button opens the page (_open_difficulty_sliders).
+        sliders_group = ttk.Frame(fun_settings)
+        sliders_group.pack(side="left", padx=(0, 16))
+        ttk.Button(sliders_group, text=gui_text(DIFFICULTY_SLIDERS_BUTTON),
+                   command=self._open_difficulty_sliders).pack(side="left")
+        self._help_button(sliders_group, "difficulty_sliders").pack(side="left", padx=(2, 0))
+        # What patches use follows the slider, whichever way it is moved (slider, box, settings, Owner's Defaults).
+        self.louder_flutes_var.trace_add("write", lambda *_args: self._louder_flutes_changed())
+        self._louder_flutes_changed()       # the saved number, loaded before the window was built
+        self.island_frequency_var.trace_add("write", lambda *_args: self._island_frequency_changed())
+        self._island_frequency_changed()    # the saved number, loaded before the window was built
+        for slider in RUNTIME_SLIDERS:
+            variable = self.runtime_slider_vars[slider.key]
+            variable.trace_add("write", lambda *_args, key=slider.key: self._runtime_slider_changed(key))
+            self._runtime_slider_changed(slider.key)    # the saved number, loaded before the window was built
+        # Village Solidarity's slider: kept on the main settings row for now; TODO move it to the Difficulty
+        # Sliders page (the owner's v1.35.97 post-merge item).
+        # Village Solidarity's strength (the owner, 2026-11-17: the new sliders' range, 0.1x to 10x, 1x normal; only
+        # used with that row ticked).  Set in the patcher at once and written beside its companion at the next patch.
+        solidarity_group = ttk.Frame(fun_settings)
+        solidarity_group.pack(side="left", padx=(16, 0))
+        ttk.Label(solidarity_group, text="Village Solidarity strength:").pack(side="left", padx=(0, 4))
+        self.solidarity_var = tk.DoubleVar(value=float(vv_village_scores.STRENGTH_DEFAULT))
+        self.solidarity_scale = tk.Scale(
+            solidarity_group, variable=self.solidarity_var, orient="horizontal",
+            from_=vv_village_scores.STRENGTH_MIN_TENTHS / 10, to=vv_village_scores.STRENGTH_MAX_TENTHS / 10,
+            resolution=0.1, length=120, showvalue=True, command=lambda _value: self._solidarity_changed())
+        self.solidarity_scale.pack(side="left")
+        self._help_button(solidarity_group, "village_solidarity_strength").pack(side="left", padx=(2, 0))
         # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
         # when it no longer fits; the row asks only for its widest setting, so it never widens the page.
         vv_genealogy_window.flow_row(fun_settings, natural=False)
@@ -1673,6 +2044,7 @@ class App(tk.Tk):
         styles = (requirement_font, description_font, description_background)
         # Each game's search box, by tab name: (its text, its list, every row of the tab).
         self.patch_searches: dict[str, tuple[tk.StringVar, VirtualList, list]] = {}
+        self.player_event_sections: dict[int, vv_player_events_ui.PlayerEventsSection] = {}
         for header, patches in group_fun_patches(self.builds, self.fun_patches):
             page = ttk.Frame(self.patch_pages, padding=(10, 6, 10, 6))
             game_name = header.removeprefix("Virtual Villagers - ")
@@ -1684,6 +2056,7 @@ class App(tk.Tk):
                 font=("Segoe UI", 10, "bold"),
             ).pack(anchor="w", pady=(0, 2))
             rows = []
+            island_rows, island_filters = [], []
             for patch in patches:
                 label = patch.name if shared else f"{patch.name} ({game_name})"
                 # Each row's "?" key is registered and its guide checked now,
@@ -1692,7 +2065,14 @@ class App(tk.Tk):
                 key = vv_how_to_use.patch_key(patch.id)
                 vv_how_to_use.guide(key, label)
                 self.help_keys.add(key)
-                rows.append((patch, label, key))
+                kind = None if shared else island_event_section_kind(patch.id)
+                if kind == "filter":
+                    island_filters.append(patch)
+                elif kind == "row":
+                    island_rows.append((patch, label, key))
+                else:
+                    rows.append((patch, label, key))
+            rows = place_after_classic(rows)
             # The owner: "add a search bar per-game for each patch (name only)".
             search_row = ttk.Frame(page)
             search_row.pack(fill="x", pady=(0, 4))
@@ -1706,6 +2086,8 @@ class App(tk.Tk):
             )
             listing.pack(fill="x")
             self.patch_searches[game_name] = (search_var, listing, rows)
+            if island_rows or island_filters:
+                self._build_island_events_section(page, game_name, island_rows, island_filters, styles)
             search_var.trace_add(
                 "write",
                 lambda *_args, name=game_name: self._filter_patch_page(name),
@@ -1762,6 +2144,149 @@ class App(tk.Tk):
             side="right", anchor="e", padx=(0, 4), pady=(8, 0)
         )
 
+    def _build_island_events_section(self, page, game_name: str, island_rows: list, filters: list,
+                                     styles) -> None:
+        """The game's Island Events section (the owner, 2026-11-15): the island-event rows (More Island Events, the
+        Isola Grand Event Collection, Content Notes) in a list of their own, then the content filters
+        as a grid of ticks.  Its rows are the same rows as everywhere: the same variables, guides and rules."""
+        requirement_font, description_font, background = styles
+        box = ttk.LabelFrame(page, text=f"Island Events ({game_name})", padding=(8, 4, 8, 6))
+        box.pack(fill="x", pady=(8, 0))
+        order = {tail: k for k, tail in enumerate(ISLAND_EVENT_SECTION_ROWS)}
+        island_rows = sorted(island_rows, key=lambda r: order.get(r[0].id.split("_", 1)[1], len(order)))
+        joined = [r[0].id for r in island_rows if r[0].id.split("_", 1)[1] in MIE_CREATOR_ROWS]
+        if joined:
+            self._build_mie_creator(box, game_name, joined, requirement_font)
+        if island_rows:
+            listing = VirtualList(
+                box, island_rows,
+                lambda frame, row, styles=styles: self._build_patch_row(frame, row, styles),
+            )
+            listing.pack(fill="x", padx=(20 if joined else 0, 0))
+        if joined:
+            inner = ttk.Frame(box)
+            inner.pack(fill="x", padx=(20, 0))
+            if any(i.endswith("_more_island_events") for i in joined):
+                self._build_partner_carry(inner)
+            # The event creator (the owner, 2026-11-16: under "More Island Events and Creator").
+            creator = ttk.Frame(inner)
+            creator.pack(fill="x", pady=(6, 0))
+            # this game's library (Codex, #775): its own events and save folder, not the first game's
+            build = self._build_of_game(int(joined[0][2]))
+            library = ttk.Button(creator, text="Custom Island Event Library...",
+                                 command=lambda b=build: vv_cie_library_window.open_cie_library(self, b))
+            library.pack(side="left")
+            self._mie_creator_libraries = getattr(self, "_mie_creator_libraries", []) + [(build, library)]
+            self._help_button(creator, "custom_island_event_library").pack(side="left", padx=(2, 0))
+        if not filters:
+            self._build_player_events(box, island_rows, filters, requirement_font)
+            return
+        head = ttk.Frame(box)
+        head.pack(fill="x", pady=(8, 2))
+        ttk.Label(head, text="Content filters (added events only)", font=requirement_font).pack(side="left")
+        self._help_button(head, "island_event_content_filters").pack(side="left", padx=(4, 0))
+        ttk.Label(box, text=ISLAND_EVENT_FILTERS_NOTE, wraplength=640, justify="left").pack(anchor="w", pady=(0, 4))
+        grid = ttk.Frame(box)
+        grid.pack(fill="x")
+        filters = sorted(filters, key=lambda p: p.id)
+        half = (len(filters) + 1) // 2
+        for k, patch in enumerate(filters):
+            # A tick and its words beside it, wrapped to the column (a long name never runs off the page); a click
+            # on the words ticks it too.
+            cell = ttk.Frame(grid)
+            cell.grid(row=k % half, column=k // half, sticky="nw", padx=(0, 12), pady=1)
+            variable = self.fun_patch_vars[patch.id]
+            ttk.Checkbutton(cell, variable=variable, command=self._fun_patch_changed).pack(side="left", anchor="n")
+            words = ttk.Label(cell, text=patch.name.removeprefix("Content Filter: "), wraplength=270,
+                              justify="left")
+            words.pack(side="left", anchor="n")
+            words.bind("<Button-1>", lambda _e, v=variable: (v.set(not v.get()), self._fun_patch_changed()))
+        self._build_player_events(box, island_rows, filters, requirement_font)
+
+    def _build_player_events(self, box, island_rows: list, filters: list, requirement_font) -> None:
+        """Player Events (src/vv_player_events_ui.py): the player's own event files, the AI prompt and the tone
+        reference, at the end of the game's Island Events section."""
+        ids = [r[0].id for r in island_rows] + [p.id for p in filters]
+        game = next((int(i[2]) for i in ids if len(i) > 3 and i[:2] == "vv" and i[2] in "12345"), None)
+        if game is None:
+            return
+        # Built only when asked for: its forty-odd controls would otherwise sit on every game's tab (the page
+        # height guard, tests/test_gui_page_height.py).  Its settings live in its own file, so a patch made
+        # without opening it installs what was chosen last time.
+        holder = ttk.Frame(box)
+        holder.pack(fill="x", pady=(10, 0))
+        head = ttk.Frame(holder)
+        head.pack(fill="x")
+        ttk.Label(head, text="Player Events", font=requirement_font).pack(side="left")
+
+        def show() -> None:
+            head.destroy()
+            try:
+                self.player_event_sections[game] = vv_player_events_ui.PlayerEventsSection(holder, game,
+                                                                                           requirement_font)
+            except OSError as exc:
+                ttk.Label(holder, text=f"Player Events could not open their folder: {exc}",
+                          wraplength=640).pack(anchor="w")
+
+        ttk.Button(head, text="Show Player Events...", command=show).pack(side="left", padx=(8, 0))
+
+    def _build_of_game(self, number: int):
+        """A build of game `number` (1-5), for the tools that open on one game; None when there is none."""
+        for build in self.builds:
+            try:
+                if vv_tribe_rename.game_for_title(build.title).number == number:
+                    return build
+            except vv_tribe_rename.RenameError:
+                continue
+        return None
+
+    def _build_mie_creator(self, box, game_name: str, joined: list[str], requirement_font) -> None:
+        """The game's "More Island Events and Creator" row: one tick for every added island event -- ticked while
+        any of its rows is, and ticking or unticking it ticks or unticks them all (their prerequisites follow as
+        for any tick).  Its rows below keep their own ticks, defaults and rules."""
+        master = tk.BooleanVar(value=any(self.fun_patch_vars[i].get() for i in joined))
+
+        def follow(*_args) -> None:
+            value = any(self.fun_patch_vars[i].get() for i in joined)
+            if master.get() != value:
+                master.set(value)
+
+        def ticked() -> None:
+            value = master.get()               # read once: each row set below moves the tick (follow)
+            for i in joined:
+                self.fun_patch_vars[i].set(value)
+            self._fun_patch_changed()
+
+        for i in joined:
+            self.fun_patch_vars[i].trace_add("write", follow)
+        head = ttk.Frame(box)
+        head.pack(fill="x", pady=(2, 2))
+        ttk.Checkbutton(head, text=f"{MIE_CREATOR_NAME} ({game_name})", variable=master,
+                        command=ticked).pack(side="left")
+        self._help_button(head, "more_island_events_and_creator").pack(side="left", padx=(4, 0))
+        ttk.Label(box, text=MIE_CREATOR_NOTE, wraplength=620, justify="left",
+                  font=requirement_font).pack(anchor="w", pady=(0, 4))
+        # each game's row: its tick, what a click on it does, and the rows it ticks
+        self._mie_creator_rows = getattr(self, "_mie_creator_rows", []) + [(master, ticked, tuple(joined))]
+
+    def _build_partner_carry(self, box) -> None:
+        """"A man may carry the baby by chance" (the owner, 2026-11-16: "Or the player sets it!"): with More Island
+        Events, how often the partner carries instead in a couple's pregnancy of a new event that allows it -- a
+        slider and a box to type in, 0 to 100 percent, 10 unless moved (Owner's Defaults 10 too).  0: never by
+        chance (an event's own reason, or a choice, still can)."""
+        group = ttk.Frame(box)
+        group.pack(fill="x", pady=(6, 0))
+        ttk.Label(group, text="A man may carry the baby by chance (%):").pack(side="left", padx=(0, 4))
+        tk.Scale(group, variable=self.partner_carry_var, orient="horizontal", from_=PARTNER_CARRY_RANGE[0],
+                 to=PARTNER_CARRY_RANGE[-1], resolution=1, length=160, showvalue=False,
+                 command=lambda _value: self._save_settings()).pack(side="left")
+        entry = ttk.Spinbox(group, from_=PARTNER_CARRY_RANGE[0], to=PARTNER_CARRY_RANGE[-1], increment=1, width=5,
+                            textvariable=self.partner_carry_var, command=self._save_settings)
+        entry.pack(side="left", padx=(6, 0))
+        entry.bind("<FocusOut>", lambda _e: (self.partner_carry_var.set(self._partner_carry()), self._save_settings()))
+        entry.bind("<Return>", lambda _e: (self.partner_carry_var.set(self._partner_carry()), self._save_settings()))
+        self._help_button(group, "partner_carry_percent").pack(side="left", padx=(4, 0))
+
     def _build_patch_row(self, frame, row, styles) -> None:
         """Draw one patch: its checkbox and "?", its description with **bold** dependencies, and
         the requirement line.  The checkbox reads the patch's variable, so a row drawn later shows
@@ -1783,20 +2308,36 @@ class App(tk.Tk):
             button.configure(style=title_style)
         button.pack(side="left")
         self._help_button(patch_row, key, label).pack(side="left", padx=(4, 0))
+        line = 1
+        big = island_event_big_warning(patch.id)
+        if big is not None:
+            ttk.Label(frame, text=big, wraplength=620, justify="left", foreground=ADVISORY_COLOUR,
+                      font=("Segoe UI", 12, "bold")).grid(row=line, column=0, sticky="w", pady=(0, 2))
+            line += 1
+        # The island-event rows' content advisory, in red (the owner, 2026-11-15), and the note outside the red.
+        advisory = island_event_advisory(patch.id)
+        if advisory is not None:
+            ttk.Label(frame, text=advisory[0], wraplength=620, justify="left",
+                      foreground=ADVISORY_COLOUR).grid(row=line, column=0, sticky="w", pady=(0, 2))
+            line += 1
+            if advisory[1]:
+                ttk.Label(frame, text=ISLAND_EVENT_INFO_NOTE, wraplength=620,
+                          justify="left").grid(row=line, column=0, sticky="w", pady=(0, 2))
+                line += 1
         RichDescription(frame, row_description(patch), 620, requirement_font,
-                        description_font, background).grid(row=1, column=0, sticky="w", pady=(0, 3))
+                        description_font, background).grid(row=line, column=0, sticky="w", pady=(0, 3))
         ttk.Label(
             frame,
             text=patch_requirement_text(patch, self.fun_patches),
             wraplength=620,
             font=requirement_font,
-        ).grid(row=2, column=0, sticky="w", pady=(0, 6))
+        ).grid(row=line + 1, column=0, sticky="w", pady=(0, 6))
         # A patch that can never be built with another: greyed, with the reason, while the
         # other is ticked (refresh_conflict_rows).
         if any(conflict_ids(other) and (other.id == patch.id or patch.id in conflict_ids(other))
                for other in self.fun_patches):
             reason = ttk.Label(frame, text="", wraplength=620, font=styles[0], foreground="#9a3412")
-            reason.grid(row=3, column=0, sticky="w", pady=(0, 6))
+            reason.grid(row=line + 2, column=0, sticky="w", pady=(0, 6))
             self._conflict_rows[patch.id] = (button, reason)
             refresh_conflict_rows(self)
 
@@ -2238,14 +2779,8 @@ class App(tk.Tk):
             command=lambda: vv_stew_recipes_window.open_stew_recipes(self, None),
         ).pack(side="left")
         self._help_button(stew_tools, "stew_recipes").pack(side="left", padx=(2, 0))
-        # Custom Island Event Library (the owner, 2026-11-12: the branching editor lives in the patcher): write,
-        # check and keep branching Custom Island Events in a game's save folder, for the game's picker.
-        ttk.Button(
-            stew_tools,
-            text="Custom Island Event Library...",
-            command=lambda: vv_cie_library_window.open_cie_library(self, None),
-        ).pack(side="left", padx=(8, 0))
-        self._help_button(stew_tools, "custom_island_event_library").pack(side="left", padx=(2, 0))
+        # The Custom Island Event Library sits under each game's "More Island Events and Creator" row (the owner,
+        # 2026-11-16).
         slot_tools = ttk.Frame(box)
         slot_tools.pack(fill="x", pady=(8, 0))
         ttk.Button(
@@ -2468,6 +3003,7 @@ class App(tk.Tk):
     def _fun_patch_changed(self) -> None:
         self._apply_gui_dependency_selection()
         refresh_conflict_rows(self)
+        App._refresh_difficulty_sliders(self)
         self._selected_fun_patch_ids()
         selected = [
             patch.name
@@ -2511,6 +3047,17 @@ class App(tk.Tk):
         for name in ("tech_cost_var", "meal_var", "sickness_var"):
             if hasattr(self, name):
                 getattr(self, name).set(OWNERS_DEFAULT_SLIDER)
+        # Louder Wind Flutes' slider as its row is (on, at its default 5; the owner, 2026-11-15).
+        if hasattr(self, "louder_flutes_var"):
+            self.louder_flutes_var.set(LOUDER_FLUTES_MULTIPLIER_DEFAULT)
+        # More Frequent Island Events' slider at its default 2 (its row is ticked there; the owner, 2026-11-15).
+        if hasattr(self, "island_frequency_var"):
+            self.island_frequency_var.set(ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+        if hasattr(self, "partner_carry_var"):
+            self.partner_carry_var.set(PARTNER_CARRY_DEFAULT)     # 10% in Owner's Defaults too
+        # The 0.1x-10x sliders at 1, the normal game (their rows are ticked there; the owner, 2026-11-17).
+        for variable in getattr(self, "runtime_slider_vars", {}).values():
+            variable.set(RUNTIME_SLIDER_DEFAULT)
         # Prerequisites yes, co-ticks no: Story / Cheat Upgrades must not tick its cost row back on (the owner,
         # 2026-11-07: cost row off in Owner's Defaults).
         self._last_fun_selection = set()
@@ -2544,6 +3091,67 @@ class App(tk.Tk):
         search_var, listing, rows = self.patch_searches[page_name]
         term = search_var.get()
         listing.set_rows([row for row in rows if patch_name_matches(row[0], term)])
+
+    def _difficulty_variable(self, name: str, help_key: str):
+        """A Difficulty Sliders entry's number: the App's own variable (the five older sliders) or the 0.1x-10x
+        slider's (by its help key, "<key>_multiplier")."""
+        if name:
+            return getattr(self, name)
+        return self.runtime_slider_vars[help_key.removesuffix("_multiplier")]
+
+    def _open_difficulty_sliders(self) -> None:
+        """The Difficulty Sliders page (the owner, 2026-11-18): every slider, grouped by game, the patch's name beside
+        each.  One number per slider is shared by every game that has its patch (the same variable, saved as
+        before); a slider whose patch is not ticked in that game is greyed out, with a note."""
+        existing = getattr(self, "_difficulty_sliders_dialog", None)
+        if existing is not None and existing.winfo_exists():
+            existing.deiconify()
+            existing.lift()
+            existing.focus_set()
+            return
+        title = gui_text(DIFFICULTY_SLIDERS_TITLE)
+        dialog, frame = self._scrolling_dialog(title)
+        self._difficulty_sliders_dialog = dialog
+        ttk.Label(frame, text=title, font=("Segoe UI", 10, "bold"), wraplength=560).pack(anchor="w")
+        ttk.Label(frame, text=gui_text(DIFFICULTY_SLIDERS_INTRO), wraplength=560, justify="left").pack(anchor="w",
+                                                                                                     pady=(4, 6))
+        by_id = {patch.id: patch for patch in self.fun_patches}
+        self._difficulty_slider_rows = []
+        for build in self.builds:
+            entries = [(spec, by_id[build.id + spec[3]]) for spec in DIFFICULTY_SLIDERS if build.id + spec[3] in by_id]
+            if not entries:
+                continue
+            group = ttk.LabelFrame(frame, text=build.title.removeprefix("Virtual Villagers - "))
+            group.pack(fill="x", pady=(6, 0))
+            for (name, multipliers, help_key, _suffix), patch in entries:
+                line = ttk.Frame(group)
+                line.pack(fill="x", anchor="w", padx=6, pady=2)
+                scale, box = self._multiplier_slider(line, patch.name + ":", self._difficulty_variable(name, help_key),
+                                                     multipliers, help_key)
+                note = ttk.Label(line, text="", foreground="#666666", wraplength=300)
+                note.game = build.id
+                note.pack(side="left", padx=(8, 0))
+                self._difficulty_slider_rows.append((patch.id, scale, box, note))
+        buttons = ttk.Frame(frame)
+        buttons.pack(fill="x", pady=(14, 0))
+        ttk.Button(buttons, text="Close", command=dialog.destroy).pack(side="right")
+        dialog.bind("<Escape>", lambda _event: dialog.destroy())
+        App._refresh_difficulty_sliders(self)
+
+    def _refresh_difficulty_sliders(self) -> None:
+        """Grey out each Difficulty Sliders entry whose patch is not ticked in its game, with a note."""
+        rows = getattr(self, "_difficulty_slider_rows", [])
+        for patch_id, scale, box, note in list(rows):
+            try:
+                if not scale.winfo_exists():
+                    rows.remove((patch_id, scale, box, note))
+                    continue
+                on = bool(self.fun_patch_vars[patch_id].get())
+                scale.configure(state="normal" if on else "disabled")
+                box.state(["!disabled"] if on else ["disabled"])
+                note.configure(text="" if on else gui_text(DIFFICULTY_SLIDER_OFF_NOTE, getattr(note, "game", None)))
+            except tk.TclError:
+                rows.remove((patch_id, scale, box, note))
 
     def _open_patch_selection_settings(self) -> None:
         """The owner: "a button to easily tick and untick certain patches in all 5 games. like in
@@ -2663,6 +3271,7 @@ class App(tk.Tk):
         saved_exes = data.get("game_mechanics_exes", {})
         self.game_mechanics_exes = ({str(k): v for k, v in saved_exes.items() if isinstance(v, str)}
                                     if isinstance(saved_exes, dict) else {})
+        self.game_mechanics_minimum = data.get("game_mechanics_minimum") is True   # Game Mechanics' Minimum Detail
         # Translations: the language each game uses (vv_translations_window; a file name, "" for English).
         saved_translations = data.get(vv_translations_window.SETTINGS_KEY, {})
         self.translation_choices = saved_translations if isinstance(saved_translations, dict) else {}
@@ -2675,6 +3284,16 @@ class App(tk.Tk):
             self.meal_var.set(saved_meal_multiplier(data))
         if hasattr(self, "sickness_var"):
             self.sickness_var.set(saved_sickness_multiplier(data))
+        if hasattr(self, "louder_flutes_var"):
+            self.louder_flutes_var.set(saved_louder_flutes_multiplier(data))
+        if hasattr(self, "island_frequency_var"):
+            self.island_frequency_var.set(saved_island_frequency_multiplier(data))
+        if hasattr(self, "partner_carry_var"):
+            self.partner_carry_var.set(saved_partner_carry(data))
+        for key, variable in getattr(self, "runtime_slider_vars", {}).items():
+            variable.set(saved_runtime_slider_multiplier(data, key))
+        if hasattr(self, "solidarity_var"):
+            self.solidarity_var.set(float(set_village_solidarity_strength(saved_solidarity_strength(data))))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
             for build in self.builds:
@@ -2722,11 +3341,21 @@ class App(tk.Tk):
                                 else MEAL_MULTIPLIER_DEFAULT),
             "sickness_multiplier": (App._sickness_multiplier(self) if hasattr(self, "sickness_var")
                                     else SICKNESS_MULTIPLIER_DEFAULT),
+            "louder_flutes_multiplier": (App._louder_flutes_multiplier(self) if hasattr(self, "louder_flutes_var")
+                                         else LOUDER_FLUTES_MULTIPLIER_DEFAULT),
+            "island_frequency_multiplier": (App._island_frequency_multiplier(self)
+                                            if hasattr(self, "island_frequency_var")
+                                            else ISLAND_FREQUENCY_MULTIPLIER_DEFAULT),
+            "partner_carry_percent": (App._partner_carry(self) if hasattr(self, "partner_carry_var")
+                                      else PARTNER_CARRY_DEFAULT),
+            **{f"{slider.key}_multiplier": App._runtime_slider_number(self, slider.key) for slider in RUNTIME_SLIDERS},
+            "village_solidarity_strength": village_solidarity_strength(),
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
             "tree_window": self.tree_window,
             "tree_style": self.tree_style,
             "game_mechanics_exes": self.game_mechanics_exes,
+            "game_mechanics_minimum": getattr(self, "game_mechanics_minimum", False) is True,
             vv_translations_window.SETTINGS_KEY: getattr(self, "translation_choices", {}),
             "all_game_folders": {
                 build.id: self.all_folder_vars[build.id].get().strip()
@@ -2735,29 +3364,153 @@ class App(tk.Tk):
         }
         SETTINGS.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
-    def _tech_cost_multiplier(self) -> int:
-        """The 2-10x Tech Cost slider's whole number, kept within 2 to 10."""
+    def _solidarity_changed(self) -> None:
+        """The Village Solidarity slider: its number (0.1 to 10) for the next patch."""
         try:
-            value = int(self.tech_cost_var.get())
-        except (tk.TclError, ValueError, AttributeError):
-            value = TECH_COST_MULTIPLIER_DEFAULT
-        return value if value in TECH_COST_MULTIPLIER_RANGE else TECH_COST_MULTIPLIER_DEFAULT
+            value = set_village_solidarity_strength(round(float(self.solidarity_var.get()), 1))
+        except Exception:  # noqa: BLE001 -- out of range: back to the normal strength
+            value = set_village_solidarity_strength(vv_village_scores.STRENGTH_DEFAULT)
+        self._save_settings()
+        return value
 
-    def _meal_multiplier(self) -> int:
-        """The Hungrier Villagers slider's whole number, kept within 2 to 10."""
+    def _partner_carry(self) -> int:
+        """"A man may carry the baby by chance": the slider's percent, kept within 0 to 100."""
         try:
-            value = int(self.meal_var.get())
+            value = int(self.partner_carry_var.get())
         except (tk.TclError, ValueError, AttributeError):
-            value = MEAL_MULTIPLIER_DEFAULT
-        return value if value in MEAL_MULTIPLIER_RANGE else MEAL_MULTIPLIER_DEFAULT
+            value = PARTNER_CARRY_DEFAULT
+        return value if value in PARTNER_CARRY_RANGE else PARTNER_CARRY_DEFAULT
 
-    def _sickness_multiplier(self) -> int:
-        """The 2-10x Sickness slider's whole number, kept within 2 to 10."""
+    @staticmethod
+    def _slider_number(variable, multipliers, default):
+        """A multiplier slider's number, kept within its range to a tenth (2.0 is 2); the default when the
+        variable holds nothing readable."""
         try:
-            value = int(self.sickness_var.get())
-        except (tk.TclError, ValueError, AttributeError):
-            value = SICKNESS_MULTIPLIER_DEFAULT
-        return value if value in SICKNESS_MULTIPLIER_RANGE else SICKNESS_MULTIPLIER_DEFAULT
+            value = multipliers.clamp(float(variable.get()))
+        except (tk.TclError, ValueError, TypeError, AttributeError):
+            value = None
+        return default if value is None else value
+
+    def _tech_cost_multiplier(self):
+        """The 0.1-10x Tech Cost slider's number, kept within 0.1 to 10."""
+        return App._slider_number(getattr(self, "tech_cost_var", None), TECH_COST_MULTIPLIER_RANGE,
+                                  TECH_COST_MULTIPLIER_DEFAULT)
+
+    def _meal_multiplier(self):
+        """The Hungrier Villagers slider's number, kept within 0.1 to 10."""
+        return App._slider_number(getattr(self, "meal_var", None), MEAL_MULTIPLIER_RANGE, MEAL_MULTIPLIER_DEFAULT)
+
+    def _sickness_multiplier(self):
+        """The 0.1-10x Sickness slider's number, kept within 0.1 to 10."""
+        return App._slider_number(getattr(self, "sickness_var", None), SICKNESS_MULTIPLIER_RANGE,
+                                  SICKNESS_MULTIPLIER_DEFAULT)
+
+    def _louder_flutes_multiplier(self):
+        """The Louder Wind Flutes slider's number, kept within 0.1 to 10."""
+        return App._slider_number(getattr(self, "louder_flutes_var", None), LOUDER_FLUTES_MULTIPLIER_RANGE,
+                                  LOUDER_FLUTES_MULTIPLIER_DEFAULT)
+
+    def _island_frequency_multiplier(self):
+        """The More Frequent Island Events slider's number, kept within 0.1 to 10."""
+        return App._slider_number(getattr(self, "island_frequency_var", None), ISLAND_FREQUENCY_MULTIPLIER_RANGE,
+                                  ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+
+    def _runtime_slider_number(self, key: str):
+        """A 0.1x-10x slider's number, kept within 0.1 to 10."""
+        return App._slider_number(getattr(self, "runtime_slider_vars", {}).get(key), RUNTIME_SLIDER_RANGE,
+                                  RUNTIME_SLIDER_DEFAULT)
+
+    def _runtime_slider_changed(self, key: str) -> None:
+        """A 0.1x-10x slider moved: the next patch writes its number beside its companion."""
+        set_runtime_slider_multiplier(key, App._runtime_slider_number(self, key))
+
+    def _island_frequency_changed(self) -> None:
+        """The More Frequent Island Events slider moved: the next patch writes its number beside the companion."""
+        set_island_frequency_multiplier(App._island_frequency_multiplier(self))
+
+    def _louder_flutes_changed(self) -> None:
+        """The Louder Wind Flutes slider moved: the next patch writes its number beside the companion."""
+        set_louder_flutes_multiplier(App._louder_flutes_multiplier(self))
+
+    def _multiplier_slider(self, parent, label: str, variable, multipliers, help_key: str):
+        """One multiplier setting kept whole on its line: its label, its slider (a logarithmic track of
+        SLIDER_STEPS steps; moving it sets the number and saves), its type-in box and its "?".  Returns the slider
+        and the box."""
+        group = ttk.Frame(parent)
+        group.pack(side="left", padx=(0, 16))
+        ttk.Label(group, text=label).pack(side="left", padx=(0, 4))
+        position = tk.IntVar(value=slider_position(App._slider_number(variable, multipliers, multipliers[0]),
+                                                   multipliers))
+
+        def moved(_value) -> None:
+            value = slider_value(position.get(), multipliers)
+            if value != App._slider_number(variable, multipliers, None):
+                variable.set(value)
+            self._save_settings()
+
+        def follow(*_args) -> None:
+            # The number came from elsewhere (the box, the settings, Owner's Defaults): the knob goes to it.
+            value = App._slider_number(variable, multipliers, None)
+            if value is not None and slider_value(position.get(), multipliers) != value:
+                position.set(slider_position(value, multipliers))
+
+        # The track's two ends, as labels (the owner, 2026-11-17: "-10 to 10"): the smallest and the largest.
+        ttk.Label(group, text=multiplier_label(multipliers[0])).pack(side="left")
+        scale = tk.Scale(group, variable=position, orient="horizontal", from_=0, to=SLIDER_STEPS, resolution=1,
+                         length=120, showvalue=False, command=moved)
+        scale.pack(side="left")
+        ttk.Label(group, text=multiplier_label(multipliers[-1])).pack(side="left")
+        follow_id = variable.trace_add("write", follow)
+        scale.position = position
+        box = self._multiplier_box(group, variable, multipliers)
+        self._help_button(group, help_key).pack(side="left", padx=(2, 0))
+
+        def forget(event) -> None:
+            # A page closed: its copies stop following the number (the number itself stays, shared).
+            if event.widget is group:
+                for trace in (follow_id, box.trace_id):
+                    try:
+                        variable.trace_remove("write", trace)
+                    except (tk.TclError, ValueError):
+                        pass
+
+        group.bind("<Destroy>", forget, add="+")
+        return scale, box
+
+    def _multiplier_box(self, group, variable, multipliers) -> ttk.Entry:
+        """A multiplier slider's type-in box (the owner, 2026-11-15): it always shows the slider's number ("2",
+        "0.5"); a number typed (or pasted: Tk's own Ctrl+V and Shift+Insert; Ctrl+C and Ctrl+X copy and cut) moves
+        the slider when Enter is pressed or the box is left, rounded to a tenth and kept within 0.1 to the
+        slider's maximum; anything else puts the slider's number back.  Nothing out of range is ever saved."""
+        text = tk.StringVar()
+        box = ttk.Entry(group, textvariable=text, width=5, justify="right")
+        box.pack(side="left", padx=(4, 0))
+
+        def show(*_args) -> None:
+            value = App._slider_number(variable, multipliers, None)
+            if value is not None:
+                text.set(multiplier_label(value))
+
+        show()
+
+        def commit(_event=None) -> None:
+            value = typed_multiplier(text.get(), multipliers)
+            if value is None:
+                show()
+                return
+            changed = value != App._slider_number(variable, multipliers, None)
+            variable.set(value)
+            show()
+            if changed:
+                self._save_settings()
+
+        box.trace_id = variable.trace_add("write", show)
+        box.bind("<Return>", commit)
+        box.bind("<KP_Enter>", commit)
+        box.bind("<FocusOut>", commit)
+        box.text_variable = text
+        box.commit = commit
+        return box
 
     def _browse_exe(self) -> None:
         current = Path(self.exe_var.get()).parent if self.exe_var.get() else Path.home()
@@ -2901,6 +3654,7 @@ class App(tk.Tk):
             validated = self._run_with_wait(
                 "Please wait\u2026\n\nChecking all five original games.",
                 lambda: validate_all_sources(sources),
+                cancellable=True,               # reads only
             )
             self.status_var.set(
                 "All five exact stock builds validated. "
@@ -2935,6 +3689,7 @@ class App(tk.Tk):
                     meal_multiplier=meals,
                     sickness_multiplier=sickness,
                 ),
+                cancellable=True,               # a dry run writes no files
             )
             self.status_var.set(
                 "Dry run passed. No files were written. Planned copied game folder:\n"
@@ -2971,6 +3726,7 @@ class App(tk.Tk):
                     meal_multiplier=meals,
                     sickness_multiplier=sickness,
                 ),
+                cancellable=True,               # a dry run writes no files
             )
             self.status_var.set(
                 "All-five dry run passed. No files were written. "
@@ -3018,6 +3774,7 @@ class App(tk.Tk):
     def _apply(self) -> None:
         try:
             _validate_public_patch_mode(self._mode())
+            self._save_player_events()
             source = self._source()
             build = identify(source)
             # Read every Tk variable here; the worker thread must not.
@@ -3030,6 +3787,7 @@ class App(tk.Tk):
             tech_cost = self._tech_cost_multiplier()
             meals = self._meal_multiplier()
             sickness = self._sickness_multiplier()
+            carry = self._partner_carry()
             preview = self._run_with_wait(
                 f"Please wait\u2026\n\nChecking {build.title}\nand preparing its patches.",
                 lambda: dry_run(
@@ -3039,6 +3797,7 @@ class App(tk.Tk):
                     meal_multiplier=meals,
                     sickness_multiplier=sickness,
                 ),
+                cancellable=True,               # a dry run writes no files
             )
             output_folder = Path(preview["output_folder"])
             overwrite = False
@@ -3064,6 +3823,7 @@ class App(tk.Tk):
                     tech_cost_multiplier=tech_cost,
                     meal_multiplier=meals,
                     sickness_multiplier=sickness,
+                    partner_carry_percent=carry,
                 ),
             )
             self.last_output_dir = output.parent
@@ -3079,13 +3839,21 @@ class App(tk.Tk):
                 "Modified game created",
                 [(build.title, source.parent, output.parent)],
             )
+            vv_player_events_ui.show_patch_reports(self)
         except (PatcherError, OSError) as exc:
             self.status_var.set(str(exc))
             messagebox.showerror("Patch failed", str(exc))
 
+    def _save_player_events(self) -> None:
+        """The Player Events boxes written to their files before a patch reads them (the worker never touches Tk)."""
+        for section in getattr(self, "player_event_sections", {}).values():
+            section.save_rules()
+            section.save()
+
     def _apply_all(self) -> None:
         try:
             _validate_public_patch_mode(self._mode())
+            self._save_player_events()
             sources = self._all_sources()
             # Read every Tk variable here; the worker thread must not.
             mode = self._mode()
@@ -3097,9 +3865,11 @@ class App(tk.Tk):
             tech_cost = self._tech_cost_multiplier()
             meals = self._meal_multiplier()
             sickness = self._sickness_multiplier()
+            carry = self._partner_carry()
             validated = self._run_with_wait(
                 "Please wait\u2026\n\nChecking all five original games.",
                 lambda: validate_all_sources(sources),
+                cancellable=True,               # reads only
             )
             previews = self._run_with_wait(
                 "Please wait\u2026\n\nPreparing the patches for all five games.",
@@ -3110,6 +3880,7 @@ class App(tk.Tk):
                     meal_multiplier=meals,
                     sickness_multiplier=sickness,
                 ),
+                cancellable=True,               # a dry run writes no files
             )
             existing = []
             for (build, source), preview in zip(validated, previews, strict=True):
@@ -3142,6 +3913,7 @@ class App(tk.Tk):
                     tech_cost_multiplier=tech_cost,
                     meal_multiplier=meals,
                     sickness_multiplier=sickness,
+                    partner_carry_percent=carry,
                 ),
             )
             self.last_output_dir = results[0][0].parent
@@ -3161,6 +3933,7 @@ class App(tk.Tk):
                     for (build, source), (output, _) in zip(validated, results, strict=True)
                 ],
             )
+            vv_player_events_ui.show_patch_reports(self)
         except (PatcherError, OSError, ValueError) as exc:
             self.status_var.set(str(exc))
             messagebox.showerror("Batch patch failed", str(exc))
@@ -3352,11 +4125,11 @@ class App(tk.Tk):
         window.resizable(False, False)
         frame = scrollable_frame(window, padding=16)
         ttk.Label(
-            frame, text=guide.title, font=("Segoe UI", 11, "bold"),
+            frame, text=gui_text(guide.title), font=("Segoe UI", 11, "bold"),
             wraplength=480, justify="left",
         ).pack(anchor="w", pady=(0, 8))
         for line in guide.lines:
-            ttk.Label(frame, text=line, wraplength=480, justify="left").pack(
+            ttk.Label(frame, text=gui_text(line), wraplength=480, justify="left").pack(
                 anchor="w", pady=(0, 6)
             )
         close = ttk.Button(frame, text="Close", command=window.destroy)
@@ -4818,8 +5591,12 @@ class App(tk.Tk):
                         vv_log_tools.LogToolError, ValueError, OSError, struct.error) as exc:
                     totems["note"] = ((totems["note"] + " ") if totems["note"] else "") + (
                         f"{vv_vv2_totem_store.FILE_NAME} was not checked: a file could not be read ({exc}).")
-            return (checked, sum(len(f.fixes) for f in old),
-                    vv_log_additions.plan(folder, number, info.slot, self._game_folders_for(folder)),
+            # The check above made the plan already (with its one reconciliation); made again only when it
+            # could not be.
+            kinds = checked.kinds
+            if kinds is None:
+                kinds = vv_log_additions.plan(folder, number, info.slot, self._game_folders_for(folder))
+            return (checked, sum(len(f.fixes) for f in old), kinds,
                     cuts, unpaused, speed, misnumbered, graves, lost)
 
         try:
@@ -5911,7 +6688,8 @@ class App(tk.Tk):
                        "one: pick from its list (the father's and the mother's come first), pick (custom last "
                        "name - type here...) and type your own, or choose none. A name longer than the game "
                        "allows is marked and cannot be given. A villager's descendants inherit the name you give them by "
-                       "the rule above. A villager who arrived through an event has no last name unless you give "
+                       "the rule above. A villager who arrives with no last name gets a random one as they arrive "
+                       "(Villagers Have Last Names); one who arrived without one has none unless you give "
                        "one (or the box below gives arrivals their own). Highlighted: no last name yet. A last name the rule does not give is marked; Fix wrong last names "
                        "puts them right. Random last names gives villagers random ones from the game's list (see them here "
                        "first). Random from the existing Village Names gives each child a random last name the village has "

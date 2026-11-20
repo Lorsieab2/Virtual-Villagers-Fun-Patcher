@@ -1,0 +1,135 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Terraces and the Three Crops",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg05_terraces_three",
+  "source": "draft_lcg",
+  "lines": [
+   64,
+   75
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L64",
+  "ledger": [
+   {
+    "src": "L65",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two farmers)"
+   },
+   {
+    "src": "L71",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name1); small Building skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L71",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L75",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L75",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Farmers want to repair the old hillside terraces and try planting three crops together: repair them, or start simpler gardens.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The old terraces on the hillside are crumbling. (subject) wants to rebuild them stone by stone and plant three crops together the way the old farmers did: beans climbing the stalks, squash leaves shading the soil. (friend) says flat gardens by the stream would be quicker. What should they do?",
+   "src": "L67",
+   "choices": [
+    {
+     "label": "Rebuild the Terraces",
+     "next": "o1",
+     "src": "L69"
+    },
+    {
+     "label": "Simpler Gardens by the Stream",
+     "next": "o2",
+     "src": "L73"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "It takes a whole season to rebuild the walls. The first planting is a tangle of beans, stalks and squash, and (friend) thinks it looks a mess. Then the harvest comes, and it is the best the hillside has given in living memory.",
+   "src": "L71",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L71"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L71"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The stream gardens are planted in a month and grow quickly. Then the stream floods and washes half of them away. (friend) helps (subject) start on the terraces after all.",
+   "src": "L75",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L75"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

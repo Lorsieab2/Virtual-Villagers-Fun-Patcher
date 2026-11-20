@@ -37,7 +37,7 @@ record in index order that is present, alive, older than 280 age units and doing
 """
 from __future__ import annotations
 
-from vv_game_mechanics_events import Event, Line, share
+from vv_game_mechanics_events import Event, Line, share, with_every_event
 
 RESTORE = "vv2_restore_missing_island_events"
 FIX = "vv2_fix_vanilla_bugs"
@@ -75,10 +75,13 @@ RULES = (
          "it is worked out: with E of them possible, each gets 1/E x (1 - (1 - E/28)^10) of the single-result 40% "
          "(22 in place of 28 for two-choice), and the fallback event gets the rest."),
     # More Island Events (the owner, 2026-11-14: the stock island events' chances never change): adv_vv2.inc answers
-    # 21 or 22 only while one of its events is due (the rare roll or Pick Island Event); the stock draw is untouched.
-    Line("With the patcher's \"More Island Events\" (in this game): its events never take a share of these draws, "
-         "so every chance above stays as it is; The Aspiring Adventurer and The Climb come only through Story / "
-         "Cheat Upgrades' separate rare roll or Pick Island Event (see each event).",
+    # 21 or 22 only while one of its events is due (in a natural event's place, or Pick Island Event); the stock draw
+    # is untouched.
+    Line("With the patcher's \"More Island Events\" (in this game): its events never take a share of these draws; "
+         "each natural island event has a 30-50% chance (rolled each time) to be one of the patcher's new events "
+         "instead (never a rescue or one of the two opening events), and the chances above are then those of the "
+         "natural events that stay the game's own. The Aspiring Adventurer and The Climb come that way or through "
+         "Pick Island Event (see each event).",
          only_with="vv2_more_island_events"),
     Line("With the patcher's \"Restore Missing Island Events\" (in this game): The Mosquito Swarm, The Dragonfly "
          "Migration and Science Awareness Day pass their draw like an unconditional event, and draw 4 shows one "
@@ -136,9 +139,10 @@ EVENTS = (
     Event("Blessings Day Celebration (first version)", "single-result, always possible; also the fallback when "
                                                        "10 draws find no event", (
         "A gathering, every free living villager goes \"Relaxing at the beach\", and the stored food loses 10 "
-        "for every villager, down to 0 at least.",)),
+        "for every villager (babies being carried counted), down to 0 at least.",)),
     Event("Blessings Day Celebration (second version)", "single-result, always possible", (
-        "\"Greeting the guiding hand\", and the stored food loses 10 for every villager, down to 0 at least.",)),
+        "\"Greeting the guiding hand\", and the stored food loses 10 for every villager (babies being carried "
+        "counted), down to 0 at least.",)),
     Event("Day of Elders", "single-result, always possible", (
         "The gathering Blessings Day (first version) also starts, when the first villager record is a living, "
         "free villager; no amount changes.",)),
@@ -314,11 +318,14 @@ EXTRA = (
                             "(real time, at any speed) starts; rung during the rest, nothing happens", (
         "Tiers -- 5% A, 23.75% B (25% of the rest), 71.25% C -- but A and B only once a C result has happened in "
         "this village, so the village's first ring is always C (100%). Each tier's results are equally likely.",
+        # The pregnancy result: 0x44EAF5..0x44EB3E calls the conception 0x44B980 with the father's name "?"
+        # (0x476290); the other father values pushed are 0.
         "Tier A, each 1 in 6 (0.83% of rings): \"Grants vision\" -- only two pictures drawn by the Gong for 30 "
         "real-life seconds (real time); no amount and no villager changes; +1,000 stored food with the crops set "
         "to 800 and the coconut trees to 30; +20,000 to 59,999 tech points; the stored food, the crops and the "
         "coconuts all set to 0; every woman of 18 to 49 villager years who is not pregnant is cured, set to 100 "
-        "health and becomes pregnant (father unknown), each if there is room; the ringer dies (health 0).",
+        "health and becomes pregnant, the father recorded as \"?\", each if there is room; the ringer dies "
+        "(health 0).",
         "Tier B, each 1 in 9 (2.64% of rings): every living villager falls sick at 30% each; \"luck\" -- 20 sparkles "
         "by the Gong and the next island event 1 real-life minute later (real time); +10,000 to 29,999 tech points; +1,000 to "
         "2,999 stored food; the ringer loses 90 health, down to 0; the crops set to 0; the coconuts set to 0; "
@@ -336,6 +343,16 @@ EXTRA = (
              "instead.", only_with=GONG_FIX),
     )),
 )
+
+# Every Island Event Can Happen (the owner, 2026-11-17): the technology tests 0x41F5C5 / 0x41F659 pass, the Gold
+# Coin's raise stops at 3 (0x420524) and "Keep it" adds 1 up to 3 (0x421E74), in
+# scripts/build_every_island_event_can_happen_features.py.
+EVENTS = with_every_event(2, EVENTS, {
+    "The Ancient Gold Coin": "it can happen at any Culture level, 3 included; \"Use it to adorn clothing\" raises "
+                             "Culture 1 level, up to 3 (at 3 the level stays 3).",
+    "The Spyglass": "it can happen at any Exploration level, 3 included; \"Keep it\" raises Exploration 1 level, up "
+                    "to 3, instead of setting it to 2 (at 3 the level stays 3).",
+})
 
 # The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
 # The Climb (the owner, 2026-11-12, The Lost Children only): the same companion.

@@ -1,0 +1,133 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Canoe Makers' Experiment",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch40_canoe_makers",
+  "source": "draft_lch",
+  "lines": [
+   554,
+   565
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L554",
+  "ledger": [
+   {
+    "src": "L555",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two canoe builders)"
+   },
+   {
+    "src": "L561",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1); everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L561",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L565",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L565",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Canoe builders want to test different hull shapes and measure them carefully: race them, or test them in calm water.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has built three small test canoes with different hulls: one narrow, one wide, one with a strange curve. (friend) wants to measure them carefully in calm water. (subject) wants to race them. What should they do?",
+   "src": "L557",
+   "choices": [
+    {
+     "label": "Race Them",
+     "next": "o1",
+     "src": "L559"
+    },
+    {
+     "label": "Test Them Carefully",
+     "next": "o2",
+     "src": "L563"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They race. The narrow one wins, the wide one comes second, and the curved one goes round in circles to great applause. They learn a lot. Mostly that the curve was a mistake.",
+   "src": "L561",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L561"
+    },
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L561"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They test each canoe in calm water with the same load, counting paddle strokes. It takes days. The curved one turns out to be the most stable in a swell. Nobody would have guessed.",
+   "src": "L565",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L565"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

@@ -1,0 +1,27 @@
+{
+ "format": "vvfp-procedural-never-with",
+ "version": 1,
+ "note": "piece pairs the validator found (scripts/procedural_pieces.py validate); the build turns each into NEVER WITH bits",
+ "pairs": [
+  {
+   "a": "le_odd_app_play_02",
+   "b": "le_odd_08",
+   "why": "portraying someone as lesser"
+  },
+  {
+   "a": "le_odd_app_play_03",
+   "b": "le_odd_08",
+   "why": "portraying someone as lesser"
+  },
+  {
+   "a": "le_odd_app_play_01",
+   "b": "le_odd_08",
+   "why": "portraying someone as lesser"
+  },
+  {
+   "a": "le_odd_cs_cel_odd_a",
+   "b": "le_odd_08",
+   "why": "portraying someone as lesser"
+  }
+ ]
+}

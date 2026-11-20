@@ -1,0 +1,230 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Salve in the Clay Jar",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b165_salve_clay_jar",
+  "source": "balance",
+  "lines": [
+   7621,
+   7666
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7621",
+  "ledger": [
+   {
+    "src": "L7622",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7623",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7631",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7640",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7628",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7629",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7632",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7641",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7634",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7637",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7643",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7646",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7649-7666",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Clearing out the back of the healers' hut, a villager finds a little clay jar sealed with wax, with a fish scratched on the lid.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Clearing out the back of the healers' hut, (subject) finds a little clay jar sealed with wax, with a fish scratched on the lid. Inside is a thick green salve that smells of crushed leaves and honey. (healer), the oldest healer, says it was made by the healer before (subject.him/her), who used to rub it on anyone who was sick \"and on (subject.his/her) own face, every night. Never had a wrinkle.\"\n(friend) has been sick for weeks with a rash and a fever that the healers can't shift. The jar is old, maybe forty years old. Nobody knows what's in it.\nShould (subject) try the salve on (friend), or try it on (subject.himself/herself) first?",
+   "choices": [
+    {
+     "label": "Try It on (friend)",
+     "next": "c1",
+     "src": "L7628"
+    },
+    {
+     "label": "Try It on (subject.Himself/Herself) First",
+     "next": "c2",
+     "src": "L7629"
+    }
+   ],
+   "src": "L7624-7626"
+  },
+  "c1o1": {
+   "text": "By morning the rash is gone and the fever with it. (friend) sits up and asks for food. The healers crowd round the jar, sniffing it, poking it, arguing about what's in it. They never do find out. But there's enough salve left for the next three people who get sick, and all three of them get better.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    }
+   ],
+   "src": "L7635",
+   "text_only": [
+    {
+     "src": "L7635",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The salve cures the rash and the fever by morning. It also gets onto (friend)'s face somehow, in the night, and by morning (friend)'s face is as smooth as a child's, without a single line. \"Never had a wrinkle,\" (healer) remembers, and looks at the jar with great interest. The jar goes on the highest shelf.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    },
+    {
+     "do": "young_look",
+     "role": "friend"
+    }
+   ],
+   "src": "L7638",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) breaks the wax and rubs a little of the salve on (friend)'s rash. (friend) hisses. It's cold, and then very warm, and then it starts to tingle...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7632"
+  },
+  "c2o1": {
+   "text": "Nothing bad happens. (subject)'s hand is a little smoother than the other one, that's all. So (subject.he/she) rubs the salve on (friend), and the rash and fever go away overnight. The healers learn something important from it, which is that the healer before them knew more than they thought. They go back through all of (subject.his/her) old jars after that.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L7644",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The salve has gone bad. (subject)'s hand comes up in red blisters, and then (subject.his/her) whole arm, and (subject.he/she) spends a week in bed beside (friend), both of them scratching. \"Forty years,\" (healer) says, sadly. \"I should have known.\" (friend) gets better slowly, on (subject.his/her) own, and so does (subject).",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L7647",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) dabs a little on the back of (subject.his/her) own hand, just to see. It's cold, then warm, then it tingles all the way up (subject.his/her) arm...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7641"
+  }
+ }
+}

@@ -1,0 +1,225 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Jar",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b224_wrong_jar",
+  "source": "balance",
+  "lines": [
+   10416,
+   10460
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10416",
+  "ledger": [
+   {
+    "src": "L10417",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10418",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10426",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10435",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10423",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10424",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10427",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10436",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10429",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10432",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10438",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10441",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10444-10460",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L10442",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "The healers' hut is a mess.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The healers' hut is a mess. (healer) has been sick for a week, and nobody else knows where anything is. (friend) has a fever and a cough that rattles, and (subject) has been sent to find the jar of blue root powder that (healer) always uses for it.\nThere are two jars on the shelf with blue powder in them. One is labelled with a fish. One is labelled with a bird. (healer), asked from (subject.his/her) mat, waves a hand and says, \"The fish. No. The bird. Which one has the chip in the lid?\" Neither has a chip in the lid.\nWhich jar should (subject) use?",
+   "choices": [
+    {
+     "label": "The Fish Jar",
+     "next": "c1",
+     "src": "L10423"
+    },
+    {
+     "label": "The Bird Jar",
+     "next": "c2",
+     "src": "L10424"
+    }
+   ],
+   "src": "L10419-10421"
+  },
+  "c1o1": {
+   "text": "It's the right one. By morning the fever is down and the cough has stopped rattling. (subject) labels the fish jar \"COUGH\" in big letters, and the bird jar \"NOT COUGH,\" and then spends a week tidying the whole hut and labelling everything, which (healer), when (subject.he/she) gets up, says (subject.he/she) will never be able to find anything in again.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    }
+   ],
+   "src": "L10430",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The fish jar, it turns out, is not medicine at all. It's the dye the weavers use for the {@chief}'s robe. (friend)'s cough gets better on its own over the week, but (friend) is bright blue from head to foot, and stays that way for a season. \"That's for cloth,\" says (healer), weakly, from (subject.his/her) mat.",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "friend",
+     "body": "random"
+    }
+   ],
+   "src": "L10433",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) mixes the blue powder from the fish jar with water and gives it to (friend), who drinks it, and makes a face like someone eating a lemon, and lies back...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10427"
+  },
+  "c2o1": {
+   "text": "(friend) sleeps for two days straight. The healers take turns watching (friend.him/her) breathe. When (friend.he/she) wakes up, the fever is gone and the cough with it, and (friend.he/she) says it was the best sleep of (friend.his/her) life. The bird jar is sleeping powder. (healer) says that works too, sometimes.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    }
+   ],
+   "src": "L10439",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The bird jar works, but it isn't the healers'. It belongs to the researchers, who have been grinding a rare blue stone for a year to study it, and (subject) has just used the last of it. (friend) is cured. The researchers' year of work is gone.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    },
+    {
+     "do": "cure",
+     "role": "friend"
+    }
+   ],
+   "auto_text": true,
+   "src": "L10442"
+  },
+  "c2": {
+   "text": "(subject) mixes the powder from the bird jar and gives it to (friend), who drinks it, coughs, and then goes very quiet...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10436"
+  }
+ }
+}

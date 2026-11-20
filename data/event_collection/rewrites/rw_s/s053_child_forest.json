@@ -1,0 +1,234 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child from the Forest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s053_child_forest",
+  "source": "rewrites",
+  "lines": [
+   2512,
+   2555
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2512",
+  "ledger": [
+   {
+    "src": "L2513",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2514",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2522",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2531",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2519",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2520",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2523",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2532",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2525",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2528",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2534",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2537",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2540-2555",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L2529",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L2535",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "The child is wearing a cloak made of big green leaves, stitched together with grass.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) is gathering deep in the forest, much further out than usual, when (he/she) gets the feeling of being watched. (He/She) looks up slowly. Behind a tree, half hidden, there's a small child, watching (him/her) with enormous dark eyes.\nThe child is wearing a cloak made of big green leaves, stitched together with grass. (His/her) feet are bare and black with mud. A tiny brown bird is riding on one of (his/her) shoulders, perfectly calm. The child is thin, and very quiet, and looks as if (he/she) has been alone out here for a long, long time. (Name) remembers the canoe from another island that was wrecked on the far shore two seasons ago; nobody ever found who was on it.\n(Name) holds out a piece of fruit, very slowly. The child looks at it. Then, one small step at a time, the child comes closer. Should (name) try to bring the child home, or leave food and walk away slowly so as not to scare (him/her)?",
+   "choices": [
+    {
+     "label": "Bring the Child Home",
+     "next": "c1",
+     "src": "L2519"
+    },
+    {
+     "label": "Leave Food and Walk Away Slowly",
+     "next": "c2",
+     "src": "L2520"
+    }
+   ],
+   "src": "L2515-2517",
+   "text_only": [
+    {
+     "src": "L2517",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "The child takes (name)'s hand, very tightly, and doesn't let go. Not all the way back to the village, not when everyone comes out to stare, not when the healers check (him/her) over, not when (he/she) eats. For a whole month, the child never leaves (name)'s side, sleeping curled up at the foot of (his/her) mat, following (him/her) to the fields and the river. The child never says where (he/she) came from, and nobody presses. Slowly, the village takes the child in, and slowly, the child starts letting go of (name)'s hand, just a little, to play with the others. The little brown bird stays too.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L2526",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The child follows (name) all the way home, a few steps behind, and stands in the doorway of the cooking hut looking at the pot. (Name) gives (him/her) a bowl of mash. The child eats it so fast that (name) gives (him/her) another. And then a third. Then the child curls up right there by the fire, cloak of leaves and all, and falls fast asleep in the middle of everyone. In the morning the child is still there, sitting up, looking around at the village, and that, everyone agrees, is a very good sign.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "child"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L2529"
+  },
+  "c1": {
+   "text": "(Name) crouches down, so (he/she) isn't so tall, and holds out (his/her) hand instead of the fruit. The child looks at it for a very long time. The little bird on (his/her) shoulder chirps, once...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2523"
+  },
+  "c2o1": {
+   "text": "When (name) looks back from the edge of the clearing, the food is gone, and so is the child, vanished into the trees as if (he/she) was never there. (Name) comes back the next week, and leaves more food on the same flat stone. The next week, it's gone again. Every week after that, (name) leaves food on the stone, and every week, it's gone. Once, there's a feather left in its place. Once, a little carved stick. (Name) never sees the child again, but (he/she) never stops leaving food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L2535",
+   "text_only": [
+    {
+     "src": "L2535",
+     "what": "\"vanished\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "(Name) walks away slowly, not looking back. But (he/she) can hear little footsteps behind (him/her), all the way through the forest, stopping whenever (he/she) stops, at a careful distance. By the time (he/she) reaches the village the footsteps have gone quiet, and (he/she) thinks the child has turned back. But at supper, when (name) sits down at the fire with (his/her) bowl, there's the child, sitting on the other side of the flames, cloak of leaves and all, holding out an empty bowl.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L2538",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) doesn't want to frighten the child. (He/She) sets the fruit down on a flat stone, and a bundle of bread beside it, and backs away one slow step at a time, smiling, and then turns and walks off through the trees...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2532"
+  }
+ }
+}

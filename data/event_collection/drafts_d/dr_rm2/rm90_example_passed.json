@@ -110,9 +110,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The villager feels a quiet pride that the habit has spread.",
-   "src": "L751"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -162,6 +169,25 @@
    "name": "Outcome D2",
    "text": "The child takes the job a little too seriously, and everyone smiles at the stern reminders.",
    "src": "L758"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The villager feels a quiet pride that the habit has spread.",
+   "src": "L751",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L751"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The villager feels a quiet pride that the habit has spread.",
+   "src": "L751"
   }
  }
 }

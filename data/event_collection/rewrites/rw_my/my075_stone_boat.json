@@ -1,0 +1,299 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone Boat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my075_stone_boat",
+  "source": "rewrites",
+  "lines": [
+   14223,
+   14278
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14223",
+  "ledger": [
+   {
+    "src": "L14224",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14225",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14233",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14240",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14247",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14254",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14228",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14229",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14230",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14231",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14234",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14241",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14248",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14255",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14235",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14237",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14242",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14244",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14249",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14251",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14256",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14258",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14261-14278",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It has a little mast and a seated figure at the stern, holding a paddle.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "researcher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "When (subject) hauls in (subject.his/her) fishing net, there is something tangled among the fish: a tiny boat, no longer than (subject.his/her) hand, carved from grey stone. It has a little mast and a seated figure at the stern, holding a paddle. It is surprisingly light. On a whim, (subject) sets it on the water, and it floats, bobbing gently, as happily as any piece of wood.\nStone does not float. Everyone knows stone does not float. The other fishers have stopped work to stare, and somebody has already started muttering about bad luck. Is it bad luck, or a lucky find? What should (subject) do with it?",
+   "choices": [
+    {
+     "label": "Test the Boat",
+     "next": "c1",
+     "src": "L14228"
+    },
+    {
+     "label": "Keep It as a Charm",
+     "next": "c2",
+     "src": "L14229"
+    },
+    {
+     "label": "Return It to the Sea",
+     "next": "c3",
+     "src": "L14230"
+    },
+    {
+     "label": "Ask a Traveler",
+     "next": "c4",
+     "src": "L14231"
+    }
+   ],
+   "src": "L14226-14227"
+  },
+  "c1o1": {
+   "text": "After a great deal of tapping and listening, (researcher), one of the researchers, notices a hairline seam along the bottom. The boat has been hollowed out and sealed, leaving a hidden air chamber inside, so cleverly done that the join is almost invisible. \"That's why it floats,\" (researcher) says, delighted. \"Whoever made it was a genius.\" The idea sets the builders thinking, and they start sealing hollow chambers into their own canoes to make them float higher and steadier.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L14236",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They set the boat in the stream, and instead of drifting down with the water, it turns, all by itself, and glides upstream in a perfectly straight line, against the current. Everyone falls silent. It goes about ten paces, slows, and then sinks, all at once, as if someone had tugged it gently from below. They search the streambed for hours. They never find it. The researchers write a very short report and do not talk about it much.",
+   "src": "L14238"
+  },
+  "c1": {
+   "text": "(subject) brings the boat back to the village and the researchers get very excited. They float it in a bowl, then a bucket, then the stream, prodding it, weighing it and arguing loudly...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14234"
+  },
+  "c2o1": {
+   "text": "(subject) grows very fond of the little boat. (subject.He/she) talks to the little stone paddler, shows it the best fishing spots, and holds it whenever the waves get rough. Before long (subject.he/she) is spending every spare moment down at the shore, helping fix canoes, watching boats come and go, and carving little wooden boats for the children. Whether the charm brings (subject.him/her) luck, nobody knows, but it certainly brings (subject.him/her) joy.",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "the ocean",
+     "role": "subject"
+    }
+   ],
+   "src": "L14243",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) wears it for a few weeks, and then one ordinary afternoon, hauling firewood, (subject.he/she) reaches up and it is gone. The cord has snapped. (subject.He/she) retraces every step and searches the whole path on hands and knees. It is never found. (subject) is surprised by how sad (subject.he/she) feels about losing a stone the size of (subject.his/her) hand. (subject.He/she) still reaches for it sometimes, out of habit.",
+   "src": "L14245"
+  },
+  "c2": {
+   "text": "Bad luck or no bad luck, (subject) likes the little boat. (subject.He/she) threads a cord through a gap under its mast and wears it around (subject.his/her) neck...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14241"
+  },
+  "c3o1": {
+   "text": "The stone boat bobs for a moment, then turns its bow away from the shore and drifts steadily out toward the open sea, the little seated figure facing forward as if paddling. (subject) watches it get smaller and smaller until it is just a speck among the waves, then gone. (subject.He/she) stays on the reef for a long time, feeling oddly like (subject.he/she) has just seen someone off on a journey.",
+   "src": "L14250"
+  },
+  "c3o2": {
+   "text": "The next morning, the stone boat is lying on the sand at the tideline, exactly where (subject) will walk past it. It has a new scratch on its hull, fresh and pale against the grey stone: a small, neat arrow, pointing out to sea. (subject) stands holding it for a long time, looking at the horizon. (subject.He/she) decides not to follow the arrow. Not yet, anyway. (subject.He/she) keeps the boat on a shelf facing the window, and the arrow always points at the sea.",
+   "src": "L14252"
+  },
+  "c3": {
+   "text": "(subject) decides that something which floats when it should not probably belongs where it came from. (subject.He/she) wades out to the end of the reef, kisses the little boat for luck, and sets it on the water...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14248"
+  },
+  "c4o1": {
+   "text": "\"A floater! I haven't seen one of these since I was small!\" the trader laughs. \"Every child on my island has one. Our carvers make them from a light stone from the volcano, full of tiny bubbles. We float them in the rock pools and race them.\" (subject.He/she) shows (subject) the tiny air holes in the stone. The fishers who muttered about bad luck look rather sheepish, and the village children spend the rest of the week racing the little boat in the tide pools.",
+   "src": "L14257"
+  },
+  "c4o2": {
+   "text": "The trader goes quiet. \"My grandmother told me about boats like this,\" (subject.he/she) says. \"In the old days, when someone died at sea, their family would carve a little stone boat and whisper a message into it, then set it on the water. The sea would carry it to them.\" (subject.He/she) hands it back very carefully. \"Someone sent this to someone. Maybe it arrived. Maybe it's still looking.\" That night, (subject) lies awake holding the boat, wondering whose message it carries.",
+   "src": "L14259"
+  },
+  "c4": {
+   "text": "A trader from another island is staying in the village, so (subject) brings the little boat to show (subject.him/her). The trader takes one look and claps (subject.his/her) hands...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14255"
+  }
+ }
+}

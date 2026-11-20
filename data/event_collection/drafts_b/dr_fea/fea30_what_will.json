@@ -70,14 +70,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Could you not watch?\" says (subject). \"Just for a bit.\" (friend) laughs, and turns around, and sits facing the other way. (subject) does the job. It goes well. When (friend) turns back, (friend.he/she) looks it over carefully and nods. \"Good,\" (friend.he/she) says. That one word carries (subject) through the whole week.",
-   "src": "L362"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) does it with (friend) watching. (subject.His/her) hands shake. (subject.He/she) makes one small mistake and fixes it. When it's done, (friend) says, \"You made a mistake and fixed it without panicking. That's the most important part.\" (subject) had been bracing for something much worse. It takes (subject.him/her) a while to believe it.",
    "src": "L365"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Could you not watch?\" says (subject). \"Just for a bit.\" (friend) laughs, and turns around, and sits facing the other way. (subject) does the job. It goes well. When (friend) turns back, (friend.he/she) looks it over carefully and nods. \"Good,\" (friend.he/she) says. That one word carries (subject) through the whole week.",
+   "src": "L362",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L362"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Could you not watch?\" says (subject). \"Just for a bit.\" (friend) laughs, and turns around, and sits facing the other way. (subject) does the job. It goes well. When (friend) turns back, (friend.he/she) looks it over carefully and nods. \"Good,\" (friend.he/she) says. That one word carries (subject) through the whole week.",
+   "src": "L362"
   }
  }
 }

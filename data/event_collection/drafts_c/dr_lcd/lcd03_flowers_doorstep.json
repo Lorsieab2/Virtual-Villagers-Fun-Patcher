@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Flowers on the Doorstep",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd03_flowers_doorstep",
+  "source": "draft_lcd",
+  "lines": [
+   36,
+   47
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L36",
+  "ledger": [
+   {
+    "src": "L37",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L43",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L43",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L47",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Someone has been leaving flowers on a villager's doorstep every morning: try to catch them, or leave a note.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every morning for a week, (friend) has found a fresh flower on (friend.his/her) doorstep, a different color each time. Nobody will admit to leaving them. (friend) has a suspicion it is (subject), who has started blushing whenever (friend.he/she) walks by. What should (friend) do?",
+   "src": "L39",
+   "choices": [
+    {
+     "label": "Try to Catch Them",
+     "next": "o1",
+     "src": "L41"
+    },
+    {
+     "label": "Leave a Note",
+     "next": "o2",
+     "src": "L45"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) gets up before dawn and hides behind the water pot. Just as the sky turns grey, (subject) tiptoes up with a red flower, sees (friend), and freezes. They stare at each other. Then (friend) takes the flower and asks if (subject) would like to walk to the beach. (subject.He/she) would.",
+   "src": "L43",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L43"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) leaves a carved shell on the doorstep with a message scratched inside: thank you, whoever you are. The next morning, the flower comes with a shell of its own: it says, maybe you could guess. (friend) grins. The game goes on for another week before either of them says anything.",
+   "src": "L47"
+  }
+ }
+}

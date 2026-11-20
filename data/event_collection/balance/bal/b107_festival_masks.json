@@ -1,0 +1,201 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival Masks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b107_festival_masks",
+  "source": "balance",
+  "lines": [
+   4835,
+   4877
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4835",
+  "ledger": [
+   {
+    "src": "L4836",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4837",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4845",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4854",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4842",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4843",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4846",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4855",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4848",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4851",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4857",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4860",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4863-4877",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Halfway through the dance, the dancers trade masks.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the festival, two carved masks are always worn by two dancers chosen by lot: the Sun and the Moon, an old carving from the first village, painted fresh every year. Halfway through the dance, the dancers trade masks. The elders say it's a story about two people who loved each other so much they traded places, and that the masks \"remember the story.\"\nThis year (subject) and (friend) have drawn the masks. The drums are building. It's nearly time to trade.\nShould they trade the masks, as always, or keep their own?",
+   "choices": [
+    {
+     "label": "Trade the Masks",
+     "next": "c1",
+     "src": "L4842"
+    },
+    {
+     "label": "Keep Their Own",
+     "next": "c2",
+     "src": "L4843"
+    }
+   ],
+   "src": "L4838-4840"
+  },
+  "c1o1": {
+   "text": "When the dance ends and the masks come off, they've traded more than masks. Each of them is looking out of the other's face. The elders say the masks remember the story too well sometimes, and that it hasn't happened in three generations. They paint a little sun and moon on each of their doorposts.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L4849",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They trade, and dance, and the masks seem almost alive, and the whole village gets up to dance with them. It's the best festival anyone can remember. Nothing strange happens at all, except that for days everyone keeps humming the drum rhythm.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L4852",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They meet in the middle of the circle and trade masks, as the drums crash. When (subject) ties on the Moon, (subject.he/she) feels it settle, like a hand on the back of the neck...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4846"
+  },
+  "c2o1": {
+   "text": "That night, both of them dream of the dance, and in the dream they trade. In the morning, each wakes up in the other's hut and the other's body. \"The masks remember the story,\" says the eldest. \"Whether you dance it or not.\" They take it with good grace, mostly.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L4858",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Nothing happens, and the elders, after muttering for a while, decide they quite like the new way. \"Two people who stayed themselves and danced together anyway,\" says one. \"That's a good story too.\" The next year's dancers argue about which way to do it.",
+   "src": "L4861"
+  },
+  "c2": {
+   "text": "They meet in the middle and, instead of trading, bow to each other and dance on in their own masks. Some of the elders mutter. The masks feel heavier...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4855"
+  }
+ }
+}

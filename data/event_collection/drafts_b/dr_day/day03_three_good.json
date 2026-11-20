@@ -74,6 +74,32 @@
    "src": "L38"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) eats breakfast quietly, waiting. Nothing else happens. The day is ordinary from then on: a bit of work, a bit of rest, an ordinary dinner. That evening (subject.he/she) sits with the shell in (subject.his/her) hand and thinks that three good things before breakfast and nothing after is not a bad way to spend a day.",
+   "src": "L41",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L41"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) eats breakfast quietly, waiting. Nothing else happens. The day is ordinary from then on: a bit of work, a bit of rest, an ordinary dinner. That evening (subject.he/she) sits with the shell in (subject.his/her) hand and thinks that three good things before breakfast and nothing after is not a bad way to spend a day.",
    "src": "L41"

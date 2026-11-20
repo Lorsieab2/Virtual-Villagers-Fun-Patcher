@@ -1,0 +1,229 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Basket on the Beach",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s006_basket_beach",
+  "source": "rewrites",
+  "lines": [
+   244,
+   289
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L244",
+  "ledger": [
+   {
+    "src": "L245",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L246",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L254",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L263",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L251",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L252",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L255",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L264",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L257",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L260",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L266",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L269",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L272-289",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The sea is pink and flat as a plate at dawn, and gulls are squabbling over something along the tideline.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The sea is pink and flat as a plate at dawn, and gulls are squabbling over something along the tideline. (subject) has come down early to check the fish traps, and nearly steps on a woven basket tangled in the seaweed at the water's edge.\nInside, wrapped in a dry blanket, is a baby. Fast asleep. Completely unbothered.\n(subject) looks up and down the beach. There is no boat. No footprints but (subject.his/her) own. No note, no sign, nothing at all but the sea, which is very calm and very quiet, as if it has done nothing and would rather not discuss it. The baby yawns, opens one eye, looks at (subject) and goes back to sleep.",
+   "choices": [
+    {
+     "label": "Take the Baby Home",
+     "next": "c1",
+     "src": "L251"
+    },
+    {
+     "label": "Wait for Its Parents",
+     "next": "c2",
+     "src": "L252"
+    }
+   ],
+   "src": "L247-249"
+  },
+  "c1o1": {
+   "text": "Plenty of people offer to take the baby. (subject) refuses every one of them. \"I found the basket,\" (subject.he/she) says, holding on tight. \"So I'm the one who gets up at night.\" Everyone smiles and assumes (subject.he/she) will give in by the end of the week. (subject.He/She) does not. (subject.He/She) gets up every night, and every early morning, and walks the baby up and down the beach when nothing else will settle it. (subject) has never looked so tired, or so sure of anything in (subject.his/her) life.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L258",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(friend) meets them at the door of their hut, sees what's in the basket, and goes completely still. Then (friend) holds out (friend.his/her) arms, and the baby goes into them without a murmur, as if it had been waiting for exactly that pair. (subject) and (friend) take the foundling in together. By evening the whole village has come by with something: blankets, a carved rattle, a little woven mat, advice nobody asked for. The baby sleeps through all of it.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L261",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) scoops up the basket, blanket and all, and hurries back to the village with the baby tucked against (subject.his/her) chest. By the time (subject.he/she) reaches the huts, there is a small crowd following (subject.him/her), and everyone has an opinion about what should be done...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L255"
+  },
+  "c2o1": {
+   "text": "(subject) waits all day. Nobody comes. People from the village bring water, then milk, then food, then more people come just to sit and wait too. The tide goes out and comes back in. Nothing comes over the horizon but clouds. By evening the baby has a name, a favourite song \\(something about a turtle\\), a dozen people who would fight a shark for (subject.him/her), and a village. Nobody ever finds out where the basket came from. Every year, on the same morning, someone leaves a flower at the tideline.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L267",
+   "text_only": [
+    {
+     "src": "L267",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Around noon a small boat comes skidding in through the waves, rowed by a frantic young couple who are both shouting at once. They leap out before the boat stops and run up the sand. The basket slipped off the side in last night's swell, they say, they've been searching since before dawn, they thought they'd... They can't finish. They hug the baby, then hug (subject), then hug the baby again, and thank (subject) over and over until (subject.he/she) is quite embarrassed. They were on their way somewhere else. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L270",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "Someone, somewhere, must be missing this baby. (subject) sits down on the warm sand beside the basket, facing the sea, and settles in to wait. The sun climbs. The gulls lose interest. The baby wakes, and is hungry, and says so...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L264"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L270",
+   "before": "They decide to stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}."
+  }
+ ]
+}

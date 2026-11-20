@@ -1,0 +1,209 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Woman of the Reef",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b325_old_woman_reef",
+  "source": "balance",
+  "lines": [
+   15039,
+   15079
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15039",
+  "ledger": [
+   {
+    "src": "L15040",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15041",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15048",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15057",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15045",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15046",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15049",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15058",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15051",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15054",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15060",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15063",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15066-15079",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Most people just wave at her from the beach.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 19
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the lowest tide of the year, a rock on the reef shows above the water that looks, from the beach, like an old woman sitting with her knees drawn up. The elders call her the Reef Grandmother, and say she trades in years: give her a gift and she gives back a year, insult her and she takes one. Most people just wave at her from the beach.\n(Name) has walked all the way out across the exposed reef to see her up close. Up close, she looks even more like an old woman. Should (name) leave her a gift, or tell her what (he/she) really thinks of a rock that takes people's years?",
+   "choices": [
+    {
+     "label": "Leave Her a Gift",
+     "next": "c1",
+     "src": "L15045"
+    },
+    {
+     "label": "Tell Her What (He/She) Thinks",
+     "next": "c2",
+     "src": "L15046"
+    }
+   ],
+   "src": "L15042-15043"
+  },
+  "c1o1": {
+   "text": "On the walk back across the reef, (name) feels a lightness in (his/her) face, and when (he/she) looks into a still pool, (he/she) sees the face (he/she) had years ago. (His/her) age is the same; only the face is younger. \"She liked the necklace,\" the elders say, when (name) gets home. \"She always did like shells.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L15052",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The Grandmother must have liked the necklace very much. (Name) walks home five years younger, quicker, lighter, with the face (he/she) had five years ago. (He/She) goes out to the reef at every low tide after that with a new gift, and waves, and the Grandmother, people say, looks pleased to see (him/her).",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -5,
+      -5
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L15055",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) unwinds (his/her) best shell necklace and lays it in a hollow of the rock, at the Grandmother's feet. The tide sighs on the reef...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15049"
+  },
+  "c2o1": {
+   "text": "By the time (name) gets home, (his/her) face is lined and grey around the temples, like the rock's, and (his/her) family asks if (he/she) has been ill. (He/She) hasn't. (His/her) age is the same. The elders don't say \"told you so,\" but they look as if they're thinking it. (Name) goes back at the next low tide with a necklace, and an apology.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L15061",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The tide comes in faster than any tide should, and (name) is still halfway across the reef. The fishers see (him/her) from the beach and paddle out, but the water is already over the rocks. They bring (name) home the next morning. On the next low tide, someone leaves a shell necklace at the Grandmother's feet, and nobody says anything rude to her again.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L15064",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"You're a rock,\" says (name). \"You don't take anything. People get old on their own.\" (He/She) turns to go. The tide turns at the same moment...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15058"
+  }
+ }
+}

@@ -89,6 +89,66 @@
    ]
   },
   "e1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Outcome 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "The village laughs and keeps it as a novelty.",
+   "src": "L5174",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "craftsperson",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5170"
+    },
+    {
+     "do": "mood",
+     "role": "craftsperson",
+     "mood": "good",
+     "src": "L5174"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
    "name": "Outcome 1",
    "text": "The village laughs and keeps it as a novelty.",
    "src": "L5174",
@@ -103,9 +163,10 @@
      "max": 10,
      "src": "L5170"
     }
-   ]
+   ],
+   "auto_text": true
   },
-  "e2": {
+  "e2__fx": {
    "name": "Outcome 2",
    "text": "A practical use is discovered later.",
    "src": "L5175",
@@ -119,10 +180,65 @@
      "min": 5,
      "max": 10,
      "src": "L5170"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L5175"
     }
-   ]
+   ],
+   "auto_text": true
   },
-  "e3": {
+  "e2__text": {
+   "name": "Outcome 2",
+   "text": "A practical use is discovered later.",
+   "src": "L5175",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "craftsperson",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5170"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L5175"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__fx": {
+   "name": "Outcome 3",
+   "text": "The inventor decides the experiment was worthwhile anyway.",
+   "src": "L5176",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "craftsperson",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5170"
+    },
+    {
+     "do": "mood",
+     "role": "craftsperson",
+     "mood": "good",
+     "src": "L5176"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
    "name": "Outcome 3",
    "text": "The inventor decides the experiment was worthwhile anyway.",
    "src": "L5176",
@@ -137,7 +253,8 @@
      "max": 10,
      "src": "L5170"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

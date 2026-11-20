@@ -80,6 +80,41 @@
    "src": "L2799"
   },
   "e3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e3__fx": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Burn the first batch and laugh about it.",
+   "src": "L2800",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L2800"
+    },
+    {
+     "do": "mood",
+     "role": "baker",
+     "mood": "good",
+     "src": "L2800"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
    "name": "Outcome 3",
    "popup": "append",
    "join": "paragraph",

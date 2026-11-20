@@ -1,0 +1,238 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lightning Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b141_lightning_tree",
+  "source": "balance",
+  "lines": [
+   6477,
+   6521
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6477",
+  "ledger": [
+   {
+    "src": "L6478",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6479",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6487",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6496",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6484",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6485",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6488",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6497",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6490",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6493",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6499",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6502",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6505-6521",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The elders say lightning likes it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "There is a tree at the top of the hill that has been struck by lightning so many times its trunk is black and twisted and shiny as a cooking pot. The elders say lightning likes it. They say that anyone it strikes \"comes down from the hill a little mixed up,\" and they say it in a way that makes it clear they mean something specific.\n(subject) and (friend) were picking fruit on the hill when the storm came up, fast and black. The only shelter is the lightning tree. The rain is so heavy they can barely see each other, and the thunder is right on top of them.\nShould they run for the village through the open grass, or shelter under the tree?",
+   "choices": [
+    {
+     "label": "Shelter Under the Tree",
+     "next": "c1",
+     "src": "L6484"
+    },
+    {
+     "label": "Run for the Village",
+     "next": "c2",
+     "src": "L6485"
+    }
+   ],
+   "src": "L6480-6482"
+  },
+  "c1o1": {
+   "text": "There is a white flash and a crack so loud it shakes their teeth. When they open their eyes, they are lying in the wet grass, and each of them is looking at their own face. \"Oh,\" says (subject), in (friend)'s voice. \"That's what they meant.\" They walk home slowly, getting used to each other's legs. The elders are not surprised, and do not know any way to fix it.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L6491",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The lightning hits the tree and jumps. (subject) takes most of it. (friend) drags (subject.him/her) down the hill through the rain, shouting for the healers. (subject) lives. But (subject.his/her) right side is weak from then on, and (subject.his/her) hair has gone white where the lightning came out. (subject.He/She) never goes up the hill again, and gets indoors the moment the rain starts.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L6494",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They huddle together against the black trunk. It is warm, which it should not be, and it hums under their backs. (friend) starts to say, \"I don't like this,\" and doesn't get to finish...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6488"
+  },
+  "c2o1": {
+   "text": "The bolt hits the tree when they are only twenty steps away. It throws them both flat on their faces. When they sit up, each of them is in the other's body, which is apparently close enough for the lightning tree. \"Even from here?\" says (friend), outraged, in (subject)'s voice. They try sitting under the tree in the next storm, to swap back. It doesn't work. The lightning tree has made up its mind.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L6500",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They reach the village so wet that water pours out of their sleeves, and stand dripping in the doorway of the nearest hut until the storm passes. Up on the hill, the lightning strikes the tree three more times. The elders nod. \"Good thing you didn't shelter,\" they say. \"You'd have come down very mixed up.\" Nobody ever explains exactly what that means.",
+   "src": "L6503"
+  },
+  "c2": {
+   "text": "\"Run!\" shouts (subject), and they go, slipping and splashing down through the long grass with their heads down. Behind them, the lightning finds its tree...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6497"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "rain",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

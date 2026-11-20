@@ -1,0 +1,37 @@
+{
+  "id": "vv1_every_island_event_can_happen",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Every Island Event Can Happen",
+  "description": "The Trapped Whale (it needed Spirituality below level 3) and The Visitor (Medicine below level 3) can now happen at any technology level, even with everything researched. \"Help free the whale\" and \"Allow him to gather samples\" still raise that technology by 1 level, up to 3; at level 3 the event still happens, shows its own text, and the level stays at 3. Every other requirement (the villagers an event needs, puzzles, buildings, food, graves, room), how often events come and how one is chosen stay as in the normal game. **Needs no other patch.**",
+  "output_tag": "Every Island Event",
+  "behavior_changes": [
+    "The Trapped Whale can be chosen by the encounter roll at every Spirituality level, 3 included.",
+    "The Visitor can be chosen by the encounter roll at every Medicine level, 3 included.",
+    "Their raises are the game's own: +1 level, never past 3."
+  ],
+  "explicit_non_changes": [
+    "Only technology-level requirements are dropped; every other requirement of every event is the game's own.",
+    "The time between island events, the family weights, the re-rolls and every event's text are unchanged.",
+    "A Plague of Locusts still needs Farming level 2 (its crops).",
+    "No save data changes."
+  ],
+  "evidence_status": "static exact-build evidence (every write guarded by its stock bytes) and emulated conditions and raises at every technology level in all three patch modes; not yet seen in a running game",
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x1895B",
+      "before": "7DD3",
+      "after": "9090",
+      "purpose": "The Trapped Whale (encounter variant 0): the re-roll when Spirituality (world+0xA2BC) is 3 or more (jge 0x418930) -> nops; \"Help free the whale\" still adds 1 only below 3 (0x4193F4)"
+    },
+    {
+      "offset": "0x1896F",
+      "before": "7DBF",
+      "after": "9090",
+      "purpose": "The Visitor (encounter variant 4): the re-roll when Medicine (world+0xA2D4) is 3 or more (jge 0x418930) -> nops; \"Allow him to gather samples\" still adds 1 only below 3 (0x41981B)"
+    }
+  ]
+}

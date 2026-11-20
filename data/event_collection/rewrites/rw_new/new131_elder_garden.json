@@ -1,0 +1,243 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Last Garden",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new131_elder_garden",
+  "source": "rewrites",
+  "lines": [
+   6145,
+   6191
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6145",
+  "ledger": [
+   {
+    "src": "L6146",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6147",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6156",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6163",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6170",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6152",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6153",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6154",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6157",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6164",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6171",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6158",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6160",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6165",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6167",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6172",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6174",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6177-6191",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager wants to plant a breadfruit sapling at the edge of the garden.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 50
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) wants to plant a breadfruit sapling at the edge of the garden.\nIt is a fine little sapling, glossy-leaved and sturdy. The trouble is that a breadfruit tree takes many years to give its best fruit, and (subject) has done the counting. Everyone can see (subject.him/her) doing it in (subject.his/her) head: the years, (subject.his/her) age, the obvious answer.\n\"Somebody will eat from it,\" (subject) says firmly, to nobody in particular, and reaches for the digging stick.\n(subject.His/Her) family exchange worried glances. (young) opens (subject.his/her) mouth to say something, and then isn't sure what. Should (young) let (subject) plant it (subject.his/her) own way, ask (subject.him/her) to teach the old planting lore, or find a way to make the digging easier on (subject.his/her) back?",
+   "choices": [
+    {
+     "label": "Let the Gardener Choose",
+     "next": "c1",
+     "src": "L6152"
+    },
+    {
+     "label": "Learn the Planting Lore",
+     "next": "c2",
+     "src": "L6153"
+    },
+    {
+     "label": "Bring a Stool to the Garden",
+     "next": "c3",
+     "src": "L6154"
+    }
+   ],
+   "src": "L6148-6151"
+  },
+  "c1o1": {
+   "text": "(subject) decides to plant it alone, at dawn, at (subject.his/her) own pace, with nobody making plans for (subject.him/her). The next morning, (subject.he/she) is out there before anyone else is awake, humming. When the family come out, the sapling is in the ground, watered, with a ring of stones around it, and (subject) is sitting beside it drinking coconut water, looking very satisfied.",
+   "src": "L6159"
+  },
+  "c1o2": {
+   "text": "(subject) thinks about it, and then says, a little gruffly, that (subject.he/she) wouldn't mind some help with the digging. The ground is hard, and (subject.his/her) back isn't what it was. The family, who were sure (subject.he/she) would insist on doing everything alone, are so surprised that three of them grab digging sticks at once. The sapling goes in by noon, and (subject) supervises every scoop.",
+   "src": "L6161"
+  },
+  "c1": {
+   "text": "(young) closes (subject.his/her) mouth again, and asks only, \"How do you want to do it?\" (subject) looks at (subject.him/her) for a long moment, surprised...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6157"
+  },
+  "c2o1": {
+   "text": "(subject) teaches (young) how to judge soil by its smell, its colour and the way it crumbles in the hand: dark and sweet-smelling is good, grey and sour is bad, sticky means too wet, dusty means too dry. (young) takes it very seriously and asks good questions. By the end of the afternoon, (subject.he/she) can tell good soil from bad blindfolded, and the sapling is planted in the best spot in the whole garden.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "young",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L6166",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) starts teaching the old planting chant that gardeners used to sing while digging, and stops in the middle. (subject.He/She) can't remember the third verse. (subject.He/She) frowns, mutters, and finally asks the others to help. Three elders and a dozen half-remembered lines later, they piece most of it back together, and sing it, badly, as the sapling goes in.",
+   "src": "L6168"
+  },
+  "c2": {
+   "text": "(young) asks if (subject.he/she) can watch and learn how (subject) does it. (subject) snorts, but (subject.his/her) eyes light up. \"Well, first, you don't just stick it in any old dirt...\"",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6164"
+  },
+  "c3o1": {
+   "text": "With the stool and the long stick, (subject) plants the sapling in comfort, and seems surprised by how much easier it is. (subject.He/She) declares the stool \"a fine invention\" and refuses to give it back. For the rest of the season, (subject) can be seen out in the garden on that stool, tending everything in sight.",
+   "src": "L6173"
+  },
+  "c3o2": {
+   "text": "(subject) sits on the stool, looks at the hard ground, and decides that it's all too tiring for today. (subject.He/She) naps under the palm instead, snoring gently, with the sapling in its pot beside (subject.him/her). \"It can wait a day,\" (subject.he/she) says later. \"It's going to be around a long time.\"",
+   "src": "L6175"
+  },
+  "c3": {
+   "text": "(young) fetches a low stool and a long-handled digging stick, so (subject) can sit and dig without bending...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6171"
+  }
+ }
+}

@@ -69,14 +69,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) leads it exactly as written, every terrible word. The high note comes out like a seabird being sat on. The whole village sings along anyway, at full volume, and by the ninth \"fish\" everyone is crying with laughter, including (subject). (friend) says it's the best it's ever been sung. That might even be true.",
-   "src": "L62"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) suggests, carefully, that maybe they could shorten it a little. There's an uproar. \"You can't change the Song of the First Canoe!\" \"It's TRADITION!\" \"That high note is SACRED!\" (subject) backs down. The song is sung in full, as terribly as ever. Afterward, three different elders quietly tell (subject) they've always hated it too.",
    "src": "L65"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) leads it exactly as written, every terrible word. The high note comes out like a seabird being sat on. The whole village sings along anyway, at full volume, and by the ninth \"fish\" everyone is crying with laughter, including (subject). (friend) says it's the best it's ever been sung. That might even be true.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L62"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L62"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) leads it exactly as written, every terrible word. The high note comes out like a seabird being sat on. The whole village sings along anyway, at full volume, and by the ninth \"fish\" everyone is crying with laughter, including (subject). (friend) says it's the best it's ever been sung. That might even be true.",
+   "src": "L62"
   }
  }
 }

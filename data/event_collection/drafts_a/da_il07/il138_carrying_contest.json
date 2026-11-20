@@ -71,6 +71,49 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Draw,\" says (subject), through gritted teeth. \"Draw,\" agrees (friend) instantly. They both put the coconuts down very, very carefully. The crowd is disappointed, having hoped for a disaster. (subject) and (friend) shake hands, then both go off separately to have a little lie down.",
+   "src": "L221"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) reaches for one more coconut. The whole armful shifts, wobbles, and pours onto the ground, along with (subject). The crowd cheers. (friend), laughing, drops all of (friend.his/her) coconuts too. They declare it a draw, mostly because neither of them can stand up, and the villagers gather the coconuts for dinner.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L218"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L218"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L218"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(subject) reaches for one more coconut. The whole armful shifts, wobbles, and pours onto the ground, along with (subject). The crowd cheers. (friend), laughing, drops all of (friend.his/her) coconuts too. They declare it a draw, mostly because neither of them can stand up, and the villagers gather the coconuts for dinner.",
    "src": "L218",
@@ -81,12 +124,8 @@
      "scaled": true,
      "src": "L218"
     }
-   ]
-  },
-  "b": {
-   "name": "Answer B",
-   "text": "\"Draw,\" says (subject), through gritted teeth. \"Draw,\" agrees (friend) instantly. They both put the coconuts down very, very carefully. The crowd is disappointed, having hoped for a disaster. (subject) and (friend) shake hands, then both go off separately to have a little lie down.",
-   "src": "L221"
+   ],
+   "auto_text": true
   }
  },
  "grammar_fixes": [

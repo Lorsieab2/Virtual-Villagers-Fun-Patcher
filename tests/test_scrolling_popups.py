@@ -129,6 +129,11 @@ def sites(game: int) -> list[tuple[int, str]]:
         out.append((BUILDER.TIP_JUSTIFY[game], BUILDER.call_bytes(BUILDER.TIP_JUSTIFY[game], BUILDER.SITES[game][2])))
     if game in BUILDER.CENTRE:
         out.append((BUILDER.CENTRE[game][0], BUILDER.call_bytes(*BUILDER.CENTRE[game])))
+    if game in BUILDER.TITLE_SITES:
+        out.append((BUILDER.TITLE_SITES[game][0], BUILDER.call_bytes(*BUILDER.TITLE_SITES[game])))
+    if game in BUILDER.WHOLE_SITES:
+        whole_sites, whole_fn = BUILDER.WHOLE_SITES[game]
+        out += [(va, BUILDER.call_bytes(va, whole_fn)) for va in whole_sites]
     out.append(BUILDER.TAIL[game])            # the frame draw's tail: 13 / 14 bytes, not a call
     return out
 
@@ -171,6 +176,11 @@ class TheRows(unittest.TestCase):
             self.assertIn(f"0x{BUILDER.TOMBS[game]:X}u", row)
             for va in BUILDER.CENTRE.get(game, ()):
                 self.assertIn(f"0x{va:X}u", row)
+            for va in BUILDER.TITLE_SITES.get(game, ()):
+                self.assertIn(f"0x{va:X}u", row)
+            if game in BUILDER.WHOLE_SITES:
+                for va in (*BUILDER.WHOLE_SITES[game][0], BUILDER.WHOLE_SITES[game][1]):
+                    self.assertIn(f"0x{va:X}u", row)
             if game in BUILDER.SITES:
                 _ctor, draw, justify, size, sizer = BUILDER.SITES[game]
                 classes = header.split(f"static const sp_class SP_VV{game}_CLASSES[] = {{")[1].split("};")[0]
@@ -215,7 +225,8 @@ class TheRows(unittest.TestCase):
             self.assertNotIn(row_id(game), patcher.ALTERNATIVE_FUN_PATCH_IDS)
             classic = self.rows.get(f"vv{game}_classic_vv_difficulty")
             if classic is not None:
-                self.assertNotIn(row_id(game), classic.get("dependencies", []))
+                # the owner (2026-11-16): Classic ticks the Isola Grand Event Collection, which needs this row
+                self.assertIn(row_id(game), classic.get("dependencies", []))
 
 
 @unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and HAVE_IMAGES and TEST_DLL.is_file(),

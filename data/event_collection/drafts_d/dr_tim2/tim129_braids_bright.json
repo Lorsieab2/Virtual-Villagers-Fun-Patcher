@@ -109,6 +109,32 @@
    "src": "L31,L34"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(subject) braids (friend)'s hair, weaving in thin strands of dyed fiber. A strand of red fiber comes loose and is tucked back in with a laugh.",
+   "src": "L31,L35",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L31,L35"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(subject) braids (friend)'s hair, weaving in thin strands of dyed fiber. A strand of red fiber comes loose and is tucked back in with a laugh.",
    "src": "L31,L35"

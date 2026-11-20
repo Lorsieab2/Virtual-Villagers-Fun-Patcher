@@ -73,11 +73,63 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) puts a few things outside the door: a good basket, a nice shell, a carved bowl. By evening they're all gone to people who seem pleased with them. (subject.He/She) sees (child), a child, walking past with the bowl, filled with berries. (subject) feels lighter, somehow. The wooden fish, of course, stays. Some things aren't going anywhere.",
+   "src": "L104",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L104"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(subject) puts a few things outside the door: a good basket, a nice shell, a carved bowl. By evening they're all gone to people who seem pleased with them. (subject.He/She) sees (child), a child, walking past with the bowl, filled with berries. (subject) feels lighter, somehow. The wooden fish, of course, stays. Some things aren't going anywhere.",
    "src": "L104"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) spends the whole day sorting. (subject.He/She) finds things (subject.he/she) forgot (subject.he/she) owned. (subject.He/She) finds a toy (subject.he/she) made for a child who is now a grandparent (subject.him/her)self. In the end (subject.he/she) throws away exactly one broken digging stick, stacks everything else more neatly, and decides (subject.he/she) likes (subject.his/her) full, crowded, crammed hut very much, thank you.",
+   "src": "L107",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L107"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) spends the whole day sorting. (subject.He/She) finds things (subject.he/she) forgot (subject.he/she) owned. (subject.He/She) finds a toy (subject.he/she) made for a child who is now a grandparent (subject.him/her)self. In the end (subject.he/she) throws away exactly one broken digging stick, stacks everything else more neatly, and decides (subject.he/she) likes (subject.his/her) full, crowded, crammed hut very much, thank you.",
    "src": "L107"

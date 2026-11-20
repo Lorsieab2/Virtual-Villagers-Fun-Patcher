@@ -105,7 +105,8 @@
      "max": 10,
      "src": "L53"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -189,7 +190,20 @@
      "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
      "src": "L53"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L53"
+    }
+   ],
+   "auto_text": true
   },
   "d": {
    "type": "branch",

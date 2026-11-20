@@ -579,7 +579,7 @@ static int mb_op_rows(const void *popup, op_rows *out) {
     int r = 0;
     __try {
         if (popup != NULL && popup == g_mb.dialog && g_mb_op != NULL && out != NULL
-            && out->size == (int)sizeof(op_rows)) {
+            && OP_ROWS_SIZE_OK(out)) {
             out->rows = mb_op_count(g_mb.dialog, out);
             out->reserve = mb_op_reserve();
             r = 1;

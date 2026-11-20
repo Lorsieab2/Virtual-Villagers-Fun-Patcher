@@ -1,0 +1,201 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Who Looked Alike",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b333_two_looked_alike",
+  "source": "balance",
+  "lines": [
+   15392,
+   15434
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15392",
+  "ledger": [
+   {
+    "src": "L15393",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15394",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15401",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15410",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15398",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15399",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15402",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15411",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15404",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15407",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15413",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15416",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15419-15434",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The island likes a good joke, and sometimes it keeps one. Should they swap back at once, or keep the joke going one more day?",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) aren't related, but everyone in the village mixes them up anyway: same height, same build, same habit of whistling through their teeth. They've decided to have some fun with it, and for one day they've swapped everything: clothes, jobs, even huts, to see if anyone notices.\nNobody does. By evening, they're so pleased with themselves that they go to the elders to confess, and the eldest, (elder), looks at them for a long time and says, \"Be careful. The island likes a good joke, and sometimes it keeps one.\" Should they swap back at once, or keep the joke going one more day?",
+   "choices": [
+    {
+     "label": "Swap Back at Once",
+     "next": "c1",
+     "src": "L15398"
+    },
+    {
+     "label": "One More Day",
+     "next": "c2",
+     "src": "L15399"
+    }
+   ],
+   "src": "L15395-15396"
+  },
+  "c1o1": {
+   "text": "In the morning, (subject) wakes up on (subject.his/her) own mat, in (subject.his/her) own hut, in (friend)'s body. Across the village, (friend) is doing the same thing in reverse. The island, it seems, liked the joke. (elder) just nods when they come back. \"I did say,\" (subject.he/she) says.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L15405",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They swap back without trouble. But the joke has been such a success that the village refuses to stop. Somebody gives (subject) a new name, just to tell them apart, and it sticks so well that within a week everyone, including (subject), uses it without thinking. From then on, (subject.he/she) is (made1), and (friend) is very jealous.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L15408",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They laugh, but they go straight back to their own huts, change back into their own clothes, and lie down on their own mats...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15402"
+  },
+  "c2o1": {
+   "text": "In the morning, the joke isn't a joke any more. Each of them wakes up in the other's body, as if the island decided that if they liked being each other so much, they might as well do it properly. They spend a day being horrified, a week being annoyed, and the rest of their lives arguing about whose body got the better deal.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L15414",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "On the second day, a small child walks up to (subject), looks at (subject.him/her) hard, and says loudly, \"You're not (friend). You're (subject) in (friend)'s clothes.\" The whole village laughs, and the joke is over. They swap back that afternoon. The child is given an extra sweet potato at supper for being cleverer than all the grown-ups.",
+   "src": "L15417"
+  },
+  "c2": {
+   "text": "\"One more day,\" says (friend). \"It's too good.\" They go to bed in each other's huts again, giggling...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15411"
+  }
+ }
+}

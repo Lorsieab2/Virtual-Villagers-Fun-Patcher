@@ -22,7 +22,7 @@ import vv_cie_graph as cg  # noqa: E402
 import vv_living_mixer as mx  # noqa: E402
 
 BANK = mx.Bank()
-PACKS = {g: lc.pack_path(g).read_bytes() for g in mx.GAMES}
+PACKS = {g: [q.read_bytes() for q in lc.pack_paths(g)] for g in mx.GAMES}   # living-<group>.pak, one per series
 SETUP_RE = re.compile(r"^SETUP: (?P<seed>.+?) (A|An) (?P<pa>[a-z]+) (?P<ra>an? .+?) and (a|an) (?P<pb>[a-z]+) "
                       r"(?P<rb>an? .+?) disagree about what should happen next\. Their status alone does not settle "
                       r"the matter\.$")
@@ -47,7 +47,8 @@ class Exhaustive(unittest.TestCase):
     def test_every_variant_in_every_game(self) -> None:
         problems, stats = lc.check_packs(PACKS, BANK)
         self.assertEqual(problems, [])
-        self.assertEqual(sum(stats["variants"].values()), sum(len(mx.read_pack(p)["variants"]) for p in PACKS.values()))
+        self.assertEqual(sum(stats["variants"].values()),
+                         sum(len(mx.read_pack(d)["variants"]) for ds in PACKS.values() for d in ds))
 
     def test_bank_texts_are_on_their_source_lines(self) -> None:
         lines = lc.source_lines()
@@ -93,8 +94,11 @@ class Exhaustive(unittest.TestCase):
         self.assertEqual(lc.source_lines()[23814].rstrip("\r"), "CREDITS: " + BANK.credit)
         self.assertIn("CREDITS: " + BANK.credit + "\n", credits)
         for game in mx.GAMES:
-            manifest = (ROOT / "assets" / "event_collection" / f"vv{game}" / "manifest.txt").read_text(encoding="utf-8")
-            rows = [r.split("\t") for r in manifest.splitlines() if r.startswith("living_")]
+            # the manifests are split per source section and living series (living-pack.md 1); the Living Engine's
+            # own seeds (living_le_*, living_mc_*) carry its credit, the static events' mixer versions their own
+            manifest = "\n".join(q.read_text(encoding="utf-8")
+                                 for q in sorted((ROOT / "assets" / "event_collection" / f"vv{game}").glob("manifest-*.txt")))
+            rows = [r.split("\t") for r in manifest.splitlines() if r.startswith(("living_le_", "living_mc_"))]
             self.assertTrue(rows)
             self.assertTrue(all(r[5] == BANK.credit for r in rows))
 
@@ -119,13 +123,14 @@ class MixAnchor(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.changes = documented_changes()
         cls.variant0 = {}
-        for game, data in PACKS.items():
-            p = mx.read_pack(data)
-            for s in p["seeds"]:
-                for vi in range(s["first"], s["first"] + s["count"]):
-                    v = p["variants"][vi]
-                    if v["flags"] & mx.FLAG_MIX and s["id"] not in cls.variant0:
-                        cls.variant0[s["id"]] = (game, cg.decompile_graph(v["blob"]))
+        for game, datas in PACKS.items():
+            for data in datas:
+                p = mx.read_pack(data)
+                for s in p["seeds"]:
+                    for vi in range(s["first"], s["first"] + s["count"]):
+                        v = p["variants"][vi]
+                        if v["flags"] & mx.FLAG_MIX and s["id"] not in cls.variant0:
+                            cls.variant0[s["id"]] = (game, cg.decompile_graph(v["blob"]))
 
     def test_documented_changes_are_the_mixers(self) -> None:
         mx.generate(BANK)
@@ -191,8 +196,10 @@ class MixAnchor(unittest.TestCase):
                         f"{part('second', rb, 'PB')}, {mx.FRAME_TAIL}")
                 start = d["nodes"][d["start"]]
                 self.assertEqual(lc.expand_words(start["text"], words, game), want)
-                self.assertEqual([lc.expand_words(c["label"], words, game) for c in start["choices"]], labels)
-                for c, (good, bad) in zip(start["choices"], outs):
+                # a choice's Guardians of Isola twin (vv_living_mixer.guardians_bank) is not the MIX's own
+                self.assertEqual([lc.expand_words(c["label"], words, game) for c in start["choices"]
+                                  if c.get("if") != mx.GUARDIANS_IF], labels)
+                for c, (good, bad) in zip([c for c in start["choices"] if c.get("if") != mx.GUARDIANS_IF], outs):
                     kids = d["nodes"][c["next"]]["children"]
                     n_kids = len(good) + len(bad)
                     self.assertEqual([d["nodes"][k["next"]]["text"] for k in kids[:n_kids]], good + bad)

@@ -71,9 +71,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "The child learns to count again and correct the drawing.",
-   "src": "L8912"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -100,7 +107,31 @@
      "max": 10,
      "src": "L8918"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The child learns to count again and correct the drawing.",
+   "src": "L8912",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L8912"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "The child learns to count again and correct the drawing.",
+   "src": "L8912"
   }
  }
 }

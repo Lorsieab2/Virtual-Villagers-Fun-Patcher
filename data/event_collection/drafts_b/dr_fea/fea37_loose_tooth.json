@@ -70,11 +70,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"It'll come out when it's ready,\" says (friend). \"You don't have to do anything.\" (subject) is enormously relieved. That evening, (subject.he/she) bites into a piece of fruit, forgets, and the tooth just pops out, without hurting at all. (subject.He/she) holds it up in astonishment. \"It didn't hurt!\" (subject.He/she) is very proud of the tooth.",
+   "src": "L446",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L446"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"It'll come out when it's ready,\" says (friend). \"You don't have to do anything.\" (subject) is enormously relieved. That evening, (subject.he/she) bites into a piece of fruit, forgets, and the tooth just pops out, without hurting at all. (subject.He/she) holds it up in astonishment. \"It didn't hurt!\" (subject.He/she) is very proud of the tooth.",
    "src": "L446"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) tells (subject.him/her) all about (friend.his/her) own first wobbly tooth, which (friend.he/she) kept for weeks out of fear, and which finally came out when (friend.he/she) sneezed. (subject) laughs so much that (subject.his/her) tooth wobbles even more. That night (subject.he/she) sneezes, hopefully, on purpose. It doesn't work. The tooth comes out two days later, on its own.",
+   "src": "L449",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L449"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) tells (subject.him/her) all about (friend.his/her) own first wobbly tooth, which (friend.he/she) kept for weeks out of fear, and which finally came out when (friend.he/she) sneezed. (subject) laughs so much that (subject.his/her) tooth wobbles even more. That night (subject.he/she) sneezes, hopefully, on purpose. It doesn't work. The tooth comes out two days later, on its own.",
    "src": "L449"

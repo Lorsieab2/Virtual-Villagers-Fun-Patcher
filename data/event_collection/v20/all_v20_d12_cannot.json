@@ -102,7 +102,8 @@
      "cause": "unknown",
      "src": "L9082"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "text": "The hospital establishes a new emergency system.",
@@ -148,7 +149,8 @@
      "max": -10,
      "src": "L9084"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "text": "Everyone is stabilized through remarkable luck.",
@@ -183,7 +185,8 @@
      "max": -10,
      "src": "L9086-9087"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c3": {
    "text": "An apprentice organizes supplies and saves time.",

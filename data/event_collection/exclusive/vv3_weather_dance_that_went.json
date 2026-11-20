@@ -74,7 +74,8 @@
      "what": "the farmers celebrate",
      "reason": "only the farmers celebrate, and they are not cast; told only"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "src": "L7908",
@@ -106,7 +107,8 @@
      "scaled": true,
      "src": "L7914"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_a": {
    "type": "branch",

@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grandchild's First Spell",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b249_grandchild_spell",
+  "source": "balance",
+  "lines": [
+   11630,
+   11672
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11630",
+  "ledger": [
+   {
+    "src": "L11631",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11632",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11640",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11649",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11637",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11638",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11641",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11650",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11643",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11646",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11652",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11655",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11658-11672",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The spell-keeper is nowhere in sight.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(child) has been following the village's old spell-keeper around for a month, and today (subject.he/she) runs up to (subject) with a bundle of herbs, a feather and a seashell tied together with string. \"I learned a spell,\" (child) says. \"It makes you young. Can I try it on you?\"\n(subject) is an elder, and (subject.his/her) knees agree with that loudly every morning. The spell-keeper is nowhere in sight. (child) is bouncing on (subject.his/her) toes.\nShould (subject) let the child try, or gently say no?",
+   "choices": [
+    {
+     "label": "Let (Child) Try",
+     "next": "c1",
+     "src": "L11637"
+    },
+    {
+     "label": "Gently Say No",
+     "next": "c2",
+     "src": "L11638"
+    }
+   ],
+   "src": "L11633-11635"
+  },
+  "c1o1": {
+   "text": "Something tickles (subject)'s cheeks. When (subject.he/she) opens (subject.his/her) eyes, (child) is staring at (subject.him/her) with (subject.his/her) mouth open. (subject) goes to the water to look and finds (subject.his/her) own face from forty years ago looking back, smooth and bright. (subject.His/her) knees still creak exactly as before. \"You only did the face,\" (subject) says. \"That's the best bit,\" says (child).",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L11644",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Something tickles (subject)'s cheeks, and when (subject.he/she) looks in the water, (subject.he/she) looks even older than before: deeper lines, whiter brows, the works. (child) bursts into tears. The spell-keeper arrives at a run, looks at (subject), and sighs. \"You said the word backwards,\" (subject.he/she) tells (child), and from then on gives (subject.him/her) proper lessons.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "role": "child",
+     "min": 10,
+     "max": 10,
+     "best": true
+    }
+   ],
+   "src": "L11647",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) sits down on a log and closes (subject.his/her) eyes. (child) waves the bundle around (subject.his/her) head three times and says a long word that (subject.he/she) gets wrong twice...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11641"
+  },
+  "c2o1": {
+   "text": "(child) is so delighted to be listened to that (subject.he/she) presents (subject) with the seashell from the bundle, and starts calling (subject.him/her) by the name of the hero in the spell-keeper's shell story: \"Ponui\" for a man, \"Tonga\" for a woman. The other children pick it up within a day. Within a week, the adults are doing it too. (subject) pretends to be annoyed about it, and wears the shell on a string around (subject.his/her) neck for the rest of (subject.his/her) life.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L11653",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "At the end of the explanation, (child) gives (subject) the herbs to keep \"in case you change your mind.\" They turn out to be good for sore knees, once they are boiled. (subject) never does let (subject.him/her) try the spell, but (subject.he/she) makes tea from the herbs every night, and the knees are a little quieter in the mornings.",
+   "src": "L11656"
+  },
+  "c2": {
+   "text": "\"Not today,\" says (subject), \"but tell me how it works.\" (child) sits beside (subject.him/her) and explains the spell at great length, with diagrams drawn in the dirt...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11650"
+  }
+ }
+}

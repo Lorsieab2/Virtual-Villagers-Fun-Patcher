@@ -86,6 +86,32 @@
    "src": "L506"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Next year,\" says (friend), \"practice with me.\" They practice all season. The following year (subject) comes fourth. (subject.He/she) is more delighted than the winner, and explains to anyone who will listen that fourth is the most important place.",
+   "src": "L509",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L509"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Next year,\" says (friend), \"practice with me.\" They practice all season. The following year (subject) comes fourth. (subject.He/she) is more delighted than the winner, and explains to anyone who will listen that fourth is the most important place.",
    "src": "L509"

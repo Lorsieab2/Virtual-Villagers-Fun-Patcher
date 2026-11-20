@@ -74,6 +74,32 @@
    "src": "L14"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) stays at (friend.his/her) door and watches (subject) from a distance. It's a beautiful thing to see: one small figure on the sand, the huge sun coming up. (friend) doesn't share the belief. (friend.He/she) still finds (friend.him/her)self holding (friend.his/her) breath a little. Later, (friend.he/she) tells (subject) it was lovely to watch. (subject) seems pleased.",
+   "src": "L17",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L17"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) stays at (friend.his/her) door and watches (subject) from a distance. It's a beautiful thing to see: one small figure on the sand, the huge sun coming up. (friend) doesn't share the belief. (friend.He/she) still finds (friend.him/her)self holding (friend.his/her) breath a little. Later, (friend.he/she) tells (subject) it was lovely to watch. (subject) seems pleased.",
    "src": "L17"

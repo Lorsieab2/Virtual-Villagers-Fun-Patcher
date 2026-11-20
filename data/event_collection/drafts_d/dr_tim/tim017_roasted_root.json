@@ -99,9 +99,16 @@
    "src": "L283"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "Two cooks compare ways to roast a familiar root. Someone asks for the recipe before the bowl is empty.",
-   "src": "L287"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -109,6 +116,51 @@
    "src": "L291"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "Two cooks compare ways to roast a familiar root. Someone asks for the recipe before the bowl is empty.",
+   "src": "L287",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L287"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "Two cooks compare ways to roast a familiar root. Someone asks for the recipe before the bowl is empty.",
+   "src": "L287"
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "Two cooks compare ways to roast a familiar root. (Name1) quietly notes one change to try next time.",
+   "src": "L295",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L295"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "Two cooks compare ways to roast a familiar root. (Name1) quietly notes one change to try next time.",
    "src": "L295"

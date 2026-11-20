@@ -1,0 +1,242 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rope Bridge Over the Ravine",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b309_rope_bridge_over",
+  "source": "balance",
+  "lines": [
+   14328,
+   14368
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14328",
+  "ledger": [
+   {
+    "src": "L14329",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14330",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14337",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14346",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14334",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14335",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14338",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14347",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14340",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14343",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14349",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14352",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14355-14368",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The rope bridge over the ravine to the far gardens is old, and the builders have been meaning to replace it for a year.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The rope bridge over the ravine to the far gardens is old, and the builders have been meaning to replace it for a year. This morning (name) steps onto it with a basket of seedlings and hears one of the ropes go \"tick.\" Then another \"tick.\" Then the bridge sags a hand's width.\n(Name) is a third of the way across. Should (he/she) hurry forward to the far side, or edge carefully back the way (he/she) came?",
+   "choices": [
+    {
+     "label": "Hurry Forward",
+     "next": "c1",
+     "src": "L14334"
+    },
+    {
+     "label": "Edge Back",
+     "next": "c2",
+     "src": "L14335"
+    }
+   ],
+   "src": "L14331-14332"
+  },
+  "c1o1": {
+   "text": "The bridge gives way just as (name) reaches the far side. (He/She) grabs the edge, scrambles up, and smacks (his/her) head against a rock doing it. The gardeners find (him/her) sitting dazed among the seedlings an hour later. (He/She) knows the gardens, the village and the gardeners, but not (his/her) own name. Until it comes back, everyone calls (him/her) \"?\", and the builders build a new bridge in a week.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L14341",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The bridge breaks under (name) with the far side almost in reach. (He/She) falls, hits the slope, and slides down into the ferns at the bottom of the ravine. It takes the whole afternoon to bring (him/her) up on a stretcher. (His/her) legs never work properly again, and (he/she) never goes near the far gardens after that. The builders build the new bridge in a week, out of guilt.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L14344",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) runs, the bridge swinging wildly under (his/her) feet, seedlings flying out of the basket into the ravine. The ticks come faster and faster...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14338"
+  },
+  "c2o1": {
+   "text": "(Name) reaches the near side just as the bridge drops. It hangs straight down from the far side, swinging. (Name) sits on the rock for a long time, holding the basket of seedlings. (He/She) never goes back to the far gardens, and the love (he/she) had for growing things seems to have fallen into the ravine with the bridge. \"I'll do something on flat ground,\" (he/she) says.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "turnips",
+     "role": "subject"
+    }
+   ],
+   "src": "L14350",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "A builder on the near side sees what's happening and throws (name) a rope. (Name) ties it around (his/her) waist with shaking hands, and the builder hauls (him/her) back to safety as the old bridge sags and twists. The new bridge goes up that week. (Name) is the first to cross it, very slowly, holding both ropes.",
+   "src": "L14353"
+  },
+  "c2": {
+   "text": "(Name) turns very, very slowly and starts edging back, one step at a time, holding both ropes. The bridge creaks. Halfway back, another rope goes \"tick\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14347"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

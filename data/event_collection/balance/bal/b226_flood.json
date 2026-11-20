@@ -1,0 +1,240 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Flood",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b226_flood",
+  "source": "balance",
+  "lines": [
+   10511,
+   10555
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10511",
+  "ledger": [
+   {
+    "src": "L10512",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10513",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10521",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10530",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10518",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10519",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10522",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10531",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10524",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10527",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10533",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10536",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10539-10555",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L10528",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "It has rained for nine days.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager"
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It has rained for nine days. The stream that runs past the village, usually small enough to step over, is now a brown roaring river carrying whole trees, and it has risen over its banks in the night and come into the lower huts. The water is knee-deep in the paths and still rising.\n(subject) is standing on the bank by the lower huts. Inside the last one, (elder), who can't walk without help, is calling out. The water in the doorway is up to the knee and pulling hard. Behind (subject), (builder) is shouting that they need everyone up the hill to save the food stores before the water reaches them.\nShould (subject) go for (elder), or help save the stores?",
+   "choices": [
+    {
+     "label": "Go for (Elder)",
+     "next": "c1",
+     "src": "L10518"
+    },
+    {
+     "label": "Save the Stores",
+     "next": "c2",
+     "src": "L10519"
+    }
+   ],
+   "src": "L10514-10516",
+   "text_only": [
+    {
+     "src": "L10515",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "A tree comes down the river, roots and all. (subject) pushes (elder) towards the bank, and (builder) grabs (subject.him/her), and the tree takes (subject). They find (subject) two days later, when the water goes down, caught in the branches by the river mouth. (elder) lives. (subject.He/She) sits by (subject)'s grave every morning from then on, whatever the weather.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L10525",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) gets (elder) out, both of them soaked and coughing, and carries (subject.him/her) up the hill. By the time they get there, half the food store has gone under. Nobody says a word to (subject) about it. (elder) says plenty, all of it to everyone else, about what (subject) did.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    },
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L10528"
+  },
+  "c1": {
+   "text": "(subject) wades in, the water pulling at (subject.his/her) legs, and gets an arm round (elder), and starts back towards the bank, step by step, with the river shoving at them...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10522"
+  },
+  "c2o1": {
+   "text": "The stores are saved, every basket. (builder) and two others wade down for (elder) and get (subject.him/her) out, cold and bruised but alive. When the water goes down, the village rebuilds every flooded hut on higher posts, so the next flood will go underneath. (elder) gets the first new hut.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "health_change",
+     "role": "elder",
+     "min": -40,
+     "max": -20
+    }
+   ],
+   "src": "L10534",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The stores are saved. When (builder) and the others get down to the last hut, the river has taken it, and (elder) with it. They find (subject.him/her) when the water goes down. The village rebuilds every hut on high posts, and digs a ditch to send the stream round the village, and carves (elder)'s name on the first post.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "kill",
+     "role": "elder",
+     "cause": "unknown"
+    }
+   ],
+   "src": "L10537",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) shouts to (elder) that help is coming, and runs up the hill to the stores, where the whole village is passing baskets hand to hand out of the water...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10531"
+  }
+ }
+}

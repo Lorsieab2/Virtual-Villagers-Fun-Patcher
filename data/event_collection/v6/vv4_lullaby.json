@@ -196,11 +196,14 @@
    ]
   },
   "a4": {
-   "src": "L3208-3210",
-   "text": "The musician tries to sing softly but keeps forgetting and bursting into a dramatic chorus. The group laughs and takes the rehearsal farther away.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "end"
+     "next": "a4__fx"
+    },
+    {
+     "next": "a4__text"
     }
    ]
   },
@@ -250,11 +253,14 @@
    ]
   },
   "f4": {
-   "src": "L3219-3220",
-   "text": "The baby falls asleep before anyone begins. Everyone exchanges relieved looks and agrees not to make another sound.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "end"
+     "next": "f4__fx"
+    },
+    {
+     "next": "f4__text"
     }
    ]
   },
@@ -262,6 +268,66 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{END}"
+  },
+  "a4__fx": {
+   "src": "L3208-3210",
+   "text": "The musician tries to sing softly but keeps forgetting and bursting into a dramatic chorus. The group laughs and takes the rehearsal farther away.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "musician",
+     "mood": "good",
+     "src": "L3208-3210"
+    }
+   ],
+   "auto_text": true
+  },
+  "a4__text": {
+   "src": "L3208-3210",
+   "text": "The musician tries to sing softly but keeps forgetting and bursting into a dramatic chorus. The group laughs and takes the rehearsal farther away.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "f4__fx": {
+   "src": "L3219-3220",
+   "text": "The baby falls asleep before anyone begins. Everyone exchanges relieved looks and agrees not to make another sound.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L3219-3220"
+    },
+    {
+     "do": "mood",
+     "role": "musician",
+     "mood": "good",
+     "src": "L3219-3220"
+    }
+   ],
+   "auto_text": true
+  },
+  "f4__text": {
+   "src": "L3219-3220",
+   "text": "The baby falls asleep before anyone begins. Everyone exchanges relieved looks and agrees not to make another sound.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
   }
  }
 }

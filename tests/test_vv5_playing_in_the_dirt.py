@@ -37,6 +37,10 @@ longer than `mov edi, eax`), paid for by `pop ecx ; pop ecx` in place of
 `add esp, 8` (ecx is dead there: `mov ecx, esi` follows before the call).  The
 second rand call moves one byte, so its rel32 is recomputed.  Result:
 x = 1860 + rand(305) -> 1860..2164, y = 1479 + 2*rand(103) -> 1479..1683.
+
+The owner (2026-11-20) moved it to the grass above the lake's north-west edge, never in the
+lake water and clear of the Hollow Totem: x = 1304 + rand(256) -> 1304..1559,
+y = 1855 + 2*rand(103) -> 1855..2059, a box inside Puddle Play Moves to the Lake Shore's area.
 """
 from __future__ import annotations
 
@@ -57,9 +61,9 @@ STOCK = ROOT / "research" / "stock-executables" / next(
 ).input_name
 
 RAND = 0x403660
-X_BASE, X_SPREAD = 1860, 305
-Y_BASE, Y_HALF = 1479, 103
-OUTLINE = (1860, 2164, 1479, 1683)   # the largest box inside the seven-villager outline: Pehe (1865,1459), Sirah (2128,1451), Bua (2328,1606), Moti (2238,1667), Tiki (2077,1705), Mapui (1824,1682), Nui (1835,1570)
+X_BASE, X_SPREAD = 1304, 256
+Y_BASE, Y_HALF = 1855, 103
+OUTLINE = (1304, 1559, 1855, 2059)   # the largest box inside Puddle Play's grass area left of the Hollow Totem's corner (the owner, 2026-11-20); until then the flower patch 1860..2164 by 1479..1683
 
 
 def expected_block() -> bytes:
@@ -117,15 +121,15 @@ class PlayingInTheDirtTests(unittest.TestCase):
         tail = bytes.fromhex("05") + struct.pack("<I", X_BASE) + bytes.fromhex("57508BCE")
         got = [f"{i.mnemonic} {i.op_str}".strip() for i in md.disasm(expected_block() + tail, 0x45ED70)]
         self.assertEqual(got, [
-            "push 0x67", "call 0x403660", "lea edi, [eax + eax]", "push 0x131",
-            "add edi, 0x5c7", "call 0x403660", "pop ecx", "pop ecx", "push 0",
-            "push 0x64", "add eax, 0x744", "push edi", "push eax", "mov ecx, esi",
+            "push 0x67", "call 0x403660", "lea edi, [eax + eax]", "push 0x100",
+            "add edi, 0x73f", "call 0x403660", "pop ecx", "pop ecx", "push 0",
+            "push 0x64", "add eax, 0x518", "push edi", "push eax", "mov ecx, esi",
         ])
 
     def test_the_ranges_fill_the_owners_outline_and_are_what_rand_can_produce(self):
         x_lo, x_hi = X_BASE, X_BASE + X_SPREAD - 1                 # rand(503): 0..502
         y_lo, y_hi = Y_BASE, Y_BASE + 2 * (Y_HALF - 1)            # 2*rand(127): 0..252
-        self.assertEqual((x_lo, x_hi, y_lo, y_hi), (1860, 2164, 1479, 1683))
+        self.assertEqual((x_lo, x_hi, y_lo, y_hi), (1304, 1559, 1855, 2059))
         # The owner marked the box by standing a villager on each corner, so the
         # patch must match it: inside it, and within a step of filling it (the
         # second coordinate moves in twos, so its top may fall one short).

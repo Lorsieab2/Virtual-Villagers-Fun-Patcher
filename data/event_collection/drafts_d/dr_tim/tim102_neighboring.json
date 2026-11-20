@@ -104,14 +104,40 @@
    "src": "L1715"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "Two gardeners compare the growth of neighboring plants. Someone proposes keeping notes on the next planting.",
-   "src": "L1719"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "Two gardeners compare the growth of neighboring plants. The scent of damp earth makes (Name1) unexpectedly nostalgic.",
    "src": "L1723"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "Two gardeners compare the growth of neighboring plants. Someone proposes keeping notes on the next planting.",
+   "src": "L1719",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1719"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "Two gardeners compare the growth of neighboring plants. Someone proposes keeping notes on the next planting.",
+   "src": "L1719"
   }
  }
 }

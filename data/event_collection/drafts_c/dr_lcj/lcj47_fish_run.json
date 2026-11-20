@@ -1,0 +1,127 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fish Run",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj47_fish_run",
+  "source": "draft_lcj",
+  "lines": [
+   656,
+   667
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L656",
+  "ledger": [
+   {
+    "src": "L657",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two fishers)"
+   },
+   {
+    "src": "L663",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L663",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L667",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L667",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The silver fish swim up the stream once a year: take as many as possible, or count them and take a share.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Once a year, the silver fish swim up the stream to lay their eggs, so many the water seems to boil. (subject) says take as many as the baskets will hold. (friend) has noticed the run is smaller each year, and wants to count them and take only a share. What should the village do?",
+   "src": "L659",
+   "choices": [
+    {
+     "label": "Take as Many as Possible",
+     "next": "o1",
+     "src": "L661"
+    },
+    {
+     "label": "Count and Take a Share",
+     "next": "o2",
+     "src": "L665"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village fills every basket. There is a great feast. Next year the run is smaller again. (subject) starts to wonder.",
+   "src": "L663",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L663"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village counts the fish and takes only a third. The feast is smaller. Over the years, the run grows back, and (friend) keeps the count carved on a post by the stream.",
+   "src": "L667",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L667"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

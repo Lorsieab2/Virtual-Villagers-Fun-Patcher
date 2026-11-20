@@ -36,6 +36,19 @@ brackets where it differs:
     0x424D5F) and sets his six skills to 100.0 (0x424D87-0x424DAF).
   * the Earthquake 0x41F746-0x41F7CC: Faith +2 to +8 (rand(7) + 2) through 0x468020 for everyone but roles 12-17; no
     skill.
+  * nursing mothers (pregnant and nursing are one state, the conception field +0x1C4C; the carried babies are a count
+    on the mother, not records): the villager's next-action chooser sends a mother to the mother activities 0x46A1D0
+    from 0x46F0FD [0x461A30 from 0x4658AD]; the job gate skips work while she carries (0x46E918 [0x465788]), so job 8's
+    re-queue of the teaching action never runs for her.  The drop: the hotspot dispatcher 0x4794A0 [0x46E460] refuses
+    a carrying villager unless the hotspot's flag is 1 (0x479521 [0x46E4CB]) with tip 0x2D0 [0x2DF]
+    eTTipStandAloneMommiesNoWork (0x47953D [0x46E4E7]); the Nursery School registers flag 0 (0x479810(0x11, 0x43AA30,
+    -1, 0) at 0x43AB8B [0x46E5E0(0x22, 0x4376E0, -1, 0) at 0x43784B]), so its handler never sees her, built or not.
+    The tip routine [0x44B890] skips a tip already shown unless forced; the dispatcher does not force it.  The teacher
+    pick 0x471BB0 [0x467C50] and the lesson's child test have no carrying test.  Conceiving 0x465E00 [0x45E7B0] adds
+    max(5, (100 - Parenting) / 10) Parenting (0x465E1E-0x465E62 [0x45E7CE-0x45E812]) and changes no job; the game's own
+    conception step [0x464FF8-0x46511B] clears no queue.  A new teacher clears only the villager doing the teaching
+    action (0x43A830 [0x4374C0 -> 0x4678F0(0x7E)]).  The hover caption: [0x437749-0x437775 picks "under construction"
+    or "foundation"]; New Believers always passes 0x206 "under construction" (0x43AAB5), the 0x43AEA0 count unused.
 Read only.
 """
 from __future__ import annotations
@@ -82,6 +95,68 @@ def _three(values, digits: int = 4) -> str:
     return f"{a}, {b} or {c}"
 
 
+MOTHER_TIP = "Nursing mothers don't work while they are caring for an infant."
+# The mother activities each game's picker offers (captions from Assets\sm.xml; the picker's action list).
+MOTHER_ACTIVITIES = {
+    4: ("Washing baby", "Changing baby", "Showing baby the cooking area", "Showing baby the blackberries",
+        "Showing baby the tree", "Showing baby the fish statue", "Showing baby the tide pool",
+        "Showing baby the beach", "Showing baby the wind flutes"),
+    5: ("Washing baby", "Changing baby", "Showing baby the noni", "Showing baby the statue",
+        "Showing baby the aqueduct", "Showing baby the stream", "Showing baby the hidden grove"),
+}
+
+
+def mother_lines(add, village: gm.Village, game: int) -> None:
+    """Nursing mothers and the Nursery School: the game's behaviour, read from the stock exes (addresses in the
+    module docstring).  Nothing here is changed by the patcher."""
+    vv5 = game == 5
+    # The chooser 0x46F0FD [0x4658AD] -> the mother picker; the job gate 0x46E918 [0x465788]; the dispatcher's
+    # carrying test 0x479521 [0x46E4CB]; the teacher pick 0x471BB0 [0x467C50].
+    add("Nursing mothers and the Nursery School: a nursing mother (pregnant and nursing are one state: she carries "
+        "her baby or babies until they are born) never goes to the Nursery School on her own and is refused when "
+        "dropped on it; her carried babies get no lessons. A teacher who becomes a mother keeps the job, and the "
+        "lessons go on while she looks after her baby elsewhere.")
+    add("On her own: a nursing mother only does the mother activities (" + ", ".join(MOTHER_ACTIVITIES[game]) +
+        ") and does no work, so she never walks to the Nursery School and never does \"Teaching at the nursery "
+        "school\", even when the Nursery School is her job.", gm.CODE, True)
+    # Emulated: the dispatcher with the Nursery's registration, a carrying adult -> the tip, the handler not called.
+    add(f"Dropped on it: the game refuses her before the Nursery School is asked, on the finished school and on the "
+        f"building site alike, with the tip \"{MOTHER_TIP}\" (emulated with the game's code). So a mother cannot "
+        "build it or become the teacher. Being picked up stops what she was doing; she then picks a new mother "
+        "activity.", gm.CODE, True)
+    add("That tip shows only once: the game skips a tip it has already shown, so later drops of a nursing mother "
+        "on the Nursery School are refused with no message (the skip is in the code; where the game marks the tip "
+        "as shown was not traced).", False, True)
+    add("Her babies: carried babies are not villagers yet, and the lesson goes only to villagers under 14, so the "
+        "unborn and carried babies get nothing. Once born they are children and get the lessons like every child, "
+        "wherever they are.", gm.CODE, True)
+    add("Her skills: the Nursery School gives a mother nothing. Conceiving itself raises her Parenting by a tenth of "
+        "what she lacks of 100, at least 5 (Parenting 20 gains 8, Parenting 80 gains 5).", gm.CODE, True)
+    add("A teacher who becomes a mother keeps the Nursery School as her job: the game's pick of the teacher looks "
+        "only at the job and at being alive and present, not at a baby or at where the teacher is. So every child "
+        "keeps getting her full lessons for the whole time she carries, while she does mother activities "
+        "elsewhere.", gm.CODE, True)
+    add("Whether she first finishes a teaching round she had already started when she conceived was not traced.",
+        False, True)
+    add("Two teachers: a new teacher dropped on the school stops only the villager teaching right now. A teacher "
+        "who is a mother is not teaching, so she keeps the job too; both are then teachers and each age unit the "
+        "lesson uses one of them, picked at random.", gm.CODE, True)
+    if vv5:
+        # Grant Youth keeps the pregnancy (vv_game_mechanics_items_vv5 "Grant Youth"); child test 0x426001-0x42600E.
+        add("A pregnant child: Grant Youth keeps a pregnancy, and the lesson's child test has no pregnancy test, so "
+            "a pregnant villager made 5 years old again gets the Nursery School's lessons like any child while she "
+            "carries (not seen in play).", gm.CODE, True)
+        # 0x43AAB5: always 0x206; the 0x43AEA0 count is fetched and not used.  Fix Vanilla Bugs rewrites
+        # 0x43AA99-0x43AAC0 (tests/test_vv5_nursery_foundation_caption.py).
+        add("Walking past the unfinished school a villager always says \"{name} sees a nursery school under "
+            "construction.\"; the game's other line, \"{name} sees a nursery school foundation.\", is never used "
+            "(the game works out whether only the foundation is there, then ignores it).", gm.CODE, True)
+        add(gm.patch_words(village, "vv5_fix_vanilla_bugs",
+                           "it says \"{name} sees a nursery school foundation.\" while nothing is built yet and "
+                           "\"... under construction.\" once building has started, as in The Tree of Life"),
+            gm.CODE, True)
+
+
 def lines(village: gm.Village, game: int) -> list[gm.Fact]:
     out: list[gm.Fact] = []
     add = lambda text, ok=gm.CODE, sub=False: out.append(gm.Fact(GROUP, text, ok, sub))  # noqa: E731
@@ -116,10 +191,15 @@ def lines(village: gm.Village, game: int) -> list[gm.Fact]:
         f"teacher also solves The Nursery School {puzzle}. A new teacher interrupts the one teaching now, but only "
         "stops what they are doing: the old teacher's job is left as it is.")
     if vv5:
+        # Turning Heathen (0x4669E0 -> 0x466880) sets the Heathen byte +0x1CEC and +0x1CFC, never the job +0x1C54;
+        # no job writer is on the Heathen's path (Heathens skip the job dispatcher 0x46BCF0: 0x46F0BA -> 0x46E9E0),
+        # and the teacher pick 0x471BB0 tests only present (0x466170), health and job 8.
         add("Heathens cannot be picked up (\"You cannot touch heathens because they do not believe in you.\"), so "
-            "the player can never make a Heathen the teacher. The game's pick of the teacher has no Heathen test, so "
-            "a teacher who becomes a Heathen would go on teaching if the job stays the Nursery School; whether it "
-            "stays was not traced.", False, True)
+            "the player can never make a Heathen the teacher. But a teacher who turns Heathen keeps the Nursery "
+            "School as their job (turning Heathen does not change it), and the game's pick of the teacher has no "
+            "Heathen test, so the lessons go on from that Heathen's skills, though they no longer walk to teach.",
+            gm.CODE, True)
+    mother_lines(add, village, game)
     add(f"Solving The Nursery School gives no skill: {crowd} stop to celebrate (\"Celebrating\") and the tip "
         "\"The Nursery School ... This will help them raise smarter children.\" shows. The lessons below start with "
         "the first teacher and go on with no end, as long as someone has the Nursery School as their job.")

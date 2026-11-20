@@ -1,0 +1,196 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Traveller Who Collects Names",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b256_traveller",
+  "source": "balance",
+  "lines": [
+   11947,
+   11989
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11947",
+  "ledger": [
+   {
+    "src": "L11948",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11949",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11957",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11966",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11954",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11955",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11958",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11967",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11960",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11963",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11969",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11972",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11975-11989",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A traveller comes up the beach path at dusk, wrapped in a grey cloak sewn all over with tiny knots of string.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A traveller comes up the beach path at dusk, wrapped in a grey cloak sewn all over with tiny knots of string. (subject.He/She) says (subject.he/she) is a collector. Every knot on the cloak, (subject.he/she) says, is a name: one from every island (subject.he/she) has ever visited. (subject.He/She) only needs one more from this one, and then (subject.he/she) can go home.\n(subject.He/She) looks straight at (subject) with very pale eyes and holds out a loose end of string. \"Tie a knot for me,\" the traveller says. \"Just say your name while you do it.\"\nSomething about this feels wrong to (subject). But the traveller looks very tired, and very far from home. Tie the knot, or refuse?",
+   "choices": [
+    {
+     "label": "Tie the Knot",
+     "next": "c1",
+     "src": "L11954"
+    },
+    {
+     "label": "Refuse",
+     "next": "c2",
+     "src": "L11955"
+    }
+   ],
+   "src": "L11950-11952"
+  },
+  "c1o1": {
+   "text": "The traveller tucks the string into (subject.his/her) cloak, bows, and walks back down the beach path into the dark. (subject) goes to say goodbye, and finds (subject.he/she) can't. (subject.He/She) can't say (subject.his/her) own name, can't remember it, can't even remember the sound of it. It went into the knot. The village calls (subject.him/her) \"?\" after that, until someone can think of something better.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L11961",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The traveller takes the knot, and then unpicks one of the old ones from the cloak and presses it into (subject)'s hand. \"Fair's fair,\" (subject.he/she) says. When (subject) wakes up the next morning, (subject.his/her) old name is gone, and a new one is sitting in (subject.his/her) mouth as if it had always been there: (made1). Everyone in the village calls (subject.him/her) by it without thinking. Nobody remembers it ever being different.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L11964",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) takes the string, says (subject.his/her) own name out loud, and ties a knot. The traveller smiles for the first time. The knot tightens on its own...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11958"
+  },
+  "c2o1": {
+   "text": "The traveller shrugs and walks back down the beach path. In the morning, (friend)'s hut is empty, and (subject.his/her) footprints lead down to the beach beside the traveller's and out across the sand to the water's edge. Nobody saw (subject.him/her) go. Some say (friend) was always restless. Others go very quiet whenever a stranger comes up the beach at dusk.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "friend"
+    }
+   ],
+   "src": "L11970",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The traveller looks at (subject) a long time, and then sighs, as if (subject.he/she) is used to this. \"One day,\" (subject.he/she) says, and walks back down the beach. In the morning there is a single knot of grey string lying on (subject)'s doorstep. (subject) throws it in the fire, and it burns with a sound like somebody whispering.",
+   "src": "L11973"
+  },
+  "c2": {
+   "text": "\"No,\" says (subject). \"Sorry. My name stays here.\" The traveller's pale eyes narrow. For a moment the knots on the cloak all seem to rustle at once...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11967"
+  }
+ }
+}

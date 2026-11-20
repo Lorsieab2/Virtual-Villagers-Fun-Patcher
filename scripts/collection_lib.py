@@ -127,6 +127,25 @@ DRAFTS_C = {   # source id: (topic, line count, section, event prefix)
     "draft_div": ("Disability and Diversity", 612, "dr_div", "DIV"),
     "draft_his": ("History and Collective Memory", 614, "dr_his", "HIS"),
     "draft_lif": ("Pondering How Life Has Gone", 596, "dr_lif", "LIF"),
+    # The owner's request of 2026-11-17 (The Tree of Life's cutting tools, soap and cloth; the "supply" effect,
+    # docs/event-collection/cie-v6-binary.md 38): every event "(VV4 only)".
+    "draft_sup": ("Tree of Life Supplies", 180, "dr_sup", "SUP"),
+    # The owner's spec of 2026-11-16/17: traders (the "trade" effect and "has_supply", cie-v6-binary.md 39), built by
+    # scripts/drafts_c/gen_traders.py, and the village effects' showcase (cie-v6-binary.md 40-41).
+    "draft_trd": ("Island Traders", 234, "dr_trd", "TRD"),
+    "draft_vfx": ("Village Moments", 206, "dr_vfx", "VFX"),
+    # Living Culture (the owner's concepts of 2026-11-17, drafted 2026-11-18; owner review waived, each event passed
+    # the Isola rules and the 15-point review): "[Solidarity: ...]" tags are notes (gen_drafts_c.SOLIDARITY_RE).
+    "draft_lca": ("Living Culture I", 762, "dr_lca", "LCA"),
+    "draft_lcb": ("Living Culture II", 758, "dr_lcb", "LCB"),
+    "draft_lcc": ("Living Culture III", 758, "dr_lcc", "LCC"),
+    "draft_lcd": ("Living Culture IV", 758, "dr_lcd", "LCD"),
+    "draft_lce": ("Living Culture V", 758, "dr_lce", "LCE"),
+    "draft_lcf": ("Living Culture VI", 758, "dr_lcf", "LCF"),
+    "draft_lcg": ("Living Culture VII", 758, "dr_lcg", "LCG"),
+    "draft_lch": ("Living Culture VIII", 758, "dr_lch", "LCH"),
+    "draft_lci": ("Living Culture IX", 758, "dr_lci", "LCI"),
+    "draft_lcj": ("Living Culture X", 762, "dr_lcj", "LCJ"),
 }
 for _sid, (_topic, _n, _sec, _pre) in DRAFTS_C.items():
     SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / f"New Events - {_topic} (draft for owner).txt",
@@ -182,6 +201,50 @@ ANTHOLOGY_SECTIONS = {   # section: the volume's name (one series each)
     "an_fauna": "Animals of Fur, Feathers, Scales, Claws and Hooves",
 }
 SOURCES[ANTHOLOGY_ID] = (ANTHOLOGY, ANTHOLOGY_HASH_FILE, ANTHOLOGY_LINES)
+
+# The owner's GO (2026-11-16): the rewritten events S001-S100, NEW-001..NEW-100 and MY-001..MY-115, and the balance
+# events B001-B360, in the owner's own layout (src/vv_owner_layout.py), each a frozen source (byte for byte, SHA-256
+# in data/event_collection/REWRITES.sha256 / BALANCE.sha256): data/event_collection/<source>/<section>/<id>.json,
+# built by scripts/go_events/gen_go.py.  Each section is one series.
+GO_SOURCES = {   # source id: (file name, line count, {code prefix: (section, topic)})
+    "rewrites": ("Isola Rewritten Events S001-MY115.txt", 16597,
+                 {"S": ("rw_s", "Rewritten Events S001-S100"), "NEW-": ("rw_new", "Rewritten Events NEW-001 to NEW-100"),
+                  "MY-": ("rw_my", "Rewritten Mystery and Myth Events MY-001 to MY-115")}),
+    "balance": ("Isola Balance Events B001-B360.txt", 16669, {"B": ("bal", "Balance Events B001-B360")}),
+}
+for _sid, (_name, _n, _secs) in GO_SOURCES.items():
+    SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / _name, COLLECTION_DIR / f"{_sid.upper()}.sha256", _n)
+GO_SECTIONS = {sec: (sid, topic) for sid, v in GO_SOURCES.items() for sec, topic in v[2].values()}
+
+# The owner's More Island Events file (2026-11-16): the nine events "VVFP More Island Events.dll" runs (The Aspiring
+# Adventurer ... The Rumblings), frozen byte for byte (SHA-256 in data/event_collection/MIE.sha256) and built as
+# collection events whose static form never ships (collection.mixer_only: only their mixer versions do):
+# data/event_collection/mie/mie/<id>.json, built by scripts/go_events/gen_mie.py.  Lines 816 on (The Cooking
+# Contest's draft) are a notes row.
+MIE_ID = "mie"
+MIE = ROOT / "docs" / "more-island-events" / "Additional Virtual Villagers Events By Lorsieab2.txt"
+MIE_HASH_FILE = COLLECTION_DIR / "MIE.sha256"
+MIE_LINES = 1395
+MIE_SECTION = "mie"
+MIE_DIR = COLLECTION_DIR / MIE_ID
+SOURCES[MIE_ID] = (MIE, MIE_HASH_FILE, MIE_LINES)
+
+# The owner's "(Name1)'s Harshest Critic" (2026-11-16, Expanded v3: the owner's notes, expanded with ChatGPT and
+# Claude), frozen byte for byte (CRLF line ends kept): one event built as a series of six collection files (its route
+# families), each with the shared setup and pools as add-on rows -- the Cooking Contest's layout (a random-pool
+# mad-lib).  data/event_collection/critic/hc/<id>.json, "source": "critic", built by scripts/critic/gen_critic.py.
+# Its credit line (the owner's wording, 2026-11-17) is a one-line file of its own, "critic_credit".
+CRITIC = ROOT / "docs" / "more-island-events" / \
+    "(Name1)'s Harshest Critic - Expanded v3 (Unintended Victories + your ideas).txt"
+CRITIC_HASH_FILE = COLLECTION_DIR / "CRITIC.sha256"
+CRITIC_LINES = 2218
+CRITIC_ID = "critic"
+CRITIC_DIR = COLLECTION_DIR / "critic"
+CRITIC_CREDIT = ROOT / "docs" / "more-island-events" / "(Name1)'s Harshest Critic - Credit.txt"
+CRITIC_CREDIT_HASH_FILE = COLLECTION_DIR / "CRITIC_CREDIT.sha256"
+CRITIC_CREDIT_ID = "critic_credit"
+SOURCES[CRITIC_ID] = (CRITIC, CRITIC_HASH_FILE, CRITIC_LINES)
+SOURCES[CRITIC_CREDIT_ID] = (CRITIC_CREDIT, CRITIC_CREDIT_HASH_FILE, 1)
 _ACTIVE = [SOURCE_ID]
 
 
@@ -356,9 +419,25 @@ COMPANION_STRUCTURAL = [
 ]
 
 
+# "(Name1)'s Harshest Critic"'s own markers (scripts/critic/gen_critic.py): the "[new]" / "[added]" / "[owner]" tags
+# that say who wrote a line, a "Choice A:" label prefix, a pool line's skill tag "(Farming)" at its end, a branch's
+# label ("pass:", "fail:", ...) and a pool line's profession prefix ("Farming:", "Building/Research:", "Any:").  Each
+# is a label on the owner's words, never words of the scene.
+_CRITIC_SKILLS = r"(?:Farming|Building|Research|Healing|Parenting|Devotion|Any|any)"
+CRITIC_STRUCTURAL = [
+    re.compile(r"\[(?:new|added|owner)\]\s*"),
+    re.compile(r"^\s*Choice [A-D]:\s*"),
+    re.compile(r"\s*\((?:Farming|Building|Research|Healing|Parenting|Devotion)\)\s*$"),
+    re.compile(r"^\s*(?:pass|fail|vindicated|mistaken|discovered|concealed|unseen success|discovered success|"
+               r"failure):\s+"),
+    re.compile(r"^\s*" + _CRITIC_SKILLS + r"(?:/" + _CRITIC_SKILLS + r")*(?: \(VV5\))?:\s+(?=\S)"),
+]
+
+
 def structural_markers() -> list[re.Pattern]:
     """The structural markers of the active source."""
-    return STRUCTURAL_INLINE + (COMPANION_STRUCTURAL if active_source() == COMPANION_ID else [])
+    return STRUCTURAL_INLINE + (COMPANION_STRUCTURAL if active_source() == COMPANION_ID else []) \
+        + (CRITIC_STRUCTURAL if active_source() == CRITIC_ID else [])
 
 
 def strip_structural(text: str) -> str:
@@ -383,6 +462,85 @@ def strip_structural(text: str) -> str:
 
 LABEL_SMALL_WORDS = {"a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "into", "nor", "of", "on", "or",
                      "the", "to", "with"}
+# Proper nouns keep their own form in a title-case label, small words included ("the Tree of Life", never "Of"
+# rules applied around them): matched case-blind as whole words, never inside a placeholder or a game word
+# ("(chief.he/she)", "{@chief}").  Villagers' names come from placeholders and are never cased here.
+LABEL_PROPER_NOUNS = ("Isola", "Isolan", "Isolans", "Tribal Chief", "Chief", "Golden Child", "Village Elders",
+                      "New Home", "Lost Children", "Secret City", "Tree of Life", "New Believers",
+                      "Guardians of Isola")
+_PROPER_RX = [(re.compile(r"(?<![A-Za-z@(.])" + re.escape(p) + r"(?![A-Za-z.)}])", re.I), p)
+              for p in sorted(LABEL_PROPER_NOUNS, key=len, reverse=True)]
+
+
+def keep_proper_nouns(text: str) -> str:
+    """`text` with every LABEL_PROPER_NOUNS phrase in its own form."""
+    for rx, p in _PROPER_RX:
+        text = rx.sub(p, text)
+    return text
+
+
+# ---- A carrier's words (the owner, 2026-11-16) ---------------------------------------------------------------------
+# A carrying or nursing parent's words follow the villager -- their Gender Presentation, else the sex the game records
+# (story_graph.inc cg_word_female) -- so the source's bare words for the one carrier of an event ("a nursing mother",
+# "she", "her", "herself") become that role's automatic words; the role takes no "sex" (only villagers born female are
+# cast as carriers: the engine checks it).  collection_check reads a pronoun placeholder as standing for either of its
+# own words written bare in the source.
+_CARRIER_WORD = re.compile(r"(?<![A-Za-z(./])(mother|she|She|her|Her|herself|Herself)(?![A-Za-z/)])")
+_CARRIER_OBJECT_NEXT = {"a", "into", "before", "right", "to"}     # "gives her a", "Invite her into", "to her before"
+
+
+def carrier_text(text: str, role: str) -> str:
+    """`text` with its bare words for carrier role `role` as that role's placeholders: "nursing mother" ->
+    "nursing (role.mother/father)", "she" -> "(role.he/she)", "herself" -> "(role.himself/herself)", "her" ->
+    "(role.him/her)" before a full stop or one of _CARRIER_OBJECT_NEXT, else "(role.his/her)"; capitals kept."""
+    out, pos = [], 0
+    for m in _CARRIER_WORD.finditer(text):
+        w = m.group(1)
+        if w == "mother":
+            if not re.search(r"nursing $", text[:m.start()]):
+                continue
+            pair = "mother/father"
+        elif w.lower() == "she":
+            pair = "he/she"
+        elif w.lower() == "herself":
+            pair = "himself/herself"
+        else:
+            nxt = re.match(r"\s*([A-Za-z]+)", text[m.end():])
+            obj = nxt is None or nxt.group(1).lower() in _CARRIER_OBJECT_NEXT or re.match(r"\s*[.,!?;:]", text[m.end():])
+            pair = "him/her" if obj else "his/her"
+        if w[0].isupper():
+            pair = "/".join(x.capitalize() for x in pair.split("/"))
+        out.append(text[pos:m.start()] + f"({role}.{pair})")
+        pos = m.end()
+    out.append(text[pos:])
+    return "".join(out)
+
+
+def carrier_words(doc: dict) -> dict:
+    """An event's one nursing_parent role without "sex", its bare words as its placeholders (carrier_text); changed in
+    place.  An event with two carriers is left as written."""
+    roles = [rid for rid, r in (doc.get("roles") or {}).items()
+             if isinstance(r, dict) and r.get("special") == "nursing_parent"]
+    for rid in roles:
+        doc["roles"][rid].pop("sex", None)
+    if len(roles) != 1:
+        return doc
+    role = roles[0]
+    for node in (doc.get("nodes") or {}).values():
+        if node.get("text"):
+            node["text"] = carrier_text(node["text"], role)
+        for v in node.get("variants") or []:
+            v["text"] = carrier_text(v["text"], role)
+        for c in node.get("choices") or []:
+            c["label"] = carrier_text(c["label"], role)
+    for pool in (doc.get("pools") or {}).values():
+        items = pool.get("items") or []
+        for i, it in enumerate(items):
+            if isinstance(it, dict):
+                it["text"] = carrier_text(it["text"], role)
+            else:
+                items[i] = carrier_text(it, role)
+    return doc
 
 
 def title_case_label(text: str) -> str:
@@ -395,7 +553,7 @@ def title_case_label(text: str) -> str:
             out.append(w)
             continue
         out.append("-".join(p[:1].upper() + p[1:] for p in w.split("-")))
-    return " ".join(out)
+    return keep_proper_nouns(" ".join(out))
 
 
 def _title_case_inner(text: str, first: bool) -> str:

@@ -1,0 +1,22 @@
+# Text-implied outcome effects (the owner's outcomes pass, v1.35.97): scripts/outcome_effects.py.
+# <file under data/event_collection> | <node> | <OWNER WORDS> | "<the outcome's own words>" | <effect JSON>
+# PENDING: apply after #811 (feat/97-living-culture) and #813 (feat/97-traders-effects) merge(s) into feat/v1.35.97: move this file up
+# to data/event_collection/outcome_effects/, then run python scripts/outcome_effects.py and collection_check.
+drafts_c/dr_lca/lca02_song_welcome.json | o1 | GROUP song (everyone) (50%) | "The whole village gathers on the beach and sings the welcome song." | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lcb/lcb11_song_those_never.json | o1 | GROUP song (everyone) (50%) | "The village gathers at sunset and sings the old song for the lost" | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lcb/lcb24_two_villages.json | o2 | GROUP song (everyone) (50%) | "The two villages sing back and forth across the fire, one song each, until dawn." | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lcb/lcb26_song_many.json | o2 | GROUP song (everyone) (50%) | "Everyone sings the last one together." | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lcb/lcb46_bones_old_canoe.json | o1 | GROUP song (everyone) (50%) | "The village gathers at dusk and burns the old canoe on the sand, singing." | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lcc/lcc18_honor_song.json | o1 | GROUP song (everyone) (50%) | "The village sings the honor song on the beach as the canoe comes in." | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lcg/lcg03_traveling_song.json | o1 | GROUP song (everyone) (50%) | "The village learns all the new verses" | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lcg/lcg15_river_belongs.json | o1 | GROUP song (everyone) (50%) | "That night there is singing by the river" | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lcg/lcg29_song_many_forms.json | o1 | GROUP song (everyone) (50%) | "The whole village learns them." | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lcg/lcg31_two_songs.json | o1 | GROUP song (everyone) (50%) | "They sing it on the night they leave, and both sides cry." | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lcj/lcj13_forgotten_elders.json | o2 | GROUP stories (subject) (50%) | "The stories get longer and better." | {"do":"group","kind":"stories","who":"subject"}
+drafts_c/dr_lca/lca05_name_worth.json | o1 | GROUP song (everyone) (50%) | "The village sings the song of Many-Knots" | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lca/lca19_healers.json | o1 | GROUP song (everyone) (50%) | "The village gathers outside the healers' hut at sunset and sings the old song of thanks." | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lca/lca32_good_luck_path.json | o1 | GROUP song (everyone) (50%) | "the village sings the walking song" | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lca/lca36_song_before_hard.json | o1 | GROUP song (everyone) (50%) | "The village sings the choosing song" | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lca/lca38_thanks_harvest.json | o2 | GROUP song (everyone) (50%) | "The village sings a short song of thanks" | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lcc/lcc16_feast_before.json | o2 | GROUP song (everyone) (50%) | "and everyone joins in" | {"do":"group","kind":"song","who":"all"}
+drafts_c/dr_lcc/lcc24_wounded_healer.json | o1 | GROUP CURE (50%) | "Everyone recovers." | {"do":"group","kind":"cure"}

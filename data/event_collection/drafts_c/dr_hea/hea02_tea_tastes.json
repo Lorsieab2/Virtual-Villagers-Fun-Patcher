@@ -69,14 +69,41 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Can I put honey in it?\" asks (subject). \"As much as you like,\" says (friend). (subject) puts in so much honey the spoon nearly stands up. It still tastes faintly of sandal. (subject.He/she) drinks it every evening for a week. (subject.He/she) does seem to settle a little easier. Or maybe it's the honey. Neither of them is sure, and neither of them minds.",
-   "src": "L26"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"I don't think I can drink this every night,\" says (subject). \"Is there another way?\" (friend) isn't offended in the least. \"There's always another way. Some people walk in the evenings. Some lie down with a warm stone on the chest. Try the stone first. It tastes of nothing.\" (subject) tries the stone. It's oddly comforting. The sandal tea goes back on the shelf for someone braver.",
    "src": "L29"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Can I put honey in it?\" asks (subject). \"As much as you like,\" says (friend). (subject) puts in so much honey the spoon nearly stands up. It still tastes faintly of sandal. (subject.He/she) drinks it every evening for a week. (subject.He/she) does seem to settle a little easier. Or maybe it's the honey. Neither of them is sure, and neither of them minds.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 10,
+     "max": 20,
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Can I put honey in it?\" asks (subject). \"As much as you like,\" says (friend). (subject) puts in so much honey the spoon nearly stands up. It still tastes faintly of sandal. (subject.He/she) drinks it every evening for a week. (subject.He/she) does seem to settle a little easier. Or maybe it's the honey. Neither of them is sure, and neither of them minds.",
+   "src": "L26"
   }
  }
 }

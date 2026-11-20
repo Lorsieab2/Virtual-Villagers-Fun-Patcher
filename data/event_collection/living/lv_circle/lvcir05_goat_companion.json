@@ -130,7 +130,8 @@
      "scaled": true,
      "src": "L21303"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",

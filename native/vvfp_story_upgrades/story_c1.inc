@@ -375,6 +375,40 @@ static int c1_behave(int index, int behaviour) {
     return 1;
 }
 
+/* The work rush's busy state at the job's site (cie-v6-binary.md 42): the job's own starter picks the place (its
+   first walk step, type 3: Foraging 0x441E10 a point of the berry area, Fixing hut 0x440AD0 one of the four huts,
+   Researching 0x442C10 a point by the research rock; Healing someone 0x445580 has none: it heals where the healer
+   stands; ce_site_pick: another pick when the spot is crowded), then the stop 0x439470, that walk queued again
+   (0x4399F0, appended) and the busy starter after it, which starts the walk (0x43DEF0).  The tips the job's starter
+   may leave for the selected villager (0x43A130: the 10 slots at state +0xAD0C) are put back as they were. */
+static int c1_behave_at(int index, int job, int behaviour) {
+    unsigned char *array = VV1_ARRAY();
+    unsigned char *state = *(unsigned char **)(array + 0x3E010);
+    const ce_action *act;
+    int tips[10], w[6];
+    if (behaviour < 0 || behaviour >= (int)(sizeof C1_BEHAVIOURS / sizeof C1_BEHAVIOURS[0])) {
+        return 0;
+    }
+    act = &C1_BEHAVIOURS[behaviour];
+    if (act->kind != ACT_CALL && act->kind != ACT_CALL_ARG) {
+        return c1_behave(index, behaviour);
+    }
+    memcpy(tips, state + 0xAD0C, sizeof tips);
+    if (!ce_site_pick(&C1_ADAPTER, 1, index, job, (unsigned char *)w)) {
+        memcpy(state + 0xAD0C, tips, sizeof tips);
+        return c1_behave(index, behaviour);
+    }
+    memcpy(state + 0xAD0C, tips, sizeof tips);
+    TC1(0x439470u, array, index);
+    TC7(0x4399F0u, array, index, w[0], w[1], w[2], w[3], 0, w[5]);
+    if (act->kind == ACT_CALL) {
+        TC1(act->routine, array, index);
+    } else {
+        TC2(act->routine, array, index, act->arg);
+    }
+    return 1;
+}
+
 /* ---- Pregnancy: none, or a different number of babies ------------------ */
 
 /* "0 babies": as the delivery (0x42E900) and the Golden Child puzzle end a
@@ -948,7 +982,8 @@ static const ce_adapter C1_ADAPTER = {
     "powers may pick any of them.",
     0,
     c1_set_health,
-    c1_deliver
+    c1_deliver,
+    c1_behave_at
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -962,7 +997,9 @@ static void __fastcall c1_choose(void *event, void *unused_edx, int type, int ma
         TC2(0x428470u, event, type, magnitude);
         return;
     }
-    if (ce_deliver(1, (char *)event + 0x277F, 0x270F)) {
+    if (ce_deliver(1, su_long_text, (int)sizeof su_long_text)) {
+        /* the dialog's field holds the text's start when it is longer (Scrolling Popups draws the whole) */
+        su_put_long((char *)event + 0x277F, 0x270F);
         return;
     }
     /* A pick of an island event: the event is chosen (the case roll) and
@@ -1087,7 +1124,7 @@ static char __fastcall c1_choice_setup(void *dialog, void *unused_edx) {
     void *villagers = *(void **)(d + 0x50A8u);   /* the ctor's villager array (0x41A4EE) */
     int featured;
     (void)unused_edx;
-    if (!ce_choice_begin(1, (char *)d + C1_DLG_QUESTION, C1_DLG_TEXT_BYTES)) {
+    if (!ce_choice_begin(1, su_long_text, (int)sizeof su_long_text)) {
         c1_choice_dialog = NULL;
         return (char)TC0(0x4189E0u, dialog);
     }
@@ -1098,6 +1135,7 @@ static char __fastcall c1_choice_setup(void *dialog, void *unused_edx) {
         cs12_op_setup(1, d, C1_DLG_QUESTION, C1_DLG_SUBJECT, C1_DLG_VARIANT, villagers, 0x43A160u);
         return 1;
     }
+    su_put_long((char *)d + C1_DLG_QUESTION, C1_DLG_TEXT_BYTES);   /* paged: it always fits */
     featured = ce_choice_featured(1);
     choice_fill_dialog(1, d, C1_DLG_QUESTION, C1_DLG_LABEL_FIRST, C1_DLG_LABEL_SECOND, c1_choice_title,
                        featured);

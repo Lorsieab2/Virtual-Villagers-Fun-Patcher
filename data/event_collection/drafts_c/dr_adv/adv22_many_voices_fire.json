@@ -69,6 +69,32 @@
    "src": "L260"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Who said get a bigger goat?\" asks (name1). Somebody raises a hand. \"Why?\" \"A bigger goat would scare the little goats away.\" Everyone stops to consider this. It is, strangely, not the worst idea. It's not a good one either. The whole fire spends the evening arguing about goats, and (name1) sits back and enjoys it. The beans are still a problem tomorrow.",
+   "src": "L263",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L263"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Who said get a bigger goat?\" asks (name1). Somebody raises a hand. \"Why?\" \"A bigger goat would scare the little goats away.\" Everyone stops to consider this. It is, strangely, not the worst idea. It's not a good one either. The whole fire spends the evening arguing about goats, and (name1) sits back and enjoys it. The beans are still a problem tomorrow.",
    "src": "L263"

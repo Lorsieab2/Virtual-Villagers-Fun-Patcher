@@ -89,9 +89,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(name1) presses a row of thumbprints around the rim of a wet clay bowl. The pattern comes out of the fire looking even better than (name1) hoped.",
-   "src": "L45,L46"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -107,6 +114,35 @@
    "name": "Ending 4",
    "text": "(name1) presses a row of thumbprints around the rim of a wet clay bowl. The bowl cracks in the kiln, but the thumbprints survive on the largest piece.",
    "src": "L45,L49"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(name1) presses a row of thumbprints around the rim of a wet clay bowl. The pattern comes out of the fire looking even better than (name1) hoped.",
+   "src": "L45,L46",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L45,L46"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L45,L46"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(name1) presses a row of thumbprints around the rim of a wet clay bowl. The pattern comes out of the fire looking even better than (name1) hoped.",
+   "src": "L45,L46"
   }
  }
 }

@@ -65,14 +65,46 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"It's a sign,\" says (subject). \"Of what?\" says (friend). (subject) thinks hard. \"That we're very good friends. Or that there's only one good idea for a present.\" They laugh until they cry. They each put the turtle on their shelf. Every time they visit each other, the turtles are side by side.",
-   "src": "L279"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "They sit and try to work it out. Did they talk about turtles? Did someone tell them? Did they both see the same carving somewhere? They can't think of anything. It's just one of those strange coincidences, the kind that makes the world feel smaller and friendlier. Neither of them ever makes the other a turtle again. It would be pushing their luck.",
    "src": "L282"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"It's a sign,\" says (subject). \"Of what?\" says (friend). (subject) thinks hard. \"That we're very good friends. Or that there's only one good idea for a present.\" They laugh until they cry. They each put the turtle on their shelf. Every time they visit each other, the turtles are side by side.",
+   "src": "L279",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L279"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L279"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"It's a sign,\" says (subject). \"Of what?\" says (friend). (subject) thinks hard. \"That we're very good friends. Or that there's only one good idea for a present.\" They laugh until they cry. They each put the turtle on their shelf. Every time they visit each other, the turtles are side by side.",
+   "src": "L279"
   }
  }
 }

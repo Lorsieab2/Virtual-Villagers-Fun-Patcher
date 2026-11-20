@@ -125,9 +125,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(apprentice) beams and returns eagerly to work.",
-   "src": "L125"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -159,6 +166,51 @@
    "src": "L128"
   },
   "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(apprentice) beams and returns eagerly to work.",
+   "src": "L125",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L125"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(apprentice) beams and returns eagerly to work.",
+   "src": "L125"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "(teacher) points out how much (apprentice) accomplished alone.",
+   "src": "L129",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L129"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
    "name": "Outcome B2",
    "text": "(teacher) points out how much (apprentice) accomplished alone.",
    "src": "L129"

@@ -1,0 +1,210 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Grew Up Overnight",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s080_child_grew_up",
+  "source": "rewrites",
+  "lines": [
+   3759,
+   3801
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3759",
+  "ledger": [
+   {
+    "src": "L3760",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3761",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3769",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3778",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3766",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3767",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3770",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3779",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3772",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3775",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3781",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3784",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3787-3801",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For weeks, a villager has been complaining.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8,
+   "max_age": 13
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For weeks, (name) has been complaining. (He/She) is too small to help with the real work. (He/She) is too small to go fishing in the big canoes. (He/She) is too small to stay up late with the grown-ups at the fire. Too small, too small, too small.\nLast night, lying out on the beach, (name) saw a falling star, and made a wish with all (his/her) heart.\nThis morning, (his/her) feet are sticking out of the end of (his/her) sleeping mat. A long way out. (His/her) parents are standing in the doorway, staring, holding a breakfast bowl that now looks far too small. \"Good morning?\" says (name), in a voice that is suddenly much deeper than it was last night. Should (name) go and do the grown-up work (he/she) has been dreaming of, or try to wish it back?",
+   "choices": [
+    {
+     "label": "Go to Work",
+     "next": "c1",
+     "src": "L3766"
+    },
+    {
+     "label": "Wish It Back",
+     "next": "c2",
+     "src": "L3767"
+    }
+   ],
+   "src": "L3762-3764"
+  },
+  "c1o1": {
+   "text": "(Name) is a teenager now, long-legged and gangly and very, very keen. (He/She) carries water. (He/She) hauls firewood. (He/She) digs in the fields all morning, and goes out with the fishers all afternoon. (He/She) works harder than anyone in the village, and at lunch (he/she) falls asleep sitting up, in the middle of a sentence, with (his/her) spoon still in (his/her) hand. That evening, (name) admits, quietly, to (his/her) mother, that being big is a lot harder than it looks. (His/her) mother very kindly does not say \"I told you so.\"",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "teen",
+     "role": "subject"
+    }
+   ],
+   "src": "L3773",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) is a grown-up. A real one, all at once, overnight, with a grown-up's height and a grown-up's hands. But inside, (he/she) is still a child, and has no idea how to do any of the grown-up things. (He/She) holds the hoe upside down. (He/She) ties knots that fall apart. The adults are very patient with (him/her), and show (him/her) everything, slowly, one thing at a time, and (name) learns fast, much faster than anyone expected. By the end of the season, nobody would ever know.",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "18",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Farming",
+      "Building",
+      "Research",
+      "Healing",
+      "Parenting"
+     ],
+     "min": 10,
+     "max": 10,
+     "role": "subject"
+    }
+   ],
+   "src": "L3776",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) leaps up, banging (his/her) head on the roof beam, and runs out into the village. \"I'm big!\" (he/she) shouts to everyone. \"I can help now! Give me something to do!\" The adults look at each other...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3770"
+  },
+  "c2o1": {
+   "text": "Very late in the night, just when (name) is about to give up, a star streaks across the sky over the sea. (Name) wishes on it as hard as (he/she) has ever wished for anything. In the morning (he/she) wakes up on (his/her) mat, and (his/her) feet fit, and (his/her) voice is (his/her) own again. (Name) is small again, and so much happier about it that (he/she) runs around the village hugging everyone. (He/She) never complains about being too small again. Well, not for at least a month.",
+   "src": "L3782"
+  },
+  "c2o2": {
+   "text": "(Name) waits all night. And the next night. And the one after that. The next falling star never comes. Not one, for weeks. In the end, (name) stops going down to the beach. (He/She) stays a teenager, and the village, after a while, gets used to it, and so does (name). (His/her) old friends are a bit confused for a while about whether they're still allowed to play with (him/her). (Name) decides that they are, sometimes.",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "teen",
+     "role": "subject"
+    }
+   ],
+   "src": "L3785",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) looks down at (his/her) long new legs, and (his/her) big new hands, and at (his/her) parents' faces, and suddenly doesn't feel so sure about any of this. That night (he/she) goes back out to the beach and lies on the sand, watching the sky, waiting for another falling star...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3779"
+  }
+ }
+}

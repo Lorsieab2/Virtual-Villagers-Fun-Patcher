@@ -1,0 +1,210 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Relic Keeper",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "trd13_relic_keeper",
+  "source": "draft_trd",
+  "lines": [
+   212,
+   226
+  ],
+  "section": "dr_trd",
+  "credit": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_trd",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L212",
+    "kind": "note",
+    "why": "the heading's \"(VV5 only)\": the event is New Believers only"
+   },
+   {
+    "src": "L218",
+    "kind": "instruction",
+    "text": "[effect: trade 1 collectible for 200 food]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L221",
+    "kind": "instruction",
+    "text": "[effect: trade 1 collectible for 350 food]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L222",
+    "kind": "instruction",
+    "text": "[effect: trade 1 collectible for 120 food]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A keeper of old things offers food for a spare relic or science piece.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1,
+  "if": {
+   "all": [
+    {
+     "has_supply": {
+      "item": "collectible",
+      "min": 1
+     }
+    },
+    {
+     "has_supply": {
+      "item": "food",
+      "min": 0
+     }
+    }
+   ]
+  }
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "trader",
+ "nodes": {
+  "trader": {
+   "type": "branch",
+   "name": "The trader's offer",
+   "children": [
+    {
+     "next": "setup",
+     "if": {
+      "all": [
+       {
+        "has_supply": {
+         "item": "collectible",
+         "min": 1
+        }
+       },
+       {
+        "has_supply": {
+         "item": "food",
+         "min": 0
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "else": "nothing"
+  },
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An elderly keeper of old things named Tama arrives at the village, asking quietly whether anyone has found two of the same relic or science piece. He keeps a small house of remembered things on another island and would give food for a spare. (name1) has to decide.",
+   "src": "L215",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L215"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Trade",
+     "next": "o1",
+     "src": "L217"
+    },
+    {
+     "label": "Haggle",
+     "next": "haggle",
+     "src": "L220"
+    },
+    {
+     "label": "Decline",
+     "next": "o3",
+     "src": "L224"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) hands over the spare piece. Tama holds it with great care, thanks the village, and leaves baskets of food in its place.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "collectible",
+     "give_amount": 1,
+     "get": "food",
+     "get_amount": 200,
+     "src": "L218"
+    }
+   ],
+   "auto_text": true
+  },
+  "o3": {
+   "name": "Outcome C",
+   "text": "(name1) decides the village will keep its spare. Tama understands completely, and asks only to hold the piece for a moment before he goes.",
+   "src": "L225"
+  },
+  "haggle": {
+   "type": "branch",
+   "name": "Haggle",
+   "children": [
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o2b"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Haggle, the better deal",
+   "text": "(name1) asks Tama to tell the story of his house of remembered things. Tama tells it so well that the village feeds him for three days, and he leaves more food than he promised.",
+   "src": "L221",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "collectible",
+     "give_amount": 1,
+     "get": "food",
+     "get_amount": 350,
+     "src": "L221"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2b": {
+   "name": "Haggle, the worse deal",
+   "text": "(name1) haggles, and Tama, who only came to keep the piece safe, gives what he can and no more.",
+   "src": "L222",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "collectible",
+     "give_amount": 1,
+     "get": "food",
+     "get_amount": 120,
+     "src": "L222"
+    }
+   ],
+   "auto_text": true
+  },
+  "nothing": {
+   "name": "Nothing to trade",
+   "text": "Tama sees the village has no spare pieces, and leaves with thanks and nothing taken.",
+   "src": "L226"
+  }
+ }
+}

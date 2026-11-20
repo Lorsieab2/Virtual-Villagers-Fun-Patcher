@@ -98,9 +98,16 @@
    "src": "L32651"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "(owner) misses their favorite shade.",
-   "src": "L32652"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -167,6 +174,25 @@
    "name": "Outcome D2",
    "text": "Their first design is wonderfully impractical.",
    "src": "L32661"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "(owner) misses their favorite shade.",
+   "src": "L32652",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "owner",
+     "mood": "bad",
+     "src": "L32652"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "(owner) misses their favorite shade.",
+   "src": "L32652"
   }
  }
 }

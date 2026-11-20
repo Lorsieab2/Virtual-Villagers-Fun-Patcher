@@ -99,6 +99,38 @@
    "src": "L1271"
   },
   "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "They spend more time laughing than braiding.",
+   "src": "L1272",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend1",
+     "mood": "good",
+     "src": "L1272"
+    },
+    {
+     "do": "mood",
+     "role": "friend2",
+     "mood": "good",
+     "src": "L1272"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Ending 2",
    "text": "They spend more time laughing than braiding.",
    "src": "L1272"

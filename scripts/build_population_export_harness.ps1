@@ -79,7 +79,40 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "Stand-in VV1 parentage companion compilation failed."
     }
-    & (Join-Path $OutDir "population_export_harness.exe") $dll
+    # Stand-ins for the companions whose kept values the rosters print (kept_values_stub.c): each built under
+    # its companion's name into its own folder, which the harness loads them from.  Never shipped.
+    $keptDir = Join-Path $OutDir "kept"
+    New-Item -ItemType Directory -Path $keptDir -Force | Out-Null
+    foreach ($stub in @(
+            @{ Define = "KEPT_GP"; Name = "VVFP Gender Presentation.dll" },
+            @{ Define = "KEPT_HL"; Name = "VVFP Head Look.dll" },
+            @{ Define = "KEPT_STORY"; Name = "VVFP Story Upgrades.dll" })) {
+        $objDir = Join-Path $OutDir ("kept_" + $stub.Define)
+        New-Item -ItemType Directory -Path $objDir -Force | Out-Null
+        & (Join-Path $vsTools "bin\Hostx64\x86\cl.exe") `
+            /nologo `
+            /LD `
+            ("/D" + $stub.Define) `
+            ("/Fo" + $objDir + "\") `
+            /O2 `
+            /MT `
+            /I (Join-Path $vsTools "include") `
+            /I (Join-Path $sdkRoot "Include\$sdkVersion\um") `
+            /I (Join-Path $sdkRoot "Include\$sdkVersion\shared") `
+            /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
+            (Join-Path $nativeRoot "kept_values_stub.c") `
+            /link `
+            ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
+            ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `
+            ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
+            ("/IMPLIB:" + (Join-Path $objDir "kept_stub.lib")) `
+            ("/OUT:" + (Join-Path $keptDir $stub.Name)) `
+            kernel32.lib
+        if ($LASTEXITCODE -ne 0) {
+            throw ("Stand-in companion " + $stub.Name + " compilation failed.")
+        }
+    }
+    & (Join-Path $OutDir "population_export_harness.exe") $dll $keptDir
     if ($LASTEXITCODE -ne 0) {
         throw "Population export harness reported failures."
     }

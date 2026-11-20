@@ -109,6 +109,32 @@
    "src": "L318,L321"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(subject) sketches (friend)'s face in charcoal on a smooth piece of bark. A smudge turns into a beard, and they both laugh.",
+   "src": "L318,L322",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L318,L322"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(subject) sketches (friend)'s face in charcoal on a smooth piece of bark. A smudge turns into a beard, and they both laugh.",
    "src": "L318,L322"

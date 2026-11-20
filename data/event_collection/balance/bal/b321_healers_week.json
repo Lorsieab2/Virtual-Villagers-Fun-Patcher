@@ -1,0 +1,213 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healers' Week of Lessons",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b321_healers_week",
+  "source": "balance",
+  "lines": [
+   14860,
+   14901
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14860",
+  "ledger": [
+   {
+    "src": "L14861",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14862",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14869",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14878",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14866",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14867",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14870",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14879",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14872",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14875",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14881",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14884",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14887-14901",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Head healer name has decided that the young healers know too little, and announces a week of lessons.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "\\(Head healer name\\) has decided that the young healers know too little, and announces a week of lessons. Every healer in the village must come to the healers' hut at dawn, every day, and learn. (Name) is one of the young ones. (He/She) also happens to faint at the sight of blood, which (he/she) has been carefully hiding for a year.\nOn the first morning, \\(head healer name\\) holds up a fresh fish and a sharp shell knife and says the first lesson is on cutting. Should (name) confess about the blood, or grit (his/her) teeth and stay?",
+   "choices": [
+    {
+     "label": "Confess",
+     "next": "c1",
+     "src": "L14866"
+    },
+    {
+     "label": "Grit (His/Her) Teeth",
+     "next": "c2",
+     "src": "L14867"
+    }
+   ],
+   "src": "L14863-14864"
+  },
+  "c1o1": {
+   "text": "\"Then we'll start with something else,\" says \\(head healer name\\), not unkindly. \"Half of healing has no blood in it.\" The week's lessons turn into teas, poultices, splints and how to sit with someone through a fever. Every healer learns something, and (name) learns that (he/she) is very good at the half of healing with no blood in it.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L14873",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "\\(Head healer name\\) laughs, which surprises everyone. \"I fainted for three years,\" (he/she) says. \"Every time. Here's what I did.\" (He/She) shows (name) how to breathe, where to look, how to keep (his/her) hands busy. By the end of the week, (name) can watch a cut stitched without going grey. The healers' hut, which (he/she) used to dread, starts to feel like (his/hers).",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "medicine",
+     "role": "subject"
+    }
+   ],
+   "src": "L14876",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) puts (his/her) hand up. \"I faint,\" (he/she) says. \"At blood. I'm sorry.\" The other healers stare. \\(Head healer name\\) puts down the knife...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14870"
+  },
+  "c2o1": {
+   "text": "(Name) doesn't faint. (He/She) goes green, then grey, then a sort of yellow, but stays on (his/her) feet the whole week, and learns more than any of the others because (he/she) is concentrating so hard on not falling down. At the end, \\(head healer name\\) takes (him/her) aside. \"I saw,\" (he/she) says. \"Well done.\"",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 15,
+     "max": 15,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L14882",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "On the third cut, (name) goes down like a felled tree, taking a tray of jars with (him/her). (He/She) wakes up on the floor with \\(head healer name\\) fanning (him/her) and the whole class staring. From then on (name) dreads the healers' hut more than ever, and finds every reason (he/she) can to be somewhere else when the healers are needed.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "medicine",
+     "role": "subject"
+    }
+   ],
+   "src": "L14885",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) says nothing, fixes (his/her) eyes on the far wall, and holds very still while \\(head healer name\\) starts cutting...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14879"
+  }
+ }
+}

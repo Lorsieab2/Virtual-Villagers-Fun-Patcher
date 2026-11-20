@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Where Does Faith Fit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf22_where_does_faith",
+  "source": "draft_lcf",
+  "lines": [
+   302,
+   313
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L302",
+  "ledger": [
+   {
+    "src": "L303",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L309",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L313",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L313",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A researcher and a believer debate whether faith has any place in studying the stars: debate in public, or work together.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) studies the stars and believes only what (subject.he/she) can observe. (friend) studies them too, and believes they are watched over by something unseen. They have been asked to teach the children about the stars together. They cannot agree on the first lesson. What should they do?",
+   "src": "L305",
+   "choices": [
+    {
+     "label": "Debate in Public",
+     "next": "o1",
+     "src": "L307"
+    },
+    {
+     "label": "Work Together",
+     "next": "o2",
+     "src": "L311"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They hold the lesson as a debate. The children love it: back and forth, question and answer, nobody winning. Afterwards, one child says (other.he/she) believes both things. Another says (other.he/she) believes neither. Both teachers say that is fine.",
+   "src": "L309"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They split the lesson: (subject) teaches how the stars move, (friend) teaches the stories people tell about them. Neither interrupts the other. Afterwards, (subject) asks (friend) about one of the stories. (friend) asks (subject) how (subject.he/she) knows the stars move. They talk all night.",
+   "src": "L313",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L313"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

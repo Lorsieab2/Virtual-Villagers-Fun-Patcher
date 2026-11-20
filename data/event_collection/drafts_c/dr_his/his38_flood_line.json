@@ -70,11 +70,77 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) laughs at first. The line is so high. Then (friend.he/she) stands under it and looks up, and stops laughing. (friend.He/she) builds the hut on the slope above, which is a much harder spot. People tease (friend.him/her) about building halfway up a cliff. (friend.He/she) doesn't mind. Every morning (friend.he/she) looks out over the low ground and is glad.",
+   "src": "L458",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L458"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L458"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) laughs at first. The line is so high. Then (friend.he/she) stands under it and looks up, and stops laughing. (friend.He/she) builds the hut on the slope above, which is a much harder spot. People tease (friend.him/her) about building halfway up a cliff. (friend.He/she) doesn't mind. Every morning (friend.he/she) looks out over the low ground and is glad.",
    "src": "L458"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) loves the flat ground too much and builds there. But (friend.he/she) clears a quick path up the slope behind the hut and teaches everyone in (friend.his/her) household to run up it, fast, if the sea ever does something strange. They practice it twice. (subject) watches, and nods. \"That's what the line is for,\" (subject.he/she) says. \"Not to scare you. To remind you.\"",
+   "src": "L461",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L461"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) loves the flat ground too much and builds there. But (friend.he/she) clears a quick path up the slope behind the hut and teaches everyone in (friend.his/her) household to run up it, fast, if the sea ever does something strange. They practice it twice. (subject) watches, and nods. \"That's what the line is for,\" (subject.he/she) says. \"Not to scare you. To remind you.\"",
    "src": "L461"

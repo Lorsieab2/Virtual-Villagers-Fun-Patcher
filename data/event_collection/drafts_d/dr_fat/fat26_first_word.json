@@ -144,9 +144,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The baby repeats the word, and the caregiver laughs with delight.",
-   "src": "L547"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -222,6 +229,51 @@
    "src": "L556"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The baby repeats the word, and the caregiver laughs with delight.",
+   "src": "L547",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L547"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The baby repeats the word, and the caregiver laughs with delight.",
+   "src": "L547"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "The caregiver wonders whether it was truly a word, but decides the uncertainty changes nothing about their joy.",
+   "src": "L557",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L557"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "The caregiver wonders whether it was truly a word, but decides the uncertainty changes nothing about their joy.",
    "src": "L557"

@@ -71,6 +71,32 @@
    "src": "L236"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(friend) helps (subject) plant a few cress seeds beside the slow one. \"These are quick,\" (friend.he/she) says. Two days later the cress is up, and (subject) is delighted. The slow seed still hasn't done anything. \"It's thinking,\" (subject) explains to everyone. Weeks later, it finally comes up, and (subject) has almost forgotten about it. (subject.He/She) is just as delighted the second time.",
+   "src": "L239",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L239"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(friend) helps (subject) plant a few cress seeds beside the slow one. \"These are quick,\" (friend.he/she) says. Two days later the cress is up, and (subject) is delighted. The slow seed still hasn't done anything. \"It's thinking,\" (subject) explains to everyone. Weeks later, it finally comes up, and (subject) has almost forgotten about it. (subject.He/She) is just as delighted the second time.",
    "src": "L239"

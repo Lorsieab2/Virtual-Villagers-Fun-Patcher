@@ -64,14 +64,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) combs (his/her) hair and leaves the loose strands on a branch. The bird inspects them, takes the lot, and leaves (name1) in peace. A few weeks later, (name1) finds the nest in a low tree: a little cup of twigs lined with (his/her) own hair, and three tiny chicks inside. (He/she) feels like some sort of grandparent.",
-   "src": "L458"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) wraps (his/her) head in a cloth. The bird lands on the wrap, looks around for hair, finds none, and starts pulling threads out of the cloth instead. By the end of the week there is a hole in the wrap, and somewhere nearby there is a very colorful nest.",
    "src": "L461"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) combs (his/her) hair and leaves the loose strands on a branch. The bird inspects them, takes the lot, and leaves (name1) in peace. A few weeks later, (name1) finds the nest in a low tree: a little cup of twigs lined with (his/her) own hair, and three tiny chicks inside. (He/she) feels like some sort of grandparent.",
+   "src": "L458",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L458"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) combs (his/her) hair and leaves the loose strands on a branch. The bird inspects them, takes the lot, and leaves (name1) in peace. A few weeks later, (name1) finds the nest in a low tree: a little cup of twigs lined with (his/her) own hair, and three tiny chicks inside. (He/she) feels like some sort of grandparent.",
+   "src": "L458"
   }
  }
 }

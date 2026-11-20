@@ -1,0 +1,216 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder from the Sea",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s085_elder_sea",
+  "source": "rewrites",
+  "lines": [
+   3986,
+   4029
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3986",
+  "ledger": [
+   {
+    "src": "L3987",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3988",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3997",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4006",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3994",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3995",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3998",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4007",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4000",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4003",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4009",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4012",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4015-4029",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L4010",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "A leaky little canoe comes paddling right up onto the beach one morning, so slowly that the children see it coming for an hour.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A leaky little canoe comes paddling right up onto the beach one morning, so slowly that the children see it coming for an hour. In it is a small, very old person, wrapped in a faded cloak, with a face as wrinkled as a dried fig. The canoe has a pair of faded eyes painted on the prow, and a small grey crab is riding on the paddle.\nThe old one climbs out, slowly, onto the sand. Straightens up, slowly. Looks around at the beach and the village and the hills behind it, and nods, very satisfied.\n\"Ah,\" (he/she) says. \"This must be the place.\"\nNobody knows what place. The old one seems quite sure. Should the village ask where (he/she) has come from, or feed (him/her) first?",
+   "choices": [
+    {
+     "label": "Ask Where (He/She) Came From",
+     "next": "c1",
+     "src": "L3994"
+    },
+    {
+     "label": "Offer Food First",
+     "next": "c2",
+     "src": "L3995"
+    }
+   ],
+   "src": "L3989-3992"
+  },
+  "c1o1": {
+   "text": "\"Far away,\" says the old one, waving a hand vaguely at the whole of the ocean. \"Very far. And I'm not going back.\" That's all (he/she) will say. Then (he/she) gets up and walks straight up the beach to the little empty hut at the top of the sand, the one nobody has lived in for years, and goes in, and puts (his/her) bag down on the mat as though (he/she) has always lived there. The crab moves in too. Nobody has the heart to argue.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "elder"
+    }
+   ],
+   "src": "L4001",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "\"Oh, where to begin,\" says the old one, and settles in, and begins. And keeps going. (He/She) tells them about islands made of black glass, and islands where the trees walk, and islands where the fish talk and the people don't, and a great city where... The stories are so amazing that the researchers come running with bark and charcoal and start writing them all down. They're still writing at sunset. They're still writing a month later, because the old one, of course, has stayed. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "elder"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L4004",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "The elders come down the beach and greet the visitor politely, and ask where (he/she) has come from, and where (he/she) is going. The old one sits down on the edge of the canoe, crab and all, to answer...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3998"
+  },
+  "c2o1": {
+   "text": "The old one eats every bit, slowly, with great enjoyment, and has seconds, and thanks everyone very warmly. Then (he/she) stands up, looks around the village again, frowns a little, and says, \"Hm. No. Wrong place.\" (He/She) walks back down to the leaky canoe, climbs in, and paddles off out to sea, slowly, the crab still riding on the paddle. \"Lovely though!\" (he/she) calls back over (his/her) shoulder.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L4010"
+  },
+  "c2o2": {
+   "text": "The old one eats, and thanks everyone, and then, still sitting by the fire, nods off to sleep, bowl in lap. Nobody wakes (him/her). In the morning (he/she) is still there. And the next morning. Somebody builds (him/her) a little roof. Somebody brings (him/her) a mat. A year later, (he/she) is still there, by the fire, in the best spot, and has become such a part of the village that nobody can remember what it was like before. The canoe with the painted eyes rots slowly on the beach, and the crab lives in it.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "elder"
+    }
+   ],
+   "src": "L4013",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "Questions can wait. The village brings the old one a warm bowl of stew and a cup of fresh water, and sits (him/her) down by the fire, and lets (him/her) eat in peace...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4007"
+  }
+ }
+}

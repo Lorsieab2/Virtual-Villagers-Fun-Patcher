@@ -74,6 +74,33 @@
    "src": "L461"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "After a few breaths, (subject) bursts out of the tent, gasping. \"Too hot! Too hot!\" (friend) apologizes and tips some of the water out. The second try is better: warm, not scalding. (subject) sits under it for a while and feels a little clearer. \"Next time,\" (subject.he/she) says, \"we start cool and work up.\" (friend) agrees that's a better system.",
+   "src": "L464",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 10,
+     "max": 20,
+     "src": "L464"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "After a few breaths, (subject) bursts out of the tent, gasping. \"Too hot! Too hot!\" (friend) apologizes and tips some of the water out. The second try is better: warm, not scalding. (subject) sits under it for a while and feels a little clearer. \"Next time,\" (subject.he/she) says, \"we start cool and work up.\" (friend) agrees that's a better system.",
    "src": "L464"

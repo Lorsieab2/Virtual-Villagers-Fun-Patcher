@@ -94,7 +94,8 @@
      "loss": true,
      "src": "L21165"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -114,9 +115,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The gardens thrive, while the miners abandon a rich deposit.",
-   "src": "L21168"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -144,6 +152,25 @@
    "name": "Outcome C2",
    "text": "The delay frustrates jewelers waiting for stone.",
    "src": "L21172"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The gardens thrive, while the miners abandon a rich deposit.",
+   "src": "L21168",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L21168"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The gardens thrive, while the miners abandon a rich deposit.",
+   "src": "L21168"
   }
  }
 }

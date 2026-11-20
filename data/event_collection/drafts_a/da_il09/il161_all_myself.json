@@ -66,14 +66,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) sets off with the jar, walking very straight and very proud. (friend) watches from the doorway until (subject.he/she) is out of sight, then, very casually, wanders down the path after (subject.him/her). (subject) comes back with the jar about half full and (subject.his/her) front completely soaked. \"I did it,\" (subject.he/she) says. \"I did it ALL BY MYSELF.\" (friend) agrees that (subject.he/she) absolutely did.",
-   "src": "L14"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "\"How about the small jar first?\" suggests (friend). (subject) thinks about arguing, then takes the small jar and marches off. (subject.He/She) brings it back completely full, without spilling a drop, and sets it down with a thump. \"Tomorrow,\" (subject.he/she) says, \"the big one.\" (friend) doesn't doubt it.",
    "src": "L17"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) sets off with the jar, walking very straight and very proud. (friend) watches from the doorway until (subject.he/she) is out of sight, then, very casually, wanders down the path after (subject.him/her). (subject) comes back with the jar about half full and (subject.his/her) front completely soaked. \"I did it,\" (subject.he/she) says. \"I did it ALL BY MYSELF.\" (friend) agrees that (subject.he/she) absolutely did.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L14"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) sets off with the jar, walking very straight and very proud. (friend) watches from the doorway until (subject.he/she) is out of sight, then, very casually, wanders down the path after (subject.him/her). (subject) comes back with the jar about half full and (subject.his/her) front completely soaked. \"I did it,\" (subject.he/she) says. \"I did it ALL BY MYSELF.\" (friend) agrees that (subject.he/she) absolutely did.",
+   "src": "L14"
   }
  }
 }

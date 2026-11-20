@@ -1,0 +1,291 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Flower That Bloomed for the Dead",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my062_flower_bloomed",
+  "source": "rewrites",
+  "lines": [
+   13471,
+   13526
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13471",
+  "ledger": [
+   {
+    "src": "L13472",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13473",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13481",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13488",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13495",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13502",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13476",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13477",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13478",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13479",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13482",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13489",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13496",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13503",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13483",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13485",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13490",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13492",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13497",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13499",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13504",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13506",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13509-13526",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Overnight, a flower has bloomed right beside it, where yesterday there was only bare earth.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "botanist": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On (subject.his/her) morning walk past the memorial stone, (subject) stops short. Overnight, a flower has bloomed right beside it, where yesterday there was only bare earth. Its petals are a deep, glowing orange, the exact colour of the wrap that a beloved villager wore to every single festival before they passed away. Dew sits on the petals like tears.\n(subject) stands there a long while. It could be a coincidence. Flowers grow everywhere on Isola. But this one grew here, today, in that colour. (subject.He/she) is not sure whether to feel comforted or unsettled. \"Could it be a sign from the one who wore that colour?\" (subject) thinks. \"What should I do?\"",
+   "choices": [
+    {
+     "label": "Tend the Flower",
+     "next": "c1",
+     "src": "L13476"
+    },
+    {
+     "label": "Ask a Botanist",
+     "next": "c2",
+     "src": "L13477"
+    },
+    {
+     "label": "Leave an Offering",
+     "next": "c3",
+     "src": "L13478"
+    },
+    {
+     "label": "Tell the Family",
+     "next": "c4",
+     "src": "L13479"
+    }
+   ],
+   "src": "L13474-13475"
+  },
+  "c1o1": {
+   "text": "Word spreads, and soon someone from the lost villager's family comes to water the flower every morning. And every morning it seems a little brighter. It blooms for weeks, far longer than any flower should. The family begins to linger at the memorial, talking quietly to the bloom as if it could hear, and their grief, which had been so heavy for so long, slowly begins to soften. When the petals finally fall, nobody cries. They simply say thank you.",
+   "src": "L13484"
+  },
+  "c1o2": {
+   "text": "For a few days the flower glows, and then, as flowers do, it fades. (subject) is sorry to see it go, until (subject.he/she) notices that the dry head is full of tiny black seeds. (subject.He/she) gathers them carefully and plants them all around the memorial. The next season, the whole stone is ringed with deep orange flowers, and the village takes to calling it the festival garden.",
+   "src": "L13486"
+  },
+  "c1": {
+   "text": "(subject) fetches a little water in (subject.his/her) cupped hands and pours it gently around the roots. Then (subject.he/she) pulls the weeds away, sets a ring of small stones around it to keep the goats off, and promises to come back tomorrow...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13482"
+  },
+  "c2o1": {
+   "text": "\"Well, I never,\" the botanist breathes. \"This is a dusk lily. It blooms only once every few years, and only for a single season. I've read about them, but I've never seen one.\" The researchers spend the week sketching it, measuring it, and arguing about it, and add pages of new notes to the village's knowledge of plants. \"Of course,\" the botanist adds quietly to (subject), when the others have gone, \"that doesn't explain why it chose this spot. Or that colour.\"",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L13491",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The botanist examines the flower from every angle, sniffs it, counts its petals twice, and finally sits back on (subject.his/her) heels, baffled. \"I don't know what this is,\" (subject.he/she) admits. \"I've never seen anything like it.\" The botanist takes careful notes and a sketch, and promises to keep looking. (subject.He/she) never finds it in any record, and though (subject.he/she) searches the whole island for years, never sees another one.",
+   "src": "L13493"
+  },
+  "c2": {
+   "text": "(subject) fetches (botanist), the village's plant expert, who arrives grumbling about being woken so early, kneels by the flower, and immediately stops grumbling...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13489"
+  },
+  "c3o1": {
+   "text": "The next morning, the offering is still there, exactly as (subject) left it. Not even the ants have touched it. (subject) is not sure what (subject.he/she) expected, but somehow that feels right too, as though it were being kept rather than refused. (subject.He/she) leaves it there for the rest of the week, and the flower stays bright the whole time.",
+   "src": "L13498"
+  },
+  "c3o2": {
+   "text": "As (subject) watches, a tiny bird with an orange-tipped tail hops down from the memorial stone, pecks at the cake, and flies off with a chunk nearly as big as its own head. It comes back three more times before the cake is gone. (subject) laughs for the first time in days. The lost villager, (subject.he/she) decides, would have found that very funny indeed.",
+   "src": "L13500"
+  },
+  "c3": {
+   "text": "(subject) goes home, wraps a little cake of sweet mashed fruit in a leaf, the lost villager's favourite, and sets it gently beside the flower. \"For you,\" (subject.he/she) whispers, feeling a little foolish and not caring...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13496"
+  },
+  "c4o1": {
+   "text": "They kneel around the flower, and before long someone starts telling stories. Someone remembers the time the lost villager fell asleep in a canoe and drifted halfway to the reef before anyone noticed. Someone else remembers the terrible, terrible singing. Soon everyone is laughing and crying at the same time, and other villagers wander over to join in. By sunset there is a small crowd at the memorial, and it feels less like a grave and more like a party the lost villager would have loved.",
+   "src": "L13505"
+  },
+  "c4o2": {
+   "text": "Most of the family is moved and grateful, but one relative goes very still. \"Please,\" (subject.he/she) says quietly, \"I can't. Not today.\" (subject.He/she) walks away without looking back, and the others let (subject.him/her) go. (subject) feels terrible. A few days later, though, (subject.he/she) passes the memorial at dawn and sees that same relative kneeling alone by the flower, watering it with cupped hands. (subject) keeps walking and never mentions it.",
+   "src": "L13507"
+  },
+  "c4": {
+   "text": "(subject) goes straight to the lost villager's family and, as gently as (subject.he/she) can, tells them about the flower. They follow (subject.him/her) to the memorial in silence...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13503"
+  }
+ }
+}

@@ -1,0 +1,218 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Crab Moon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b190_crab_moon",
+  "source": "balance",
+  "lines": [
+   8813,
+   8856
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8813",
+  "ledger": [
+   {
+    "src": "L8814",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8815",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8823",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8832",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8820",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8821",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8824",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8833",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8826",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8829",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8835",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8838",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8841-8856",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Crabs are everywhere, around their feet, climbing over their toes.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Once a year, under the full moon, the land crabs march down from the jungle to the sea, thousands of them, clicking and scraping across the village in a red tide. The elders say it's bad luck to step on one, and worse luck to be caught in the middle of the march, because the crabs \"carry people's spirits back and forth in their claws, and don't always put them back where they found them.\"\n(subject) and (friend) were walking home late and have been caught on the path, right in the middle of the march. Crabs are everywhere, around their feet, climbing over their toes. There's nowhere to put a foot down.\nShould they stand still and wait for the crabs to pass, or run for it?",
+   "choices": [
+    {
+     "label": "Stand Still",
+     "next": "c1",
+     "src": "L8820"
+    },
+    {
+     "label": "Run for It",
+     "next": "c2",
+     "src": "L8821"
+    }
+   ],
+   "src": "L8816-8818"
+  },
+  "c1o1": {
+   "text": "The march takes an hour to pass. At some point in that hour, standing back to back, they both feel a pinch, very gently, at the back of the neck. When the last crab has gone, (subject) turns round and sees (subject.his/her) own face looking back. The crabs have put them back, but in the wrong places. The elders aren't surprised. \"Never be in the middle,\" they say.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L8827",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The crabs flow past for an hour, and one of them gives (friend) a sharp pinch on the toe on its way, which (friend) says is extremely rude. Otherwise nothing happens. When the march has passed, they walk home along a path scraped clean, and (friend) limps a little, and complains about the crab the whole way.",
+   "src": "L8830"
+  },
+  "c1": {
+   "text": "They stand back to back in the moonlight, not moving, while the crabs flow round their ankles like water. Clicking. Scraping. Hundreds of little eyes on stalks, all turned towards them...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8824"
+  },
+  "c2o1": {
+   "text": "The crabs take it personally. They swarm up the two of them, pinching, until they fall down in a heap together, covered. When the march has passed, each of them is lying in the other's body, pinched all over. \"That's what you get for stepping on them,\" say the elders, putting cool mud on the pinches. There is no putting them back.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -40,
+     "max": -20
+    }
+   ],
+   "src": "L8836",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They get home breathless and laughing, with crab bits on their feet, and sit on (subject)'s doorstep watching the red tide go past in the moonlight. It is, they agree, the most ridiculous thing that has ever happened to either of them. After a night like that, a lot of small things they used to grumble about don't seem worth the trouble.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "dislike": "random",
+     "remove": true
+    }
+   ],
+   "src": "L8839",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"Run!\" shouts (friend), and they run, hopping and leaping, trying to land in the gaps. Crabs crunch under their feet. Both of them wince at every one...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8833"
+  }
+ }
+}

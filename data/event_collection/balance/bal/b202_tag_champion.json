@@ -1,0 +1,202 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tag Champion",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b202_tag_champion",
+  "source": "balance",
+  "lines": [
+   9379,
+   9422
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9379",
+  "ledger": [
+   {
+    "src": "L9380",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9381",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9389",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9398",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9386",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9387",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9390",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9399",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9392",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9395",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9401",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9404",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9407-9422",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is the best tag player in the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8,
+   "max_age": 13
+  },
+  "child": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) is the best tag player in the village. Nobody can catch (subject.him/her). (subject.He/She) plays from sunrise to sunset and would play all night if the grown-ups let (subject.him/her). Today the other children have had enough of losing. They've found an old spirit-stone in the jungle, smooth and warm, and the oldest of them, (child), says that whoever touches it while \"it\" will be caught forever.\nThe game starts. (subject) is fast. But (child) is waiting by the stone, and (subject) is running straight towards it, and the stone is humming.\nShould (subject) dodge past the stone, or touch it on purpose to prove it's only a story?",
+   "choices": [
+    {
+     "label": "Dodge Past",
+     "next": "c1",
+     "src": "L9386"
+    },
+    {
+     "label": "Touch the Stone",
+     "next": "c2",
+     "src": "L9387"
+    }
+   ],
+   "src": "L9382-9384"
+  },
+  "c1o1": {
+   "text": "(subject) goes down and gets caught for the first time in (subject.his/her) life. The other children cheer so loudly that the grown-ups come running. (subject) gets up, dusts off (subject.his/her) knees, and finds (subject.he/she) doesn't much want to play any more. (subject.He/She) spends the afternoon helping the cooks instead. \"Somebody had to catch (subject.him/her) eventually,\" says (child), a little guiltily.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "playing",
+     "role": "subject"
+    }
+   ],
+   "src": "L9393",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) rolls, bounces up and keeps running, and nobody catches (subject.him/her) all day. (child) gives up, sits down on the spirit-stone, and sulks. The stone stops humming. It was, perhaps, only a story.",
+   "src": "L9396"
+  },
+  "c1": {
+   "text": "(subject) swerves at the last moment, quick as a lizard, and goes flying past the stone with (child) grabbing at empty air. Then (subject.his/her) foot catches on a root...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9390"
+  },
+  "c2o1": {
+   "text": "The stone catches (subject.him/her), in its own way. By the time the children get (subject) home, (subject.he/she) is fifteen: long-legged, deep-voiced and confused. The elders say the spirit-stone was put there long ago to end games that go on too long, and that it takes away childhood, a little, to do it. (subject) doesn't play tag much any more. (subject.He/She) does win every race at the next festival.",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "teen",
+     "role": "subject"
+    }
+   ],
+   "src": "L9402",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Nothing happens. The stone is just a stone. But (subject) has scared (subject.himself/herself) badly, and the game doesn't feel the same after that. (subject.He/She) starts tagging along with (subject.his/her) parents to work instead, asking questions, and the other children finally get a turn at winning.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "playing",
+     "role": "subject"
+    }
+   ],
+   "src": "L9405",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) runs straight at the stone and slaps it with both hands. \"Only a story!\" (subject.he/she) shouts. The humming stops, all at once. The jungle goes very quiet...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9399"
+  }
+ }
+}

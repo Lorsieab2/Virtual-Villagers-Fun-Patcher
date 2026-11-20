@@ -85,9 +85,16 @@
    "src": "L21872"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "A mispronounced word causes laughter rather than offense.",
-   "src": "L21873"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -114,9 +121,16 @@
    ]
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "A gesture is misunderstood, and both groups become embarrassed.",
-   "src": "L21876"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -139,6 +153,44 @@
    "name": "Outcome C2",
    "text": "The distance leaves both sides uncertain about the other's intentions.",
    "src": "L21879"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "A mispronounced word causes laughter rather than offense.",
+   "src": "L21873",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L21873"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "A mispronounced word causes laughter rather than offense.",
+   "src": "L21873"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "A gesture is misunderstood, and both groups become embarrassed.",
+   "src": "L21876",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "bad",
+     "src": "L21876"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "A gesture is misunderstood, and both groups become embarrassed.",
+   "src": "L21876"
   }
  }
 }

@@ -74,6 +74,38 @@
    "src": "L74"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They laugh and deliberately walk off in opposite directions. Half an hour later, having walked all the way round the village, they meet again at the far end of the beach. Neither says a word. They just sit down on the sand together, defeated, and watch the sea.",
+   "src": "L77",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L77"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L77"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "They laugh and deliberately walk off in opposite directions. Half an hour later, having walked all the way round the village, they meet again at the far end of the beach. Neither says a word. They just sit down on the sand together, defeated, and watch the sea.",
    "src": "L77"

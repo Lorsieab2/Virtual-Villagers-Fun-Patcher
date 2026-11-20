@@ -98,7 +98,8 @@
      "max": 30,
      "src": "L9073-9074"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "text": "The patient dies.",
@@ -110,7 +111,8 @@
      "cause": "unknown",
      "src": "L9073"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "text": "The prohibition turns out to have been mistranslated.",
@@ -156,7 +158,8 @@
      "max": -10,
      "src": "L9075"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "text": "The village reexamines what its medical duty means.",

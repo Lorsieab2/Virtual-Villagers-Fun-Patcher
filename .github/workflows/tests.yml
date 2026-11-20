@@ -131,12 +131,17 @@ jobs:
         # faulthandler_timeout: a test still running after 10 minutes prints every thread's stack
         # (it is not stopped). A shard of v1.35.86 stalled twice at the same point with no output,
         # so a stall now names its test.
+        #
+        # Each test file runs in a pytest process of its own (scripts/ci_run_shard.py): one process for
+        # the whole shard died of native faults (exit 139, an access violation in ordinary Python code
+        # after the in-process emulator files) on #778, #780 and #782, losing the shard and its report.
+        # A file whose process crashes is run once more, alone; a test that fails is never re-run.
         shell: bash
         env:
           PYTHONPATH: src
         run: |
           set -o pipefail
-          python -m pytest $(python scripts/ci_test_shard.py ${{ matrix.shard }} 6) -q -rf -o faulthandler_timeout=600 --junit-xml=junit.xml 2>&1 | tee pytest.log
+          python scripts/ci_run_shard.py ${{ matrix.shard }} 6 junit.xml 2>&1 | tee pytest.log
 
       - name: Summarise the run
         # Always, so a red run gets the same breakdown as a green one -- that

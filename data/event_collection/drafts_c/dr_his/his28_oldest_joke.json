@@ -82,11 +82,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) opens (subject.his/her) mouth to explain, stops, frowns, and thinks. \"Because... the tall one... there was a tall one, and...\" (subject.He/she) gives up. \"I don't know either.\" They ask around. Nobody knows. Everyone laughs anyway. (friend) decides it's the greatest joke ever told, precisely because nobody understands it anymore. (friend.He/she) tells it at every fire for a month.",
+   "src": "L338",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L338"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) opens (subject.his/her) mouth to explain, stops, frowns, and thinks. \"Because... the tall one... there was a tall one, and...\" (subject.He/she) gives up. \"I don't know either.\" They ask around. Nobody knows. Everyone laughs anyway. (friend) decides it's the greatest joke ever told, precisely because nobody understands it anymore. (friend.He/she) tells it at every fire for a month.",
    "src": "L338"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) is determined. The tall one was a fish? A wave? A person? (friend.He/she) asks (elder), the oldest villager, who laughs so hard at the question that no answer ever comes. Eventually (friend) decides the tall one is a lost piece of history and that's that. At the next fire, someone tells the joke, and (friend) laughs louder than anyone.",
+   "src": "L341",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L341"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) is determined. The tall one was a fish? A wave? A person? (friend.He/she) asks (elder), the oldest villager, who laughs so hard at the question that no answer ever comes. Eventually (friend) decides the tall one is a lost piece of history and that's that. At the next fire, someone tells the joke, and (friend) laughs louder than anyone.",
    "src": "L341"

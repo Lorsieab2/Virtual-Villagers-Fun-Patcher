@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Swapping Mango",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s087_swapping_mango",
+  "source": "rewrites",
+  "lines": [
+   4078,
+   4121
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L4078",
+  "ledger": [
+   {
+    "src": "L4079",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4080",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4088",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4097",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4085",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4086",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4089",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4098",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4091",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4094",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4100",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4103",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4106-4121",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The tree drinks from the island's oldest spring, they say, and whoever shares its fruit shares a little more than fruit.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The elders tell of a mango tree on the island that fruits only once in a lifetime, one single mango, and that whoever eats it will never taste anything sweeter. The tree drinks from the island's oldest spring, they say, and whoever shares its fruit shares a little more than fruit. (subject) and (friend) have been searching for it for years, on and off, just for fun.\nToday, at last, they find it. It stands alone on a windy cliff at the far end of the island, twisted almost flat by the wind, and among its few tough leaves hangs one perfect mango, glowing red and gold in the late sun like a little lamp.\nThere's only one mango. So they share it, fairly, half each, cutting it down the middle with (subject)'s knife. And with the very first bite, sitting side by side on the cliff, they feel their minds slip, like stepping onto a wet rock, and trade places. Should they finish the mango, or spit it out before it's too late?",
+   "choices": [
+    {
+     "label": "Finish the Mango",
+     "next": "c1",
+     "src": "L4085"
+    },
+    {
+     "label": "Spit It Out",
+     "next": "c2",
+     "src": "L4086"
+    }
+   ],
+   "src": "L4081-4083"
+  },
+  "c1o1": {
+   "text": "They each eat their half, down to the stone, sticky to the elbows, and lick their fingers, and sit there in the sunset, and stay swapped. Completely. \"I suppose I'm you now,\" says (subject), in (friend)'s voice, looking down at (friend)'s knees. \"Make the most of it,\" says (friend), with (subject)'s grin. They walk home in each other's bodies, and live each other's lives from then on, and agree, years later, that it was worth it, for that mango.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L4092",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They finish it, bite by sticky bite, swapped, laughing at each other's faces. And with the very last bite, the last sweet scrap from around the stone, their minds slip again, and swap back, and they're themselves, sitting on a cliff with juice running down their chins. It was the best mango either of them ever tasted, or ever will. They plant the stone right there on the cliff, side by side, and promise to come back in a lifetime to see if it's grown.",
+   "src": "L4095"
+  },
+  "c1": {
+   "text": "(subject) looks down at (friend)'s hands holding (subject)'s half of the mango. (friend) looks down at (subject)'s. They look at each other's faces. Then, because it is, after all, the best mango either of them has ever tasted, they both take another bite...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4089"
+  },
+  "c2o1": {
+   "text": "The magic stops the moment the mango leaves their mouths. They're themselves again, instantly, kneeling on the cliff edge, coughing. They look at each other. Then they look at the two halves of the once-in-a-lifetime mango, lying in the grass. They're both a little disappointed, actually. They pick up the halves, and look at them, and put them down again, and walk home, wondering, for the rest of their lives, what the second bite would have tasted like.",
+   "src": "L4101"
+  },
+  "c2o2": {
+   "text": "Too late. The first bite was enough. They spit out what's left, but they stay swapped, kneeling there on the cliff in each other's bodies with mango juice all over each other's faces. And the juice is everywhere: on their hands, their chins, in their hair, all down their fronts. They walk all the way home swapped, and sticky, and cross, and stay that way, swapped at least, for good. The stickiness wears off by morning.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L4104",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"Spit it out!\" shouts (subject), in (friend)'s voice, and they both do, at once, spitting the mouthfuls of sweet gold mango over the edge of the cliff...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4098"
+  }
+ }
+}

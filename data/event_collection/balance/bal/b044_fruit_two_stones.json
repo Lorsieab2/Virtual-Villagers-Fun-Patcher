@@ -1,0 +1,202 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fruit with Two Stones",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b044_fruit_two_stones",
+  "source": "balance",
+  "lines": [
+   1980,
+   2021
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1980",
+  "ledger": [
+   {
+    "src": "L1981",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1982",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1990",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1999",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1987",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1988",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1991",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2000",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1993",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1996",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2002",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2005",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2008-2021",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Most years it gives nothing.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "There's an old tree behind the gardens that the elders say was planted by two sisters who were so alike that even their mother mixed them up. Most years it gives nothing. This year it has given a single fruit, golden and heavy, and when (name) cuts it open there are two stones inside, side by side, exactly the same.\nThe elders remember the story. \"Eat it all,\" they say, \"and the tree gives you what it gave the sisters. Plant the stones, and it gives you something else.\"\n(Name) is holding half a fruit in each hand. What should (he/she) do?",
+   "choices": [
+    {
+     "label": "Eat It All",
+     "next": "c1",
+     "src": "L1987"
+    },
+    {
+     "label": "Plant the Stones",
+     "next": "c2",
+     "src": "L1988"
+    }
+   ],
+   "src": "L1983-1985"
+  },
+  "c1o1": {
+   "text": "By evening, there's a knock at (name)'s door. On the step {#made:stands someone|stand two people|stand three people} who {#made:is|are|are} exactly (name), from (his/her) laugh to (his/her) taste in fish. The elders nod. \"Sisters,\" they say. \"Or close enough.\" The village gives {#made:the newcomer a name of its own|them names of their own|them names of their own}, and {#made:(made1) moves|(made1) and (made1) move|they move} in next door.",
+   "effects": [
+    {
+     "do": "clone",
+     "count": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L1994",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The strange feeling lasts until morning, when (name) wakes up and finds (himself/herself) already sitting by the fire. Another (name), exactly alike in every way, is eating breakfast and looking just as puzzled. The newcomer takes the name (made1), and the two of them agree to take turns with the chores, which is more than most siblings ever manage.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L1997",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "It's the sweetest fruit (name) has ever tasted, like honey and sunshine. (He/She) eats every scrap, licks (his/her) fingers, and then feels very, very strange, as if (he/she) is standing in two places at once...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1991"
+  },
+  "c2o1": {
+   "text": "In the morning, there's a person sitting in the garden, covered in soil, with (name)'s face. But the tree gave something else: the face is the same, and nothing else is. The newcomer has never heard of fish, loves weeding, and is afraid of the dark. It takes the name (made1), and is soon the gardeners' favourite.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L2003",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Two seedlings come up overnight, and by noon they've withered. But when (name) looks in the water bowl that evening, the face looking back is different, as if the tree took a little of (him/her) for its seedlings and gave back something new in exchange. The elders say that's fair. (Name) isn't sure, but (he/she) doesn't mind the new face.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L2006",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) plants the two stones side by side in the soft earth by the old tree, waters them, and goes home. In the night, there's a sound from the garden like something breathing...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2000"
+  }
+ }
+}

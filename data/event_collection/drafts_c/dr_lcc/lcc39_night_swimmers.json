@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night Swimmers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc39_night_swimmers",
+  "source": "draft_lcc",
+  "lines": [
+   540,
+   551
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L540",
+  "ledger": [
+   {
+    "src": "L541",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L547",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses a little health; (name2) loses a little health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L547",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L551",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L551",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two strong swimmers offer to slip out to the raiders' canoes at night and cut them loose: let them, or forbid it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The raiders have anchored their canoes off the reef for the night, planning to land at dawn. (subject) and (friend) are the strongest swimmers in the village, and they want to swim out in the dark and cut the canoes loose, so the current carries them away. It is very dangerous. What should the village decide?",
+   "src": "L543",
+   "choices": [
+    {
+     "label": "Let Them Go",
+     "next": "o1",
+     "src": "L545"
+    },
+    {
+     "label": "Forbid It",
+     "next": "o2",
+     "src": "L549"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) slip into the black water. An hour later, there is shouting on the reef, and the raiders' canoes are drifting out to sea, the raiders swimming after them. (subject) and (friend) crawl up the beach at dawn, cut to pieces by coral, laughing like children.",
+   "src": "L547",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -10,
+     "src": "L547"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -10,
+     "src": "L547"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village forbids it, and (subject) and (friend) are furious. At dawn, the raiders land. The warriors meet them at the waterline and, after a bitter morning, drive them off. The village is safe. (subject) and (friend) still think their plan would have worked.",
+   "src": "L551",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L551"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

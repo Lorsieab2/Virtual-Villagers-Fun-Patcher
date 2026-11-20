@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"There's a honey tree,\" (subject) admits. \"I've been keeping it to myself.\" (friend) wipes (subject.his/her) chin for (subject.him/her). \"How much is there?\" \"Lots.\" That evening (subject) tells the village, and the honey is shared at the next feast. (subject) gets the first spoonful, since (subject.he/she) found it. It tastes every bit as good as the secret ones did.",
-   "src": "L554"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Breakfast,\" says (subject). \"We didn't have honey at breakfast,\" says (friend). \"...A private breakfast.\" (friend) lets it go. But the next day (friend) quietly follows (subject.him/her) into the forest, and the day after that there are two villagers with honey on their chins. Then three. By the end of the week everybody knows, and the tree is very nearly empty.",
    "src": "L557"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"There's a honey tree,\" (subject) admits. \"I've been keeping it to myself.\" (friend) wipes (subject.his/her) chin for (subject.him/her). \"How much is there?\" \"Lots.\" That evening (subject) tells the village, and the honey is shared at the next feast. (subject) gets the first spoonful, since (subject.he/she) found it. It tastes every bit as good as the secret ones did.",
+   "src": "L554",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "src": "L554"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"There's a honey tree,\" (subject) admits. \"I've been keeping it to myself.\" (friend) wipes (subject.his/her) chin for (subject.him/her). \"How much is there?\" \"Lots.\" That evening (subject) tells the village, and the honey is shared at the next feast. (subject) gets the first spoonful, since (subject.he/she) found it. It tastes every bit as good as the secret ones did.",
+   "src": "L554"
   }
  }
 }

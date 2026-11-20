@@ -1,0 +1,304 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sea Chest of Two Brothers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my050_sea_chest_two",
+  "source": "rewrites",
+  "lines": [
+   12765,
+   12820
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12765",
+  "ledger": [
+   {
+    "src": "L12766",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12767",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12776",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12783",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12790",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12797",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12771",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12772",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12773",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12774",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12777",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12784",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12791",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12798",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12778",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12780",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12785",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12787",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12792",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12794",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12799",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12801",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12804-12820",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A chest bound in tarred rope drifts ashore, and a villager is the one who hauls it up the beach.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A chest bound in tarred rope drifts ashore, and (name) is the one who hauls it up the beach. Inside the lid is a note, written in two different hands, each one pressing harder than the last. Two brothers. One inheritance. Both claiming it.\nInside the chest is a single tool, a beautiful bronze-bladed adze, finer than anything the village owns, and two sealed letters, one from each brother. The village gathers around. Everyone wants to know what the letters say. Everyone also wants to use that adze. What should (name) do?",
+   "choices": [
+    {
+     "label": "Read Both Letters",
+     "next": "c1",
+     "src": "L12771"
+    },
+    {
+     "label": "Find the Brothers",
+     "next": "c2",
+     "src": "L12772"
+    },
+    {
+     "label": "Use the Tool Temporarily",
+     "next": "c3",
+     "src": "L12773"
+    },
+    {
+     "label": "Keep the Chest Sealed",
+     "next": "c4",
+     "src": "L12774"
+    }
+   ],
+   "src": "L12768-12769"
+  },
+  "c1o1": {
+   "text": "The letters start angry, each brother listing why the adze is rightfully his. But as they go on, they soften, and at the very end, the brothers have agreed to share it, with careful notes on how to sharpen and care for it so it will last them both a lifetime. And both letters end with the very same words: \"Whatever happens, remember we are brothers.\" The villagers wipe their eyes, and the builders copy every one of the care notes. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L12779",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The letters contradict each other completely. One brother says their father gave him the adze on his deathbed. The other says the same thing about himself. Each calls the other a liar. Neither letter is dated. There's no way of knowing who is telling the truth, and by the end of the evening, the village is just as divided as the brothers were.",
+   "src": "L12781"
+  },
+  "c1": {
+   "text": "(Name) breaks both seals and reads the letters aloud, one after the other, while the village listens in silence...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12777"
+  },
+  "c2o1": {
+   "text": "A month later, a weathered fisherman arrives, breathless, asking about the chest. It's one of the brothers. He weeps when he sees it. \"We fought over it for years,\" he says. \"Then the storm took my brother's boat, and the chest with it. I'd give anything to have that fight back.\" He takes the chest home, and leaves the village his thanks and a fine string of fish.",
+   "src": "L12786"
+  },
+  "c2o2": {
+   "text": "The search turns up only sad news. Both brothers were seen setting out to sea together during a great storm, months ago, each one refusing to let the other take the chest alone. Neither came back. The chest is all that's left of them. (Name) buries the letters on the beach and says a few words for two brothers who loved each other too stubbornly.",
+   "src": "L12788"
+  },
+  "c2": {
+   "text": "(Name) sends word up and down the coast with every trader and traveler: a chest has been found, with letters from two brothers...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12784"
+  },
+  "c3o1": {
+   "text": "The adze is wonderful. With it, (name) mends the village's canoes and fishing gear in half the usual time, shaping wood more cleanly than (he/she) ever could before. By the end of the season, (name)'s hands have learned things the old stone tools never taught (him/her), and (he/she) is a much better builder for it.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L12793",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "On the third day of use, there's a terrible crack, and the bronze blade snaps clean off the handle. The whole village goes silent. The tool that two brothers fought over for years, broken by the people who were only borrowing it. The villagers argue long into the night about how they would ever explain it, if anyone comes. Nobody does. But they feel bad about it for a long time.",
+   "src": "L12795"
+  },
+  "c3": {
+   "text": "\"It's a shame to let a tool like that sit idle,\" (name) says. \"We'll borrow it, look after it, and give it back if anyone comes.\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12791"
+  },
+  "c4o1": {
+   "text": "A few weeks later, a traveler notices the mark burned into the chest's side. \"That's the family mark of a fishing clan two days north of here,\" the traveler says. \"I'm heading that way. I could take it home for you.\" (Name) agrees, and the chest goes on its way, letters still sealed, adze still unused, to whoever it belongs to.",
+   "src": "L12800"
+  },
+  "c4o2": {
+   "text": "Nobody ever comes. The chest sits in the corner of the meeting hut for years, tied with its tarred rope, letters unread. It becomes a kind of reminder in the village, of promises left unfinished and quarrels never settled. When siblings fight, their parents point at the chest. It usually works.",
+   "src": "L12802"
+  },
+  "c4": {
+   "text": "(Name) closes the lid firmly, ties the tarred rope back around it, and puts it away. \"It's not ours. It's not even ours to read.\"...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12798"
+  }
+ }
+}

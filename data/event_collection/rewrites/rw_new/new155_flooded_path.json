@@ -1,0 +1,323 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Flooded Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new155_flooded_path",
+  "source": "rewrites",
+  "lines": [
+   7448,
+   7503
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7448",
+  "ledger": [
+   {
+    "src": "L7449",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7450",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7459",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7466",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7473",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7480",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7454",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7455",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7456",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7457",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7460",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7467",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7474",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7481",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7461",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7463",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7468",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7470",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7475",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7477",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7482",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7484",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7487-7503",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "After a night of heavy rain, the stream has jumped its banks.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "After a night of heavy rain, the stream has jumped its banks. It now flows straight across the main path between the huts and the fields, knee-deep, brown and fast, full of floating sticks and leaves and one very confused frog.\nHalf the village is on one side of it. The other half is on the other side. The harvest baskets are on the wrong side entirely.\n(Name) stands at the edge of the brown water, rolling up (his/her) wrap, and considers how deep \"knee-deep\" really is. How should (name) get everyone, and the harvest, across?",
+   "choices": [
+    {
+     "label": "Carry the Harvest Across",
+     "next": "c1",
+     "src": "L7454"
+    },
+    {
+     "label": "Check Both Banks",
+     "next": "c2",
+     "src": "L7455"
+    },
+    {
+     "label": "Mark How High the Water Rose",
+     "next": "c3",
+     "src": "L7456"
+    },
+    {
+     "label": "Lay Stepping Stones",
+     "next": "c4",
+     "src": "L7457"
+    }
+   ],
+   "src": "L7451-7453"
+  },
+  "c1o1": {
+   "text": "The baskets make it across safely, and on the far side, (name) finds a heap of fallen fruit that the flood has washed up against the garden fence, all perfectly good. It's gathered up and adds a little food to the stores. The frog is rescued too.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7462",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Halfway across, someone stumbles on a hidden root, and a basket tips into the brown water. By the time they fish it out, its food is soaked in mud and ruined, and has to be thrown out. Everyone else holds their baskets a lot higher after that.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7464",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) and a team of workers hoist the harvest baskets onto their shoulders and wade into the brown water...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7460"
+  },
+  "c2o1": {
+   "text": "Everyone is accounted for on both sides. The families cut off from their huts are fed and housed by neighbours for the night, and the two halves of the village shout cheerful insults at each other across the water until bedtime.",
+   "src": "L7469"
+  },
+  "c2o2": {
+   "text": "On (his/her) third crossing, (name) steps on a sharp stick hidden under the muddy water. It goes deep into (his/her) foot. (He/She) limps out, gritting (his/her) teeth, leaving a red trail, and is helped to the healer. The wound needs care for a while.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L7471",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) wades back and forth across the flood, making sure everyone on both sides is accounted for...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7467"
+  },
+  "c3o1": {
+   "text": "Looking at the marks, (name) notices the water always crosses the path at the same spot: one low dip in the ground, no more than a few paces wide. Build that up, and the path would stay dry. It's a useful pattern, and the builders start raising the low dip as soon as the water goes down.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7476",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The marks left on the trees disagree: higher here, lower there, and one mark seems to have been made by a child at the wrong height entirely. The villagers decide to wait for more evidence before changing anything.",
+   "src": "L7478"
+  },
+  "c3": {
+   "text": "(Name) walks the length of the flood, marking with charcoal on every tree trunk how high the water has reached...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7474"
+  },
+  "c4o1": {
+   "text": "Workers haul flat stones and lay a raised crossing before nightfall. It wobbles a little, but everyone gets across dry-footed. The children spend the evening running back and forth across it, shrieking.",
+   "src": "L7483"
+  },
+  "c4o2": {
+   "text": "Hauling stones is hungry work. The crew eats an extra meal, then another, and it all comes out of the stores, leaving a little less food. But the crossing is solid, and it stays there long after the flood has gone.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7485",
+   "auto_text": true
+  },
+  "c4": {
+   "text": "(Name) organizes a crew to haul big, flat stones from the stream bed and lay a raised crossing across the flood...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7481"
+  }
+ }
+}

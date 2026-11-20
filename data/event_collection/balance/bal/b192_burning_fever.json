@@ -1,0 +1,219 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Burning Fever",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b192_burning_fever",
+  "source": "balance",
+  "lines": [
+   8907,
+   8950
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8907",
+  "ledger": [
+   {
+    "src": "L8908",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8909",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8917",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8926",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8914",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8915",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8918",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8927",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8920",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8923",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8929",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8932",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8935-8950",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has had a fever for three days, the worst the healers have seen in years.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has had a fever for three days, the worst the healers have seen in years. (subject.He/She) is talking to people who aren't there, and calling the healers by the wrong names. (healer) has tried every brew (subject.he/she) knows. Tonight (subject.he/she) says there is one thing left: the old way, which is to carry the sick person down to the sea at midnight and dip them three times in the cold water, \"to shock the fever out.\"\n(healer) has done it twice before. Once it worked. Once it didn't. The other choice is to keep (subject) in the hut, wrapped in wet leaves, and wait.\nShould they take (subject) to the sea, or wait?",
+   "choices": [
+    {
+     "label": "Take (subject.Him/Her) to the Sea",
+     "next": "c1",
+     "src": "L8914"
+    },
+    {
+     "label": "Wait It Out",
+     "next": "c2",
+     "src": "L8915"
+    }
+   ],
+   "src": "L8910-8912"
+  },
+  "c1o1": {
+   "text": "On the third dip, (subject) comes up gasping and shouting at them to stop, in (subject.his/her) own voice, using all their right names. The fever is gone by morning. (subject) is weak for a week, and very cross about being dunked, and doesn't remember any of it. (healer) adds a mark to the post by (subject.his/her) door: two out of three.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "src": "L8921",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The fever breaks on the third dip. In the morning (subject) is cool and clear-eyed and hungry, and remembers everyone's names, except (subject.his/her) own. It is as if the fever burned that one word away on its way out. The healers wait for it to come back. It doesn't. The village calls (subject.him/her) \"?\", and (subject.he/she) says it's a fair price.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L8924",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "Four healers carry (subject) down the beach on a mat by torchlight. The sea is black and cold. They wade in up to their waists and dip (subject.him/her) under, once, twice, three times...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8918"
+  },
+  "c2o1": {
+   "text": "Just before dawn, the fever breaks by itself. (subject) wakes up soaked in sweat and asks for water. The healers, who have been up all night, fall asleep where they sit. They learn from it, though: which leaves cooled fastest, which songs kept (subject.him/her) calm. They write it all down.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L8930",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The fever doesn't break. Near dawn, (subject) stops talking to the people who aren't there and goes very quiet, and then very still. The healers sit with (subject.him/her) until the sun comes up. The village buries (subject) on the hill. (healer) goes down to the sea alone the next midnight, and stands in the cold water for a long time.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L8933",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(healer) decides against the sea. They wrap (subject) in wet banana leaves and sit with (subject.him/her) all night, changing the leaves every hour, singing the old healing songs...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8927"
+  }
+ }
+}

@@ -71,14 +71,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) pulls a string. The coconut shell flips over, the mud splashes everywhere, and a small frog leaps out of the contraption. \"It makes frogs!\" (subject) announces triumphantly. (friend) is fairly certain the frog was already inside, but decides not to argue.",
-   "src": "L25"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "\"The Everything Machine,\" says (subject). \"But it doesn't do everything yet.\" (friend) asks what it does now. \"Mostly falls apart,\" (subject) admits. \"I'm working on that.\"",
    "src": "L29"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) pulls a string. The coconut shell flips over, the mud splashes everywhere, and a small frog leaps out of the contraption. \"It makes frogs!\" (subject) announces triumphantly. (friend) is fairly certain the frog was already inside, but decides not to argue.",
+   "src": "L25",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L25"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) pulls a string. The coconut shell flips over, the mud splashes everywhere, and a small frog leaps out of the contraption. \"It makes frogs!\" (subject) announces triumphantly. (friend) is fairly certain the frog was already inside, but decides not to argue.",
+   "src": "L25"
   }
  }
 }

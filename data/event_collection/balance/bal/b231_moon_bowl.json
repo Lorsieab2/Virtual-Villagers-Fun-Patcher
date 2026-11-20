@@ -1,0 +1,196 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moon in the Bowl",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b231_moon_bowl",
+  "source": "balance",
+  "lines": [
+   10746,
+   10789
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10746",
+  "ledger": [
+   {
+    "src": "L10747",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10748",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10756",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10765",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10753",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10754",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10757",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10766",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10759",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10762",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10768",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10771",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10774-10789",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Most people see nothing but the moon.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On the night of the full moon, the elders say, if a bowl of seawater is set out on a flat stone and the moon is caught in it exactly in the middle, whoever looks into it will see their face the way the moon sees it. Most people see nothing but the moon. A few, the elders say, see themselves younger. A few see themselves old. Nobody knows why it is which.\n(subject) has set out a bowl on the flat stone behind (subject.his/her) hut, and waited, and now the moon is sitting exactly in the middle of the water, white and still. (subject.His/her) own face is beside it. And the face is changing.\nShould (subject) keep looking, or tip the bowl out?",
+   "choices": [
+    {
+     "label": "Keep Looking",
+     "next": "c1",
+     "src": "L10753"
+    },
+    {
+     "label": "Tip the Bowl Out",
+     "next": "c2",
+     "src": "L10754"
+    }
+   ],
+   "src": "L10749-10751"
+  },
+  "c1o1": {
+   "text": "The face in the bowl is young, the face (subject) had fifteen years ago, bright-eyed and smooth. When (subject) touches (subject.his/her) own cheek, it feels the same. In the morning, the whole village can see it. The elders say the moon must think (subject) still has a lot of growing to do.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L10760",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The face in the bowl is old: white-haired, deeply lined, kind. (subject) looks at it for a long time, and the face looks back. In the morning, (subject)'s hair has gone grey and the lines are there. \"The moon thinks you're wise,\" says (elder), which is a kind way of putting it.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L10763",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) leans over the bowl and doesn't blink. The face in the water shifts and settles, like ripples finding their shape, and then holds still...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10757"
+  },
+  "c2o1": {
+   "text": "Some of the water splashes up onto (subject)'s face as it spills. By morning, (subject.his/her) face is a little younger, a little brighter, as if (subject.he/she) caught half of whatever the moon was showing. \"Half a look,\" the elders say. \"Better than none.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L10769",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The water runs away into the sand, but the moon stays where it was, reflected on the bare, wet stone, for a long moment, before it fades. (subject) goes to bed and dreams of nothing at all. In the morning (subject.he/she) looks exactly the same, and is quite relieved.",
+   "src": "L10772"
+  },
+  "c2": {
+   "text": "Just as the face starts to change, (subject) loses (subject.his/her) nerve and tips the bowl over. The seawater runs off the stone into the sand, and the moon goes with it...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10766"
+  }
+ }
+}

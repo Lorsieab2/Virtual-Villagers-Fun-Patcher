@@ -1,0 +1,223 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Swamp Fever",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b276_swamp_fever",
+  "source": "balance",
+  "lines": [
+   12852,
+   12894
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12852",
+  "ledger": [
+   {
+    "src": "L12853",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12854",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12862",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12871",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12859",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12860",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12863",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12872",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12865",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12868",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12874",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12877",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12880-12894",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every few years, when the swamp grows warm and still, a fever comes out of it with the mosquitoes.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "sick": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every few years, when the swamp grows warm and still, a fever comes out of it with the mosquitoes. This year it has found (sick), who went to cut reeds there and came back shaking. Now (subject.he/she) is burning up, and talking to people who aren't in the hut.\n(subject), the healer, knows two cures. One is the bark of the fever tree, which grows on the far side of the swamp, among the mosquitoes. The other is to keep (sick) cool with wet cloths and river water, day and night, and hope.\nShould (subject) go into the swamp for the bark, or stay and nurse (sick)?",
+   "choices": [
+    {
+     "label": "Go for the Bark",
+     "next": "c1",
+     "src": "L12859"
+    },
+    {
+     "label": "Stay and Nurse",
+     "next": "c2",
+     "src": "L12860"
+    }
+   ],
+   "src": "L12855-12857"
+  },
+  "c1o1": {
+   "text": "(subject) comes back at dusk, covered in bites, with a basket full of fever-tree bark. (subject.He/She) brews it into a tea so bitter that (sick) yells, and by morning the fever has broken. There is enough bark left over for every other sick person in the village, and (subject) teaches every healer how to brew it properly.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L12866",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) brings back the bark, and (sick) is well again in two days. But by then (subject) is shaking too. The bark doesn't work as well a second time, the healers say, or maybe (subject) got too many bites. (subject.He/She) dies within the week. (sick) plants a fever tree beside (subject.his/her) grave, on the dry side of the swamp, where anyone can reach it.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L12869",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) wraps (subject.himself/herself) in cloth from head to foot, smears mud on every bit of skin left over, and wades into the swamp. The mosquitoes find (subject.him/her) anyway...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12863"
+  },
+  "c2o1": {
+   "text": "On the third night (sick) stops talking to the people who aren't there, and sleeps, and wakes up hungry. (subject) is asleep sitting up against the wall with a wet cloth in (subject.his/her) hand. (sick) puts a blanket over (subject.him/her) and goes to find some breakfast.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "src": "L12875",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "On the third night, (sick) goes quiet, and then still. (subject) sits with (subject.him/her) until morning. The village buries (sick) on the hill, away from the swamp. That season, the healers cut a path through the reeds to the fever trees, so that next time nobody has to choose.",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "sick",
+     "cause": "unknown"
+    }
+   ],
+   "src": "L12878",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) stays. (subject.He/She) brings bucket after bucket of cool river water and lays wet cloths on (sick)'s head, day and night, and doesn't sleep...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12872"
+  }
+ }
+}

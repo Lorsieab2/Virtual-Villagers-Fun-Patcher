@@ -357,10 +357,18 @@ PUZZLE_ENTRIES = (
         # 0x43CF5B: every cure then adds 10 + rand(20) health, up to 100.
         ("Reward: every cure also restores 10 to 29 health (each amount 1 in 20), up to 100.", C),
         ("With the patcher (Easier Healing Mastery, on by default): healers with no patient study the medical cactus "
-         "on their own, including during catch-up (a villager not checked on Healing only 14% of the time).", C),
+         "on their own, including during catch-up: 75% of those times for a villager checked on Healing, so they "
+         "still do other things; 14% for one not checked on Healing.", C),
         ("With the patcher (Healers Study Plants Regardless of Food, on by default): a villager studying the cactus "
          "carries on at 400 food or more as below it, 50% of the time each choice (14% for one not checked on "
          "Healing).", C),
+        # The completion routine 0x43A230's herb cases never call the practice roll 0x43D440 (VVFP Herb Study.dll).
+        ("In the original game the first study of each herb gives no Healing practice (only later studies do). "
+         "With the patcher (Fix Vanilla Bugs): every study gives the game's own Healing practice roll; the Magic "
+         "Plant of Life is unchanged.", C),
+        ("With the patcher (Villagers Work Their Own Job First): once Herb Mastery is solved, a healer with nothing "
+         "else to do studies one of the four herbs on their own, about three times in four (never the Magic "
+         "Plant of Life; a villager who dislikes herbs only the cactus).", C),
     )),
     Entry(PUZZLE, "The Garden", (
         # Callback 4 (0x43B1E6): 200 sets +0x9FC0.  0x43FC20 queues no skill roll (hidden gates #36).
@@ -566,8 +574,9 @@ ORIGINS = (
     )),
     Entry(PATCHER, "Origins: Tech Point Doubler and Food Point Doubler", (
         (_origins("Tech Point Doubler / Food Point Doubler", 500_000, "Tech screen's Upgrades", "each owned doubler "
-                  "doubles the tech points research gives, or the food farmers bring in; island events, crates, "
-                  "puzzle and story rewards and the Golden Child's gifts are not doubled. Owned, its row reads "
+                  "doubles the tech points research gives, or the food gathered from food sources (berries, crops, "
+                  "fish, crabs and mushrooms) and the Golden Child's +150 food; island events, crates, puzzle and "
+                  "story rewards, the milestone dialogs, purchases and cheats are not doubled. Owned, its row reads "
                   "Remove: removing it is free and refunds nothing."), C),
     )),
     Entry(PATCHER, "Origins: Full Heal / Cure All", (

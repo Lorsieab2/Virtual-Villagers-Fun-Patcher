@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Starting Over",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd24_starting_over",
+  "source": "draft_lcd",
+  "lines": [
+   330,
+   341
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L330",
+  "ledger": [
+   {
+    "src": "L331",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L337",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L337",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L341",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager who lost a partner long ago is being courted again: accept the courtship, or not yet.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s partner died five years ago. Since then, (subject.he/she) has not looked at anyone. Now (friend), kind and patient, has been bringing (subject.him/her) fish every few days and staying to talk. Last night (friend) asked, gently, if (subject) would walk with (friend.him/her) at the festival. What should (subject) do?",
+   "src": "L333",
+   "choices": [
+    {
+     "label": "Accept",
+     "next": "o1",
+     "src": "L335"
+    },
+    {
+     "label": "Not Yet",
+     "next": "o2",
+     "src": "L339"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) says yes, and then cries, and (friend) waits. At the festival they walk together along the beach. (subject) talks about (subject.his/her) partner for most of it. (friend) listens to every word. That is the start of something.",
+   "src": "L337",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L337"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says (subject.he/she) is not ready, and might never be. (friend) says that is all right, and keeps bringing fish. They stay friends. Whether it will ever be more, neither of them knows, and neither of them minds waiting.",
+   "src": "L341"
+  }
+ }
+}

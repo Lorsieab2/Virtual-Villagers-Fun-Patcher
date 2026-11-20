@@ -85,9 +85,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The scribe creates a useful guide after several corrections.",
-   "src": "L21191"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -114,7 +121,17 @@
   "b2": {
    "name": "Outcome B2",
    "text": "An apprentice forgets the technique after the teacher leaves.",
-   "src": "L21195"
+   "src": "L21195",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L21195"
+    }
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -129,14 +146,59 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The guide becomes useful to future generations.",
-   "src": "L21197"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The pair argue over terminology before finding shared language.",
    "src": "L21198"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The scribe creates a useful guide after several corrections.",
+   "src": "L21191",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L21191"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The scribe creates a useful guide after several corrections.",
+   "src": "L21191"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The guide becomes useful to future generations.",
+   "src": "L21197",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L21197"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The guide becomes useful to future generations.",
+   "src": "L21197"
   }
  }
 }

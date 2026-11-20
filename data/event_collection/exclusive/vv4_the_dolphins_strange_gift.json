@@ -61,7 +61,8 @@
      "scaled": true,
      "src": "L7976"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "src": "L7977",
@@ -88,7 +89,8 @@
      "who": "all",
      "src": "L7982"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_a": {
    "type": "branch",

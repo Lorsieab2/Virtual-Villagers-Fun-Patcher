@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Season",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "vfx09_quiet_season",
+  "source": "draft_vfx",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "dr_vfx",
+  "credit": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_vfx",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L110",
+    "kind": "instruction",
+    "text": "[effect: the next island event comes 6 hours later]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L113",
+    "kind": "instruction",
+    "text": "[effect: the next island event comes 6 hours sooner]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "Nothing has happened for days: enjoy the quiet, or go looking for news.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For days now, nothing has happened on Isola. No visitors, no storms, no surprises. (name1) says it is the island resting, and that the village should rest with it. Others are getting restless.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Enjoy the Quiet",
+     "next": "o1",
+     "src": "L109"
+    },
+    {
+     "label": "Go Looking for News",
+     "next": "o2",
+     "src": "L112"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village keeps the quiet days. Nobody hurries. Whatever the island has planned next, it seems content to wait a little longer.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "village",
+     "what": "event_timer",
+     "min": 6,
+     "max": 6,
+     "src": "L110"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) sends the young ones out along the shore to look for news. They come back full of rumors, and the whole village is suddenly wide awake, waiting to see what comes next.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "village",
+     "what": "event_timer",
+     "min": -6,
+     "max": -6,
+     "src": "L113"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

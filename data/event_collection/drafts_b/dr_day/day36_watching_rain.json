@@ -74,6 +74,38 @@
    "src": "L434"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They don't talk. The rain goes on. They eat the nuts, one at a time. Somewhere a frog starts up. By the time the rain stops, the bowl is empty and the afternoon is gone, and neither of them could say what happened in it. It was lovely anyway.",
+   "src": "L437",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L437"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L437"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "They don't talk. The rain goes on. They eat the nuts, one at a time. Somewhere a frog starts up. By the time the rain stops, the bowl is empty and the afternoon is gone, and neither of them could say what happened in it. It was lovely anyway.",
    "src": "L437"

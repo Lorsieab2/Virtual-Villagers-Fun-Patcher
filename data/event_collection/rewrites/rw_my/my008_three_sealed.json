@@ -1,0 +1,304 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Three Sealed Jars",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my008_three_sealed",
+  "source": "rewrites",
+  "lines": [
+   10287,
+   10342
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10287",
+  "ledger": [
+   {
+    "src": "L10288",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10289",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10298",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10305",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10312",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10319",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10293",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10294",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10295",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10296",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10299",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10306",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10313",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10320",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10300",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10302",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10307",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10309",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10314",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10316",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10321",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10323",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10326-10342",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Deep in the jungle, a villager stumbles on an abandoned shelter.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Deep in the jungle, (name) stumbles on an abandoned shelter. Its roof has fallen in, vines hang through the gaps, and the floor is thick with leaves. But in the middle of it, in a neat little row, sit three clay jars, sealed tight, as if someone had only just set them down and stepped out for a moment.\nOne jar is painted with a sun. One is painted with rain. The third is painted with a single closed eye. (Name) looks around. Nobody's watching. (He/She) could open one. Just one. Which one?",
+   "choices": [
+    {
+     "label": "Open the Sun Jar",
+     "next": "c1",
+     "src": "L10293"
+    },
+    {
+     "label": "Open the Rain Jar",
+     "next": "c2",
+     "src": "L10294"
+    },
+    {
+     "label": "Open the Closed-Eye Jar",
+     "next": "c3",
+     "src": "L10295"
+    },
+    {
+     "label": "Leave the Jars Sealed",
+     "next": "c4",
+     "src": "L10296"
+    }
+   ],
+   "src": "L10290-10291"
+  },
+  "c1o1": {
+   "text": "A golden, fragrant grain pours out over (his/her) hands, dry and perfect, enough for several big meals. It smells faintly of honey. (Name) hauls the jar home on (his/her) hip, and that night the whole family eats a nutty, sweet porridge nobody has ever tasted before. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10301",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "With a soft whoosh, a cloud of tiny insects bursts out of the jar, shimmering green in the sunlight. (Name) yelps and drops it. The insects don't bite or sting. They just scatter into the long grass, and for a whole afternoon the field hums with them, glittering like scattered jewels. Then, by evening, they're gone.",
+   "src": "L10303"
+  },
+  "c1": {
+   "text": "(Name) picks up the sun jar. It's heavy and warm from sitting in a patch of light. (He/She) cracks the seal and tips it toward (him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10299"
+  },
+  "c2o1": {
+   "text": "The jar is full of clear, cold, fresh water, even though there's a crack right through its base. (Name) pours it out. When (he/she) looks again, there's water in it again. Not full, just a little, slowly rising. The healers say there must be a spring under the shelter feeding into the crack. They don't explain how the jar was sealed.",
+   "src": "L10308"
+  },
+  "c2o2": {
+   "text": "Inside is a damp roll of bark cloth. (Name) unrolls it carefully. It's covered in drawings: little channels, gates of stacked stones, water moving from a stream to rows of crops. The farmers pore over it for days and realize it shows an old way of watering fields that nobody remembers anymore. They try it, and it works beautifully. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10310",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) picks up the rain jar. Something sloshes inside. (He/She) peels back the seal...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10306"
+  },
+  "c3o1": {
+   "text": "The jar is empty. (Name) shrugs and goes home. But that night (he/she) dreams of a village (he/she) has never seen, high in the hills, with blue smoke curling up from its cooking fires. When (he/she) wakes, (he/she) knows the way there, every turn and every stream, as if (he/she) had walked it a hundred times. (He/She) hasn't decided yet whether to tell anyone.",
+   "src": "L10315"
+  },
+  "c3o2": {
+   "text": "The moment the seal breaks, a gust of cold wind bursts out of the shelter, and every torch (name) can see, and every cooking fire in the village beyond the trees, goes out at once. Then the air is still. The jar is empty. Back in the village, everyone's fumbling for flint in the dark, asking what on earth just happened. (Name) puts the lid back on very quietly.",
+   "src": "L10317"
+  },
+  "c3": {
+   "text": "The closed eye seems to be watching (name), which is a strange thing for a closed eye to do. (He/She) takes a deep breath and breaks the seal...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10313"
+  },
+  "c4o1": {
+   "text": "The jars go into a sheltered corner of the storehouse, with a sign telling everyone not to touch them. The researchers are delighted to have something to argue about, and the children spend weeks daring each other to sneak a peek. So far, nobody has. The elders think the shelter once belonged to a healer who lived alone out there, long ago.",
+   "src": "L10322"
+  },
+  "c4o2": {
+   "text": "In the morning, one of the lids is off. It's the jar with the closed eye, and its lid lies face down on the floor beside it. Everyone insists they never touched it. The jar is empty, and nobody is completely sure it wasn't empty all along. The storehouse door gets an extra latch.",
+   "src": "L10324"
+  },
+  "c4": {
+   "text": "(Name) decides that jars left in such a neat row belong to somebody. (He/She) carries them back to the village one at a time, very carefully...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10320"
+  }
+ }
+}

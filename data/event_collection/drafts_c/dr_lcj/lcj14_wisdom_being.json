@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wisdom of Being Wrong",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj14_wisdom_being",
+  "source": "draft_lcj",
+  "lines": [
+   190,
+   201
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L190",
+  "ledger": [
+   {
+    "src": "L191",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L197",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L201",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L201",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A respected elder realizes their advice about the planting was wrong for years: admit it publicly, or quietly change the advice.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For thirty years, (subject) has told the young farmers to plant taro at the full moon. (friend) has found, by careful counting, that it grows better at the new moon. (subject) has checked. (friend) is right. What should (subject) do?",
+   "src": "L193",
+   "choices": [
+    {
+     "label": "Admit It Publicly",
+     "next": "o1",
+     "src": "L195"
+    },
+    {
+     "label": "Change the Advice Quietly",
+     "next": "o2",
+     "src": "L199"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) stands up at the gathering and says, plainly, that (subject.he/she) was wrong for thirty years, and (friend) is right. The village is silent. Then the young farmers cheer, for both of them. (subject) says it feels lighter than (subject.he/she) expected.",
+   "src": "L197"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) starts telling the young farmers to plant at the new moon, without explaining. A few notice the change and ask why. (subject) tells them, privately, and gives (friend) the credit.",
+   "src": "L201",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L201"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

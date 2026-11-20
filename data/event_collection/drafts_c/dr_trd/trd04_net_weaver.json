@@ -1,0 +1,217 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Net Weaver",
+ "games": [
+  2
+ ],
+ "collection": {
+  "id": "trd04_net_weaver",
+  "source": "draft_trd",
+  "lines": [
+   59,
+   73
+  ],
+  "section": "dr_trd",
+  "credit": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_trd",
+  "title_src": "L59",
+  "ledger": [
+   {
+    "src": "L60",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L59",
+    "kind": "note",
+    "why": "the heading's \"(VV2 only)\": the event is The Lost Children only"
+   },
+   {
+    "src": "L65",
+    "kind": "instruction",
+    "text": "[effect: trade 150 food for 400 fish]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L68",
+    "kind": "instruction",
+    "text": "[effect: trade 150 food for 650 fish]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L69",
+    "kind": "instruction",
+    "text": "[effect: trade 150 food for 200 fish]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A net weaver offers young fish to refill the cove, for food: trade, haggle, or decline.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1,
+  "if": {
+   "all": [
+    {
+     "has_supply": {
+      "item": "food",
+      "min": 150
+     }
+    },
+    {
+     "has_supply": {
+      "item": "fish",
+      "min": 0
+     }
+    }
+   ]
+  }
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "trader",
+ "nodes": {
+  "trader": {
+   "type": "branch",
+   "name": "The trader's offer",
+   "children": [
+    {
+     "next": "setup",
+     "if": {
+      "all": [
+       {
+        "has_supply": {
+         "item": "food",
+         "min": 150
+        }
+       },
+       {
+        "has_supply": {
+         "item": "fish",
+         "min": 0
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "else": "nothing"
+  },
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A woman named Rua comes ashore with a canoe full of nets and a basket of tiny live fish swimming in seawater. Rua says the village's cove has been overfished, and that the young fish in her basket, set free in the shallows, will grow and fill the waters again. She asks for food in return. (name1) watches the little fish dart around the basket and has to decide.",
+   "src": "L62",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L62"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Trade",
+     "next": "o1",
+     "src": "L64"
+    },
+    {
+     "label": "Haggle",
+     "next": "haggle",
+     "src": "L67"
+    },
+    {
+     "label": "Decline",
+     "next": "o3",
+     "src": "L71"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) wades out with Rua and tips the basket into the shallows. The tiny fish scatter like thrown pebbles. Months later the fishers swear the cove has never been so full.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "food",
+     "give_amount": 150,
+     "get": "fish",
+     "get_amount": 400,
+     "src": "L65"
+    }
+   ],
+   "auto_text": true
+  },
+  "o3": {
+   "name": "Outcome C",
+   "text": "(name1) decides the cove will recover in its own time. Rua nods, and releases a handful of the little fish anyway before she goes. \"For the cove,\" she says.",
+   "src": "L72"
+  },
+  "haggle": {
+   "type": "branch",
+   "name": "Haggle",
+   "children": [
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o2b"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Haggle, the better deal",
+   "text": "(name1) offers to help Rua repair a torn net while they talk. Rua is so grateful that she empties a second basket into the cove as well, and the shallows flicker silver for days.",
+   "src": "L68",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "food",
+     "give_amount": 150,
+     "get": "fish",
+     "get_amount": 650,
+     "src": "L68"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2b": {
+   "name": "Haggle, the worse deal",
+   "text": "(name1) haggles hard, and Rua only lets half the basket go, keeping the rest for the next island on her way. The cove fills slowly.",
+   "src": "L69",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "food",
+     "give_amount": 150,
+     "get": "fish",
+     "get_amount": 200,
+     "src": "L69"
+    }
+   ],
+   "auto_text": true
+  },
+  "nothing": {
+   "name": "Nothing to trade",
+   "text": "Rua sees the village has little food to spare, lets a handful of little fish go in the shallows as a gift, and paddles on.",
+   "src": "L73",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L73"
+    }
+   ]
+  }
+ }
+}

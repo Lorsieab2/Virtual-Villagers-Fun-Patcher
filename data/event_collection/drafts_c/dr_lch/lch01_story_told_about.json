@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Story Told About Us",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch01_story_told_about",
+  "source": "draft_lch",
+  "lines": [
+   8,
+   19
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L15",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L15",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L19",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Visiting storytellers describe Isola all wrong: invite them to see village life, or correct the story at their own festival.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Storytellers from another island have been performing a tale about Isola in which the villagers are mysterious, silent people who live in trees and speak to fish. (friend) heard it at their festival and came home furious. (subject) thinks the storytellers simply do not know any better. What should the village do?",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Invite Them to See",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Correct It at Their Festival",
+     "next": "o2",
+     "src": "L17"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village invites the storytellers for a week. They see the gardens, the arguments, the terrible singing, the babies, the jokes. They go home and change the story. Now the Isolans in it are loud, funny and very bad at sitting still. (friend) says that is closer.",
+   "src": "L15",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L15"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) paddles to the next festival and tells the real story, right after theirs. The audience is confused by two completely different Isolas. Some believe one, some the other. The storytellers are not pleased.",
+   "src": "L19"
+  }
+ }
+}

@@ -11,8 +11,10 @@ tests/story_emulator.py), in all five games, with the fixture packs tests/data/l
     variants casts is not possible now;
   * RECENCY: a seed among the last W armed (W = living rows / 3) is left out of the draw;
   * MOODS: the least-seen mood's series weigh LV_MOOD_BOOST, as History.mood_weights says;
-  * THE HISTORY FILE: written at each arm (VLEH v1, its crc, the pack's crc), read back after a restart, a damaged,
-    foreign-pack or other-village file is a fresh history, Start Over (VvfpStoryVillageReset) deletes it;
+  * THE HISTORY FILES: written at each arm -- the global part (VLEH v2: the recency ring by seed-id hash and its
+    moods, the role pairs, lenses, families and archetypes) and the group's part (VLEG v1: each variant's count,
+    the pack's crc) -- read back after a restart; a damaged or other-village file is a fresh history, another pack's
+    group file a fresh group part; Start Over (VvfpStoryVillageReset) deletes them;
   * THE FINISH: a living event played to its end counts the archetype of its last page (the pack's outcome
     records), and nothing else;
   * PICK ISLAND EVENT AND THE LIBRARY: a living row is possible when any variant casts (STRICT); the library's own
@@ -46,7 +48,9 @@ ORIGIN_PURCHASE, ORIGIN_PICK, ORIGIN_NATURAL = 0, 1, 2
 CAST_STRICT, CAST_PREFER = 0, 1
 FAMILIES = 128
 HEAD = 48
-COUNTS_AT = HEAD + 2 * mx.RING
+RING_BYTES = 8
+COUNTS_AT = HEAD + RING_BYTES * mx.RING
+GROUP_HEAD = 32
 VV3_MANAGER_GLOBAL, VV3_QUEUE_ARM_ISLAND = 0x4B309C, 0x6DF340    # story_tables.h
 
 
@@ -58,35 +62,55 @@ def manifest_text(game: int) -> str:
     return (mx.FIXTURE / f"vv{game}_manifest.txt").read_text(encoding="ascii")
 
 
-# ---- VLEH v1 in Python (the tests' reading and writing of the engine's file) ------------------------------------
+# ---- VLEH v2 and VLEG v1 in Python (the tests' reading and writing of the engine's files) -------------------------
 
 
-def vleh_read(data: bytes, pack: dict) -> dict:
-    """The file's fields and counts (living-pack.md 3)."""
-    (magic, version, head, total, crc, pack_crc, sig, used, at, s, v, r, a, l, _z, armed,
-     _z2) = struct.unpack_from("<4sHHIIIIHHHHHHHHII", data, 0)
-    assert magic == b"VLEH" and version == 1 and head == HEAD and total == len(data)
+def id_hash(seed_id: str) -> int:
+    """story_living.inc lv_id_hash: FNV-1a of the seed's id, never 0."""
+    h = 2166136261
+    for b in seed_id.encode("ascii"):
+        h = ((h ^ b) * 16777619) & 0xFFFFFFFF
+    return h or 1
+
+
+def vleh_read(data: bytes, group: bytes, pack: dict) -> dict:
+    """The two files' fields and counts: the global part (VLEH v2) and the group's (VLEG v1)."""
+    magic, version, head, total, crc = struct.unpack_from("<4sHHII", data, 0)
+    sig, used, at, r, a, l = struct.unpack_from("<IHHHHH", data, 20)
+    armed = struct.unpack_from("<I", data, 40)[0]
+    assert magic == b"VLEH" and version == 2 and head == HEAD and total == len(data)
     assert zlib.crc32(data[:12] + b"\0\0\0\0" + data[16:]) & 0xFFFFFFFF == crc
-    ring = list(struct.unpack_from(f"<{mx.RING}H", data, HEAD))
-    n = r * r + l + FAMILIES + a + v
+    by_hash = {id_hash(seed["id"]): i for i, seed in enumerate(pack["seeds"])}
+    ring = [struct.unpack_from("<I", data, HEAD + RING_BYTES * k)[0] for k in range(mx.RING)]
+    n = r * r + l + FAMILIES + a
     counts = list(struct.unpack_from(f"<{n}H", data, COUNTS_AT))
     assert total == COUNTS_AT + 2 * n
-    newest_last = [ring[(at - 1 - k) % mx.RING] for k in range(used - 1, -1, -1)]
-    return {"pack_crc": pack_crc, "sig": sig, "used": used, "head": at, "armed": armed, "ring": newest_last,
-            "pair": counts[:r * r], "lens": counts[r * r:r * r + l],
-            "family": counts[r * r + l:r * r + l + FAMILIES],
-            "arc": counts[r * r + l + FAMILIES:r * r + l + FAMILIES + a],
-            "var": counts[r * r + l + FAMILIES + a:], "seeds": s, "variants": v}
+    newest_last = [by_hash.get(ring[(at - 1 - k) % mx.RING], -1) for k in range(used - 1, -1, -1)]
+    out = {"sig": sig, "used": used, "head": at, "armed": armed, "ring": newest_last,
+           "pair": counts[:r * r], "lens": counts[r * r:r * r + l],
+           "family": counts[r * r + l:r * r + l + FAMILIES],
+           "arc": counts[r * r + l + FAMILIES:r * r + l + FAMILIES + a], "var": [], "pack_crc": None, "variants": 0}
+    if group:
+        gmagic, gversion, ghead, gtotal, gcrc, pack_crc, _gsig, variants = struct.unpack_from("<4sHHIIIII", group, 0)
+        assert gmagic == b"VLEG" and gversion == 1 and ghead == GROUP_HEAD and gtotal == len(group)
+        assert zlib.crc32(group[:12] + b"\0\0\0\0" + group[16:]) & 0xFFFFFFFF == gcrc
+        out["var"] = list(struct.unpack_from(f"<{variants}H", group, GROUP_HEAD))
+        out["pack_crc"], out["variants"] = pack_crc, variants
+    return out
 
 
-def vleh_write(h: mx.History, pack: dict, sig: int, pack_crc: int | None = None) -> bytes:
-    """A VLEH v1 file holding the twin's history `h` for `pack` (the ring newest last)."""
+def vleh_write(h: mx.History, pack: dict, sig: int, pack_crc: int | None = None) -> tuple[bytes, bytes]:
+    """The two files holding the twin's history `h` for `pack` (the ring newest last): VLEH v2 and VLEG v1."""
     r, a, l, v = pack["roles"], pack["archetypes"], pack["lenses"], len(pack["variants"])
-    ring = [mx.NONE16] * mx.RING
-    for k, s in enumerate(h.ring[-mx.RING:]):
-        ring[k] = s
+    ring = b""
     used = len(h.ring[-mx.RING:])
-    counts = [0] * (r * r + l + FAMILIES + a + v)
+    for k in range(mx.RING):
+        if k < used:
+            seed = pack["seeds"][h.ring[-mx.RING:][k]]
+            ring += struct.pack("<IB3x", id_hash(seed["id"]), seed["mood"])
+        else:
+            ring += bytes(RING_BYTES)
+    counts = [0] * (r * r + l + FAMILIES + a)
     for key, n in h.pair.items():
         counts[key] = n
     for i, n in h.lens.items():
@@ -95,15 +119,22 @@ def vleh_write(h: mx.History, pack: dict, sig: int, pack_crc: int | None = None)
         counts[r * r + l + i] = n
     for i, n in h.arc.items():
         counts[r * r + l + FAMILIES + i] = n
-    for i, n in h.var.items():
-        counts[r * r + l + FAMILIES + a + i] = n
     total = COUNTS_AT + 2 * len(counts)
-    body = (struct.pack("<4sHHIIIIHHHHHHHHII", b"VLEH", 1, HEAD, total, 0,
-                        pack["crc"] if pack_crc is None else pack_crc, sig, used, used % mx.RING,
-                        len(pack["seeds"]), v, r, a, l, 0, used, 0)
-            + struct.pack(f"<{mx.RING}H", *ring) + struct.pack(f"<{len(counts)}H", *counts))
+    body = (struct.pack("<4sHHII", b"VLEH", 2, HEAD, total, 0) + struct.pack("<I", 0)
+            + struct.pack("<IHHHHH", sig, used, used % mx.RING, r, a, l) + bytes(6)
+            + struct.pack("<I", used) + bytes(4) + ring + struct.pack(f"<{len(counts)}H", *counts))
+    assert len(body) == total
     crc = zlib.crc32(body) & 0xFFFFFFFF
-    return body[:12] + struct.pack("<I", crc) + body[16:]
+    glob = body[:12] + struct.pack("<I", crc) + body[16:]
+    var = [0] * v
+    for i, n in h.var.items():
+        var[i] = n
+    gtotal = GROUP_HEAD + 2 * v
+    gbody = (struct.pack("<4sHHIIIII", b"VLEG", 1, GROUP_HEAD, gtotal, 0,
+                         pack["crc"] if pack_crc is None else pack_crc, sig, v) + bytes(4)
+             + struct.pack(f"<{v}H", *var))
+    gcrc = zlib.crc32(gbody) & 0xFFFFFFFF
+    return glob, gbody[:12] + struct.pack("<I", gcrc) + gbody[16:]
 
 
 if HAVE_EMULATOR:
@@ -155,9 +186,25 @@ if HAVE_EMULATOR:
             self.p.export("VvfpStoryProbeLivingFile", self.buf, size)
             return self.p.read(self.buf, size)
 
-        def set_file(self, data: bytes) -> None:
-            self.p.write(self.buf, data)
-            self.p.export("VvfpStoryProbeLivingSetFile", self.buf, len(data))
+        def group_file(self) -> bytes:
+            size = self.p.export("VvfpStoryProbeLivingGroupFile", 0, 0)
+            if size <= 0:
+                return b""
+            self.p.export("VvfpStoryProbeLivingGroupFile", self.buf, size)
+            return self.p.read(self.buf, size)
+
+        def history(self) -> dict:
+            return vleh_read(self.file(), self.group_file(), self.pack)
+
+        def set_file(self, data) -> None:
+            """The global file (bytes), or both (a pair from vleh_write); b"" deletes both."""
+            glob, group = data if isinstance(data, tuple) else (data, None)
+            self.p.write(self.buf, glob)
+            self.p.export("VvfpStoryProbeLivingSetFile", self.buf, len(glob))
+            if group is not None or not glob:
+                group = group or b""
+                self.p.write(self.buf, group)
+                self.p.export("VvfpStoryProbeLivingSetGroupFile", self.buf, len(group))
 
         def living_state(self) -> dict:
             assert self.big("VvfpStoryProbeLivingState", self.n, self.buf) == 0
@@ -246,7 +293,7 @@ class TheDraw(unittest.TestCase):
                 self.assertNotEqual(got, first)            # k = 0 cannot be cast ...
                 self.assertIn(got, order[1:])              # ... a later one in the order is queued
                 self.assertNotIn(run.state()["phase"], (IDLE, DONE))
-                h = vleh_read(run.file(), run.pack)
+                h = run.history()
                 self.assertEqual(h["ring"], [seed])
                 self.assertEqual(h["var"][got], 1)
                 self.assertEqual(sum(h["var"]), 1)
@@ -271,7 +318,7 @@ class TheDraw(unittest.TestCase):
                 armed, trace = run.choose()
                 self.assertTrue(armed)
                 self.assertEqual(trace, [0])
-                h = vleh_read(run.file(), run.pack)
+                h = run.history()
                 self.assertEqual(h["ring"], [run.ids["living_le_per_01"]])
 
 
@@ -326,7 +373,7 @@ class Moods(unittest.TestCase):
                 self.assertEqual(run.living_state()["moods"], [1, mx.MOOD_BOOST, 1])
                 # The twin agrees on the same ring.
                 h = mx.History(30, 38, 15, len(run.pack["variants"]))
-                h.ring = vleh_read(run.file(), run.pack)["ring"]
+                h.ring = run.history()["ring"]
                 self.assertEqual(h.mood_weights([s["mood"] for s in run.pack["seeds"]]), [1, mx.MOOD_BOOST, 1])
 
     def test_the_boost_steers_the_draw(self) -> None:
@@ -340,15 +387,15 @@ class Moods(unittest.TestCase):
             self.assertGreaterEqual(run.arm(sid), 0)
             run.idle()
         for roll in (1, 2):
-            run.rolls([roll] + [0] * 63)
+            run.rolls([0, roll] + [0] * 62)                 # the file (the split-file draw), then the series
             armed, trace = run.choose()
             self.assertEqual(trace[0], 2, roll)          # living_le_art_05
             run.idle()
-        run.rolls([3] + [0] * 63)
+        run.rolls([0, 3] + [0] * 62)
         armed, trace = run.choose()
         self.assertEqual(trace[0], 3)                    # living_le_odd_08
         run.idle()
-        run.rolls([4] + [0] * 63)
+        run.rolls([0, 4] + [0] * 62)
         armed, trace = run.choose()
         self.assertEqual(trace[0], 4)                    # the TRA series: its row left (tra_08)
 
@@ -367,12 +414,12 @@ class TheHistoryFile(unittest.TestCase):
         for game in each_game():
             with self.subTest(game=game):
                 run = self.armed(game)
-                h = vleh_read(run.file(), run.pack)
+                h = run.history()
                 self.assertEqual(h["pack_crc"], run.pack["crc"])
                 self.assertEqual(h["sig"], run.living_state()["sig"])
                 self.assertNotEqual(h["sig"], 0)
                 self.assertEqual((h["used"], h["head"], h["armed"]), (1, 1, 1))
-                self.assertEqual((h["seeds"], h["variants"]), (len(run.pack["seeds"]), len(run.pack["variants"])))
+                self.assertEqual(h["variants"], len(run.pack["variants"]))
 
     def test_read_back_after_a_restart(self) -> None:
         run = self.armed()
@@ -389,14 +436,21 @@ class TheHistoryFile(unittest.TestCase):
         self.assertEqual(run.living_state()["used"], 0)
 
     def test_another_packs_file_is_a_fresh_history(self) -> None:
+        """The global part is the village's whatever the pack; the group's part belongs to its pack (its crc)."""
         run = self.armed()
         h = mx.History(30, 38, 15, len(run.pack["variants"]))
         h.ring = [0]
+        h.var = {0: 5}
         sig = run.living_state()["sig"]
-        run.set_file(vleh_write(h, run.pack, sig))
-        self.assertEqual(run.living_state()["used"], 1)   # the twin's file, this pack: read
-        run.set_file(vleh_write(h, run.pack, sig, pack_crc=run.pack["crc"] ^ 1))
-        self.assertEqual(run.living_state()["used"], 0)
+        for crc, var0 in ((run.pack["crc"], 5), (run.pack["crc"] ^ 1, 0)):
+            run.set_file(vleh_write(h, run.pack, sig, pack_crc=crc))
+            self.assertEqual(run.living_state()["used"], 1)   # the twin's global part: read
+            run.rolls([0] * 64)
+            vi = run.arm("living_le_per_01")
+            self.assertGreaterEqual(vi, 0)
+            got = run.history()["var"]
+            self.assertEqual(got[0], var0 + (vi == 0), crc)     # this pack's group part kept, another's fresh
+            run.idle()
 
     def test_another_villages_file_is_a_fresh_history(self) -> None:
         run = self.armed()
@@ -430,7 +484,7 @@ class TheFinish(unittest.TestCase):
                         for k in range(run.p.export("VvfpStoryProbeGraphPath", 0, run.buf, 64))]
                 outs = {node: arc for node, _grp, arc in run.pack["variants"][vi]["outcomes"]}
                 self.assertIn(path[-1], outs)
-                h = vleh_read(run.file(), run.pack)
+                h = run.history()
                 expected = [0] * run.pack["archetypes"]
                 expected[outs[path[-1]]] = 1
                 self.assertEqual(h["arc"], expected)
@@ -482,7 +536,7 @@ class PickAndLibrary(unittest.TestCase):
                 self.assertNotEqual(vi, 0xFFFFFFFF)
                 seed = run.ids["living_le_art_05"]
                 self.assertEqual(run.pack["variants"][vi]["seed"], seed)
-                h = vleh_read(run.file(), run.pack)
+                h = run.history()
                 self.assertEqual((h["ring"], h["var"][vi]), ([seed], 1))
 
 
@@ -515,16 +569,26 @@ class GuardiansOfIsola(unittest.TestCase):
         self.assertEqual(seen[False], seen[True])
 
     def test_no_living_text_needs_guardians_wording(self) -> None:
+        # The Living Engine's own seeds (LE and MC, banks 0 and 1) say neither word; the static events' mixer versions
+        # (bank 2, living_st_*) are those events, checked with their Guardians forms by collection_check (check j).
+        # The packs and manifests are split per series (living-pack.md 1).
         import re
+        folder = ROOT / "assets" / "event_collection"
         for game in mx.GAMES:
-            p = mx.read_pack((ROOT / "assets" / "event_collection" / f"vv{game}" / "living.pak").read_bytes())
-            for v in p["variants"]:
-                self.assertIsNone(re.search(rb"(?i)heathen|convert", v["blob"]), (game, p["seeds"][v["seed"]]["id"]))
-            rows = [r.split("\t") for r in (ROOT / "assets" / "event_collection" / f"vv{game}" / "manifest.txt")
-                    .read_text(encoding="utf-8").splitlines() if r.startswith("living_")]
+            packs = sorted((folder / f"vv{game}").glob("living-*.pak"))
+            self.assertTrue(packs)
+            for path in packs:
+                p = mx.read_pack(path.read_bytes())
+                for v in p["variants"]:
+                    seed = p["seeds"][v["seed"]]
+                    if seed["bank"] in (0, 1):
+                        self.assertIsNone(re.search(rb"(?i)heathen|convert", v["blob"]), (game, seed["id"]))
+            rows = [r.split("\t") for path in sorted((folder / f"vv{game}").glob("manifest-*.txt"))
+                    for r in path.read_text(encoding="utf-8").splitlines()
+                    if r.startswith(("living_le_", "living_mc_"))]
             self.assertTrue(rows)
-            self.assertTrue(all(r[7] == "" and r[8] == "" for r in rows))
-            self.assertTrue(all(re.search(self.WORDS, r[1] + r[6], re.I) is None for r in rows))
+            self.assertTrue(all(r[7] == "" for r in rows))
+            self.assertTrue(all(re.search(self.WORDS, r[1] + r[6] + r[8], re.I) is None for r in rows))
 
 
 if __name__ == "__main__":

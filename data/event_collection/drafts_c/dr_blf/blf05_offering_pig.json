@@ -69,11 +69,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) starts to laugh. \"Well,\" (subject.he/she) says, \"maybe the spirits were hungry. Or maybe the pig was.\" (friend) laughs too. \"Do you want to put out more?\" \"No,\" says (subject). \"I think that counts.\" (subject.He/she) walks home in a very good mood. Whether the offering reached anyone besides the pig, nobody can say.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L62"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L62"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) starts to laugh. \"Well,\" (subject.he/she) says, \"maybe the spirits were hungry. Or maybe the pig was.\" (friend) laughs too. \"Do you want to put out more?\" \"No,\" says (subject). \"I think that counts.\" (subject.He/she) walks home in a very good mood. Whether the offering reached anyone besides the pig, nobody can say.",
    "src": "L62"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) isn't laughing. (subject.He/she) liked that little ritual, and it's been spoiled. (friend) sees (subject.his/her) face and doesn't make a joke. \"Would you like me to stand guard while you put out another?\" (friend.he/she) asks. (subject) nods. They find two more mangoes. (friend) keeps a firm eye on the pig. The offering stays put this time. (subject) feels a little better.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L65"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) isn't laughing. (subject.He/she) liked that little ritual, and it's been spoiled. (friend) sees (subject.his/her) face and doesn't make a joke. \"Would you like me to stand guard while you put out another?\" (friend.he/she) asks. (subject) nods. They find two more mangoes. (friend) keeps a firm eye on the pig. The offering stays put this time. (subject) feels a little better.",
    "src": "L65"

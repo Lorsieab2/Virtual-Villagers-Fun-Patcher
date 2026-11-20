@@ -47,7 +47,6 @@
   "mother": {
    "kind": "villager",
    "min_age": 18,
-   "sex": "female",
    "special": "nursing_parent",
    "protected": "allow"
   }
@@ -110,7 +109,8 @@
      "max": 10,
      "src": "L4374"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "name": "Outcome 2",
@@ -134,7 +134,8 @@
      "reason": "a nursing baby is its parent's state, not a villager: no sick effect can reach it",
      "src": "L4375"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",
@@ -146,7 +147,8 @@
      "role": "mother",
      "src": "L4376"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

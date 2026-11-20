@@ -74,6 +74,39 @@
    "src": "L134"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) notices the goats love it. (friend) discovers the stems make strong, if lumpy, rope. They start cutting it back for goat food and rope instead of trying to kill it. It doesn't go away. It doesn't spread quite as fast. Some days it feels like a useful plant. Some days it feels like an invasion. It may be both.",
+   "src": "L137",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L137"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L137"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) notices the goats love it. (friend) discovers the stems make strong, if lumpy, rope. They start cutting it back for goat food and rope instead of trying to kill it. It doesn't go away. It doesn't spread quite as fast. Some days it feels like a useful plant. Some days it feels like an invasion. It may be both.",
    "src": "L137",

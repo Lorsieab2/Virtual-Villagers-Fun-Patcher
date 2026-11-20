@@ -110,14 +110,28 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "Two poles and a mat give the whole crew a place to rest.",
-   "src": "L60"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "The wind keeps tipping the mat over, and the crew ends up laughing at it more than resting.",
-   "src": "L61"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -162,6 +176,45 @@
    "name": "Outcome D2",
    "text": "The water runs out quickly, and the crew leader decides to finish tomorrow morning.",
    "src": "L67"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Two poles and a mat give the whole crew a place to rest.",
+   "src": "L60",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 30,
+     "max": 50,
+     "src": "L60"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "Two poles and a mat give the whole crew a place to rest.",
+   "src": "L60"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The wind keeps tipping the mat over, and the crew ends up laughing at it more than resting.",
+   "src": "L61",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L61"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The wind keeps tipping the mat over, and the crew ends up laughing at it more than resting.",
+   "src": "L61"
   }
  }
 }

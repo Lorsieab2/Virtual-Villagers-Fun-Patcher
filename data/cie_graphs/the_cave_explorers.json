@@ -40,7 +40,7 @@
           "next": "explore"
         },
         {
-          "label": "Don't explore",
+          "label": "Don't Explore",
           "next": "dont"
         }
       ]
@@ -195,11 +195,11 @@
       ],
       "choices": [
         {
-          "label": "Run towards the left path",
+          "label": "Run Towards the Left Path",
           "next": "run_left"
         },
         {
-          "label": "Run towards the right path",
+          "label": "Run Towards the Right Path",
           "next": "run_right"
         }
       ]
@@ -464,11 +464,11 @@
       "text": "\"Wait. I don't think that's a good idea. What if you get cursed or something?\" What should (name2) say?",
       "choices": [
         {
-          "label": "You're right, I'll return them.",
+          "label": "You're Right, I'll Return Them.",
           "next": "return"
         },
         {
-          "label": "Curses schmurses. I'm keeping them.",
+          "label": "Curses Schmurses. I'm Keeping Them.",
           "next": "keep"
         }
       ]

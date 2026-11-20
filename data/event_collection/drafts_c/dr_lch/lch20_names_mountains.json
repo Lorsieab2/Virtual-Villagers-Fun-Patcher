@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Names of the Mountains",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch20_names_mountains",
+  "source": "draft_lch",
+  "lines": [
+   274,
+   285
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L274",
+  "ledger": [
+   {
+    "src": "L275",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child)"
+   },
+   {
+    "src": "L281",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L281",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L285",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L285",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village wants to record the words for everyday things before they are lost: start with places, or with ordinary things.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has noticed that the children call the mountain \"the big hill\", the way visitors do, and do not know its real name. Or the words for half the tools in the village. (friend) has offered to help collect the old words. Where should they start?",
+   "src": "L277",
+   "choices": [
+    {
+     "label": "Start With Places",
+     "next": "o1",
+     "src": "L279"
+    },
+    {
+     "label": "Start With Ordinary Things",
+     "next": "o2",
+     "src": "L283"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They walk the island naming every place: the mountain, the bay, the rock that looks like a sleeping dog. (friend) learns sixty names in a month and corrects everyone constantly.",
+   "src": "L281",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L281"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They go hut to hut collecting words for spoons, baskets, feelings and the noise a pot makes boiling over. Some words only one old person remembers. They get them just in time.",
+   "src": "L285",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L285"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

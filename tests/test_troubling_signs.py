@@ -78,6 +78,7 @@ class Signs(Village):
         p.stub(code + 24, lambda pr: (BUTTON_W, 0))
         p.stub(code + 32, lambda pr: (BUTTON_H, 0))
         p.stub(0x42E9D0, lambda pr: (0x7777, 0))                         # the image manager
+        p.put32(0x592714, 0x7777)                                        # ... the word the companion reads
         p.stub(0x46EC93, lambda pr: (p.alloc(0x40), 0))                  # operator new
         p.stub(0x42E8A0, lambda pr: (0x5555, 4))                         # the picture
         p.stub(0x4019F0, self._button)
@@ -235,6 +236,13 @@ def standard(population: int = 61, **chief) -> Signs:
     return v
 
 
+
+def owner_label(text: str) -> str:
+    """An owner's label as the event shows it: Title Case (the owner, 2026-11-15; scripts/collection_lib.py)."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import collection_lib
+    return collection_lib.title_case_label(text)
+
 def words(text: str) -> list[str]:
     return re.sub(r"\s+", " ", text).strip().split(" ")
 
@@ -285,8 +293,8 @@ class TheWords(unittest.TestCase):
             line = line.strip()
             if not line or line.startswith("then") or (line.startswith("(") and not line.startswith("(Name)")):
                 continue
-            if line.endswith(":") and line[:-1] in LABELS.values():
-                used.add(line[:-1])
+            if line.endswith(":") and owner_label(line[:-1]) in LABELS.values():
+                used.add(owner_label(line[:-1]))
                 continue
             shown = (line.replace("(Name)", "Ana").replace("(name)", "Ana").replace("(he/she)", "she")
                      .replace("(his/her)", "her").replace("(random name)", "Ben").replace("(tribe name)", "Kalahuna")

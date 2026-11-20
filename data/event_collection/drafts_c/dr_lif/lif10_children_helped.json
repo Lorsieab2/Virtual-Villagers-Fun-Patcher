@@ -70,14 +70,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) waits until the lesson's done and tells (friend) (friend.he/she) did well. (friend) is a bit embarrassed. \"I learned it from you.\" (subject) shakes (subject.his/her) head. \"You learned it from lots of people. I just gave you a few of the knots.\" (friend) grins. \"You also yelled at me a lot.\" \"You deserved it,\" says (subject). \"You threw a net at a pig.\"",
-   "src": "L116"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) just watches. The children are yelling and tangled, exactly as (friend) once was. (friend) is patient, mostly. (subject) can see bits of (subject.him/her)self in the way (friend) bends down to their level, and bits of other people too, and bits that are just (friend). (subject.He/she) doesn't say anything. (subject.He/she) doesn't need to. (subject.He/she) goes home feeling quietly enormous.",
    "src": "L119"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) waits until the lesson's done and tells (friend) (friend.he/she) did well. (friend) is a bit embarrassed. \"I learned it from you.\" (subject) shakes (subject.his/her) head. \"You learned it from lots of people. I just gave you a few of the knots.\" (friend) grins. \"You also yelled at me a lot.\" \"You deserved it,\" says (subject). \"You threw a net at a pig.\"",
+   "src": "L116",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L116"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) waits until the lesson's done and tells (friend) (friend.he/she) did well. (friend) is a bit embarrassed. \"I learned it from you.\" (subject) shakes (subject.his/her) head. \"You learned it from lots of people. I just gave you a few of the knots.\" (friend) grins. \"You also yelled at me a lot.\" \"You deserved it,\" says (subject). \"You threw a net at a pig.\"",
+   "src": "L116"
   }
  }
 }

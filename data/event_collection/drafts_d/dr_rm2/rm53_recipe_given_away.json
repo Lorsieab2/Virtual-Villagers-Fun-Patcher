@@ -110,9 +110,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The bark is copied and passed around, and soon many families make the stew.",
-   "src": "L195"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -132,9 +139,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The cooking lesson turns into a merry afternoon with a huge pot of stew.",
-   "src": "L198"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -159,6 +173,70 @@
    "src": "L201"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The bark is copied and passed around, and soon many families make the stew.",
+   "src": "L195",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L195"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The bark is copied and passed around, and soon many families make the stew.",
+   "src": "L195"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The cooking lesson turns into a merry afternoon with a huge pot of stew.",
+   "src": "L198",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L198"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The cooking lesson turns into a merry afternoon with a huge pot of stew.",
+   "src": "L198"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "A curious villager guesses the secret ingredient, and the cook laughs and admits it.",
+   "src": "L202",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L202"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "A curious villager guesses the secret ingredient, and the cook laughs and admits it.",
    "src": "L202"

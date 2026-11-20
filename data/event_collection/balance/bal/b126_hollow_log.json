@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hollow Log",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b126_hollow_log",
+  "source": "balance",
+  "lines": [
+   5758,
+   5801
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5758",
+  "ledger": [
+   {
+    "src": "L5759",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5760",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5768",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5777",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5765",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5766",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5769",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5778",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5771",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5774",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5780",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5783",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5786-5801",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Deep in the jungle, where the trees are so tall the light comes down green, there is a fallen log big enough to walk through.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Deep in the jungle, where the trees are so tall the light comes down green, there is a fallen log big enough to walk through. The children dare each other to shout into one end and wait at the other for the echo. The echo always comes back a little wrong: a word changed, a laugh where there wasn't one.\n(Name) is out gathering and stops to shout into it, just to see. \"Hello!\" (he/she) calls. From the far end comes back, in (his/her) own voice: \"Hello yourself. Are you coming through, or shall I?\"\nShould (name) walk through the log, or wait and see what comes out?",
+   "choices": [
+    {
+     "label": "Walk Through the Log",
+     "next": "c1",
+     "src": "L5765"
+    },
+    {
+     "label": "Wait at This End",
+     "next": "c2",
+     "src": "L5766"
+    }
+   ],
+   "src": "L5761-5763"
+  },
+  "c1o1": {
+   "text": "(Name) comes out the far end, and someone else comes out the end (he/she) went in by. They walk round the log and look at each other: the same face, the same hair, the same mud on the same knee. The other one, though, likes completely different food, hates the jobs (name) loves, and laughs at things (name) doesn't find funny at all. (He/She) takes the name (made1) and follows (name) home, and argues about the best way to cook fish the whole way.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L5772",
+   "text_only": [
+    {
+     "src": "L5772",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) comes out the far end into the green light. Behind (him/her), out of the log, steps another (name). {#made:Then nothing more|Then, a moment later, another}. \"Sorry,\" says the third one. \"I was behind you.\" {#made:The copy has|They both have} (name)'s face and nothing else of (name) at all. {#made:The copy takes the name (made1), and doesn't agree with (name) about anything either|They take the names (made1) and (made2), and they don't agree with each other about anything either}. The village gets used to it, eventually.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    },
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L5775",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) ducks inside. It smells of moss and wet bark and something like a cooking fire a long way off. Halfway through, in the dark, (he/she) bumps shoulders with someone coming the other way, who says \"Sorry,\" in exactly (his/her) voice...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5769"
+  },
+  "c2o1": {
+   "text": "Out comes (name). Exactly (name): same face, same scar, same habit of chewing (his/her) lip when worried. It sits down on a root opposite, chewing its lip, and they look at each other for a long while. When (name) gets up to go home, so does the other one, and it carries the gathering basket because it knows (name)'s back is sore. It takes the name (made1), and never once has to ask where anything is.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L5781",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The footsteps come to the very end of the log and stop. \"Your turn,\" says (name)'s own voice from the dark. (Name) never comes home. The gatherers find (his/her) basket on the root that evening, still half full, and footprints going into the log and none coming out. They shout into the log for a long time. The echo shouts back, but it never sounds quite right. The children don't dare each other anymore.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L5784",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) steps back from the log, very slowly, and sits down on a root to watch. For a long time nothing happens. A bird lands on the log and walks along it. Then, deep inside, there is a rustle, and then footsteps...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5778"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L5775",
+   "before": "Then, a moment later, another.",
+   "after": "{#made:Then nothing more|Then, a moment later, another}."
+  },
+  {
+   "src": "L5775",
+   "before": "They both have (name)'s face",
+   "after": "{#made:The copy has|They both have} (name)'s face"
+  },
+  {
+   "src": "L5775",
+   "before": "They take the names (new name) and (new name 2), and they don't agree with each other about anything either.",
+   "after": "{#made:The copy takes the name (new name), and doesn't agree with (name) about anything either|They take the names (new name) and (new name 2), and they don't agree with each other about anything either}."
+  }
+ ]
+}

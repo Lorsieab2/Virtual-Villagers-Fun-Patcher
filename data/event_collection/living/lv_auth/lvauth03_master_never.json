@@ -106,7 +106,8 @@
      "scaled": true,
      "src": "L23366"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -126,9 +127,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The rookie finds a healthy shoal.",
-   "src": "L23369"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -148,9 +156,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The fishers compare their catches and improve future plans.",
-   "src": "L23372"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -170,14 +185,82 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "The master reveals careful observations and teaches the others.",
-   "src": "L23375"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The master bristles at questioning and refuses to share.",
    "src": "L23376"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The rookie finds a healthy shoal.",
+   "src": "L23369",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23369"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The rookie finds a healthy shoal.",
+   "src": "L23369"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The fishers compare their catches and improve future plans.",
+   "src": "L23372",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23372"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The fishers compare their catches and improve future plans.",
+   "src": "L23372"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The master reveals careful observations and teaches the others.",
+   "src": "L23375",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "rookie",
+     "skills": [
+      "Farming"
+     ],
+     "min": 30,
+     "max": 60,
+     "src": "L23375"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The master reveals careful observations and teaches the others.",
+   "src": "L23375"
   }
  }
 }

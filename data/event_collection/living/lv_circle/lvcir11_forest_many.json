@@ -112,9 +112,16 @@
    "src": "L21380"
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "The villagers discover more rodents near the houses.",
-   "src": "L21381"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -148,7 +155,28 @@
      "max": 10,
      "src": "L21384"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The villagers discover more rodents near the houses.",
+   "src": "L21381",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L21381"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The villagers discover more rodents near the houses.",
+   "src": "L21381"
   }
  }
 }

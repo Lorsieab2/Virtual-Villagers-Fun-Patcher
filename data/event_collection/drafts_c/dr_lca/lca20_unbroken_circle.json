@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unbroken Circle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca20_unbroken_circle",
+  "source": "draft_lca",
+  "lines": [
+   278,
+   289
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L278",
+  "ledger": [
+   {
+    "src": "L279",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults and an elder)"
+   },
+   {
+    "src": "L285",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L289",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An argument at the village gathering is turning ugly: start the old circle chant, or let the argument run its course.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the village gathering, (subject) and (friend) are arguing about where the new garden should go, and it is getting loud. Other people are taking sides. (third) knows the old circle chant, the one that is meant to remind everyone that they can disagree and still be one village. But some people find it annoying to be chanted at in the middle of an argument. What should (third) do?",
+   "src": "L281",
+   "choices": [
+    {
+     "label": "Start the Circle Chant",
+     "next": "o1",
+     "src": "L283"
+    },
+    {
+     "label": "Let It Run Its Course",
+     "next": "o2",
+     "src": "L287"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(third) stands, takes the hands of the people on either side, and starts the chant. One by one, the others join in, even (subject). (friend) folds (friend.his/her) arms and refuses for a while, then mutters the last line. The argument picks up again afterwards, but quieter. They still do not agree.",
+   "src": "L285"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(third) sits back and lets them argue. It goes on until the fire burns low. Nobody changes their mind. But (subject) and (friend) both say everything they wanted to say, and in the end they agree to plant half a garden in each spot, which pleases no one equally.",
+   "src": "L289"
+  }
+ }
+}

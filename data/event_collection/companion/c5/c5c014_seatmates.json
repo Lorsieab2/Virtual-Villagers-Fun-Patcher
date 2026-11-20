@@ -73,11 +73,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "They discover a shared love of terrible jokes.",
-   "src": "L2209"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -85,6 +90,35 @@
    "join": "paragraph",
    "text": "They enjoy the silence without becoming friends.",
    "src": "L2210"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They discover a shared love of terrible jokes.",
+   "src": "L2209",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "scholar",
+     "mood": "good",
+     "src": "L2209"
+    },
+    {
+     "do": "mood",
+     "role": "fisher",
+     "mood": "good",
+     "src": "L2209"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They discover a shared love of terrible jokes.",
+   "src": "L2209"
   }
  }
 }

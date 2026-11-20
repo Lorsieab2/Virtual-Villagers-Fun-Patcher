@@ -1,0 +1,236 @@
+Write ONE Original Virtual Villagers Island Event
+You are writing ONE original Island Event for my Virtual Villagers 1–5 Fun Patcher.
+Your goal is to create memorable, imaginative, self-contained events that feel like they belong in the original Virtual Villagers games, while closely resembling the tone, narrative style, creativity, and structure of my own handwritten Island Events.
+1. Study My Events First
+Read the handwritten events and my event-writing rules in the reference file I provide: "Island Event Tone Reference - Lorsieab2's Handwritten Events.txt". It is my DEFAULT source for event tone.
+Pay particular attention to my events such as The Aspiring Adventurer, The Cave Explorers, The Remembrance Ceremony, The Climb, and The Troubling Signs.
+Use these as your primary stylistic references. Do not imitate generic AI-generated events.
+My writing combines ordinary village life, whimsical humor, interesting choices, surprising consequences, emotional realism, and the mysteries of Isola.
+Also follow my style guide, "Isola Island Event Style Guide.txt" (I provide it too): it applies to every added island event, including yours (it does not apply to my own handwritten events, which are its source). Its appendices list the possible outcomes of every vanilla island event in all five games, and every like and dislike each game has and what it does: use them to keep your outcomes and likes true to the games.
+My example events, "Example Events - Lorsieab2 (S001-S020).txt" (I provide them too), are rewritten in my own hand: they are the format and style example, showing how an event is built (the opening, the choices, a first popup for a choice, the endings with their chances and effects) and how much story each popup and ending carries. Write yours with the same parts, laid out in the format of section 9 (my patcher reads that layout; my example's headings are for my notes). They are examples only: do not copy them.
+THE KEY: my handwritten events ("Island Event Tone Reference - Lorsieab2's Handwritten Events.txt") and my 20 example events ("Example Events - Lorsieab2 (S001-S020).txt") are the key to my style guide and your primary references; the guide is drawn from them. Study both before you write anything, and when in doubt, write like them.
+2. Create an Interesting Story
+Write ONE completely original Island Event.
+Each should feel like a little adventure, dilemma, discovery, or incident in the lives of the villagers.
+Use the themes in my themes list, "Island Event Themes - All Added Events.txt" (I provide it too): pick from it, or from the player's own themes below when there are any. Possible themes include:
+
+* Everyday village life, relationships, friendships, celebrations, and leisure.
+* Exploration, scientific discoveries, inventions, experiments, and accidents.
+* Mysterious visitors, unusual objects, strange creatures, legends, and folklore.
+* Love, family, childhood, aging, illness, recovery, grief, and loss.
+* Unexpected misfortune, difficult decisions, miracles, and extraordinary experiences.
+* Comedy, absurd situations, misunderstandings, and delightful surprises.
+
+Not every event needs to be serious, supernatural, or dangerous. Ordinary, happy days should be much more common than tragedies.
+Each event should have a distinctive premise rather than a generic situation.
+3. Follow the Virtual Villagers Event Format
+Write each event with:
+
+1. A unique, creative title in Title Case.
+2. An introductory narrative establishing what happened and presenting the player's dilemma.
+3. Two to four meaningful choices, depending on what naturally fits the situation, each written in Title Case.
+4. Two individually written, randomized outcomes per choice, unless the reference event format calls for a different number.
+5. Specific gameplay consequences, where appropriate.
+
+The choices must be unique to the situation, not generic options that could be applied to any event.
+Each outcome must tell a complete little story about what happens after the player's decision.
+An outcome may be positive, negative, neutral, funny, surprising, mysterious, or bittersweet.
+Do not make every outcome predictable.
+4. Match My Writing Style
+
+* Use natural, charming, expressive prose appropriate for Virtual Villagers.
+* Keep the storytelling concise enough for an in-game popup, but detailed enough to be interesting.
+* Use villagers' names and pronouns naturally, following my existing placeholder conventions (listed in section 9).
+* Include dialogue when it adds personality.
+* Let characters have believable reactions, emotions, flaws, and relationships.
+* Allow genuine surprises, irony, humor, and unexpected twists.
+* Avoid repetitive sentence structures and artificial moral lessons.
+* Do not end every outcome with the villagers learning a lesson or becoming wiser.
+* Narrate in the third person, always. First and second person ("I", "me", "my", "we", "you", "your") only inside quoted speech or a villager's quoted thought.
+* Likes and dislikes are not jobs: never "hates (a job), so a dislike". Name the thing the villager actually comes to like or dislike.
+* No contradictions: every line must agree with the rest of the event (no "won't explain" followed by the explanation; nothing that "never" happens then happens).
+
+Most importantly, write actual events, not vague descriptions of events.
+For example, don't say, "The villagers investigate and discover something interesting." Describe exactly what they discover and what happens afterward.
+5. Respect My Content Rules
+The tone is PG-13, respectful, and emotionally realistic.
+Unfortunate things happen, but people can survive them.
+Death, serious illness, injury, disappearance, grief, and other tragedies are permitted when appropriate, including events involving children, but should be uncommon and never gratuitously graphic.
+Villagers are generally peaceful, imperfect people. They may make mistakes, disagree, or act foolishly, but they do not deliberately murder or abuse others.
+Treat people of all ages, abilities, appearances, and backgrounds with dignity.
+Do not sugarcoat difficult experiences, but do not sensationalize suffering.
+Avoid explicit sexual content and exploitative situations. Never write romance between a minor and an adult.
+6. Respect Isola's World and Lore
+Isola is a tribal society with its own traditions, science, history, and mysteries.
+
+* Use language appropriate to the setting.
+* Basic science and scholarly terminology are allowed.
+* Describe unfamiliar advanced technology through its appearance or function.
+* Magic and unexplained phenomena can occur.
+* The existence of supernatural beings or divine intervention should remain open to interpretation.
+* Creatures resembling mermaids, sirens, spirits, monsters, and other legendary beings may appear, but do not explicitly identify or confirm them.
+* Different villagers may hold different beliefs, all of which deserve respect.
+* Outsiders and the origins of mysterious objects may remain unknown.
+* Follow the appropriate game-specific lore and terminology.
+* Cloth is a good building and repair material (style guide 8d): sails, awnings, patching roofs and huts, mending nets, bandaged repairs. Only in VV4, which has cloth bolts, does it use up the village's real cloth bolts (when it has some); everywhere else, and in VV4 with none, the cloth is flavor.
+* In VV5, use my respectful Guardians of Isola terminology, including Isolans rather than Heathens, and "the tribe", "a tribe member" or "the newcomers" (whichever fits the sentence) rather than "believers" where the tribe is set against the Isolans, or "a villager of faith", "a person of faith" or "the faithful" where a believer is set against a skeptic or a doubter. In VV5 a Heathen (Isolan) is only ever in an event about meeting them or coming to live with the tribe; give such a role "any faith".
+
+7. Make the Outcomes Matter
+Depending on the story, outcomes may include:
+
+* Food or technology points gained or lost.
+* Skill improvements or losses.
+* Changes in health or illness.
+* Injuries or recovery.
+* New villagers arriving.
+* Death or disappearance.
+* Changes in appearance or other supported attributes.
+* No mechanical effect, if the narrative itself is sufficient.
+
+Use the kinds of outcome in my outcomes list, "Island Event Outcomes - Every Kind.txt" (I provide it too), balancing them: over many events every kind should come up about equally, not only food and tech. A kind that list marks as still being added cannot be used yet.
+Use gameplay effects only when the story supports them, and only the effects listed in section 9.
+Don't artificially balance every choice with one good outcome and one bad outcome.
+Some choices may have two good outcomes, two unfortunate outcomes, or two entirely different neutral outcomes.
+Death should be very rare, serious harm uncommon, and minor setbacks occasional, unless the particular event warrants otherwise.
+The patcher's casting rules: a pregnancy or a new baby (PREGNANT, NURSING) always goes to a villager born female and 18 or older, unless the story is magical or (for NURSING) a father caring for a baby, and then the effect says (ANY BIRTH SEX); in a couple's pregnancy (PREGNANT <who> WITH <who>, no (ANY BIRTH SEX)) the partner may carry instead by the player's chance setting. Events that can kill a villager or make one disappear only happen in villages of 61 or more.
+8. Quality Requirements
+Before presenting the events, check that:
+
+* The premise is original and interesting.
+* Every choice makes sense for that specific situation.
+* The randomized outcomes are meaningfully different.
+* Each outcome contains concrete narrative developments.
+* The story is neither excessively sanitized nor needlessly tragic.
+* The event resembles my handwritten writing style.
+* It would be enjoyable to encounter during an actual Virtual Villagers playthrough.
+* The title and every choice are in Title Case.
+
+Do not use generic filler such as "the villagers learn something valuable," "everyone agrees to move forward," or "the matter is resolved peacefully" without describing what actually happens.
+9. Output Format
+Write the events in EXACTLY this plain-text format, which my patcher reads directly. Put each event one after another.
+Lines in [square brackets] here are instructions, not text to copy.
+
+Title: [Event Title In Title Case]
+Applies to: [VV1, VV2, VV3, VV4, VV5, or the right subset]
+Themes: [two or three short theme words, comma separated]
+Role [name]: [only for a villager the text names who needs a rule, e.g. "Role fisher: adult, skill Farming 10+"]
+Event:
+[Introductory story and dilemma. One paragraph per line.]
+Choice 1: [Specific Action In Title Case]
+* Outcome A: [Complete, unique narrative]
+  Effect: [one gameplay effect from the list below, or leave the line out]
+* Outcome B: [Different, complete narrative]
+Choice 2: [Specific Action In Title Case]
+* Outcome A: [...]
+* Outcome B: [...]
+[Continue for as many choices as the story naturally requires: 2 to 7 choices; any number of outcomes per choice.
+An outcome may have several Effect lines. "* Outcome A (weight 3):" makes that outcome three times as likely.]
+
+Example (a short one, to show the layout only):
+
+Title: The Coconut That Would Not Open
+Applies to: VV1, VV2, VV3, VV4, VV5
+Themes: comedy, food
+Event:
+(Name) has been trying to open the same coconut since sunrise. (He/She) has tried rocks, teeth and a firm talking-to.
+Choice 1: Lend a Hand
+* Outcome A: (Name) and two neighbours finally crack it open together, and the milk is the sweetest anyone has tasted.
+  Effect: FOOD GAIN (small)
+* Outcome B: The coconut flies out of everyone's hands and rolls into the sea. (Name) waves goodbye to it.
+Choice 2: Leave (Him/Her) to It
+* Outcome A: By sunset (name) has invented a clever splitting wedge, and the builders want one too.
+  Effect: SKILL + Building a little
+* Outcome B: (Name) falls asleep hugging the coconut, still unopened.
+
+Names and pronouns (use these exactly, with the round brackets):
+- (Name) / (name): the main villager's full name, capitalised or not. (He/She), (he/she), (His/Her), (his/her),
+  (Him/Her), (him/her), (himself/herself), (man/woman), (boy/girl), (son/daughter) follow that villager's sex.
+- A second villager: (name2) and (name2.he/she). Any other villager gets a short role name, used the same way:
+  (fisher), (Fisher), (fisher.his/her). Every role name you use in the text or an effect becomes a villager of the
+  village (14 or older unless a Role line says otherwise).
+- (award): the food or tech amount actually given by a FOOD AWARD or TECH AWARD effect.
+- {@chief} / {@Chief}: "the Chief" in The Secret City, "the village leader" in the other games.
+- {this|that|the other}: one of these words, picked at random each time.
+- {#babies:a baby|twins|triplets} and {#made:one|two|three or more}: in the story text only (never a title or a
+  choice), the words for what the page's effects actually made: the first for one (or none), the second for two,
+  the third for three or more; 1 to 3 choices of up to 160 letters, digits, spaces, , : - ' " ; / & % and names
+  or pronouns like (name) or (made1) (no braces, no . ! ?).
+- (made1): the name of the newest villager the event made (NEW VILLAGER, DUPLICATE, CLONE); (made2) the one made
+  before it. Story text only, never a title or a choice.
+- (his/hers): the possessive that stands alone ("the choice was (his/hers)"), also (friend.his/hers).
+- Plain round brackets in the story are fine; they are shown as written.
+- Tell the story in the third person. "I", "me", "my", "we", "you" and "your" belong only inside quoted speech or a
+  villager's quoted thought.
+
+Gameplay effects (one per Effect line, written exactly like this; <who> is a role name, or leave it out for the
+main villager):
+- FOOD GAIN (small|normal|large|huge), FOOD LOSS (size), TECH GAIN (size), TECH LOSS (size): food or tech points, in
+  the game's own ranges. FOOD AWARD (size) / TECH AWARD (size) gives an amount the text can name with (award);
+  PAY AWARD on a later outcome pays it then.
+- SKILL + <skill> a little|some|a lot|hugely, SKILL - <skill> ..., MASTER <skill> (sets it to 100), SKILL SET <skill>
+  <0-100>. Skills: Farming, Building, Research, Healing, Parenting, and Devotion (VV5 only). Add "FOR <who>" for
+  another villager.
+  SKILL + BEST a little|some|a lot|hugely raises the villager's own best skill.
+  Crafts count as their main skill (style guide 8c), so <skill> may also be a craft: cooking, fishing, gathering,
+  hunting, trapping = Farming; carving, sculpture, weaving, pottery, canoe-making, jewelry, craftmaking,
+  weaponsmithing, bow-making = Building; archery = Farming or Building; stargazing, scroll-keeping, writing, alchemy,
+  mapping, science = Research; potions, stews, remedies, poultices, salves, tonics = Research or Healing; magic,
+  spells, charms, blessings, sigils = Healing or Devotion; herbalism, bonesetting, midwifery, medicine = Healing;
+  teaching, storytelling = Parenting; omens = Research or Devotion; prayer, ritual, devotion = Devotion. Where two
+  skills are named, one of them is picked at random; a game keeps only the skills it has, so in VV1-VV4 magic is
+  Healing and a Devotion-only craft is flavor. Doubt is flavor only (never a skill), and a doodle is not a sigil. Use
+  a craft only where it makes sense; otherwise it is flavor and needs no Effect line.
+- LIKE + <thing>, DISLIKE + <thing>, LIKE - <thing> (no longer likes it), DISLIKE - <thing> (gets over it),
+  LIKE + random, DISLIKE + random. Things are the game's own likes words (for example swimming, dancing, fruit).
+  Likes and dislikes are not jobs: never write that someone "hates (a job), so" gains a dislike; name the thing the
+  villager actually comes to like or dislike (the water, the dark, bees). Pick the words from the style guide's
+  Appendix A for each game the event applies to: a word missing from a game cannot be given there, and one that
+  does nothing in a game is only cosmetic.
+- INJURY <who> (a health loss; add (minor), (serious) or (grave)), ILLNESS <who> (falls sick), HEALTH <who> +10 TO +20,
+  HEAL <who> (full health), CURE <who> (an illness cured), REPAIR (the damaged huts are repaired).
+- Groups: put "EVERYONE:", "EVERY HEALER:" (also builder, farmer, researcher, parent: every villager good at that
+  skill) or "3 RANDOM VILLAGERS:" before a health, illness, cure, skill, like, mood or look effect, for example
+  "EVERYONE: MOOD GOOD", "EVERY HEALER: SKILL + Healing some" or "3 RANDOM VILLAGERS: ILLNESS".
+- DEATH <who> (a grave is left), DISAPPEARS <who> (never seen again), LOST FOREVER <who> (dies, the body is never
+  found), PREGNANCY LOSS <who>, BIRTH THEN DEATH <who>, EARLY BIRTH <who>. These are rare and serious.
+- NEW VILLAGER (child|teen|adult|elder|any), NEW VILLAGER (adult woman) (or man, boy, girl), DUPLICATE OF <who> (a
+  newcomer who looks just like them), CLONE OF <who> (an exact double; CLONE OF <who> (2) or TWO CLONES OF <who>
+  makes two, never more). A family: NEW VILLAGER (adult man), NEW VILLAGER (adult woman), then
+  NEW BABY OF THE NEWCOMERS. "newcomer" as <who> is the villager the event just made (and "previous newcomer" the one before).
+- PREGNANT <who> [WITH <who>], NURSING <who> [WITH <who>] (a new baby now): the carrier is born female and 18 or
+  older. Add (ANY BIRTH SEX) only when the story is magical (a spell, a blessing, an enchanted spring, a spirit, a
+  potion), or for NURSING when a father is caring for a baby. Add (TWINS), (TRIPLETS) or (TWINS OR TRIPLETS) for
+  more than one baby. PREGNANT <who> WITH <who> without (ANY BIRTH SEX) is a couple's pregnancy: the first is the
+  one who carries (in a same-sex couple, the one the story calls the mother), and the player's "a man may carry the
+  baby by chance" setting may let the partner carry instead, so write the story so either can.
+- NEW LOOK (head|body|both) <who>, OLD LOOK <who> (looks older), SEX CHANGE <who>, BODY SWAP <who> WITH <who>,
+  LOSE NAME <who> (the name becomes "?"; it only comes from a bump on the head or something like it: a fall, a fever,
+  magic or anything that takes the villager's memory, never a villager choosing or being given "?" as a name),
+  CHANGE NAME <who> (a new name from the game's own list),
+  CHANGE NAME <who> TO <name> (that name: letters, spaces, ' - . only, up to 31),
+  CHANGE AGE <who> YOUNGER|OLDER <n> YEARS (add "(NEVER PAST ELDER)" to stop at old age),
+  CHANGE AGE <who> TO child|teen|18|adult|50|elder, YOUNG LOOK <who> (looks younger).
+- MOOD GOOD <who>, MOOD BAD <who>, CELEBRATE (everyone dances), ACTION <who> "<the game's own action words>",
+  DAMAGE (small|normal|large|huge) (damages huts and buildings), STORY MUTE <who> (never speaks in events),
+  OTHER PRESENTATION <who> (dresses and looks as the other sex, staying who they are), OWN PRESENTATION <who> (back).
+- VV5 only: BECOMES HEATHEN <who>.
+Optional lines: "Requires: population 20+" (or "3 children+", "golden child present", "chief present"),
+"Filters: F05" under an outcome (content filter tags: the patcher adds most by itself), "Description: one sentence for
+the Pick Island Event list", "Coda:" (a closing paragraph shown after every outcome).
+"Solidarity: raise", "Solidarity: lower" or "Solidarity: neutral" under an outcome, only when its text clearly
+carries one of these feelings: raise for songs and gatherings, fair resolutions, mutual aid, welcoming newcomers,
+happiness, togetherness, trust, comfort, gratitude, pride, hope, courage, respect, relief, reconciliation or
+inspiration; lower for unresolved conflicts, unfairness, broken promises, wrongs left unaddressed, tension, distrust,
+resentment, fear or worry, divisive shame, grief left alone or division; neutral for solemn remembrance, quiet
+reflection, bittersweet moments or private choices respected. Otherwise leave the line out. It changes nothing in the
+game unless the Village Solidarity patch is on, and then it only shifts the odds of new events.
+Role words: adult, child, teen, elder, 18 to 50, 30+, male, female, skill Healing 20+, best at Healing, spouse of
+<who>, parent of <who>, child of <who>, sibling of <who>, within 10 years of <who>, optional, speaks, carrier,
+golden child, tribal chief, stranger, named stranger, any faith (VV5: an Isolan may take it).
+
+Final Instruction
+Write ONE carefully crafted Island Event, not a collection.
+Prioritize creativity, personality, originality, believable consequences, and the charm of the original Virtual Villagers games.
+Take inspiration from my handwritten events, not from formulaic AI writing.
+Make each event feel like something that could genuinely happen to the people of Isola—whether ordinary, extraordinary, joyful, mysterious, or tragic.
+Output only the finished Island Event, in the format of section 9, as plain text.

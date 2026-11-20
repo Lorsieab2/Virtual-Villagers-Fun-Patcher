@@ -1,0 +1,265 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rockfall at the Quarry",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b286_rockfall_quarry",
+  "source": "balance",
+  "lines": [
+   13301,
+   13341
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13301",
+  "ledger": [
+   {
+    "src": "L13302",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13303",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13310",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13319",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13307",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13308",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13311",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13320",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13313",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13316",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13322",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13325",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13328-13341",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The village cuts its grinding stones from a cliff of soft grey rock at the edge of the hills.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The village cuts its grinding stones from a cliff of soft grey rock at the edge of the hills. (Name) has been working there all morning, chipping out a new stone for the cooks, when (he/she) hears a crack from high above. A little shower of pebbles patters down onto (his/her) shoulders. Then a bigger one.\nThe cliff is letting go. (Name) has a moment, maybe two. Should (he/she) run for the open ground, or press flat against the cliff face where the overhang might protect (him/her)?",
+   "choices": [
+    {
+     "label": "Run for Open Ground",
+     "next": "c1",
+     "src": "L13307"
+    },
+    {
+     "label": "Press Against the Cliff",
+     "next": "c2",
+     "src": "L13308"
+    }
+   ],
+   "src": "L13304-13305"
+  },
+  "c1o1": {
+   "text": "(Name) almost makes it. A single stone, bouncing ahead of the rest, catches (him/her) on the side of the head and knocks (him/her) flat. The others find (him/her) lying in the open, bleeding but breathing. When (he/she) wakes in the healers' hut, (he/she) can't remember (his/her) own name. Not a syllable. Until it comes back, the village calls (him/her) \"?\".",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L13314",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The rocks catch (name)'s leg just as (he/she) reaches the edge of the slide. It takes four people an hour to dig (him/her) out. The healers do what they can, but the leg never bends properly again, and (name) walks with a stick from then on. (He/She) never goes back to the quarry, and the cooks make do with the old grinding stone.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c2"
+    }
+   ],
+   "src": "L13317",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) drops (his/her) tools and runs. Behind (him/her), the roar of the falling rock grows louder and louder...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13311"
+  },
+  "c2o1": {
+   "text": "The overhang gives way with the rest. When the dust settles, the quarry is a heap of grey rubble, and (name) is under it. The village digs for two days to bring (him/her) home. They bury (him/her) with the grinding stone (he/she) was cutting, finished by the other quarry workers, set at the head of the grave.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L13323",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The overhang holds. The rocks pile up on every side, but (name) is left in a little pocket of space under the cliff, covered in dust, coughing, completely unhurt. It takes the village half a day to dig (him/her) out. (He/She) comes out holding the grinding stone, which is also unhurt. \"I finished it,\" (he/she) says. \"In the dark.\"",
+   "src": "L13326"
+  },
+  "c2": {
+   "text": "(Name) throws (himself/herself) against the cliff face under the overhang, arms over (his/her) head. The world goes dark with dust and noise...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13320"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "rocks",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       1
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  },
+  "c1o2_g2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "wood",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c2": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g2",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_c1"
+    }
+   ]
+  }
+ }
+}

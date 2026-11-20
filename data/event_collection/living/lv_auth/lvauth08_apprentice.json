@@ -113,9 +113,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The cloth holds beautifully, and the elder learns a new stitch.",
-   "src": "L23449"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -157,14 +164,63 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "The village gains a record of how designs evolve.",
-   "src": "L23455"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The extra weaving consumes scarce thread.",
    "src": "L23456"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The cloth holds beautifully, and the elder learns a new stitch.",
+   "src": "L23449",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "elder",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L23449"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The cloth holds beautifully, and the elder learns a new stitch.",
+   "src": "L23449"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The village gains a record of how designs evolve.",
+   "src": "L23455",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L23455"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The village gains a record of how designs evolve.",
+   "src": "L23455"
   }
  }
 }

@@ -75,6 +75,32 @@
    "src": "L176"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"How do you know four is better?\" asks (friend). (subject) shows (friend.him/her): the huts with three turns have rope that slipped; the ones with four don't. \"I might be wrong about four, too,\" (subject) adds. \"Ask me again next year.\" (friend) starts keeping (friend.his/her) own notes about rope. (friend.He/she) suspects that's what (subject) wanted all along.",
+   "src": "L179",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L179"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"How do you know four is better?\" asks (friend). (subject) shows (friend.him/her): the huts with three turns have rope that slipped; the ones with four don't. \"I might be wrong about four, too,\" (subject) adds. \"Ask me again next year.\" (friend) starts keeping (friend.his/her) own notes about rope. (friend.He/she) suspects that's what (subject) wanted all along.",
    "src": "L179"

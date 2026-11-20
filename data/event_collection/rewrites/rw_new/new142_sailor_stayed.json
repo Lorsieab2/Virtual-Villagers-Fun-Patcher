@@ -1,0 +1,311 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sailor Who Stayed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new142_sailor_stayed",
+  "source": "rewrites",
+  "lines": [
+   6692,
+   6747
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6692",
+  "ledger": [
+   {
+    "src": "L6693",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6694",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6703",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6710",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6717",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6724",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6698",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6699",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6700",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6701",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6704",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6711",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6718",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6725",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6705",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6707",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6712",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6714",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6719",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6721",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6726",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6728",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6731-6747",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A sailor from another settlement's fishing crew stopped in five nights ago, for one night.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A sailor from another settlement's fishing crew stopped in five nights ago, for one night. Just one.\nThe next morning, (he/she) had a sore foot. The morning after that, the sky looked a bit cloudy. The morning after that, (name)'s stew was \"too good to leave without having one more bowl.\" Yesterday it was the stew again.\nOn the fifth night, sitting by (name)'s fire, the sailor finally admits it, staring into the flames. \"I don't want to go back. I'd rather live here.\" Then (he/she) looks up, alarmed, as if (he/she) didn't mean to say it out loud. How should (name) respond?",
+   "choices": [
+    {
+     "label": "Make Room at the Fire",
+     "next": "c1",
+     "src": "L6698"
+    },
+    {
+     "label": "Ask About Their Crew",
+     "next": "c2",
+     "src": "L6699"
+    },
+    {
+     "label": "Offer the Sailor a Hut",
+     "next": "c3",
+     "src": "L6700"
+    },
+    {
+     "label": "Put the Sailor in the Fields",
+     "next": "c4",
+     "src": "L6701"
+    }
+   ],
+   "src": "L6695-6697"
+  },
+  "c1o1": {
+   "text": "The sailor is given a proper place at the fire, and the two of them swap stories until the coals go grey: storms, sea monsters that turned out to be logs, the worst catches of their lives. Nothing is decided tonight. But the sailor is smiling for the first time all week.",
+   "src": "L6706"
+  },
+  "c1o2": {
+   "text": "Touched, the sailor goes down to (his/her) boat and comes back with a basket of smoked fish from the crew's stores. \"They won't miss it,\" (he/she) says. \"Probably.\" It adds a little food to the stores, and (name) decides not to ask too many questions about the crew.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6708",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) just shifts over on the log and passes the sailor another bowl...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6704"
+  },
+  "c2o1": {
+   "text": "Instead of talking about the crew, the sailor talks about their boats, which (he/she) clearly loves. (He/She) shows (name) and the village fishers how the crew lashes an outrigger so it never works loose, even in a heavy swell, with a special double-wrapped knot. It is something genuinely useful, and every outrigger in the village is re-lashed by the end of the week.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6713",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The sailor's face closes up. (He/She) doesn't want to talk about why (he/she) is leaving the crew, and says so, politely but firmly. Nobody pushes. (Name) changes the subject to stew, which is always safe.",
+   "src": "L6715"
+  },
+  "c2": {
+   "text": "(Name) asks about the crew the sailor came with. The sailor thinks for a while before answering...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6711"
+  },
+  "c3o1": {
+   "text": "The sailor stares, then laughs, then nearly cries. (He/She) decides to make a home here, and joins the village as a new adult villager, sea legs and all. For the first week (he/she) walks around the village as if the ground is rocking. (He/She) says it is.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L6720",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "After a long night of thinking, the sailor comes to (name) in the morning, looking sad but certain. (His/Her) crew still needs (him/her). (He/She) goes back with the next boat, but promises to visit, and asks (name) to save (him/her) some stew.",
+   "src": "L6722"
+  },
+  "c3": {
+   "text": "(Name) tells the sailor there's an empty sleeping spot in one of the huts, if (he/she) means it...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6718"
+  },
+  "c4o1": {
+   "text": "The sailor helps dig the yam harvest, complaining cheerfully the whole time about dry land \\(\"It doesn't MOVE, how do you stand it?\"\\), and turns out to be a surprisingly hard worker. The stores gain a good amount of food, and the farmers ask (him/her) to come back next season.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L6727",
+   "auto_text": true
+  },
+  "c4o2": {
+   "text": "After half a morning of digging, it's clear the sailor's heart is out at sea. The villagers mend (his/her) torn sail instead, and send (him/her) back to (his/her) crew with a bundle of fruit and an open invitation. (He/She) waves until (he/she) is out of sight.",
+   "src": "L6729"
+  },
+  "c4": {
+   "text": "(Name) decides that if the sailor is staying another day, (he/she) can earn (his/her) stew. \"Grab a digging stick.\"...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6725"
+  }
+ }
+}

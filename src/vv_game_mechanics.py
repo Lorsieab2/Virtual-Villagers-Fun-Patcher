@@ -59,7 +59,7 @@ TITLE = "Game Mechanics"
 # Time away (catch-up) right after the sources (the owner, 2026-10-24: the most important topic, near the top).
 GROUPS = ("Vital statistics", "Village counts", "Time and units", "Sources", "Time away (catch-up)", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
           "Technologies, items and buildings",
-          "God powers", "Faith and Heathens", "Food earned", "Island events", "Death and graves", "Puzzles",
+          "God powers", "Faith and Heathens", "Food earned", "Tribal Chief: Directing work", "Island events", "Death and graves", "Puzzles",
           "Golden Child", "Hidden villager stats", "Hidden keys, clicks and cheats", "Chance and timers", "Other")
 DEATH = "Death and graves"            # src/vv_game_mechanics_death.py
 PUZZLES = "Puzzles"
@@ -356,7 +356,7 @@ def warp_dates_note(village: "Village", group: str, what: str) -> "Fact | None":
     if village.general or not states or all(state is False for state in states):
         return None
     which = ("This game has the patcher's Time Warp" if any(state is True for state in states)
-             else "If this game has the patcher's Time Warp (whether it does could not be told)")
+             else f"If this game has the patcher's Time Warp (whether it does could not be told; {BROWSE_HINT})")
     # Each warp moves the clock on by moving the clock's start (its epoch) back (WARP_IDS above).
     return Fact(group, (
         f"{which}: {what} counted from the start of the save's clock, and each Time Warp (and each step of Choose "
@@ -434,6 +434,28 @@ CHANCES_GROUPS = ("Chances", "Births and gender")
 GROUPS = GROUPS[:GROUPS.index("Chance and timers")] + CHANCES_GROUPS + GROUPS[GROUPS.index("Chance and timers"):]
 
 
+# What the babies being carried count toward (src/vv_game_mechanics_carried.py, the owner 2026-11-18), right after
+# the mothers themselves.
+CARRIED = "Babies being carried"
+GROUPS = GROUPS[:GROUPS.index("Nursing and pregnancy") + 1] + (CARRIED,) + GROUPS[GROUPS.index("Nursing and pregnancy") + 1:]
+
+
+def carried_facts(village: "Village") -> list[Fact]:
+    """The Babies being carried group for `village` (found by name)."""
+    return list(importlib.import_module("vv_game_mechanics_carried").facts(village))
+
+
+# How a villager picks a job and The Tree of Life's / New Believers' "untrained" mark
+# (src/vv_game_mechanics_training.py, the owner 2026-11-18), just before the hidden villager stats.
+TRAINING = "Jobs and training"
+GROUPS = GROUPS[:GROUPS.index(HIDDEN)] + (TRAINING,) + GROUPS[GROUPS.index(HIDDEN):]
+
+
+def training_facts(village: "Village") -> list[Fact]:
+    """The Jobs and training group for `village` (found by name)."""
+    return list(importlib.import_module("vv_game_mechanics_training").facts(village))
+
+
 def chances_facts(village: "Village") -> list[Fact]:
     """The Chances and Births and gender groups for `village` (found by name)."""
     return list(importlib.import_module("vv_game_mechanics_chances").facts(village))
@@ -483,6 +505,18 @@ def counted_away(game: int, seconds: float, speed: int) -> float | None:
     if seconds <= limits["full"].get(speed, limits["full"][NORMAL]):
         return seconds
     return limits["band"] if seconds <= limits["band_end"] else limits["over"]
+
+
+def hours_days_years(seconds: float) -> str:
+    """A real-time span as hours, then days, then years (the owner, 2026-11-19: "hours, then days, years etc."):
+    "547.6 hours = 22.8 days", and "= 1.2 years" once it is a year or more."""
+    seconds = max(0.0, seconds)
+    hours = seconds / 3600
+    days = hours / 24
+    text = f"{hours:,.1f} hours = {days:,.1f} days"
+    if days >= 365.25:
+        text += f" = {days / 365.25:,.1f} years"
+    return text
 
 
 def time_away(village: "Village", last: float, speed_value: int, paused_words: str,
@@ -701,6 +735,77 @@ def feature_name(feature: str) -> str:
 _NAMES: dict[str, str] | None = None
 
 
+# The 0.1x-10x sliders (src/vv_fun_patcher.py RUNTIME_SLIDERS; the owner, 2026-11-17): where each one's line goes,
+# its row suffix, its number's file beside its companion, and what N does in plain words.
+SLIDER_LINES = (
+    ("Mushrooms", "_collectible_frequency", "VVFP Collectible Frequency.txt",
+     "mushrooms{collectibles} appear on their own {n} times as often as in the normal game: each of the game's "
+     "appearance rolls passes {n} times as often (every time, once that reaches it)"),
+    ("Food sources", "_food_gain", "VVFP Food Gain.txt",
+     "each food source gives {n} times its normal food (on average: the rest of a whole food is a chance); what the "
+     "source itself loses, island events, rewards and purchases are the game's own (the Golden Child's gift and the "
+     "chief's food grant are food sources here)"),
+    ("Tech points and effects", "_tech_gain", "VVFP Tech Gain.txt",
+     "research brings {n} times its normal tech points (on average: the rest of a whole point is a chance), with "
+     "every research bonus counted first; island events, duplicate collectibles and rewards are the game's own"),
+    ("Tech points and effects", "_skill_success", "VVFP Skill Success.txt",
+     "each skill check at work passes {n} times as often as in the normal game (every time, once that reaches it); "
+     "what a pass gives is the game's own"),
+    ("Nursing and pregnancy", "_age_speed", "VVFP Age Speed.txt",
+     "villagers' age clock runs {n} times as fast: growing up, old age, pregnancy, nursing, eating, health and "
+     "sickness all come {n} times as soon in real time (the ages are the game's own); the countdowns on this page "
+     "count at the normal speed"),
+)
+
+
+def slider_number(village: "Village", file_name: str) -> int | float | None:
+    """The N a 0.1x-10x slider's file holds (beside its companion, in the patcher's folder next to the game's exe),
+    read as the companion reads it (native/shared/multiplier_choice.h): 0.1 to 10 in tenths, 1 with no number; an
+    int when whole; None when the exe is not known or the file cannot be read."""
+    exe = getattr(village, "exe", None)
+    if exe is None:
+        return None
+    try:
+        raw = (Path(exe).parent / patcher_files.PATCHER_FILES_FOLDER / file_name).read_bytes()[:15]
+    except OSError:
+        return None
+    text = raw.decode("ascii", "replace").lstrip(" \t")
+    digits = ""
+    for ch in text:
+        if not ("0" <= ch <= "9"):
+            break
+        digits += ch
+    rest = text[len(digits):]
+    tenth = rest[1] if rest[:1] == "." and rest[1:2].isdigit() and rest[1:2].isascii() else ""
+    if not digits and not tenth:
+        return 1
+    tenths = max(1, min(100, int(digits[:6] or "0") * 10 + int(tenth or "0")))
+    return tenths // 10 if tenths % 10 == 0 else tenths / 10
+
+
+def slider_facts(village: "Village") -> list[Fact]:
+    """One line for each 0.1x-10x slider whose row is in the game: the number it is set to, then what it does."""
+    out = []
+    for group, suffix, file_name, words in SLIDER_LINES:
+        feature = f"vv{village.game}{suffix}"
+        if not village.has(feature):
+            continue
+        n = slider_number(village, file_name)
+        collectibles = "" if village.game == 1 else " and collectibles"
+        if n is None:
+            effect = (words.format(n="N", collectibles=collectibles)
+                      + ", N the number set on its slider (0.1 to 10)")
+        elif n == 1:
+            effect = "its slider is at 1, the middle, so the game is the normal game here"
+        else:
+            # The slider's label (the owner, 2026-11-17: "-10 to 10"): below 1, minus what it divides by.
+            divisor = round(1 / n, 1)
+            label = n if n >= 1 else "-" + (str(int(divisor)) if divisor == int(divisor) else f"{divisor:g}")
+            effect = f"its slider is at {label}: " + words.format(n=n, collectibles=collectibles)
+        out.append(Fact(group, patch_words(village, feature, effect)))
+    return out
+
+
 def feature_ids(prefix: str) -> list[str]:
     """Every patch id the patcher knows that starts with `prefix` (for example "vv3_")."""
     feature_name("")
@@ -772,12 +877,18 @@ def golden_lines(feature: str, per_hour: float, speed_value: int, rate_words: st
                      "of having seen at least one."), False, sub=True)]
 
 
+# What the player can do when the game's patch list could not be told (the owner, 2026-11-18: nothing withheld; a note
+# is kept only for what truly cannot be known, with what the player can do about it).
+BROWSE_HINT = "pick the game with Browse... on the Game Mechanics window to find out"
+UNTOLD = f"whether the game has it could not be told; {BROWSE_HINT}"
+
+
 def patch_words(village: "Village", feature: str, effect: str) -> str:
     """One sentence on a patch that changes a rule: whether it is in the game and what it does."""
     name = f"\"{feature_name(feature)}\""
     has = village.has(feature)
     if has is None:
-        return f"With the patcher's {name}: {effect} (whether the game has it could not be told)."
+        return f"With the patcher's {name}: {effect} ({UNTOLD})."
     return f"The patcher's {name} is {'in' if has else 'not in'} the game" + (f": {effect}." if has else ".")
 
 
@@ -787,7 +898,7 @@ def flat_pick_mastery(village: "Village", feature: str, has: bool | None, levels
     Mastery level 1 -> 2 -> 3 (`levels`); the stock pick comes first in the line.  "" when it is not in the game."""
     if has is False:
         return ""
-    where = "" if has else " (whether the game has it could not be told)"
+    where = "" if has else f" ({UNTOLD})"
     return (f" With \"{feature_name(feature)}\"{where}: a pick {levels(7)} on Fast, {levels(3)} on Normal, "
             f"{levels(2)} on Slow and {levels(4)} while catching up.")
 
@@ -889,10 +1000,11 @@ def _from_exe(exe: Path, game: int) -> frozenset[str] | None:
             edits = feature.raw.get("patches") or []
             if edits and fp._patches_present(data, edits):
                 found.add(feature.id)
-        # 2-10x Tech Cost writes each price as its stock value x the player's multiplier, not the manifest's x 3
-        # bytes: it is in the exe when every price site holds one multiplier from 2 to 10.
+        # 0.1-10x Tech Cost writes each price as its stock value x the player's multiplier, not the manifest's x 3
+        # bytes: it is in the exe when every price site holds one multiplier from 0.1 to 10 other than 1 (at 1 the
+        # bytes are the normal game's, and nothing tells the row apart).
         import vv_game_mechanics_tech_time as tech_time
-        if tech_time.multiplier_in_bytes(game, data):
+        if tech_time.multiplier_in_bytes(game, data) not in (None, 1):
             found.add(tech_time.multiplier_feature(game))
         return frozenset(found)
     except Exception:  # noqa: BLE001 -- a catalog or exe that cannot be read tells nothing
@@ -1005,7 +1117,7 @@ def items_facts(village: "Village") -> list[Fact]:
     # about it at all); each module gives it one line of its own.
     if village.has(f"vv{village.game}_super_secret_golden_mushroom") is not True:
         found = [fact for fact in found if "golden mushroom" not in fact.text.lower()]
-    # 2-10x Tech Cost: each technology level's price, stock then multiplied (src/vv_game_mechanics_tech_time.py).
+    # 0.1-10x Tech Cost: each technology level's price, stock then multiplied (src/vv_game_mechanics_tech_time.py).
     found = importlib.import_module("vv_game_mechanics_tech_time").multiplied_item_facts(village, found)
     # The same topics on every tab (the owner, 2026-10-27: "Same between the virtual villagers games"): a topic another
     # game has and this one does not gets one "Not in" line (src/vv_game_mechanics_parity.py).
@@ -1047,7 +1159,8 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
     facts = list(module.facts(village))
     if any(fact.group != "Other" for fact in facts):     # not for a save the game's module could not read
         facts += catchup_facts(village) + farmers_facts(village) + genetics_facts(village)
-        facts += chances_facts(village) + items_facts(village) + hidden_facts(village)
+        facts += chances_facts(village) + items_facts(village) + hidden_facts(village) + carried_facts(village)
+        facts += training_facts(village)
     import vv_game_mechanics_counts as counts      # the Village counts group (src/vv_game_mechanics_counts.py)
     facts += counts.facts(village, facts)
     if not facts:
@@ -1092,7 +1205,7 @@ def general(game: int, now: float | None = None) -> list[Fact]:
     keep = []
     items = items_facts(village)               # the reference entries: kept whole, never filtered as save values
     for fact in list(module.facts(village)) + catchup_facts(village) + farmers_facts(village) + genetics_facts(village) \
-            + chances_facts(village):
+            + chances_facts(village) + carried_facts(village) + training_facts(village):
         if fact.due is not None:
             continue                           # a moment of the empty save's village
         if fact.verified == SAVE or fact.text.startswith(("If it were played now", "Time since then", "Next ",
@@ -1209,6 +1322,100 @@ def render_live(facts: list[Fact], now: float | None = None) -> tuple[str, list[
 def render(facts: list[Fact], now: float | None = None) -> str:
     """The section as text: each group's heading, then its lines (a countdown as it reads at `now`)."""
     return render_live(facts, now)[0]
+
+
+# MINIMUM DETAIL (the owner, 2026-11-17: "a toggle to game mechanics for 'Minimum Detail': only gives vital stats and
+# numbers, hides all the explanations and stuff").  The page's lines are written answer-first, so a line keeps only
+# its first sentence -- the answer -- and a line is left out when that answer holds no number (an explanation), when
+# it is one of the page's explanations (_EXPLAINS: how a figure is worked out, the stock rule a patch replaces, code
+# that never runs, and what one of the patcher's patches does), or when it is in a group that only explains the page
+# or lists the game's keys and tips (MINIMUM_HIDDEN_GROUPS; Sources keeps one short line, sources_brief).  The Vital
+# statistics keep every line (their first sentence).  A left-out line whose sub-lines are kept shows its heading
+# instead -- the words before its first colon -- so the numbers under it still say what they count.
+# The label is "Minimal Detail" (the owner, 2026-11-18).
+MINIMUM_DETAIL = "Minimal Detail"
+MINIMUM_HIDDEN_GROUPS = frozenset({"Time and units", "Sources", "Hidden keys, clicks and cheats"})
+# "Not counted" is no longer an explanation (the owner, 2026-11-18, "nothing withheld"): what a figure leaves out is
+# now given with its value, and such a line keeps its place in Minimal Detail.
+_EXPLAINS = re.compile(r"^(?:How |Normally|DEAD)|\b[Ww]ith the patcher\b|\b[Tt]he patcher's\b"
+                       r"|\bthe patcher \(")
+# The owner, 2026-11-19: "tutorial and random tips should not be shown in minimal detail on".
+_TIPS = re.compile(r"\b[Tt]utorial\b|\b[Rr]andom tips?\b|\b[Tt]ip pop-ups?\b|\b[Ll]oading-screen tips?\b")
+# Minimal Detail keeps one short Sources line (the owner, 2026-11-18): the exe read and how its patch list was read,
+# or a warning when the patch list could not be told (sources_lines / patch_source's own words).
+_PATCHES_LEAD = "The patches in the game: "
+_UNTOLD_LEAD = "Could not tell which patches this game has"
+
+
+def sources_brief(facts: list[Fact]) -> Fact | None:
+    """Minimal Detail's one Sources line: "Sources: <exe>; its patch list read from <the patcher's log | its own
+    bytes>.", or a warning when the patches could not be told; None for a page with no Sources (the general page)."""
+    for fact in facts:
+        if fact.group != SOURCES:
+            continue
+        if fact.text.startswith(_PATCHES_LEAD):
+            words = fact.text[len(_PATCHES_LEAD):]
+            for marker, how in ((", as listed by ", "the patcher's log of the run that made it"),
+                                (", read from its own bytes", "its own bytes (no patcher log matches it)")):
+                if marker in words:
+                    exe = Path(words.split(marker, 1)[0]).name
+                    return dataclasses.replace(fact, text=f"Sources: {exe}; its patch list read from {how}.",
+                                               sub=False)
+        if fact.text.startswith(_UNTOLD_LEAD):
+            return dataclasses.replace(fact, text=f"Warning: {first_sentence(fact.text)} The numbers below are for "
+                                                  f"the normal game; {BROWSE_HINT}.", sub=False)
+    return None
+_SENTENCE_END = re.compile(r"[.!?][\"”)]?(?=\s+[A-Z\"(])")
+
+
+def first_sentence(text: str) -> str:
+    """The answer a Game Mechanics line starts with: its text up to the end of the first sentence (never inside the
+    game's own words in quotation marks)."""
+    for end in _SENTENCE_END.finditer(text):
+        if text.count('"', 0, end.end()) % 2 == 0:
+            return text[:end.end()]
+    return text
+
+
+def minimum(facts: list[Fact]) -> list[Fact]:
+    """The page in Minimum Detail (see MINIMUM DETAIL above): the vital statistics and the numbers, each line cut to
+    its answer; the explanations left out."""
+    def short(fact: Fact) -> str | None:
+        if fact.group in MINIMUM_HIDDEN_GROUPS:
+            return None
+        answer = first_sentence(fact.text)
+        if _EXPLAINS.search(answer) or _TIPS.search(fact.text):
+            return None
+        if fact.group == GROUPS[0] or fact.due is not None or re.search(r"\d", answer):
+            return answer
+        return None
+
+    out: list[Fact] = []
+    heading: Fact | None = None        # a left-out parent line, shown as a heading if a sub-line under it is kept
+    orphan = False                     # the parent was left out with no heading: its kept sub-lines become bullets
+    brief = sources_brief(facts)       # the one Sources line kept, in the Sources group's place
+    for fact in facts:
+        if brief is not None and fact.group == SOURCES:
+            out.append(brief)
+            brief = None
+        text = short(fact)
+        if not fact.sub:
+            heading, orphan = None, False
+            if text is None:
+                orphan = True
+                answer = first_sentence(fact.text)
+                lead = answer.split(":", 1)[0]
+                if (lead != answer and fact.group not in MINIMUM_HIDDEN_GROUPS and not _EXPLAINS.search(lead)
+                        and not _TIPS.search(fact.text)):
+                    heading = dataclasses.replace(fact, text=lead + ":", due=None, due_kind=None)
+                continue
+        if text is None:
+            continue
+        if heading is not None:
+            out.append(heading)
+            heading, orphan = None, False
+        out.append(dataclasses.replace(fact, text=text, sub=fact.sub and not orphan))
+    return out
 
 
 def tidy(text: str) -> str:

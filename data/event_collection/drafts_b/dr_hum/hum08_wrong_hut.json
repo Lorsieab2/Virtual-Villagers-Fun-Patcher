@@ -74,6 +74,32 @@
    "src": "L98"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) taps (subject.him/her) on the shoulder. (subject) opens (subject.his/her) eyes and says warmly, \"Oh, hello! What are you doing in my hut?\" Then (subject.he/she) looks around, and the realization arrives slowly. (subject) apologizes all the way out of the door, and (friend) laughs all the way. A few days later (friend) catches (friend.him/her)self walking into (subject)'s hut by mistake. Neither of them is entirely sure any more whose hut is whose.",
+   "src": "L101",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L101"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) taps (subject.him/her) on the shoulder. (subject) opens (subject.his/her) eyes and says warmly, \"Oh, hello! What are you doing in my hut?\" Then (subject.he/she) looks around, and the realization arrives slowly. (subject) apologizes all the way out of the door, and (friend) laughs all the way. A few days later (friend) catches (friend.him/her)self walking into (subject)'s hut by mistake. Neither of them is entirely sure any more whose hut is whose.",
    "src": "L101"

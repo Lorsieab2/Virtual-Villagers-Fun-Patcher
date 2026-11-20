@@ -85,7 +85,7 @@ class FlatFoodMastery(unittest.TestCase):
                 self.assertTrue(inside.startswith(out[:-1]), "the stock gains come first, unchanged")
                 self.assertIn(f"With \"{gm.feature_name(module.FLAT)}\": {self.PATCHED}", inside)
                 unknown = self.mastery_line(module, game, None)
-                self.assertIn("(whether the game has it could not be told): " + self.PATCHED, unknown)
+                self.assertIn(f"({gm.UNTOLD}): " + self.PATCHED, unknown)
 
 
 if __name__ == "__main__":

@@ -104,11 +104,63 @@
    "src": "L875"
   },
   "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1) watches a parent patiently mend a worn basket. (Name1) feels useful and hopes someone noticed.",
+   "src": "L879",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L879"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
    "name": "Ending 3",
    "text": "(Name1) watches a parent patiently mend a worn basket. (Name1) feels useful and hopes someone noticed.",
    "src": "L879"
   },
-  "e4": {
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1) watches a parent patiently mend a worn basket. A little shared laughter makes the chore less tedious.",
+   "src": "L883",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L883"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1) watches a parent patiently mend a worn basket. A little shared laughter makes the chore less tedious.",
    "src": "L883"

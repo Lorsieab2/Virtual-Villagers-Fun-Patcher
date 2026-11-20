@@ -81,6 +81,51 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Nothing's come up because I never planted them,\" says (subject). \"I said I had. I'm sorry.\" (friend) stands up slowly. \"Two weeks.\" \"I know.\" (friend) isn't shouting, but (friend.he/she) isn't smiling either. They plant the seeds together that afternoon. For a while afterward, whenever (subject) says \"done,\" (friend) goes and has a look.",
+   "src": "L326",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L326"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L326"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Nothing's come up because I never planted them,\" says (subject). \"I said I had. I'm sorry.\" (friend) stands up slowly. \"Two weeks.\" \"I know.\" (friend) isn't shouting, but (friend.he/she) isn't smiling either. They plant the seeds together that afternoon. For a while afterward, whenever (subject) says \"done,\" (friend) goes and has a look.",
    "src": "L326",
@@ -92,9 +137,31 @@
      "loss": true,
      "src": "L326"
     }
-   ]
+   ],
+   "auto_text": true
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) plants them that night by moonlight. A week later the shoots appear, late, and (friend) is delighted. \"Slow seeds,\" (friend.he/she) says. (subject) agrees that they were very slow. The harvest is a little smaller than it might have been, and nobody else ever knows why. (subject) does.",
+   "src": "L329",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L329"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L329"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) plants them that night by moonlight. A week later the shoots appear, late, and (friend) is delighted. \"Slow seeds,\" (friend.he/she) says. (subject) agrees that they were very slow. The harvest is a little smaller than it might have been, and nobody else ever knows why. (subject) does.",
    "src": "L329",
@@ -106,7 +173,8 @@
      "loss": true,
      "src": "L329"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

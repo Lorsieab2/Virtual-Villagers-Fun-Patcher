@@ -40,8 +40,8 @@ TEXTS: tuple[tuple[str, str], ...] = (
     ("INTRO", "{n} has been swimming underwater as a hobby. One day, {he} spots a pod of dolphins playing just "
               "offshore! They seem to be chasing something, but {n} is unsure whether {he} can hold {his} breath long "
               "enough to see what. What should {he} do?"),
-    ("LABEL_SWIM", "Swim towards the dolphins"),
-    ("LABEL_BACK", "Hang back"),
+    ("LABEL_SWIM", "Swim Towards the Dolphins"),
+    ("LABEL_BACK", "Hang Back"),
     ("SWIM", "{n} swims towards the dolphins, being careful not to disturb them."),
     ("HUNT_1", "{He} gleefully watches the clever dolphins herd shoals of fish through giant bubble rings, "
                "disorienting them enough to become easy prey. \"What magnificent creatures!\" {he} thinks."),

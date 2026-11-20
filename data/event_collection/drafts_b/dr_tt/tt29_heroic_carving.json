@@ -69,11 +69,83 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) carves every suggestion. The finished figure shows (subject) standing on a rock, gazing bravely at the horizon, a huge fish in one hand and a seabird on (subject.his/her) shoulder. Everyone who sees it says, \"Who's that?\" (subject) is completely delighted with it.",
+   "src": "L350",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L350"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L350"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) carves every suggestion. The finished figure shows (subject) standing on a rock, gazing bravely at the horizon, a huge fish in one hand and a seabird on (subject.his/her) shoulder. Everyone who sees it says, \"Who's that?\" (subject) is completely delighted with it.",
    "src": "L350"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) nods at every suggestion and carves (subject) exactly as (subject.he/she) is: sitting by the fire, peeling a fruit, half smiling. (subject) looks at it for a long time. \"That's me,\" (subject.he/she) says, a little surprised. \"That's what I look like when I'm happy.\" (subject.He/she) keeps it by the door.",
+   "src": "L353",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L353"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L353"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) nods at every suggestion and carves (subject) exactly as (subject.he/she) is: sitting by the fire, peeling a fruit, half smiling. (subject) looks at it for a long time. \"That's me,\" (subject.he/she) says, a little surprised. \"That's what I look like when I'm happy.\" (subject.He/she) keeps it by the door.",
    "src": "L353"

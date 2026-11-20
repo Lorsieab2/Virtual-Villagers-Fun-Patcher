@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grandchild's Wish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b210_grandchild_wish",
+  "source": "balance",
+  "lines": [
+   9757,
+   9800
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9757",
+  "ledger": [
+   {
+    "src": "L9758",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9759",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9767",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9776",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9764",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9765",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9768",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9777",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9770",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9773",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9779",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9782",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9785-9800",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is sitting in the sun.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject)'s grandchild, (child), has been learning spells from the old storyteller, little ones, mostly harmless: a song that makes flowers open, a rhyme to find lost things. Today (child) has learned a bigger one, about \"giving back time,\" and is very excited, and wants to try it on (subject), because (subject) is the oldest person (subject.he/she) loves.\n(subject) is sitting in the sun. (child) is standing in front of (subject.him/her) with a handful of dried flowers and a very serious face, already starting to chant. The storyteller, passing by, stops dead and looks worried.\nShould (subject) let (child) finish the spell?",
+   "choices": [
+    {
+     "label": "Let (subject.Him/Her) Finish",
+     "next": "c1",
+     "src": "L9764"
+    },
+    {
+     "label": "Stop the Spell Gently",
+     "next": "c2",
+     "src": "L9765"
+    }
+   ],
+   "src": "L9760-9762"
+  },
+  "c1o1": {
+   "text": "The flowers sink into (subject)'s hair, and when (subject.he/she) opens (subject.his/her) eyes, the world looks sharper, and (subject.his/her) hands are strong and smooth, and (subject.his/her) hair is thick. Twenty years, gone. (child) jumps up and down. The storyteller sits down heavily and says (subject.he/she) is never teaching that one again. (subject) picks (child) up and swings (subject.him/her) round, which (subject.he/she) hasn't been able to do in years.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -20,
+      -20
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L9771",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The spell is strong, and (child) is very determined. When (subject) opens (subject.his/her) eyes, (subject.he/she) is twenty-five, and (subject.his/her) grandchild is looking at (subject.him/her) as if (subject.he/she) has done something terribly clever and terribly wrong at the same time. (subject) laughs until (subject.he/she) cries. \"You'll still have to call me Grand(subject.father/mother),\" (subject.he/she) says. \"No matter how odd it looks.\"",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "adult",
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L9774",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) closes (subject.his/her) eyes and lets the chanting wash over (subject.him/her). (child) scatters the dried flowers over (subject.his/her) head. They smell of summer, and they don't fall to the ground. They hang in the air, glowing...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9768"
+  },
+  "c2o1": {
+   "text": "Half a spell, it turns out, is still something. (subject)'s face has gone smooth and bright, as it was long ago, though the rest of (subject.him/her) is as old as ever. (child) is delighted with half a success. The storyteller makes (child) promise to only ever do whole spells, or none.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L9780",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(child) explains the spell, all of it, and (subject) listens to every word, and asks good questions. By the end (child) understands it much better than (subject.he/she) did, including all the ways it could have gone wrong. The storyteller takes (subject.him/her) on properly after that, and (child) gets very good at the little spells.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "min": 10,
+     "max": 20,
+     "best": true
+    }
+   ],
+   "src": "L9783",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) takes (child)'s hands, very gently, and the chanting stops. \"Not today,\" (subject.he/she) says. \"I like being old. Tell me what the spell does instead...\"",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9777"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L9774",
+   "before": "(Grandfather/Grandmother)",
+   "after": "Grand(father/mother)"
+  }
+ ]
+}

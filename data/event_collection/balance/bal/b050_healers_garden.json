@@ -1,0 +1,213 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healers' Garden",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b050_healers_garden",
+  "source": "balance",
+  "lines": [
+   2253,
+   2294
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2253",
+  "ledger": [
+   {
+    "src": "L2254",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2255",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2263",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2272",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2260",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2261",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2264",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2273",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2266",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2269",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2275",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2278",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2281-2294",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager, who helps the healers, has two choices.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The healers' herb garden has been neglected all season, and now three people are down with a stomach sickness and the right leaves have all been eaten by caterpillars. (Name), who helps the healers, has two choices.\n(He/She) can spend the day in the garden picking off every caterpillar by hand and coaxing the half-eaten plants back, which will help the next sick person, if not these. Or (he/she) can walk to the far valley where the same herb grows wild, which will take all day but help the sick now.\nWhat should (name) do?",
+   "choices": [
+    {
+     "label": "Save the Garden",
+     "next": "c1",
+     "src": "L2260"
+    },
+    {
+     "label": "Walk to the Far Valley",
+     "next": "c2",
+     "src": "L2261"
+    }
+   ],
+   "src": "L2256-2258"
+  },
+  "c1o1": {
+   "text": "By noon, every healer in the village has come out to help, partly from guilt about the garden. They spend the day weeding, picking and replanting, and talking about every plant as they go. They learn more about their own garden in one day than in the whole year before. The sick get better on their own, slowly, and the garden is never neglected again.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 10,
+     "max": 10,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L2267",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "There are more caterpillars than leaves. (Name) picks until (his/her) fingers are green and (his/her) back is screaming, and at sunset there's still a caterpillar on every plant, looking at (him/her). (Name) never wants to see a garden again. The sick get better in a few days anyway.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "flowers",
+     "role": "subject"
+    }
+   ],
+   "src": "L2270",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) kneels in the dirt and starts picking caterpillars off the leaves one by one, dropping them in a bowl to carry out to the forest...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2264"
+  },
+  "c2o1": {
+   "text": "(Name) comes back after dark, footsore and scratched, with the basket overflowing. The healers boil the leaves at once, and by morning the three sick people are sitting up, pale and grateful and starving. \"You walked to the far valley for me?\" says one of them. \"For all of you,\" says (name), and goes to sleep in the healers' hut, too tired to walk home.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "random": 3
+     }
+    }
+   ],
+   "src": "L2276",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The walk is long, and hot, and beautiful, and somewhere along the way (name) stops minding it. By the time (he/she) gets back, with the herbs, (he/she) has stopped minding the bitter smell of the herbs, which (he/she) always hated. The sick get better. (Name) offers to make the walk again next month.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "herbs",
+     "role": "subject"
+    }
+   ],
+   "src": "L2279",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) sets off at dawn with an empty basket, over the ridge and down into the far valley, where the wild herbs grow thick along the stream...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2273"
+  }
+ }
+}

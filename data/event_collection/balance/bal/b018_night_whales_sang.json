@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night the Whales Sang",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b018_night_whales_sang",
+  "source": "balance",
+  "lines": [
+   798,
+   839
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L798",
+  "ledger": [
+   {
+    "src": "L799",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L800",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L808",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L817",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L805",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L806",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L809",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L818",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L811",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L814",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L820",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L823",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L826-839",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Out past the reef, in the moonlight, great dark backs are rolling in the water, and the sound is coming from them.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Late one night (name) wakes to a sound coming through the floor of (his/her) hut: a deep, slow moaning, like wind in a hollow log, but sadder and much bigger. (He/She) goes out onto the beach. Out past the reef, in the moonlight, great dark backs are rolling in the water, and the sound is coming from them.\nThe fishers say whales come by every few generations, and that their song gets into people's bones. Some of the elders want to wake the whole village to hear it. Others say whale song is private, and people should let the whales sing and go back to bed.\nShould (name) wake everyone, or listen alone?",
+   "choices": [
+    {
+     "label": "Wake the Whole Village",
+     "next": "c1",
+     "src": "L805"
+    },
+    {
+     "label": "Listen Alone",
+     "next": "c2",
+     "src": "L806"
+    }
+   ],
+   "src": "L801-803"
+  },
+  "c1o1": {
+   "text": "Nobody speaks. The song rolls over them, deep and slow, and the little ones fall asleep in their parents' arms, and the elders cry a little without being sad. It goes on until the sky turns grey and the whales go down, one by one. All the next day, people keep humming bits of it without meaning to. Even years later, someone will stop in the middle of a job and say, \"Do you remember the night the whales sang?\"",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L812",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The song goes on all night. In the morning everyone goes to work tired, but something has changed. The builders build straighter, the fishers fish better, the cooks put just the right pinch in the pot, as if the slow, deep rhythm of the song had got into their hands. \"It's in our bones now,\" the oldest fisher says. Nobody argues.",
+   "effects": [
+    {
+     "do": "skill",
+     "best": true,
+     "min": 5,
+     "max": 5,
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L815",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) runs hut to hut, shaking people awake, and soon the whole village is on the beach in its sleeping wraps, babies and elders and all, standing silent in the moonlight...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L809"
+  },
+  "c2o1": {
+   "text": "(Name) listens until dawn. Somewhere in the long middle of the night, (he/she) stops thinking about anything at all. When the whales go down and (name) walks home, (he/she) feels as if (he/she) has been washed clean inside. (Name), who has never been able to sit still for long, finds that (he/she) can. From then on, (he/she) takes (his/her) rest like everyone else.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "resting",
+     "role": "subject"
+    }
+   ],
+   "src": "L821",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "In the morning, everybody asks what the noise was. \"Whales,\" says (name). \"Singing.\" Nobody believes (him/her). (He/She) doesn't mind. It's (his/hers), the whole long night of it, and on bad days (he/she) goes down to the beach and closes (his/her) eyes and can hear it still.",
+   "src": "L824"
+  },
+  "c2": {
+   "text": "(Name) sits down on the cool sand and wraps (his/her) arms around (his/her) knees. It's just (him/her), the moon, and the great slow voices out past the reef...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L818"
+  }
+ }
+}

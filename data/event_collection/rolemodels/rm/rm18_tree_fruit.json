@@ -211,7 +211,16 @@
      "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
      "src": "L39"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L39"
+    }
+   ],
+   "auto_text": true
   },
   "d2": {
    "name": "Outcome D2",

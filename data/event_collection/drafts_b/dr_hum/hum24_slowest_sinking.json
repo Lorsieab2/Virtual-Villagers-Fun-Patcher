@@ -69,11 +69,71 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) keeps smiling and waving as the water rises past (subject.his/her) waist. The canoe settles gently on the sandy bottom, with (subject) still sitting perfectly upright in it. \"It floats,\" (subject.he/she) announces, \"just not for long.\" The crowd cheers wildly. (friend) helps (subject.him/her) fix the seam the next day.",
+   "src": "L290",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L290"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) keeps smiling and waving as the water rises past (subject.his/her) waist. The canoe settles gently on the sandy bottom, with (subject) still sitting perfectly upright in it. \"It floats,\" (subject.he/she) announces, \"just not for long.\" The crowd cheers wildly. (friend) helps (subject.him/her) fix the seam the next day.",
    "src": "L290"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) leaps out with a great splash and drags the canoe ashore, where (friend) helps (subject.him/her) find the leak and seal it with tree gum. The second launch is perfect: the canoe floats beautifully. The crowd, which came back hoping for more sinking, is a little disappointed.",
+   "src": "L293",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L293"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) leaps out with a great splash and drags the canoe ashore, where (friend) helps (subject.him/her) find the leak and seal it with tree gum. The second launch is perfect: the canoe floats beautifully. The crowd, which came back hoping for more sinking, is a little disappointed.",
    "src": "L293"

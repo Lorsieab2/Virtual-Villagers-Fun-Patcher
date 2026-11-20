@@ -110,9 +110,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The small group dances until sunset.",
-   "src": "L28749"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -132,14 +139,28 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "(musician), an apprentice musician, finds an enthusiastic audience.",
-   "src": "L28752"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
+   "type": "branch",
    "name": "Outcome C2",
-   "text": "The musicians disagree about the rhythm and laugh.",
-   "src": "L28753"
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
   },
   "d": {
    "type": "branch",
@@ -162,6 +183,63 @@
    "name": "Outcome D2",
    "text": "Some villagers prefer that it remain a rare surprise.",
    "src": "L28756"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The small group dances until sunset.",
+   "src": "L28749",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "musician",
+     "mood": "good",
+     "src": "L28749"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The small group dances until sunset.",
+   "src": "L28749"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(musician), an apprentice musician, finds an enthusiastic audience.",
+   "src": "L28752",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "musician",
+     "mood": "good",
+     "src": "L28752"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(musician), an apprentice musician, finds an enthusiastic audience.",
+   "src": "L28752"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The musicians disagree about the rhythm and laugh.",
+   "src": "L28753",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "musician",
+     "mood": "good",
+     "src": "L28753"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "The musicians disagree about the rhythm and laugh.",
+   "src": "L28753"
   }
  }
 }

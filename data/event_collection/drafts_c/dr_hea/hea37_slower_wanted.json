@@ -74,6 +74,39 @@
    "src": "L449"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides to paddle anyway. Halfway across the lagoon (subject.he/she) has to stop and switch hands. When (subject.he/she) gets back, (subject.he/she) sits on the beach, cradling the wrist and feeling cross with (subject.him/her)self. (friend) sits down too. \"Bad day?\" \"Bad day.\" \"Then tomorrow can be a better one,\" says (friend). \"Or not. Either way, rest it tonight.\"",
+   "src": "L452",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L452"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L452"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) decides to paddle anyway. Halfway across the lagoon (subject.he/she) has to stop and switch hands. When (subject.he/she) gets back, (subject.he/she) sits on the beach, cradling the wrist and feeling cross with (subject.him/her)self. (friend) sits down too. \"Bad day?\" \"Bad day.\" \"Then tomorrow can be a better one,\" says (friend). \"Or not. Either way, rest it tonight.\"",
    "src": "L452"

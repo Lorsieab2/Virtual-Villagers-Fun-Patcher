@@ -1,0 +1,125 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Serenade",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd05_serenade",
+  "source": "draft_lcd",
+  "lines": [
+   64,
+   75
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L64",
+  "ledger": [
+   {
+    "src": "L65",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L71",
+    "kind": "instruction",
+    "text": "[effect: (name2) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L71",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L75",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L75",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager plans to serenade their love under the window at night: sing it, or ask the drummers to help.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has decided to serenade (friend), the old way: at night, outside (friend.his/her) hut, with a song (subject.he/she) wrote (subject.him/her)self. The trouble is that (friend) shares the hut with (friend.his/her) grandmother, two cousins and a very loud dog. What should (subject) do?",
+   "src": "L67",
+   "choices": [
+    {
+     "label": "Sing Alone",
+     "next": "o1",
+     "src": "L69"
+    },
+    {
+     "label": "Bring the Drummers",
+     "next": "o2",
+     "src": "L73"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) stands outside the hut under the moon and sings. The dog howls along. The cousins come out to watch. The grandmother shouts that some people are trying to sleep. (friend) comes out last, laughing so hard (friend.he/she) can barely stand, and sits down to hear the rest.",
+   "src": "L71",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "friend",
+     "src": "L71"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) brings three drummers and a flute player. It is far too loud. Half the village wakes up and comes to see. By the end of the song, there is a small crowd dancing outside (friend)'s hut, and (friend) is dancing with (subject) in the middle of it.",
+   "src": "L75",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L75"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

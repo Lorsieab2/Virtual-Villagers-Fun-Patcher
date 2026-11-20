@@ -50,7 +50,6 @@
   "caregiver": {
    "kind": "villager",
    "min_age": 18,
-   "sex": "female",
    "special": "nursing_parent"
   },
   "sibling": {
@@ -116,22 +115,18 @@
      "max": 10,
      "src": "L4387"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
+   "type": "branch",
    "name": "Outcome 2",
-   "text": "The family laughs at the baby's determination.",
-   "src": "L4388",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "caregiver",
-     "skills": [
-      "Parenting"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L4388"
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
     }
    ]
   },
@@ -150,7 +145,56 @@
      "max": 10,
      "src": "L4389"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "e2__fx": {
+   "name": "Outcome 2",
+   "text": "The family laughs at the baby's determination.",
+   "src": "L4388",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "caregiver",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4388"
+    },
+    {
+     "do": "mood",
+     "role": "caregiver",
+     "mood": "good",
+     "src": "L4388"
+    },
+    {
+     "do": "mood",
+     "role": "sibling",
+     "mood": "good",
+     "src": "L4388"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Outcome 2",
+   "text": "The family laughs at the baby's determination.",
+   "src": "L4388",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "caregiver",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4388"
+    }
+   ],
+   "auto_text": true
   }
  }
 }

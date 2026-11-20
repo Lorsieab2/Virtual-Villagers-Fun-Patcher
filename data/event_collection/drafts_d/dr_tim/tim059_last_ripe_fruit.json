@@ -99,9 +99,16 @@
    "src": "L987"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "One sibling saves the last ripe fruit for the other. They finish laughing about a mistake from earlier in the day.",
-   "src": "L991"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -112,6 +119,25 @@
    "name": "Ending 4",
    "text": "One sibling saves the last ripe fruit for the other. They disagree about the best method, then try both.",
    "src": "L999"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "One sibling saves the last ripe fruit for the other. They finish laughing about a mistake from earlier in the day.",
+   "src": "L991",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L991"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "One sibling saves the last ripe fruit for the other. They finish laughing about a mistake from earlier in the day.",
+   "src": "L991"
   }
  }
 }
