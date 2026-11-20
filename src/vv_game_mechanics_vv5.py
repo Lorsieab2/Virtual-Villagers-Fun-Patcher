@@ -420,16 +420,19 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                     "and changes nothing by itself"))
     if village.has(PUDDLES) is not False:           # patch_words says when that could not be told
         add("Other", "Normally \"Playing in puddles\" stops once The Lake holds water. " + gm.patch_words(
-            # The patch's shore picker 0x494E00; the dirt's 0x494E44.
+            # The patch's shore cave 0x494E00 and the dirt's 0x494E27 call the point routine 0x494E39.
             village, PUDDLES, "with water in the lake the rain still brings it, and each of the five walks goes to a "
-                              "random point of the lake's north-west sandy shore, never in the water, between the "
-                              "lake's west tip and the rocks with the red flower; before The Lake has water, nothing "
-                              "changes. \"Playing in the dirt\" goes to that same shore always, before and after The "
-                              "Lake has water: each of its six steps to a random point along it"), gm.CODE)
+                              "random point of the grass above the lake's north-west edge and the sandy strip along "
+                              "its shore (1304..1599 by 1781..2127, less the corner by the Hollow Totem), never in "
+                              "the water and never on the Hollow Totem; before The Lake has water, nothing changes: "
+                              "the children play in the dry lake bed's puddles. \"Playing in the dirt\" goes to that "
+                              "same ground always, before and after The Lake has water: each of its six steps to a "
+                              "random point of it"), gm.CODE)
     if village.has(DIRT_SPOT) is not False:
         add("Other", gm.patch_words(
-            village, DIRT_SPOT, "\"Playing in the dirt\"'s six steps go to random points of the flower patch east "
-                                "of the dirt path, 1860..2164 by 1479..1683"), gm.CODE)
+            village, DIRT_SPOT, "\"Playing in the dirt\"'s six steps go to random points of the grass above the "
+                                "lake's north-west edge, 1304..1559 by 1855..2059, never in the water and never on "
+                                "the Hollow Totem"), gm.CODE)
     clock = gm.later_clock(data, CLOCK, base, speed_value, _i32(data, STATS))
     out.append(gm.started_line(clock.created))
     out.extend(f for f in [gm.warp_dates_note(village, "Other", "the village's start date is")] if f)

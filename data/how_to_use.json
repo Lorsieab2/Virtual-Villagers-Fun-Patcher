@@ -1124,9 +1124,10 @@
     {
       "ids": ["vv5_puddles_by_the_lake"],
       "guide": [
-        "After The Lake has water, children still go \"Playing in puddles\" when it rains, on the lake's north-west sandy shore.",
-        "Before The Lake is filled nothing changes: they play in the dry lake bed.",
-        "Children \"Playing in the dirt\" play on that same shore, always, before and after The Lake has water.",
+        "After The Lake has water, children still go \"Playing in puddles\" when it rains, on the grass above the lake's north-west edge.",
+        "That spot reaches down to the sandy strip along the shore: never in the water, never on the Hollow Totem.",
+        "Before The Lake is filled nothing changes: they play in the dry lake bed's puddles.",
+        "Children \"Playing in the dirt\" play on that same ground, always, before and after The Lake has water.",
         "Ticking it unticks Move the \"Playing in the dirt\" Spot. Nothing to click."
       ]
     },
@@ -1144,8 +1145,9 @@
     {
       "ids": ["vv5_playing_in_the_dirt_spot"],
       "guide": [
-        "Children who play in the dirt now play in the flower patch east of the dirt path, instead of wandering through the river.",
-        "Off by default, and Select All does not tick it: Puddle Play Moves to the Lake Shore moves dirt play to the lake shore instead.",
+        "Children who play in the dirt now play on the grass above the lake's north-west edge, instead of wandering through the river.",
+        "Never in the water, never on the Hollow Totem.",
+        "Off by default, and Select All does not tick it: Puddle Play Moves to the Lake Shore also sends dirt play to that grass.",
         "Ticking one unticks the other. Nothing to click."
       ]
     },

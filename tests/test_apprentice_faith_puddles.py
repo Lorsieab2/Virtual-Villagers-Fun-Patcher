@@ -16,6 +16,7 @@ Tests that need the stock executables skip when they are absent.
 from __future__ import annotations
 
 import importlib.util
+import math
 import json
 import struct
 import sys
@@ -33,7 +34,7 @@ try:
     import pefile
     from unicorn import UC_ARCH_X86, UC_HOOK_CODE, UC_MODE_32, Uc
     from unicorn.x86_const import (UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX,
-                                   UC_X86_REG_EIP, UC_X86_REG_ESI, UC_X86_REG_ESP)
+                                   UC_X86_REG_EDX, UC_X86_REG_EIP, UC_X86_REG_ESI, UC_X86_REG_ESP)
     HAVE_EMULATOR = True
 except ImportError:  # pragma: no cover - environment dependent
     HAVE_EMULATOR = False
@@ -613,13 +614,19 @@ class PuddlesByTheLake(unittest.TestCase):
         self.assertEqual(json.loads(path.read_text(encoding="utf-8")), gen.puddles_feature())
         self.assertTrue(default_fun_patch_selection(PUDDLES))
 
-    def test_every_shore_point_is_dry_walkable_and_joined_to_the_village(self):
+    def test_every_grass_point_is_dry_walkable_joined_to_the_village_and_clear_of_the_totem(self):
+        """The owner (2026-11-20): never in the lake water; the grass above the lake's edge and the sandy strip
+        where the old shore line was ("they can go in the dirt where the line is too"), never lower; not on the
+        Hollow Totem.  Every point the routine can give is a walkable cell with walkable neighbours, outside the
+        lake (areas 0x69 / 0x6A, the water once The Lake is filled) and the totem (0x56 its ground, 0x43 its
+        entrance), joined to the village; never below the old shore line; and it and the spot 35 pixels above it
+        (where the villager stands) are 40 pixels or more from the totem's cells."""
         fe = emulation()
         cells = lake_cells(fe)
 
         def free(cx, cy):
             cell = cells[cy * 320 + cx]
-            return not cell & 1 and (cell >> 4) & 0x7FF not in (0x69, 0x6A)
+            return not cell & 1 and (cell >> 4) & 0x7FF not in (0x69, 0x6A, 0x56, 0x43)
         # The village's walkable ground, from the flower patch (the dirt spot) outwards.
         start = (2000 // 8, 1580 // 8)
         seen, todo = {start}, [start]
@@ -629,13 +636,73 @@ class PuddlesByTheLake(unittest.TestCase):
                 if 0 <= nx < 320 and 0 <= ny < 320 and (nx, ny) not in seen and free(nx, ny):
                     seen.add((nx, ny))
                     todo.append((nx, ny))
-        for r in range(gen.SHORE_SPAN):
-            x, y = gen.shore_point(r)
-            cx, cy = x // 8, y // 8
-            self.assertIn((cx, cy), seen, (r, x, y))
-            for dx in (-1, 0, 1):
-                for dy in (-1, 0, 1):
-                    self.assertTrue(free(cx + dx, cy + dy), (r, x, y))
+        totem = [((i % 320) * 8, (i // 320) * 8) for i, c in enumerate(cells) if (c >> 4) & 0x7FF in (0x56, 0x43)]
+        self.assertEqual(len(totem), 128)
+        tx0, tx1 = min(p[0] for p in totem), max(p[0] for p in totem) + 7
+        ty0, ty1 = min(p[1] for p in totem), max(p[1] for p in totem) + 7
+        self.assertEqual((tx0, tx1, ty0, ty1), (1600, 1679, 1776, 1919))
+        old_line = dict(gen.old_shore_point(r) for r in range(gen.OLD_SHORE_SPAN))
+        good, n = set(), 0
+        for rx in range(gen.GRASS_W):
+            for ry in range(gen.GRASS_H):
+                x, y = gen.grass_point(rx, ry)
+                if gen.in_totem_cut(x, y):
+                    continue
+                n += 1
+                self.assertLessEqual(y, old_line.get(x, y), (x, y))       # never below the old shore line
+                for sy in (y, y - 35):
+                    gap = math.hypot(max(tx0 - x, 0, x - tx1), max(ty0 - sy, 0, sy - ty1))
+                    self.assertGreaterEqual(gap, 40, (x, y))
+                cx, cy = x // 8, y // 8
+                if (cx, cy) in good:
+                    continue
+                self.assertIn((cx, cy), seen, (rx, ry, x, y))
+                for dx in (-1, 0, 1):
+                    for dy in (-1, 0, 1):
+                        self.assertTrue(free(cx + dx, cy + dy), (rx, ry, x, y))
+                good.add((cx, cy))
+        self.assertEqual(n, 72300, "a big spot")
+        # Its lowest edge is the old shore line itself (within a pixel).
+        self.assertTrue(all(0 <= old_line[x] - gen.grass_point(x - gen.GRASS_X, 0)[1] <= 1
+                            for x in range(1348, gen.GRASS_X + gen.GRASS_W)))
+
+    def test_the_point_routine_gives_only_area_points_and_draws_the_totem_corner_again(self):
+        """The routine itself, run in the emulator with scripted rolls: each (rx, ry) gives grass_point(rx, ry), and a
+        first roll in the totem's corner is drawn again."""
+        fe = emulation()
+        v = lake_village(fe, lake=True, patches=gen.puddles_feature()["patches"])
+        rolls, spans = [], []
+
+        def roll(n):
+            spans.append(n)
+            return rolls.pop(0)
+        start = gen.point_at()
+        for at in range(start, start + len(gen.point_routine())):
+            v.by_caller[at] = roll
+        cases = [((0, 0), None), ((295, 0), None), ((0, 272), None), ((255, 272), None),
+                 ((295, 272), (10, 5)), ((256, 0), None), ((290, 100), (1, 2))]
+        for first, again in cases:
+            rolls[:] = list(first) + (list(again) if again else [])
+            spans.clear()
+            x = v.call(start, 0x1234)              # ecx: the villager
+            got = (x, v.uc.reg_read(UC_X86_REG_EDX))
+            want = gen.grass_point(*(again or first))
+            self.assertEqual(got, want, (first, again))
+            self.assertEqual(gen.in_totem_cut(*gen.grass_point(*first)), again is not None, first)
+            self.assertEqual(rolls, [])
+            self.assertEqual(spans, [gen.GRASS_W, gen.GRASS_H] * (2 if again else 1))
+            self.assertEqual(v.uc.reg_read(UC_X86_REG_ECX), 0x1234, "the villager kept")
+
+    def in_grass(self, x, y) -> bool:
+        rx = x - gen.GRASS_X
+        return (0 <= rx < gen.GRASS_W and 0 <= gen.grass_point(rx, 0)[1] - y < gen.GRASS_H
+                and not gen.in_totem_cut(x, y))
+
+    def never_in_water(self, fe, targets):
+        cells = lake_cells(fe)
+        for x, y in targets:
+            self.assertNotIn((cells[(y // 8) * 320 + x // 8] >> 4) & 0x7FF, (0x69, 0x6A), (x, y))
+            self.assertFalse(cells[(y // 8) * 320 + x // 8] & 1, (x, y))
 
     def run_action(self, v, fe, behaviour: int = 0x5E):
         targets, areas = [], []
@@ -657,39 +724,43 @@ class PuddlesByTheLake(unittest.TestCase):
             self.assertLess(frames, 20000, "the action ends")
         return targets, areas, ends
 
-    def test_with_water_the_child_plays_on_the_shore_and_the_action_ends(self):
+    def test_with_water_the_child_plays_on_the_grass_and_the_action_ends(self):
         fe = emulation()
         feature = gen.puddles_feature()
         for seed in (3, 7, 11):
-            v = lake_village(fe, lake=True, patches=feature["patches"], seed=seed)
+            v = lake_village(fe, lake=True, patches=feature["patches"] + picker_fix(), seed=seed)
             targets, areas, ends = self.run_action(v, fe)
             self.assertEqual(areas, [])
             self.assertEqual(len(targets), 5)
-            shore = {gen.shore_point(r) for r in range(gen.SHORE_SPAN)}
             for t in targets:
-                self.assertIn(t, shore)
-            # Each walk ends where the game puts a villager sent to that point (its feet 12 left, 35 up): on the shore.
+                self.assertTrue(self.in_grass(*t), t)
+            self.never_in_water(fe, targets)
+            self.assertGreater(len(set(targets)), 1, "random points, not one spot")
+            # Each walk ends where the game puts a villager sent to that point (its feet 12 left, 35 up).
             arrived = [e for e in ends if e != ends[0]] or ends
             self.assertTrue(any(abs(x - (tx - 12)) <= 4 and abs(y - (ty - 35)) <= 4
                                 for (x, y) in arrived for (tx, ty) in targets), (targets, ends))
 
     def test_without_water_nothing_changes(self):
+        """The owner (2026-11-20): "kids can play in the unfilled lake as normal when it rains and there are puddles
+        in there" -- the stock walks to the dry lake bed's puddles (area 0x6A), with or without Fix Vanilla Bugs'
+        picker."""
         fe = emulation()
         feature = gen.puddles_feature()
-        v = lake_village(fe, lake=False, patches=feature["patches"])
-        targets, areas, _ = self.run_action(v, fe)
-        self.assertEqual((areas, targets), ([0x6A] * 5, []))
+        for extra in ([], picker_fix()):
+            v = lake_village(fe, lake=False, patches=feature["patches"] + extra)
+            targets, areas, _ = self.run_action(v, fe)
+            self.assertEqual((areas, targets), ([0x6A] * 5, []))
 
     def dirt_spot(self):
         return json.loads((ROOT / "data" / "vv5_playing_in_the_dirt_feature.json").read_text(encoding="utf-8"))
 
-    def test_playing_in_the_dirt_goes_to_the_shore_with_the_lake_dry_or_full(self):
-        """The owner (2026-11-08): Puddle Play Moves to the Lake Shore also moves "Playing in the dirt" (behaviour
-        0x68, 0x45ED40) to the same shore, before and after The Lake has water.  Stock and with Move the "Playing in
-        the dirt" Spot, the six go-tos stay in their own boxes; with the shore patch every one is a shore point, and
-        the child arrives on the shore and the action ends."""
+    def test_playing_in_the_dirt_goes_to_the_grass_with_the_lake_dry_or_full(self):
+        """The owner (2026-11-08, 2026-11-20): Puddle Play Moves to the Lake Shore also moves "Playing in the dirt"
+        (behaviour 0x68, 0x45ED40) to the same grass, before and after The Lake has water.  Stock the six go-tos stay
+        in their own strip; with Move the "Playing in the dirt" Spot they stay in its box (inside the grass); with
+        the shore patch every one is a grass point, and the child arrives there and the action ends."""
         fe = emulation()
-        shore = {gen.shore_point(r) for r in range(gen.SHORE_SPAN)}
         puddles, spot = gen.puddles_feature()["patches"], self.dirt_spot()["patches"]
         for lake in (False, True):
             for seed in (3, 7):
@@ -699,12 +770,15 @@ class PuddlesByTheLake(unittest.TestCase):
                     self.assertTrue(all(236 <= x <= 453 and 442 <= y <= 475 for x, y in targets), targets)
                     targets, _, _ = self.run_action(lake_village(fe, lake=lake, patches=spot, seed=seed), fe, 0x68)
                     self.assertEqual(len(targets), 6)
-                    self.assertTrue(all(1860 <= x <= 2164 and 1479 <= y <= 1683 for x, y in targets), targets)
+                    self.assertTrue(all(1304 <= x <= 1559 and 1855 <= y <= 2059 for x, y in targets), targets)
+                    self.assertTrue(all(self.in_grass(*t) for t in targets), targets)
+                    self.never_in_water(fe, targets)
                     v = lake_village(fe, lake=lake, patches=puddles, seed=seed)
                     targets, areas, ends = self.run_action(v, fe, 0x68)
                     self.assertEqual((len(targets), areas), (6, []))
                     for t in targets:
-                        self.assertIn(t, shore)
+                        self.assertTrue(self.in_grass(*t), t)
+                    self.never_in_water(fe, targets)
                     self.assertGreater(len({t for t in targets}), 1, "random points, not one spot")
                     # Each walk ends where the game puts a villager sent to that point (its feet 12 left, 35 up).
                     self.assertTrue(any(abs(x - (tx - 12)) <= 4 and abs(y - (ty - 35)) <= 4
