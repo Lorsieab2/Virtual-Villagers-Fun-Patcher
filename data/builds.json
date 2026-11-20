@@ -4131,7 +4131,7 @@
       "id": "vv4_birth_control",
       "game_id": "vv4",
       "name": "Birth Control",
-      "description": "**While catching up (time away and Time Warp), a villager with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Children are never involved, and the partner search, the conception roll, the population limit and huts stay the game's own, so a try can still fail.** That is all this patch changes: who may pair, the Parenting preference and live play are The Tree of Life's own, as before. Off by default; on in Owner's Defaults.",
+      "description": "**While catching up (time away and Time Warp), a villager with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Children are never involved, and the partner search, the conception roll, the population limit and huts stay the game's own, so a try can still fail.** That is all this patch changes: who may pair, the Parenting preference and live play are The Tree of Life's own, as before. On by default.",
       "output_tag": "Birth Control",
       "behavior_changes": [
         "Catch-up: the job-turn worker 0x465750 (only for a villager of age 280 units or more, not sick, pregnant or nursing, with 20 health or more) gates the chooser's (0x461CC0) Children pick (1) with RNG(100) <= 5 at 0x4657AE before queuing the embrace (0x469720) and running it through the step resolver 0x464FA0. File offset 0x657AE raises the bound from 5 to 99, so that pick always goes on to the embrace, as every other pick goes on to its job."
@@ -5612,7 +5612,7 @@
       "id": "vv5_birth_control",
       "game_id": "vv5",
       "name": "Birth Control",
-      "description": "**While catching up (time away and Time Warp), a believer with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Children are never involved, and the partner search, the conception roll, the population limit and huts stay the game's own, so a try can still fail.** That is all this patch changes: who may pair, the Parenting preference and live play are New Believers' own, as before. Off by default; on in Owner's Defaults.",
+      "description": "**While catching up (time away and Time Warp), a believer with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Children are never involved, and the partner search, the conception roll, the population limit and huts stay the game's own, so a try can still fail.** That is all this patch changes: who may pair, the Parenting preference and live play are New Believers' own, as before. On by default.",
       "output_tag": "Birth Control",
       "behavior_changes": [
         "Catch-up: the job-turn worker 0x46E8E0 (only for a believer of age 280 units or more, not sick, pregnant or nursing, with 20 health or more) gates the chooser's (0x46A3C0) Children pick (1) with RNG(100) <= 5 at 0x46E93E, then the population check 0x472BD0, before queuing the embrace (0x474CE0) and running it (0x46E020). File offset 0x6E93E raises the bound from 5 to 99, so that pick always goes on to the population check and the embrace, as every other pick goes on to its job."

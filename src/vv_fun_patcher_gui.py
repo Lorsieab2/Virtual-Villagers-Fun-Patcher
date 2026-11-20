@@ -276,8 +276,6 @@ def island_event_advisory(patch_id: str) -> tuple[str, bool] | None:
     return ISLAND_EVENT_ADVISORIES.get(tail)
 
 
-# Birth Control rows new in The Tree of Life and New Believers (catch-up babies only): on in Owner's Defaults only.
-VV4_VV5_BIRTH_CONTROL_IDS = ["vv4_birth_control", "vv5_birth_control"]
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
@@ -403,10 +401,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Village Solidarity (all five games; the owner, 2026-11-17): off by default and in Select All, on in Owner's
     # Defaults.
     + ["vv%d_village_solidarity" % game for game in range(1, 6)]
-    # Birth Control (The Tree of Life, New Believers; new 2026-11-19): a new option, so "ON in Owner's Defaults and
-    # OFF everywhere else" -- off here and in Select All.  A New Home to The Secret City keep their Birth Control
-    # rows on by default, as before.
-    + VV4_VV5_BIRTH_CONTROL_IDS
+    # Birth Control (The Tree of Life, New Believers; new 2026-11-19) is NOT here: the owner (2026-11-19) wants it
+    # on by default like A New Home to The Secret City's Birth Control rows, and ticked by Owner's Defaults and
+    # Select All.
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -490,8 +487,6 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + ONE_TIME_COLLECTIBLES_IDS
     # Village Solidarity: on in Owner's Defaults only (the owner, 2026-11-17).
     + ["vv%d_village_solidarity" % game for game in range(1, 6)]
-    # Birth Control in The Tree of Life and New Believers: on in Owner's Defaults only.
-    + VV4_VV5_BIRTH_CONTROL_IDS
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
