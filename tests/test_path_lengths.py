@@ -7,9 +7,8 @@ PATCHER FOLDER SHOULD SAY THE FULL NAME"); the added files under it have short n
 folder is "Events", its events "<number>.cieg" (numbers that never change: data/event_collection/file_numbers.tsv),
 its manifests "<group>.lst" and its living packs "<group>.pak".  Pinned here, in all five games:
 
-* every file a patch installs, relative to the game folder, is at most INSTALLED_RELATIVE_BUDGET characters (the
-  Player Events reference documents, which a player opens and which keep their names, are listed by name: no other
-  file may pass it);
+* every file a patch installs, relative to the game folder, is at most INSTALLED_RELATIVE_BUDGET characters, with no
+  exception (Player Events' documents have short readable names: "Tone Reference.txt", "Event Themes.txt"...);
 * every entry of the release zip is at most ZIP_ENTRY_BUDGET characters;
 * the numbering: one number per id, never two ids on one number, every shipped event and manifest row on its number;
 * a deep output folder (200 characters) gives the patcher's clear message, never another exception, and a folder of
@@ -38,13 +37,6 @@ import build_event_collection_features as build  # noqa: E402
 FOLDER = patcher_files.PATCHER_FILES_FOLDER
 GAMES = ("vv1", "vv2", "vv3", "vv4", "vv5")
 
-# Documents a player opens (Player Events' shipped references, copied into "<patcher folder>\\Player Events"): they
-# keep their readable names (the owner, 2026-11-19: only the added data files are shortened).  Listed so no other
-# file can pass the budget unnoticed.
-KNOWN_LONG_DOCUMENTS = {
-    f"{FOLDER}/{pe.INSTALLED_FOLDER}/{name}" for name in (pe.PROMPT_NAME,) + pe.OWNER_FILES
-    if len(f"{FOLDER}/{pe.INSTALLED_FOLDER}/{name}") > patcher_files.INSTALLED_RELATIVE_BUDGET
-}
 
 
 def feature_records():
@@ -86,9 +78,15 @@ class TheBudgets(unittest.TestCase):
         paths = installed_paths()
         self.assertGreater(len(paths), 4000)
         over = {p for p in paths if patcher_files.windows_length(p) > patcher_files.INSTALLED_RELATIVE_BUDGET}
-        self.assertEqual(over, KNOWN_LONG_DOCUMENTS,
-                         "\n".join(f"{patcher_files.windows_length(p)} {p} ({paths.get(p)})"
-                                   for p in sorted(over ^ KNOWN_LONG_DOCUMENTS, key=len, reverse=True)))
+        self.assertEqual(over, set(), "\n".join(f"{patcher_files.windows_length(p)} {p} ({paths.get(p)})"
+                                                 for p in sorted(over, key=len, reverse=True)))
+
+    def test_player_events_documents_have_short_readable_names(self):
+        for name in (pe.PROMPT_NAME,) + pe.OWNER_FILES:
+            self.assertLessEqual(len(name), 32, name)
+            self.assertTrue((pe.PLAYER_FOLDER / name).is_file(), name)
+            if name != pe.PROMPT_NAME:
+                self.assertEqual((pe.PLAYER_FOLDER / name).read_bytes(), pe.owner_source(name).read_bytes(), name)
 
     def test_the_collection_uses_short_names_in_every_game(self):
         for game in range(1, 6):
@@ -223,6 +221,21 @@ class TheOlderFolder(unittest.TestCase):
             self.assertTrue(vfp._player_events_relative(Path(FOLDER) / "Events" / name), name)
         for name in ("12.cieg", "an_age.lst", "le_per.pak", "Credits.txt"):
             self.assertFalse(vfp._player_events_relative(Path(FOLDER) / "Events" / name), name)
+
+    def test_player_events_documents_under_their_older_long_names_are_replaced(self):
+        base = short_base(self)
+        files = base / FOLDER
+        shown = files / pe.INSTALLED_FOLDER
+        shown.mkdir(parents=True)
+        for old in pe.LEGACY_INSTALLED_NAMES:
+            (shown / old).write_bytes(b"old")
+        (shown / "my own notes.txt").write_bytes(b"mine")
+        pe.install_references(1, files, pe.Settings(), base / "pe")
+        names = sorted(p.name for p in shown.iterdir())
+        self.assertEqual(sorted(set(names) & set(pe.LEGACY_INSTALLED_NAMES)), [])
+        for name in (pe.PROMPT_NAME,) + pe.OWNER_FILES:
+            self.assertIn(name, names)
+        self.assertIn("my own notes.txt", names)
 
     def test_its_long_names_never_refuse_a_folder(self):
         base = short_base(self)

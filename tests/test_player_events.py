@@ -485,7 +485,7 @@ class FormatSectionMatchesTheParser(unittest.TestCase):
     def test_the_owner_files_ship_byte_for_byte_and_the_prompt_names_them(self):
         for name in pe.OWNER_FILES:
             with self.subTest(name=name):
-                self.assertEqual((pe.PLAYER_FOLDER / name).read_bytes(), (pe.OWNER_DOCS / name).read_bytes())
+                self.assertEqual((pe.PLAYER_FOLDER / name).read_bytes(), pe.owner_source(name).read_bytes())
                 self.assertIn(f'"{name}"', pe.ai_prompt())
         text = pe.ai_prompt()
         self.assertIn("balancing them", text)
@@ -1176,7 +1176,7 @@ class InstallAndRules(unittest.TestCase):
             self.assertTrue((shown / pe.PROMPT_NAME).is_file())
             self.assertTrue((shown / pe.TONE_NAME).is_file())
             for name in pe.OWNER_FILES:
-                self.assertEqual((shown / name).read_bytes(), (pe.OWNER_DOCS / name).read_bytes(), name)
+                self.assertEqual((shown / name).read_bytes(), pe.owner_source(name).read_bytes(), name)
             self.assertFalse([p for p in coll.iterdir() if "example" in p.name.lower()])
             # Favoured themes weigh three times; Only my themes leaves the others out; ticked rules are enforced.
             pe.install(1, game, src, pe.Settings(favour=["comedy"]), root)

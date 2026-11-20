@@ -14,17 +14,17 @@ of the built-in events.
 - **Your files:** `<patcher folder>\Player Events\VV<n> - <game name>\*.txt` (the section's "Open Player Events
   Folder"; "Add Event Files..." copies files there). Any number of files; each holds any number of events and
   pieces. `Your Rules and Themes.txt` and `Player Events Settings.json` in the same folder are the section's own.
-- **The AI prompt and the tone reference:** `<patcher folder>\Player Events\Player Events - AI Prompt.txt` and
-  `Island Event Tone Reference - Lorsieab2's Handwritten Events.txt` (the owner's twelve handwritten events, the
+- **The AI prompt and the tone reference:** `<patcher folder>\Player Events\AI Prompt.txt` and
+  `Tone Reference.txt` (the owner's twelve handwritten events, the
   DEFAULT source for event tone; "Choose Reference File..." swaps in your own, Cancel goes back to the owner's), and
-  `Isola Island Event Style Guide.txt` (the owner's style guide, from Lorsieab2's own edits: every added event follows
+  `Style Guide.txt` (the owner's style guide, from Lorsieab2's own edits: every added event follows
   it, except the owner's handwritten ones; "Copy Style Guide" / "Show Style Guide"; the prompt tells the AI to follow
-  it), and the owner's default lists: `Island Event Themes - All Added Events.txt` (every theme of the added events;
-  the "favour these themes" picker offers them after your own) and `Island Event Outcomes - Every Kind.txt` (every
+  it), and the owner's default lists: `Event Themes.txt` (every theme of the added events;
+  the "favour these themes" picker offers them after your own) and `Event Outcomes.txt` (every
   kind of outcome; the prompt tells the AI to use those themes and outcome kinds, balancing the outcomes), and
-  `Example Events - Lorsieab2 (S001-S020).txt` (the owner's 20 rewritten events: the format and style example the
+  `Example Events (S001-S020).txt` (the owner's 20 rewritten events: the format and style example the
   prompt names; reference only, never compiled or installed as playable events); each with Copy / Show buttons. The
-  owner's five files ship byte for byte (also in docs/more-island-events); all six (the prompt with your rules) are
+  owner's five files ship byte for byte under these short names (the originals, under the owner's own names, are in docs/more-island-events); all six (the prompt with your rules) are
   also installed in each patched game's `Virtual Villagers Fun Patcher Files\Player Events`.
 - **At patch time** (only with the game's Isola Grand Event Collection row ticked, and "Install my player events
   when patching" on), in the patched game's `Virtual Villagers Fun Patcher Files`:

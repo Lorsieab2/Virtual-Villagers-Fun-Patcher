@@ -11750,7 +11750,8 @@ def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]
     # so the earlier build's are never the player's.  (Copies of the player's own event files there keep their
     # names and are not claimed: the originals are elsewhere and the next install copies them again.)
     import vv_player_events
-    for name in (vv_player_events.PROMPT_NAME, "Player Events Report.txt", *vv_player_events.OWNER_FILES):
+    for name in (vv_player_events.PROMPT_NAME, "Player Events Report.txt", *vv_player_events.OWNER_FILES,
+                 *vv_player_events.LEGACY_INSTALLED_NAMES):
         own(f"{vv_player_events.INSTALLED_FOLDER}/{name}")
     # The setting files the patcher itself writes beside their companions (no record ships them, so neither the
     # catalog nor a patch log names them): owned too, so a re-patch that leaves their row out drops them, loose
