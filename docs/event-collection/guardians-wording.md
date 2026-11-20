@@ -136,7 +136,7 @@ description, and every Guardians of Isola Rewrite form above) calls the tribe, t
 Guardians"; no pair above makes such a text. Every event text across the collection, More Island Events and Story
 Upgrades was read for "guardian"; only these three events used it as the villagers' name, and each is changed in every
 game and with or without the patch (a title through `docs/event-collection/owner-title-changes.md`, its two new
-titles marked `lead` for the owner's approval; a page through `scripts/food_tech_additions.py` TEXT_EDITS):
+titles approved by the owner on 2026-11-19; a page through `scripts/food_tech_additions.py` TEXT_EDITS):
 
 | Event | Where | Before | After |
 |---|---|---|---|
