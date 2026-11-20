@@ -1275,7 +1275,7 @@
     {
       "source": "assets/event_collection/vv4/living-st_v28.pak",
       "destination": "Island Event Collection/living-st_v28.pak",
-      "sha256": "C88C9B17D63BC29C5216A12698288C041E39BEACF969AB8DCC9AC5A83DFA1340"
+      "sha256": "64B9D46BFF93CBAF8F8240A65AD1844D0CFD3A5AA6F7F56E01225AC5C5710947"
     },
     {
       "source": "assets/event_collection/adv01_three_people.cieg",
@@ -1705,7 +1705,7 @@
     {
       "source": "assets/event_collection/all_v20_d2_no_such.cieg",
       "destination": "Island Event Collection/all_v20_d2_no_such.cieg",
-      "sha256": "CBD716AD841A81137E74A7EF4A659E1AF282033FBE9B8D1481C3A2DF198028C0"
+      "sha256": "226E0177E9A38520A65686C8CA32D0878296E01A62FF2C6370DE848D369345A9"
     },
     {
       "source": "assets/event_collection/all_v20_d3_cure.cieg",
