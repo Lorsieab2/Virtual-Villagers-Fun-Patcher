@@ -203,20 +203,23 @@ class NewHomeFromTheRealCallerTests(unittest.TestCase):
                 with self.subTest(config=config, **_label(kw)):
                     self.assertEqual(self._built(_vv1(config, **kw)), [("build hut", hut)])
 
-    def test_an_untouched_hut_starts_only_above_the_stock_numbers(self):
-        # Progress 0, or the drawing routine's scaffold mark 1: above 22 / 45
-        # builders start it themselves, as the stock game does; at or below,
-        # never.
+    def test_an_untouched_hut_is_never_started(self):
+        # Progress 0, or the drawing routine's scaffold mark 1: the stock game
+        # starts it above 22 / 45; patched, never, whatever the population --
+        # the owner, 2026-11-18 on #807: builders never start a population hut
+        # by themselves (the lifted gate jumps over the population test,
+        # vvfp_fix_huts.c VV1_GATE_LIFTED, the same bytes as Builder Action
+        # Fixes).
         for progress in (0, 1):
             for hut, huts, population in ((10, (1, 0, 0), 23), (10, (1, 0, 0), 60), (11, (1, 1, 0), 46),
                                           (10, (1, 0, 0), 22), (10, (1, 0, 0), 15), (11, (1, 1, 0), 45),
                                           (11, (1, 1, 0), 30)):
                 kw = dict(huts=huts, projects={hut: (progress, 0)}, population=population)
-                want = [("build hut", hut)] if population > (22 if hut == 10 else 45) else []
-                self.assertEqual(self._built(_vv1("stock", **kw)), want)
+                stock = [("build hut", hut)] if population > (22 if hut == 10 else 45) else []
+                self.assertEqual(self._built(_vv1("stock", **kw)), stock)
                 for config in V1_PATCHED:
                     with self.subTest(config=config, **_label(kw)):
-                        self.assertEqual(self._built(_vv1(config, **kw)), want)
+                        self.assertEqual(self._built(_vv1(config, **kw)), [])
 
     def test_below_the_old_numbers_an_untouched_hut_is_exactly_stock(self):
         for kw in (dict(huts=(1, 0, 0), population=14), dict(huts=(1, 0, 0), projects={10: (1, 0)}, population=20),
@@ -230,13 +233,32 @@ class NewHomeFromTheRealCallerTests(unittest.TestCase):
                 self.assertTrue([o for o in v1_outcome(passed) if o[0] == "examine"], v1_outcome(passed))
 
     def test_hut_9_and_a_complete_hut_are_unchanged(self):
-        for kw in (dict(huts=(0, 0, 0), population=3), dict(huts=(1, 1, 0), projects={10: (400, 1)}, population=10)):
+        # Hut 9 at a new village's own progress (125): its stock build is
+        # unchanged.  (At progress 0 see test_hut_9_nobody_worked_on_is_not_started.)
+        for kw in (dict(huts=(0, 0, 0), projects={9: (125, 0)}, population=3),
+                   dict(huts=(1, 1, 0), projects={10: (400, 1)}, population=10)):
             with self.subTest(**_label(kw)):
                 stock = _vv1("stock", **kw)
                 for config in ("baf", "fix huts, roll fails"):
                     self.assertEqual(effects(_vv1(config, **kw)), effects(stock), config)
                 self.assertEqual([o for o in v1_outcome(_vv1("fix huts, roll passes", **kw)) if o[0] == "build hut"],
                                  [o for o in v1_outcome(stock) if o[0] == "build hut"])
+
+    def test_hut_9_nobody_worked_on_is_not_started(self):
+        # Hut 9 back at progress 0 (an earthquake): the stock game, and Builder
+        # Action Fixes (which leaves hut 9's test stock), start it; with the
+        # Builders Fix Huts rows -- Villagers Work Their Own Job First among
+        # them (ROWS), whose hut-start detour 0x44753C calls the build only for
+        # hut 9 at progress 1 or more or a dropped villager -- nobody starts it,
+        # whether the roll passes or fails.  The owner, 2026-11-18 on #807:
+        # "not hut 9 either" (data/vv1_work_first_feature.json).
+        kw = dict(huts=(0, 0, 0), projects={9: (0, 0)}, population=3)
+        stock = _vv1("stock", **kw)
+        self.assertEqual(self._built(stock), [("build hut", 9)])
+        self.assertEqual(effects(_vv1("baf", **kw)), effects(stock))
+        for config in ("fix huts, roll passes", "fix huts, roll fails"):
+            with self.subTest(config=config):
+                self.assertEqual(self._built(_vv1(config, **kw)), [])
 
     def test_option_a_builds_a_started_hut_the_stock_roll_skipped(self):
         for level, site in ((3, V1["hut_site"]), (2, V1["level_site"])):
@@ -252,9 +274,11 @@ class NewHomeFromTheRealCallerTests(unittest.TestCase):
                 kw["population"] = 22
                 self.assertEqual(v1_outcome(_vv1("fix huts, roll passes", rolls=rolls(), **kw)), [("examine", 9)],
                                  "the untouched scaffold at 22 is not construction: a fix")
+                # The owner, 2026-11-18 on #807: never started by nobody's drop,
+                # whatever the population (the stock game starts it above 22).
                 kw["population"] = 23
-                self.assertEqual(v1_outcome(_vv1("fix huts, roll passes", rolls=rolls(), **kw)),
-                                 [("build hut", 10)], "above 22, as the stock game: built")
+                self.assertEqual(v1_outcome(_vv1("fix huts, roll passes", rolls=rolls(), **kw)), [("examine", 9)],
+                                 "the untouched scaffold above 22 is not construction either: a fix")
 
     def test_the_new_hut_test_runs_in_the_live_dispatcher(self):
         for config in V1_PATCHED:
@@ -384,7 +408,9 @@ class CatchUpTests(unittest.TestCase):
             (dict(huts=(1, 1, 0), projects={11: (2, 0)}, population=5), [("build hut", 11)], []),
             (dict(huts=(1, 0, 0), projects={10: (1, 0)}, population=10), [], []),
             (dict(huts=(1, 0, 0), projects={10: (1, 0)}, population=22), [], []),
-            (dict(huts=(1, 0, 0), projects={10: (1, 0)}, population=40), [("build hut", 10)], [("build hut", 10)]),
+            # The stock game starts it above 22; patched, never by nobody's drop
+            # (the owner, 2026-11-18 on #807).
+            (dict(huts=(1, 0, 0), projects={10: (1, 0)}, population=40), [], [("build hut", 10)]),
         )
         for kw, patched, stock in cases:
             with self.subTest(config="stock", **_label(kw)):
@@ -456,12 +482,16 @@ class NewHomeInstallsBeforeAnyCatchUpTests(unittest.TestCase):
 class DescriptionTests(unittest.TestCase):
     def test_builder_action_fixes(self):
         text = _builds_row("vv1_builder_action_fixes")["description"]
+        # The owner, 2026-11-18 on #807: builders never start the second or
+        # third population hut by themselves, whatever the population -- the
+        # row's bytes jump over the population test (VV1_GATE_LIFTED).
         for phrase in ("hidden rule", "15 villagers", "at 28", "more than 22", "more than 45",
-                       "at or below 22 (or 45) villagers builders only work on",
+                       "builders never start the second or third population hut by themselves, whatever the "
+                       "population",
                        "once you have dropped a villager on it at least once",
-                       "finish it whatever the population",
-                       "above that, as in the original game, they may start it themselves"):
+                       "finish it whatever the population"):
             self.assertIn(phrase, text)
+        self.assertNotIn("may start it themselves", text)
 
     def test_builders_fix_huts_when_idle(self):
         numbers = {"vv1": ("15 villagers", "at 28"), "vv2": ("21 villagers", "at 46")}
@@ -472,11 +502,12 @@ class DescriptionTests(unittest.TestCase):
                                "dropped a villager on it at least once", "whatever the population",
                                "**Runs on the Origins-exclusive base"):
                     self.assertIn(phrase, row["description"])
-                if game == "vv1":
-                    self.assertIn("above that, as in the original game, they may start it themselves",
-                                  row["description"])
-                else:
-                    self.assertNotIn("may start it themselves", row["description"])
+                # The owner, 2026-11-18 on #807: never started by nobody's drop,
+                # in both games.
+                self.assertIn({"vv1": "builders never start a population hut by themselves",
+                               "vv2": "builders start the second or third population hut only after you have "
+                                      "dropped a villager on it"}[game], row["description"])
+                self.assertNotIn("may start it themselves", row["description"])
 
 
 if __name__ == "__main__":
