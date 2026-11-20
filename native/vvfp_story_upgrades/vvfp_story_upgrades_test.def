@@ -192,3 +192,4 @@ EXPORTS
     VvfpStoryProbeSetRollTail=_VvfpStoryProbeSetRollTail@4
     VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16
     VvfpStoryTraitsOf=_VvfpStoryTraitsOf@8
+    VvfpStoryProbeFirstMarks=_VvfpStoryProbeFirstMarks@0
