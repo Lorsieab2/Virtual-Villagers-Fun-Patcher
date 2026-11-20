@@ -261,6 +261,8 @@ def expected(font: text.GameFont, data: bytes, x: int, y: int, colour: int) -> l
 class TablesAreTheGames(unittest.TestCase):
     @unittest.skipUnless(all(exe_path(g).is_file() for g in text.TITLES) and HAVE_UNICORN,
                          "the stock executables (and pefile) are needed")
+    @unittest.skipUnless(all(have_art(g) for g in text.TITLES),
+                         "research/game-images is needed (the builder reads each sheet's size)")
     def test_the_json_is_what_the_executables_hold(self) -> None:
         import build_vv_font_tables as build
         self.assertEqual(build.dump(build.build()), text.TABLES.read_text(encoding="utf-8"),

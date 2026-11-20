@@ -109,6 +109,9 @@ REMAINING = {
     # Checked Skill Preferences are listed as Jobs on Graves: the burial writer
     # re-encoded in place; owns no Origins bytes
     "vv2_preferred_job_graves",
+    # Every Island Event Can Happen: the event conditions' technology tests and raises, in place; owns no Origins
+    # bytes
+    "vv2_every_island_event_can_happen",
 }
 
 
@@ -244,6 +247,8 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 # Upgrades (the separate rare roll runs them), so selecting them resolves the Origins base in.
                 "vv2_more_island_events",
                 "vv2_isola_grand_event_collection",
+                # Village Solidarity: requires Story / Cheat Upgrades too, so the Origins base resolves in.
+                "vv2_village_solidarity",
                 # Show Cause of Death on Graves: loaded by the Origins
                 # companion, so it declares the Origins base.
                 "vv2_cause_of_death",

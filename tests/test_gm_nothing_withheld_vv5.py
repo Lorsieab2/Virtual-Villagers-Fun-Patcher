@@ -152,7 +152,13 @@ class RemainingList(unittest.TestCase):
         self.assertIn("Faith is set to 25 to 59", entry("The Heathen Builder").text)
         self.assertIn("With Research 88 or more", entry("The Heathen Scientist").text)
         self.assertIn("gains 30 Faith", entry("The Heathen Scientist").text)
-        self.assertTrue(entry("The Tribute Statue").subs[0][0].startswith("DEAD (never runs)"))
+        # The stock game never asks for the polish's +1 Divine Energy step (DEAD in the stock game); Fix Vanilla Bugs
+        # makes each polish ask for it (10e99038a), so the line says both.
+        statue = entry("The Tribute Statue").subs[0][0]
+        self.assertIn("in the normal game no action ever asks for that step", statue)
+        self.assertIn("With the patcher (\"Fix Vanilla Bugs\", on by default): each polish also adds 1 Divine Energy",
+                      statue)
+        self.assertNotIn("Fixed by With", statue)
         self.assertIn("the builder's after The Heathen Builder", entry("The Heathen Chief").subs[0][0])
         self.assertIn("\"Starting a fire\" with both in gives the third", entry("The fire pit").subs[0][0])
         self.assertFalse([e.name for e in items.entries() if e.verified is False])

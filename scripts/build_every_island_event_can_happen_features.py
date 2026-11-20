@@ -31,11 +31,11 @@ What the stock executables do (research/stock-executables; .text raw offset == V
     Science, 1 Medicine, 2 Alchemy); the raise 0x426FD0 already stops at 3.
     The Bitter Brown Beans (taste or dye) and The Ancient Tablet (laundry or decoration), shared condition 0x4157E0:
       Science below 2.  Its level test 0x415800..0x415816 is shared: No Safeguards for Island Events rewrites
-      0x415800..0x41580B at run time and the always-applied safety patch replaces 0x41580C..0x415816 with a jump to a
-      cave (cmp eax, 2 / jge no / records left), so neither may be touched.  Instead the picker's branch 0x4157FB
+      0x415800..0x41580B at run time, so it may not be touched (0x41580C..0x415816 keeps the stock bytes: these
+      events make no villager, so no record guard sits there since 536d34f42).  Instead the picker's branch 0x4157FB
       (jne 0x415800; xor al, al; ret) becomes jne +1; ret (eax is 0 there, so al is 0 as before); jmp 0x415817, and
       the alignment nops 0x415817 become xor eax, eax; jmp 0x41580C: the level read is skipped and level 0 goes into
-      the same test, so the safety patch's own record check still runs.
+      the same stock test.
     The Bitter Brown Beans (brew or fertilizer) 0x4159B0: cmp eax, 1 / setg at 0x4159DC -- Science 2 or more.
     The Ancient Tablet (research or display) 0x415C40: cmp eax, 3 / jl at 0x415C69 -- Alchemy below 3; cmp eax, 2 /
       setge at 0x415C7F -- Science 2 or more.  "Focus research on tablet" (0x415D30 -> 0x426FD0): +1 up to 3.
@@ -128,7 +128,7 @@ SITES: dict[int, list[tuple[int, bytes, bytes, str]]] = {
          "no villager -> ret (eax 0, as stock); a villager -> 0x415817 instead of the Science read at 0x415800"),
         (0x415817, bytes.fromhex("90909090"), bytes.fromhex("33C0EBF1"),
          "the same condition: alignment nops -> xor eax, eax; jmp 0x41580C -- level 0 into the shared level test "
-         "(the always-applied safety patch's record check there still runs): Science below 2 dropped"),
+         "(the stock test there, which no record guard touches): Science below 2 dropped"),
         (0x4159DC, bytes.fromhex("83F801"), bytes.fromhex("83F880"),
          "The Bitter Brown Beans (brew or fertilizer), condition 0x4159B0: Science > 1 (cmp eax, 1 / setg) -> "
          "cmp eax, -128: any level"),

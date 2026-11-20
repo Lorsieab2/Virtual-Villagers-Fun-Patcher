@@ -249,8 +249,10 @@ class Rows(unittest.TestCase):
                 listed = {d["va"] for d in row["runtime_detours"] if d["installed_by"].startswith("VVFP Herb Study.dll")}
                 self.assertEqual(listed, sites)
                 self.assertIn("VVFP Herb Study.dll", row["description"])
-        self.assertIn("VVFP Herb Study.dll", vfp.STARTUP_LOADER_COMPANIONS_2)
-        self.assertIn('"VVFP Herb Study.dll"', (ROOT / "native/shared/startup_companions_2.h").read_text(encoding="utf-8"))
+        # The second word is full: the v1.35.97 merge started it from the third ("VVFP More Companions.dll").
+        self.assertIn("VVFP Herb Study.dll", vfp.STARTUP_LOADER_COMPANIONS_3)
+        self.assertNotIn("VVFP Herb Study.dll", vfp.STARTUP_LOADER_COMPANIONS_2)
+        self.assertIn('"VVFP Herb Study.dll"', (ROOT / "native/shared/startup_companions_3.h").read_text(encoding="utf-8"))
         self.assertIn("assets/herb_study/VVFP Herb Study.dll",
                       (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8"))
 

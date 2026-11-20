@@ -107,7 +107,13 @@ class Puzzles(unittest.TestCase):
 
     def test_the_dendrology_needs(self) -> None:
         self.assertEqual(entry("Pruning the Tree").subs, (("Binding the branch needs Dendrology level 2.", gm.CODE),))
-        self.assertEqual(entry("Purify Tree").subs, (("Purifying the tree needs Dendrology level 3.", gm.CODE),))
+        purify = entry("Purify Tree").subs
+        self.assertEqual(purify[0], ("Purifying the tree needs Dendrology level 3.", gm.CODE))
+        # Fix Vanilla Bugs (2a8bb59ce): the clean body and the glow last their full 4 minutes; a rain bath cleans.
+        self.assertEqual(len(purify), 2)
+        self.assertIn("With the patcher (\"Fix Vanilla Bugs\"", purify[1][0])
+        self.assertIn("each lasts its full 4 real-life minutes of play", purify[1][0])
+        self.assertIn("a bath in the rain makes the villager clean", purify[1][0])
 
 
 class Buildings(unittest.TestCase):
@@ -146,13 +152,14 @@ class Items(unittest.TestCase):
 class Patcher(unittest.TestCase):
     def test_the_doublers_say_what_they_skip(self) -> None:
         tech = entry("Tech Point Doubler")
-        self.assertIn("research is on that list -- the researcher's points, the Lab Equipment bonus and the Fire "
-                      "Pit's +1", tech.text)
+        # PR #805's doublers (3b5990488): research earnings, with the Lab Equipment bonus and the fire's point.
+        self.assertIn("the tech points research earns are doubled (with the Lab Equipment bonus and the fire's extra "
+                      "point)", tech.text)
         self.assertNotIn("every positive tech-point gain the villagers earn is doubled", tech.text)
         food = entry("Food Point Doubler")
-        self.assertIn("every farming trip is on that list -- blackberry picks and harvests, the Cooking Pit fruit, "
-                      "fish and the Golden Fish", food.text)
-        self.assertIn("it doubles mushrooms, crabs", food.text)
+        # PR #805 (4648d5680): every game's Food Point Doubler doubles fishing too.
+        self.assertIn("the food gathered from food sources is doubled after Food Mastery (blackberry bushes, "
+                      "cutting-tool berries, yellow breadfruit, fish, golden fish, crabs and mushrooms)", food.text)
         self.assertEqual((tech.verified, food.verified), (gm.CODE, gm.CODE))
 
     def test_running_for_all_needs_a_free_like(self) -> None:
@@ -173,7 +180,8 @@ class Patcher(unittest.TestCase):
         unconfirmed = [e.name for e in items.entries() if e.kind == items.PATCHER and e.verified is False]
         self.assertEqual(unconfirmed, [])
         self.assertIn("heads by hair colour", entry("Change Appearance for All").text)
-        self.assertIn("5 real-life seconds after it is bought", entry("Island Event").text)
+        self.assertIn("5 real-life seconds (real time, the same at every speed) after it is bought",
+                      entry("Island Event").text)
         self.assertIn("brings 3 children", entry("Barrel of Babies").text)
 
 

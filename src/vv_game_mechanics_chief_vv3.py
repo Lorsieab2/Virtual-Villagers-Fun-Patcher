@@ -125,7 +125,7 @@ def chance(leadership: int) -> float:
 
 def fish_food(village: gm.Village, leadership: int, live: int, caught: int = 8) -> tuple[float, float] | None:
     """The average food of a fish catch (live, while catching up) with the chief directing the sea, or None when it
-    is not: fish + the roll's share of fish Ã· 3 (0x458EC6)."""
+    is not: fish + the roll's share of fish ÷ 3 (0x458EC6)."""
     c = chief(village)
     if c is None or not c.directing(SEA) or leadership <= 0:
         return None
