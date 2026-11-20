@@ -1604,7 +1604,7 @@ Every change an island event makes to a villager is written to a new log, the Is
 
 **Birth Control**
 
-**While catching up (time away and Time Warp), a villager with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Children are never involved, and the partner search, the conception roll, the population limit and huts stay the game's own, so a try can still fail.** That is all this patch changes: who may pair, the Parenting preference and live play are The Tree of Life's own, as before. Off by default; on in Owner's Defaults.
+**While catching up (time away and Time Warp), a villager with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Children are never involved, and the partner search, the conception roll, the population limit and huts stay the game's own, so a try can still fail.** That is all this patch changes: who may pair, the Parenting preference and live play are The Tree of Life's own, as before. On by default.
 
 - Patch ID: `vv4_birth_control`
 
@@ -1880,7 +1880,7 @@ Every change an island event makes to a villager is written to a new log, the Is
 
 **Birth Control**
 
-**While catching up (time away and Time Warp), a believer with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Children are never involved, and the partner search, the conception roll, the population limit and huts stay the game's own, so a try can still fail.** That is all this patch changes: who may pair, the Parenting preference and live play are New Believers' own, as before. Off by default; on in Owner's Defaults.
+**While catching up (time away and Time Warp), a believer with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Children are never involved, and the partner search, the conception roll, the population limit and huts stay the game's own, so a try can still fail.** That is all this patch changes: who may pair, the Parenting preference and live play are New Believers' own, as before. On by default.
 
 - Patch ID: `vv5_birth_control`
 

@@ -153,8 +153,6 @@ TITLE_COLOURS = {
        for patch_id in CLASSIC_DIFFICULTY_FUN_PATCH_IDS},
     LEGACY_OF_ISOLA_FUN_PATCH_ID: ("LegacyOfIsola.TCheckbutton", LEGACY_OF_ISOLA_TITLE_COLOUR),
 }
-# Birth Control rows new in The Tree of Life and New Believers (catch-up babies only): on in Owner's Defaults only.
-VV4_VV5_BIRTH_CONTROL_IDS = ["vv4_birth_control", "vv5_birth_control"]
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
@@ -249,10 +247,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Change Sex and Gender Presentation (all five games; the owner, 2026-11-15): every new option "ON in Owner's
     # Defaults and OFF everywhere else" -- off here and in Select All.
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
-    # Birth Control (The Tree of Life, New Believers; new 2026-11-19): a new option, so "ON in Owner's Defaults and
-    # OFF everywhere else" -- off here and in Select All.  A New Home to The Secret City keep their Birth Control
-    # rows on by default, as before.
-    + VV4_VV5_BIRTH_CONTROL_IDS
+    # Birth Control (The Tree of Life, New Believers; new 2026-11-19) is NOT here: the owner (2026-11-19) wants it
+    # on by default like A New Home to The Secret City's Birth Control rows, and ticked by Owner's Defaults and
+    # Select All.
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -321,8 +318,6 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
     # Change Sex and Gender Presentation: on in Owner's Defaults only (the owner, 2026-11-15).
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
-    # Birth Control in The Tree of Life and New Believers: on in Owner's Defaults only.
-    + VV4_VV5_BIRTH_CONTROL_IDS
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
