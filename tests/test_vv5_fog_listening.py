@@ -305,6 +305,12 @@ class TheRows(unittest.TestCase):
         self.assertIn('GetModuleHandleA("VVFP Fog Listening.dll")', story)
         self.assertIn("story_notice_arm(game, &fog_notice_event)", story, "the Faith popup's own arm and waits")
         self.assertIn("time_skip_event_open()", story)
+        tick = story.split("static void fog_notice_tick")[1].split("static void fog_notice_village_reset")[0]
+        self.assertNotIn("lstrcpynA(fog_notice_event.title", tick, "the owner: no title (left empty)")
+        self.assertIn("memset(&fog_notice_event, 0, sizeof fog_notice_event);", tick)
+        self.assertNotIn("FOG_NOTICE_TITLE", story)
+        strings = (ROOT / "data" / "translations" / "patcher_strings.json").read_text(encoding="utf-8")
+        self.assertNotIn("story_fog_notice.FOG_NOTICE_TITLE", strings, "no title row to translate")
         self.assertIn("fog_notice_tick(game);", main)
         self.assertIn("fog_notice_village_reset(game);", main)
         row = json.loads(FEATURE.read_text(encoding="utf-8"))
