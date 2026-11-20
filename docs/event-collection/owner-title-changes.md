@@ -216,3 +216,5 @@ entries' "Title:" lines (`Isola_500_Tiny_Island_Moments.txt`); the new one is th
 | `tim123_clearing_path` | Sharing 3: A Quiet Moment | Clearing the Path | 2026-11-15 | owner |
 | `tim124_helping_carry` | Sharing 4: A Quiet Moment | Helping Carry Supplies | 2026-11-15 | owner |
 | `tim125_invitation` | Sharing 5: A Quiet Moment | An Invitation to Supper | 2026-11-15 | owner |
+| `vv5_the_guardians_disagreement` | The Guardians' Disagreement | The Villagers' Disagreement | 2026-11-19 | lead |
+| `lvauth18_guardians` | The Guardians' Council | The Two Communities' Council | 2026-11-19 | lead |

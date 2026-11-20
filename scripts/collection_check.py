@@ -342,7 +342,10 @@ def text_fields(doc: dict) -> list[Field]:
     for pname, p in doc.get("pools", {}).items():
         for i, it in enumerate(p.get("items", [])):
             if isinstance(it, dict):
-                out.append(Field(f"pool {pname} item {i + 1}", it.get("text", ""), it.get("src"), kind="item"))
+                # j: an item shown only with Guardians of Isola Rewrite is its sibling's form, checked against it
+                g = lib.guardians_split(it.get("if"))[1] == "with"
+                out.append(Field(f"pool {pname} item {i + 1}", it.get("text", ""), it.get("src"),
+                                 kind="guardians" if g else "item"))
             else:
                 out.append(Field(f"pool {pname} item {i + 1}", it, None, kind="item"))
     return out
@@ -1511,9 +1514,20 @@ def check_guardians(doc: dict, rep: Report) -> None:
                 if c.get("if") == {"not": GUARDIANS_IF} else []
             want(f"node {nid} choice {i + 1}", c.get("label", ""), forms)
     for pname, p in (doc.get("pools") or {}).items():
-        for i, it in enumerate(p.get("items", [])):
-            t = it.get("text", "") if isinstance(it, dict) else it
-            want(f"pool {pname} item {i + 1}", t, [])
+        items = [it if isinstance(it, dict) else {"text": it} for it in p.get("items", [])]
+        for i, it in enumerate(items):
+            base, mode = lib.guardians_split(it.get("if"))
+            if mode == "with":
+                if GUARDIANS_WORDS.search(it.get("text", "")):
+                    rep.add("j GUARDIANS", f"pool {pname} item {i + 1} (Guardians) says Heathen or convert")
+                continue
+            # an item shown only without the patch: its Guardians form is the twin (the same condition) shown only
+            # with it
+            forms = [o.get("text") for o in items if lib.guardians_split(o.get("if")) == (base, "with")] \
+                if mode == "without" else []
+            if mode == "without" and GUARDIANS_PATCH not in (doc.get("patches") or []):
+                rep.add("j GUARDIANS", f"patches does not name {GUARDIANS_PATCH}")
+            want(f"pool {pname} item {i + 1}", it.get("text", ""), forms)
     for word, per in (doc.get("words") or {}).items():
         for gn, t in per.items():
             if gn in ("5", "*"):

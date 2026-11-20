@@ -45,6 +45,14 @@
   "cast_only": [
    "subject",
    "friend"
+  ],
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A villager who believes in nothing unseen is asked to lead the harvest thanks: lead it their own way, or let the faithful lead."
+   }
   ]
  },
  "requirement": {
@@ -76,19 +84,43 @@
     {
      "label": "Let a Believer Lead",
      "next": "o2",
-     "src": "L353"
+     "src": "L353",
+     "if": {
+      "not": {
+       "patch": "guardians_of_isola"
+      }
+     }
+    },
+    {
+     "label": "Let the Faithful Lead",
+     "next": "o2",
+     "src": "L353",
+     "if": {
+      "patch": "guardians_of_isola"
+     }
     }
    ]
   },
   "o1": {
    "name": "Outcome A",
    "text": "(subject) leads the thanks: to the soil, the rain, the farmers, the cooks, and the goats for not eating the beans. The believers add their own prayers quietly. Everyone feels thanked. It becomes the new way.",
-   "src": "L351"
+   "src": "L351",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "(subject) leads the thanks: to the soil, the rain, the farmers, the cooks, and the goats for not eating the beans. The faithful add their own prayers quietly. Everyone feels thanked. It becomes the new way."
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) asks (friend) to lead instead, and stands with the farmers. The prayers are said. (subject) does not join, and nobody asks (subject.him/her) to. Afterwards, (friend) thanks (subject) for the harvest, personally.",
    "src": "L355"
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }
