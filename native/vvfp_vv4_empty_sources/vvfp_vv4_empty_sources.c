@@ -40,7 +40,7 @@
 #include "../shared/install_sites.h"
 
 #define ES_GAME 4
-#define GAME_GET 0x41FE70u
+#define GAME_WORD 0x4CB51Cu          /* where the getter 0x41FE70 keeps the game object; 0 = not built yet */
 #define G_BERRIES 0x170F8u
 #define DO_ACTION 0x45DEC0u
 #define REFUSE_ACTION 0x3F
@@ -77,7 +77,11 @@ static const unsigned int g_carry = CARRY;
 static const unsigned int g_carry_on = CARRY_ON;
 static const unsigned int g_harvest_end = HARVEST_END;
 
-typedef unsigned char *(__cdecl *game_get_fn)(void);
+/* The game object, or NULL while it is not built: read from its word, never the getter 0x41FE70, which BUILDS it
+   when the word is 0 (the owner, 2026-11-18: no companion calls a getter that can build the game object). */
+static unsigned char *game_object(void) {
+    return *(unsigned char *volatile *)(UINT_PTR)GAME_WORD;
+}
 typedef char (__fastcall *do_action_fn)(void *self, void *unused, int action, void *block);
 typedef char (__fastcall *wants_fn)(void *self, void *unused);
 typedef void (__fastcall *queue_action_fn)(void *self, void *unused, int action, void *block);
@@ -103,7 +107,7 @@ static int __cdecl on_carry(unsigned char *villager) {
 static int __cdecl on_harvest(unsigned char *villager) {
     int refused = 0;
     __try {
-        const unsigned char *game = ((game_get_fn)(UINT_PTR)GAME_GET)();
+        const unsigned char *game = game_object();   /* NULL: not ready, the stock harvest */
         if (game != NULL && villager != NULL && *(const int *)(game + G_BERRIES) <= 0) {
             int block[8];
             memset(block, 0, sizeof block);
