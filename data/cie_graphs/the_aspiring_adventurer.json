@@ -17,8 +17,8 @@
       "type": "question",
       "text": "(Name) is an aspiring adventurer. Every morning (he/she) goes off in the jungle to scavenge for useful things. Although (name) has an eye for treasure, sometimes (his/her) ambition gets the best of (him/her). (Name) has managed to escape from sticky situations so far, but the others have cautioned (him/her) repeatedly about exploring alone.\nDuring (his/her) travels, (he/she) sees something glinting in the corner of (his/her) eye. (Name) feels compelled to see what it is, but is unsure whether to leave the known-safe path in order to investigate.",
       "choices": [
-        {"label": "Go investigate!", "next": "a_open"},
-        {"label": "Stay on the safe path", "next": "b_open"}
+        {"label": "Go Investigate!", "next": "a_open"},
+        {"label": "Stay on the Safe Path", "next": "b_open"}
       ]
     },
 

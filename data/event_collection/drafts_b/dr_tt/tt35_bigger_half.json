@@ -69,11 +69,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) sighs and swaps without a word. (friend) eats the bigger half with great enjoyment. From then on, whenever they share something, one of them cuts and the other chooses, and everything is divided so precisely that they need a stick to measure it.",
+   "src": "L422",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L422"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) sighs and swaps without a word. (friend) eats the bigger half with great enjoyment. From then on, whenever they share something, one of them cuts and the other chooses, and everything is divided so precisely that they need a stick to measure it.",
    "src": "L422"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I cut it,\" explains (subject), \"so I did the work.\" \"I baked it,\" says (friend). Silence. (subject) breaks a piece off the bigger half and adds it to (friend)'s. Now (friend)'s is bigger. They look at each other, start laughing, and end up eating the whole cake together from the middle out.",
+   "src": "L425",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L425"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L425"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"I cut it,\" explains (subject), \"so I did the work.\" \"I baked it,\" says (friend). Silence. (subject) breaks a piece off the bigger half and adds it to (friend)'s. Now (friend)'s is bigger. They look at each other, start laughing, and end up eating the whole cake together from the middle out.",
    "src": "L425"

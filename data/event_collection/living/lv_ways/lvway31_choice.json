@@ -113,7 +113,8 @@
      "max": 10,
      "src": "L23187"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -136,9 +137,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The patient experiences relief, though the cause is uncertain.",
-   "src": "L23190"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -152,7 +160,8 @@
      "max": -10,
      "src": "L23191"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -197,6 +206,26 @@
    "name": "Outcome D2",
    "text": "The patient asks for more time rather than deciding immediately.",
    "src": "L23197"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The patient experiences relief, though the cause is uncertain.",
+   "src": "L23190",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L23190"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The patient experiences relief, though the cause is uncertain.",
+   "src": "L23190"
   }
  }
 }

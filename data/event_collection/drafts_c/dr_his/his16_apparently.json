@@ -69,11 +69,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tells it: a bored carver, a rainy week, a bet about who could carve the most \"ancient-looking\" thing. The pendant won. Somewhere along the way the story got bigger. (friend) holds the pendant and laughs until (friend.he/she) cries. \"I've been telling people it's the oldest thing in the village.\" \"Well,\" says (subject), \"it's old NOW.\"",
+   "src": "L194",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L194"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) tells it: a bored carver, a rainy week, a bet about who could carve the most \"ancient-looking\" thing. The pendant won. Somewhere along the way the story got bigger. (friend) holds the pendant and laughs until (friend.he/she) cries. \"I've been telling people it's the oldest thing in the village.\" \"Well,\" says (subject), \"it's old NOW.\"",
    "src": "L194"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) begs (subject) not to tell anyone. (subject) thinks about it, then winks. The pendant stays \"ancient.\" (friend) wears it with just as much pride, plus a private joke. Years later, (friend.he/she) catches (friend.him/her)self telling a child that it was made by the first carver on Isola, and stops, and smiles, and doesn't correct it.",
+   "src": "L197",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L197"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) begs (subject) not to tell anyone. (subject) thinks about it, then winks. The pendant stays \"ancient.\" (friend) wears it with just as much pride, plus a private joke. Years later, (friend.he/she) catches (friend.him/her)self telling a child that it was made by the first carver on Isola, and stops, and smiles, and doesn't correct it.",
    "src": "L197"

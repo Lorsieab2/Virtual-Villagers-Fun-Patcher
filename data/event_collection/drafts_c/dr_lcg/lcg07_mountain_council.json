@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mountain Council",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg07_mountain_council",
+  "source": "draft_lcg",
+  "lines": [
+   92,
+   103
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L99",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L103",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L103",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Households must share the hill forest without letting traders set the rules: make their own rules, or accept the traders' offer.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Traders have offered good tools if the village lets them cut wood on the hill whenever they like. (subject) wants the households who use the hill forest to meet and make their own rules first. (friend) says the households have never agreed on anything and the traders' offer is generous. What should the village do?",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Make Their Own Rules",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Accept the Traders' Offer",
+     "next": "o2",
+     "src": "L101"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The households meet, argue for four days and agree: wood only from fallen trees, and only so much a season, for everyone, traders included. The traders take less than they wanted. The forest stays.",
+   "src": "L99"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village accepts. The tools are excellent. By the end of the season, a whole slope is bare, and the stream below it runs brown. (subject) calls the households together, too late for that slope, but not for the rest.",
+   "src": "L103",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L103"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

@@ -1,0 +1,229 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fishing Contest",
+ "games": [
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b225_fishing_contest",
+  "source": "balance",
+  "lines": [
+   10464,
+   10507
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10464",
+  "ledger": [
+   {
+    "src": "L10465",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10466",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10474",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10483",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10471",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10472",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10475",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10484",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10477",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10480",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10486",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10489",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10492-10507",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has never entered.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "fisher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every year the village holds a fishing contest: whoever catches the most fish between dawn and noon wins a carved fish-hook made of whalebone. (subject) has never entered. (subject.He/She) is always too busy working. But this year (subject.his/her) friends have entered (subject.him/her) without asking, and the whole village is on the beach to watch.\n(subject) stands at the water's edge with a borrowed spear, looking at the sea, and thinking about all the jobs (subject.he/she) should be doing instead. (fisher), last year's winner, is already wading out, grinning.\nShould (subject) give it everything, or just enjoy the morning?",
+   "choices": [
+    {
+     "label": "Give It Everything",
+     "next": "c1",
+     "src": "L10471"
+    },
+    {
+     "label": "Just Enjoy the Morning",
+     "next": "c2",
+     "src": "L10472"
+    }
+   ],
+   "src": "L10467-10469"
+  },
+  "c1o1": {
+   "text": "(subject) wins by four fish. (fisher) shakes (subject.his/her) hand and says nobody has ever fished that hard in the history of the contest. (subject) gets the whalebone hook, and finds that the same fierce attention, used for one morning, makes (subject.him/her) better at (subject.his/her) own work too. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10478",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) fishes so hard (subject.he/she) doesn't notice the coral, or the sun, or the fact that (subject.he/she) hasn't drunk anything all morning. Just before noon (subject.he/she) faints in the shallows, and (fisher) carries (subject.him/her) out. (subject) still wins. (subject.He/She) spends the next three days in the healers' hut, which is the longest (subject.he/she) has gone without working in (subject.his/her) life.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L10481",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) wades out and fishes the way (subject.he/she) does everything: hard, fast, and without stopping for a moment. Fish after fish goes into the basket. The crowd starts to cheer...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10475"
+  },
+  "c2o1": {
+   "text": "(subject) catches two fish all morning and loses by a mile. It is the best morning of (subject.his/her) life. After that, (subject.he/she) takes a morning off every week, and then two, and the village is a little surprised and very glad. (subject) still works. (subject.He/She) just isn't the first one up any more, and doesn't mind.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "work",
+     "role": "subject"
+    }
+   ],
+   "src": "L10487",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Standing still and watching, (subject) sees what nobody else sees: a fish as big as a child, sleeping under a ledge of rock. (subject.He/She) spears it with one throw. One fish, and it outweighs everyone else's basket put together. (subject) wins, without trying, and realises (subject.he/she) has been trying too hard at everything. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "work",
+     "role": "subject"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10490",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) wades out slowly, and stands in the warm water, and watches the little fish nibbling at (subject.his/her) toes, and, for once, doesn't think about work at all...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10484"
+  }
+ }
+}

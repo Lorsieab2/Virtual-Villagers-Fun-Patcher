@@ -75,6 +75,32 @@
    "src": "L281"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(friend) says that the poem is certainly unlike anything (friend.he/she) has heard before. (subject) beams. That evening (subject.he/she) begins a second poem, this time about fish. (friend) hopes it will contain fewer moons.",
+   "src": "L285",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L285"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(friend) says that the poem is certainly unlike anything (friend.he/she) has heard before. (subject) beams. That evening (subject.he/she) begins a second poem, this time about fish. (friend) hopes it will contain fewer moons.",
    "src": "L285"

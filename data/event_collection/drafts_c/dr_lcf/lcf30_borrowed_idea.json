@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Borrowed Idea",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf30_borrowed_idea",
+  "source": "draft_lcf",
+  "lines": [
+   414,
+   425
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L414",
+  "ledger": [
+   {
+    "src": "L415",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L421",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L421",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L425",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A Nature villager borrows a Science villager's method to save the coral: admit it, or keep it quiet.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject), of the Nature school, has always said that measuring things is cold and unfeeling. But to save the dying coral, (subject.he/she) has secretly started counting the fish every morning, exactly the way (friend), of the Science school, does. (friend) has noticed. What should (subject) do?",
+   "src": "L417",
+   "choices": [
+    {
+     "label": "Admit It",
+     "next": "o1",
+     "src": "L419"
+    },
+    {
+     "label": "Keep It Quiet",
+     "next": "o2",
+     "src": "L423"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) admits it, embarrassed. (friend) is delighted, and shows (subject.him/her) a better way to count. Together they find that the coral is recovering in the sheltered spots. (subject) says it was the care. (friend) says it was the counting. They count and care together.",
+   "src": "L421",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L421"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) denies everything. (friend) says nothing, and leaves a carved counting stick at (subject)'s door. (subject) uses it every morning and never mentions it. The coral recovers a little.",
+   "src": "L425"
+  }
+ }
+}

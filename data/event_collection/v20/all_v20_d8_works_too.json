@@ -78,7 +78,8 @@
      "max": -10,
      "src": "L9050"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "text": "The village begins overusing it.",
@@ -99,16 +100,32 @@
    ]
   },
   "b1": {
-   "text": "The cause of the drowsiness is discovered.",
-   "src": "L9052-9053"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "text": "Patients protest the loss of relief.",
    "src": "L9052-9053"
   },
   "b3": {
-   "text": "A safer remedy is found.",
-   "src": "L9052-9053"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b3__fx"
+    },
+    {
+     "next": "b3__text"
+    }
+   ]
   },
   "set_b": {
    "type": "branch",
@@ -123,6 +140,40 @@
      "next": "b3"
     }
    ]
+  },
+  "b1__fx": {
+   "text": "The cause of the drowsiness is discovered.",
+   "src": "L9052-9053",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9052-9053"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "text": "The cause of the drowsiness is discovered.",
+   "src": "L9052-9053"
+  },
+  "b3__fx": {
+   "text": "A safer remedy is found.",
+   "src": "L9052-9053",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9052-9053"
+    }
+   ],
+   "auto_text": true
+  },
+  "b3__text": {
+   "text": "A safer remedy is found.",
+   "src": "L9052-9053"
   }
  },
  "grammar_fixes": [

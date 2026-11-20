@@ -1,0 +1,68 @@
+SITUATION TAGGING (Virtual Villagers island events; procedural mixer)
+
+You READ each event and tag it. Purpose: an answer (A) with its outcomes (O) may be offered under ANOTHER event's
+setup when the situations fit, so the mixed event still makes sense. Judge as a careful story editor: would a player
+reading setup X, then this answer and outcome, find it natural? When in doubt, say it does NOT move.
+
+Each batch file lists events:
+  ### E <event id>
+  T: title          S: setup text (the situation posed)
+  A <id>: <button label> || <optional text shown after the click>
+     O <id>: <outcome text>          (only answers/outcomes that could move at all are listed)
+
+FIXED VOCABULARY (use only these words)
+
+SITUATIONS (what a setup poses / what an answer can respond to):
+  newcomer       a visitor, stranger, traveler or newcomer is present or arrives
+  sickness       someone is ill, hurt, tired, recovering or needs care
+  food_shortage  food is scarce, spoiled, lost or must be shared out
+  lost_object    something is missing, lost, broken or misplaced
+  quarrel        villagers disagree, argue, compete for something, or one is upset with another
+  strange_sign   something unexplained, eerie, an omen, a mystery
+  celebration    a festival, feast, gathering, gift-giving or happy occasion
+  child_problem  a child's worry, question, behaviour or need
+  elder_wish     an elder's need, wish, memory, decline or advice
+  craft_problem  making, building, repairing, a tool or a craft goes wrong or needs a decision
+  sea_danger     danger or trouble at sea, the reef, a boat, the shore
+  danger         other physical danger: a fall, fire, a dangerous place or creature
+  grief          a death, a loss, mourning, missing someone
+  fear           someone is afraid, anxious, nervous or overwhelmed
+  new_idea       an invention, experiment, discovery, question about how things work, learning a skill
+  animal         an animal encounter, a pet, wildlife behaving oddly
+  weather        storm, heat, rain, drought, a season's trouble
+  personal_change someone wants to change their look, name, role, habits or life path
+  feelings       embarrassment, loneliness, jealousy, pride, hurt feelings, self-doubt
+  leadership     a rule, a decision for the village, authority, duties, fairness
+  tradition      a custom, ritual, belief, ancestors, the spirits
+  kindness       a favour, a gift, gratitude, helping someone, a secret good deed
+  contest        a game, contest, challenge or performance
+  farming        gardens, crops, fruit trees, harvest
+  art_story      music, song, story, dance, painting, carving as art
+  secret         a secret, a confession, a hidden truth
+  mistake        someone made a mistake or caused an accident
+
+NEEDS (what must already be in the scene for an answer/outcome to make sense; list only what it truly relies on):
+  healer child elder food sea animal visitor tools plant fire music chief group
+  ("group" = several villagers together; "chief" = the village leader; leave empty when it relies on nothing)
+
+TONE (one): gentle practical bold funny solemn
+
+WHAT TO WRITE: one line per item, nothing else, pipe-separated:
+  S|<setup piece id = event id + "_s">|<1-3 situations, comma>|<needs, comma or empty>|<tone>
+  A|<answer id>|<1-4 situations it can sensibly answer, comma>|<needs>|<tone>|<y or n>
+  O|<outcome id>|<needs>|<y or n>
+
+y/n = MAY MOVE to another event's setup that poses one of its situations:
+  - A: "y" only if the button makes sense on its own for ANY setup with those situations (e.g. "Ask an Elder for
+    Advice", "Comfort the Child", "Share the Remaining Food", "Welcome the Visitor With a Meal"). "n" if it names or
+    assumes a particular thing of its own scene ("Inspect the Rope", "Sketch the Fish", "Keep the New Color"), or
+    refers to "it/this/that" from its own scene.
+  - O: "y" only if the outcome reads naturally after its answer in any setup with the answer's situations
+    ("The child calms down and falls asleep.", "The visitor thanks them and stays the night."). "n" if it continues
+    its own scene's particular story (named objects, earlier events, specific places, "the rope", "the crab").
+  - An answer that moves needs at least one outcome with y, else write n.
+  - Never y for romance, punishment, or anything that decides over someone else's body or life.
+  - Most answers and outcomes are n. That is fine. Be strict but not stingy: generic, kind, practical answers that
+    fit their situations SHOULD be y.
+
+Write S lines for EVERY event (even ones with no A lines). Use the ids exactly as given.

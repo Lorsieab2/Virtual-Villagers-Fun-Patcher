@@ -104,7 +104,8 @@
      "max": 10,
      "src": "L21325"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -124,9 +125,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The animal slips into the reef, leaving the fisher fascinated.",
-   "src": "L21328"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -150,8 +158,15 @@
   },
   "c1": {
    "name": "Outcome C1",
-   "text": "The octopus escapes unharmed while fishers still catch their supper.",
-   "src": "L21331"
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -165,7 +180,46 @@
      "loss": true,
      "src": "L21332"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The animal slips into the reef, leaving the fisher fascinated.",
+   "src": "L21328",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "fisher",
+     "mood": "good",
+     "src": "L21328"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The animal slips into the reef, leaving the fisher fascinated.",
+   "src": "L21328"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The octopus escapes unharmed while fishers still catch their supper.",
+   "src": "L21331",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L21331"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The octopus escapes unharmed while fishers still catch their supper.",
+   "src": "L21331"
   }
  }
 }

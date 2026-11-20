@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone on the Tideline",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf02_stone_tideline",
+  "source": "draft_lcf",
+  "lines": [
+   22,
+   33
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L22",
+  "ledger": [
+   {
+    "src": "L23",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child and an elder)"
+   },
+   {
+    "src": "L29",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L29",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L33",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A child finds a lavastone washed up on the beach: tell the elders, or keep it as a secret treasure.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) was hunting for shells at dawn when (subject.he/she) found it, half-buried in the wet sand: a stone that glowed orange-pink, warm in (subject.his/her) hand, with a pulse like a heartbeat. (subject.He/she) has heard the stories about lavastones. (subject.He/she) is supposed to tell an elder. But it is so beautiful. What should (subject) do?",
+   "src": "L25",
+   "choices": [
+    {
+     "label": "Tell the Elders",
+     "next": "o1",
+     "src": "L27"
+    },
+    {
+     "label": "Keep It Secret",
+     "next": "o2",
+     "src": "L31"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) brings it to (friend), who turns very serious and wraps it in cloth. (friend) explains that lavastones are powerful, and that even the wisest people do not understand them. The stone goes into the elders' keeping. (subject) is allowed to visit it, and does, every day.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L29"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) hides it in a coconut shell under (subject.his/her) mat. For three nights, the hut glows faintly and (subject) has wonderful dreams of flying. On the fourth morning, the stone is gone, and the coconut shell is cracked in two. (subject) never tells anyone. (subject.He/she) still dreams of flying, sometimes.",
+   "src": "L33"
+  }
+ }
+}

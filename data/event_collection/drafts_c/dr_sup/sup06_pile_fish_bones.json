@@ -1,0 +1,100 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pile of Fish Bones",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "sup06_pile_fish_bones",
+  "source": "draft_sup",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_sup",
+  "credit": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_sup",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 6-13)"
+   },
+   {
+    "src": "L68",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L74",
+    "kind": "instruction",
+    "text": "[effect: the village gains 2 cutting tools]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A pile of fish bones after a big catch: sharpen the best into cutting tools, or let the children make wind chimes.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After the biggest catch of the season, there is a mountain of fish bones behind the cooking pit. (subject) is about to throw them out when (subject.he/she) notices a few long, straight ones, just the right shape for a cutting tool. (friend) is already eyeing the rest for something else entirely.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Sharpen the Best Ones",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Let the Children Make Wind Chimes",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) picks out the best bones and spends the evening rubbing them to an edge on a flat stone, while (friend) holds the lamp and asks a question roughly every three breaths. By the end, (friend) can tell a good edge from a bad one, and the village has two new cutting tools.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "cutting_tools",
+     "min": 2,
+     "max": 2,
+     "src": "L74"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) and the other children string the bones on cords and hang them in the trees. For the rest of the season, every breeze makes the whole village tinkle. Some people find it lovely. Some people find it very, very loud. Everyone agrees it smells a bit fishy for the first few days.",
+   "src": "L77"
+  }
+ }
+}

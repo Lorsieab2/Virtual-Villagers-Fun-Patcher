@@ -1,0 +1,758 @@
+NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)
+Isola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.
+Written in the style of the owner's own events. The owner waived the review ("I'm sure the draft events are fine"); every event passed the Isola rules and the final 15-point review, logged in the notes.
+(name1) to (name4) fill in with villagers' names; (he/she), (him/her), (his/her) follow the villager.
+All Isola rules apply. All five games unless noted. Isola's traditions are its own: no real people is named and no sacred chant or rite is copied; real-world inspirations are only in the notes. Ancestors are remembered, not worshipped. A [Solidarity: raise/lower/neutral] tag marks how an ending feels for the village (a planned counter; no effect yet).
+
+==========================================================================
+LCB-01. The Song of the First Rain
+(picks an elder and a child)
+
+It has not rained for forty days. The gardens are brown and the stream is a trickle. Then, this afternoon, the sky goes dark and the first fat drops hit the dust. (name2) is already at the door, bouncing. (name1) knows the rain song by heart, but (he/she) also knows how badly the village needs every drop. What should they do first?
+
+Dance in the Rain:
+
+(name1) and (name2) run out into the rain, and the whole village follows. They sing the rain song with their faces turned up and their mouths open. Some of the water pots are left out by accident and fill up anyway. (name2) slips in the mud four times and declares it the best day of (his/her) life. [effect: everyone celebrates] [Solidarity: raise]
+
+Catch Every Drop First:
+
+(name1) sends (name2) running from hut to hut, shouting for everyone to set out pots, bowls and anything that holds water. By the time every pot is out, the rain is easing. They sing the rain song anyway, a bit damp and a bit late. The village has water for weeks. [effect: small food gain] [Solidarity: neutral]
+
+==========================================================================
+LCB-02. A Promise to the Reef
+(picks two adults)
+
+(name1) has been diving at the eastern reef, and something is wrong: the coral is pale and broken, and the young fish are gone. (He/she) wants the village to promise not to fish there for a whole season. (name2)'s family fishes nowhere else, and (name2) has three children to feed. What should the village decide?
+
+Make the Promise:
+
+The village gathers on the beach and makes the reef promise: no nets, no spears, no hooks until the next rains. (name2)'s family is given fish from the other crews to make up the difference, which some of them resent. By the end of the season, (name1) swears the coral looks a little brighter. Nobody is sure. [effect: small food loss] [Solidarity: raise]
+
+Keep Fishing, Carefully:
+
+The village agrees to keep fishing the eastern reef, but only with hand lines, and only half the days. (name2) is relieved. (name1) is not satisfied, and keeps diving to check. The coral does not get worse. It does not get better either. [Solidarity: neutral]
+
+==========================================================================
+LCB-03. The Tree That Sheltered Us
+(picks an elder and an adult)
+
+The builders need a great beam for the new meeting hut, and the only tree big enough is the old fig at the edge of the village. (name1) says that tree sheltered the first families through the storm that brought them here, and nobody should touch it. (name2), who leads the builders, says a tree is a tree, and the village needs the hut. What should the village do?
+
+Spare the Tree:
+
+The village spares the fig. The builders spend a week hauling a beam from the far side of the island instead, complaining every step. The new hut is built with its door facing the old tree. (name1) sits under it every evening, and before long so does (name2). [effect: small Building skill for (name2)] [Solidarity: raise]
+
+Use Its Wood With Honor:
+
+The village holds a gathering under the fig to tell its stories one last time, and then the builders cut it down. Its wood becomes the great beam, carved with the story of the storm. Some people love the carving. Some people, (name1) among them, never sit in the new hut. [effect: small Building skill for (name2)] [Solidarity: lower]
+
+==========================================================================
+LCB-04. The River's Memory
+(picks an elder and a child)
+
+(name2) has been told that the stream behind the village used to be a river you could swim in. It is barely knee-deep now. (He/she) asks (name1), who has lived beside it for seventy years, where the rest of it went. (name1) does not have a simple answer. What should (name1) do?
+
+Walk Upstream Together:
+
+(name1) and (name2) follow the stream into the hills. (name1) shows (him/her) where the old pools were, the rocks (he/she) used to jump from, and the place where a landslide changed the river's course long ago. (name2) comes home quiet and thoughtful. The next day (he/she) starts clearing leaves from the little pools upstream. [effect: small Research skill for (name2)] [Solidarity: neutral]
+
+Tell the Old Stories:
+
+That evening, (name1) tells the village stories about the river as it was: the great flood, the year the eels came, the time someone's grandmother floated all the way to the sea on a log. The children listen with their mouths open. The river is still small. But everyone remembers it a little bigger. [Solidarity: raise]
+
+==========================================================================
+LCB-05. The Last Nest
+(picks a child and an adult)
+
+The village has cleared a new garden on the headland, and (name1) has found something there: three nests of the grey-backed seabird, a bird so rare that most villagers have never seen one. (name2) is in charge of the garden and needs every bit of ground. (name1) and the other children are standing in front of the nests with their arms folded. What should (name2) do?
+
+Move the Garden:
+
+(name2) sighs, and moves the garden further inland. It is worse soil and it takes twice as long. But that spring, (name1) counts five chicks on the headland. Whether there are more birds next year, nobody can say. The children check every morning. [effect: small food loss] [Solidarity: raise]
+
+Plant Around the Nests:
+
+(name2) marks out a wide circle around the nests with stones and plants the garden around them. The birds put up with the gardeners. The gardeners put up with the birds, mostly. One chick survives, and (name1) names it. [Solidarity: neutral]
+
+==========================================================================
+LCB-06. The Quiet Harvest
+(picks two adults)
+
+The fruit garden has done well this year. (name1) wants to leave the last row unpicked for the birds, the fruit bats and the little lizards, the way (his/her) grandmother always did. (name2) says the village is not rich enough to feed bats. What should they do?
+
+Leave the Last Row:
+
+They leave the last row. All season, the garden is full of birds, and the birds eat a great many insects that would have eaten the rest of the crop. (name2) is not sure if that was the point, but admits the garden has never been so loud. [Solidarity: raise]
+
+Harvest Everything:
+
+They harvest every row. The stores are full. The birds move to the other side of the island, and next season the garden is crawling with insects. (name1) does not say anything. (He/she) just hands (name2) a stick for knocking off the caterpillars. [effect: small food gain] [Solidarity: neutral]
+
+==========================================================================
+LCB-07. A Song for the Stars
+(picks three adults)
+
+On the clearest night of the year, the village gathers to watch the stars. (name1), who studies them, says they are fires very far away. (name2), the storyteller, says each one is a canoe on its way home. (name3) says they are watched over by something nobody can see. The children want to know which is true. What should the village do?
+
+Let Each One Speak:
+
+Each of them takes a turn. (name1) shows how the stars move across the sky in a pattern. (name2) tells the story of the canoes. (name3) speaks quietly about the watchers. The children decide all three can be true at once, and go to sleep under the stars. Nobody corrects them. [effect: small Research skill for (name1)] [Solidarity: raise]
+
+Let Them Argue It Out:
+
+The three of them argue happily until the stars fade. (name1) has evidence, (name2) has better stories, and (name3) has a way of asking questions that makes the other two stop and think. Nobody wins. The children fall asleep long before the end. [Solidarity: neutral]
+
+==========================================================================
+LCB-08. The Day of Returning Seeds
+(picks two adults)
+
+Once a year, every family brings seeds to swap, so that no garden grows only one kind of plant. (name1)'s family grows a speckled red bean that nobody else has ever managed to grow, and (name1) has decided not to bring any this year. (name2) thinks that goes against the whole point of the day. What should happen?
+
+Respect (name1)'s Choice:
+
+(name2) lets it go. The swap goes ahead without the red beans. Later in the season, (name1) shows up at (name2)'s hut with a handful of the beans and a long list of instructions on how to grow them, in exactly the right order. It is a gift, not a swap. (name2) understands the difference. [Solidarity: raise]
+
+Ask (name1) to Share:
+
+(name2) asks, in front of everyone, why the red beans are missing. (name1) goes red and says they are (his/her) family's, and that is that. The day is awkward from then on. The red beans stay with (name1)'s family. [Solidarity: lower]
+
+==========================================================================
+LCB-09. The Ocean Gives, the Ocean Takes
+(picks an elder and a teen)
+
+(name2) is desperate to fish beyond the reef with the grown-up crews. (name1) has fished there for fifty years, and has lost friends to the sea, and does not think (name2) understands what (he/she) is asking for. (name2) thinks (name1) is being overprotective. What should (name1) do?
+
+Tell the Sea's Stories:
+
+(name1) sits (name2) down and tells (him/her) about the sea: the storms that come from nowhere, the currents that pull canoes away, the friends who did not come home. It is not a happy evening. But (name2) listens to all of it, and the next morning, (he/she) asks to start by learning the currents. [effect: small Farming skill for (name2)] [Solidarity: neutral]
+
+Take (name2) Out to See:
+
+(name1) takes (name2) out past the reef on a calm morning. The swell lifts the canoe up and drops it down, and (name2) goes very green. Then a school of flying fish bursts out of the water all around them, and (name2) forgets to be sick. (He/she) is back on the beach at dawn the next day, ready for more. [effect: small Farming skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCB-10. The Living Island
+(picks two adults)
+
+(name1) says the island is alive, that spirits look after its forests and reefs, and that caring for it is a sacred duty. (name2) says it is rocks and soil and water, and caring for it is plain common sense. They have been arguing about it on the same log for an hour. They both agree it needs caring for. What should they do?
+
+Keep Arguing:
+
+They argue until dark. (name1) talks about the night the forest went silent before the storm. (name2) talks about how the soil washes away when the trees are gone. Neither of them changes the other's mind. They walk home together, still arguing, and both of them pick up a piece of rubbish on the path. [Solidarity: neutral]
+
+Plant a Tree Together:
+
+(name2) suggests they stop arguing and plant something. They plant a young breadfruit tree on the bare slope behind the village. (name1) says a few words to the spirits over it. (name2) waters it. It grows well, and they never agree on why. [effect: small Farming skill for (name1)] [Solidarity: raise]
+
+==========================================================================
+LCB-11. The Song for Those Who Never Returned
+(picks an elder and an adult)
+
+Every year at the start of the fishing season, the village remembers the fishers who went out and never came home. (name1)'s brother was one of them, many years ago. (name2) wants to start a new custom this year, carving the names on the canoe house, so they are not only remembered in songs. (name1) is not sure. What should they do?
+
+Sing on the Beach:
+
+The village gathers at sunset and sings the old song for the lost, the one that is half a lament and half a call home. (name1) sings (his/her) brother's name into the waves. The tide comes in and takes the flowers. Nobody speaks for a long time afterwards. [Solidarity: neutral]
+
+Carve the Names:
+
+(name2) carves the names, one by one, onto the post of the canoe house. (name1) watches the whole time. When (his/her) brother's name is done, (he/she) touches it, and nods. Now the young fishers walk past the names every morning before they go out. [effect: small Building skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCB-12. The Names We Remember
+(picks an adult and a child)
+
+At the remembrance gathering, each villager stands and speaks the name of someone they miss. When it comes to (name2)'s turn, (he/she) stands up, opens (his/her) mouth, and nothing comes out. (His/her) grandmother died last season. (name1) is sitting next to (him/her). What should (name1) do?
+
+Let (name2) Stay Silent:
+
+(name1) quietly squeezes (name2)'s hand and nods to the next person. (name2) sits down. Nobody stares. At the very end of the gathering, when everyone is leaving, (name2) whispers (his/her) grandmother's name to (name1). That is enough. [Solidarity: neutral]
+
+Help (name2) Find Words:
+
+(name1) stands up beside (name2) and says, "Shall we say it together?" They say the grandmother's name together, and (name1) adds that she made the best fish stew on the island. Several people laugh through their tears and agree. (name2) sits down looking a little lighter. [Solidarity: raise]
+
+==========================================================================
+LCB-13. The Empty Place at the Feast
+(picks two adults)
+
+(name1)'s mother died in the spring, and this is the first harvest feast without her. (name1) wants to leave her place empty at the family's mat, with her favorite bowl. (name2), (his/her) oldest friend, thinks an empty place will make everyone too sad to enjoy anything, and wants to invite a lonely neighbor to sit there instead. What should the family do?
+
+Keep Her Place:
+
+They keep the place, with the bowl and a flower in it. Some of the family cry. Some of them talk to the bowl, which makes others laugh. At the end of the feast, (name1) fills the bowl with food and carries it out to leave at her grave. [Solidarity: neutral]
+
+Fill It With a Neighbor:
+
+They invite (name2)'s neighbor, who has eaten alone all year. (name1) watches someone else sit in (his/her) mother's place and does not know how to feel. But the neighbor tells a story about (name1)'s mother that (name1) never knew, and (name1) asks (him/her) to tell it again. [Solidarity: raise]
+
+==========================================================================
+LCB-14. A Song Without Words
+(picks an adult and an elder)
+
+At the memorial for (name1)'s partner, the village sings the parting song. (name1) tries to sing and cannot. (His/her) voice simply will not come. (name2), who is leading the song, can see (name1) shaking. What should (name2) do?
+
+Invite (name1) to Hum:
+
+(name2) leans over and whispers that humming counts. (name1) hums. It is barely audible, but it is there, under everyone else's voices, all the way to the end. Afterwards several people say they could hear it. [Solidarity: raise]
+
+Let (name1) Simply Stand:
+
+(name2) says nothing and keeps singing. (name1) stands in the circle, silent, holding the hand of the person beside (him/her). That is how (he/she) takes part. When the song ends, (he/she) is still holding on. [Solidarity: neutral]
+
+==========================================================================
+LCB-15. The Story of an Imperfect Hero
+(picks an elder and a teen)
+
+Every child on Isola knows the story of Wave-Rider, who paddled through a storm to bring medicine from the next island. Today, (name1) told (name2) the part nobody tells: that Wave-Rider caused the sickness in the first place, by trading with a ship (he/she) had been warned about. (name2) is supposed to tell the legend at the festival. What should (he/she) say?
+
+Tell the Whole Story:
+
+(name2) tells it all, the brave part and the mistake. The festival goes quiet. Some of the elders are cross. But afterwards, a lot of people say Wave-Rider seems more real now: someone who made a terrible mistake and then risked everything to fix it. [effect: small Research skill for (name2)] [Solidarity: neutral]
+
+Keep the Legend Simple:
+
+(name2) tells the old story, the brave version. The children cheer. Later, by the fire, (name2) tells the rest to the older teens, and they argue about it until the moon sets. The legend stays the same. The people who know the rest keep it. [Solidarity: neutral]
+
+==========================================================================
+LCB-16. The First Celebration After Loss
+(picks two adults)
+
+The moon dance festival is in two days. But only last month, (name2)'s little brother drowned in the lagoon, and the whole village is still raw. (name1), who organizes the dance, does not know whether holding it would be cruel or kind. What should (name1) do?
+
+Ask (name2)'s Family First:
+
+(name1) goes to (name2)'s family and asks. They talk for a long time. In the end, (name2) says (his/her) brother loved the moon dance more than anything, and they should hold it. The family comes, and leaves early. Nobody minds. [Solidarity: raise]
+
+Postpone the Festival:
+
+(name1) announces the festival will wait until the next moon. Some people are disappointed; some are relieved. (name2)'s family does not come to the next one either, and that is all right too. The dance goes on without them, and someone saves them a seat. [Solidarity: neutral]
+
+==========================================================================
+LCB-17. The Child's Question
+(picks a child and two adults)
+
+(name1)'s pet gecko died this morning, and (he/she) wants to know why things have to die. (name2) says that everything that lives must one day rest, and its body goes back to feed the island. (name3) says the gecko's spirit has gone on somewhere it will be happy. (name1) looks from one to the other. What should they tell (him/her)?
+
+Let Both Answers Stand:
+
+(name2) and (name3) look at each other and agree that nobody knows for certain, and that (name1) can believe whichever feels right, or both, or neither. (name1) thinks about this, then asks if the gecko can be buried under the flowers. They bury it together. [Solidarity: raise]
+
+Pick One Answer:
+
+(name2) and (name3) start arguing about which answer is right, quite gently, and then less gently. (name1) wanders off in the middle and buries the gecko on (his/her) own, under the flowers, and sings it a little song. When the adults find (him/her), they stop arguing. [Solidarity: lower]
+
+==========================================================================
+LCB-18. The Memory Garden
+(picks an elder and an adult)
+
+(name1) has an idea: a memory garden behind the graves, where every family can plant a flower for each person they have lost, and come to sit among them. (name2) points out that the space behind the graves is where the children play, and that the village would need to find them somewhere else. What should the village do?
+
+Start the Memory Garden:
+
+The memory garden is planted over a single season. Families come and go, planting, weeding, sitting. The children are moved to a new playing field, and complain for exactly one day. Before long they are bringing flowers to the garden too. [effect: small Farming skill for (name1)] [Solidarity: raise]
+
+Keep Things as They Are:
+
+The village decides to leave the space for the children. (name1) is disappointed, and plants a single flower beside the graves anyway, for (his/her) own lost ones. Within a month there are twenty flowers beside it. The garden is starting itself. [Solidarity: neutral]
+
+==========================================================================
+LCB-19. A Place to Grieve Alone
+(picks two adults)
+
+(name1)'s father has died, and the village is preparing the usual mourning gathering, with songs and food and speeches. (name1) has asked them not to. (He/she) wants to say goodbye alone. (name2), who is organizing it, is worried that the village needs to grieve too. What should (name2) do?
+
+Respect (name1)'s Wish:
+
+(name2) cancels the gathering. (name1) spends the day by the sea, alone. The village grieves quietly, in its own huts. A few days later, (name1) thanks (name2), and tells (him/her) one small story about (his/her) father. (name2) keeps it to (him/her)self. [Solidarity: neutral]
+
+Hold a Small One Anyway:
+
+(name2) holds a small gathering for those who want to remember (name1)'s father, without (name1). (name1) hears the singing from down on the beach. (He/she) does not come, but (he/she) is not angry either. Later, (he/she) asks (name2) which songs they sang. [Solidarity: neutral]
+
+==========================================================================
+LCB-20. The Song That Changed
+(picks an elder and a young adult)
+
+It has been a hard year: a fever took four villagers, and the old mourning song does not seem to say enough. (name2) has written a new verse about them and wants to sing it at the next gathering. (name1) has sung the old song for fifty years and says it has always been enough, for everyone. What should the village do?
+
+Add the New Verse:
+
+(name2) sings the new verse at the gathering. Some of the elders do not join in. But the families of the four who died sing it loudest of all. Over the years, the new verse becomes part of the song, and (name1) is eventually heard singing it too. [Solidarity: raise]
+
+Keep the Song Unchanged:
+
+The village keeps the old song. (name2) sings (his/her) new verse alone, at the graves, where nobody can tell (him/her) not to. The families of the four often go with (him/her). The song at the gathering stays the same. [Solidarity: neutral]
+
+==========================================================================
+LCB-21. The New Verse
+(picks a teen and an elder)
+
+(name1) has been singing the old fishing song all (his/her) life, and today (he/she) realized (he/she) has no idea what most of it means. What is a long-tooth? Why does the song tell you to bow to the left? (He/she) wants to write new words that make sense. (name2) is horrified. What should happen?
+
+Change the Words:
+
+(name1) writes new words. They make perfect sense, and they are very boring. The village sings them twice and then quietly goes back to the old ones. (name1) is annoyed, then laughs. At least now (he/she) knows the old song was never meant to make sense. [Solidarity: neutral]
+
+Learn What They Mean:
+
+(name2) explains: a long-tooth is a kind of barracuda, and you bow to the left to let the wave break over your right shoulder. The song is full of instructions, if you know how to hear them. (name1) is amazed, and starts asking about every song in the village. [effect: small Farming skill for (name1)] [Solidarity: raise]
+
+==========================================================================
+LCB-22. The Forgotten Melody
+(picks an elder and an adult)
+
+(name1) has started humming a tune nobody in the village recognizes. It is a song (his/her) grandmother sang, (he/she) says, but (he/she) only remembers the beginning. (name2) thinks the rest might still be out there in someone else's memory. What should they do?
+
+Piece It Together:
+
+(name2) goes from elder to elder, humming the beginning. One remembers a line. Another remembers a chorus. A very old fisher remembers the ending, but not the middle. They piece most of it together. The middle stays a gap, and they hum through it. That is how the song is sung from then on. [effect: small Research skill for (name2)] [Solidarity: raise]
+
+Write a New Ending:
+
+(name1) decides the song should have an ending, even if it is a new one. (He/she) writes one, about (his/her) grandmother herself. The village learns the song. Nobody knows which part is old and which is new, and (name1) is not going to tell them. [Solidarity: raise]
+
+==========================================================================
+LCB-23. The Festival Nobody Planned
+(picks two adults)
+
+Last year, on the hottest night of the dry season, someone dragged a cooking pot to the beach, someone else brought a drum, and before anyone knew it the whole village was dancing in the shallows until dawn. (name1) wants to make it a festival, the same night every year. (name2) thinks planning it will ruin it. What should they do?
+
+Make It a Yearly Festival:
+
+The Night of the Warm Water becomes a festival. It is good, but it is not quite the same: people bring speeches. (name2) sneaks off with a drum halfway through and starts a second, smaller party further down the beach. Next year that one is the festival. [effect: everyone celebrates] [Solidarity: raise]
+
+Keep It Spontaneous:
+
+Nobody plans anything. The dry season drags on. Then one night, without any warning, someone drags a pot down to the beach, and the drums start. The whole village is in the water within the hour. It is exactly as good as last time. [effect: everyone celebrates] [Solidarity: raise]
+
+==========================================================================
+LCB-24. The Two Villages' Chorus
+(picks two adults)
+
+The fishing settlement across the bay has invited the village to a shared festival, and the two communities are supposed to sing together. (name1) wants to blend their songs into one. (name2) worries the village's songs will get lost, and wants each side to sing its own, back and forth across the fire. What should the village do?
+
+Blend the Songs:
+
+The two villages spend three evenings blending their songs. The result has the bay's drums and Isola's harmonies, and nobody can tell where one ends. Some people on both sides think something was lost. Most people think something was found. [effect: everyone celebrates] [Solidarity: raise]
+
+Sing Back and Forth:
+
+The two villages sing back and forth across the fire, one song each, until dawn. They never sing the same song, and they never need to. By the end, the children of both villages are mixing up the words on purpose. [Solidarity: raise]
+
+==========================================================================
+LCB-25. The Story in Another Language
+(picks an adult and a child)
+
+(name1) came to Isola last year, and still speaks the language of (his/her) homeland when (he/she) is tired or happy. (name2) has asked (him/her) to teach (him/her) some words. Now half the children want to learn. (name1) is touched, and a little nervous. How should (he/she) teach them?
+
+Hold Proper Lessons:
+
+(name1) holds lessons every evening under the old fig. The children learn colors, animals, and a very rude word for crab, which they use constantly. Before long the adults are asking for lessons too. [effect: small Parenting skill for (name1)] [Solidarity: raise]
+
+Teach It at Play:
+
+(name1) just talks to the children in (his/her) language while they play, and lets them pick it up. Within a month, (name2) can count to twenty and sing a whole song. (name1) hears it from across the village one evening and has to sit down for a moment. [Solidarity: raise]
+
+==========================================================================
+LCB-26. The Song of Many Beliefs
+(picks two adults)
+
+Most of the village's gathering songs are prayers, and some villagers feel left out when they are sung. (name1) wants to write a new gathering song that anyone can sing, whatever they believe or do not believe. (name2) worries that a song with no prayer in it will feel empty to everyone else. What should they do?
+
+A Song About the Village:
+
+(name1) writes a song about the village itself: the huts, the gardens, the faces around the fire. No prayers, no doubts, just the people. It turns out to be everyone's favorite. The prayer songs are still sung too, by those who want them. [Solidarity: raise]
+
+A Different Verse for Each:
+
+(name2) suggests a song with a verse for prayer, a verse for silence, a verse for the sea and a verse for the stars, and everyone sings the verses they want. It is a little chaotic. Some verses are sung by three people, some by fifty. Everyone sings the last one together. [Solidarity: raise]
+
+==========================================================================
+LCB-27. The Child Who Would Not Sing
+(picks a child and an adult)
+
+Every child on Isola sings at the moon festival. (name1) will not. (He/she) says singing makes (his/her) stomach hurt. But (he/she) has been drumming on every log in the village for weeks. (name2) leads the children's choir. What should (name2) do?
+
+Let (name1) Drum:
+
+(name2) gives (name1) a small drum and puts (him/her) at the front. (name1) keeps the beat for the whole choir, perfectly, with an expression of deep concentration. The children sing better than they have in years. [effect: (name1) celebrates] [Solidarity: raise]
+
+Encourage Singing:
+
+(name2) gently tells (name1) to just try. (name1) stands with the choir and moves (his/her) mouth without making any sound. Afterwards, (he/she) is very quiet. (name2) realizes it was the wrong call, and next festival, (name1) drums. [Solidarity: lower]
+
+==========================================================================
+LCB-28. The Tradition That Hurt
+(picks two adults)
+
+By old custom, only someone born on Isola may light the festival fire. (name1) came to Isola as a baby, has lived here ever since, and was told again this year that (he/she) may not light it. (He/she) has asked the village to change the custom. (name2), who lit the fire last year, thinks the custom is about honoring the island, not about excluding anyone. What should the village do?
+
+Change the Custom:
+
+The village decides that anyone who has lived on Isola for a full year may light the fire. That night, (name1) lights it, with (name2) beside (him/her) holding the torch steady. (name1) has to step back for a moment before (he/she) can speak. [Solidarity: raise]
+
+Keep the Custom:
+
+The village votes to keep the custom. (name1) does not come to the festival. Several other villagers who were not born on Isola stay away too. The fire is lit, and the festival goes on, but there are a lot of empty places. The question will come up again. [Solidarity: lower]
+
+==========================================================================
+LCB-29. The Ceremony of New Beginnings
+(picks an adult and an elder)
+
+(name1) has had a hard couple of years, and does not want to talk about why. But (he/she) feels like (he/she) is starting over, and wants to mark it somehow. There is no ceremony on Isola for that. (name2) knows a lot of old ceremonies, and thinks one of them might fit. What should they do?
+
+Create Something New:
+
+(name1) makes up a ceremony of (his/her) own: (he/she) swims out to the rocks at dawn, leaves a stone there, and swims back. A few friends wait on the beach with a blanket. It means nothing to anyone else. It means everything to (name1). [Solidarity: neutral]
+
+Adapt an Old One:
+
+(name2) suggests the old ceremony for a new canoe: washing it in the sea, painting it, and giving it a name. They do it for (name1) instead of a canoe, which is very silly and involves a lot of paint. (name1) laughs harder than (he/she) has in a long time. [Solidarity: raise]
+
+==========================================================================
+LCB-30. The Future Ancestors
+(picks a child and an elder)
+
+(name1) has been asking (name2) what the village will be like in a hundred years. Will there still be fish? Will people still sing the moon song? Will they know who (name1) was? (name2) admits (he/she) has no idea. But it gives (him/her) an idea. What should they leave for the future?
+
+Bury a Message:
+
+The children each draw a picture of their lives on a piece of bark, and (name2) seals them in a clay jar and buries it under the meeting hut. (name1) draws a fish, a hut and a very large version of (him/her)self. Somewhere in the future, someone will find it. [Solidarity: raise]
+
+Carve a Story Pole:
+
+(name2) and the children carve a story pole, one picture for each child: (name1)'s is a gecko, for reasons (he/she) will not explain. The pole stands by the beach. Visitors ask about it. The children explain every picture, at length. [effect: small Building skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCB-31. The Names of Those Before Us
+(picks an elder and a teen)
+
+At the gathering of names, each family speaks the names of its ancestors. (name1) wants to add something new this year: a moment for all the people whose names nobody remembers, the ones who carried water and dug gardens and were never in a story. (name2) thinks that sounds strange: how do you remember someone with no name? What should the village do?
+
+Include the Forgotten:
+
+At the end of the names, (name1) asks for silence, for everyone whose names are lost. The silence goes on for a long time. Afterwards, (name2) says it was the loudest part of the night. [Solidarity: raise]
+
+Keep to the Known Names:
+
+The village speaks the known names only, as always. On the way home, (name2) asks (name1) how many people (he/she) thinks are forgotten. (name1) says: almost everyone. (name2) thinks about that for a long time. [Solidarity: neutral]
+
+==========================================================================
+LCB-32. The Broken Memorial
+(picks two adults)
+
+The storm last night knocked over the memorial stone at the edge of the village, and it cracked in two. (name1) wants it put back exactly as it was, crack and all. (name2) thinks this is a chance to make a new memorial, with the names of the people who have died since the stone was raised. What should the village do?
+
+Restore It Exactly:
+
+The village lifts the two halves and binds them together with rope and resin, crack and all. (name1) says the crack is part of its story now. (name2) carves the new names on a smaller stone beside it. Both stand there together. [effect: small Building skill for (name1)] [Solidarity: raise]
+
+Rebuild It in a New Way:
+
+The village builds a new memorial from the broken pieces, set in a circle, with all the names, old and new. Some of the elders are upset that it looks so different. Children like sitting in the middle of it. [effect: small Building skill for (name2)] [Solidarity: neutral]
+
+==========================================================================
+LCB-33. The Last Witness
+(picks two elders and a teen)
+
+(name3) has been asked to learn the story of the great flood, so it is not lost when the elders are gone. But (name1) and (name2), the only two left who were there, remember it completely differently. (name1) says the water came at night; (name2) says it was noon. They are not even sure who saved whom. What should (name3) do?
+
+Learn Both Versions:
+
+(name3) learns both, word for word, and when (he/she) tells the story, (he/she) tells it twice: (name1)'s flood and (name2)'s flood. The children love it. They argue about which one is true, which is exactly what (name1) and (name2) have been doing for fifty years. [effect: small Research skill for (name3)] [Solidarity: raise]
+
+Ask Them to Agree:
+
+(name3) sits (name1) and (name2) down together and asks them to agree on one story. They argue for three days. The final version has the water come at sunset, which neither of them remembers, and they both sulk. (name3) learns it anyway. [Solidarity: lower]
+
+==========================================================================
+LCB-34. The Villager Who Does Not Pray
+(picks two adults)
+
+Before the feast, the village stands for the thanks-giving prayer. (name1) stays sitting, as (he/she) always does, eating a piece of fruit. (name2) has never noticed before, and is surprised and a little offended. What should (name2) do?
+
+Say Nothing:
+
+(name2) says nothing. The prayer ends, the feast begins, and (name1) passes (name2) the fish. Later, (name2) realizes nobody else seemed to mind, and that (he/she) does not really mind either. [Solidarity: neutral]
+
+Ask Kindly, Later:
+
+After the feast, (name2) asks (name1), kindly, why (he/she) does not stand. (name1) says (he/she) does not believe the way others do, and does not want to pretend. (name2) thinks about it and says (he/she) would rather (name1) sit honestly than stand falsely. They are better friends after that. [Solidarity: raise]
+
+==========================================================================
+LCB-35. The Question Nobody Can Answer
+(picks a child and an elder)
+
+(name1) has been very quiet since the funeral. Tonight (he/she) asks (name2), who is the oldest person (he/she) knows, what happens after people die. (name2) has wondered the same thing for seventy years. What should (name2) say?
+
+Admit Not Knowing:
+
+(name2) says (he/she) does not know, and neither does anyone else, not for sure. (name1) is surprised that grown-ups do not know everything. Then (he/she) seems relieved. "So I can wonder too?" (he/she) asks. (name2) says yes, that is allowed. [Solidarity: neutral]
+
+Tell What People Believe:
+
+(name2) tells (name1) the different things people on Isola believe: that the dead rest, that they go on somewhere, that they come back as birds, that they live on in the people who remember them. (name1) decides (he/she) likes the bird one best, and watches the birds very carefully after that. [Solidarity: raise]
+
+==========================================================================
+LCB-36. The Last Wish
+(picks an elder and an adult)
+
+(name1) is old but perfectly well, and has decided to make one thing clear while (he/she) still can: when (he/she) dies, there is to be no grand farewell, no three days of singing, no fuss. A quiet burial and a good meal. (name2), (his/her) grandchild, thinks (name1) deserves the biggest farewell the village has ever seen. What should (name2) do?
+
+Promise to Honor It:
+
+(name2) promises. (name1) looks very relieved, and then asks what will be on the menu for the good meal. They spend the rest of the afternoon arguing happily about fish. [Solidarity: raise]
+
+Ask (name1) to Reconsider:
+
+(name2) asks (name1) to think again, because the farewell is for the living, too. (name1) thinks about it, and agrees to one song. Just one. (He/she) gets to choose it. (He/she) chooses a very silly one, on purpose. [Solidarity: neutral]
+
+==========================================================================
+LCB-37. The Funeral Fire
+(picks two adults)
+
+(name1)'s grandfather has died, peacefully, at a great age. The family wants the old vigil: a fire kept burning beside him all night, with someone always awake, telling stories of his life. (name2) has offered to help keep the fire, but the village is exhausted from the harvest. How should the vigil go?
+
+Keep the Fire All Night:
+
+Family and friends take turns all night: an hour each, with a story each. By dawn, the stories have gone from solemn to funny to very, very funny, and (name1) has learned three things about (his/her) grandfather (he/she) is not sure (he/she) wanted to know. The fire never goes out. [Solidarity: raise]
+
+A Shorter Vigil:
+
+The family keeps the fire until midnight, then lets it burn down. (name1) stays on alone a little longer, talking quietly to (his/her) grandfather. (name2) waits outside the firelight so (he/she) is not alone. [Solidarity: neutral]
+
+==========================================================================
+LCB-38. The Mourning Paint
+(picks an adult and a child)
+
+On Isola, the family of someone who has died paints their faces with white clay for the days of mourning. (name2)'s best friend died of fever last week, and (name2) has turned up with white clay all over (his/her) face. (name1), who knows the custom well, knows it is meant for family only. What should (name1) do?
+
+Let (name2) Wear It:
+
+(name1) helps (name2) fix the paint so it is even, and tells (him/her) a friend can be family too. At the burial, the friend's mother sees (name2) and pulls (him/her) into the family's circle. (name2) stands with them until the end. [Solidarity: raise]
+
+Explain the Custom:
+
+(name1) gently explains the custom and helps (name2) wash the paint off. (name2) cries the whole time. Afterwards, (name1) gives (him/her) a small white shell to wear instead, on a string. (name2) wears it for a long time. [Solidarity: neutral]
+
+==========================================================================
+LCB-39. The Feast for the Departed
+(picks two adults)
+
+By custom, after a burial, the family of the one who died feeds the whole village. (name1)'s family has very little this season: the garden failed, and the burial of (his/her) aunt has taken all they had. (name1) is ashamed and does not know what to do. (name2) has noticed. What should happen?
+
+The Village Brings the Food:
+
+(name2) quietly goes from hut to hut. On the evening of the feast, every family arrives with a dish, and sets it in front of (name1)'s family, as if it were theirs to serve. (name1) serves it. Nobody mentions where it came from. [effect: small food loss] [Solidarity: raise]
+
+Hold a Small Feast Anyway:
+
+(name1)'s family serves what little they have, a thin soup and some fruit. Everyone eats it gratefully. A few people look embarrassed. (name2) decides, then and there, to ask the gathering to change the custom so no family ever has to do this alone again. [Solidarity: neutral]
+
+==========================================================================
+LCB-40. The Grave by the Sea
+(picks an elder and an adult)
+
+(name1) has spent (his/her) whole life on the water, and has asked (name2) for a promise: when (he/she) dies, (he/she) wants to be buried on the headland, where the sea can be heard, and not in the graveyard with everyone else. (name2) is not sure the village will allow it. What should (name2) do?
+
+Promise Without Asking:
+
+(name2) promises. (name1) is satisfied, and spends the next season planting flowers on the headland, getting the place ready, and complaining about the soil. (name2) helps, and says nothing to anyone. [Solidarity: neutral]
+
+Ask the Village First:
+
+(name2) brings it to the gathering. There is a long discussion. In the end the village agrees, and several other old fishers ask for the same. The headland becomes the fishers' resting place. (name1) is very smug about having thought of it first. [Solidarity: raise]
+
+==========================================================================
+LCB-41. The Mourning Drum
+(picks two adults)
+
+When someone dies on Isola, the slow mourning drum is beaten from dawn to dusk for three days. (name1) beats it now, for (his/her) uncle. (name2) lost a child last year, and the sound of the drum brings it all back. (He/she) has asked, quietly, if it could be shorter. What should (name1) do?
+
+Keep the Three Days:
+
+(name1) keeps the drum for three days, as the custom asks. On the second day, (he/she) notices (name2) has gone fishing alone, far out, where the drum cannot be heard. When (name2) comes back, (name1) sits with (him/her) a while. Neither of them says anything about it. [Solidarity: neutral]
+
+Shorten It:
+
+(name1) beats the drum for one day only, and then sits by it in silence for the other two. Some of the older villagers are upset. (name2) brings (name1) a bowl of soup at the end of the third day, and stays to eat it with (him/her). [Solidarity: neutral]
+
+==========================================================================
+LCB-42. The Song for the Departed
+(picks an adult and an elder)
+
+At the memorial for Old Nana Goat, anyone may speak, sing, or stay silent, as they wish. (name1) is speaking. (He/she) has been speaking for a very long time, mostly about a dispute over a goat that Old Nana Goat won in nineteen different ways. (name2), who leads the memorial, can see the children falling asleep. What should (name2) do?
+
+Let (name1) Go On:
+
+(name2) lets (name1) go on. The goat story turns out to be wonderful: it ends with Old Nana Goat riding the goat into the meeting hut. By the end, even the grieving family is laughing. It is exactly what she would have wanted. [Solidarity: raise]
+
+Gently Stop (name1):
+
+(name2) touches (name1)'s arm and says, kindly, that others are waiting to speak. (name1) is embarrassed, but sits down. Several people tell quiet stories after that. Later, by the fire, (name1) finishes the goat story for anyone who wants to hear it, and quite a lot of people do. [Solidarity: neutral]
+
+==========================================================================
+LCB-43. The Shared Grief
+(picks two adults)
+
+A storm took two fishers last week: one from (name1)'s family, one from (name2)'s. The two families have not spoken in years, over a garden boundary. The village is planning the mourning gathering, and someone has suggested holding one gathering for both. Neither family has answered. What should (name1) do?
+
+Mourn Together:
+
+(name1) goes to (name2)'s hut and says, simply, that they should mourn together. (name2) agrees. At the gathering, the two families stand side by side and sing for their dead. Afterwards they go back to not speaking, mostly. But the next time the garden boundary comes up, nobody raises their voice. [Solidarity: raise]
+
+Mourn Apart:
+
+(name1) does not go. The two families hold separate gatherings on the same night, at either end of the beach, and the village splits between them. Some people go to both. From the middle of the beach, both songs can be heard at once. [Solidarity: lower]
+
+==========================================================================
+LCB-44. The Children's Funeral for a Fish
+(picks a child and an adult)
+
+(name1) found a beautiful dead fish on the beach this morning, and the children have decided it needs a proper funeral, with songs, a speech and a grave in the sand. (name2) has been asked to come. They are all very serious. (name2) is trying very hard not to smile. What should (name2) do?
+
+Join In Seriously:
+
+(name2) stands with the children, head bowed, while (name1) gives a speech about the fish's bravery and beautiful colors. They sing a mourning song with the words slightly wrong. (name2) puts a shell on the grave. The children are deeply satisfied. [effect: small Parenting skill for (name2)] [Solidarity: raise]
+
+Let Them Do It Alone:
+
+(name2) decides it is the children's ceremony, and watches from a distance. They do it perfectly, with a great deal of wailing. Then the tide comes in and takes the fish, and (name1) declares that the sea has accepted it. Everyone agrees this is the best possible ending. [Solidarity: raise]
+
+==========================================================================
+LCB-45. The Year of Mourning
+(picks two adults)
+
+(name1) lost (his/her) partner eight months ago. By custom, a widowed villager does not dance at festivals for a full year. Tonight is the moon dance, and (name1) has told (name2) (he/she) wants to dance: (his/her) partner loved dancing, and (he/she) is ready. Some people will talk. What should (name2) do?
+
+Dance With (name1):
+
+(name2) takes (name1)'s hand and leads (him/her) into the dance. A few people stare. A few people whisper. Most people just make room. (name1) dances until (he/she) is out of breath, crying and laughing at once. [Solidarity: raise]
+
+Ask (name1) to Wait:
+
+(name2) gently says the village might not understand yet. (name1) sits out the dance, watching. Halfway through, (he/she) gets up and walks home. (name2) follows and sits with (him/her) on the step, and they listen to the drums together from there. [Solidarity: neutral]
+
+==========================================================================
+LCB-46. The Bones of the Old Canoe
+(picks an elder and an adult)
+
+(name1)'s old friend, the best fisher of (his/her) generation, died last year, and his canoe is still on the beach, slowly rotting. By old custom it should be burned, so it can go with him. (name2) thinks it should be rebuilt and given to the young crews, so his skill goes on. What should they do?
+
+Burn It With Ceremony:
+
+The village gathers at dusk and burns the old canoe on the sand, singing. (name1) throws in (his/her) friend's old fishing hook. The sparks go up and up. In the morning, (name2) finds the hook in the ashes, black but whole, and gives it back to (name1). [Solidarity: neutral]
+
+Rebuild It for the Young:
+
+(name2) and the young crews rebuild the canoe, plank by plank, keeping as much of the old wood as they can. They paint the old fisher's mark on the bow. The first time it goes out, it comes back loaded with fish. (name1) says that was always that canoe's way. [effect: small Building skill for (name2); small food gain] [Solidarity: raise]
+
+==========================================================================
+LCB-47. The Song for the Unknown Sailor
+(picks two adults)
+
+At dawn, (name1) found a body on the beach, a stranger from somewhere across the sea, with a carved bead necklace nobody recognizes. Nobody knows who (he/she) was. (name2) says the village should bury (him/her) in the graveyard like anyone else. (name1) wonders if (he/she) would want to be near the sea that brought (him/her). What should the village do?
+
+Bury the Stranger With Our Dead:
+
+The stranger is buried in the graveyard with a song, like any villager. The bead necklace is hung on the marker. Every so often, someone leaves a flower there, and nobody knows who. [Solidarity: raise]
+
+A Place by the Sea:
+
+The village buries the stranger on the dune above the beach, facing the water. (name1) sings the song for those lost at sea. Whether anyone, somewhere, is still waiting for this person, nobody will ever know. (name2) carves a small canoe and leaves it on the grave. [Solidarity: neutral]
+
+==========================================================================
+LCB-48. The Mourning Gathering of Many Ways
+(picks two adults)
+
+(name1)'s family came to Isola from far away. In their custom, the dead are mourned in complete silence: no songs, no drums, no speeches. The village has always mourned with song. Now (name1)'s mother has died, and (name2), who leads the village's mourning, wants to know how to honor her. What should (name2) do?
+
+Follow the Family's Way:
+
+The village mourns in silence. It is strange for everyone at first. But the silence is very full: people hold hands, bow their heads, and stand together for a long time. (name1) thanks (name2) afterwards with tears in (his/her) eyes. [Solidarity: raise]
+
+Hold Both:
+
+(name2) suggests a silent gathering for the family, and a song later, away from the graveside, for any villager who needs to sing. (name1) agrees. Both happen. The song drifts over from the beach while the family sits in silence, and neither interrupts the other. [Solidarity: raise]
+
+==========================================================================
+LCB-49. The Grandfather's Tools
+(picks an adult and a teen)
+
+(name1)'s father was the village's best carver, and now that he is gone, his tools lie wrapped in cloth in the family hut. (name2), his apprentice, has not asked for them, but everyone knows (he/she) is lost without good tools. (name1) cannot carve and never wanted to. What should (name1) do with them?
+
+Give Them to (name2):
+
+(name1) unwraps the tools and gives them to (name2). (name2) cannot speak. (He/she) carves (his/her) first piece with them that same week, a small fish, and gives it to (name1). (name1) keeps it on (his/her) shelf, next to (his/her) father's last carving. [effect: small Building skill for (name2)] [Solidarity: raise]
+
+Keep Them for Now:
+
+(name1) is not ready to let them go, and says so. (name2) understands. Months later, (name1) brings the tools to (name2)'s door without a word. (name2) takes them very carefully. Some things take time. [Solidarity: neutral]
+
+==========================================================================
+LCB-50. The Laughter at the Grave
+(picks two adults)
+
+At the burial of Old Auntie Pip, the funniest woman on Isola, (name1) suddenly remembers the time Auntie Pip hid a crab in the elders' meeting hut, and laughs out loud. Everyone turns. (name2), Auntie Pip's eldest child, stares at (name1). What should (name2) do?
+
+Laugh Along:
+
+(name2) starts to laugh too. Then someone else remembers the crab, and then the time with the coconut and the eldest elder's hat, and before long the whole burial is in fits. Auntie Pip is buried to the sound of the whole village laughing. It is exactly right. [Solidarity: raise]
+
+Ask (name1) for Quiet:
+
+(name2) asks (name1), tightly, to be quiet. (name1) apologizes. The burial goes on in silence. Later, (name2) comes to find (name1) and asks (him/her) to tell the crab story properly. They both end up laughing and crying at once. [Solidarity: neutral]
+
+==========================================================================
+NOTES FOR THE OWNER
+- LCB-01: Concept LT4.1. Inspiration: rain celebrations in many farming peoples (purpose only). Review: 15/15 pass (joy and practicality both valid)
+- LCB-02: Concepts LT4.2, C100-XI.1, R50-8. Inspiration: community marine protected areas in Oceania (purpose only). Review: 15/15 pass (real cost; families' hunger respected; no single right answer)
+- LCB-03: Concepts LT4.3, C100-VI.3. Original Isolan custom. Review: 15/15 pass (spiritual and practical views both respected)
+- LCB-04: Concept LT4.4, R50-3. Inspiration: intergenerational ecological knowledge in many Indigenous communities. Review: 15/15 pass (environmental change shown honestly; no false fix)
+- LCB-05: Concept LT4.5. Endangered species per the owner's rule 14 (no invented statistics). Review: 15/15 pass (protection has a cost; recovery not guaranteed)
+- LCB-06: Concept LT4.6. Inspiration: gleaning and leave-a-share customs in many farming cultures. Review: 15/15 pass (generosity has a cost; both views reasonable)
+- LCB-07: Concepts LT4.7, C100-VI.1; schools of thought (8g). Original Isolan gathering. Review: 15/15 pass (no school presented as simply right)
+- LCB-08: Concepts LT4.8, R50-24, V3 seed stewardship. Inspiration: Indigenous seed-keeping traditions. Review: 15/15 pass (family knowledge respected; sharing not forced)
+- LCB-09: Concept LT4.9. Original Isolan custom. Review: 15/15 pass (danger real but not graphic; autonomy for teens)
+- LCB-10: Concept LT4.10, 8g (nature and spiritualism schools). The island's nature stays ambiguous. Review: 15/15 pass (the island's nature never settled)
+- LCB-11: Concept LT5.1. Inspiration: memorials for those lost at sea in coastal cultures. Review: 15/15 pass (grief without lesson; both forms respectful)
+- LCB-12: Concept LT5.2. Original Isolan custom. Review: 15/15 pass (no forced disclosure; a child's grief respected)
+- LCB-13: Concepts LT5.3, C100-XIX.2. Original Isolan custom. Review: 15/15 pass (no right way to grieve; both choices respected)
+- LCB-14: Concept LT5.4. Grief rules (hard rule 8). Review: 15/15 pass (all forms of taking part valued)
+- LCB-15: Concepts LT5.5, C100-V.2. Ancestors remembered honestly. Review: 15/15 pass (history not erased or glorified)
+- LCB-16: Concept LT5.6. Grief has no timeline. Review: 15/15 pass (joy is not forgetting; the family's voice comes first)
+- LCB-17: Concepts LT5.7, C100-VI.4, C100-XIX.5. Beliefs never ranked; children spoken to age-appropriately. Review: 15/15 pass (no belief corrected; uncertainty allowed)
+- LCB-18: Concepts LT5.8, C100-XIX.3. Original Isolan custom. Review: 15/15 pass (respectful; space needed is real)
+- LCB-19: Concept LT5.9. Privacy and agency (hard rule 19). Review: 15/15 pass (private grief respected; no pressure)
+- LCB-20: Concepts LT5.10, LT6.1. Living tradition can change. Review: 15/15 pass (change debated; both views respected)
+- LCB-21: Concept LT6.1. Original Isolan custom. Review: 15/15 pass (gentle humor; learning without humiliation)
+- LCB-22: Concepts LT6.2, R50-41, C100-V.4. Inspiration: song revival by elders' memory (purpose only). Review: 15/15 pass (incomplete knowledge accepted)
+- LCB-23: Concept LT6.3. Original Isolan festival. Review: 15/15 pass (pure joy; no harm)
+- LCB-24: Concepts LT6.4, R50-45, C100-XVI.5. The neighboring settlement is unnamed. Review: 15/15 pass (two identities kept)
+- LCB-25: Concepts LT6.5, C100-II.3. The homeland is unnamed. Review: 15/15 pass (the newcomer's language valued)
+- LCB-26: Concepts LT6.6, C100-VI.5. Freedom of belief. Review: 15/15 pass (every belief and non-belief welcome)
+- LCB-27: Concept LT6.7. Participation on one's own terms. Review: 15/15 pass (the child's way respected)
+- LCB-28: Concepts LT6.8, C100-IV.5. Original Isolan custom. Review: 15/15 pass (exclusion named as unfair; change chosen by the people)
+- LCB-29: Concept LT6.9. No reason for the hard time is required (privacy). Review: 15/15 pass (no forced disclosure)
+- LCB-30: Concepts LT6.10, C100-V.5, C100-XX.5, D5-5 (futures). Original Isolan custom. Review: 15/15 pass (hopeful without being a lecture)
+- LCB-31: Concept C100-V.1. Ancestors remembered, not worshipped. Review: 15/15 pass (the unrecorded honored)
+- LCB-32: Concept C100-V.3. Original Isolan scene. Review: 15/15 pass (both views legitimate)
+- LCB-33: Concept C100-V.4, C100-II.2. Memory and history. Review: 15/15 pass (memory's uncertainty respected)
+- LCB-34: Concept C100-VI.2. Freedom of belief. Review: 15/15 pass (belief and non-belief respected; curiosity without pressure)
+- LCB-35: Concept C100-VI.4. Afterlife never confirmed. Review: 15/15 pass (uncertainty honest; beliefs not ranked)
+- LCB-36: Concept C100-XIX.4. Planning ahead; no death in the event. Review: 15/15 pass (the elder's wishes respected; no death shown)
+- LCB-37: The owner's "funeral traditions". Inspiration: mourning vigils found in many cultures (purpose only; Isola's own form). Review: 15/15 pass (respectful; tiredness is not disrespect)
+- LCB-38: The owner's "funeral traditions". Original Isolan custom (white clay paint). Review: 15/15 pass (a child's grief taken seriously)
+- LCB-39: The owner's "funeral traditions"; V5 economic fairness themes. Original Isolan custom. Review: 15/15 pass (poverty without shame; mutual aid)
+- LCB-40: The owner's "funeral traditions". Planning ahead; no death in the event. Review: 15/15 pass (the elder's autonomy)
+- LCB-41: The owner's "funeral traditions". Original Isolan custom. Review: 15/15 pass (different needs in grief both respected)
+- LCB-42: Concept C100-XIX.1. Original Isolan custom; gentle humor kept separate from the grief. Review: 15/15 pass (humor on a harmless detail, never on the grief)
+- LCB-43: The owner's "funeral traditions"; C100-XVII. Reconciliation not forced. Review: 15/15 pass (shared loss does not erase the quarrel; no forced forgiveness)
+- LCB-44: The owner's "funeral traditions"; ordinary childhood; a pet, not a person. Review: 15/15 pass (children's feelings taken seriously; gentle humor)
+- LCB-45: The owner's "funeral traditions"; grief has no timeline either way. Review: 15/15 pass (no right timeline; nobody shamed)
+- LCB-46: The owner's "funeral traditions". Original Isolan custom. Review: 15/15 pass (both honor the dead)
+- LCB-47: The owner's "funeral traditions". The stranger stays unknown; implied, non-graphic. Review: 15/15 pass (dignity for the unknown; non-graphic)
+- LCB-48: The owner's "funeral traditions"; LT3.7. Many ways of mourning. Review: 15/15 pass (the family's custom respected)
+- LCB-49: The owner's "funeral traditions"; inheritance customs. Review: 15/15 pass (grief and practicality)
+- LCB-50: The owner's "funeral traditions"; hard rule 8 (laughing is not forgetting). Review: 15/15 pass (laughter in grief respected)

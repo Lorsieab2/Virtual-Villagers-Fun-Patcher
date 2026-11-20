@@ -89,17 +89,44 @@
      "max": 10,
      "src": "L8938"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
+   "type": "branch",
    "name": "Answer C",
-   "text": "The exciting claim spreads before evidence exists; a later correction causes embarrassment.",
-   "src": "L8940"
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
   },
   "d": {
    "name": "Answer D",
    "text": "Magic, nature, spirit and science each offer a reading; none becomes official truth.",
    "src": "L8942"
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "The exciting claim spreads before evidence exists; a later correction causes embarrassment.",
+   "src": "L8940",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "diver",
+     "mood": "bad",
+     "src": "L8940"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
+   "name": "Answer C",
+   "text": "The exciting claim spreads before evidence exists; a later correction causes embarrassment.",
+   "src": "L8940"
   }
  }
 }

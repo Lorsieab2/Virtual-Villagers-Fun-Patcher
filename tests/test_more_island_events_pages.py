@@ -98,7 +98,7 @@ def play_steps(v, rolls_: list[int], answer: int) -> list[tuple]:
     return steps
 
 
-A2 = dict(find=0, survive=False, end=0)          # "Go investigate!": the beast, dies (a grave)
+A2 = dict(find=0, survive=False, end=0)          # "Go Investigate!": the beast, dies (a grave)
 
 
 @unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and DLL.is_file(), "needs unicorn, pefile and the stock executables")
@@ -121,7 +121,7 @@ class TheAdventurer(unittest.TestCase):
                 self.assertEqual(calls[0][1], before)
                 self.assertEqual(calls[1][1][1], 0)
                 self.assertEqual(calls[2][1], game)
-                self.assertEqual(calls[2][2], "  Event: The Aspiring Adventurer\n  Choice: Go investigate!\n"
+                self.assertEqual(calls[2][2], "  Event: The Aspiring Adventurer\n  Choice: Go Investigate!\n"
                                               "  Ana: Health 100 -> 0\n")
                 self.assertEqual(calls[2][3], 1)                  # final: handed over once, complete
 
@@ -225,7 +225,7 @@ class TheCaveExplorers(unittest.TestCase):
         self.assertEqual((steps[last][1][1], steps[last][1][2]), (0, 0))   # both die as the last page shows
         self.assertEqual([c[0] for c in calls], ["begin", "end", "write"])
         self.assertEqual(calls[-1][2], "  Event: The Cave Explorers\n  Choice: Explore the Cave\n"
-                                       "  Choice: Stay Here\n  Choice: Curses schmurses. I'm keeping them.\n"
+                                       "  Choice: Stay Here\n  Choice: Curses Schmurses. I'm Keeping Them.\n"
                                        "  Ana: Health 100 -> 0\n")
         self.assertEqual(calls[-1][3], 1)
 
@@ -242,7 +242,7 @@ class TheCaveExplorers(unittest.TestCase):
         v, calls = self.village()
         steps = self.play(v, cave_rolls(), [1])
         self.assertEqual(steps[-1][0], "close")
-        self.assertTrue(calls[-1][2].startswith("  Event: The Cave Explorers\n  Choice: Don't explore\n"))
+        self.assertTrue(calls[-1][2].startswith("  Event: The Cave Explorers\n  Choice: Don't Explore\n"))
         self.assertEqual(calls[-1][3], 1)
 
 

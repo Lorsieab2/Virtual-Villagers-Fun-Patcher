@@ -157,9 +157,16 @@
    "src": "L356"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "Progress is slow, and he practices patience.",
-   "src": "L357"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -196,9 +203,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "They discover a way to share care more smoothly.",
-   "src": "L362"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -223,6 +237,78 @@
    "src": "L365"
   },
   "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "Progress is slow, and he practices patience.",
+   "src": "L357",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L357"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "Progress is slow, and he practices patience.",
+   "src": "L357"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "They discover a way to share care more smoothly.",
+   "src": "L362",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L362"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "They discover a way to share care more smoothly.",
+   "src": "L362"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "He admits how hurt he feels and finds relief in being heard.",
+   "src": "L366",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L366"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "He admits how hurt he feels and finds relief in being heard.",
    "src": "L366"

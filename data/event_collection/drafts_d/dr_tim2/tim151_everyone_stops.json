@@ -104,6 +104,32 @@
    "src": "L185,L188"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "The whole village pauses as the sky turns orange over the sea. The colors fade slowly, and work resumes with a little more cheer.",
+   "src": "L185,L189",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L185,L189"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "The whole village pauses as the sky turns orange over the sea. The colors fade slowly, and work resumes with a little more cheer.",
    "src": "L185,L189"

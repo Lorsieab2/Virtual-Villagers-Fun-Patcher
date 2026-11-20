@@ -74,6 +74,32 @@
    "src": "L158"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) stops at the water's edge. \"No,\" (subject.he/she) says. \"Not too close. It's their sea.\" They climb onto the end of the rocks instead and watch the whales pass, closer than (subject) has ever seen them. A spout of mist drifts over them in the breeze. It smells of fish. (subject) has never been happier.",
+   "src": "L161",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L161"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) stops at the water's edge. \"No,\" (subject.he/she) says. \"Not too close. It's their sea.\" They climb onto the end of the rocks instead and watch the whales pass, closer than (subject) has ever seen them. A spout of mist drifts over them in the breeze. It smells of fish. (subject) has never been happier.",
    "src": "L161"

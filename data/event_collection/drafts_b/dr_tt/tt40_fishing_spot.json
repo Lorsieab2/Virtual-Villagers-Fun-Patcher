@@ -85,9 +85,42 @@
      "scaled": true,
      "src": "L482"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) paddles off, offended, to find somewhere even better. (subject.He/she) doesn't. Hours later (subject.he/she) comes back with three small fish, and (friend), still at the old spot, has a canoe full. \"There's room,\" says (friend). (subject) pretends not to hear. The next morning, though, (subject.he/she) is there at dawn.",
+   "src": "L485",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "src": "L485"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L485"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) paddles off, offended, to find somewhere even better. (subject.He/she) doesn't. Hours later (subject.he/she) comes back with three small fish, and (friend), still at the old spot, has a canoe full. \"There's room,\" says (friend). (subject) pretends not to hear. The next morning, though, (subject.he/she) is there at dawn.",
    "src": "L485"

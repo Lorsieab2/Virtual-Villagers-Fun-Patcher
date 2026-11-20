@@ -185,14 +185,41 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "Recovery proceeds gradually under healer guidance.",
-   "src": "L30908"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "Lingering limitations require adapting familiar tasks.",
    "src": "L30909"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "Recovery proceeds gradually under healer guidance.",
+   "src": "L30908",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 15,
+     "max": 30,
+     "src": "L30908"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "Recovery proceeds gradually under healer guidance.",
+   "src": "L30908"
   }
  }
 }

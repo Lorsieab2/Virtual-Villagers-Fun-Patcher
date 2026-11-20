@@ -1,0 +1,218 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grey Mist",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b133_grey_mist",
+  "source": "balance",
+  "lines": [
+   6093,
+   6137
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6093",
+  "ledger": [
+   {
+    "src": "L6094",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6095",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6103",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6112",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6100",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6101",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6104",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6113",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6106",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6109",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6115",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6118",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6121-6137",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A pale mist rolls down off the mountain at dawn, thin and silvery, and settles over the huts like a cobweb.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "fisher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A pale mist rolls down off the mountain at dawn, thin and silvery, and settles over the huts like a cobweb. It doesn't smell of rain. It smells of ash and old flowers. Where it touches the leaves, they turn grey at the tips.\n(subject) is up early, as always, and is the first to notice that the mist is doing the same to people. (fisher), asleep in a hammock outside, has woken up with silver streaks in (subject.his/her) hair. A child's eyebrows have gone white. (subject)'s grandmother used to say that grey mist comes from the mountain when the spirits up there are grieving, and that it \"borrows years from whoever it finds outside.\"\nShould (subject) wake everyone and tell them to stay indoors, or climb up the mountain to find out what's grieving?",
+   "choices": [
+    {
+     "label": "Wake Everyone",
+     "next": "c1",
+     "src": "L6100"
+    },
+    {
+     "label": "Climb the Mountain",
+     "next": "c2",
+     "src": "L6101"
+    }
+   ],
+   "src": "L6096-6098"
+  },
+  "c1o1": {
+   "text": "By noon the mist has lifted, and almost everyone is fine. But three villagers who came outside to see what (subject) was shouting about have gone grey from crown to chin, with soft lines round their eyes, as if ten years had passed in a morning. They are healthy. They just look like their own grandparents now. \"I came out to tell you to be quiet,\" one of them says, gloomily.",
+   "effects": [
+    {
+     "do": "old_look",
+     "target": {
+      "random": 3
+     }
+    }
+   ],
+   "src": "L6107",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Everyone else gets indoors in time. (subject), who stayed out running from hut to hut, comes in last, and when the mist lifts (subject.his/her) hair has gone completely silver. (subject.He/She) looks in a bowl of water and laughs out loud. The village makes (subject.him/her) a little crown of white flowers that evening for saving them, and (subject) wears it, and says it goes with the hair.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L6110",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) runs from hut to hut, banging on doorposts, shouting at people to stay in and cover their heads. Most of them listen. Some of them come outside to see what the shouting is about...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6104"
+  },
+  "c2o1": {
+   "text": "At the top, a tall grey shape sits on a rock, weeping for someone the island lost long ago. (subject) sits down beside it and, not knowing what else to do, tells it about (subject.his/her) own grandmother. They sit together until the mist thins. When (subject) comes down, (subject.his/her) hair is grey, and (subject.his/her) heart is oddly lighter. \"It needed company,\" (subject.he/she) says. \"That's all.\"",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L6116",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "At the top there is nothing but a cold, empty rock and the sound of crying fading away. (subject) leaves a flower on the rock, and the crying stops. On the way down, the mist pulls away from (subject.him/her) like a sheet, and the village sees (subject.him/her) coming back with (subject.his/her) face as smooth and fresh as a young person's. The grey on everyone else's leaves fades by evening. \"I think it gave back what it borrowed,\" (subject) says, \"and then some.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L6119",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) wraps (subject.his/her) head in a cloth and climbs up into the mist. The higher (subject.he/she) goes, the thicker and colder it gets, until (subject.he/she) can hardly see (subject.his/her) own hands. Near the top, (subject.he/she) hears someone crying...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6113"
+  }
+ }
+}

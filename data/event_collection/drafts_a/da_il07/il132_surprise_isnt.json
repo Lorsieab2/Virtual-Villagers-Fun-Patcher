@@ -65,14 +65,46 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"Tonight? What's tonight?\" says (subject), very badly. (friend) grins. That evening (friend) walks in, gasps, puts (friend.his/her) hands to (friend.his/her) face and says \"A SURPRISE? For ME?\" in the worst acting anyone has ever seen. Everybody laughs. The berries are excellent.",
-   "src": "L146"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "\"How did you find out?\" (subject) groans. (friend) points at (subject)'s hut, where the berries are clearly visible in a bowl by the door. \"I wasn't snooping, I promise. They were just... there.\" The meal is lovely anyway. Next time, (subject) decides, (subject.he/she) will hide the berries somewhere better.",
    "src": "L149"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Tonight? What's tonight?\" says (subject), very badly. (friend) grins. That evening (friend) walks in, gasps, puts (friend.his/her) hands to (friend.his/her) face and says \"A SURPRISE? For ME?\" in the worst acting anyone has ever seen. Everybody laughs. The berries are excellent.",
+   "src": "L146",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L146"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L146"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Tonight? What's tonight?\" says (subject), very badly. (friend) grins. That evening (friend) walks in, gasps, puts (friend.his/her) hands to (friend.his/her) face and says \"A SURPRISE? For ME?\" in the worst acting anyone has ever seen. Everybody laughs. The berries are excellent.",
+   "src": "L146"
   }
  }
 }

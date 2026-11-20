@@ -1,0 +1,127 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Path to Water",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg04_path_water",
+  "source": "draft_lcg",
+  "lines": [
+   50,
+   61
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L50",
+  "ledger": [
+   {
+    "src": "L51",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L57",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L57",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L61",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L61",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A neighboring settlement asks to keep using the path to the village's spring in a dry season: agree, or set limits.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The dry season has been long, and the settlement across the hills has asked to keep using the old path to the village's spring, as their grandparents always did. (subject) says nobody should be refused water. (friend) says the spring is lower than anyone has ever seen it, and the village must come first. What should the village do?",
+   "src": "L53",
+   "choices": [
+    {
+     "label": "Let Them Come",
+     "next": "o1",
+     "src": "L55"
+    },
+    {
+     "label": "Set Fair Limits",
+     "next": "o2",
+     "src": "L59"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village lets them come, with no conditions. The spring holds, barely. Both villages are thirsty for a month. When the rains return, the settlement sends a canoe full of fish in thanks.",
+   "src": "L57",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L57"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) meets with the settlement's elders and they agree: two pots per family, mornings only. Nobody is happy. Nobody goes without. The agreement is carved on a stone by the path, and it is still there long after the rains return.",
+   "src": "L61",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L61"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

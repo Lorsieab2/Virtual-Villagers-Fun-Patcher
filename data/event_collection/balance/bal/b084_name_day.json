@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Name Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b084_name_day",
+  "source": "balance",
+  "lines": [
+   3793,
+   3834
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3793",
+  "ledger": [
+   {
+    "src": "L3794",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3795",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3803",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3812",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3800",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3801",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3804",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3813",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3806",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3809",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3815",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3818",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3821-3834",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every few years the village holds a name day, when anyone who wants a new name stands up at the evening fire and asks for one.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every few years the village holds a name day, when anyone who wants a new name stands up at the evening fire and asks for one. The old custom is that the village chooses, and the person takes whatever they're given. Lately, some people have said the person should choose for themselves.\n(Name) has stood up. The whole village is looking at (him/her). (He/She) has had the same name since birth and never felt it fit.\nShould (name) let the village choose, or choose (himself/herself)?",
+   "choices": [
+    {
+     "label": "Let the Village Choose",
+     "next": "c1",
+     "src": "L3800"
+    },
+    {
+     "label": "Choose for (Himself/Herself)",
+     "next": "c2",
+     "src": "L3801"
+    }
+   ],
+   "src": "L3796-3798"
+  },
+  "c1o1": {
+   "text": "\"(renamed),\" says the elder. \"My oldest friend's name. That friend was always looking up at the sky when there was work to do, just like you.\" The village laughs, and agrees, and (name) laughs too, and finds the name sits on (him/her) like it was always waiting there. (renamed) it is.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L3807",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The village can't agree on anything. After an hour of shouting, a small child says, \"Why don't we just call (him/her) what we always call (him/her)?\" and everyone stops, and looks at each other, and the matter is settled. (Name) sits down, a little embarrassed and quite touched. The name fits better than (he/she) thought.",
+   "src": "L3810"
+  },
+  "c1": {
+   "text": "The fire crackles while the village argues, cheerfully and loudly, about what suits (name). One of the elders raises a hand for quiet...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3804"
+  },
+  "c2o1": {
+   "text": "The village repeats it back, all together, and it sounds right. Some of the elders grumble about the old custom, but even they use the new name by the next morning. (Name) walks home in the dark, saying it quietly to (himself/herself) over and over.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L3816",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The village repeats it, and cheers, and in the firelight (name)'s face seems to change, as if a weight has come off it. In the morning, it's still changed: younger, lighter, the face of someone who has finally put something down. \"It's the name,\" say the elders. Nobody argues.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L3819",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) takes a deep breath and says the name (he/she) has been carrying around in (his/her) head for years, out loud, for the first time...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3813"
+  }
+ }
+}

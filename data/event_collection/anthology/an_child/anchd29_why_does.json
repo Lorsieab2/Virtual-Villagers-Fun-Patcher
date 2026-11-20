@@ -225,9 +225,16 @@
    ]
   },
   "c2": {
+   "type": "branch",
    "name": "Outcome C2",
-   "text": "(child) laughs at how surprising emotions can be.",
-   "src": "L28002"
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
   },
   "d": {
    "type": "branch",
@@ -250,6 +257,25 @@
    "name": "Outcome D2",
    "text": "(child) offers a flower without asking questions.",
    "src": "L28005"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "(child) laughs at how surprising emotions can be.",
+   "src": "L28002",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L28002"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "(child) laughs at how surprising emotions can be.",
+   "src": "L28002"
   }
  }
 }

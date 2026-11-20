@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song That Changed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb20_song_changed",
+  "source": "draft_lcb",
+  "lines": [
+   274,
+   285
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L274",
+  "ledger": [
+   {
+    "src": "L275",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a young adult)"
+   },
+   {
+    "src": "L281",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L285",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A young singer wants to add a new verse to the old mourning song after a hard year: add it, or keep the song unchanged.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It has been a hard year: a fever took four villagers, and the old mourning song does not seem to say enough. (friend) has written a new verse about them and wants to sing it at the next gathering. (subject) has sung the old song for fifty years and says it has always been enough, for everyone. What should the village do?",
+   "src": "L277",
+   "choices": [
+    {
+     "label": "Add the New Verse",
+     "next": "o1",
+     "src": "L279"
+    },
+    {
+     "label": "Keep the Song Unchanged",
+     "next": "o2",
+     "src": "L283"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) sings the new verse at the gathering. Some of the elders do not join in. But the families of the four who died sing it loudest of all. Over the years, the new verse becomes part of the song, and (subject) is eventually heard singing it too.",
+   "src": "L281"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village keeps the old song. (friend) sings (friend.his/her) new verse alone, at the graves, where nobody can tell (friend.him/her) not to. The families of the four often go with (friend.him/her). The song at the gathering stays the same.",
+   "src": "L285"
+  }
+ }
+}

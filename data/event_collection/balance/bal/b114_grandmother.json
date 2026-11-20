@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grandmother's Memory Charm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b114_grandmother",
+  "source": "balance",
+  "lines": [
+   5151,
+   5193
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5151",
+  "ledger": [
+   {
+    "src": "L5152",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5153",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5161",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5170",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5158",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5159",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5162",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5171",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5164",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5167",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5173",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5176",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5179-5193",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has had a bad year and asks to try it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(elder) makes charms of knotted string and shells, and (elder.his/her) newest one is meant to help people forget bad memories. (subject) has had a bad year and asks to try it. (elder) warns that the charm \"can't tell a bad memory from a good one if you aren't clear,\" and that it sometimes takes the nearest thing to hand, which is usually a name.\n(subject) is holding the charm. (elder) says to think of the memory very clearly, and then either tie the last knot, or throw it on the fire.\nWhat should (subject) do?",
+   "choices": [
+    {
+     "label": "Tie the Last Knot",
+     "next": "c1",
+     "src": "L5158"
+    },
+    {
+     "label": "Throw It on the Fire",
+     "next": "c2",
+     "src": "L5159"
+    }
+   ],
+   "src": "L5154-5156"
+  },
+  "c1o1": {
+   "text": "The bad year is still there. What's gone is (subject)'s name. The charm took the nearest thing to hand. (elder) is mortified, and tries to undo the knot, and can't. (subject) laughs, a little shakily. \"At least it took something,\" (subject.he/she) says. The village calls (subject.him/her) \"?\" after that. In the end, (subject.he/she) says, it's easier to start again with no name at all.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L5165",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The bad year goes soft and far away, like something that happened to someone else. And (subject) finds (subject.he/she) wants a new name to go with it. (elder) suggests one, an ordinary one, and (subject) takes it, and walks home feeling lighter than (subject.he/she) has in a year.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L5168",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) thinks of the bad year, as hard as (subject.he/she) can, and ties the last knot. The shells click. Something in (subject.his/her) head goes quiet...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5162"
+  },
+  "c2o1": {
+   "text": "\"I'll keep my memories,\" (subject) says. \"Even that one.\" (elder) nods slowly, and puts another log on the fire, and they sit together until late, and (subject) talks about the bad year for the first time. It helps, more than any charm.",
+   "src": "L5174"
+  },
+  "c2o2": {
+   "text": "The charm burns, and the smoke goes straight into (subject)'s face. The bad year stays. But something else goes: (subject)'s love of learning new things, which (subject.he/she) always had, just fades, as if the smoke took it instead. (elder) is very apologetic. (subject) shrugs. \"At least I know what's left,\" (subject.he/she) says.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L5177"
+  },
+  "c2": {
+   "text": "(subject) looks at the charm for a long time, and then throws it on the fire. The string burns blue. The shells crack in the heat...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5171"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "learning",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

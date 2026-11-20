@@ -1,0 +1,322 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Guest Who Knew Tomorrow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my013_guest_knew",
+  "source": "rewrites",
+  "lines": [
+   10582,
+   10637
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10582",
+  "ledger": [
+   {
+    "src": "L10583",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10584",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10593",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10600",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10607",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10614",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10588",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10589",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10590",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10591",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10594",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10601",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10608",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10615",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10595",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10597",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10602",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10604",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10609",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10611",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10616",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10618",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10621-10637",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L10617",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "Late one evening, a soft-spoken visitor in salt-white sandals stops at a villager's door.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Late one evening, a soft-spoken visitor in salt-white sandals stops at (subject)'s door. The visitor has kind, tired eyes and speaks so quietly that (subject) has to lean in to hear.\n\"The big fishing net will break at sunrise,\" the visitor murmurs, as calmly as someone mentioning the weather. \"Right down the middle.\" Then, before (subject) can ask what on earth that means: \"Might I sleep by your fire tonight?\" (subject) glances toward the beach, where the village's best net hangs drying on its poles, looking perfectly fine. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Welcome the Guest",
+     "next": "c1",
+     "src": "L10588"
+    },
+    {
+     "label": "Ask for Another Prediction",
+     "next": "c2",
+     "src": "L10589"
+    },
+    {
+     "label": "Question the Claim",
+     "next": "c3",
+     "src": "L10590"
+    },
+    {
+     "label": "Send the Guest Away",
+     "next": "c4",
+     "src": "L10591"
+    }
+   ],
+   "src": "L10585-10586"
+  },
+  "c1o1": {
+   "text": "Long before dawn, (subject) wakes to find the visitor gone from the fire, and hurries down to the beach. There's the visitor, sitting by the net, patiently weaving new cord into a long, frayed seam right down its middle that nobody had noticed. \"Hold this,\" the visitor says, and for the next hour (subject) learns more about knots and nets than (subject.he/she) has in years. At sunrise the fishers haul the net out. It holds. The visitor is already walking away down the beach.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Farming"
+     ],
+     "role": "subject",
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L10596",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "By dawn the visitor is gone, the blanket folded neatly by the fire. Beside it lies a brand new fishing net, knotted so tightly and evenly that it looks like it was made by a spider with a great deal of patience. At sunrise the old net splits right down the middle, exactly as promised. The fishers just shrug, pick up the new one, and argue all morning about who gets to use it first.",
+   "src": "L10598"
+  },
+  "c1": {
+   "text": "(subject) shrugs and makes up a bed by the fire. The visitor thanks (subject.him/her) and curls up without another word...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10594"
+  },
+  "c2o1": {
+   "text": "\"It will rain all day tomorrow,\" the visitor says confidently. \"Heavy rain. Bring in your washing.\" (subject) spends the whole next morning dragging baskets and drying racks under cover. The sky stays bright, cloudless blue from dawn to dusk. By evening, the visitor is gone, and (subject) is the only one in the village with all (subject.his/her) washing still damp in a basket.",
+   "src": "L10603"
+  },
+  "c2o2": {
+   "text": "\"Tomorrow, a little child with a red string on (child.his/her) wrist will find a spiral shell the colour of a sunset,\" the visitor says. \"Tell (child.him/her) to keep it.\" The next afternoon, (child), a toddler with a red string tied around (child.his/her) wrist comes running up from the beach, holding out a pink-and-orange spiral shell, the rarest kind there is. (subject) has to sit down.",
+   "src": "L10605"
+  },
+  "c2": {
+   "text": "\"If you can see tomorrow,\" (subject) says, half joking, \"what else is going to happen?\" The visitor looks up at the sky, then at (subject), and smiles...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10601"
+  },
+  "c3o1": {
+   "text": "\"I don't,\" the visitor admits, laughing. \"But I walked past your net on the way in. The middle rope's been chewed half through by crabs. Nets like that always go when they're hauled at sunrise, when the rope is coldest and stiffest.\" The fishers check, and it's true. The visitor spends the evening explaining which ropes go first and why, and the village learns a good deal about looking after its nets. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10610",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The visitor just smiles. \"Some questions are better left unanswered,\" (subject.he/she) says gently, and asks again about the fire. (subject) gives in. In the morning, the visitor is gone. Nobody goes down to check the net. Somehow nobody wants to know.",
+   "src": "L10612"
+  },
+  "c3": {
+   "text": "\"Nobody knows tomorrow,\" (subject) says, folding (subject.his/her) arms. \"How could you possibly know that?\" The visitor's tired eyes crinkle...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10608"
+  },
+  "c4o1": {
+   "text": "At sunrise the fishers haul the big net out into the lagoon, and with a loud crack it splits right down the middle. Half the morning's catch flops back into the sea. The whole village argues about it for days: coincidence, or something else? (subject) stays out of the argument and very quietly checks the ropes on (subject.his/her) own hut.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L10617"
+  },
+  "c4o2": {
+   "text": "At sunrise the net goes out. It comes back full. It doesn't break. It doesn't break the next day either, or the day after. For the rest of the season, whenever anyone drops something, someone else says solemnly, \"It will break at sunrise,\" and everyone laughs. (subject) laughs too, though (subject.he/she) still checks the net now and then.",
+   "src": "L10619"
+  },
+  "c4": {
+   "text": "\"I don't let fortune-tellers sleep by my fire,\" (subject) says firmly. \"Good night.\" The visitor bows, unoffended, and walks off into the dark...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10615"
+  }
+ }
+}

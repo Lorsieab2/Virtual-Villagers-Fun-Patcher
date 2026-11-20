@@ -1,0 +1,172 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Quiet Afternoon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s025_quiet_afternoon",
+  "source": "rewrites",
+  "lines": [
+   1158,
+   1202
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1158",
+  "ledger": [
+   {
+    "src": "L1159",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1160",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1168",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1177",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1165",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1166",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1169",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1178",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1171",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1174",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1180",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1183",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1186-1202",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is sitting in the shade of a big rock, doing absolutely nothing, and watching a small crab try to climb the rock.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 0
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Nothing is happening. Nothing at all. The breeze is soft and smells of warm grass, the work is done for the day, and somewhere a woodpecker is knocking, slow and lazy, as if it has nowhere in particular to be.\n(Name) is sitting in the shade of a big rock, doing absolutely nothing, and watching a small crab try to climb the rock. It is a very small crab, and a very large rock. It has been trying for some time. It gets about halfway, slips, tumbles down to the bottom, rights itself, and starts again, with what (name) can only describe as determination.\nThis is the most interesting thing that has happened all day. Should (name) give the crab a helping hand, or just keep watching?",
+   "choices": [
+    {
+     "label": "Help the Crab",
+     "next": "c1",
+     "src": "L1165"
+    },
+    {
+     "label": "Keep Watching",
+     "next": "c2",
+     "src": "L1166"
+    }
+   ],
+   "src": "L1161-1163"
+  },
+  "c1o1": {
+   "text": "With a little nudge, the crab scrambles up the last stretch of rock and reaches the very top. It stands there for a moment, claws raised, looking around at the view as if it has conquered a mountain. Then it immediately climbs straight down the other side and scuttles off into the grass, without so much as a backward look. (Name) sits back against the rock and decides that it was worth it anyway. It's the best thing (he/she) has done all week.",
+   "src": "L1172"
+  },
+  "c1o2": {
+   "text": "The crab does not want help. It whips round and pinches (name)'s finger, hard, for interfering. (Name) yelps and shakes it off, sucking (his/her) finger. The crab glares at (him/her) with its little stalk eyes, then turns round and starts climbing the rock again, on its own, the way it wanted to in the first place. \"Fair enough,\" says (name). (He/She) watches it until the sun goes down, and keeps (his/her) hands to (himself/herself).",
+   "src": "L1175"
+  },
+  "c1": {
+   "text": "(Name) watches the crab fall off for the seventh time. That's enough. (He/She) leans over and, very gently, holds out one finger behind the crab, so it has something to push against...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1169"
+  },
+  "c2o1": {
+   "text": "On the eleventh try, the crab finds a little crack in the rock that nobody noticed before, gets a claw into it, and hauls itself up and over the top. \"YES!\" shouts (name), leaping to (his/her) feet and punching the air. A few villagers walking past stop and stare. They look around for whatever has happened. There's nothing to see but (name), cheering at a rock. Nobody else ever understands why that was the best afternoon of (his/her) whole season.",
+   "src": "L1181"
+  },
+  "c2o2": {
+   "text": "Somewhere between the ninth try and the tenth, the sun gets very warm and the woodpecker gets very slow, and (name)'s eyes close. When (he/she) wakes, the shadows are long and gold. (He/She) looks down. The crab is asleep too, tucked right up against (his/her) foot in the warm shade, as if they'd agreed to take the afternoon off together. (Name) doesn't move until it wakes up and wanders off.",
+   "src": "L1184"
+  },
+  "c2": {
+   "text": "(Name) settles back against the warm rock. This is none of (his/her) business. The crab gets halfway, slips, falls, rights itself, and starts again. And again. And again...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1178"
+  }
+ }
+}

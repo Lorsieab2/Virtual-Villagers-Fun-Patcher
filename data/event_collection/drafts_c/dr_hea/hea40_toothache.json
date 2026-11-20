@@ -74,6 +74,33 @@
    "src": "L485"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Take it,\" says (subject), who has had enough. It hurts, and then it's done, and (subject) holds the little tooth in (subject.his/her) palm and looks at it with deep hatred. The ache is gone by evening. (subject.He/she) puts the tooth on a shelf where (subject.he/she) can glare at it. Nobody is allowed to throw it away.",
+   "src": "L488",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L488"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Take it,\" says (subject), who has had enough. It hurts, and then it's done, and (subject) holds the little tooth in (subject.his/her) palm and looks at it with deep hatred. The ache is gone by evening. (subject.He/she) puts the tooth on a shelf where (subject.he/she) can glare at it. Nobody is allowed to throw it away.",
    "src": "L488"

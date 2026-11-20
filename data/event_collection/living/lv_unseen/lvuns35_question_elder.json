@@ -87,9 +87,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The elder smiles and rests beside family.",
-   "src": "L22625"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -139,6 +146,25 @@
    "name": "Outcome C2",
    "text": "The elder admits uncertainty, and the family remains close.",
    "src": "L22632"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The elder smiles and rests beside family.",
+   "src": "L22625",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L22625"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The elder smiles and rests beside family.",
+   "src": "L22625"
   }
  }
 }

@@ -1,0 +1,204 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wishing Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b028_wishing_tree",
+  "source": "balance",
+  "lines": [
+   1252,
+   1294
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1252",
+  "ledger": [
+   {
+    "src": "L1253",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1254",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1262",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1271",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1259",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1260",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1263",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1272",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1265",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1268",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1274",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1277",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1280-1294",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "On the hill above the village grows a twisted old tree hung with hundreds of little woven tokens, each one a wish.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On the hill above the village grows a twisted old tree hung with hundreds of little woven tokens, each one a wish. The elders say it was planted by a couple who longed for children and ended up with eleven. People who want a baby tie a token to it on the longest night of the year.\n(subject) and (friend) have climbed up together with their token, a little woven fish. They want a child more than anything.\nThere are two ways, the elders say: tie the token to the lowest branch, which \"asks politely,\" or climb to the very top, which \"asks loudly.\" What should they do?",
+   "choices": [
+    {
+     "label": "Tie It to the Lowest Branch",
+     "next": "c1",
+     "src": "L1259"
+    },
+    {
+     "label": "Climb to the Very Top",
+     "next": "c2",
+     "src": "L1260"
+    }
+   ],
+   "src": "L1255-1257"
+  },
+  "c1o1": {
+   "text": "A month later, a baby is expected. (subject) and (friend) climb back up the hill and tie a second token, a little woven bird, next to the fish, to give thanks. The tree clicks softly. \"Polite tree,\" says (friend).",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L1266",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "A baby is expected, and then the healer listens a while longer and smiles. {#babies:Just the one, and a strong one|Twins|Triplets}. (friend) laughs until (friend.he/she) cries. \"Eleven,\" (friend.he/she) keeps saying, faintly. \"The couple who planted it had eleven.\" The village starts on {#babies:a cradle|two cradles|three cradles} that same week.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L1269",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They kneel in the roots together and tie the little fish on with three knots, the way the elders said. A breeze moves through the tree, and every token on it sways and clicks like a hundred tiny wooden bells...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1263"
+  },
+  "c2o1": {
+   "text": "Weeks later, it's (friend) who can't keep breakfast down, whatever (friend.his/her) birth sex. The healers are baffled, and then delighted. A baby is expected. The tree, it seems, heard the wish from whoever was closest to the top. (friend) is very proud, and very sick, and tells anyone who asks that it was absolutely worth it.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "friend",
+     "any_birth_sex": true
+    }
+   ],
+   "src": "L1275",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "No baby comes that year. They tie a new token the next winter, and the one after. Meanwhile, (subject) and (friend) look after their friends' children, and teach the little ones to weave fish tokens of their own. \"We'll see,\" (subject) says. They are patient, and they are happy, and the tree waits with them.",
+   "src": "L1278"
+  },
+  "c2": {
+   "text": "(friend) climbs, branch by twisted branch, until (friend.he/she) is swaying at the very top with the stars all round, and ties the little fish to the highest twig. The whole tree shivers...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1272"
+  }
+ }
+}

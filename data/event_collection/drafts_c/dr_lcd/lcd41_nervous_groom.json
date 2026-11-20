@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Nervous Groom or Bride",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd41_nervous_groom",
+  "source": "draft_lcd",
+  "lines": [
+   568,
+   579
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L568",
+  "ledger": [
+   {
+    "src": "L569",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L575",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L579",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "On their wedding morning, a villager is suddenly unsure: talk it through with a friend, or ask for a little more time.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "On the morning of (subject.his/her) wedding, (subject) is sitting on the beach instead of getting ready. (subject.He/she) loves (subject.his/her) sweetheart. (subject.He/she) is also suddenly afraid that (subject.he/she) is not ready. (friend), (subject.his/her) best friend, has come to find (subject.him/her). What should (friend) do?",
+   "src": "L571",
+   "choices": [
+    {
+     "label": "Talk It Through",
+     "next": "o1",
+     "src": "L573"
+    },
+    {
+     "label": "Ask for More Time",
+     "next": "o2",
+     "src": "L577"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) sits down and listens. (subject) talks about the fear: that (subject.he/she) will not be good enough, that it will change everything. Slowly, it becomes clear that it is ordinary fear, not real doubt. (subject) gets up, brushes off the sand, and goes to get married. (subject.He/she) is late. Nobody minds.",
+   "src": "L575"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) helps (subject) go and tell (subject.his/her) sweetheart that (subject.he/she) needs a little more time. It is a hard conversation. The sweetheart is hurt, and also understands. The wedding is held a month later, and (subject) is sure this time.",
+   "src": "L579"
+  }
+ }
+}

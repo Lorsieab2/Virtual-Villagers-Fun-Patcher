@@ -70,14 +70,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) hands it over. (friend) holds it to (friend.his/her) ear and points it at a bush. (friend.His/her) eyes go enormous. \"There's a BEETLE in there. I can hear it WALKING.\" (friend.He/she) points it at the sky, the sea, the cooking pot, (subject)'s stomach. (subject) laughs and takes it back eventually. \"Now you know why I'm always smiling at bushes,\" (subject.he/she) says.",
-   "src": "L38"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) shows (friend) how to speak into the wide end, not too loud, not too fast. (friend) tries. \"HELLO,\" (friend.he/she) says, much too loud. (subject) winces. \"Softer.\" \"Hello.\" \"Better.\" Soon (friend) is telling (subject) a very long story about a frog directly into the trumpet. (subject) hears every word. (subject.He/she) didn't really need to hear quite that much about the frog. (subject.He/she) listens anyway.",
    "src": "L41"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) hands it over. (friend) holds it to (friend.his/her) ear and points it at a bush. (friend.His/her) eyes go enormous. \"There's a BEETLE in there. I can hear it WALKING.\" (friend.He/she) points it at the sky, the sea, the cooking pot, (subject)'s stomach. (subject) laughs and takes it back eventually. \"Now you know why I'm always smiling at bushes,\" (subject.he/she) says.",
+   "src": "L38",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L38"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L38"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) hands it over. (friend) holds it to (friend.his/her) ear and points it at a bush. (friend.His/her) eyes go enormous. \"There's a BEETLE in there. I can hear it WALKING.\" (friend.He/she) points it at the sky, the sea, the cooking pot, (subject)'s stomach. (subject) laughs and takes it back eventually. \"Now you know why I'm always smiling at bushes,\" (subject.he/she) says.",
+   "src": "L38"
   }
  }
 }

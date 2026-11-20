@@ -94,9 +94,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1) struggles to concentrate on a familiar chore. A cheerful interruption is welcome for once.",
-   "src": "L1559"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -112,6 +119,25 @@
    "name": "Ending 4",
    "text": "(Name1) struggles to concentrate on a familiar chore. The worry remains, but it seems smaller after a quiet break.",
    "src": "L1571"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1) struggles to concentrate on a familiar chore. A cheerful interruption is welcome for once.",
+   "src": "L1559",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1559"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1) struggles to concentrate on a familiar chore. A cheerful interruption is welcome for once.",
+   "src": "L1559"
   }
  }
 }

@@ -94,14 +94,46 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) tries again. And again. (child) sits down to watch. On the twentieth try something clicks, and the leaf lets out a shriek so loud that a flock of birds bursts out of the trees. (child) cheers. (subject) holds the leaf up like a trophy and refuses to try again, in case it doesn't work.",
-   "src": "L176"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "\"I used to be able to,\" (subject) admits. \"I think my thumbs forgot.\" (child) takes a leaf, holds it the wrong way round, and immediately makes a perfect whistle. (subject) stares. \"Show me how you held that,\" (subject.he/she) says, and the lesson goes the other way.",
    "src": "L179"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) tries again. And again. (child) sits down to watch. On the twentieth try something clicks, and the leaf lets out a shriek so loud that a flock of birds bursts out of the trees. (child) cheers. (subject) holds the leaf up like a trophy and refuses to try again, in case it doesn't work.",
+   "src": "L176",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L176"
+    },
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L176"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) tries again. And again. (child) sits down to watch. On the twentieth try something clicks, and the leaf lets out a shriek so loud that a flock of birds bursts out of the trees. (child) cheers. (subject) holds the leaf up like a trophy and refuses to try again, in case it doesn't work.",
+   "src": "L176"
   }
  }
 }

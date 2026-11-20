@@ -35,7 +35,7 @@ THE SCHEDULER (0x4237BD; the conditions report docs/reports/island-event-conditi
 """
 from __future__ import annotations
 
-from vv_game_mechanics_events import Event, Line, share, scaling_rules, with_scaling
+from vv_game_mechanics_events import Event, Line, share, scaling_rules, with_every_event, with_scaling
 
 RESTORE = "vv1_restore_missing_island_events"
 FIX = "vv1_fix_vanilla_bugs"
@@ -253,6 +253,15 @@ EVENTS = (
 RULES = RULES + scaling_rules(1, "people are the living villagers plus the babies being carried, as for strength n")
 EVENTS = with_scaling(1, EVENTS, frozenset({"The Trapped Whale", "The Troubled Child", "The Wild Mushroom",
                                             "The Brass Compass"}))
+
+# Every Island Event Can Happen (the owner, 2026-11-17): the technology re-rolls 0x41895B / 0x41896F are nops
+# (scripts/build_every_island_event_can_happen_features.py); the raises 0x4193F4 / 0x41981B already stop at 3.
+EVENTS = with_every_event(1, EVENTS, {
+    "The Trapped Whale": "it can happen at any Spirituality level, 3 included; \"Help free the whale.\" still raises "
+                         "Spirituality 1 level, up to 3 (at 3 the level stays 3).",
+    "The Visitor": "it can happen at any Medicine level, 3 included; \"Allow him to gather samples.\" still raises "
+                   "Medicine 1 level, up to 3 (at 3 the level stays 3).",
+})
 
 # The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
 # The Cave Explorers (the owner, 2026-11-12, A New Home only): the same companion.

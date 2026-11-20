@@ -165,9 +165,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(villager) feels proud of the connection.",
-   "src": "L27158"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -224,6 +231,25 @@
    "name": "Outcome D2",
    "text": "(villager) later chooses a name inspired by the ancestor.",
    "src": "L27165"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(villager) feels proud of the connection.",
+   "src": "L27158",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L27158"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(villager) feels proud of the connection.",
+   "src": "L27158"
   }
  }
 }

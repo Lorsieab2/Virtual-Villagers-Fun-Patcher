@@ -82,6 +82,7 @@
         "Lets you choose who has babies: villagers only pair up on their own when their Parenting preference is ticked.",
         "How to use: on a villager's Details screen, tick Parenting for villagers you want as parents and untick it for the rest.",
         "The game no longer picks a villager aged 50 or older as a partner.",
+        "While the game is closed (and during a Time Warp), a villager with Parenting ticked tries for a baby as often as other villagers do their jobs, instead of only now and then.",
         "Pregnancies that have already started are not affected."
       ]
     },
@@ -90,7 +91,18 @@
       "guide": [
         "Lets you choose who has babies: a villager only starts pairing up on their own with some Parenting skill AND the Parenting preference ticked.",
         "How to use: on a villager's Details screen, tick Parenting for villagers you want as parents and untick it for the rest.",
+        "While the game is closed (and during a Time Warp), a villager with Parenting ticked tries for a baby as often as other villagers do their jobs, instead of only now and then.",
         "Dropping villagers on each other, and pregnancies already started, are not affected."
+      ]
+    },
+    {
+      "ids": ["vv4_birth_control", "vv5_birth_control"],
+      "guide": [
+        "While the game is closed (and during a Time Warp), a villager with Parenting ticked tries for a baby as often as other villagers do their jobs, instead of only now and then.",
+        "How to use: on a villager's Details screen, tick Parenting for villagers you want as parents and untick it for the rest.",
+        "A baby is still not guaranteed: the game's usual chances, the population limit and huts still decide. Children are never involved.",
+        "Live play, dropping villagers on each other, and pregnancies already started, are not affected.",
+        "On by default, like Birth Control in the other games; Owner's Defaults and Select All tick it too."
       ]
     },
     {
@@ -199,8 +211,8 @@
     {
       "ids": ["vv4_complete_scales_golden_fish"],
       "guide": [
-        "Golden Fish can only turn up in the fishing nets after all 12 Fish Scales are collected.",
-        "Then the chance is the game's own 25%.",
+        "No Golden Fish shows in the fishing nets, and none is caught, until all 12 Fish Scales are collected.",
+        "Then the nets show the Golden Fish again and the chance is the game's own 25%.",
         "Watch out: a part-finished Fish Scales collection no longer gives Golden Fish."
       ]
     },
@@ -216,7 +228,7 @@
     {
       "ids": ["vv1_hungrier_villagers", "vv2_hungrier_villagers", "vv3_hungrier_villagers", "vv4_hungrier_villagers", "vv5_hungrier_villagers"],
       "guide": [
-        "Off by default. Every villager's meal takes more food: set how many times with the Hungrier Villagers slider (2 to 10).",
+        "Off by default. Every villager's meal takes more or less food: set how many times with the Hungrier Villagers slider (0.1 to 10; 1 is the normal game).",
         "Food never goes below 0. When it runs out, the game's own starvation rules take over.",
         "Patch again after moving the slider."
       ]
@@ -225,10 +237,10 @@
       "ids": ["vv4_classic_vv_difficulty", "vv5_classic_vv_difficulty"],
       "guide": [
         "Off by default, and Select All does not tick it; its title is red. Ticking it ticks these together:",
-        "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete,",
+        "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (0.1-10x Meals), 0.1-10x Tech Cost, Science Collectibles Only Count When Complete,",
         "and Harder Fishing Unlock in VV4, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited (The Tree of Life)",
         "or Faith Loss is Doubled/Gains Halved (New Believers), and Sickness works like VV1-3 and Difficulty Settings (so Hard can be chosen),",
-        "and Island Events Scale With Population (like The Lost Children) and More Island Events.",
+        "and Island Events Scale With Population (like The Lost Children), More Island Events, the Isola Grand Event Collection and Scrolling Popups.",
         "Set how hard with the two sliders. Owner's Defaults ticks it and sets both to 2. Unticking any of its patches unticks it too."
       ]
     },
@@ -237,7 +249,7 @@
       "guide": [
         "Off by default; Owner's Defaults ticks it, and so does Classic VV Difficulty (The Tree of Life, New Believers). Needs Story / Cheat Upgrades.",
         "Adds the owner's island events. The Aspiring Adventurer (all games): a villager sees something glinting off the path.",
-        "Choose \"Go investigate!\" (food, tech points, or a death or disappearance) or \"Stay on the safe path\" (home 9 times in 10).",
+        "Choose \"Go Investigate!\" (food, tech points, or a death or disappearance) or \"Stay on the Safe Path\" (home 9 times in 10).",
         "Also: The Cave Explorers (A New Home), The Climb (The Lost Children), The Troubling Signs and Diving for Treasure (The Secret City).",
         "The Tree of Life: The Playful Dolphins and The Mysterious Mask (four answers: click, or press 1 to 4).",
         "All games: The Remembrance Ceremony (needs a grave; everyone honors the dead, the feast uses food) and The Rumblings (all puzzles solved; huts damaged).",
@@ -252,7 +264,36 @@
         "Adds the Isola Grand Event Collection: the owner's large collection of island events, with its credits beside the patcher's files.",
         "They are rare and never change the game's own events' chances: after a natural island event a separate roll may bring one some hours later.",
         "About three a week of game time; never in the village's first two events, never in trouble, never in place of a rescue event.",
+        "The Tree of Life: events that give or take cutting tools, soap or cloth (a sack is cloth) change them, within the game's limits; until invented, it is only story.",
         "Pick Island Event lists them (and what each needs); the Custom Island Event library has them in its own group. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_island_event_content_notes", "vv2_island_event_content_notes", "vv3_island_event_content_notes", "vv4_island_event_content_notes", "vv5_island_event_content_notes"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it. Select All does not tick it. In each game's Island Events section.",
+        "A new island event that may touch a sensitive subject starts with a short note, such as \"Content note: Bereavement\".",
+        "The note never says which outcome will come; a subject a ticked content filter removed is left out of it.",
+        "New events only (the Isola Grand Event Collection's); the game's own events are unchanged. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_island_events_any_time", "vv2_island_events_any_time", "vv3_island_events_any_time", "vv4_island_events_any_time", "vv5_island_events_any_time"],
+      "guide": [
+        "Off everywhere, Owner's Defaults too; Select All does not tick it. For masochists. In each game's patch list, right under Classic VV Difficulty where the game has it.",
+        "All island events, the game's own included, can happen at any time: new events can replace rescue events and the two opening events.",
+        "No population limit or trouble guard applies: anyone can be picked and any event can happen at any time, except when a pick makes no sense in the event (a child's role needs a",
+        "child, a pregnancy needs a villager who can carry) or the event names someone the village does not have. It applies to whichever island events are on in the game.",
+        "Events that can kill a villager, make one disappear or lose a pregnancy can happen even in a small or new village. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_island_event_filter_f01", "vv1_island_event_filter_f02", "vv1_island_event_filter_f03", "vv1_island_event_filter_f04", "vv1_island_event_filter_f05", "vv1_island_event_filter_f06", "vv1_island_event_filter_f07", "vv1_island_event_filter_f08", "vv1_island_event_filter_f09", "vv1_island_event_filter_f10", "vv1_island_event_filter_f11", "vv1_island_event_filter_f12", "vv1_island_event_filter_f13", "vv1_island_event_filter_f14", "vv1_island_event_filter_f15", "vv1_island_event_filter_f16", "vv1_island_event_filter_f17", "vv1_island_event_filter_f18", "vv1_island_event_filter_f19", "vv1_island_event_filter_f20", "vv1_island_event_filter_f21", "vv1_island_event_filter_f22", "vv1_island_event_filter_f23", "vv1_island_event_filter_f24", "vv1_island_event_filter_f25", "vv1_island_event_filter_f26", "vv1_island_event_filter_f27", "vv1_island_event_filter_f28", "vv2_island_event_filter_f01", "vv2_island_event_filter_f02", "vv2_island_event_filter_f03", "vv2_island_event_filter_f04", "vv2_island_event_filter_f05", "vv2_island_event_filter_f06", "vv2_island_event_filter_f07", "vv2_island_event_filter_f08", "vv2_island_event_filter_f09", "vv2_island_event_filter_f10", "vv2_island_event_filter_f11", "vv2_island_event_filter_f12", "vv2_island_event_filter_f13", "vv2_island_event_filter_f14", "vv2_island_event_filter_f15", "vv2_island_event_filter_f16", "vv2_island_event_filter_f17", "vv2_island_event_filter_f18", "vv2_island_event_filter_f19", "vv2_island_event_filter_f20", "vv2_island_event_filter_f21", "vv2_island_event_filter_f22", "vv2_island_event_filter_f23", "vv2_island_event_filter_f24", "vv2_island_event_filter_f25", "vv2_island_event_filter_f26", "vv2_island_event_filter_f27", "vv2_island_event_filter_f28", "vv3_island_event_filter_f01", "vv3_island_event_filter_f02", "vv3_island_event_filter_f03", "vv3_island_event_filter_f04", "vv3_island_event_filter_f05", "vv3_island_event_filter_f06", "vv3_island_event_filter_f07", "vv3_island_event_filter_f08", "vv3_island_event_filter_f09", "vv3_island_event_filter_f10", "vv3_island_event_filter_f11", "vv3_island_event_filter_f12", "vv3_island_event_filter_f13", "vv3_island_event_filter_f14", "vv3_island_event_filter_f15", "vv3_island_event_filter_f16", "vv3_island_event_filter_f17", "vv3_island_event_filter_f18", "vv3_island_event_filter_f19", "vv3_island_event_filter_f20", "vv3_island_event_filter_f21", "vv3_island_event_filter_f22", "vv3_island_event_filter_f23", "vv3_island_event_filter_f24", "vv3_island_event_filter_f25", "vv3_island_event_filter_f26", "vv3_island_event_filter_f27", "vv3_island_event_filter_f28", "vv4_island_event_filter_f01", "vv4_island_event_filter_f02", "vv4_island_event_filter_f03", "vv4_island_event_filter_f04", "vv4_island_event_filter_f05", "vv4_island_event_filter_f06", "vv4_island_event_filter_f07", "vv4_island_event_filter_f08", "vv4_island_event_filter_f09", "vv4_island_event_filter_f10", "vv4_island_event_filter_f11", "vv4_island_event_filter_f12", "vv4_island_event_filter_f13", "vv4_island_event_filter_f14", "vv4_island_event_filter_f15", "vv4_island_event_filter_f16", "vv4_island_event_filter_f17", "vv4_island_event_filter_f18", "vv4_island_event_filter_f19", "vv4_island_event_filter_f20", "vv4_island_event_filter_f21", "vv4_island_event_filter_f22", "vv4_island_event_filter_f23", "vv4_island_event_filter_f24", "vv4_island_event_filter_f25", "vv4_island_event_filter_f26", "vv4_island_event_filter_f27", "vv4_island_event_filter_f28", "vv5_island_event_filter_f01", "vv5_island_event_filter_f02", "vv5_island_event_filter_f03", "vv5_island_event_filter_f04", "vv5_island_event_filter_f05", "vv5_island_event_filter_f06", "vv5_island_event_filter_f07", "vv5_island_event_filter_f08", "vv5_island_event_filter_f09", "vv5_island_event_filter_f10", "vv5_island_event_filter_f11", "vv5_island_event_filter_f12", "vv5_island_event_filter_f13", "vv5_island_event_filter_f14", "vv5_island_event_filter_f15", "vv5_island_event_filter_f16", "vv5_island_event_filter_f17", "vv5_island_event_filter_f18", "vv5_island_event_filter_f19", "vv5_island_event_filter_f20", "vv5_island_event_filter_f21", "vv5_island_event_filter_f22", "vv5_island_event_filter_f23", "vv5_island_event_filter_f24", "vv5_island_event_filter_f25", "vv5_island_event_filter_f26", "vv5_island_event_filter_f27", "vv5_island_event_filter_f28"],
+      "guide": [
+        "Off everywhere, Owner's Defaults too; Select All does not tick it: tick only the ones you want. In the Settings... window of each game's More Island Events and Creator row.",
+        "A ticked filter keeps its content out of the new island events, before the random draw picks one.",
+        "An outcome with that content is dropped where the event still makes sense; otherwise the event is skipped.",
+        "Filters never hide a kind of person. Needs the Isola Grand Event Collection. The game's own events are unchanged. Not yet tested in play."
       ]
     },
     {
@@ -280,7 +321,7 @@
     {
       "ids": ["vv1_sickness_multiplier", "vv2_sickness_multiplier", "vv3_sickness_multiplier", "vv4_sickness_multiplier", "vv5_sickness_multiplier"],
       "guide": [
-        "Off by default. Villagers fall sick more often: set how many times with the 2-10x Sickness slider (2 to 10).",
+        "Off by default. Villagers fall sick more or less often: set how many times with the 0.1-10x Sickness slider (0.1 to 10; 1 is the normal game).",
         "Every Medicine level and difficulty keeps its own chance, multiplied; old villagers' extra chance too.",
         "It also multiplies Sickness works like VV1-3. Healers, the fire, Easy and events cure as before. Patch again after moving the slider."
       ]
@@ -290,7 +331,7 @@
       "guide": [
         "Off by default. Villagers fall sick as in The Secret City: twice as often while the fire is out, and one step more on Hard.",
         "With the fire burning on Easy or Medium nothing changes; Medicine's levels keep their own chances.",
-        "Keep the fire lit to protect your villagers. 2-10x Sickness multiplies these chances too."
+        "Keep the fire lit to protect your villagers. 0.1-10x Sickness multiplies these chances too."
       ]
     },
     {
@@ -310,6 +351,7 @@
         "The two trees show the fruit left (art by Lorsieab2): 5 fruits on each from 801, 4 from 601, 3 from 401, 2 from 201, 1 from 1, none at 0.",
         "A Custom Island Event (Story / Cheat Upgrades) that refills the food sources fills it to 1,000 too.",
         "Adds an island event, A Closer Look (Yellow Breadfruit): once the Cooking Pit is restored, the tree gains 350 fruit (up to 1,000).",
+        "It never replaces one of the game's own island events (their chances stay the game's): after each island event there is a 20% chance it comes on its own before the next one.",
         "The count is kept beside the save (in Save N, Data, Fruit Trees); the save itself is never changed."
       ]
     },
@@ -343,7 +385,7 @@
     {
       "ids": ["vv1_scrolling_popups", "vv2_scrolling_popups", "vv3_scrolling_popups", "vv4_scrolling_popups", "vv5_scrolling_popups"],
       "guide": [
-        "Off by default; Owner's Defaults ticks it.",
+        "Off by default; Owner's Defaults ticks it. Select All does not tick it.",
         "A popup (island events, message boxes) is never bigger than the screen. When its text does not fit, a scrollbar appears, drawn with the game's own pictures:",
         "scroll with the mouse wheel over the popup, the arrows, by dragging the knob or by clicking the bar. A very long word gets a sideways bar.",
         "A popup whose text fits looks exactly as before. More Island Events and Custom Island Events show each popup whole, not in pages. No keyboard scrolling. Not yet tested in play."
@@ -352,9 +394,29 @@
     {
       "ids": ["vv4_louder_wind_flutes"],
       "guide": [
-        "On by default. The wind flutes that play in fog once you have found a Wind Flute are 2.5 times louder, so you hear them over the music.",
+        "On by default. The wind flutes that play in fog once you have found a Wind Flute are louder, so you hear them over the music.",
+        "0.1 to 10 times (below 1 quieter), set with the Louder Wind Flutes slider (5 unless you move it). They never distort.",
         "Only the three flute sounds change; every other sound, the music and the Sound and Music sliders are as before.",
         "The game's sound files are never changed: the flutes are made louder as the game loads them."
+      ]
+    },
+    {
+      "ids": ["vv4_cloth_sacks_for_yellow_fruit"],
+      "guide": [
+        "On by default. Needs the Clothing Hut finished and the Cooking Pit restored.",
+        "Drop an adult on the left side of the Clothing Hut, under its awning: they use one cloth bolt to make a sack and bring 30 yellow fruit to the food bin.",
+        "Works like the cutting tool on the blackberries: the cloth is used when they start, with no cloth they refuse, and Food Mastery multiplies the food.",
+        "Only villagers you drop make sacks: farmers never do on their own.",
+        "While the stew pot is making The Grand Feast and needs fruit, the sack goes into the stew instead and counts as its fruit (no food from that sack).",
+        "With Yellow Fruit Trees are No Longer Unlimited, a sack takes its fruit from the tree (30, or what is left, even none); without it every sack holds 30. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv4_up_to_99_supplies"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it.",
+        "Cutting tools and cloth bolts can be stored up to 99 instead of 6; they are still made 3 at a time and each use takes one. Soap was never limited.",
+        "The stacks at the fish skeleton and the Clothing Hut still show at most 6; point at them to see the real count. Not yet tested in play."
       ]
     },
     {
@@ -367,6 +429,34 @@
       ]
     },
     {
+      "ids": ["vv1_more_frequent_island_events", "vv2_more_frequent_island_events", "vv3_more_frequent_island_events", "vv4_more_frequent_island_events", "vv5_more_frequent_island_events"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it. Select All does not tick it. The game's own island events come more or less often.",
+        "0.1 to 10 times as often, set with the More Frequent Island Events slider (2 unless you move it; 1 is the normal game).",
+        "At 2, A New Home's 12 to 23 hours between events become 6 to 11.5, The Lost Children's 10 to 19 become 5 to 9.5, and the other games' 8 to 15 become 4 to 7.5.",
+        "The first events of a new village, which event comes and its rules are the game's own. A bought or picked island event still leaves the next natural one where it was.",
+        "Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_golden_child_born_female"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it. Select All does not tick it. Needs Change Sex and Gender Presentation (ticking this ticks it).",
+        "A new Golden Child is a boy or a girl, 50:50, with a name to match; still drawn with the Golden Child's own look, five years old with every power.",
+        "Island event words and the game's \"The Golden Child\" message say she and her for a girl. A Golden Child born before stays a boy."
+      ]
+    },
+    {
+      "ids": ["vv1_village_solidarity", "vv2_village_solidarity", "vv3_village_solidarity", "vv4_village_solidarity", "vv5_village_solidarity"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it. Select All does not tick it. Needs Story / Cheat Upgrades.",
+        "Each village has a Village Solidarity score, 0 to 100, starting at 50. The Tech screen and Game Mechanics show it.",
+        "The new island events raise it by 5 (songs, fair resolutions, help, welcomes, happy and trusting endings) or lower it by 5 (quarrels left alone, unfairness, fear).",
+        "It only changes odds: above 50 the new cooperative and celebration events and endings are more likely, below 50 the repair and apology ones.",
+        "At the normal strength each point away from 50 adds 2% to their own chance. The game's own island events, work, skills and health never change.",
+        "The strength slider beside the patch settings sets 0.1x to 10x. Start Over clears the score."
+      ]
+    },    {
       "ids": ["vv1_children_play", "vv2_children_play", "vv3_children_play", "vv4_children_play", "vv5_children_play"],
       "guide": [
         "On by default. Children play tag and build sandcastles on the beach, each 1 pick in 15 when a child picks something to play; the usual choices keep their odds.",
@@ -390,7 +480,7 @@
       "guide": [
         "Villagers who already have some Devotion skill sometimes go Honoring on their own.",
         "Beginners with no Devotion still learn by being dropped on a statue.",
-        "Only while you play; for time away, tick Builders and Healers Work First."
+        "Only while you play; for time away, tick Villagers Work Their Own Job First."
       ]
     },
     {
@@ -453,7 +543,7 @@
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Healers keep learning Healing while the game is closed (and during Time Warp), as they do while you play.",
         "The Overview Map's fire flickers like the village's fire instead of showing a still yellow blob.",
-        "Nothing to click. On by default."
+        "The fish and the field's protection from birds never go below 0. Nothing to click. On by default."
       ]
     },
     {
@@ -472,14 +562,14 @@
     {
       "ids": ["vv4_fix_vanilla_bugs"],
       "guide": [
-        "Fixes a bug in the original game: a village with exactly 150 villagers can be saved and loaded again.",
-        "A village already damaged by that bug is repaired when it is loaded.",
+        "A village of exactly 150 villagers (a bigger population mode or 256 Villagers) can be saved and loaded again; one already damaged by that bug is repaired when loaded.",
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Unpausing at another speed gives the Fire Pit that speed's length. Nursery School lessons no longer always pick Building on a tie.",
         "Rain can no longer crash the game, and the Overview Map's water (rivers, waterfalls and their animations) lines up with its riverbeds.",
-        "The 150-villager fix only matters with a bigger population mode or 256 Villagers. On by default."
+        "After The Frog Rescue, frogs leap all along the river's blue water around the island, never on grass or the ladder, as often as in the original game. On by default.",
+        "No cutting tool is used up on an empty bush (with Cloth Sacks, no sack on an empty fruit tree). Cutting-tool berries count for The Grand Feast."
       ]
     },
     {
@@ -545,6 +635,7 @@
         "A baby takes its father's or mother's last name by the rule chosen in Repair Saves & Logs, or a random one: from the list, or one the village has ever used.",
         "A parent's own rule always beats the village's; parents whose own rules disagree: a coin toss for each child.",
         "Without a rule, its family's name, from a list of 50 the game has always had but never used.",
+        "Villagers who arrive with no last name (an event's newcomer, a barrel's babies) get a random one from the list; one who has a last name keeps it.",
         "New Believers: the Heathens share four family names no villager has, roughly evenly, the same after a reload; at the next load for those with none; a convert keeps it.",
         "Villagers who already have names keep them. Nothing to click: tick it, patch, and play."
       ]
@@ -634,6 +725,15 @@
       ]
     },
     {
+      "ids": ["vv1_every_island_event_can_happen", "vv2_every_island_event_can_happen", "vv3_every_island_event_can_happen", "vv5_every_island_event_can_happen"],
+      "guide": [
+        "Island events that used to stop once a technology reached a certain level keep coming at every level, even with everything researched.",
+        "An event that raises a technology raises it by 1 level, up to 3. At level 3 the event still comes and shows its text; the level stays at 3.",
+        "Nothing else about the events changes: they still need their villagers, puzzles, food and the rest, and they come as often as before.",
+        "With Story / Cheat Upgrades, Pick Island Event can choose them at every level too."
+      ]
+    },
+    {
       "ids": ["vv1_show_parents"],
       "guide": [
         "Villagers born from now on remember their mother and father.",
@@ -664,6 +764,7 @@
       "ids": ["vv1_storytelling", "vv2_storytelling"],
       "guide": [
         "Drag an adult (18+) onto a child (under 18): the adult tells that child a story.",
+        "In A New Home the two walk to the centre of the village first.",
         "The adult gets a Parenting (Breeding) practice roll; the child listens. Parenting 50+ in VV2: teaching.",
         "Only your own drop does this; other drops are unchanged. Tick it, patch, and play."
       ]
@@ -713,19 +814,21 @@
     {
       "ids": ["vv1_builders_and_healers_work_first", "vv2_builders_and_healers_work_first", "vv3_builders_and_healers_work_first", "vv4_builders_and_healers_work_first"],
       "guide": [
-        "Villagers whose job is Building or Healing do their own work first, about three times in four, whatever the food level.",
+        "Tick a villager's job on the Details screen: farmers, researchers, healers and builders practise it on their own (3 times in 4) once that skill is above 5.",
         "It also works while the game catches up on time away (and in Time Warp), so they keep gaining skill.",
-        "When they have nothing of their own to do, they do what the game picks.",
+        "Builders only carry on work that was started: drop a builder on a new project or hut once to start it.",
+        "Parenting is left to the game and the Birth Control patches. With nothing of their own to do, villagers do what the game picks.",
         "Needs Builders Fix Huts When Idle; ticking this ticks it for you."
       ]
     },
     {
       "ids": ["vv5_builders_and_healers_work_first"],
       "guide": [
-        "Villagers whose job is Building or Healing do their own work first, about three times in four, whatever the food level.",
+        "Tick a villager's job on the Details screen: farmers, researchers, healers, builders and devotees practise it (3 times in 4) once that skill is above 5.",
+        "New villagers practise their ticked job without being dropped on it first.",
         "It also works while the game catches up on time away (and in Time Warp), so they keep gaining skill.",
-        "During that catch-up, devotees also go Honoring first.",
-        "When they have nothing of their own to do, they do what the game picks.",
+        "Builders only carry on work that was started: drop a builder on a new project once to start it.",
+        "Parenting is left to the game and the Birth Control patches. With nothing of their own to do, villagers do what the game picks.",
         "Needs Builders Fix Huts When Idle; ticking this ticks it for you."
       ]
     },
@@ -885,7 +988,7 @@
     {
       "ids": ["vv3_both_factions"],
       "guide": [
-        "Buy a faction on the Tech screen and say Yes to the new message, then do the same for the other one, at its Tech screen price (times the multiplier with 2-10x Tech Cost).",
+        "Buy a faction on the Tech screen and say Yes to the new message, then do the same for the other one, at its Tech screen price (times the multiplier with 0.1-10x Tech Cost).",
         "Both then work together, every level of each: food refills, longer lives, the research point and the population bonus, and both herbs grow on the island.",
         "Seven new potions need a Pitcher Plant and a Berry Plant in the pot together.",
         "The latest shark potion decides how the sharks look; nothing else changes.",
@@ -1000,6 +1103,24 @@
       ]
     },
     {
+      "ids": ["vv5_fog_of_doom_every_heathen_listens"],
+      "guide": [
+        "Off by default; on in Owner's Defaults; Select All does not tick it. Cast the Fog of Doom God Power first.",
+        "While its thick fog lasts, drag a believer of 14 or more onto a Heathen in an orange or red mask.",
+        "If that Heathen's Faith is below -10 they listen, just as a blue-masked Heathen does, and gain the same Faith.",
+        "From Faith -10 up they will not listen: only the Earthquake God Power raises their Faith further.",
+        "Natural fog and other weather do nothing. Blue-masked Heathens are unchanged. Not yet seen in a running game."
+      ]
+    },
+    {
+      "ids": ["vv5_fog_of_doom_no_restrictions"],
+      "guide": [
+        "Off by default and in Owner's Defaults; Select All does not tick it. Needs Fog of Doom Lets Every Heathen Listen (ticked with it).",
+        "In the Fog of Doom, orange- and red-masked Heathens listen whatever their Faith: no Earthquake is needed.",
+        "Natural fog still does nothing. Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv5_puddles_by_the_lake"],
       "guide": [
         "After The Lake has water, children still go \"Playing in puddles\" when it rains, on the lake's north-west sandy shore.",
@@ -1030,7 +1151,8 @@
     {
       "ids": ["vv5_devoted_soul_epitaph"],
       "guide": [
-        "A buried Devotee's grave reads the usual epitaph or \"Charitable Soul\", 50/50.", "The usual one is \"Respected Citizen\", or \"Respected Devotee\" with Guardians of Isola Rewrite.",
+        "A buried Devotee's grave reads the usual epitaph or \"Charitable Soul\", 50/50.",
+        "The usual one is \"Respected Citizen\", or \"Respected Devotee\" with Guardians of Isola Rewrite.",
         "Graves made earlier as \"Devoted Soul\" keep that epitaph.",
         "Click the gravestone to see it. You can still edit it."
       ]
@@ -1073,9 +1195,39 @@
         "Needs Enable Origins Tech, Details, and Village-Wide Upgrades; ticking this ticks it for you."
       ]
     },
-    {"ids": ["vv3_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event, Custom Island Event and Recharge Chief Powers each cost 30,000 tech points.", "You pay when you buy it; with too few tech points nothing happens and you are told.", "Choose Time Skip Amount costs 50,000 tech points, like a Time Warp, paid when the skip starts.", "On by default, and ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
-    {"ids": ["vv1_story_cheat_upgrades_cost_tech_points", "vv4_story_cheat_upgrades_cost_tech_points", "vv5_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event and Custom Island Event each cost 30,000 tech points, like an Island Event.", "You pay when the event is queued; with too few tech points nothing happens and you are told.", "Choose Time Skip Amount costs 50,000 tech points, like a Time Warp, paid when the skip starts.", "On by default, and ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
-    {"ids": ["vv2_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome each cost 30,000 tech points.", "You pay when it is queued; with too few tech points, or no whole Gong, nothing happens and you are told.", "Choose Time Skip Amount costs 50,000 tech points, like a Time Warp, paid when the skip starts.", "On by default, and ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
+    {
+      "ids": ["vv3_story_cheat_upgrades_cost_tech_points"],
+      "guide": [
+        "The Origins Upgrades keep their normal tech-point prices instead of costing 0.",
+        "Pick Island Event, Custom Island Event and Recharge Chief Powers each cost 30,000 tech points.",
+        "You pay when you buy it; with too few tech points nothing happens and you are told.",
+        "Choose Time Skip Amount costs 50,000 tech points, like a Time Warp, paid when the skip starts.",
+        "On by default, and ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.",
+        "Needs Story / Cheat Upgrades; ticking this ticks it for you."
+      ]
+    },
+    {
+      "ids": ["vv1_story_cheat_upgrades_cost_tech_points", "vv4_story_cheat_upgrades_cost_tech_points", "vv5_story_cheat_upgrades_cost_tech_points"],
+      "guide": [
+        "The Origins Upgrades keep their normal tech-point prices instead of costing 0.",
+        "Pick Island Event and Custom Island Event each cost 30,000 tech points, like an Island Event.",
+        "You pay when the event is queued; with too few tech points nothing happens and you are told.",
+        "Choose Time Skip Amount costs 50,000 tech points, like a Time Warp, paid when the skip starts.",
+        "On by default, and ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.",
+        "Needs Story / Cheat Upgrades; ticking this ticks it for you."
+      ]
+    },
+    {
+      "ids": ["vv2_story_cheat_upgrades_cost_tech_points"],
+      "guide": [
+        "The Origins Upgrades keep their normal tech-point prices instead of costing 0.",
+        "Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome each cost 30,000 tech points.",
+        "You pay when it is queued; with too few tech points, or no whole Gong, nothing happens and you are told.",
+        "Choose Time Skip Amount costs 50,000 tech points, like a Time Warp, paid when the skip starts.",
+        "On by default, and ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.",
+        "Needs Story / Cheat Upgrades; ticking this ticks it for you."
+      ]
+    },
     {
       "ids": ["vv1_cause_of_death"],
       "guide": [
@@ -1126,13 +1278,13 @@
       "ids": ["vv5_fix_vanilla_bugs"],
       "guide": [
         "Fixes a bug in the original game: every name in the male and female lists can now be given to a new villager (Ago, Yapili, Aipi and Zucca never could be).",
-        "Villagers already named keep their names.",
-        "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
+        "Villagers already named keep their names. A \"%\" in a name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
-        "Rain can no longer crash the game: a raindrop of no length is drawn as a dot.",
+        "Rain can no longer crash the game: a raindrop of no length is drawn as a dot. An unfinished Nursery School says \"foundation\" until building starts.",
         "Nursery School lessons no longer nearly always go to Devotion (a tie is broken at random). The Last Heathen's hovel fits the map (art by Lorsieab2).",
         "The Puzzles screen shows how many hours The Hungry Totem took (it always said 0); a village that already solved it shows its real time too.",
-        "Nothing to click. On by default."
+        "The Defector is always a Heathen of 14 or more, like the envoy in Outreach? (the original game could pick a Heathen child).",
+        "Polishing the Tribute Statue now gives 1 Divine Energy each time, as the game's tip says (never above the cap); it still trains Building. Nothing to click. On by default."
       ]
     },
     {
@@ -1158,7 +1310,7 @@
     {
       "ids": ["vv1_tech_cost_multiplier", "vv2_tech_cost_multiplier", "vv3_tech_cost_multiplier", "vv4_tech_cost_multiplier", "vv5_tech_cost_multiplier"],
       "guide": [
-        "Every technology level on the Tech screen costs 2 to 10 times its normal tech points: you choose how many with the 2-10x Tech Cost slider.",
+        "Every technology level on the Tech screen costs 0.1 to 10 times its normal tech points: you choose how many with the 0.1-10x Tech Cost slider (1 is the normal price).",
         "At 3, for example, 6,000 becomes 18,000. The higher you set it, the harder the game.",
         "The Tech screen shows the multiplied price, and a level cannot be bought with fewer points. Nothing else costs more.",
         "In The Secret City choosing a faction (Nature or Magic) costs that many times too. Patch again after moving the slider.",
@@ -1203,6 +1355,61 @@
         "The Cause of Death patch also needs this one to write its logs.",
         "Tick Write Village Statistics to Text File (or the Cause of Death patch) too, so each log is headed with the village's name."
       ]
+    },
+    {
+      "ids": ["vv1_collectible_frequency", "vv2_collectible_frequency", "vv3_collectible_frequency", "vv4_collectible_frequency", "vv5_collectible_frequency"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it, with its slider at 1. Select All does not tick it. Mushrooms and collectibles appear on their own more or less often.",
+        "0.1 to 10 times as often, set with the Collectible and Mushroom Frequency slider (1 unless you move it; 1 is the normal game).",
+        "A New Home has mushrooms only. Exploration, fog, Wind Flutes and heavy weather still count, multiplied.",
+        "What appears, how many lie out at once and for how long are the game's own. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_food_gain", "vv2_food_gain", "vv3_food_gain", "vv4_food_gain", "vv5_food_gain"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it, with its slider at 1. Select All does not tick it. Each food source gives more or less food each time.",
+        "0.1 to 10 times its normal food, set with the Food Gained per Food Source slider (1 unless you move it; 1 is the normal game).",
+        "Picking, harvesting, fishing, crabs, honey, noni, mushrooms, the Golden Child's gift and the chief's food grant count; island events and cheats do not.",
+        "Farming levels and Food Mastery still count. What the bush or tree itself loses is the game's own. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_tech_gain", "vv2_tech_gain", "vv3_tech_gain", "vv4_tech_gain", "vv5_tech_gain"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it, with its slider at 1. Select All does not tick it. Research brings more or fewer tech points.",
+        "0.1 to 10 times the normal points, set with the Tech Point Gain Rate slider (1 unless you move it; 1 is the normal game).",
+        "The Science level and every research bonus still count. Island events, duplicate collectibles, rewards and cheats do not change.",
+        "Works together with 0.1-10x Tech Cost and the Tech Point Doubler. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_skill_success", "vv2_skill_success", "vv3_skill_success", "vv4_skill_success", "vv5_skill_success"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it, with its slider at 1. Select All does not tick it. Skill practice at work succeeds more or less often.",
+        "0.1 to 10 times as often (always, once that reaches it), set with the Skill Practice Success Chance slider (1 unless you move it).",
+        "The villager's skill still counts, and what a success gives is the game's own.",
+        "Learning Skills Never Fails still makes every try succeed. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_age_speed", "vv2_age_speed", "vv3_age_speed", "vv4_age_speed", "vv5_age_speed"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it, with its slider at 1. Select All does not tick it. Villagers' ages go up faster or slower.",
+        "0.1 to 10 times as fast, set with the Age and Nursing Timer Speed slider (1 unless you move it; 1 is the normal game).",
+        "Growing up, becoming an elder, old age, pregnancy and nursing all follow it together, and so do eating, health and sickness.",
+        "So at 2 villagers also eat twice as often. Work, food regrowth and island events keep the normal speed. The Golden Child stays 5.",
+        "Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv3_one_time_collectibles_again", "vv4_one_time_collectibles_again"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it. Select All does not tick it.",
+        "Lets a Tablet piece (The Secret City) or Mausoleum Mural piece (The Tree of Life) you already have appear again.",
+        "Normally the game never puts out a piece you have found. It is not forced: it only gets its normal chance back.",
+        "Picked up again, it counts as a duplicate and pays tech points like any other duplicate. Not yet tested in play."
+      ]
     }
   ],
   "modes": {
@@ -1223,30 +1430,42 @@
     ]
   },
   "controls": {
+    "partner_carry_percent": {"title": "A man may carry the baby by chance", "guide": ["In a couple's pregnancy of a new island event that allows it, how often the man carries the baby instead: 0 to 100 percent, 10 unless moved.", "Drag the slider or type the number. 0: never by chance; an event's own reason, or a choice the player makes, still can.", "He must be 18 or older and not expecting already; otherwise the woman carries as usual. Owner's Defaults: 10. Not yet tested in play."]},
+    "more_island_events_and_creator": {"title": "More Island Events and Creator", "guide": ["One tick for every island event the patcher adds: More Island Events and the Isola Grand Event Collection.", "Ticking it ticks both, with Story / Cheat Upgrades and Scrolling Popups; unticking it unticks both.", "Each can still be ticked on its own. Owner's Defaults, Select All and Classic VV Difficulty tick the whole row.", "Its Settings... button opens its own window: the partner-carry percent, the Custom Island Event Library, the content filters and Player Events."]},
+    "island_event_content_filters": {
+      "title": "Content Filters",
+      "guide": [
+        "Each ticked filter keeps its content out of the new island events (added events only).",
+        "Applied before the random draw picks an event: a filtered outcome is dropped where the event still makes sense,",
+        "otherwise the event is skipped. Off everywhere, Owner's Defaults too. Filters never hide a kind of person."
+      ]
+    },
     "select_all": {
       "title": "Select All Patches",
       "guide": [
-        "Ticks every patch for every game.",
-        "Except 256 Villagers (Experimental), which you tick yourself,",
+        "Ticks every patch for every game (it does not change the population mode). Except 256 Villagers (Experimental), which you tick yourself,",
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
-        "2-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection and Change Sex and Gender Presentation are not ticked either.",
-        "It does not change the population mode."
+        "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation, More Frequent Island Events,",
+        "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Birth Control in The Tree of Life and New Believers,",
+        "Fog of Doom Lets Every Heathen Listen, No Restrictions on Fog of Doom Conversions,",
+        "the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
       ]
     },
     "default_patches": {
       "title": "Default Patches",
       "guide": [
-        "Ticks all but: Learning Skills Never Fails, Manual Drop-Breeding, 256 Villagers, VV1 Mushroom/Collectible Duplication Cheat, Move the \"Playing in the dirt\" Spot,",
+        "All but: Learning Skills Never Fails, Manual Drop-Breeding, 256 Villagers, VV1 Mushroom/Collectible Duplication Cheat, Move the \"Playing in the dirt\" Spot,",
         "Super-Secret Golden Mushroom, Fruit Trees Take Turns Refilling, Use Unicode Font (overrides in-game fonts), Checked Skill Preferences are listed as Jobs on Graves,",
-        "Change Sex and Gender Presentation, 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
-        "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
-        "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
-        "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups, More Island Events, Isola Grand Event Collection,",
-        "Island Events Scale With Population (like The Lost Children), Island Events Scale With Stored Food and Tech Points,",
-        "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
+        "Change Sex and Gender Presentation, Village Solidarity, 0.1-10x Tech Cost, 0.1-10x Sickness, Hungrier Villagers (0.1-10x Meals), Faith Loss is Doubled/Gains Halved,",
+        "Classic VV Difficulty, Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
+        "More Frequent Island Events, Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
+        "Up to 99 Cutting Tools/Soap/Cloth, The Golden Child May Be Born Female (50:50), Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped,",
+        "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
+        "Birth Control in The Tree of Life and New Believers, the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted,",
+        "Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors, both Fog of Doom patches."
       ]
     },
     "owners_defaults": {
@@ -1257,9 +1476,10 @@
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
         "Move the \"Playing in the dirt\" Spot is off too: Puddle Play Moves to the Lake Shore is ticked instead. So is Yellow Breadfruit Refills Partially Every Time.",
         "That includes Story / Cheat Upgrades, Respecting the Legacy of Isola and 256 Villagers (Experimental), which uses its own save folder.",
-        "It ticks the harder-game patches too, Classic VV Difficulty and 2-10x Tech Cost included, and sets both sliders to 2.",
+        "It ticks the harder-game patches too, Classic VV Difficulty and 0.1-10x Tech Cost included, and sets both sliders to 2.",
         "Story / Cheat Upgrades cost Tech Points is off here (the upgrades are free). So is Island Events Scale With Stored Food and Tech Points.",
-        "It does not change the population mode."
+        "No Restrictions on Fog of Doom Conversions is off here too.",
+        "The island event controls: every Content Filter and No Safeguards for Island Events (and Additional Events too) are off here too; it does not change the population mode."
       ]
     },
     "deselect_all": {
@@ -1275,31 +1495,69 @@
         "The typeface Use Unicode Font (overrides in-game fonts) draws all of the game's text in: pick one of the fonts Windows has, or leave Segoe UI.",
         "It is written next to the game as VVFP Unicode Font.txt the next time you patch with Use Unicode Font ticked; patch again after changing it.",
         "Characters the typeface lacks come from Windows' other fonts, then the bundled open fonts (Noto, Unifont, Last Resort).",
-        "It does nothing while Render Unicode with In-Game Fonts is used instead."
+        "It does nothing while Render Unicode with In-Game Fonts is used instead.",
+        "The box is in the Settings... window beside each game's Use Unicode Font row; one typeface is shared by every game."
       ]
     },
     "meal_multiplier": {
       "title": "Hungrier Villagers",
       "guide": [
-        "How many times its normal food every villager meal takes with the Hungrier Villagers patch: a whole number from 2 to 10, 2 unless you move it.",
+        "How many times its normal food every villager meal takes with the Hungrier Villagers patch: 0.1 to 10 in steps of 0.1, 2 unless you move it; 1 is the normal game.",
+        "The slider reads -10 (a tenth) to 10 (10 times); 1, the middle, is the normal game, and -2 is half. Drag it or type the number in the box (then press Enter).",
+        "A number saved above 10 is 10. A number like 0.3 takes that much on average (a meal is whole food).",
+        "Drag the slider or type the number in the box beside it (then press Enter).",
         "It is written into each game the next time you patch with Hungrier Villagers ticked; patch again after changing it.",
         "Owner's Defaults sets it to 2. It does nothing while Hungrier Villagers is not ticked."
       ]
     },
-    "sickness_multiplier": {
-      "title": "2-10x Sickness",
+    "island_frequency_multiplier": {
+      "title": "More Frequent Island Events",
       "guide": [
-        "How many times as often villagers fall sick with the 2-10x Sickness patch: a whole number from 2 to 10, 2 unless you move it.",
-        "It is written into each game the next time you patch with 2-10x Sickness ticked; patch again after changing it.",
-        "Owner's Defaults sets it to 2. It does nothing while 2-10x Sickness is not ticked."
+        "How many times as often the game's own island events come with the More Frequent Island Events patch: 0.1 to 10 in steps of 0.1, 2 unless you move it.",
+        "The slider reads -10 (a tenth) to 10 (10 times); 1, the middle, is the normal game, and -2 is half. Drag it or type the number in the box (then press Enter).",
+        "The wait between events is divided by it: at 10, The Secret City's 8 to 15 hours become 48 to 90 minutes.",
+        "It is written into each game the next time you patch with More Frequent Island Events ticked; patch again after changing it. Owner's Defaults sets it to 2.",
+        "It does nothing while the patch is not ticked."
+      ]
+    },
+    "louder_flutes_multiplier": {
+      "title": "Louder Wind Flutes",
+      "guide": [
+        "How many times louder the wind flutes are with the Louder Wind Flutes patch (The Tree of Life): 0.1 to 10 in steps of 0.1, 5 unless you move it.",
+        "The slider reads -10 (a tenth) to 10 (10 times); 1, the middle, is the normal game, and -2 is half. Drag it or type the number in the box (then press Enter).",
+        "The loudest moments are held just under the loudest a sound can be, so the flutes never distort; higher numbers make the quiet parts louder.",
+        "At 5, with the game's Sound and Music at their maximum, the flutes are heard over the music.",
+        "It is written into the game the next time you patch with Louder Wind Flutes ticked; patch again after changing it. Owner's Defaults sets it to 5.",
+        "It does nothing while Louder Wind Flutes is not ticked."
+      ]
+    },
+    "sickness_multiplier": {
+      "title": "0.1-10x Sickness",
+      "guide": [
+        "How many times as often villagers fall sick with the 0.1-10x Sickness patch: 0.1 to 10 in steps of 0.1, 2 unless you move it.",
+        "The slider reads -10 (a tenth) to 10 (10 times); 1, the middle, is the normal game, and -2 is half. Drag it or type the number in the box (then press Enter).",
+        "It is written into each game the next time you patch with 0.1-10x Sickness ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 2. It does nothing while 0.1-10x Sickness is not ticked."
+      ]
+    },
+    "village_solidarity_strength": {
+      "title": "Village Solidarity strength",
+      "guide": [
+        "How strongly the Village Solidarity score changes the odds of the new events and their endings: 0.1x to 10x in steps of 0.1, 1x (the normal strength) unless you move it.",
+        "At 1x each point away from 50 adds 2% to a favoured event's or ending's own chance (double at 0 or 100); at 2x 4% a point, at 0.5x 1%.",
+        "Nothing is ever forced and nothing else is made less likely.",
+        "It is on the Difficulty Sliders page. It does nothing while Village Solidarity is not ticked.",
+        "It is written into each game the next time you patch with Village Solidarity ticked; patch again after changing it."
       ]
     },
     "tech_cost_multiplier": {
-      "title": "2-10x Tech Cost",
+      "title": "0.1-10x Tech Cost",
       "guide": [
-        "How many times its normal price every technology level costs with the 2-10x Tech Cost patch: a whole number from 2 to 10, 3 unless you move it.",
-        "It is written into each game the next time you patch with 2-10x Tech Cost ticked; patch again after changing it.",
-        "The higher you set it, the harder the game. It does nothing while 2-10x Tech Cost is not ticked."
+        "How many times its normal price every technology level costs with the 0.1-10x Tech Cost patch: 0.1 to 10 in steps of 0.1, 3 unless you move it.",
+        "The slider reads -10 (a tenth) to 10 (10 times); 1, the middle, is the normal game, and -2 is half. Drag it or type the number in the box (then press Enter).",
+        "1 is the normal price, below 1 cheaper (a whole tech point, never below 1). Drag the slider or type the number in the box beside it (then press Enter).",
+        "It is written into each game the next time you patch with 0.1-10x Tech Cost ticked; patch again after changing it.",
+        "The higher you set it, the harder the game. It does nothing while 0.1-10x Tech Cost is not ticked."
       ]
     },
     "patch_selection_settings": {
@@ -1609,6 +1867,60 @@
       "guide": [
         "Opens the patcher's GitHub page, where the newest version is listed.",
         "Your version is shown just above the link."
+      ]
+    },
+    "collectible_frequency_multiplier": {
+      "title": "Collectible and Mushroom Frequency",
+      "guide": [
+        "How many times as often mushrooms and collectibles appear on their own with the Collectible and Mushroom Frequency patch: 0.1 to 10 in steps of 0.1, 1 unless you move it.",
+        "The slider reads -10 (a tenth) to 10 (10 times); 1, the middle, is the normal game, and -2 is half. Drag it or type the number in the box (then press Enter).",
+        "It is written into each game the next time you patch with Collectible and Mushroom Frequency ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 1. It does nothing while the patch is not ticked."
+      ]
+    },
+    "food_gain_multiplier": {
+      "title": "Food Gained per Food Source",
+      "guide": [
+        "How many times its normal food each food source gives with the Food Gained per Food Source patch: 0.1 to 10 in steps of 0.1, 1 unless you move it.",
+        "The slider reads -10 (a tenth) to 10 (10 times); 1, the middle, is the normal game, and -2 is half. Drag it or type the number in the box (then press Enter).",
+        "It is written into each game the next time you patch with Food Gained per Food Source ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 1. It does nothing while the patch is not ticked."
+      ]
+    },
+    "tech_gain_multiplier": {
+      "title": "Tech Point Gain Rate",
+      "guide": [
+        "How many times its normal tech points research brings with the Tech Point Gain Rate patch: 0.1 to 10 in steps of 0.1, 1 unless you move it.",
+        "The slider reads -10 (a tenth) to 10 (10 times); 1, the middle, is the normal game, and -2 is half. Drag it or type the number in the box (then press Enter).",
+        "It is written into each game the next time you patch with Tech Point Gain Rate ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 1. It does nothing while the patch is not ticked."
+      ]
+    },
+    "skill_success_multiplier": {
+      "title": "Skill Practice Success Chance",
+      "guide": [
+        "How many times as often skill practice at work succeeds with the Skill Practice Success Chance patch: 0.1 to 10 in steps of 0.1, 1 unless you move it.",
+        "The slider reads -10 (a tenth) to 10 (10 times); 1, the middle, is the normal game, and -2 is half. Drag it or type the number in the box (then press Enter).",
+        "It is written into each game the next time you patch with Skill Practice Success Chance ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 1. It does nothing while the patch is not ticked."
+      ]
+    },
+    "age_speed_multiplier": {
+      "title": "Age and Nursing Timer Speed",
+      "guide": [
+        "How many times as fast villagers' ages go up with the Age and Nursing Timer Speed patch: 0.1 to 10 in steps of 0.1, 1 unless you move it.",
+        "The slider reads -10 (a tenth) to 10 (10 times); 1, the middle, is the normal game, and -2 is half. Drag it or type the number in the box (then press Enter).",
+        "It is written into each game the next time you patch with Age and Nursing Timer Speed ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 1. It does nothing while the patch is not ticked."
+      ]
+    },
+    "difficulty_sliders": {
+      "title": "Difficulty Sliders",
+      "guide": [
+        "Opens the page with every slider: Tech Cost, Hungrier Villagers, Sickness, More Frequent Island Events, Louder Wind Flutes, Village Solidarity and the five newer ones.",
+        "They are grouped by game, with each patch's name beside its slider. A slider is used only while its patch is ticked on the main page.",
+        "Each reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game. A number saved above 10 is 10.",
+        "One number is shared by every game that has the patch. Patch again after changing a slider."
       ]
     }
   }

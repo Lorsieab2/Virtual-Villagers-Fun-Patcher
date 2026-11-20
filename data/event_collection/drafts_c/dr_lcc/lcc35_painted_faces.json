@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Painted Faces",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc35_painted_faces",
+  "source": "draft_lcc",
+  "lines": [
+   484,
+   495
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L484",
+  "ledger": [
+   {
+    "src": "L485",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L491",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L495",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The warriors want to paint their faces before the watch: let them, or ask them not to frighten the children.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has made a red clay paint and wants every warrior to wear it on watch, in bold lines across the face, so the raiders will see the village is ready. (friend) points out that the last time the warriors came home painted, half the children hid under their mats. What should the warriors do?",
+   "src": "L487",
+   "choices": [
+    {
+     "label": "Wear the Paint",
+     "next": "o1",
+     "src": "L489"
+    },
+    {
+     "label": "Paint Only for the Watch",
+     "next": "o2",
+     "src": "L493"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The warriors paint their faces. They look magnificent and terrifying. The children are frightened for exactly one day, until (subject) lets them paint the warriors themselves. After that the warriors have flowers and fish painted among the red lines, and nobody minds.",
+   "src": "L491"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The warriors paint at the headland and wash it off in the sea before they come home. The children never see it. The raiders, if they are watching, see it every night. (subject) says that is the right audience.",
+   "src": "L495"
+  }
+ }
+}

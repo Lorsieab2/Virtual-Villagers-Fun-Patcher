@@ -115,9 +115,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The child finds comfort, while an elder admits no one knows for certain.",
-   "src": "L21250"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -145,6 +152,25 @@
    "name": "Outcome C2",
    "text": "The uncertainty upsets the child, and a relative stays beside them.",
    "src": "L21254"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The child finds comfort, while an elder admits no one knows for certain.",
+   "src": "L21250",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L21250"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The child finds comfort, while an elder admits no one knows for certain.",
+   "src": "L21250"
   }
  }
 }

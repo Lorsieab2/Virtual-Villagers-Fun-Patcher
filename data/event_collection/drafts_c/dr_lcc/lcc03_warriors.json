@@ -1,0 +1,125 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Warriors' Practice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc03_warriors",
+  "source": "draft_lcc",
+  "lines": [
+   36,
+   47
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L36",
+  "ledger": [
+   {
+    "src": "L37",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L43",
+    "kind": "instruction",
+    "text": "[effect: (name2) loses a little health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L43",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L47",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L47",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village's warriors practice with spears on the beach: keep practicing hard, or teach everyone a little.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every morning since the raiders were seen, (subject) has drilled the village's warriors on the beach: spears, shields of woven palm, and a great deal of running in the sand. (friend) thinks only a few people are being trained, and that if raiders come, everyone over eighteen should know how to defend themselves. What should they do?",
+   "src": "L39",
+   "choices": [
+    {
+     "label": "Keep Drilling the Warriors",
+     "next": "o1",
+     "src": "L41"
+    },
+    {
+     "label": "Teach Every Adult a Little",
+     "next": "o2",
+     "src": "L45"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) keeps the drills small and hard. The warriors get faster and stronger. (friend) joins them, and on the third day takes a spear-butt to the shin and limps for a week. The warriors laugh, and then help (friend.him/her) home.",
+   "src": "L43",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -10,
+     "src": "L43"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) opens the drills to every adult who wants to come. The beach is chaos: cooks, carvers and grandmothers all waving sticks. It is not very effective. But everyone knows what to do if the conch blows, and that, (friend) says, is the point.",
+   "src": "L47",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L47"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

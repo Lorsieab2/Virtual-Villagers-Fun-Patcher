@@ -61,14 +61,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(name1) sweeps up feathers all morning. They get everywhere: in (his/her) hair, in (his/her) mouth, down the back of (his/her) shirt. By lunch (he/she) has filled a whole basket, and decides to use them to stuff a cushion. It's the softest cushion (he/she) has ever owned. (He/She) still has no idea where they came from.",
-   "src": "L506"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(name1) follows a trail of feathers out of the door and round the back of the hut, where a very fluffy, very ruffled grey bird is sitting in the woodpile, looking exhausted, shedding feathers in the breeze. It looks at (name1). \"Busy night?\" (name1) asks. The bird closes its eyes. (name1) decides to let it rest.",
    "src": "L509"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) sweeps up feathers all morning. They get everywhere: in (his/her) hair, in (his/her) mouth, down the back of (his/her) shirt. By lunch (he/she) has filled a whole basket, and decides to use them to stuff a cushion. It's the softest cushion (he/she) has ever owned. (He/She) still has no idea where they came from.",
+   "src": "L506",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L506"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) sweeps up feathers all morning. They get everywhere: in (his/her) hair, in (his/her) mouth, down the back of (his/her) shirt. By lunch (he/she) has filled a whole basket, and decides to use them to stuff a cushion. It's the softest cushion (he/she) has ever owned. (He/She) still has no idea where they came from.",
+   "src": "L506"
   }
  }
 }

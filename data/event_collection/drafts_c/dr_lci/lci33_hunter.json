@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hunter's Responsibility",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci33_hunter",
+  "source": "draft_lci",
+  "lines": [
+   456,
+   467
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L456",
+  "ledger": [
+   {
+    "src": "L457",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder hunter and a young hunter)"
+   },
+   {
+    "src": "L463",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name2); small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L463",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L467",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A young hunter wounded a wild pig that escaped: track it to end its suffering, or let it go.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) went hunting and wounded a wild pig, which escaped into the forest. (friend) is shaken. (subject), the old hunter, says a hunter who wounds must follow. It is getting dark. What should they do?",
+   "src": "L459",
+   "choices": [
+    {
+     "label": "Track It",
+     "next": "o1",
+     "src": "L461"
+    },
+    {
+     "label": "Let It Go",
+     "next": "o2",
+     "src": "L465"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They track it until well after dark, by torchlight, following the trail. They find the pig, and (subject) ends it quickly. (friend) is quiet on the walk home. (subject) says that is the right way to feel. Nothing is wasted.",
+   "src": "L463",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L463"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L463"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They turn back in the dark. (friend) does not sleep. The next morning, they go back and follow the trail, and find the pig recovering in a thicket, already healing. They leave it. (friend) never hunts carelessly again.",
+   "src": "L467"
+  }
+ }
+}

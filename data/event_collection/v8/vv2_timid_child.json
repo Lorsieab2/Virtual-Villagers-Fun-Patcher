@@ -249,7 +249,8 @@
      "max": 10,
      "src": "L3913-3914"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "coda_c10": {
    "popup": "append",

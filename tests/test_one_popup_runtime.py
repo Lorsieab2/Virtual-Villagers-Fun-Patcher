@@ -295,8 +295,13 @@ class ChoicesAndQuestions(unittest.TestCase):
                 self.assertIn("walks to the old cliff", shown[0][1])
                 self.assertNotIn("finds many doors", shown[0][1])
                 self.assertEqual(shown[1][0], "question")
-                self.assertFalse(any(s[1].lstrip().startswith("Open door number") for s in shown[2:]),
-                                 "no label line without Scrolling Popups")
+                # The popups after a choice take its label as their title (the owner, 2026-11-16).  The first two
+                # games write the title as the text's first line (own_words), so the label is there as the TITLE;
+                # the label LINE Scrolling Popups puts at the start of the outcome is never there.
+                self.assertFalse(any(own_words(s[1], game).lstrip().startswith("Open door number")
+                                     for s in shown[2:]), "no label line without Scrolling Popups")
+                if game in ("vv1", "vv2"):
+                    self.assertEqual(shown[2][1].partition("\n")[0], "Open door number 1", "the choice is the title")
 
 
 class ThePatchersMirror(unittest.TestCase):
@@ -318,7 +323,7 @@ class ThePatchersMirror(unittest.TestCase):
 
     def test_the_label_line_counts_in_the_bytes(self):
         def graph(label):
-            body = ("tech " * 400)[:cg.POPUP_TEXT_MAX - 10].strip() + "."
+            body = ("tech " * 25000)[:cg.LONG_TEXT_MAX - 10].strip() + "."
             return {"format": "vvfp-cie-graph", "version": 6, "title": "Long", "games": [3],
                     "roles": {}, "start": "q", "nodes": {
                         "q": {"type": "question", "text": "Pick one.", "choices": [
@@ -327,9 +332,10 @@ class ThePatchersMirror(unittest.TestCase):
         _g, problems = cg.validate(graph("A"), True)
         self.assertEqual([x for x in problems if "bytes" in x], [], "label and blank line still fit")
         _g, problems = cg.validate(graph("Open the long door"), True)
-        self.assertTrue(any("longer than 1990 bytes" in x for x in problems), problems)
+        self.assertTrue(any(f"longer than {cg.LONG_TEXT_MAX} bytes" in x for x in problems), problems)
+        # Without Scrolling Popups such a text is refused for its own length, saying the patch would allow it.
         _g, problems = cg.validate(graph("Open the long door"), False)
-        self.assertFalse(any("longer than 1990 bytes" in x for x in problems), "without Scrolling Popups: no label")
+        self.assertTrue(any("Scrolling Popups" in x and "1990" in x for x in problems), problems)
 
 
 if __name__ == "__main__":

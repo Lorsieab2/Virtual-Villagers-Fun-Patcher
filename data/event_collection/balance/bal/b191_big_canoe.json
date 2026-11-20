@@ -1,0 +1,223 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Big Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b191_big_canoe",
+  "source": "balance",
+  "lines": [
+   8860,
+   8903
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8860",
+  "ledger": [
+   {
+    "src": "L8861",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8862",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8870",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8879",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8867",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8868",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8871",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8880",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8873",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8876",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8882",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8885",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8888-8903",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Today it goes into the sea for the first time.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For a year the builders have been making a big canoe, the biggest the village has ever had, long enough for twenty paddlers, carved from a single great tree. Today it goes into the sea for the first time. The whole village is on the beach. The drummers are drumming.\n(subject) is one of the twenty paddlers. As they push it down the rollers into the surf, (subject.he/she) notices that the mast, a tall pole lashed upright in the middle, is leaning, just a little, and that one of the lashings is fraying. (builder) is shouting with joy at the front and can't hear anything.\nShould (subject) stop the launch and point it out, or keep pushing and fix it at sea?",
+   "choices": [
+    {
+     "label": "Stop the Launch",
+     "next": "c1",
+     "src": "L8867"
+    },
+    {
+     "label": "Keep Pushing",
+     "next": "c2",
+     "src": "L8868"
+    }
+   ],
+   "src": "L8863-8865"
+  },
+  "c1o1": {
+   "text": "(builder) looks at the lashing. (subject.He/She) goes pale. Then (subject.he/she) takes (subject) by both shoulders and says \"Thank you\" very seriously. They re-lash the mast together while the drummers wait, and (builder) shows (subject) a knot that will never fray. The launch goes perfectly. (subject) uses the knot for the rest of (subject.his/her) life.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L8874",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "While everyone is standing still, arguing about the mast, a big wave comes in and lifts the canoe off its rollers and swings it sideways. (subject) is caught between the hull and a roller. The healers save (subject.his/her) leg, but it never bends properly again. The canoe is a fine canoe. (subject) never sets foot in it.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "the ocean",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L8877",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) shouts and waves until the paddlers stop pushing and the drummers stop drumming and the whole beach goes quiet and stares at (subject.him/her). (builder) comes stomping down the side of the canoe, red in the face...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8871"
+  },
+  "c2o1": {
+   "text": "Out past the reef, the lashing gives way. The mast comes down across the canoe, and (subject) is in the way. The other paddlers bring the canoe home very slowly, and lay (subject) on the beach, and the drummers don't drum. They name the canoe after (subject.him/her). Every time it goes out, the paddlers check the lashings twice.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L8883",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) climbs up the swaying mast in the middle of the sea, with nineteen people yelling advice at (subject.him/her), and re-ties the lashing with (subject.his/her) teeth and one hand. It holds. They paddle out further than the village has ever fished before, and come back with the canoe full to the brim. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L8886",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) decides it's probably fine. They push the canoe down into the surf, all twenty of them shouting, and leap in and start paddling. Out past the reef, the mast starts to sway...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8880"
+  }
+ }
+}

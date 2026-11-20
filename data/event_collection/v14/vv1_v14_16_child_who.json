@@ -47,7 +47,7 @@
   "scene": {
    "name": "The Mediator",
    "src": "L7759-7762",
-   "text": "Two builders quarrel over a roof support. The Golden Child arranges sticks to show a third way to distribute the weight. Both builders test the model and discover that it holds. He asks whether they can stop arguing now because it is making his head hurt.",
+   "text": "Two builders quarrel over a roof support. The Golden Child arranges sticks to show a third way to distribute the weight. Both builders test the model and discover that it holds. (child.He/She) asks whether they can stop arguing now because it is making (child.his/her) head hurt.",
    "effects": [
     {
      "do": "tech",
@@ -55,7 +55,8 @@
      "scaled": true,
      "src": "L7762"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

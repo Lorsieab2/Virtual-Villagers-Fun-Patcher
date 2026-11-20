@@ -69,14 +69,41 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) uses thicker poles and a lower roof. The hut is very sturdy. (subject) bangs (subject.his/her) head on the beam every single morning for the first month. (subject.He/she) never says anything to (friend). (subject.He/she) just rubs (subject.his/her) head a lot. Eventually (subject.he/she) learns to duck.",
-   "src": "L50"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) uses thick poles and builds the roof tall. It's a fine hut and (subject.he/she) can stand up straight in it. In the first big storm it creaks alarmingly, but it holds. \"Bit tall,\" says (friend), looking at it afterwards. \"Bit tall,\" agrees (subject), happily, standing up in it.",
    "src": "L53"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) uses thicker poles and a lower roof. The hut is very sturdy. (subject) bangs (subject.his/her) head on the beam every single morning for the first month. (subject.He/she) never says anything to (friend). (subject.He/she) just rubs (subject.his/her) head a lot. Eventually (subject.he/she) learns to duck.",
+   "src": "L50",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L50"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) uses thicker poles and a lower roof. The hut is very sturdy. (subject) bangs (subject.his/her) head on the beam every single morning for the first month. (subject.He/she) never says anything to (friend). (subject.He/she) just rubs (subject.his/her) head a lot. Eventually (subject.he/she) learns to duck.",
+   "src": "L50"
   }
  }
 }

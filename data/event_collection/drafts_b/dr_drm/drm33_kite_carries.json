@@ -70,14 +70,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "They tie on a small message: \"HELLO.\" The kite climbs, wobbles, dives, climbs again, and comes down on a roof halfway across the village. Someone comes out, finds the message, and waves. \"HELLO!\" they shout back. It is, (subject) admits, slower than walking. (subject.He/she) is overjoyed.",
-   "src": "L398"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Let's just see if it flies,\" says (friend). It flies beautifully, high and steady, for a whole afternoon. They lie on their backs watching it. They forget all about the message. Neither of them minds. Tomorrow, maybe, the message. Today, just the kite.",
    "src": "L401"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They tie on a small message: \"HELLO.\" The kite climbs, wobbles, dives, climbs again, and comes down on a roof halfway across the village. Someone comes out, finds the message, and waves. \"HELLO!\" they shout back. It is, (subject) admits, slower than walking. (subject.He/she) is overjoyed.",
+   "src": "L398",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L398"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They tie on a small message: \"HELLO.\" The kite climbs, wobbles, dives, climbs again, and comes down on a roof halfway across the village. Someone comes out, finds the message, and waves. \"HELLO!\" they shout back. It is, (subject) admits, slower than walking. (subject.He/she) is overjoyed.",
+   "src": "L398"
   }
  }
 }

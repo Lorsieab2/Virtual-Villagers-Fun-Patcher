@@ -1,0 +1,208 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Clay Figures",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b185_clay_figures",
+  "source": "balance",
+  "lines": [
+   8577,
+   8619
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8577",
+  "ledger": [
+   {
+    "src": "L8578",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8579",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8587",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8596",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8584",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8585",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8588",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8597",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8590",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8593",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8599",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8602",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8605-8619",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The children have gone home for supper.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has been making little clay figures by the river to amuse the children: a pig, a canoe, the {@chief} with a very big nose. Today, for fun, (he/she) has made one of (himself/herself), and set it in the sun to dry beside the others. The children have gone home for supper.\nThe river clay here is red, and the elders say it was made from the blood of the island's first animals, and \"remembers being alive.\" (Name) has never believed it. But as the sun goes down, (he/she) is almost sure the little clay (name) has turned its head to look at (him/her).\nShould (name) break the figure up, or leave it to dry overnight?",
+   "choices": [
+    {
+     "label": "Leave It to Dry",
+     "next": "c1",
+     "src": "L8584"
+    },
+    {
+     "label": "Break It Up",
+     "next": "c2",
+     "src": "L8585"
+    }
+   ],
+   "src": "L8580-8582"
+  },
+  "c1o1": {
+   "text": "In the morning there is someone sitting by the river, rubbing red clay out of (his/her) hair: another (name), life-sized, exactly the same, down to the old scar on the knee. The little figure is gone. The clay (name) says it dreamed of being (name) all night, and seems to have got it exactly right. It takes the name (made1). The children are thrilled and want (name) to make them a dragon.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L8591",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "In the morning, there is someone by the river who looks like (name), more or less, the way a child's drawing looks like a person. Then (he/she) washes the clay off in the river, and the face is (name)'s exactly. Inside, though, (he/she) is someone else entirely, with different likes and different dislikes, and a fondness for pigs. \"You made me in a hurry,\" (he/she) says. (He/She) takes the name (made1).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L8594",
+   "text_only": [
+    {
+     "src": "L8594",
+     "what": "\"dislikes\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) tells (himself/herself) not to be silly, and goes home. In the night, (he/she) dreams of being small and hard and warm, lying in the sun by the river...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8588"
+  },
+  "c2o1": {
+   "text": "(Name) throws the ball of clay into the river and goes home. Nothing happens. The next morning, the little clay {@chief} with the big nose has gone from the riverbank. Nobody sees it again. Some weeks later, the {@chief} mentions, puzzled, that (his/her) nose has been itching.",
+   "src": "L8600"
+  },
+  "c2o2": {
+   "text": "The pang doesn't go away. By evening (name) has bruises all over (his/her) arms, exactly where (his/her) fingers squeezed the clay. The healers have no explanation. (Name) is fine in a week, and never makes another clay figure of a person again. (He/She) sticks to pigs.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L8603",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) picks up the clay (name), which is still damp, and squashes it back into a ball. It is warm, warmer than the sun should have made it. (Name) feels a sharp pang, as if (he/she) has stubbed a toe somewhere inside (himself/herself)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8597"
+  }
+ }
+}

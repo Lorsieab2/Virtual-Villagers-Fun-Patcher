@@ -109,9 +109,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The gardener records the birds' habits without disturbing them.",
-   "src": "L13"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -160,6 +167,25 @@
   "d2": {
    "name": "Outcome D2",
    "text": "Neither knows how long the birds will remain, so they agree to be patient.",
+   "src": "L13"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The gardener records the birds' habits without disturbing them.",
+   "src": "L13",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L13"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The gardener records the birds' habits without disturbing them.",
    "src": "L13"
   }
  }

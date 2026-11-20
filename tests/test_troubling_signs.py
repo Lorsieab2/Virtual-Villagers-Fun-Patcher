@@ -78,6 +78,7 @@ class Signs(Village):
         p.stub(code + 24, lambda pr: (BUTTON_W, 0))
         p.stub(code + 32, lambda pr: (BUTTON_H, 0))
         p.stub(0x42E9D0, lambda pr: (0x7777, 0))                         # the image manager
+        p.put32(0x592714, 0x7777)                                        # ... the word the companion reads
         p.stub(0x46EC93, lambda pr: (p.alloc(0x40), 0))                  # operator new
         p.stub(0x42E8A0, lambda pr: (0x5555, 4))                         # the picture
         p.stub(0x4019F0, self._button)
@@ -235,6 +236,13 @@ def standard(population: int = 61, **chief) -> Signs:
     return v
 
 
+
+def owner_label(text: str) -> str:
+    """An owner's label as the event shows it: Title Case (the owner, 2026-11-15; scripts/collection_lib.py)."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import collection_lib
+    return collection_lib.title_case_label(text)
+
 def words(text: str) -> list[str]:
     return re.sub(r"\s+", " ", text).strip().split(" ")
 
@@ -285,8 +293,8 @@ class TheWords(unittest.TestCase):
             line = line.strip()
             if not line or line.startswith("then") or (line.startswith("(") and not line.startswith("(Name)")):
                 continue
-            if line.endswith(":") and line[:-1] in LABELS.values():
-                used.add(line[:-1])
+            if line.endswith(":") and owner_label(line[:-1]) in LABELS.values():
+                used.add(owner_label(line[:-1]))
                 continue
             shown = (line.replace("(Name)", "Ana").replace("(name)", "Ana").replace("(he/she)", "she")
                      .replace("(his/her)", "her").replace("(random name)", "Ben").replace("(tribe name)", "Kalahuna")
@@ -453,7 +461,8 @@ class Answers(unittest.TestCase):
         m = low[1] // 1000                                   # the game's own factor: 1,000 tech at the bottom
         self.assertGreaterEqual(m, 1)
         self.assertEqual(low, [200 * m, 1000 * m, 200 * m, 1000 * m])
-        highs = standard()                                    # the page says the full roll, whatever is stored
+        highs = standard()                                    # the full roll when the village has it
+        highs.set_stores(10 ** 6, 10 ** 6)
         self.assertTrue(highs.open(awards=(TOP, TOP, TOP, TOP)))
         self.assertEqual(highs.ts_state()[11:15], [600 * m, 2000 * m, 600 * m, 2000 * m])
         # Each answer's store change.
@@ -467,17 +476,28 @@ class Answers(unittest.TestCase):
             amount = v.ts_state()[11 + g]
             df, dt = expect[g]
             self.assertEqual(v.stores(), (max(0, food + df * amount), max(0, tech + dt * amount)), g)
-        # A low store (the owner, 2026-11-13: "yeah show the full amount"): the page says the full roll, the store
-        # ends at 0.
+        # A low store (the owner, 2026-11-19: every result line exact, replacing 2026-11-13's full roll): the page
+        # says what the village had, and exactly that is taken; nothing to take: no loss sentence at all.
         for g, stores in ((0, (150, 5000)), (3, (1000, 700))):
             v = standard()
             v.set_stores(*stores)
             self.assertTrue(v.open(awards=(TOP, TOP, TOP, TOP)))
-            full = (600 if g == 0 else 2000) * m
-            self.assertEqual(v.ts_state()[11 + g], full)
-            self.assertIn(f"loses {full} ", " ".join(v.ts_pages(1 + g)))
+            had = stores[0 if g == 0 else 1]
+            self.assertEqual(v.ts_state()[11 + g], had)
+            text = " ".join(v.ts_pages(1 + g))
+            self.assertIn(f"loses {had} ", text)
+            self.assertNotIn(f"loses {(600 if g == 0 else 2000) * m} ", text)
             v.play(g)
             self.assertEqual(v.stores()[0 if g == 0 else 1], 0)
+        for g, stores in ((0, (0, 5000)), (3, (1000, 0))):
+            v = standard()
+            v.set_stores(*stores)
+            self.assertTrue(v.open(awards=(TOP, TOP, TOP, TOP)))
+            text = " ".join(v.ts_pages(1 + g))
+            self.assertNotIn("loses", text)
+            self.assertIn("salvation." if g == 0 else "inconsistent results.", text)
+            v.play(g)
+            self.assertEqual(v.stores(), stores)
 
     def test_one_entry_and_nothing_at_a_save_before_the_last_page(self) -> None:
         v = standard()

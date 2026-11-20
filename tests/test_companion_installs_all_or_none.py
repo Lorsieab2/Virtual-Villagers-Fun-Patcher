@@ -287,6 +287,9 @@ class Case:
     mode: str = "collection_progression"
     present: tuple[str, ...] = ()
     test_build: bool = False
+    # Sites the companion installs as a group of their own, after the others ((va, length) per game): all of that
+    # group or none of it, never stopping the rest (the Golden Mushroom's finds record; its own tests cover it).
+    own_group: Callable[[int], list[tuple[int, int]]] = lambda g: []
 
     def dll_path(self) -> Path:
         if DLL_DIR:
@@ -296,6 +299,13 @@ class Case:
 
 def _startup(m: Machine, game: int) -> int:
     return m.export("VvfpStartup", game, 0)
+
+
+def _golden_record_site(game: int) -> list[tuple[int, int]]:
+    """The Golden Mushroom's finds record site: the row's last runtime detour (tests/test_golden_mushroom_art.py)."""
+    row = next(p for p in patcher.load_fun_patches() if p.id == f"vv{game}_super_secret_golden_mushroom")
+    last = row.raw["runtime_detours"][-1]
+    return [(int(last["va"], 16), len(last["stock_bytes"]) // 2)]
 
 
 def _with_origins(*rows: str):
@@ -320,7 +330,7 @@ CASES = [
          lambda g: [f"vv{g}_game_log"], _startup, reports=False),
     Case("Golden Mushroom", "assets/golden_mushroom/VVFP Golden Mushroom.dll", (1, 3, 4, 5),
          lambda g: [f"vv{g}_super_secret_golden_mushroom"],
-         lambda m, g: m.export(f"VvfpGoldenMushroomVv{g}")),
+         lambda m, g: m.export(f"VvfpGoldenMushroomVv{g}"), own_group=lambda g: _golden_record_site(g)),
     Case("Healers Study", "assets/healers_study/VVFP Healers Study.dll", (1, 2),
          lambda g: [f"vv{g}_healers_study_regardless_of_food"],
          lambda m, g: m.export("VvfpHealersStudyInstall", g)),
@@ -402,9 +412,23 @@ CASES = [
          lambda g: [f"vv{g}_scrolling_popups"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpScrollingPopupsInstalled"))[1]),
     # Fix Vanilla Bugs (The Lost Children .. New Believers): the justified paragraph's and the line fit's long-word steps.
+    # Fix Vanilla Bugs (The Secret City .. New Believers): the string table loader's epilogue / cookie-check call.
+    # (A New Home, The Lost Children write table pointers only, all or none through the same writer.)
+    Case("Text Fixes", "assets/text_fixes/VVFP Text Fixes.dll", (3, 4, 5),
+         lambda g: [f"vv{g}_fix_vanilla_bugs"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpTextFixesInstalled"))[1]),
     Case("Long Words", "assets/long_words/VVFP Long Words.dll", (2, 3, 4, 5),
          lambda g: [f"vv{g}_fix_vanilla_bugs"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpLongWordsInstalled"))[1]),
+    # Fix Vanilla Bugs (The Tree of Life): the frog block's jump to the companion's leaps on the river's water.
+    Case("VV4 Frogs", "assets/vv4_frogs/VVFP VV4 Frogs.dll", (4,),
+         lambda g: [f"vv{g}_fix_vanilla_bugs"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpVv4FrogsInstalled"))[1]),
+    # Fix Vanilla Bugs (A New Home, The Lost Children): the four herb cases of the completion routine (A New Home),
+    # the study continuation's plant pick (The Lost Children).
+    Case("Herb Study", "assets/herb_study/VVFP Herb Study.dll", (1, 2),
+         lambda g: [f"vv{g}_fix_vanilla_bugs"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpHerbStudyInstalled"))[1]),
     # Children Play Tag and Build Sandcastles (all five games): every call of the child pastime pick (three in The
     # Secret City).
     Case("Children Play", "assets/children_play/VVFP Children Play.dll", (1, 2, 3, 4, 5),
@@ -414,10 +438,27 @@ CASES = [
     Case("Gender Presentation", "assets/gender_presentation/VVFP Gender Presentation.dll", (1, 2, 3, 4, 5),
          lambda g: [f"vv{g}_gender_presentation"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpGenderPresentationInstalled", g))[1]),
+    # More Frequent Island Events (all five games): the trigger's draws of the next wait (two in New Believers).
+    Case("Island Frequency", "assets/island_frequency/VVFP Island Frequency.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_more_frequent_island_events"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpIslandFrequencyInstalled"))[1]),
     # The Aspiring Adventurer (all five games): its draw, popup and answer sites.
     Case("More Island Events", "assets/more_island_events/VVFP More Island Events.dll", (1, 2, 3, 4, 5),
          lambda g: [f"vv{g}_more_island_events"],
          lambda m, g: (m.export("VvfpStartup", g, 0), int(m.export("VvfpMoreIslandEventsInstalled") == g))[1]),
+    # Cloth Sacks for Yellow Fruit (The Tree of Life): the drop dispatcher's and the job events' entries, the
+    # Farming dispatcher's option test and the carried item's draw call.
+    Case("Cloth Sacks", "assets/cloth_sacks/VVFP VV4 Cloth Sacks.dll", (4,),
+         lambda g: [f"vv{g}_cloth_sacks_for_yellow_fruit"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpClothSacksInstalled"))[1]),
+    # Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life): the two caps, the use-up clamp, the two stack draws.
+    Case("Supply Cap", "assets/supply_cap/VVFP VV4 Supply Cap.dll", (4,),
+         lambda g: [f"vv{g}_up_to_99_supplies"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpSupplyCapInstalled"))[1]),
+    # Fix Vanilla Bugs (The Tree of Life): no tool harvest from an empty bush (the harvest's tool use).
+    Case("Empty Sources", "assets/empty_sources/VVFP VV4 Empty Sources.dll", (4,),
+         lambda g: [f"vv{g}_fix_vanilla_bugs"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpEmptySourcesInstalled"))[1]),
     # Popup When Believers Become Heathens (New Believers): the life tick's drift call and the drift's four
     # loss rolls' calls of rand.
     Case("Faith Notice", "assets/faith_notice/VVFP Faith Notice.dll", (5,),
@@ -435,6 +476,10 @@ CASES = [
     Case("Heathens Keep Masks", "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll", (5,),
          lambda g: [f"vv{g}_heathens_keep_masks_when_converted"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpHeathensKeepMasksInstalled"))[1]),
+    # Fog of Doom Lets Every Heathen Listen (New Believers): the drop handler's mask test.
+    Case("Fog Listening", "assets/fog_listening/VVFP Fog Listening.dll", (5,),
+         lambda g: [f"vv{g}_fog_of_doom_every_heathen_listens"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpFogListeningInstalled"))[1]),
     Case("Difficulty Settings", "assets/difficulty/VVFP Difficulty.dll", (4, 5),
          lambda g: [f"vv{g}_difficulty_settings"], _startup, reports=False),
     Case("VV1 Genetics", "assets/genetics/VVFP VV1 Genetics.dll", (1,),
@@ -492,6 +537,19 @@ class AllOrNoneTests(unittest.TestCase):
             # The row with what it requires (Work First needs Fix Huts, ...).
             ids = with_requirements(game, case.rows(game))
             exe = render(game, ids, case.mode)
+            own = case.own_group(game)
+
+            def in_own(va: int, n: int = 1, own=own) -> bool:
+                return any(va < a + size and a < va + n for a, size in own)
+
+            def outside_own(image: bytes, base: bytes, own=own, m_base=None) -> bytes:
+                # The image with the separate group's bytes as in `base` (that group is checked on its own).
+                out = bytearray(image)
+                for a, size in own:
+                    o = a - (m_base or 0)
+                    out[o:o + size] = base[o:o + size]
+                return bytes(out)
+
             with self.subTest(companion=case.name, game=game):
                 # 1. The install goes in: every site, protections back, cache flushed.
                 m = self.machine(case, game, exe)
@@ -512,7 +570,7 @@ class AllOrNoneTests(unittest.TestCase):
                 in_image = range(m.exe_base, m.exe_base + m.exe_size)
                 late_unlocks = [(i, hex(a)) for i, a, new, before, old in m.protect_log
                                 if a in in_image and new == PAGE_EXECUTE_READWRITE
-                                and old != PAGE_EXECUTE_READWRITE and before > 0]
+                                and old != PAGE_EXECUTE_READWRITE and before > 0 and not in_own(a)]
                 self.assertEqual(late_unlocks, [],
                                  "a site was made writable after another was already written")
                 # Every call that can still refuse the install: each one made
@@ -526,16 +584,18 @@ class AllOrNoneTests(unittest.TestCase):
                     m.fail_protect = k
                     result = case.call(m, game)
                     with self.subTest(failing_virtualprotect=k):
-                        self.assertEqual(m.image_writes, [],
+                        self.assertEqual([w for w in m.image_writes if not in_own(*w)], [],
                                          "a site was written (even if put back) although the install failed")
-                        self.assertEqual(m.image(), stock, "the game's code is untouched")
+                        self.assertEqual(outside_own(m.image(), stock, m_base=m.exe_base), stock,
+                                         "the game's code is untouched")
                         if case.reports:
                             self.assertEqual(result, 0, "the install reports itself not installed")
                         self.check_clean(m, f"VirtualProtect #{k} refused")
                         # 3. Asked again: all of it or none of it, never part.
                         case.call(m, game)
-                        again = m.image()
-                        self.assertIn(again, (stock, installed), "a later call left the feature in part")
+                        again = outside_own(m.image(), stock, m_base=m.exe_base)
+                        self.assertIn(again, (stock, outside_own(installed, stock, m_base=m.exe_base)),
+                                      "a later call left the feature in part")
                         self.check_clean(m, "asked again")
         if not ran:
             self.skipTest(_skip_reason(case, case.games[0]) or "nothing to run")

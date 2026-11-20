@@ -104,14 +104,40 @@
    "src": "L2099"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "A family invites someone spending the evening alone to join them. (Name1) feels relieved not to do everything alone.",
-   "src": "L2103"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "A family invites someone spending the evening alone to join them. Someone contributes a joke instead of useful advice.",
    "src": "L2107"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "A family invites someone spending the evening alone to join them. (Name1) feels relieved not to do everything alone.",
+   "src": "L2103",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L2103"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "A family invites someone spending the evening alone to join them. (Name1) feels relieved not to do everything alone.",
+   "src": "L2103"
   }
  }
 }

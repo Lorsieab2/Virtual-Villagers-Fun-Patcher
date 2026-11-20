@@ -1,0 +1,245 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Isolan at the Fire",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "s027_isolan_fire",
+  "source": "rewrites",
+  "lines": [
+   1255,
+   1301
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1255",
+  "ledger": [
+   {
+    "src": "L1257",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1258",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1266",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1275",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1256",
+    "kind": "note",
+    "why": "the writer's note, never shown"
+   },
+   {
+    "src": "L1263",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1264",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1267",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1276",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1269",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1272",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1278",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1281",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1284-1301",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L1273",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "It's a cold night, with a wet wind coming in off the sea and rain spitting in the fire.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "patches": [
+  "guardians_of_isola"
+ ],
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "believers_only": false,
+   "heathen_ok": true
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It's a cold night, with a wet wind coming in off the sea and rain spitting in the fire. The believers have crowded round the big cooking fire with the stew pot steaming in the middle, and everyone is wrapped up to the eyes.\nOut of the dark, without a word, an Isolan steps into the firelight. It's (subject). (subject.He/She) is soaked through, and (subject.his/her) painted mask is running a little in the rain. (subject.He/She) doesn't ask for anything. (subject.He/She) just sits down on the very edge of the circle, as far from everyone as (subject.he/she) can, and holds (subject.his/her) hands out to the warmth.\n(friend) is the one sitting closest. Everyone else is pretending, very hard, not to notice. Should (friend) offer the soaked Isolan a bowl of stew, or ask (subject.him/her) to leave the believers' fire?",
+   "choices": [
+    {
+     "label": "Offer a Bowl of Stew",
+     "next": "c1",
+     "src": "L1263"
+    },
+    {
+     "label": "Ask (subject.Him/Her) to Leave",
+     "next": "c2",
+     "src": "L1264"
+    }
+   ],
+   "src": "L1259-1261",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "It's a cold night, with a wet wind coming in off the sea and rain spitting in the fire. The faithful have crowded round the big cooking fire with the stew pot steaming in the middle, and everyone is wrapped up to the eyes.\nOut of the dark, without a word, an Isolan steps into the firelight. It's (subject). (subject.He/She) is soaked through, and (subject.his/her) painted mask is running a little in the rain. (subject.He/She) doesn't ask for anything. (subject.He/She) just sits down on the very edge of the circle, as far from everyone as (subject.he/she) can, and holds (subject.his/her) hands out to the warmth.\n(friend) is the one sitting closest. Everyone else is pretending, very hard, not to notice. Should (friend) offer the soaked Isolan a bowl of stew, or ask (subject.him/her) to leave the tribe's fire?"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "(subject) eats in complete silence, slowly, to the very last drop. Then (subject.he/she) hands back the bowl, nods once, and walks back out into the dark without a word. The next morning, (friend) opens (friend.his/her) door to find a neat, carefully stacked pile of dry firewood outside it, enough for a week. Nobody saw who brought it. (friend) builds a little lean-to shelter over it to keep the rain off, and is surprised to find how much (friend.he/she) enjoys working the wood. (friend.He/She) keeps building little things after that.",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "friend",
+     "like": "wood"
+    }
+   ],
+   "src": "L1270",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) eats, and then, to everyone's astonishment, (subject.he/she) starts talking. About the old ways of the island, from before the believers came. About the songs the Isolans sing to the tide, and the names they have for each of the stars, and the stories behind the names. (friend) brings more stew, and then more, and listens until the fire is nothing but ash and the rain has stopped. When (subject) finally leaves, the stew pot is empty and (friend)'s head is full of things nobody else in the village knows.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "min": 10,
+     "max": 20,
+     "skills": [
+      "Research"
+     ]
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L1273",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "(subject) eats, and then, to everyone's astonishment, (subject.he/she) starts talking. About the old ways of the island, from before the faithful came. About the songs the Isolans sing to the tide, and the names they have for each of the stars, and the stories behind the names. (friend) brings more stew, and then more, and listens until the fire is nothing but ash and the rain has stopped. When (subject) finally leaves, the stew pot is empty and (friend)'s head is full of things nobody else in the village knows."
+    }
+   ]
+  },
+  "c1": {
+   "text": "(friend) gets up, fills a bowl from the pot, right to the brim, and walks round the fire to hold it out. For a long moment (subject) just looks at it. Then (subject.he/she) lifts (subject.his/her) mask a little and takes the bowl in both hands...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1267"
+  },
+  "c2o1": {
+   "text": "(subject) gets up without arguing, without a word, and walks back out into the cold rain. Everyone around the fire starts talking again, a little too loudly. (friend) feels worse about it than (friend.he/she) ever expected. That night (friend.he/she) lies awake on (friend.his/her) mat listening to the rain on the roof and thinking about the Isolan out in it. And the next night. From then on, (friend) dreads lying down to sleep, because that's when (friend.he/she) remembers.",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "friend",
+     "dislike": "resting"
+    }
+   ],
+   "src": "L1279",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) shrugs. \"Your fire's too smoky anyway,\" (subject.he/she) says, standing up and pulling (subject.his/her) wet wrap tighter. \"You built it in the wind.\" And (subject.he/she) goes. Everyone sits there in silence. Then the wind gusts and blows a great cloud of smoke right into (friend)'s face, and (friend.he/she) coughs and coughs. It's true. The fire is far too smoky. The next day, (friend) moves the fire pit round behind the big rock, out of the wind. It's much better there. Nobody mentions why.",
+   "src": "L1282"
+  },
+  "c2": {
+   "text": "(friend) clears (friend.his/her) throat. \"This is the believers' fire,\" (friend.he/she) says, not unkindly, but not kindly either. \"I think you should go.\" The whole circle goes very quiet...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1276",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "(friend) clears (friend.his/her) throat. \"This is the faithful's fire,\" (friend.he/she) says, not unkindly, but not kindly either. \"I think you should go.\" The whole circle goes very quiet..."
+    }
+   ]
+  }
+ }
+}

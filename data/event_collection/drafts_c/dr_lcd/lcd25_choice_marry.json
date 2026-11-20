@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Choice Not to Marry",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd25_choice_marry",
+  "source": "draft_lcd",
+  "lines": [
+   344,
+   355
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L351",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L355",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager announces they are happy staying single: the family accepts it, or keeps hoping.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the family feast, (friend) asked (subject), for the hundredth time, when (subject.he/she) is going to find someone and settle down. (subject) put down (subject.his/her) bowl and said, calmly, that (subject.he/she) is perfectly happy on (subject.his/her) own and intends to stay that way. The whole family has gone silent. What happens now?",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "The Family Accepts It",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "The Family Keeps Hoping",
+     "next": "o2",
+     "src": "L353"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) looks at (subject) for a long time, then nods and says, \"Then I will stop asking.\" And (friend.he/she) does. Later, (friend) admits (friend.he/she) only asked because (friend.he/she) was worried (subject) was lonely. (subject) says (subject.he/she) is not. (friend) believes (subject.him/her).",
+   "src": "L351"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The family says nothing more that night, but over the next year, (subject) keeps finding single villagers mysteriously seated next to (subject.him/her) at every feast. (subject) is polite to all of them and goes home alone, perfectly content. Eventually, (friend) gives up.",
+   "src": "L355"
+  }
+ }
+}

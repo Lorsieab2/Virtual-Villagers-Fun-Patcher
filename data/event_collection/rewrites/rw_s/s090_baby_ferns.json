@@ -1,0 +1,223 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Baby in the Ferns",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s090_baby_ferns",
+  "source": "rewrites",
+  "lines": [
+   4216,
+   4259
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L4216",
+  "ledger": [
+   {
+    "src": "L4217",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4218",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4226",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4235",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4223",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4224",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4227",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4236",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4229",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4232",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4238",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4241",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4244-4259",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's late afternoon, and the jungle is steaming after a warm shower, every leaf dripping.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It's late afternoon, and the jungle is steaming after a warm shower, every leaf dripping. (subject) is walking home along the edge of the trees when (subject.he/she) hears crying. Thin, high, and very, very cross.\nIt's coming from a thick patch of ferns just off the path. (subject) pushes the wet fronds aside, and there, tucked in among the roots, wrapped tightly in a woven mat, is a baby. Red-faced, furious, and very much alive.\nThere's nobody else. (subject) calls out. Nobody answers. (subject.He/She) looks all round: no footprints, no basket, no sign of anyone, for a very long way in any direction. Just the dripping jungle, and the baby, who has stopped crying and is now looking at (subject) very hard. Should (subject) take the baby home, or search the jungle for the baby's parents first?",
+   "choices": [
+    {
+     "label": "Take the Baby Home",
+     "next": "c1",
+     "src": "L4223"
+    },
+    {
+     "label": "Search for the Parents",
+     "next": "c2",
+     "src": "L4224"
+    }
+   ],
+   "src": "L4219-4221"
+  },
+  "c1o1": {
+   "text": "(subject) raises the baby (subject.himself/herself). Alone. Plenty of people offer to help, and (subject.he/she) lets them, sometimes. But mostly it's (subject), walking up and down at night, singing the same three songs, learning all the things there are to learn about babies, the hard way. Nobody in the village has ever seen (subject.him/her) so tired. Or so happy. The baby still holds on to (subject.his/her) hair whenever (subject.he/she) picks the baby up.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4230",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) brings the baby home, and (friend) is at the door. (friend) takes one look at the little red furious face, and falls in love, there and then, at first sight, completely and forever. \"Is it... can we...?\" (friend) says. (subject) doesn't even have to answer. They raise the baby together, and the baby, who started off so cross, turns out to be the happiest, most smiling baby in the whole village.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4233",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) picks the baby up, mat and all, very carefully, the way someone would pick up a bird's nest. The baby grabs a fistful of (subject.his/her) hair and holds on tight. \"All right,\" (subject) says. \"All right. Let's go home.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4227"
+  },
+  "c2o1": {
+   "text": "(subject) searches for days. (subject.He/She) goes further into the jungle than (subject.he/she) has ever been. (subject.He/She) asks every fisher, every gatherer, every hunter. (subject.He/She) finds no one. Not a footprint, not a word, not a single sign. By the end of the week, the baby has spent every moment tied to (subject.his/her) chest, sleeping to the sound of (subject.his/her) heartbeat, and (subject) can't imagine giving the baby to anyone. The baby stays with (subject.him/her).",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4239",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Deep in the jungle, on the second day, (subject) hears weeping. (subject.He/She) follows it, and finds a frightened young couple huddled under a rock, filthy and exhausted. They were travelling, they say, and a storm caught them, and in the dark and the rain they set the baby down safe in the ferns to fight their way back to the path, and then they couldn't find the ferns again. They've been searching for two days. When they see the baby on (subject)'s chest, they both burst into tears. They come back to the village with (subject), and the baby, and {#made:only one of them can stay; the village has no room for more|only two of them can stay; the village has no room for more|stay}.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L4242",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "Somebody must be looking for this baby. (subject) ties the baby to (subject.his/her) chest with (subject.his/her) wrap and goes into the jungle, calling, searching, following every path, every broken twig, every bent fern (subject.he/she) can find...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4236"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L4242",
+   "before": "and the baby, and stay.",
+   "after": "and the baby, and {#made:only one of them can stay; the village has no room for more|only two of them can stay; the village has no room for more|stay}."
+  }
+ ]
+}

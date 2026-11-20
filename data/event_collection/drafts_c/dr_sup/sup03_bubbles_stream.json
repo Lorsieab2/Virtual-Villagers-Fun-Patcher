@@ -1,0 +1,100 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Bubbles in the Stream",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "sup03_bubbles_stream",
+  "source": "draft_sup",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "dr_sup",
+  "credit": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_sup",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 5-12)"
+   },
+   {
+    "src": "L32",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L41",
+    "kind": "instruction",
+    "text": "[effect: the village loses 1 bar of soap]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A bar of soap slips into the stream: chase it downstream, or let the stream have it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is washing at the stream with (friend) when the bar of soap shoots out of (subject.his/her) wet hands like a fish and lands in the water. It bobs away downstream, leaving a trail of bubbles. (friend) is already running after it, shrieking with delight.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Chase It Downstream",
+     "next": "o1",
+     "src": "L37"
+    },
+    {
+     "label": "Let the Stream Have It",
+     "next": "o2",
+     "src": "L40"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They chase it past the rocks, past the bend, past two very surprised fishers. (friend) finally scoops it out of the pool at the bottom, holding it up like a trophy. It is a little smaller than it was. Both of them are soaked to the waist. They walk home dripping, very pleased with themselves.",
+   "src": "L38"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Let it go,\" says (subject), laughing. They sit on the bank and watch the bubbles drift away toward the sea, until the last one pops. (friend) says the fish will be the cleanest fish on Isola. (subject) says that's the most useful thing anyone has done all day.",
+   "src": "L41",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "soap",
+     "min": -1,
+     "max": -1,
+     "src": "L41"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

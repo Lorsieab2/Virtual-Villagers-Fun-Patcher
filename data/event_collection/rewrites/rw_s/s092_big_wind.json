@@ -1,0 +1,220 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Big Wind",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s092_big_wind",
+  "source": "rewrites",
+  "lines": [
+   4307,
+   4350
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L4307",
+  "ledger": [
+   {
+    "src": "L4308",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4309",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4317",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4326",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4314",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4315",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4318",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4327",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4320",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4323",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4329",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4332",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4335-4350",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A great wind blows all night, howling round the huts like something trying to get in.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A great wind blows all night, howling round the huts like something trying to get in. Nobody sleeps. Things bang and crash and clatter in the dark, and every so often there's a long tearing sound, and everyone flinches.\nIn the morning, the village comes out blinking into a still, clear dawn, and looks around. Three huts have lost their roofs entirely. The fences are flat. Torn leaves are plastered over every wall like green paint. The cooking pots are halfway down the beach.\nAnd somebody's hammock is hanging from the very top of the tallest palm on the island, swinging gently, as if it's been put there on purpose. Should the builders start rebuilding right away, or should everyone clear up the mess first?",
+   "choices": [
+    {
+     "label": "Rebuild Right Away",
+     "next": "c1",
+     "src": "L4314"
+    },
+    {
+     "label": "Clean Up First",
+     "next": "c2",
+     "src": "L4315"
+    }
+   ],
+   "src": "L4310-4312"
+  },
+  "c1o1": {
+   "text": "The builders work day and night, by sunlight and then by torchlight, eating on the roofs, sleeping in turns. By the end of the week every roof is back on, every fence is standing, and the village looks better than before the wind. And the builders, who had to work faster and harder than ever, have learned more in one week than in a whole season: how to lash a roof pole so it holds, how to set a fence post so the wind can't pull it. They're all much better at their work for it.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 10,
+     "target": {
+      "skill": "Building"
+     }
+    },
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L4321",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The builders mend everything in three days. And while they're doing it, one of them, cursing at a roof pole that keeps slipping, comes up with a new way to tie a roof down: a clever double knot round the rafters, pinned with a wooden peg, that the wind just can't pull loose. It works so well that they use it on every hut. The researchers come and watch, and draw it, and write it up very carefully, so it's never forgotten. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L4324",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "The builders don't wait. Before breakfast they're up on the walls with fresh thatch and new poles and rope, and soon everyone who can carry anything is carrying it to them, while the children are sent to fetch the cooking pots back from the beach...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4318"
+  },
+  "c2o1": {
+   "text": "The cleanup takes the whole day, and most of the next. But it turns up piles of good wood among the wreckage: straight poles, solid branches, planks from a fence, all neatly stacked and ready for the builders. Nothing is wasted. The roofs still have to be mended afterwards, of course, and that's a job for the builders over the following days. The hammock comes down from the palm on the third day. Nobody will admit to having climbed up for it.",
+   "src": "L4330"
+  },
+  "c2o2": {
+   "text": "Under one of the biggest fallen branches, the clearing party find a nest of big speckled eggs, blown down from the treetops, somehow still whole. Then they find another. Then they find that the wind has shaken every coconut off every palm on the island, and they're lying everywhere, in heaps, in drifts, in the paths and the gardens and the doorways. By evening the store is full of eggs and coconuts. The roofs still have to be mended afterwards, but nobody minds as much on a full stomach. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L4333",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "Before anyone can build anything, the village has to be cleared. Everyone starts at one end and works to the other, hauling away the fallen branches, the broken poles, the torn thatch, the smashed baskets and the goats that have got into places goats shouldn't be...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4327"
+  }
+ }
+}

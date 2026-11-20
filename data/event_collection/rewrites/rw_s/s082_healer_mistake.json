@@ -1,0 +1,202 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer's Mistake",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s082_healer_mistake",
+  "source": "rewrites",
+  "lines": [
+   3850,
+   3893
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3850",
+  "ledger": [
+   {
+    "src": "L3851",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3852",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3860",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3869",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3857",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3858",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3861",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3870",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3863",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3866",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3872",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3875",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3878-3893",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has mixed up the jars.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has mixed up the jars. All the jars on the healers' shelf are exactly the same: the same brown clay, the same size, the same shape, none of them labelled, all lined up in a neat row. Usually (subject) remembers which is which.\nThis morning, (friend) came in with a bad cough, and (subject) gave (friend.him/her) a big spoonful from the third jar along. It was the remedy for a sore foot.\nNow (friend) is standing in the middle of the healers' hut, coughing, and also hopping, and also very confused, because (friend.his/her) foot has started tingling. (subject) is looking at the jar in (subject.his/her) hand with growing horror. \"Should I own up?\" (subject) thinks. \"Or maybe nobody will notice...\"",
+   "choices": [
+    {
+     "label": "Admit the Mistake",
+     "next": "c1",
+     "src": "L3857"
+    },
+    {
+     "label": "Hope Nobody Notices",
+     "next": "c2",
+     "src": "L3858"
+    }
+   ],
+   "src": "L3853-3855"
+  },
+  "c1o1": {
+   "text": "(subject) owns up at once, sits (friend) down, gives (friend.him/her) water to wash out the taste, and mixes up the right remedy, carefully this time, checking every ingredient twice. (friend)'s foot stops tingling by lunchtime, and the cough is much better by evening. (friend) even laughs about it, eventually. And that very afternoon, (subject) and the other healers go through every jar on the shelf, smell and taste and test each one, and paint a little picture on the side of each to show what it's for. It's the best thing they've done for the hospital in years.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "skills": [
+      "Healing"
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L3864",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) admits it straight away. But the foot remedy doesn't agree with (friend) at all. By the afternoon (friend)'s cough has turned into something much worse, deep and rattling, with a fever behind it, and (friend) has to stay in the hospital, wrapped in blankets. (subject) looks after (friend.him/her) day and night, without being asked, sitting up through every night, until (friend) is well again. It takes a week. (friend) forgives (subject.him/her) long before then.",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "friend"
+    }
+   ],
+   "src": "L3867",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) takes a deep breath. \"I'm so sorry,\" (subject.he/she) says. \"That was the wrong jar. That was for feet.\" (friend) stops hopping, mid-hop, and stares at (subject.him/her). Then at (friend.his/her) foot. Then back at (subject.him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3861"
+  },
+  "c2o1": {
+   "text": "(friend) notices. (friend) notices straight away, actually, because (friend.his/her) foot is still tingling and (friend.his/her) cough is not one bit better. And (friend) tells everyone. Everyone. At the well, at the fields, at the fire that night. By the next morning the whole village knows, and every time (subject) walks past, someone hops. (subject) is so embarrassed that (subject.he/she) can't bring (subject.himself/herself) to heal anyone for a week. And even after that, (subject.he/she) never quite enjoys mixing remedies the same way again.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "medicine",
+     "role": "subject"
+    }
+   ],
+   "src": "L3873",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(friend) shrugs, and thanks (subject), and hops off home. The cough gets better on its own over the next few days, as coughs do. So does the tingling. (friend) tells everyone the healers are wonderful. Nobody ever finds out. (subject) lies awake about it for a few nights. Then (subject.he/she) quietly scratches a little mark on the bottom of every jar, so it can never happen again.",
+   "src": "L3876"
+  },
+  "c2": {
+   "text": "(subject) puts the jar back on the shelf, quickly, and gives (friend) a big smile. \"That's normal,\" (subject.he/she) says. \"The tingling. It means it's working.\" (friend) looks at (subject.his/her) face for a long time...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3870"
+  }
+ }
+}

@@ -83,9 +83,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The cooks discover they used the same ingredients and burst out laughing.",
-   "src": "L71"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -105,14 +112,66 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The guests disagree cheerfully, and both pots are emptied.",
-   "src": "L74"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
    "text": "The guests ask for more bread instead of choosing a winner.",
    "src": "L75"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The cooks discover they used the same ingredients and burst out laughing.",
+   "src": "L71",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook1",
+     "mood": "good",
+     "src": "L71"
+    },
+    {
+     "do": "mood",
+     "role": "cook2",
+     "mood": "good",
+     "src": "L71"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The cooks discover they used the same ingredients and burst out laughing.",
+   "src": "L71"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The guests disagree cheerfully, and both pots are emptied.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L74"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The guests disagree cheerfully, and both pots are emptied.",
+   "src": "L74"
   }
  }
 }

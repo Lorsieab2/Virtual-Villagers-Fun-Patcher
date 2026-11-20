@@ -68,9 +68,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "The elder tells a funny childhood story.",
-   "src": "L7048"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -81,6 +88,25 @@
    "name": "Answer C",
    "text": "The elder keeps the toy and the memory to themselves.",
    "src": "L7052"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The elder tells a funny childhood story.",
+   "src": "L7048",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L7048"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "The elder tells a funny childhood story.",
+   "src": "L7048"
   }
  }
 }

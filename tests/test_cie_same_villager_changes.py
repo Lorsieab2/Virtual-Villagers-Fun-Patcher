@@ -37,7 +37,7 @@ from test_story_custom_island_event import (
 from story_custom_fixtures import RESULT_SIZE, unpack_result
 
 FATE_KILL, FATE_VANISH = 1, 2
-CHANGES_AT = 4 + 48 + 600 + 4 * 7 + 8 * Event.SPAWN_SIZE   # change_count, then the changes
+CHANGES_AT = 4 + 48 + Event.TEXT_BYTES + 4 * 7 + 8 * Event.SPAWN_SIZE   # change_count, then the changes
 LIKE, DISLIKE = 0, 1
 ADD, REMOVE = 0, 1
 

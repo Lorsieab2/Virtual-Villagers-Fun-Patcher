@@ -89,14 +89,41 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) feels (subject.his/her) forehead, asks a few questions and smiles. \"I think your stomach knows about the race,\" (friend.he/she) says. \"Nerves go straight to the belly in a lot of people.\" (friend.He/she) gives (subject) a little ginger root to chew. It tastes like fire. The stomach settles some. (subject) paddles the next day. (subject.He/she) doesn't remember who won. (subject.He/she) remembers the ginger.",
-   "src": "L233"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) decides (subject.he/she) is just being silly and goes back to bed. (subject.He/she) doesn't sleep much. In the morning, at the canoes, (subject.he/she) notices half the paddlers are rubbing their stomachs too. One of them is (grownup), a grown-up who has paddled for twenty years. \"Every time,\" (grownup) says. \"Every single race.\" (subject) feels oddly better knowing that.",
    "src": "L236"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) feels (subject.his/her) forehead, asks a few questions and smiles. \"I think your stomach knows about the race,\" (friend.he/she) says. \"Nerves go straight to the belly in a lot of people.\" (friend.He/she) gives (subject) a little ginger root to chew. It tastes like fire. The stomach settles some. (subject) paddles the next day. (subject.He/she) doesn't remember who won. (subject.He/she) remembers the ginger.",
+   "src": "L233",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L233"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) feels (subject.his/her) forehead, asks a few questions and smiles. \"I think your stomach knows about the race,\" (friend.he/she) says. \"Nerves go straight to the belly in a lot of people.\" (friend.He/she) gives (subject) a little ginger root to chew. It tastes like fire. The stomach settles some. (subject) paddles the next day. (subject.He/she) doesn't remember who won. (subject.He/she) remembers the ginger.",
+   "src": "L233"
   }
  }
 }

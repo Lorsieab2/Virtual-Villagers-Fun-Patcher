@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Floating Chest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b064_floating_chest",
+  "source": "balance",
+  "lines": [
+   2887,
+   2929
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2887",
+  "ledger": [
+   {
+    "src": "L2888",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2889",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2897",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2906",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2894",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2895",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2898",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2907",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2900",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2903",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2909",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2912",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2915-2929",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "After a night of storm, a villager sees a canoe wrecked on the outer reef, broken in two.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "After a night of storm, (subject) sees a canoe wrecked on the outer reef, broken in two. Nobody is in it. But floating in the lagoon, bumping against the shallows, is a wooden chest lined with matting, and from inside it comes a thin, steady wail.\nInside is a baby, dry and furious, tucked in with a water gourd and a bundle of soft cloth. Whoever was in the canoe put the baby in the chest when the storm hit. The fishers go out to the wreck, and find nobody else.\n(subject) is holding the baby, who has stopped crying to stare at (subject.him/her). What should (subject) do?",
+   "choices": [
+    {
+     "label": "Take the Baby Home",
+     "next": "c1",
+     "src": "L2894"
+    },
+    {
+     "label": "Keep Searching the Reef",
+     "next": "c2",
+     "src": "L2895"
+    }
+   ],
+   "src": "L2890-2892"
+  },
+  "c1o1": {
+   "text": "The fishers search the reef and the beaches for days. They find pieces of the canoe, and a paddle, and nothing more. Whoever loved the baby enough to put the little one in that chest is gone. (subject) never once lets anyone else take the baby home. The village builds a cradle from the chest's own wood, and the baby sleeps in it until (subject.he/she) is too big.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2901",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(friend) takes one look and starts clearing a space by the fire. By nightfall there's a sleeping basket, a stack of clean cloths and three neighbours offering advice. Nobody comes for the baby. The two of them take turns through the long nights, and in the mornings the baby wakes up laughing, which makes everything worth it.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2904",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) wraps the baby in the soft cloth from the chest and carries the little one up the beach. The baby grips (subject.his/her) finger hard, as if to make sure (subject.he/she) doesn't put the baby down...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2898"
+  },
+  "c2o1": {
+   "text": "They find no one. When (subject) comes back, cold and sore and empty-handed, the healers hand the baby straight back to (subject.him/her). \"The baby wouldn't stop crying for you,\" says the oldest healer. \"We think the baby has decided.\" (subject) takes the little one home that night, and for every night after.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2910",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They find no one. But a few weeks later, a canoe comes from a village two islands away, asking after a family lost in the storm. The baby has an aunt there, who cries when she sees the little one, and takes the baby home. (subject) waves them off from the beach, and is glad, and is sad, both at once.",
+   "src": "L2913"
+  },
+  "c2": {
+   "text": "(subject) passes the baby to the healers and paddles out to the wreck with the fishers. They search every crack in the reef, calling, until the tide turns...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2907"
+  }
+ }
+}

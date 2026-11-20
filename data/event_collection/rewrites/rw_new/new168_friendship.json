@@ -1,0 +1,233 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Friendship After No",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new168_friendship",
+  "source": "rewrites",
+  "lines": [
+   8140,
+   8185
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8140",
+  "ledger": [
+   {
+    "src": "L8141",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8142",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8150",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8157",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8164",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8146",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8147",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8148",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8151",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8158",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8165",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8152",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8154",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8159",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8161",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8166",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8168",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8171-8185",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Another villager asked a villager to the moonlight dance.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "name3": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(friend) asked (subject) to the moonlight dance. (subject) said no, kindly, honestly: (subject.he/she) just didn't feel that way.\nNow (subject) is terrified the friendship is over.\nThey have been avoiding each other at the well for a week. This is very difficult, because there is only one well. Yesterday they both arrived at exactly the same moment, froze, and then both turned and walked away in opposite directions, with empty jars. Today, (subject) waited behind a tree for twenty minutes until (friend) left. (friend), it turned out, was waiting behind a different tree. How can (subject) save the friendship?",
+   "choices": [
+    {
+     "label": "Clear the Air in Private",
+     "next": "c1",
+     "src": "L8146"
+    },
+    {
+     "label": "Go Fishing Like Old Times",
+     "next": "c2",
+     "src": "L8147"
+    },
+    {
+     "label": "Talk to a Mutual Friend",
+     "next": "c3",
+     "src": "L8148"
+    }
+   ],
+   "src": "L8143-8145"
+  },
+  "c1o1": {
+   "text": "(subject) explains how (subject.he/she) feels: that (subject.he/she) misses (friend), and hates this, and didn't say no because (subject.he/she) doesn't care. (subject.He/She) doesn't ask for anything in return. (friend) listens, and then, slowly, smiles. \"I miss you too. I've been drinking out of the stream for a week.\" They walk to the well together.",
+   "src": "L8153"
+  },
+  "c1o2": {
+   "text": "(friend) admits, honestly, that (subject.he/she) is still hurt, and needs some time apart before things can go back to normal. (subject) accepts that, though it stings. A few weeks later, (friend) nods to (subject.him/her) at the well. Then says hello. Then, one day, waits for (subject.him/her).",
+   "src": "L8155"
+  },
+  "c1": {
+   "text": "(subject) can't stand it anymore. (subject.He/She) walks up to (friend)'s hut, knocks on the door post, and asks if they can talk...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8151"
+  },
+  "c2o1": {
+   "text": "(friend) looks at the line for a long moment, then takes it. They spend a quiet afternoon fishing off the rocks like they used to, not talking about the dance at all, and catching absolutely nothing. It's perfect. They decide to go again tomorrow.",
+   "src": "L8160"
+  },
+  "c2o2": {
+   "text": "They go fishing, but it isn't the same. Over the afternoon, they discover they want different things from each other now, even though they still care. It's a quiet walk home. They part with a hug at the path, and both know something has changed. But not everything.",
+   "src": "L8162"
+  },
+  "c2": {
+   "text": "(subject) turns up at (friend)'s door with two fishing lines, and doesn't say anything at all. Just holds one out...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8158"
+  },
+  "c3o1": {
+   "text": "(Name3) listens to (subject), and later, to (friend), and doesn't take a side. Then (subject.he/she) invites them both to dinner on the same night, without telling either of them. It's very awkward for about a minute. Then (friend) laughs, and it's all right.",
+   "src": "L8167"
+  },
+  "c3o2": {
+   "text": "(Name3)'s advice makes everything much more confusing. Somehow it involves a goat, a misunderstanding from six years ago, and a theory about the moon. (subject) thanks (subject.him/her), and follows (subject.his/her) own judgment, which is to go and knock on (friend)'s door.",
+   "src": "L8169"
+  },
+  "c3": {
+   "text": "(subject) goes to (name3), who is friends with them both, and asks for help...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8165"
+  }
+ }
+}

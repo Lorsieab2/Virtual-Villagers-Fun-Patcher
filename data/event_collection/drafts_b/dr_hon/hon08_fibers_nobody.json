@@ -74,6 +74,32 @@
    "src": "L98"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "In the morning (subject) tells the weavers before they start. There's a groan, and the weaving is put off for a day. (friend) is disappointed, having cleared the whole day for it, and says so. That night (subject) soaks the fibers and checks them three times. The next day goes well.",
+   "src": "L101",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L101"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "In the morning (subject) tells the weavers before they start. There's a groan, and the weaving is put off for a day. (friend) is disappointed, having cleared the whole day for it, and says so. That night (subject) soaks the fibers and checks them three times. The next day goes well.",
    "src": "L101"

@@ -1,0 +1,45 @@
+{
+  "id": "vv5_collectible_frequency",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Collectible and Mushroom Frequency",
+  "description": "Mushrooms and collectibles appear on their own more or less often: 0.1 to 10 times as often, as you choose with the Collectible and Mushroom Frequency slider in the patcher window (it reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game; 1 unless you move it; type it in the box beside the slider too). Fog's doubling and the second roll in heavy weather are multiplied too. What appears, how many may lie out at once and for how long are the game's own. **Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. **Unverified in play** (checked by emulation of the game's own code). The companion is \"VVFP Collectible Frequency.dll\", started by VVFP More Companions.dll, and the slider's number is written beside it in \"VVFP Collectible Frequency.txt\"; nothing is written to a save.",
+  "output_tag": "Collectible Frequency",
+  "dependencies": [],
+  "conflicts": [],
+  "behavior_changes": [
+    "Collectible and Mushroom Frequency: the companion's sites 0x41464B, 0x414665 (see runtime_detours), installed only when the slider is not 1; N is read at start from \"VVFP Collectible Frequency.txt\" beside the companion in tenths (0.1 to 10; none is 1)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes (all of them, or none; an optional site another patch owns is left alone).",
+    "At 1x nothing is installed. The game's rand is never drawn more or less often: the companion's chances are its own numbers.",
+    "Nothing is written to a save, a villager record or a file; no text is shown."
+  ],
+  "evidence_status": "implemented from exact-build disassembly of the stock executable; the companion's install and its effect emulated on the rendered executable (tests/test_new_sliders.py); runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/collectible_frequency/VVFP Collectible Frequency.dll",
+      "destination": "VVFP Collectible Frequency.dll",
+      "sha256": "4C58487194F3CABBF4CA24BD9239114C19003BB003495B18F8E7A886FE6E5865"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x41464B",
+      "stock_bytes": "E810F0FEFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the appearance roll, rand(6000) < 3 (in fog < 6): the game's rand is called once by the companion, which scales the roll (from the bottom) so the test passes N times as often",
+      "installed_by": "VVFP Collectible Frequency.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x414665",
+      "stock_bytes": "E8F6EFFEFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the second roll above weather level 50, rand(6000) < 3: the game's rand is called once by the companion, which scales the roll (from the bottom) so the test passes N times as often",
+      "installed_by": "VVFP Collectible Frequency.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Magic Debate",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf26_magic_debate",
+  "source": "draft_lcf",
+  "lines": [
+   358,
+   369
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L358",
+  "ledger": [
+   {
+    "src": "L359",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks three adults)"
+   },
+   {
+    "src": "L365",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L369",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Three villagers argue whether magic is real power, striving, or talent: hold a public test, or leave it open.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) says magic is something truly arcane, beyond understanding. (friend) says it is just people pushing past their natural limits. (third) says it is talent and will, nothing more. They want to settle it once and for all. How?",
+   "src": "L361",
+   "choices": [
+    {
+     "label": "Hold a Public Test",
+     "next": "o1",
+     "src": "L363"
+    },
+    {
+     "label": "Leave It Open",
+     "next": "o2",
+     "src": "L367"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They hold a test: each tries to light a fire without a spark, their own way. (subject) fails. (friend) fails. (third) sits for an hour, and the kindling starts to smoke, and then, very slowly, catches. All three say it proves their point.",
+   "src": "L365"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They agree that it is unknowable, and that this is the most interesting thing about it. They argue happily every evening for a season, without anyone winning. The children start a fourth school: that magic is made of fish.",
+   "src": "L369"
+  }
+ }
+}

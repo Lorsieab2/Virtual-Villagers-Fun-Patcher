@@ -66,7 +66,8 @@
      "max": 30,
      "src": "L8988"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "text": "Some improve, while others develop troubling complications.",
@@ -79,11 +80,20 @@
      "max": -10,
      "src": "L8989"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
-   "text": "No one improves, but the researchers learn about the illness.",
-   "src": "L8990"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a3__fx"
+    },
+    {
+     "next": "a3__text"
+    }
+   ]
   },
   "a4": {
    "text": "A patient dies, prompting a public examination of the healer's conduct.",
@@ -95,7 +105,8 @@
      "cause": "unknown",
      "src": "L8991"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_a": {
    "type": "branch",
@@ -130,15 +141,24 @@
      "max": 30,
      "src": "L8993"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "The illness spreads and the hospital is overwhelmed.",
    "src": "L8994"
   },
   "b3": {
-   "text": "Another healer finds a more reliable approach.",
-   "src": "L8995"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b3__fx"
+    },
+    {
+     "next": "b3__text"
+    }
+   ]
   },
   "set_b": {
    "type": "branch",
@@ -159,8 +179,16 @@
    "src": "L8997"
   },
   "c2": {
-   "text": "A harmful ingredient is discovered.",
-   "src": "L8998"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
   },
   "c3": {
    "text": "A rival scholar steals the notes and claims the discovery.",
@@ -179,6 +207,57 @@
      "next": "c3"
     }
    ]
+  },
+  "a3__fx": {
+   "text": "No one improves, but the researchers learn about the illness.",
+   "src": "L8990",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8990"
+    }
+   ],
+   "auto_text": true
+  },
+  "a3__text": {
+   "text": "No one improves, but the researchers learn about the illness.",
+   "src": "L8990"
+  },
+  "b3__fx": {
+   "text": "Another healer finds a more reliable approach.",
+   "src": "L8995",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8995"
+    }
+   ],
+   "auto_text": true
+  },
+  "b3__text": {
+   "text": "Another healer finds a more reliable approach.",
+   "src": "L8995"
+  },
+  "c2__fx": {
+   "text": "A harmful ingredient is discovered.",
+   "src": "L8998",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8998"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "text": "A harmful ingredient is discovered.",
+   "src": "L8998"
   }
  },
  "requirement": {

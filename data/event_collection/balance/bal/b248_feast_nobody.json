@@ -1,0 +1,308 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Feast Nobody Planned",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b248_feast_nobody",
+  "source": "balance",
+  "lines": [
+   11584,
+   11626
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11584",
+  "ledger": [
+   {
+    "src": "L11585",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11586",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11594",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11603",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11591",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11592",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11595",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11604",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11597",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11600",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11606",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11609",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11612-11626",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It started with a villager bringing a single fish to the cooking fire.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "cook": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It started with (subject) bringing a single fish to the cooking fire. Then someone else brought some yams to go with it. Then somebody's aunt brought a pot of stew \"because it would only go to waste\", and the children brought mangoes, and the farmers brought sweet potatoes, and by mid-afternoon there is enough food spread on the mats to feed the village twice.\n(cook), the head cook, stands with (subject.his/her) hands on (subject.his/her) hips. \"Nobody told me there was a feast,\" (subject.he/she) says. \"Is there a feast?\"\nEveryone looks at (subject), since it was (subject.his/her) fish. Should (subject) call it a feast, or tell everyone to pack the extra away for later?",
+   "choices": [
+    {
+     "label": "Call It a Feast",
+     "next": "c1",
+     "src": "L11591"
+    },
+    {
+     "label": "Pack It Away for Later",
+     "next": "c2",
+     "src": "L11592"
+    }
+   ],
+   "src": "L11587-11589",
+   "text_only": [
+    {
+     "src": "L11587",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "It goes on until the moon is high. The children fall asleep in heaps, the elders tell stories nobody has heard in years, and (cook) is carried around the fire on two people's shoulders, protesting the whole way. In the morning the stores are a little lighter. Nobody cares.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L11598",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) feels responsible, so (subject) makes sure nothing goes to waste. (subject.He/She) eats the fish, the yams, the stew, three mangoes, the sweet potatoes, and finally, at (cook)'s insistence, a second bowl of stew. Then (subject.he/she) lies on (subject.his/her) back groaning for the rest of the night. For a long time afterwards, the smell of the cooking fire makes (subject.him/her) feel slightly ill.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L11601",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "\"It's a feast,\" says (subject). A cheer goes up. The drummers fetch their drums, and (cook) throws (subject.his/her) hands in the air and starts giving orders...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11595"
+  },
+  "c2o1": {
+   "text": "(cook) has always grumbled about the food store, which (subject.he/she) calls \"the cave of rotting things,\" and has never been able to stand the sticky smell of fruit and berries heaped up in baskets. But with everyone helping, it gets cleaned out, sorted and filled in one afternoon, and by evening it smells of fresh leaves instead of old fish and bruised fruit. (cook) stands in the doorway, breathing in, and finds that the smell of a basket of ripe fruit doesn't turn (subject.his/her) stomach any more. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "children": [
+    {
+     "next": "c2o1_c1"
+    }
+   ],
+   "src": "L11607",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The food goes into the store, and the village goes to bed early, a little put out. The children sulk the most. The next day the stew is reheated and served at lunch, and it tastes even better the second time, which (cook) says (subject.he/she) could have told everyone. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11610",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"Let's not waste it,\" says (subject). There is some grumbling, but people start wrapping food in leaves and carrying it to the store. (cook) supervises, and finds the job oddly pleasant...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11604",
+   "text_only": [
+    {
+     "src": "L11604",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "eating",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "cook",
+     "remove": true,
+     "dislike": "fruit"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       3
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  }
+ }
+}

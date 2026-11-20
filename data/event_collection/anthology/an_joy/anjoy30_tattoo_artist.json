@@ -162,9 +162,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(adult) enjoys the design for a festival.",
-   "src": "L29124"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -221,6 +228,25 @@
      "src": "L29131"
     }
    ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(adult) enjoys the design for a festival.",
+   "src": "L29124",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "adult",
+     "mood": "good",
+     "src": "L29124"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(adult) enjoys the design for a festival.",
+   "src": "L29124"
   }
  }
 }

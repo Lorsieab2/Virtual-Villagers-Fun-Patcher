@@ -149,7 +149,8 @@
     {
      "next": "u"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "u1": {
    "text": "{v17_u1}",

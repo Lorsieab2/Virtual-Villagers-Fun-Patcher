@@ -1,0 +1,530 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_hum",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "hum01_peel_three": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "hum02_puddle_deeper": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "hum03_stomach_joined": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder",
+    "subject"
+   ]
+  },
+  "hum04_hammock_won": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hum05_burp_came_back": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hum06_battle_fishy": {
+   "filters": [
+    "F22"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F22"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend",
+    "elder"
+   ]
+  },
+  "hum07_knock_knock_joke": {
+   "filters": [
+    "F08"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F08"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hum08_wrong_hut": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hum09_pot_wouldnt_come": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hum10_promised_prank": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "hum11_piglet_escort": {
+   "filters": [
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F19"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hum12_spin_kept_going": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hum13_after_you_after": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hum14_blame_pig": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "hum15_midnight": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hum16_coconut_knew": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1__fx": [
+     "F06"
+    ]
+   }
+  },
+  "hum17_freshly_dyed_mat": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hum18_riddle_answer": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "elder"
+   ]
+  },
+  "hum19_tangled_blessing": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1__fx": [
+     "F25"
+    ],
+    "o1__text": [
+     "F25"
+    ]
+   }
+  },
+  "hum20_echo_talked_back": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hum21_catch_season": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "hum22_potion_made": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "fisher"
+   ]
+  },
+  "hum23_charm_worked": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F26"
+    ],
+    "setup": [
+     "F26"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "hum24_slowest_sinking": {
+   "filters": [
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F19"
+    ]
+   }
+  },
+  "hum25_sand_everything": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hum26_snoring_duet": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "hum27_overripe_mango": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "hum28_purple_mouths": {
+   "filters": [
+    "F11"
+   ],
+   "notes": [
+    "Emotional distress"
+   ],
+   "nodes": {
+    "o2": [
+     "F11"
+    ]
+   }
+  },
+  "hum29_tallest": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hum30_breadfruit_joke": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hum31_coconut_nobody": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "hum32_biggest_splash": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hum33_covered_burrs": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hum34_guava_sleeve": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "elder"
+   ]
+  },
+  "hum35_inside_out": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "hum36_pins_needles": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "hum37_slapped_fish": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ],
+    "o2": [
+     "F25"
+    ]
+   }
+  },
+  "hum38_hair_nest": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hum39_log": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "child"
+   ]
+  },
+  "hum40_rope_swing": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "hum41_frog_sang_along": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hum42_sticky_fingers": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F26"
+    ]
+   }
+  },
+  "hum43_tug_war_nobody": {
+   "filters": [
+    "F15"
+   ],
+   "notes": [
+    "Historical suffering"
+   ],
+   "nodes": {
+    "setup": [
+     "F15"
+    ]
+   },
+   "speaks": [
+    "judge"
+   ]
+  },
+  "hum44_crab_longest": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "hum45_do_me_next": {
+   "filters": [
+    "F13",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1__fx": [
+     "F13"
+    ],
+    "o1__text": [
+     "F13"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hum46_stilts": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hum47_much_soap_root": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "setup": [
+     "F04"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hum48_grand_exit": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hum49_fishing_their": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "hum50_washing_day_wind": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ]
+   }
+  }
+ }
+}

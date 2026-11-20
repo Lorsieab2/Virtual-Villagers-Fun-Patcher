@@ -70,6 +70,32 @@
    "src": "L101"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(friend) spends the afternoon on the beach and comes back with a stone that's almost exactly the same. \"For when one isn't enough,\" (friend.he/she) says. (subject) laughs for the first time in days. The worry is still there. It just feels a little smaller with two stones.",
+   "src": "L104",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L104"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(friend) spends the afternoon on the beach and comes back with a stone that's almost exactly the same. \"For when one isn't enough,\" (friend.he/she) says. (subject) laughs for the first time in days. The worry is still there. It just feels a little smaller with two stones.",
    "src": "L104"

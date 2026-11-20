@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Game of the Ancestors",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj08_game_ancestors",
+  "source": "draft_lcj",
+  "lines": [
+   106,
+   117
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L106",
+  "ledger": [
+   {
+    "src": "L107",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two children and an elder)"
+   },
+   {
+    "src": "L113",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L117",
+    "kind": "instruction",
+    "text": "[effect: small Parenting skill for (name3)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L117",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Children revive an old stone game but change all the rules: let them, or teach the old rules.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) found the old stone game board carved into a rock by the shore, and have started playing it, with rules they made up. (third), who played it as a child, is horrified: they are moving the stones backwards. What should (third) do?",
+   "src": "L109",
+   "choices": [
+    {
+     "label": "Let Them Play Their Way",
+     "next": "o1",
+     "src": "L111"
+    },
+    {
+     "label": "Teach the Old Rules",
+     "next": "o2",
+     "src": "L115"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(third) watches, and tries not to say anything. The children's version is fast and loud and very silly. One afternoon, (third) asks to play. (third.He/she) loses badly, and laughs.",
+   "src": "L113"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(third) teaches them the old rules. The children find it slow. Then they find the clever moves, and become obsessed. Within a month they beat (third), who is very proud.",
+   "src": "L117",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "third",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L117"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

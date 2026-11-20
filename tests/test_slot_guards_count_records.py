@@ -814,21 +814,29 @@ class VV345RecordGuards(unittest.TestCase):
 
     def test_the_vial_and_the_crystal_ask_for_records_first(self):
         for game, mode, slots in each345(self, ("vv3",)):
-            # the Vial: two copies
-            for demand, offered in ((slots - 2, True), (slots - 1, False)):
+            # the vials' shared condition 0x417590, after its picker (0x4175A5): the amber
+            # vial (vtable 0x47F048) makes two copies; the obsidian vial (0x47F008) none
+            for vtable, demand, subject, offered in (
+                    (0x47F048, slots - 2, 0x1234, True), (0x47F048, slots - 1, 0x1234, False),
+                    (0x47F048, 0, 0, False),
+                    (0x47F008, slots, 0x1234, True), (0x47F008, 0, 0, False)):
                 v = Village345(game, mode, slots, demand, corpses=4)
-                where = v.run(0x4178DA, {}, {UC_X86_REG_EAX: 0x1234, UC_X86_REG_ESI: OBJ},
+                v.uc.mem_write(OBJ, struct.pack("<I", vtable))
+                where = v.run(0x4175A5, {}, {UC_X86_REG_EAX: subject, UC_X86_REG_ESI: OBJ},
                               stack=(0xAAAA, SENTINEL))
                 self.assertEqual(where, "returned")
-                self.assertEqual(v.reg(UC_X86_REG_EAX) & 0xFF, int(offered), demand)
-                self.assertEqual(v.dword(OBJ + 4), 0x1234, "the subject is kept as before")
+                self.assertEqual(v.reg(UC_X86_REG_EAX) & 0xFF, int(offered), (hex(vtable), demand, subject))
+                self.assertEqual(v.dword(OBJ + 4), subject, "the subject is kept as before")
                 self.assertEqual(v.reg(UC_X86_REG_ESI), 0xAAAA)
-            # the Crystal: one reflection (its own condition is eax < 2)
-            for demand, chapter, offered in ((slots - 1, 1, True), (slots, 1, False), (0, 2, False)):
-                v = Village345(game, mode, slots, demand, corpses=4)
-                where = v.run(0x41580C, {}, {UC_X86_REG_EAX: chapter}, stack=(SENTINEL,))
-                self.assertEqual(where, "returned")
-                self.assertEqual(v.reg(UC_X86_REG_EAX) & 0xFF, int(offered), (demand, chapter))
+            # the Crystal's own condition 0x415750 ends in the room predicate (stock tail
+            # jump), which the room site makes count the records' demand
+            pe = render345(game, mode, slots)
+            self.assertEqual(pe.get_data(0x15775, 5), bytes.fromhex("E9B6A60400"), "jmp 0x45FE30")
+            # The Bitter Brown Beans / The Ancient Tablet (0x4157E0) and The Mango and the
+            # Papaya (0x4178B0) make no villager: their conditions keep the stock bytes
+            stock = (STOCK / VV345[game]["exe"]).read_bytes()
+            for rva, size in ((0x1580C, 11), (0x178DA, 10)):
+                self.assertEqual(pe.get_data(rva, size), stock[rva:rva + size], hex(rva))
             # the Crystal's keep: nothing changes without a record
             for demand, kept in ((slots - 1, True), (slots, False)):
                 v = Village345(game, mode, slots, demand, corpses=4)

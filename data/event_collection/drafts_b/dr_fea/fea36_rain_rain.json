@@ -69,14 +69,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"I just think it'll rain,\" says (subject). \"I need to think it'll rain.\" (friend) softens. \"Then I hope you're right.\" The next day it doesn't rain. Or the day after. On the third day, it pours. (subject) says, \"Told you.\" (friend) says, \"That's three days.\" They're both soaking wet and too happy to argue.",
-   "src": "L434"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) suggests carrying water from the stream, just in case. (subject) grumbles but helps. They water the whole garden by hand. That night it rains heavily. All that carrying for nothing. \"Better safe,\" says (friend). \"Better dry,\" says (subject), soaked, from the doorway.",
    "src": "L437"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I just think it'll rain,\" says (subject). \"I need to think it'll rain.\" (friend) softens. \"Then I hope you're right.\" The next day it doesn't rain. Or the day after. On the third day, it pours. (subject) says, \"Told you.\" (friend) says, \"That's three days.\" They're both soaking wet and too happy to argue.",
+   "src": "L434",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L434"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L434"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I just think it'll rain,\" says (subject). \"I need to think it'll rain.\" (friend) softens. \"Then I hope you're right.\" The next day it doesn't rain. Or the day after. On the third day, it pours. (subject) says, \"Told you.\" (friend) says, \"That's three days.\" They're both soaking wet and too happy to argue.",
+   "src": "L434"
   }
  }
 }

@@ -1,0 +1,202 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Naming Stone at the Spring",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b328_naming_stone",
+  "source": "balance",
+  "lines": [
+   15172,
+   15212
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15172",
+  "ledger": [
+   {
+    "src": "L15173",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15174",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15181",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15190",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15178",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15179",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15182",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15191",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15184",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15187",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15193",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15196",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15199-15212",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At the spring in the hills stands a flat grey stone covered in scratched names, some so old they are almost worn away.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the spring in the hills stands a flat grey stone covered in scratched names, some so old they are almost worn away. The custom is that anyone who wants a new start can scratch their name into it, wash their hands in the spring, and walk away with a new name. Hardly anybody does it any more.\n(Name) has had a hard year, and has walked up to the stone with a sharp shell in (his/her) hand. Should (he/she) scratch (his/her) name into the stone, or just wash in the spring and go home as (himself/herself)?",
+   "choices": [
+    {
+     "label": "Scratch (His/Her) Name",
+     "next": "c1",
+     "src": "L15178"
+    },
+    {
+     "label": "Just Wash",
+     "next": "c2",
+     "src": "L15179"
+    }
+   ],
+   "src": "L15175-15176"
+  },
+  "c1o1": {
+   "text": "As the water runs off (his/her) fingers, a new name rises in (name)'s mind, as clear as if someone had spoken it. (He/She) walks back down to the village and introduces (himself/herself) by it, and somehow everyone just accepts it, the way people accept a change in the weather. From that day on (he/she) is (made1), and the hard year belongs to someone else.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L15185",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Nothing comes. (Name) kneels there, waiting for a new name, while the spring bubbles over the stones. In the end (he/she) laughs, and takes the oldest name on the stone instead, the one at the very top, almost worn away: \"Kayak\" if (he/she) is a man, \"Unagi\" if a woman. The children love it. Within a week nobody can remember (him/her) being called anything else.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L15188",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) scratches (his/her) name into an empty corner of the stone, letter by letter. Then (he/she) kneels and washes (his/her) hands in the cold spring...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15182"
+  },
+  "c2o1": {
+   "text": "The spring, it seems, doesn't care whether anyone scratches the stone or not. When (name) lifts (his/her) dripping face, (his/her) old name has gone, washed away like dirt, and no new one has come to take its place. The elders say the spring sometimes does that to people who come to it with heavy hearts. The village calls (him/her) \"?\" until one turns up.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L15194",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "It's just cold water, very cold. But (name) walks home feeling as if (he/she) has put down something heavy. (He/She) keeps (his/her) name, and the hard year starts to feel like a year that is over. The next morning, (he/she) gets up early and goes to work for the first time in months, and finds (he/she) doesn't dread it at all.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "work",
+     "role": "subject"
+    }
+   ],
+   "src": "L15197",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) puts the shell back in (his/her) pocket and kneels to wash (his/her) face in the spring instead. The water is so cold it makes (his/her) teeth ache...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15191"
+  }
+ }
+}

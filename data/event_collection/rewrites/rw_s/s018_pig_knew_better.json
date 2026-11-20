@@ -1,0 +1,227 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pig Who Knew Better",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s018_pig_knew_better",
+  "source": "rewrites",
+  "lines": [
+   820,
+   863
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L820",
+  "ledger": [
+   {
+    "src": "L821",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L822",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L830",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L839",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L827",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L828",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L831",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L840",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L833",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L836",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L842",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L845",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L848-863",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L846",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "A villager has been trying to plant one row of seeds for an hour.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has been trying to plant one row of seeds for an hour. The soil is baked as hard as a rock, the sun is high and merciless, and sweat is running into (his/her) eyes. (He/She) has broken one digging stick and is working on breaking a second.\nA pig has been watching (him/her) the entire time. A big, mud-coloured pig, lying in the shade of a bush, chewing something, with an expression of deep and patient pity.\nFinally the pig sighs, heaves itself up, and walks over. It shoves (name) aside with its shoulder, roots up the whole row in three quick snorts, leaving the soil dark and crumbly, and then lies down in the sun right where (name) was standing. (Name) is stunned that a pig just bested (him/her) at (his/her) job...!",
+   "choices": [
+    {
+     "label": "Do It the Pig's Way",
+     "next": "c1",
+     "src": "L827"
+    },
+    {
+     "label": "Shoo the Pig",
+     "next": "c2",
+     "src": "L828"
+    }
+   ],
+   "src": "L823-825"
+  },
+  "c1o1": {
+   "text": "The seeds come up in four days, faster and greener than any in the village. People come from the other fields to look. They ask (name) what (he/she) did. (Name) says (he/she) has been \"trying a new method.\" (He/She) starts digging all (his/her) rows the pig's way, loose and deep, and gets better at it every day. (Name) never, ever admits where (he/she) learned it, not even when the pig wanders past the fields and snorts at (him/her) in a very knowing way.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 20,
+     "max": 30,
+     "skills": [
+      "Farming"
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L834",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The pig's way works so well that (name) starts following the pig around. Everywhere it roots, (name) watches. Where it digs, (name) plants. Which plants it eats and which it leaves alone, (name) writes down. It is a very undignified season. People talk. But by harvest time (name)'s fields are the best on the island, heavy and green and overflowing, and (he/she) is, without any argument, the best farmer in the village. At the harvest feast (name) saves the best scraps from (his/her) plate and leaves them, quietly, under a certain bush.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Farming"
+     ],
+     "set": 100,
+     "role": "subject"
+    }
+   ],
+   "src": "L837",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) looks at the pig. The pig does not look at (name). With great dignity, (name) kneels down, digs (his/her) fingers into the loose soil the way the pig's snout went in, and plants the seeds...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L831"
+  },
+  "c2o1": {
+   "text": "The pig leaves. (Name) plants the seeds in the hard ground (his/her) own way, waters them, waits. The seeds don't come up. Not one. (He/She) tries again. Nothing. Across the field, the pig is lying in the shade watching (him/her), and (name) is absolutely certain it knew. Something goes out of (him/her) after that. (Name) starts to dread the fields, does the work badly and with a scowl, and gets worse at it every week.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Farming"
+     ],
+     "min": -10,
+     "max": -10,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "turnips",
+     "role": "subject"
+    }
+   ],
+   "src": "L843",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The pig leaves, deeply offended. It walks straight across the field, straight through the village, straight into the vegetable store, and eats a whole basket of the village's best roots on its way out, slowly, looking at (name) the entire time. Nobody manages to stop it. Nobody really tries. It's a very big pig.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L846"
+  },
+  "c2": {
+   "text": "\"Thank you,\" says (name), stiffly, \"but I know what I'm doing.\" (He/She) flaps (his/her) arms. The pig opens one eye, looks at (him/her) for a long moment, then gets up and walks off with its nose in the air...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L840"
+  }
+ }
+}

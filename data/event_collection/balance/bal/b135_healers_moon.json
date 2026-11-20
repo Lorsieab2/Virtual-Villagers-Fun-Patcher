@@ -1,0 +1,253 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healers' Moon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b135_healers_moon",
+  "source": "balance",
+  "lines": [
+   6189,
+   6233
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6189",
+  "ledger": [
+   {
+    "src": "L6190",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6191",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6199",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6208",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6196",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6197",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6200",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6209",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6202",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6205",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6211",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6214",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6217-6233",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Once every few years the moon rises the colour of a ripe mango, huge and low over the sea.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Once every few years the moon rises the colour of a ripe mango, huge and low over the sea. The healers call it the Healers' Moon. They say that any medicine made under its light works twice as well, and that the plants on the cliff that only flower at night will open for it.\nTonight is the night. Half the village is sick with a cough that won't go away, and the healers' baskets are empty. (subject) has been sent to decide: climb the cliff for the night-flowers, or stay at the hut and brew everything they have under the moon.\nThe cliff is steep in the dark. The hut has only old herbs. Which should (subject) choose?",
+   "choices": [
+    {
+     "label": "Climb for the Night-Flowers",
+     "next": "c1",
+     "src": "L6196"
+    },
+    {
+     "label": "Brew at the Hut",
+     "next": "c2",
+     "src": "L6197"
+    }
+   ],
+   "src": "L6192-6194"
+  },
+  "c1o1": {
+   "text": "(subject) fills two baskets and climbs down shaking but whole. The healers brew all night under the orange moon, singing the old songs, and by morning the cough has gone from every hut in the village. The healers learn more about the night-flowers in that one night than in the last twenty years, and write it all down on bark before they forget.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 10,
+     "max": 10,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L6203",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "On the way down, the cliff edge breaks off under (subject)'s foot. (subject.He/She) slides the last bit on (subject.his/her) back and arrives at the bottom bruised and bleeding, still clutching the baskets. The healers patch (subject.him/her) up and brew the flowers in the same breath. The cough is gone by morning. (subject) is the last one in the village still in bed.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L6206",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) climbs by moonlight, which is bright enough to read by. Halfway up the cliff, the flowers start to open all around (subject.him/her), pale and glowing, with a sound like a hundred tiny breaths...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6200"
+  },
+  "c2o1": {
+   "text": "The old saying turns out to be true. Under the orange moon, even the old herbs work twice as well. By morning the cough is gone from every hut, and the village wakes up hungry and loud. The cooks make a big breakfast to celebrate, and the healers sleep through all of it.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L6212",
+   "text_only": [
+    {
+     "src": "L6212",
+     "what": "\"celebrate\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Most of the pots do nothing. One pot, a mixture of four things nobody would ever have put together, cures the two sickest people in the village overnight. Nobody wrote down what was in it. The healers spend the whole next day arguing about it, and get so confused they forget things they used to know. \"It had bark in it,\" says (healer). \"Definitely bark.\"",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "random": 2
+     }
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": -5,
+     "max": -5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L6215",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) empties every basket onto the floor of the hut: old roots, dried leaves, bits of bark nobody can name. The healers sit in a circle in the moonlight and start brewing everything, one pot after another...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6209"
+  }
+ }
+}

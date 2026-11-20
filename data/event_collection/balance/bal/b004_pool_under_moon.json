@@ -1,0 +1,194 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pool Under the Moon Rock",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b004_pool_under_moon",
+  "source": "balance",
+  "lines": [
+   162,
+   203
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L162",
+  "ledger": [
+   {
+    "src": "L163",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L164",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L172",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L181",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L169",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L170",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L173",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L182",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L175",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L178",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L184",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L187",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L190-203",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "High in the hills there's a pool that the elders call the Moon Pool, because of the pale rock that hangs over it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "High in the hills there's a pool that the elders call the Moon Pool, because of the pale rock that hangs over it. The story goes that the rock fell from the sky long ago, and that its dust in the water makes the pool \"remember\" whoever looks into it. Most people think it's a story for keeping children away from a deep pool.\n(Name) has come up anyway, on a dare. The water is perfectly still and shines with a faint, milky light even in the shade. When (he/she) leans over, the reflection is a little too sharp, like a carving of (him/her) rather than a picture.\n(Name)'s friends are waiting at the bottom of the hill to hear what happened. Should (he/she) touch the water, or leave it alone?",
+   "choices": [
+    {
+     "label": "Touch the Water",
+     "next": "c1",
+     "src": "L169"
+    },
+    {
+     "label": "Drop a Stone In",
+     "next": "c2",
+     "src": "L170"
+    }
+   ],
+   "src": "L165-167"
+  },
+  "c1o1": {
+   "text": "The pool bulges, and {#made:one person climbs|two people climb|three people climb} out of it, dripping and blinking. {#made:The newcomer is|Both of them are|All three are} (name), down to the scar on (his/her) knee and the way (he/she) hums when nervous. They like what (name) likes and hate what (name) hates, and they argue about it with (name) all the way down the hill. The village decides that everyone needs a name of their own, and {#made:the newcomer becomes (made1)|the newcomers become (made1) and (made1)|the newcomers get names of their own}. They take it well. They take everything exactly the way (name) would.",
+   "effects": [
+    {
+     "do": "clone",
+     "count": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L176",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "A single figure rises out of the pool, (name) exactly, down to the last eyelash. It looks at (name), (name) looks at it, and they both say \"Oh no,\" at the same moment, in the same voice. The friends at the bottom of the hill scream when two of (name) come walking down. The newcomer takes the name (made1), moves into the empty hut by the woodpile, and the two of them finish each other's sentences so often it drives the rest of the village mad.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L179",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) dips one finger in. The water is warm, warmer than skin. The milky light gathers around (his/her) finger and climbs up (his/her) hand like a glove...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L173"
+  },
+  "c2o1": {
+   "text": "Something climbs out where the stone went in. It has (name)'s face and (name)'s hair, but the stone broke the pool's memory, and it remembered only the outside. It is nothing like (name) inside. It loves the work (name) hates, laughs at different jokes and wants to know everything about everything. The village takes a while to stop calling it by the wrong name. It chooses (made1), and is soon the most popular person in the hut-building crew.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L185",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The ripples settle. The milky light fades out of the water, slowly, like a lamp being turned down, and the pool is just a pool, dark and deep and cold. (Name) waits a long time. Nothing happens. (He/She) walks down to (his/her) friends and tells them it was nothing. Then (he/she) never goes up the hill again, and changes the subject whenever anyone asks why.",
+   "src": "L188"
+  },
+  "c2": {
+   "text": "(Name) picks up a pebble and drops it into the middle of the pool. The ripples don't spread like ripples should. They gather, and fold, and take a shape...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L182"
+  }
+ }
+}

@@ -74,6 +74,32 @@
    "src": "L602"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The elders decide not to search anybody's hut, saying that no hook is worth making neighbors suspicious of one another. The first fishing of the year goes ahead with an ordinary hook, and the catch is good. (friend) still wonders, sometimes, where the old one went. Some say a bird took it. Some say the sea. Nobody ever finds out.",
+   "src": "L605",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L605"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "The elders decide not to search anybody's hut, saying that no hook is worth making neighbors suspicious of one another. The first fishing of the year goes ahead with an ordinary hook, and the catch is good. (friend) still wonders, sometimes, where the old one went. Some say a bird took it. Some say the sea. Nobody ever finds out.",
    "src": "L605"

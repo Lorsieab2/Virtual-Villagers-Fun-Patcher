@@ -25,18 +25,18 @@ class Hidden1(HiddenChecks, unittest.TestCase):
         ('key', 'D, M, P, T and Esc (village screen)', C, ()),
         ('key', 'F7 and F8 (village screen)', C, ()),
         ('key', 'F1 (the splash, the help pictures, the Start / "?" screen, Puzzles and Milestones, Tech)', C, (O,)),
-        ('key', 'F3 (the help pictures, the Start / "?" screen, Puzzles and Milestones)', C, (U,)),
+        ('key', 'F3 (the help pictures, the Start / "?" screen, Puzzles and Milestones)', C, (C,)),
         ('key', 'Esc (Map, Puzzles and Milestones, Tech, Villager Detail)', C, ()),
         ('key', 'Enter and Esc (pop-up boxes)', C, ()),
         ('key', 'Typing in a name box', C, (D,)),
         ('key', 'Tab, the arrows, Page Up, Page Down, Home, End, Insert, Delete, F2, F4, F5, F6, F9 and F10', C, ()),
         ('key', 'Store screens: no redraw or reroll key', C, ()),
         ('code', 'Typed codes and name cheats', C, (U,)),
-        ('click', 'The mask (village screen)', C, (U, C, C)),
+        ('click', 'The mask (village screen)', C, (C, C, C)),
         ('click', 'The school drum (village)', C, ()),
-        ('click', 'Places that show their state (village)', C, (C, C, C, C, C, C, C, C, U)),
-        ('click', 'The grid at the map spot 1,233 to 1,533 across and 200 to 350 down (village)', U, ()),
-        ('tip', 'Where the tips appear', C, (U, C)),
+        ('click', 'Places that show their state (village)', C, (C, C, C, C, C, C, C, C, C)),
+        ('click', 'The grid at the map spot 1,233 to 1,533 across and 200 to 350 down (village)', C, ()),
+        ('tip', 'Where the tips appear', C, (C, C)),
         ('patcher', 'Number keys 1 to 9 (village screen)', C, (C,)),
         ('patcher', 'F6 (village screen)', C, ()),
         ('patcher', 'Sort By (Villager Detail screen)', C, ()),
@@ -46,7 +46,7 @@ class Hidden1(HiddenChecks, unittest.TestCase):
     )
     TIP_COUNTS = {
         'The 30 random tips (the mask)': {C: 30},
-        'The 70 tip pop-ups (tutorial and milestones)': {C: 60, U: 10},
+        'The 70 tip pop-ups (tutorial and milestones)': {C: 70},
     }
     DEAD = (
         "the box's own ending on a typed Enter or",

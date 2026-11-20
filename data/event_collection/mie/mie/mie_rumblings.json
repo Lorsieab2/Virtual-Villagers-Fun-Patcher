@@ -1,0 +1,171 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rumblings",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "mie_rumblings",
+  "source": "mie",
+  "lines": [
+   772,
+   812
+  ],
+  "section": "mie",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L772",
+  "ledger": [
+   {
+    "src": "L774",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L776-779",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L782",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L786-793",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L795-807",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L809-812",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   }
+  ],
+  "description": "A violent shaking damages some of the village's buildings, and the builders have work to do.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "mixer_only": true,
+  "approximations": [
+   "one structure is damaged (10-100%), the engine's pick; the owner's 25% each, at least one, needs a per-structure roll the format lacks",
+   "the structures it may damage are the engine's 'any' (the owner's lists exclude the puzzle buildings and New Believers' nursery: the engine's own damage rules)",
+   "every puzzle of the game's Puzzles screen is required (the patcher's lists: 15 in A New Home, 16 in the others but New Believers' 11); the 'one finished hut' requirement is not checked"
+  ]
+ },
+ "requirement": {
+  "puzzles": {
+   "1": [
+    "The Well",
+    "The Hut (the first small hut)",
+    "The Beach",
+    "The School",
+    "The Lagoon",
+    "The Magic Fish of Fertility",
+    "The Cemetery",
+    "Herb Mastery",
+    "The Garden",
+    "The Magic Plant of Life",
+    "The Temple",
+    "The Idol",
+    "The Butterflies",
+    "The Treasure",
+    "The Cave"
+   ],
+   "2": [
+    "Fire",
+    "The Scarecrow",
+    "The Elder Totem",
+    "The Hospital",
+    "Herb Mastery",
+    "The Sewing Hut",
+    "The Dam",
+    "The Cutting Tool",
+    "The Stew",
+    "The Vine Wall",
+    "The Ancient Mosaic",
+    "The Boxed Gong Piece",
+    "The Sunken Gong Piece",
+    "The Inlaid Gong Piece",
+    "The Overgrown Gong Piece",
+    "Sustainable Fishing"
+   ],
+   "3": [
+    "The First Chief",
+    "The Bee Hive",
+    "The Alchemy Lab",
+    "The Roster of the Dead",
+    "Weather Dancing",
+    "The Lift",
+    "The Ruins",
+    "The Ancient Bath",
+    "The Statue",
+    "The Orchard",
+    "The Sharks",
+    "Aromatherapy",
+    "The Ash Key",
+    "The Cliff Key",
+    "The Clam Key",
+    "The Chief and the Princess"
+   ],
+   "4": [
+    "The Cutting Tool",
+    "The Stream",
+    "Boiling Water",
+    "Soap Invented",
+    "The Butterflies",
+    "The Frog Rescue",
+    "The Cooking Pit",
+    "Cloth Invented",
+    "The Nursery School",
+    "The Mossy Rocks",
+    "The Grand Feast",
+    "Fishing Nets",
+    "Pruning the Tree",
+    "Honoring the Tree",
+    "Purify Tree",
+    "Decorating the Tree"
+   ],
+   "5": [
+    "The Prison Break",
+    "The Hungry Totem",
+    "The Knowing Totem",
+    "The Buried Mausoleum",
+    "The Blocking Totem",
+    "The Hollow Totem",
+    "The Lake",
+    "The Pain Totem",
+    "The Rainbow Totem",
+    "The Tribute Statue",
+    "The Blind Totem"
+   ]
+  }
+ },
+ "roles": {},
+ "start": "start",
+ "nodes": {
+  "start": {
+   "text": "One morning, the village becomes wracked with a violent shaking. Things start flying off shelves, pottery smashes on the floor, and everyone starts taking cover under nearby structures. The villagers are frightened, but luckily, no one is hurt. A lot of loose rubble is strewn about and some structures have been visibly damaged. It looks like the builders have more work cut out for them.",
+   "src": "L784",
+   "effects": [
+    {
+     "do": "damage",
+     "structures": "any",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

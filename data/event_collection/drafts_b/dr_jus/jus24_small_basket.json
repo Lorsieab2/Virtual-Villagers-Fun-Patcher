@@ -74,6 +74,32 @@
    "src": "L290"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The villagers who traded with (subject) talk it over. Most just want ordinary baskets from now on. One wants the difference made up, and gets it. (subject) is plainly embarrassed, and says it was never on purpose. Whether everyone believes that is another matter. (subject) quietly unpicks the small basket and weaves it into a bigger one.",
+   "src": "L293",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L293"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "The villagers who traded with (subject) talk it over. Most just want ordinary baskets from now on. One wants the difference made up, and gets it. (subject) is plainly embarrassed, and says it was never on purpose. Whether everyone believes that is another matter. (subject) quietly unpicks the small basket and weaves it into a bigger one.",
    "src": "L293"

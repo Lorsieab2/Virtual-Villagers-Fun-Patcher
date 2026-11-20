@@ -69,11 +69,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"No, thank you,\" says (subject). \"But I'll keep watch on the tide.\" (friend) says that's actually very useful. The others go in. (subject) sits on a rock at the entrance and watches the water, and calls them out in good time. Everyone agrees it was the most sensible job of the day.",
+   "src": "L266",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L266"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"No, thank you,\" says (subject). \"But I'll keep watch on the tide.\" (friend) says that's actually very useful. The others go in. (subject) sits on a rock at the entrance and watches the water, and calls them out in good time. Everyone agrees it was the most sensible job of the day.",
    "src": "L266"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) walks with them to the cave mouth. (subject.He/she) looks in. Cold air breathes out of the dark. (subject.He/she) steps back. \"This is as far as I go.\" Nobody argues. (subject.He/she) waits outside in the sun, and is very glad, when they come back out wet and muddy, that (subject.he/she) stayed dry.",
+   "src": "L269",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L269"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) walks with them to the cave mouth. (subject.He/she) looks in. Cold air breathes out of the dark. (subject.He/she) steps back. \"This is as far as I go.\" Nobody argues. (subject.He/she) waits outside in the sun, and is very glad, when they come back out wet and muddy, that (subject.he/she) stayed dry.",
    "src": "L269"

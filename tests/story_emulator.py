@@ -215,6 +215,46 @@ class Process:
         self.write(buffer, info[:length])
         return min(length, 28), 12
 
+    # The big tables grow on the process heap (vvfp_story_upgrades.c story_grow); the pieces file and a pack are
+    # read into memory of their own (VirtualAlloc).  Each block is a fresh zeroed one from the emulated heap.
+    def _api_GetProcessHeap(self):
+        return 0x00100000, 0
+
+    def _api_HeapAlloc(self):
+        size = self.arg(2)
+        at = self.alloc(size + 4)
+        self.put32(at, size)
+        return at + 4, 12
+
+    def _api_HeapReAlloc(self):
+        old, size = self.arg(2), self.arg(3)
+        have = self.u32(old - 4) if old else 0
+        at = self.alloc(size + 4)
+        self.put32(at, size)
+        if old:
+            self.write(at + 4, self.read(old, min(have, size)))
+        return at + 4, 16
+
+    def _api_HeapFree(self):
+        return 1, 12
+
+    # The collection's split files and the procedural pieces are listed with FindFirstFileW: the emulated folder
+    # holds none of them.
+    def _api_FindFirstFileW(self):
+        return 0xFFFFFFFF, 8
+
+    def _api_FindNextFileW(self):
+        return 0, 8
+
+    def _api_FindClose(self):
+        return 1, 4
+
+    def _api_VirtualAlloc(self):
+        return self.alloc(self.arg(1)), 16
+
+    def _api_VirtualFree(self):
+        return 1, 12
+
     def _api_VirtualProtect(self):
         self.put32(self.arg(3), 0x20)
         return 1, 16
@@ -434,21 +474,33 @@ class Process:
             out += pair
         return out.decode("utf-16-le")
 
-    def cstring(self, va: int, limit: int = 2048) -> str:
+    def cstring(self, va: int, limit: int = 0x400000) -> str:
+        """The NUL-ended string at `va` (as Windows' own string routines read it: no length cap of their own; the
+        practically unlimited island-event texts are 100,000 bytes and more), read a page at a time."""
         out = bytearray()
-        while len(out) < limit and self.mapped(va + len(out), 1):
-            byte = self.read(va + len(out), 1)
-            if byte == b"\0":
+        while len(out) < limit:
+            at = va + len(out)
+            if not self.mapped(at, 1):
                 break
-            out += byte
+            chunk = min(0x1000 - (at & 0xFFF), limit - len(out))
+            if not self.mapped(at, chunk):
+                chunk = 1
+            data = self.read(at, chunk)
+            end = data.find(b"\0")
+            if end >= 0:
+                out += data[:end]
+                break
+            out += data
         return out.decode("latin-1")
 
     # ---- running -------------------------------------------------------
     def call(self, address: int, args: list[int] = (), *, ecx: int | None = None,
              regs: dict[str, int] | None = None, until: int = RETURN,
-             limit: int = 2_000_000) -> int:
+             limit: int = 40_000_000) -> int:
         """Call `address` with stdcall/cdecl stack `args` (and ECX for
-        thiscall); run until it returns to RETURN (or reaches `until`)."""
+        thiscall); run until it returns to RETURN (or reaches `until`).  The default step limit has room for
+        copying the Story companion's records whole (a question is ~1.9 MB since the simple editor's text grew,
+        2026-11-17)."""
         esp = STACK_TOP - 0x1000
         for value in reversed(list(args)):
             esp -= 4
@@ -465,7 +517,7 @@ class Process:
             raise EmulationError(f"stopped at 0x{self.reg('eip'):X}, not 0x{until:X}")
         return self.reg("eax")
 
-    def run(self, start: int, until: int, *, limit: int = 2_000_000) -> None:
+    def run(self, start: int, until: int, *, limit: int = 40_000_000) -> None:
         """Run from `start` (registers and stack as the test left them)."""
         self.mu.emu_start(start, until, count=limit)
         if self.reg("eip") != until:

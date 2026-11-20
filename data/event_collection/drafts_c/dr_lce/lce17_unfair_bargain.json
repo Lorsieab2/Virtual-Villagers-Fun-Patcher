@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unfair Bargain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce17_unfair_bargain",
+  "source": "draft_lce",
+  "lines": [
+   232,
+   243
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L232",
+  "ledger": [
+   {
+    "src": "L233",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L239",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L243",
+    "kind": "instruction",
+    "text": "[effect: small tech gain; small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L243",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Traders offer tools in exchange for the village's best fishing ground: refuse, or negotiate a short lease.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A trader from another island has offered the village a whole canoe-load of fine stone tools, in exchange for the right to fish the eastern lagoon, forever. (subject) says the tools would change everything. (friend) says forever is a very long time. What should the village do?",
+   "src": "L235",
+   "choices": [
+    {
+     "label": "Refuse",
+     "next": "o1",
+     "src": "L237"
+    },
+    {
+     "label": "Negotiate a Short Lease",
+     "next": "o2",
+     "src": "L241"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village refuses. The trader is annoyed and leaves with the tools. (subject) grumbles about the tools for a month. But the eastern lagoon stays the village's, and in the bad season that follows, it is the only place with fish.",
+   "src": "L239"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) negotiates: the trader may fish the lagoon for one season, not forever, for half the tools. The trader agrees. The lagoon is badly overfished by the end of the season. The tools are very good. It takes two years for the lagoon to recover.",
+   "src": "L243",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L243"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L243"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

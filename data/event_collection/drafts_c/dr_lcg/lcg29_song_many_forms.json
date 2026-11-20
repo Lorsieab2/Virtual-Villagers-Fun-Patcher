@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song in Many Forms",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg29_song_many_forms",
+  "source": "draft_lcg",
+  "lines": [
+   400,
+   411
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L400",
+  "ledger": [
+   {
+    "src": "L401",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L407",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L411",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager who is deaf wants to take part in the festival song: add hand signs to the song, or give them the drum.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is deaf, and has always sat out the festival song, watching. This year, (subject.he/she) has asked (friend), who leads the song, to find a way for (subject.him/her) to join. (friend) has two ideas: add hand signs to the song so everyone can sing with their hands, or give (subject) the big drum, which (subject.he/she) can feel. What should they do?",
+   "src": "L403",
+   "choices": [
+    {
+     "label": "Add Hand Signs",
+     "next": "o1",
+     "src": "L405"
+    },
+    {
+     "label": "Give (subject) the Drum",
+     "next": "o2",
+     "src": "L409"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) and (subject) make up signs for every line. The whole village learns them. At the festival, the song is sung with voices and hands at once, and it is the most beautiful the song has ever looked. The children start signing everything.",
+   "src": "L407"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) takes the big drum and feels the song through (subject.his/her) hands and the ground. (subject.He/she) keeps a perfect beat. Afterwards, (subject.he/she) says (subject.he/she) would also like the signs next year. (friend) says that can be arranged.",
+   "src": "L411"
+  }
+ }
+}

@@ -100,7 +100,8 @@
      "who": "all",
      "src": "L577"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -114,7 +115,8 @@
      "role": "subject",
      "src": "L578"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a": {
    "name": "Answer A",

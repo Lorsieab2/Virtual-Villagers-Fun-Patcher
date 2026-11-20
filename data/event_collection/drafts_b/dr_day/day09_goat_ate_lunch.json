@@ -69,11 +69,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) looks at the goat. The goat looks at (subject). (subject) starts laughing. It's still been a good day. A bit of a hungry day now, but a good one. (friend), passing, shares half (friend.his/her) lunch, and (subject) eats it in the shade next to the goat, who seems to think they're friends now.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L110"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) looks at the goat. The goat looks at (subject). (subject) starts laughing. It's still been a good day. A bit of a hungry day now, but a good one. (friend), passing, shares half (friend.his/her) lunch, and (subject) eats it in the shade next to the goat, who seems to think they're friends now.",
    "src": "L110"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) is very annoyed. It was a good lunch. (subject.He/she) was looking forward to it. (subject.He/she) tells the goat so, at length. The goat does not care. (subject) goes hungry until dinner and is grumpy all afternoon. The morning was still good. The afternoon was not. Days are allowed to be both.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L113"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) is very annoyed. It was a good lunch. (subject.He/she) was looking forward to it. (subject.He/she) tells the goat so, at length. The goat does not care. (subject) goes hungry until dinner and is grumpy all afternoon. The morning was still good. The afternoon was not. Days are allowed to be both.",
    "src": "L113"

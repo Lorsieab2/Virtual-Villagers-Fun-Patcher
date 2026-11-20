@@ -1,0 +1,280 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night the Roofs Flew",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b122_night_roofs_flew",
+  "source": "balance",
+  "lines": [
+   5568,
+   5612
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5568",
+  "ledger": [
+   {
+    "src": "L5569",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5570",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5578",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5587",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5575",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5576",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5579",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5588",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5581",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5584",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5590",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5593",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5596-5612",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L5594",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "The wind came in after dark and did not knock.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The wind came in after dark and did not knock. By midnight it had lifted the thatch off half the huts in the village and thrown it into the jungle like a child throwing leaves. By dawn it had gone, leaving a clear blue sky and a village full of people standing in their huts looking up at it.\n(subject) has the most Building in the village, so everyone is looking at (subject.him/her). (builder), the second-best builder, is looking at (subject.him/her) hardest of all. The thatch is scattered for half a mile. There are fresh palm fronds in the grove, but cutting enough will take days.\nShould (subject) gather the whole village and rebuild today, or tell everyone to wait for the dry fronds to be fetched back from the jungle?",
+   "choices": [
+    {
+     "label": "Rebuild Together Today",
+     "next": "c1",
+     "src": "L5575"
+    },
+    {
+     "label": "Fetch Back the Old Thatch",
+     "next": "c2",
+     "src": "L5576"
+    }
+   ],
+   "src": "L5571-5573"
+  },
+  "c1o1": {
+   "text": "It is the loudest day the village has had all year. Everyone is on a roof, or under one, or passing fronds up to someone on one. People who have never tied a knot in their lives learn three kinds by lunchtime. By sunset every hut has a roof again, a little greener than before and a lot more crooked. (builder) walks round all of them, pulling at the thatch and frowning. Then (subject.he/she) says, grudgingly, \"They'll do.\"",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L5582",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The huts are almost finished when an old roof beam, cracked in the night, gives way under (subject)'s feet. (subject.He/She) falls hard, and the beam falls on top of (subject.him/her). The healers do what they can. (subject)'s leg heals, but crooked, and (subject.he/she) will walk with a stick from now on. The last roofs are finished by (builder), who climbs down afterwards and sits beside (subject) for a long time without saying anything. Then (subject.he/she) says, \"Your knots were better than mine.\" (subject) can't bear the creak of a roof frame after that, or the smell of fresh-cut thatch.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L5585",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) climbs onto the nearest bare roof frame and shouts until everyone is listening. Children are sent for fronds, the strongest villagers to the grove with knives, and everyone else is handed a coil of rope and told to hold on to it and not let go...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5579"
+  },
+  "c2o1": {
+   "text": "The wind turns out to have been oddly tidy. Whole roofs are found sitting in the clearings almost in one piece, like hats blown off in a gust. The villagers carry them back on their heads, four people to a roof, singing to keep in step. By evening every hut is roofed again. Someone finds the {@chief}'s lost sandal on the way, which nobody expected, and it is the best mood the village has been in all season.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L5591",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The wind was not tidy. The thatch is in shreds, hanging from every branch, and most of it is too torn to use. It takes four days to cut new fronds and roof the huts again, and in the meantime it rains twice, onto everyone's beds and into the food store. \"Should have rebuilt on the first day,\" says (builder), to nobody in particular.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L5594"
+  },
+  "c2": {
+   "text": "\"Our old thatch is out there drying in the sun,\" (subject) says. \"No sense cutting new.\" The village spreads out into the jungle in a long line, picking up armfuls of thatch from bushes and branches and the tops of trees...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5588"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "wood",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

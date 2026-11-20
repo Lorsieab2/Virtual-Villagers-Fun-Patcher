@@ -1,0 +1,299 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lantern on the Empty Boat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my024_lantern_empty",
+  "source": "rewrites",
+  "lines": [
+   11231,
+   11286
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11231",
+  "ledger": [
+   {
+    "src": "L11232",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11233",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11242",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11249",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11256",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11263",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11237",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11238",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11239",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11240",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11243",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11250",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11257",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11264",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11244",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11246",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11251",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11253",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11258",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11260",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11265",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11267",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11270-11286",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A small boat is drifting in toward the shore, slow and silent, with a lantern hanging from its prow on a hook of carved bone.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Late at night, (name) is walking along the lagoon when (he/she) sees a light out on the water. A small boat is drifting in toward the shore, slow and silent, with a lantern hanging from its prow on a hook of carved bone. The flame is steady and blue in the still night.\nNobody is paddling. Nobody is sitting in it. The boat simply drifts closer and closer, as if it knows exactly where it's going, and bumps softly against the sand at (name)'s feet. The lantern keeps burning. What should (name) do?",
+   "choices": [
+    {
+     "label": "Bring the Boat Ashore",
+     "next": "c1",
+     "src": "L11237"
+    },
+    {
+     "label": "Search the Coast",
+     "next": "c2",
+     "src": "L11238"
+    },
+    {
+     "label": "Extinguish the Lantern",
+     "next": "c3",
+     "src": "L11239"
+    },
+    {
+     "label": "Keep Watch Until Dawn",
+     "next": "c4",
+     "src": "L11240"
+    }
+   ],
+   "src": "L11234-11235"
+  },
+  "c1o1": {
+   "text": "Under a woven mat in the bottom of the boat are bundles of dried fish and fruit, tightly wrapped in leaves against the spray, enough for a long voyage. Whoever packed it never got to eat it. The village waits a whole season for an owner to come looking. Nobody does, and in the end they share the food out with a quiet word for whoever lost it. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11245",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The boat is empty except for one thing, tucked into a crack in the hull: a child's drawing in charcoal on bark. It's a picture of the village. Every hut is in the right place, even the new ones, even the one that was only finished last week. (Name) shows it to everyone. No child in the village drew it.",
+   "src": "L11247"
+  },
+  "c1": {
+   "text": "(Name) wades into the shallows, grabs the prow, and hauls the little boat up onto the sand, the lantern swinging above (his/her) head...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11243"
+  },
+  "c2o1": {
+   "text": "Just before dawn, they find a fisher from another village clinging to a tangle of driftwood on a sandbar, half frozen, voice gone from calling. The fisher has been there for two days, after a wave swept (him/her) out of that very boat. When the canoes arrive, the fisher cries and cries. The village nurses the stranger back to health, and (he/she) goes home a week later in the little boat, lantern and all.",
+   "src": "L11252",
+   "text_only": [
+    {
+     "src": "L11252",
+     "what": "\"health\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "They search all night, and all the next day. Nothing. No one in the water, no one on the sandbars, no one on any shore. Nobody nearby has lost a boat. The little boat sits on the beach, its origin a mystery, and the fishers say a quiet prayer for whoever was in it.",
+   "src": "L11254"
+  },
+  "c2": {
+   "text": "\"Someone must have been in it,\" (name) says. (He/She) runs to wake the fishers, and soon canoes are out on the dark water with torches, calling...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11250"
+  },
+  "c3o1": {
+   "text": "The flame goes out. (Name) touches the wick to check it, then pulls (his/her) hand back with a frown. It's cold. Bone dry. As if it hadn't been burning at all. There's no oil in the lantern, either. Not a drop.",
+   "src": "L11259"
+  },
+  "c3o2": {
+   "text": "The flame goes out. (Name) turns to walk away, and behind (him/her), the lantern quietly lights itself again, blue and steady. (Name) freezes. After a long moment, the flame flickers and finally goes dark on its own, as if it was just saying goodbye.",
+   "src": "L11261"
+  },
+  "c3": {
+   "text": "Something about that steady blue flame bothers (name). (He/She) reaches up and pinches it out...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11257"
+  },
+  "c4o1": {
+   "text": "At sunrise, a tired traveler comes hurrying along the beach, sees the boat, and lets out a huge sigh of relief. \"There you are!\" It slipped its rope in the night, the traveler explains, from a cove further up the coast. The traveler thanks (name) a dozen times and paddles off. The lantern, (name) notices, is still lit.",
+   "src": "L11266"
+  },
+  "c4o2": {
+   "text": "(Name) dozes off just before dawn. When (he/she) wakes, the boat is gone. The rope is still tied firmly to the dock post, the knot still tight, the other end neatly looped as if it had never been tied to anything at all.",
+   "src": "L11268"
+  },
+  "c4": {
+   "text": "(Name) ties the boat to the dock post, sits down on the sand beside it, and waits for morning, the blue light flickering on (his/her) face...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11264"
+  }
+ }
+}

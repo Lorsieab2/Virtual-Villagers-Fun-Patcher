@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) and (friend) suggest the Year of the Good Harvest. The council nods. Then somebody at the back shouts, \"What about the pig?\" and the whole meeting dissolves. Everyone remembers the pig. Nobody can stop laughing about the pig. In the end, it's the Year the Pig Got Into the Council Hut. (subject) sighs. Generations from now, children will ask what happened with the pig.",
-   "src": "L182"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) and (friend) go straight for it: the Year the Pig Got Into the Council Hut. The council tries to look disapproving and fails. It passes unanimously, with the pig itself in attendance. Somebody carves it onto the counting post that evening, with a little drawing. It's the most popular year name in living memory.",
    "src": "L185"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) suggest the Year of the Good Harvest. The council nods. Then somebody at the back shouts, \"What about the pig?\" and the whole meeting dissolves. Everyone remembers the pig. Nobody can stop laughing about the pig. In the end, it's the Year the Pig Got Into the Council Hut. (subject) sighs. Generations from now, children will ask what happened with the pig.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L182"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) suggest the Year of the Good Harvest. The council nods. Then somebody at the back shouts, \"What about the pig?\" and the whole meeting dissolves. Everyone remembers the pig. Nobody can stop laughing about the pig. In the end, it's the Year the Pig Got Into the Council Hut. (subject) sighs. Generations from now, children will ask what happened with the pig.",
+   "src": "L182"
   }
  }
 }

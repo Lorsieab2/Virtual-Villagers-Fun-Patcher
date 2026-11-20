@@ -1,0 +1,212 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night-Blooming Flower",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b193_night_blooming",
+  "source": "balance",
+  "lines": [
+   8954,
+   8997
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8954",
+  "ledger": [
+   {
+    "src": "L8955",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8956",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8964",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8973",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8961",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8962",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8965",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8974",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8967",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8970",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8976",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8979",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8982-8997",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's a long time till dawn, and they've both been working since sunrise.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Behind the village, on the hill, there is a flowering vine that blooms only one night a year, with big white flowers that open at midnight and close at dawn. The old saying is that a couple who sit under it together all night, awake, will be blessed with a baby, \"or more, if the flowers like them.\"\n(subject) and (friend) have climbed up with a blanket and a gourd of coconut milk. The flowers are just starting to open, one by one, with a faint sound like a sigh, and the air smells so sweet it makes them dizzy. It's a long time till dawn, and they've both been working since sunrise.\nShould they keep each other awake with stories, or take turns sleeping?",
+   "choices": [
+    {
+     "label": "Tell Stories All Night",
+     "next": "c1",
+     "src": "L8961"
+    },
+    {
+     "label": "Take Turns Sleeping",
+     "next": "c2",
+     "src": "L8962"
+    }
+   ],
+   "src": "L8957-8959"
+  },
+  "c1o1": {
+   "text": "They're still talking at dawn, hoarse and laughing, when the last flower closes. As it does, every flower on the vine drops one petal onto their blanket, all at once. Before the next moon, (subject) is pregnant, and the healers tell them to expect {#babies:a baby|twins|triplets}. \"{#babies:One, must have been the scary stories|Two, they liked the funny ones|Three, they liked all of them},\" says (friend).",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L8968",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They make it to dawn, just, with their eyes propped open and the stories getting stranger and stranger. As the last flower closes, (subject) falls asleep mid-sentence. A month later (subject) is pregnant. Neither of them can remember the end of the last story, and they spend years arguing about it.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L8971",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They lie on the blanket under the white flowers and tell each other every story they know: their grandparents' stories, the funny ones, the frightening ones, and some they make up as they go along...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8965"
+  },
+  "c2o1": {
+   "text": "(subject) means to wake (friend) at the half-moon. Instead, (subject.he/she) falls asleep too, with (subject.his/her) head on (friend)'s shoulder. They wake at dawn with the flowers closed and petals in their hair. No baby comes from it. But (friend) says, a little later, that it was the nicest night's sleep they've ever had.",
+   "src": "L8977"
+  },
+  "c2o2": {
+   "text": "They take turns all night, one sleeping and one awake, the one awake watching the other sleep in the moonlight and the white flowers. The saying said \"together,\" but the flowers seem not to mind. A month later (subject) is pregnant. (friend) insists it counts. (subject) agrees, sleepily.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L8980",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"You sleep first,\" says (subject). \"I'll wake you at the half-moon.\" (friend) is asleep in moments. (subject) sits up alone among the white flowers, watching the stars wheel round...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8974"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L8968",
+   "before": "{#babies:One. Must have been the scary stories|Two. They liked the funny ones|Three. They liked all of them}",
+   "after": "{#babies:One, must have been the scary stories|Two, they liked the funny ones|Three, they liked all of them}"
+  }
+ ]
+}

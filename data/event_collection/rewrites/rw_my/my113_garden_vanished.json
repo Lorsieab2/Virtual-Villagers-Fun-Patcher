@@ -1,0 +1,312 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Garden of the Vanished",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my113_garden_vanished",
+  "source": "rewrites",
+  "lines": [
+   16426,
+   16481
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L16426",
+  "ledger": [
+   {
+    "src": "L16427",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16428",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16436",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16443",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16450",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16457",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16431",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16432",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16433",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16434",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16437",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16444",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16451",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16458",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16438",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16440",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16445",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16447",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16452",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16454",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16459",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16461",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16464-16481",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Far from the usual paths, a villager pushes through a thicket and finds a small hidden garden, ringed by low grey stones.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Far from the usual paths, (subject) pushes through a thicket and finds a small hidden garden, ringed by low grey stones. Each stone is carved with a name. Between them grow red and white flowers that sway gently, even though there is no wind.\n(subject) reads the nearest names, and goes cold. (subject.He/she) knows some of them. They are the names of people who disappeared from Isola: villagers who went out fishing and never came back, children who wandered into the forest, travelers who were never heard from again. Someone has made a garden for the vanished. And someone, by the look of it, is still tending it. Who? And what should (subject) do?",
+   "choices": [
+    {
+     "label": "Read the Names",
+     "next": "c1",
+     "src": "L16431"
+    },
+    {
+     "label": "Tend the Garden",
+     "next": "c2",
+     "src": "L16432"
+    },
+    {
+     "label": "Search for Its Keeper",
+     "next": "c3",
+     "src": "L16433"
+    },
+    {
+     "label": "Leave It Undisturbed",
+     "next": "c4",
+     "src": "L16434"
+    }
+   ],
+   "src": "L16429-16430",
+   "text_only": [
+    {
+     "src": "L16430",
+     "what": "\"vanished\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "Several of the names match the old village records exactly: the dates people went missing, the families they left behind. (subject) copies down every name and brings them to the researchers, who spend weeks comparing them against the records, and filling in gaps in the village's history that had been missing for generations. Families who had lost track of distant relatives learn what became of them. The researchers' records are better than they have ever been.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L16439",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "It is the name of a villager who is still alive. (subject) knows (subject.him/her) well; (subject.he/she) is sitting by the fire back in the village at this very moment. (subject) runs all the way home. When (subject.he/she) gently tells the villager whose name is on the stone, the villager goes very quiet. Then (subject.he/she) says, slowly, \"I was lost in the forest as a child. For three days. Everyone thought I was gone.\" (subject.He/she) asks to be taken to see the stone. (subject.He/she) stands before it a long time, then lays a flower on it, and walks home alive.",
+   "src": "L16441"
+  },
+  "c1": {
+   "text": "(subject) walks slowly around the ring of stones, reading every name aloud, softly, one at a time. Some (subject.he/she) knows. Many (subject.he/she) does not. And then (subject.he/she) comes to one that stops (subject.him/her) short...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16437"
+  },
+  "c2o1": {
+   "text": "Before long, the villagers take the little garden under their care. They clear the paths, water the flowers, and bring new ones. Families come to sit among the stones and remember those who never came home, because there were never any graves to visit. For the first time, they have a place to grieve. The garden of the vanished becomes one of the most peaceful places on the island.",
+   "src": "L16446",
+   "text_only": [
+    {
+     "src": "L16446",
+     "what": "\"vanished\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "The next morning, every flower in the garden is blooming, far out of season, red and white and swaying, more of them than (subject) has ever seen. The smell drifts all the way to the village. Some of the villagers call it a blessing, a thank-you from the vanished for being remembered. Others say it is just the water. (subject) does not argue with either side. (subject.He/she) just keeps tending it.",
+   "src": "L16448",
+   "text_only": [
+    {
+     "src": "L16448",
+     "what": "\"vanished\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(subject) kneels and begins to pull the weeds from between the stones, gently, and brings water from a nearby stream for the swaying red and white flowers. When (subject.he/she) comes back the next day, (subject.he/she) brings friends...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16444"
+  },
+  "c3o1": {
+   "text": "In a tiny hut tucked into the hillside, (subject) finds (elder), a very old villager (subject.he/she) has hardly ever spoken to: quiet, solitary, often forgotten. \"My brother was the first one,\" (elder) says. \"Lost at sea when I was young. There was nowhere to grieve for him, so I made a stone. Then I made another, for a friend. And another.\" (subject.He/she) has been tending the garden alone for sixty years. (subject) asks if (subject.he/she) can help. (elder) weeps.",
+   "src": "L16453"
+  },
+  "c3o2": {
+   "text": "There is no one. No hut, no path in, no footprints. And yet every time (subject) returns, the paths between the stones are freshly swept. Fresh water has been poured on the roots, still dark in the soil. A broom made of twigs leans against the largest stone, and once, it is in a different place than before. (subject) never sees anyone. (subject.He/she) leaves a thank-you note on the largest stone, and it is gone the next day.",
+   "src": "L16455"
+  },
+  "c3": {
+   "text": "Someone made this garden. Someone is keeping it. (subject) is determined to find out who. (subject.He/she) searches the paths and thickets around the garden...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16451"
+  },
+  "c4o1": {
+   "text": "The elders agree the garden should be left in peace. It becomes a quiet, half-secret place, known to only a few: somewhere to go and sit when grief gets too heavy, or when someone needs to remember. (subject) goes there sometimes. (subject.He/she) never touches anything. (subject.He/she) just sits among the swaying flowers for a while, and always leaves feeling lighter than when (subject.he/she) came.",
+   "src": "L16460"
+  },
+  "c4o2": {
+   "text": "The next time (subject) visits, there is a new stone in the ring. Fresh-cut, its edges still sharp, the moss not yet grown on it. The name on it is one nobody in the village recognizes. Nobody has gone missing. Nobody knows that name. (subject) asks the elders, and the researchers, and everyone (subject.he/she) can think of. Nobody ever knows who it was for. And no one can tell whether that person is lost already, or yet to be.",
+   "src": "L16462"
+  },
+  "c4": {
+   "text": "(subject) decides this is not a place for strangers. (subject.He/she) bows to the stones, backs out of the thicket, and tells only the elders what (subject.he/she) found...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16458"
+  }
+ }
+}

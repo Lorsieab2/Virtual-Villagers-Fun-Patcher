@@ -161,14 +161,40 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "The tribes enjoy a meal without agreeing about the past.",
-   "src": "L30037"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "A friendly argument continues over dessert, now with more mutual respect.",
    "src": "L30038"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The tribes enjoy a meal without agreeing about the past.",
+   "src": "L30037",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L30037"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The tribes enjoy a meal without agreeing about the past.",
+   "src": "L30037"
   }
  }
 }

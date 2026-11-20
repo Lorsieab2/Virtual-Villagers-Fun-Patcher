@@ -116,7 +116,8 @@
      "role": "explorer",
      "src": "L22590"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",

@@ -199,9 +199,16 @@
    "src": "L28241"
   },
   "c2": {
+   "type": "branch",
    "name": "Outcome C2",
-   "text": "(child) invents a harmless joke everyone enjoys.",
-   "src": "L28242"
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
   },
   "d": {
    "type": "branch",
@@ -224,6 +231,31 @@
    "name": "Outcome D2",
    "text": "(child) returns to the group when ready.",
    "src": "L28245"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "(child) invents a harmless joke everyone enjoys.",
+   "src": "L28242",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L28242"
+    },
+    {
+     "do": "mood",
+     "role": "adult",
+     "mood": "good",
+     "src": "L28242"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "(child) invents a harmless joke everyone enjoys.",
+   "src": "L28242"
   }
  }
 }

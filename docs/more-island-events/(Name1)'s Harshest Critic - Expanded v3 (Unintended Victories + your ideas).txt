@@ -1,0 +1,2218 @@
+(NAME1)'S HARSHEST CRITIC (draft assembled from Lorsieab2's notes; for Lorsieab2 to rewrite)
+All five games. Two variants: VARIANT 1 the harshest critic is the mentor; VARIANT 2 the harshest critic is (name1).
+Letters are random pools, one line drawn from each (Cooking Contest layout). Your pool lines are kept as you wrote them;
+my additions are marked [added].
+
+WHO: (name1) = the student, any villager 14 or older. (mentor) = the mentor, an adult 25 or older, never (name1).
+The profession (A) also picks the matching skill for the effects (Farming, Building, Research, Healing, Parenting).
+[owner] DEVOTION SUPPORT (Lorsieab2's rule, replaces the line that was here): in VV1-VV4, which have no Devotion skill, a Devotion task's skill reward goes to one of the other five skills (Farming, Building, Research, Healing, Parenting), chosen at random among those that make sense for the task (e.g. tending the sacred garden = Farming, raising a shrine = Building, reading omens = Research, a healing rite = Healing, teaching the young the old prayers = Parenting), or is flavor only. In VV5 the reward can be Devotion or one of those five, at random where it makes sense in the event.
+[owner] CRAFTS COUNT AS THEIR MAIN SKILL (Lorsieab2's rule): a craft or job counts as the main profession it grows out of (cooking, fishing, hunting = Farming; carving, pottery, weaving, jewelry, weaponsmithing, bow-making = Building; stargazing, scrolls and books, potions, mapping = Research; herbalism, bonesetting = Healing; teaching the young = Parenting; prayer, ritual, omens = Devotion in VV5). A craft that fits more than one main profession (archery = hunting and bow-making; a medicine potion = Research and Healing) can give skill in each of them, or in one of them at random. If it doesn't make sense, it's flavor.
+[owner] Potions, stews, remedies, poultices, salves, tonics and anything similar = Research OR Healing. Magic, spells, charms, blessings and the like = Healing OR Devotion (VV1-VV4, which have no Devotion: Healing).
+[new] For Devotion tasks, draw task B from Devotion only. Draw any Devotion-specific optional flavor/quote from its dedicated pools, not from an unrelated profession. Generic T descriptions remain available to every profession.
+
+EVENT TEXT
+
+(Name1) has been training under a well-known (A). (He/She) has been tasked to (B) by (his/her) mentor. (Mentor) is
+notoriously strict and does not accept anything less than perfect. If (name1) does well in the task, (he/she) has a
+chance of (C). But if (he/she) fails, (D).
+(T)
+(E)
+How should (name1) plan out the job?
+
+Choice A: Plan Every Detail
+Choice B: Trust (His/Her) Instincts
+Choice C: Ask (Mentor) for Guidance
+Choice D: Practice Through the Night
+[added] Other choice labels the event can draw instead (any four, one from each line):
+  Plan Every Detail / Make a List and Check It Twice / Study the Old Methods
+  Trust (His/Her) Instincts / Try Something Bold and New / Wing It
+  Ask (Mentor) for Guidance / Ask the Elders / Ask a Friend for Help
+  Practice Through the Night / Start at Dawn / Pray for Luck and Begin
+
+[new] Additional choice-label alternatives (choose one label from each matching choice group):
+[new] Choice A: Measure Twice, Begin Once / Follow the Plan Exactly / Prepare for Every Setback / Divide the Work into Stages / Check the Supplies First
+[new] Choice A: Draw Up a Schedule / Work from a Careful Sketch / Rehearse Each Step / Consult the Records / Set a Clear Order of Work
+[new] Choice A: Test the Tools Before Starting / Allow Time for Mistakes / Compare Three Possible Plans / Keep to the Proven Method / Write Down Every Requirement
+[new] Choice B: Follow the First Good Idea / Improvise as (He/She) Goes / Take a Calculated Risk / Let the Work Speak for Itself / Break with Tradition
+[new] Choice B: Trust (His/Her) Experience / Try an Unusual Approach / Work Without a Script / Adapt to Each Problem / Make a Bold First Move
+[new] Choice B: Choose the Simplest Solution / Follow (His/Her) Curiosity / Do What Feels Right / Surprise the Judges / Find a Shortcut That Works
+[new] Choice C: Request a Demonstration / Ask for One Useful Hint / Invite (Mentor) to Inspect the Plan / Seek a Second Opinion / Admit What (He/She) Does Not Know
+[new] Choice C: Ask About Past Mistakes / Request a Practice Lesson / Talk Through the Difficult Part / Ask for Honest Feedback / Learn from an Experienced Worker
+[new] Choice C: Have (Mentor) Check the First Step / Ask the Team for Advice / Find Someone Who Has Done It Before / Ask What Matters Most / Seek Help Before Beginning
+[new] Choice D: Repeat the Hardest Step / Work Until (He/She) Gets It Right / Begin Before Sunrise / Spend One More Day Preparing / Practice with Spare Materials
+[new] Choice D: Train with a Smaller Version / Practice Under a Watchful Eye / Study by Firelight / Repeat the Lesson from Memory / Make a Trial Attempt
+[new] Choice D: Warm Up with Easy Tasks / Practice Until Sunset / Get Some Rest, Then Begin / Rehearse the Presentation / Sharpen (His/Her) Skills First
+[new] Choice A: Make a Backup Plan / Check Each Stage Against the Goal
+[new] Choice B: Find (His/Her) Own Way / Solve Problems as They Come
+[new] Choice C: Ask for a Quiet Word / Request Constructive Criticism
+[new] Choice D: Practice One Final Time / Take a Short Break Before Starting
+------------------------------------------------------------------------------
+A: (profession; the skill in brackets)
+chef / agriculturalist (Farming)
+architect / sculptor (Building)
+lab supervisor / professor (Research)
+surgeon / doctor / chirurgeon (Healing)
+teacher / educator (Parenting)
+[added] master fisher / head of the canoes (Farming)
+[added] head cook of the great feasts (Farming)
+[added] keeper of the gardens (Farming)
+[added] master carver / mask maker (Building)
+[added] canoe builder / hut builder (Building)
+[added] potter / weaver (Building)
+[added] keeper of the star charts (Research)
+[added] alchemist / potion maker (Research)
+[added] keeper of the records (Research)
+[added] herbalist / bonesetter (Healing)
+[added] midwife (Healing)
+[added] keeper of the nursery (Parenting)
+[added] storyteller to the young (Parenting)
+
+[new] keeper of the seed stores (Farming)
+[new] orchard steward (Farming)
+[new] reef fisher (Farming)
+[new] master of the taro terraces (Farming)
+[new] smokehouse keeper (Farming)
+[new] stone mason (Building)
+[new] bridgewright (Building)
+[new] basket maker (Building)
+[new] roof thatcher (Building)
+[new] keeper of the kilns (Building)
+[new] island naturalist (Research)
+[new] tide observer (Research)
+[new] keeper of the measuring stones (Research)
+[new] scholar of ancient markings (Research)
+[new] weather watcher (Research)
+[new] village physician (Healing)
+[new] caretaker of the sick (Healing)
+[new] maker of poultices (Healing)
+[new] healer of injured fishers (Healing)
+[new] keeper of the medicine garden (Healing)
+[new] apprentice instructor (Parenting)
+[new] caretaker of the youngest children (Parenting)
+[new] keeper of the learning circle (Parenting)
+[new] children's games instructor (Parenting)
+[new] guardian of the nursery (Parenting)
+[new] priest / priestess / spiritual leader (Devotion)
+[new] shaman / spirit guide / ceremonial healer (Devotion)
+[new] medium / séance leader / spirit-caller (Devotion)
+[new] oracle / interpreter of omens (Devotion)
+[new] keeper of the sacred flame / temple attendant (Devotion)
+[new] guardian of the ancestral shrine (Devotion)
+[new] scribe of sacred histories / scripture keeper (Devotion)
+[new] reciter of ancient prayers / ritual chanter (Devotion)
+[new] keeper of the ceremonial masks / mask custodian (Devotion)
+[new] interpreter of dreams / dream reader (Devotion)
+[new] caretaker of the burial grounds / memorial keeper (Devotion)
+[new] guardian of the sacred stones (Devotion)
+[new] keeper of the oral traditions / myth keeper (Devotion)
+[new] master of ceremonies / ritual officiant (Devotion)
+[new] guardian of the old songs / sacred singer (Devotion)
+[new] diviner / reader of signs (Devotion)
+[new] keeper of the offering bowls / altar keeper (Devotion)
+[new] mediator between rival traditions (Devotion)
+[new] historian of the ancestors / keeper of genealogies (Devotion)
+[new] teacher of spiritual traditions / novice instructor (Devotion)
+[new] keeper of the solstice rites / festival officiant (Devotion)
+[new] caretaker of the sacred grove / shrine gardener (Devotion)
+B: (the hard task, matched to the profession's skill)
+Farming:
+  help organize a planting schedule
+  work out a crop rotation schedule
+  develop a new farm
+  build a self-sustaining farm
+  create a new irrigation system
+  harvest all the (crop) before the coming (storm / cold snap / dry season)
+  cook for (the Chief / the leaders / someone important)
+  cook for a group of officials from (a faraway village)
+  create (a ridiculously complicated dish) for (recipient)
+  run a very busy food stall
+  [added] feed the whole village for three days of festival with half the usual supplies
+  [added] bring in a full catch before the tide turns
+  [added] save the sick taro patch before the rot spreads
+  [added] cook a seven-course feast using only what grows on one hillside
+  [added] make a sauce so perfect the elders cry
+  [added] smoke enough fish to last the rainy season
+[new] Farming (additional hard tasks):
+[new]   plan the village food stores so nothing spoils before the rainy season
+[new]   transplant a hillside of young taro without damaging the roots
+[new]   restore a field after salt water reaches the soil
+[new]   organize the harvest while half the workers are away fishing
+[new]   prepare a feast without using any of the usual seasonings
+[new]   identify which part of the reef can be fished without emptying it
+[new]   design a safe place to dry fish during heavy rain
+[new]   teach inexperienced gatherers to recognize ripe fruit
+[new]   save a basket of seedlings after the irrigation ditch breaks
+[new]   stretch a small harvest through a week of poor weather
+[new]   coordinate a night fishing trip without losing the catch
+[new]   choose a new plot that will not flood during high tide
+[new]   prepare a nourishing meal for a large group of exhausted workers
+[new]   keep insects away from the seed stores without spoiling the seeds
+[new]   settle a dispute over which crops should be planted first
+[new]   mend a fishing net and organize a full day of fishing
+[new]   find a way to preserve a glut of ripe fruit
+Building:
+  sculpt a statue of (a legendary figure / creature / myth)
+  paint a portrait for (the leader / an important person)
+  build a monument to the tribe's history
+  build a monument for (an important person / their relative)'s wedding
+  carve a (statue / monument) of peace and harmony between the tribes
+  [added] raise a new meeting hut before the rains, without a single leak
+  [added] build a bridge across the gorge that the whole village can cross at once
+  [added] carve a canoe from a single log for the leader's journey
+  [added] make a mask so fierce that even (mentor) flinches
+  [added] repair the oldest totem without changing its face
+  [added] weave a sail big enough to catch the trade winds
+[new] Building (additional hard tasks):
+[new]   repair a storm-damaged roof before the next downpour
+[new]   carve a readable record of the tribe's founding into stone
+[new]   strengthen the supports of an old fishing platform
+[new]   make a set of clay water jars that will not crack in the kiln
+[new]   build a shaded work area without cutting down the oldest tree
+[new]   create a stone pathway that remains safe after rain
+[new]   weave baskets sturdy enough to carry wet clay
+[new]   design a doorway wide enough for a stretcher
+[new]   restore a damaged ancestral carving without changing its expression
+[new]   construct a storage rack that keeps supplies above floodwater
+[new]   repair a canoe whose hull has begun to split
+[new]   build a small shelter using only fallen timber
+[new]   make a mask that honors two different village traditions
+[new]   rebuild a cracked oven without wasting its usable stones
+[new]   teach three apprentices to raise a wall evenly
+[new]   carve a detailed map of the village into a flat slab
+[new]   make a sail that can be repaired easily at sea
+Research:
+  perform an experiment in front of a panel of scientists
+  demonstrate a synthesis in front of a panel of scientists
+  prove (a notoriously hard idea) in front of a panel of scientists
+  present years of research in front of a panel of scientists
+  [added] predict the next big storm, to the day
+  [added] map every star in the night sky on a single bark scroll
+  [added] brew a potion that glows without fire
+  [added] explain to the elders why the tides move, without putting anyone to sleep
+  [added] count every fish in the lagoon (somehow)
+  [added] defend a new idea against the oldest, crankiest scholar on the island
+[new] Research (additional hard tasks):
+[new]   compare two methods of preserving medicinal leaves
+[new]   explain why the lagoon water changes color after heavy rain
+[new]   record the moon's phases for a complete cycle without missing a night
+[new]   devise a fair test of two competing theories about plant growth
+[new]   identify the source of an unfamiliar mineral found near the cliffs
+[new]   translate a damaged inscription without inventing missing words
+[new]   demonstrate how to measure time using shadows
+[new]   investigate why a familiar plant is failing to flower
+[new]   present evidence that a strange light is not a wandering spirit
+[new]   determine which stones hold heat longest after sunset
+[new]   make an accurate map of the currents around the reef
+[new]   explain a failed experiment to the elders without hiding the results
+[new]   test whether a new clay mixture is stronger than the old one
+[new]   record every bird species seen near the village for a full week
+[new]   build a simple instrument for measuring rainfall
+[new]   distinguish a useful discovery from a coincidence
+[new]   defend a conclusion when the evidence is incomplete
+[owner] Research (Lorsieab2's new ideas, with examples):
+[owner]   prove (name2)'s (third / fifth / seventh / last) theorem on (the tides / the stars / the spirals in shells)
+[owner]   prove (name2)'s treatise on (why coconuts float / how fire spreads / the shape of waves)
+[owner]   prove (name2)'s theory of (the moon's pull / why the rain comes in threes / what makes the lava glow)
+[owner]   prove that the three sides of a right-angled garden always obey the old rule of squares
+[owner]   prove that there is no largest number, in front of a very sleepy panel
+[owner]   prove that a circle's edge is always a little more than three times its width
+[owner]   prove that the sum of any triangle's corners is always the same
+[owner]   solve the riddle of the five ferrymen and the three goats
+[owner]   solve the knot puzzle that has stumped scholars for three generations
+[owner]   solve the old stone puzzle of the nine paths that never cross
+[owner]   solve the logic riddle of the two guards, one who always lies and one who never does
+[owner]   find the shortest path that visits every hut in the village exactly once
+[owner]   work out how to fit the most fish-drying racks on the smallest beach
+[owner]   work out how to cut the largest possible circle of bark from a crooked sheet
+[owner]   balance the village's trade of shells, fish and fruit so nobody comes out behind
+[owner]   work out how many baskets of taro the village needs to last the whole rainy season
+[owner]   examine a strange glowing stone and explain exactly what it is
+[owner]   examine the oldest scroll in the village and find the mistake everyone missed
+[owner]   improve the old method of counting the days between full moons
+[owner]   innovate new ways of measuring the depth of the lagoon
+Healing:
+[owner]   perform surgery to (remove / treat) (a fish bone stuck in a villager's throat / a splinter as long as a finger / a festering wound / a badly broken arm / a thorn buried deep in the chief's foot / a swollen tooth)
+[added]   perform surgery in front of the elders, with (mentor) naming every mistake out loud as it happens
+[added]   perform surgery by torchlight, during a storm, while the patient tells jokes
+  lead a team of (healing) assistants
+  provide medical care to (an official)
+  demonstrate that (a new treatment or medicine) really works
+  [added] set a broken leg perfectly, with (mentor) watching every move
+  [added] run the healing hut alone during a fever outbreak
+  [added] find a cure for the chief's mysterious rash
+  [added] stitch a wound so neatly it leaves no scar
+  [added] teach the whole village to wash their hands (good luck)
+[new] Healing (additional hard tasks):
+[new]   organize a safe treatment area during a sudden fever outbreak
+[new]   recognize which of three patients needs help first
+[new]   prepare a reliable poultice from a limited supply of herbs
+[new]   show apprentices how to clean and dress a wound
+[new]   care for a patient who refuses to rest
+[new]   explain a difficult treatment to a frightened family
+[new]   prepare clean water and bandages for an expected storm
+[new]   identify the cause of a rash affecting several fishers
+[new]   keep careful records of a patient's changing symptoms
+[new]   help an injured villager walk safely with a support
+[new]   prepare the healing hut for a group of exhausted travelers
+[new]   decide when a patient needs a more experienced healer
+[new]   teach the village how to prevent infected cuts
+[new]   calm a patient before setting a painful injury
+[new]   check a batch of medicinal herbs for signs of spoilage
+[new]   organize the healers' supplies so nothing vital goes missing
+[new]   supervise a young apprentice during a routine examination
+Parenting:
+  teach children from many different villages
+  teach the orphans (a skill / manners)
+  educate the children of (chiefs / officials / leaders)
+  [added] get twenty toddlers to nap at the same time
+  [added] teach the whole history of the tribe before the festival
+  [added] turn the island's naughtiest child into a model student
+  [added] put on a children's play for the visiting elders
+  [added] teach the children to swim before the season ends
+
+[new] Parenting (additional hard tasks):
+[new]   settle a quarrel between children who both claim the same toy
+[new]   teach the youngest children to recognize dangerous plants
+[new]   help a shy child speak before the learning circle
+[new]   organize a lesson that includes children of different ages
+[new]   teach a group of restless children how to share supplies
+[new]   help a child who is afraid to enter the water
+[new]   prepare a welcoming lesson for children from another tribe
+[new]   teach the children to care for a small garden
+[new]   explain an old village custom without frightening the youngest listeners
+[new]   organize games that include a child recovering from an injury
+[new]   help two siblings work together without choosing favorites
+[new]   teach a child to admit a mistake without being ashamed
+[new]   keep the nursery calm while a storm passes overhead
+[new]   guide a group of children through their first cooking lesson
+[new]   organize a performance in which every child has a part
+[new]   teach the older children how to look after younger ones
+[new]   help a homesick visiting child feel welcome
+
+Devotion:
+[new]   interpret a damaged passage from the oldest surviving Isolan scripture before the elders assemble
+[new]   explain why the island's ancestral masks matter to a delegation of skeptical officials
+[new]   teach the villagers how spiritual traditions shape their ordinary work and family life
+[new]   conduct a round-table debate on whether the island's guardian spirits truly exist
+[new]   moderate a discussion between believers, skeptics, and someone who claims to have met a spirit
+[new]   copy the inscriptions from a crumbling shrine without losing a single symbol
+[new]   decipher a message carved into a stone that predates the oldest village records
+[new]   recite the complete Song of the First Landing from memory at the annual remembrance
+[new]   explain three conflicting versions of the same legend without insulting anyone's ancestors
+[new]   reconstruct a ceremonial poem from fragments of bark scrolls and half-remembered verses
+[new]   lead a séance for villagers hoping to hear from their ancestors, without promising an answer
+[new]   investigate whether a mysterious voice in the sacred grove is a spirit or an unusually talented bird
+[new]   prepare a ceremony honoring villagers whose names have been lost to history
+[new]   identify which of twelve ancient masks belongs to a figure in a nearly forgotten legend
+[new]   settle an argument about whether a glowing stone is a blessing, a warning, or an ordinary mineral
+[new]   lead the village in a ritual that must finish before the first light reaches the altar
+[new]   translate a prayer recorded in a dialect that no living villager speaks fluently
+[new]   teach a group of children a sacred story without frightening them into sleeplessness
+[new]   explain the difference between honoring the ancestors and believing every rumor about them
+[new]   organize a respectful discussion about whether magic can be studied like any other natural phenomenon
+[new]   catalogue offerings left at the shrine over a century and determine what they reveal about village history
+[new]   trace the origins of a festival that three neighboring tribes each claim to have invented
+[new]   lead a memorial ceremony while two families disagree about the proper traditions
+[new]   decipher an omen that appears to contradict every omen recorded before it
+[new]   present an argument for or against the existence of the mysterious beings said to inhabit the island
+[new]   reconstruct the genealogy of a legendary priestess from conflicting oral histories
+[new]   memorize and recite seven ancestral chants in their correct order without a written guide
+[new]   explain the meaning of a sacred symbol to officials who keep asking whether it can be used as a fishing marker
+[new]   organize a round-table on whether dreams are messages, memories, or simply dreams
+[new]   record the testimony of an elder who claims to remember a forgotten sacred rite
+[new]   prepare a rite of reconciliation for two villages that disagree about the island's past
+[new]   determine whether a purported ancient prophecy was written before or after the event it describes
+[new]   compare the teachings of three spiritual traditions and find the values they share
+[new]   lead a nightlong vigil when the sacred fire refuses to stay lit
+[new]   explain why a shrine's rituals changed over generations without calling either version wrong
+[new]   compose a new ceremonial verse that respects the old songs without copying them
+[new]   interpret a map of sacred sites whose landmarks have disappeared beneath the jungle
+[new]   conduct a public debate on whether the ancestors would approve of a new village custom
+[new]   prepare the annual remembrance with the names of every villager lost that year
+[new]   distinguish an authentic sacred relic from a convincing imitation made by a mischievous apprentice
+
+
+[owner] Any profession (Lorsieab2's new ideas; the (A) word is the profession):
+[owner]   examine (the oldest canoe / the cracked totem / a sick tree / the village's records / a mysterious tool)
+[owner]   improve (the fishing nets / the hut roofs / the old remedy / the irrigation ditch / the lessons for the young)
+[owner]   write a (song / poem / chant / story / prayer) that rivals the oldest one the tribe knows
+[owner]   write a (song / poem / chant / story / speech) that makes the elders weep
+[owner]   write a (song / poem / chant / story) so beautiful it makes the gods cry
+[owner]   write a (song / poem / chant) that makes (mentor) cry (which nobody has ever managed)
+[owner]   make a (carving / mask / dish / remedy / lesson) that rivals the work of (mentor)'s own mentor
+[owner]   innovate new ways of (catching fish / storing food / building huts / healing wounds / teaching children)
+[owner]   innovate new ways of (lighting the night / crossing the river / keeping the rain out / remembering the old stories)
+[owner]   invent a tool that does the work of three people
+[owner]   find a use for the thing everyone else throws away
+[owner]   redesign the (workshop / kitchen / healing hut / school) so that nothing is ever lost again
+[owner]   do (A) work with only half the usual tools
+[owner]   finish in one day what usually takes a whole season
+[owner]   teach (A) work to the clumsiest villager on the island
+[owner]   make something useful out of the wreck of last year's failure
+[owner]   create a masterpiece in complete silence, with (mentor) watching every move
+[owner]   turn (mentor)'s most hated idea into something (mentor) has to admit is good
+
+[owner] Job words for the slots above (any can fill an (x)):
+[owner]   canoe, net, hut, roof, statue, totem, mask, remedy, poultice, dish, feast, garden, ditch, fence, bridge, loom,
+[owner]   basket, drum, lesson, song, chant, map, star chart, calendar, record, scroll, trap, fire pit, well, raft, sail
+
+[added] RIDICULOUSLY HARD TASKS (Lorsieab2: 'insanely, almost humorously, ridiculously hard'; draw from the matching profession):
+[added] Farming:
+[added]   grow a coconut tree from seed to fruit before the next full moon
+[added]   cook a feast for the whole island using only one coconut, one fish and a pinch of salt
+[added]   catch a fish with bare hands, blindfolded, while reciting every fish's name in the lagoon
+[added]   harvest every taro in the field without disturbing a single worm
+[added]   make a stew so perfect that the (chief / mentor / gods) weep, using ingredients chosen by the children
+[added]   grow a pumpkin big enough to use as a canoe
+[added]   cook a meal that tastes like sunrise
+[added] Building:
+[added]   carve a statue of the chief from a single grain of rice, nose included
+[added]   build a hut in one afternoon that can survive a typhoon, a tidal wave and three goats
+[added]   build a bridge to the next island using nothing but driftwood and confidence
+[added]   carve a totem so lifelike that the chief's own mother greets it by name
+[added]   weave a sail so light it floats away on its own, then weave one that doesn't
+[added]   build a canoe that paddles itself
+[added]   carve the entire history of the tribe onto a single shell
+[added] Research:
+[added]   count every grain of sand on the beach, then explain why the number is wrong
+[added]   predict the weather for every day of the next hundred years
+[added]   prove that the moon is not a giant glowing coconut, to a panel that firmly believes it is
+[added]   map every star in the sky, including the ones that only come out when nobody is looking
+[added]   brew a potion that turns rain into fruit juice
+[added]   explain why cats knock things off tables, in front of a cat that keeps knocking things off the table
+[added]   write down every word the tribe has ever spoken, in order
+[added] Healing:
+[added]   cure the common cold, in one afternoon, with one leaf
+[added]   set a broken leg on a patient who will not stop dancing
+[added]   stitch a wound with a single hair while a parrot sits on (his/her) head
+[added]   make a remedy so pleasant that the children ask to be sick
+[added]   heal a stubbed toe so completely that the toe forgets it was ever stubbed
+[added]   convince the most stubborn elder on the island to drink the medicine
+[added] Parenting:
+[added]   get every child on the island to nap at the same time, during a thunderstorm, beside a pig
+[added]   teach a baby to read before it can walk
+[added]   win an argument with a four-year-old
+[added]   keep twenty toddlers clean for one entire afternoon at the mud pits
+[added]   teach the children the whole history of the tribe without a single child saying 'why?'
+[added]   get a teenager to admit (his/her) parent was right
+[added] Devotion (VV5; elsewhere the matching profession or flavor):
+[added]   recite every prayer the tribe has ever known, backwards, without taking a breath
+[added]   get the spirits to answer a question with a clear yes or no
+[added]   keep the sacred fire lit through a rainstorm using only a single dry leaf
+[added]   lead a ceremony so moving that even the pigs bow their heads
+[added]   memorize the names of every ancestor back to the First Landing, and their pets
+[added] Any profession:
+[added]   do a full season's worth of (A) work before the sun goes down
+[added]   do the task with (his/her) eyes closed, one hand tied and (mentor) shouting the whole time
+[added]   do the task perfectly, then do it again faster, then explain why the second time was worse
+[added]   make something so perfect that even (mentor) cannot find a single flaw (nobody has ever done this)
+
+------------------------------------------------------------------------------
+T: (How Extremely Difficult the Task Is; one independent description drawn at random after B, suitable for every profession)
+[owner] More difficulty lines (Lorsieab2's; the ones in brackets are picked at random):
+[owner]   (Name1) only has one (chance / shot / try / attempt) to get it right.
+[owner]   The (work / dish / carving / remedy / lesson / ceremony) must be fit for (the chief / the leaders / the elders / the gods / the spirits / the ancestors).
+[owner]   The fate of (the village / the tribe / the whole island / the harvest / the next generation) depends on (this one task being done right / (name1) getting every step right / this going perfectly).
+[owner]   Bad luck will follow ((name1) / (name1)'s family / the whole village / everyone watching) if (name1) fails. Or so the elders say.
+[added]   Legend says the last person who failed this task (was never allowed near a (A)'s tools again / still has to tell the story at every festival / moved to the far side of the island).
+[added]   The (spirits / ancestors / gods) are said to be watching. So is everyone else.
+[added]   If (name1) fails, the (feast / festival / ceremony / harvest celebration) will have to be cancelled, and everyone will know whose fault it is.
+[added]   The elders say a task like this is only set once in a generation.
+[added]   (Name1)'s (mother / father / grandmother / grandfather / whole family) has told everyone on the island that (he/she) will succeed.
+[added]   The visiting (chief / elders / traders / tribe) will judge the whole village by how this turns out.
+[added]   The omens this morning were (terrible / confusing / suspiciously good).
+[added]   Whatever (name1) makes today will be (remembered / talked about / laughed about) for generations.
+[added]   A (bird / lizard / crab) crosses (name1)'s path on the way there. Some say that's a bad sign. Others say it means nothing at all.
+[added]   (Mentor) mentions, very casually, that (his/her) own reputation depends on this too.
+[added]   The task has been attempted (forty / a hundred / countless) times in the tribe's history. Nobody has ever finished it.
+[added]   (Mentor) only came up with the task after a very bad night's sleep.
+[added]   Even (mentor) admits, quietly, that (he/she) could not do it.
+[added]   The task has to be done by sunset. It is already midday.
+[added]   The rules of the task were written by someone who never actually tried it.
+[added]   The last apprentice who tried it is still recovering from the embarrassment.
+[added]   The elders laughed out loud when they heard what the task was. Then they saw (mentor)'s face and stopped.
+[added]   It is possible that the task is impossible. (Mentor) does not care.
+[new] The deadline is tomorrow, and (name1) has only just been told what the task involves.
+[new] (Mentor) has given (name1) a list of requirements longer than the bark scroll it is written on.
+[new] Every part must be completed correctly, because a mistake in one step could ruin everything that follows.
+[new] The instructions are clear until (name1) tries to follow them.
+[new] Three elders have offered advice, and each insists the other two are wrong.
+[new] The task would be difficult for a master, let alone someone still learning.
+[new] (Mentor) expects the result to be flawless, but refuses to explain what flawless means.
+[new] (Name1) has spent days preparing, only to learn that the requirements have changed.
+[new] The last apprentice who attempted this task gave up halfway through.
+[new] (Name1) must finish while (mentor) watches every movement without saying a word.
+[new] The task involves so many separate steps that (name1) keeps forgetting which one comes next.
+[new] (Mentor) has forbidden shortcuts, even the ones everyone else uses.
+[new] (Name1) is allowed to ask questions, but (mentor) answers each question with another question.
+[new] There is no room for error, and (name1) is painfully aware of how little room that leaves for learning.
+[new] (Name1) has been told to work independently and to seek approval before making any decision.
+[new] The supplies are limited, and there will be no second attempt if (name1) wastes them.
+[new] (Name1) has to demonstrate the entire process aloud while performing it.
+[new] Several experienced villagers will inspect the result, and none of them agree on what counts as good work.
+[new] (Mentor) has promised that the task is simple, which is precisely what worries (name1).
+[new] The work must be finished before sunset, although (name1) is fairly certain it requires two days.
+[new] (Name1) has been asked to improve on something that already works perfectly well.
+[new] The tools are unfamiliar, and (mentor) insists that learning to use them is part of the test.
+[new] (Name1) must complete the task without relying on the one technique (he/she) knows best.
+[new] The assignment was originally meant for three apprentices, but the other two are unavailable.
+[new] (Name1) has practiced every individual step, but has never attempted them all together.
+[new] The instructions mention an important exception without saying what the exception is.
+[new] The entire village seems to know about the assignment before (name1) has even begun.
+[new] (Name1) must work in front of people who remember every mistake (he/she) has ever made.
+[new] (Mentor) says there is no correct answer, then begins describing exactly what a correct answer should look like.
+[new] The task will be judged on accuracy, speed, originality, and whether (mentor) happens to be in a good mood.
+[new] (Name1) has to make a difficult decision before knowing all the facts.
+[new] The task is not dangerous, but the thought of disappointing everyone makes it feel that way.
+[new] (Name1) has been warned not to overthink the work, then handed twelve things to think about.
+[new] (Mentor) wants something traditional, innovative, simple, elaborate, and finished by noon.
+[new] The first instruction contradicts the last, and (name1) is afraid to point it out.
+[new] Every time (name1) thinks the work is complete, (mentor) remembers one more requirement.
+[new] The task must satisfy the elders, the apprentices, and a visitor who has never seen Isolan work before.
+[new] (Name1) has to repeat the demonstration until every observer is satisfied, which could take all week.
+[new] The only available instructions are written in the cramped handwriting of someone long dead.
+[new] The work must be completed with half the usual supplies and twice the usual care.
+[new] (Name1) is expected to produce a masterpiece on (his/her) first serious attempt.
+[new] (Mentor) has declared that this will be the final examination, though nobody remembers an earlier examination.
+[new] The task is so complicated that even explaining it takes most of the morning.
+[new] (Name1) must work while a small crowd debates what (he/she) should do next.
+[new] The deadline has been moved forward because an elder has decided that waiting is bad for discipline.
+[new] The assignment comes with a checklist that has its own checklist.
+[new] (Name1) has to explain every decision to (mentor), including decisions (he/she) has not made yet.
+[new] The standards are so high that (mentor) has failed (his/her) own demonstration twice.
+[new] (Mentor) says that a true master can work under any conditions, then arranges the least convenient conditions imaginable.
+[new] (Name1) is told to be spontaneous, but only according to a carefully approved plan.
+[new] The task must be finished before the tide changes, although it has nothing whatsoever to do with the sea.
+[new] (Mentor) insists that every step must look effortless, especially the steps that require tremendous effort.
+[new] (Name1) has to satisfy a panel of elders who keep falling asleep and waking up with new objections.
+[new] The work must be completed without waking a nearby baby who has apparently never slept through anything.
+[new] A mischievous monkey has stolen the instructions, and (mentor) considers retrieving them part of the assignment.
+[new] The entire process must be explained to a stubborn goat, because (mentor) believes true understanding means anyone can follow it.
+[new] (Name1) has been told to make the result impressive enough to silence an elder who has complained for forty years.
+[new] (Mentor) has placed a single pebble beside the tools and announced that it is a reminder of an important rule. (Name1) has no idea which rule.
+[new] The task must be finished while two parrots repeat every mistake in increasingly judgmental voices.
+[new] (Name1) is expected to work faster than the village's fastest expert and more carefully than its most cautious elder.
+[new] (Mentor) has invited an audience, a rival, and the village gossip, all supposedly to help (name1) concentrate.
+[new] The result must be so good that a visiting chief will remember it for the rest of (his/her) life.
+[new] The task has seventeen stages, and (mentor) refuses to reveal the seventeenth until the first sixteen are complete.
+[new] (Name1) must complete the assignment without using the word 'difficult,' which has already become the hardest part.
+[new] (Mentor) has promised to inspect every detail with a magnifying crystal borrowed from the researchers.
+[new] The assignment is supposed to prove that (name1) can think independently, but (mentor) has brought six supervisors.
+[new] The work must be done while the village's loudest drummer practices for the festival next door.
+[new] (Mentor) has announced that a mysterious ancient master once completed the same task blindfolded. Nobody can verify this.
+[new] (Name1) has been asked to produce something that will astonish the ancestors, who are not available to explain their preferences.
+[new] The assignment must survive a surprise inspection by three elders, one child, and a pig that keeps eating the paperwork.
+[new] (Mentor) insists that the finished result should be both completely ordinary and unlike anything Isola has ever seen.
+[new] (Name1) has to complete the task while (mentor) provides a running commentary to an audience that did not ask for one.
+[new] The instructions have been divided among five villagers, and each villager is convinced (his/her) portion is the most important.
+[new] The task must be so precise that (mentor) claims even the spirits will notice a crooked detail.
+[new] (Name1) has been ordered to make no mistakes, including mistakes (he/she) has not yet learned are possible.
+[new] The task has become a village-wide contest, although (name1) is the only contestant and nobody has explained the prize.
+[new] (Mentor) says the task is a lesson in patience, then begins counting down from one hundred.
+[new] (Name1) must finish before a ceremonial candle burns out, but someone has replaced it with the smallest candle on the island.
+[new] The result must meet a standard described only as 'you'll know it when you see it.'
+[new] (Name1) has been asked to outperform (mentor)'s greatest achievement, using tools (mentor) refuses to lend out.
+
+[new] DEVOTION-SPECIFIC TASK-DIFFICULTY OPTIONS (T; select only for Devotion):
+[new] (Mentor) demands an explanation that satisfies the faithful, the doubtful, and the elder who disagrees with both.
+[new] The oldest source is missing its middle, and everyone insists the missing part supports their own argument.
+[new] The audience has agreed not to interrupt, which lasts for approximately one sentence.
+[new] (Mentor) wants every claim supported by evidence, except the claims (mentor) already believes.
+[new] Three generations have memorized the words differently, and all three are in the front row.
+[new] The instructions forbid guessing, but half the symbols have worn away.
+[new] The entire discussion must remain respectful, even though two elders have been feuding since childhood.
+[new] (Mentor) expects a definitive answer to a question that scholars have debated for centuries.
+[new] The ceremony must be solemn, brief, inclusive, historically accurate, and somehow entertaining.
+[new] One witness remembers a miracle; another remembers a prank; both are absolutely certain.
+[new] The task requires a perfect recitation in a language (name1) has only just begun to learn.
+[new] (Mentor) insists the ritual must follow tradition, then reveals that nobody agrees on what tradition is.
+[new] Every explanation must be understandable to a child without sounding foolish to a scholar.
+[new] The sacred record is written on bark so brittle that even turning it over is a serious decision.
+[new] Someone has hidden a completely unrelated riddle among the official instructions.
+[new] The entire village has come to watch, including several people who believe the outcome will determine the next harvest.
+[new] (Mentor) wants (name1) to prove something invisible without using magic, instruments, or personal testimony.
+[new] The only surviving diagram was drawn by someone who apparently had never seen the thing being described.
+[new] A parrot has learned the opening words of the rite and insists on reciting them first.
+[new] (Mentor) has announced that the ancestors will be judging, but has not explained how their scores will be collected.
+[new] The ritual must begin at moonrise, and thick clouds have hidden the moon.
+[new] One elder will accept no changes, while another refuses to attend unless everything is changed.
+[new] (Name1) has to keep a straight face while a pig sleeps on the ceremonial mat.
+[new] Every time (name1) reaches a conclusion, someone produces a newly discovered scroll.
+[new] The task is considered sacred, but the only available workspace is beside the village's loudest cooking fire.
+
+C: (the privilege)
+getting promoted to head (A)
+being selected to represent the tribe as its finest (A)
+being trusted to run the (workshop / kitchen / lab / healing hut / school)
+earning a bonus
+earning special one-on-one instruction
+getting to learn under other high-ranking (A)s across Isola
+being put in charge of the next great project
+becoming the (A) (he/she) always dreamed of being
+[added] having (his/her) name carved on the honour post
+[added] getting (his/her) own workshop / kitchen / hut
+[added] wearing the feathered sash of a master
+[added] sitting beside (mentor) at the great feast
+[added] being the one the leaders call first
+[added] getting to choose the next apprentice
+[added] travelling with the canoes to learn from other islands
+[added] a song being sung in (his/her) honour
+
+[new] being allowed to teach the next group of apprentices
+[new] earning a place among the village's senior workers
+[new] being given the keys to the supply hut
+[new] being invited to advise the elders on future projects
+[new] being trusted with the village's oldest tools
+[new] being permitted to lead the next expedition
+[new] having (his/her) work displayed in the meeting place
+[new] being asked to train a promising young student
+[new] being granted first choice of materials for the next project
+[new] earning a public word of praise from (mentor)
+[new] being entrusted with a difficult commission from another tribe
+[new] having the village celebrate (his/her) achievement
+[new] being allowed to sign (his/her) name beneath the finished work
+[new] being appointed to inspect the work of future apprentices
+[new] being offered a place at the elders' planning circle
+[new] being invited to demonstrate (his/her) skills at the next festival
+[new] being given responsibility for the village's most valued project
+[owner]   having a special (totem / statue / carving / mask / pillar) carved in (his/her) likeness
+[owner]   having (his/her) name carved into the (official record / great manifest / Wall of the (Distinguished / Honored / Remarkable / Celebrated) (A)s)
+[owner]   having (his/her) name recorded in the (official history of the tribe / village's oldest scrolls / elders' chronicles)
+[added]   having (his/her) handprint pressed into the clay of the (meeting hut / great oven / shrine) wall
+[added]   having a (song / chant / story) composed about (his/her) achievement and taught to the children
+[added]   having (his/her) name added to the (Song of the Masters / Chant of the Great (A)s), sung at every festival
+[added]   having a (canoe / hut / garden / tool) named after (him/her)
+[added]   having (his/her) portrait painted on bark and hung in the (meeting hut / workshop / healing hut / school)
+[added]   having (his/her) work kept forever as the example every future (A) must study
+[added]   being remembered in the elders' stories long after (he/she) is gone
+[owner]   having (his/her) (achievement / masterpiece / name and title) carved into (his/her) gravestone one day, for all to remember
+C2: (flavor line after C, sometimes)
+(Name1) always wanted to become a (A) since (he/she) was a little child.
+(Name1) always wanted to become a (A) since (he/she) saw (his/her) (mother / father / parent / guardian / teacher) do it.
+[added] (Name1) always wanted to become a (A) since (he/she) was in school.
+[added] (Name1) has dreamed of this since the day (he/she) first held the tools.
+[added] (Name1) has practised for this moment for longer than (he/she) can remember.
+[added] Nobody in (name1)'s family has ever made it this far.
+
+[new] (Name1) remembers watching the older apprentices work and wondering whether (he/she) would ever join them.
+[new] (Name1) has spent many evenings trying to master this exact kind of work.
+[new] (Name1) still keeps the first tool (mentor) ever gave (him/her).
+[new] (Name1) has promised (his/her) family that the long hours of training will be worth it.
+[new] (Name1) knows how proud the youngest children would be to see (him/her) succeed.
+[new] (Name1) once failed at a simpler task and has never quite forgotten it.
+[new] (Name1) has been waiting for a chance to prove that (he/she) can work without supervision.
+[new] (Name1) remembers when (mentor) first agreed to take (him/her) on as an apprentice.
+[new] (Name1) has imagined hearing (mentor) say, just once, that the work is good.
+[new] (Name1) hopes the result will justify every early morning and missed celebration.
+[new] (Name1) has already told (his/her) friends about the opportunity and now wishes (he/she) had waited.
+[new] (Name1) has a little sketch of (his/her) dream workshop tucked away at home.
+[new] (Name1) thinks of the people who helped (him/her) learn the basics.
+[new] (Name1) has never attempted anything quite this difficult before.
+[new] (Name1) has done harder work, but never with so many people watching.
+[new] (Name1) is determined not to let one mistake decide (his/her) future.
+[new] DEVOTION-SPECIFIC PRIVILEGES (C; select only for Devotion):
+[new] being entrusted with the keys to the ancestral shrine
+[new] leading the next great remembrance ceremony
+[new] being permitted to study the oldest sealed scrolls
+[new] earning a seat among the keepers of sacred traditions
+[new] receiving the ceremonial staff of a senior officiant
+[new] being chosen to represent the village at an intertribal gathering
+[new] being allowed to train the next generation of novices
+[new] having (his/her) interpretation entered into the village records
+[new] being trusted to restore a neglected sacred site
+[new] receiving a place beside the elders during important ceremonies
+[new] being invited to examine a relic no apprentice has ever touched
+[new] being named keeper of the village's ancestral songs
+[new] earning permission to travel and learn the traditions of other tribes
+[new] being asked to lead the next public debate on the mysteries of Isola
+[new] receiving a hand-carved mask reserved for respected officiants
+[new] being entrusted with the village's oldest ceremonial book
+
+D: (the punishment)
+(he/she) will face eternal shame from (his/her) peers
+(mentor) will never let (him/her) forget it
+(he/she) will be scrubbing the latrines forever
+(he/she) will be cleaning out the fish-gutting pit
+(he/she) will be demoted to (sweeping the floors / fetching water)
+the whole village will never take (him/her) seriously again
+(he/she) will never get to reach (his/her) dream
+(mentor) will NOT be happy
+(mentor) will give (him/her) an earful
+(he/she) won't be able to look (himself/herself) in the eye
+(he/she) will never live it down
+(he/she) will live in infamy
+people will tell embarrassing stories of how (name1) failed at it for years
+[added] (he/she) will be carrying the water jars for the rest of the season
+[added] (his/her) failure will be turned into a children's song
+[added] (he/she) will be sent back to the very first lesson
+[added] the pigs will get (his/her) seat at the feast
+[added] (mentor) will mention it at every festival, forever
+[added] (he/she) will be the cautionary tale told to every new apprentice
+[added] (he/she) will be gutting fish until (his/her) hands smell like the sea
+[added] (he/she) will have to apologize to the whole village, one villager at a time
+
+[new] (he/she) will be assigned to repair every neglected tool in the workshop
+[new] (he/she) will have to repeat the apprenticeship assessment next season
+[new] (he/she) will be sent to sort the oldest, dustiest records
+[new] (he/she) will have to explain the mistake to the workers who depended on the job
+[new] (he/she) will lose the chance to lead the next project
+[new] (mentor) will insist on watching every step of (his/her) next assignment
+[new] (he/she) will be put on supply-counting duty for a month
+[new] (he/she) will have to clean the cooking pots after the next feast
+[new] (he/she) will be assigned to mend the torn fishing nets
+[new] (he/she) will have to start the project again with fewer materials
+[new] (he/she) will be required to demonstrate the correct method to the other apprentices
+[new] (he/she) will have to replace every spoiled ingredient (he/she) wasted
+[new] (mentor) will make (him/her) explain exactly where the plan went wrong
+[new] (he/she) will spend the next festival helping rather than celebrating
+[new] (he/she) will have to repair the damage before beginning another commission
+[new] (he/she) will be the one sweeping up the mess after everyone goes home
+[owner]   this failure will be carved into (his/her) gravestone one day, for all to remember
+[added]   the elders will choose the words for (his/her) gravestone, and none of them will be kind
+[owner]   (he/she) will have to serve (the leaders / the elders / the chief / (mentor) / the head (A)) for a full (month / season / moon cycle) (without pay / without a single day off / without complaint)
+[owner]   (his/her) face will be (painted on bark / carved into wood / drawn in the sand) and posted all over the village for everyone to laugh at
+[added]   (he/she) will have to carry (mentor)'s tools everywhere for a month, and bow every time (he/she) hands one over
+[added]   (his/her) mistake will be acted out by the children at the next festival
+[added]   (he/she) will have to announce the failure to the whole village, standing on a stump
+[added]   (he/she) will be given a new nickname, and it will stick
+[added]   (he/she) will have to wear a (coconut-shell hat / garland of seaweed / sign that says "I tried") for a whole week
+[added]   the village parrot will be taught to repeat what went wrong
+E: (flavor line before the question)
+(Name1) swallows hard.
+(Name1)'s hands are already shaking.
+[added] (Mentor) is already watching from across the (workshop / kitchen / lab / hut / clearing), arms folded.
+[added] A small crowd has gathered to watch, which is not helping.
+[added] Somewhere behind (him/her), someone whispers, "I give it until noon."
+[added] (Name1) can hear (his/her) own heartbeat.
+[added] The tools have never looked so heavy.
+[added] (Name1) whispers a quick prayer to anyone who might be listening.
+
+[owner] More lines before the question (Lorsieab2's; the ones in brackets are picked at random):
+[owner]   (Name1)'s face glistens with sweat.
+[owner]   (Name1)'s face glistens with sweat. Good thing (he/she) wore (deodorant / perfume / scented oil / flower water)!  (the second sentence only sometimes)
+[owner]   (Name1) tries to take some calming breaths.
+[owner]   (Name1) (swallows hard / feels butterflies in (his/her) stomach / can feel (his/her) heart pounding / can feel (his/her) head pounding).
+[owner]   (Name1)'s forehead wrinkles (so hard it hurts / in deep concentration).
+[owner]   (Name1) tries to (think the (task / problem / whole thing) through / work backwards from the end / start from the basics / go back to the very beginning).
+[added]   (Name1) tries to break the task into smaller steps.
+[added]   (Name1) tries to remember what (mentor) said on the very first day.
+[added]   (Name1) tries to picture the finished work in (his/her) head.
+[added]   (Name1) tries to think about how an elder would do it.
+[added]   (Name1) tries to work out which step is most likely to go wrong.
+[added]   (Name1) draws the plan in the sand, wipes it away, and draws it again.
+[added]   (Name1) counts the steps on (his/her) fingers, then runs out of fingers.
+[owner]   (Name1) runs out of fingers and tries to count on (his/her) toes.
+[owner]   (Name1) tries to count on (his/her) toes.
+[added]   (Name1)'s hands won't stop trembling.
+[added]   (Name1)'s mouth has gone completely dry.
+[added]   (Name1)'s knees feel like wet seaweed.
+[added]   (Name1) bites (his/her) lip so hard it almost bleeds.
+[added]   (Name1) can hear (his/her) own heartbeat over the sound of the waves.
+[added]   (Name1)'s stomach ties itself into a fisherman's knot.
+[owner]   (Name1) feels (faint / dizzy / light-headed). The world (spins / tilts / sways).
+[owner]   For a moment the world spins, and (name1) has to grab the (table / doorframe / nearest villager) to stay standing.
+[owner]   The air is still.
+[owner]   The (crowd / audience / panel / whole village / council / judges) holds its breath.
+
+------------------------------------------------------------------------------
+[new] (Name1) notices that (mentor) has inspected the tools twice already.
+[new] (Name1) tries to steady (his/her) breathing before anyone notices.
+[new] The other apprentices have found excuses to stand nearby.
+[new] (Name1) has brought (his/her) best tools, but suddenly doubts every one of them.
+[new] (Mentor) taps one finger against the workbench and says nothing.
+[new] (Name1) has rehearsed the opening step so many times that (he/she) almost forgets it.
+[new] A younger apprentice gives (name1) an encouraging nod.
+[new] (Name1) glances at the finished work of previous students and immediately regrets it.
+[new] The sound of the tide seems unusually loud today.
+[new] (Name1) checks the supplies one last time, although nothing has changed.
+[new] (Mentor) reminds everyone that there will be no second attempt today.
+[new] (Name1) has been awake since dawn, thinking through what might go wrong.
+[new] One of the elders has come to watch the final result.
+[new] (Name1) quietly promises (himself/herself) not to panic.
+[new] The work area is ready. Unfortunately, (name1) is not sure (he/she) is.
+[new] (Name1) catches (mentor) watching and nearly drops a tool.
+FIRST POPUPS (one per choice)
+A: (Name1) writes out every step on a long strip of bark and checks it three times...
+B: (Name1) decides to stop overthinking and trust (his/her) hands...
+C: (Name1) gathers (his/her) courage and asks (mentor) how to begin. (Mentor) stares at (him/her) for a long, silent moment...
+D: (Name1) stays up all night, practising until the stars fade...
+
+------------------------------------------------------------------------------
+[new] Optional first-popup alternatives (one drawn for the selected choice):
+[new] Choice A: (Name1) divides the task into stages, leaving space on the bark for anything that might go wrong...
+[new] Choice A: (Name1) checks the tools and materials against (his/her) list before taking the first step...
+[new] Choice A: (Name1) makes a careful sketch, then hesitates over the part (he/she) cannot predict...
+[new] Choice A: (Name1) reviews every instruction (mentor) has given (him/her) and begins with the simplest part...
+[new] Choice B: (Name1) abandons the rehearsed method and tries an approach that makes sense to (him/her)...
+[new] Choice B: (Name1) takes one look at the problem and decides to work from experience...
+[new] Choice B: (Name1) tries an unusual solution, hoping (mentor) will appreciate the ingenuity...
+[new] Choice B: (Name1) follows a promising idea before (he/she) can talk (himself/herself) out of it...
+[new] Choice C: (Name1) admits which part of the task (he/she) does not understand and waits for (mentor) to answer...
+[new] Choice C: (Name1) asks (mentor) to demonstrate the most difficult step before beginning...
+[new] Choice C: (Name1) brings (his/her) rough plan to (mentor) and asks what needs changing...
+[new] Choice C: (Name1) seeks advice from an older worker, then returns to face (mentor)...
+[new] Choice D: (Name1) practices on spare materials until the real assignment no longer seems quite so frightening...
+[new] Choice D: (Name1) repeats the hardest step at dawn, with sore hands and a stubborn determination...
+[new] Choice D: (Name1) works through a smaller trial version before risking the full supply of materials...
+[new] Choice D: (Name1) rehearses the task one final time and tries to remember when to stop preparing...
+ROUTES (your list; each choice draws one of these at random, equally likely)
+
+R1 FLYING COLORS. EFFECT: skill +20 to 30 (A's skill); the privilege (C) as story
+(Name1) passes with flying colors. Even (mentor) has nothing to say, which everyone agrees is the greatest compliment
+(mentor) has ever given anyone. (Name1) (C-result).
+
+R2 FAILS SPECTACULARLY. EFFECT: none (or a small food/tech loss if the task wasted supplies)
+It goes wrong in every possible way, all at once, in front of everyone. (F) (G)
+(H)
+
+R3 BARELY PASSES. EFFECT: skill +5 to 10
+(Name1) scrapes through by the skin of (his/her) teeth. (Mentor) looks it over for a very long time. "...Fine," (mentor)
+says at last. "Fine. Don't ever do that to my heart again."
+
+R4 STUMBLES (pass or fail at random, 50/50). EFFECT: pass skill +10 / fail none
+(Name1) stumbles and makes some embarrassing mistakes. (H)
+  pass: Somehow, by the end, it all holds together. (Mentor) lets it pass, with a look that says it will be discussed later.
+  fail: It doesn't hold together. (F) (G)
+
+R5 STUMBLES, BUT CHARMING (pass or fail at random, 50/50). EFFECT: pass skill +10, everyone happier / fail none
+(Name1) stumbles and makes some embarrassing mistakes, but somehow the mistakes give (him/her) a cute charm. The
+onlookers can't help smiling, and even (mentor)'s mouth twitches.
+  pass: (Mentor) lets it pass. "Don't think charm will save you every time," (mentor) says, but (his/her) voice is softer.
+  fail: It still isn't good enough, and (mentor) says so. But for once (mentor) says it quietly.
+
+R6 SCARY BUT KIND. EFFECT: skill +10 to 20; (name1) loses one dislike of (the matching thing), or none
+(Mentor) seems terrifying, but afterwards (mentor) takes (name1) aside and explains everything (he/she) did right and
+wrong, patiently and in detail. It turns out (mentor) isn't cruel at all, just (reticent / not one for words / hiding
+how much (he/she) cares / [added] still grieving someone and out of practice at kindness).
+
+R7 BOTH TERRIFIED. EFFECT: skill +10 to 20 for both, or none
+Neither of them has ever done anything like this before. Halfway through, (name1) realizes (mentor) is just as
+terrified of the consequences as (he/she) is. They get through it together, (passing / failing) side by side.
+
+R8 IT WAS A TEST. EFFECT: skill +10 to 20 if (name1) kept calm, else none
+It turns out the whole task was a test of how (name1) performs under pressure, set by (mentor / the leaders /
+[added] the elders / an old rival of (mentor)'s). Whatever happened, (name1) learned more about (himself/herself) than
+about the job.
+
+------------------------------------------------------------------------------
+[new] R9 THE WORK IS GOOD, BUT THE EXPLANATION IS NOT. EFFECT: skill +10 to 15 (A's skill).
+[new] (Name1) completes the assignment successfully, then struggles to explain how (he/she) did it. (Mentor) insists that good work must be repeatable, not merely lucky. After a second explanation, (name1) finally understands the method.
+[new] R10 THE MENTOR MISJUDGES IT. EFFECT: skill +10 to 20 (A's skill); everyone happier.
+[new] (Mentor) begins criticizing the result before taking a proper look. A second inspection reveals that (name1) was right. (Mentor) clears (his/her) throat and apologizes in front of the others. The apprentices will remember that longer than the assignment.
+[new] R11 THE STUDENT SPEAKS UP. EFFECT: skill +10 (A's skill).
+[new] (Mentor) demands a change that would ruin the work. For once, (name1) explains (his/her) reasoning instead of giving in. After an uncomfortable silence, (mentor) nods. The work stands, and so does (name1).
+[new] R12 A MISTAKE CAUGHT IN TIME. EFFECT: skill +5 to 10 (A's skill); no supplies lost.
+[new] Just before the final step, (name1) spots an error. (He/She) stops, admits it, and repairs the problem before anyone is harmed or any supplies are wasted. (Mentor) is not impressed by the mistake, but approves of the honesty.
+[new] R13 THE TEAM SAVES THE DAY. EFFECT: skill +5 to 10 (A's skill); everyone happier.
+[new] (Name1) cannot finish alone. (He/She) asks the other apprentices to help, gives each a clear task, and completes the job with them. (Mentor) points out that knowing when to ask for help is part of the work.
+[new] R14 A WELL-EARNED SECOND CHANCE. EFFECT: skill +5 to 10 (A's skill).
+[new] The first attempt fails. Instead of hiding it, (name1) asks to try again with the remaining materials. (Mentor) allows one careful second attempt. This time, the work is sound, though the privilege (C) will have to wait.
+[new] R15 A QUIET SUCCESS. EFFECT: skill +15 to 25 (A's skill).
+[new] The work is finished without a spectacle. (Mentor) inspects it, adjusts one tiny detail, and says, "Good." (Name1) nearly misses the word. Later, (mentor) asks (him/her) to help teach the next apprentice.
+[new] R16 THE WRONG LESSON. EFFECT: none.
+[new] (Name1) spends so long trying to impress (mentor) that (he/she) neglects the task itself. The result fails. (Mentor) makes (him/her) clear the work area and begin again another day, this time with the task in mind rather than the audience.
+[new] R17 A SURPRISING DISCOVERY. EFFECT: skill +10 to 20 (A's skill); tech +small if Research, otherwise none.
+[new] An unexpected result forces (name1) to reconsider the plan. (He/She) records what happened instead of concealing it. The original assignment is only partly successful, but (mentor) recognizes that the observation may prove useful.
+[new] R18 THE MENTOR LEARNS SOMETHING. EFFECT: skill +10 to 20 (A's skill).
+[new] (Name1) solves a problem in a way (mentor) has never tried. The older worker tests the result twice before admitting that the new method works. By sunset, both are discussing what else it might improve.
+[new] R19 PRAISE THAT COMES TOO LATE. EFFECT: skill +5 to 10 (A's skill).
+[new] (Mentor) spends the day finding faults. Only after (name1) leaves does (mentor) admit that the work was excellent. Another apprentice carries the compliment back. (Name1) is pleased, but wishes (mentor) had said it in person.
+[new] R20 THE TASK IS POSTPONED. EFFECT: none.
+[new] A sudden problem elsewhere in the village interrupts the assessment. (Mentor) helps (name1) secure the unfinished work. The test will have to wait, and neither of them pretends to be disappointed.
+[new] R21 THE STUDENT SETS A LIMIT. EFFECT: skill +5 to 10 (A's skill).
+[new] After too many hours without rest, (name1) begins making careless mistakes. (He/She) stops and asks to resume after sleeping. (Mentor) objects, then reluctantly agrees. The finished work is better for it.
+[new] R22 THE HONEST FAILURE. EFFECT: skill +5 to 10 (A's skill).
+[new] (Name1) cannot complete the task to the required standard. Instead of inventing an excuse, (he/she) explains exactly what went wrong. (Mentor) assigns a simpler exercise and promises to inspect the next attempt.
+[new] R23 THE AUDIENCE INTERFERES. EFFECT: skill +5 to 10 (A's skill); everyone happier.
+[new] An onlooker offers loud, terrible advice. (Name1) politely asks for quiet and finishes the task. (Mentor) tells the crowd that the apprentice showed more sense than the spectators.
+[new] DEVOTION-SPECIFIC PUNISHMENTS (D; select only for Devotion):
+[new] (he/she) will have to recopy the entire sacred calendar by hand
+[new] (mentor) will make (him/her) memorize every verse again, including the footnotes
+[new] (he/she) will spend a month cleaning wax from the shrine's candleholders
+[new] (he/she) will be assigned to count every offering pebble in the sacred grove
+[new] (he/she) will have to explain the error to the council of elders
+[new] (he/she) will be sent back to the first lesson on ceremonial etiquette
+[new] (he/she) will be polishing the ceremonial masks until (he/she) can see (his/her) reflection
+[new] (mentor) will insist on a complete oral examination before breakfast
+[new] (he/she) will have to rewrite the ruined scroll before the next festival
+[new] (he/she) will be responsible for keeping the sacred fire supplied with dry wood
+[new] (he/she) will have to rehearse the same chant until even the parrots know it
+[new] (he/she) will be sent to interview every elder about what went wrong
+[new] (he/she) will have to organize the shrine's tangled collection of ancient records
+[new] (mentor) will assign a written explanation of every mistake, in full
+[new] (he/she) will have to apologize to the officiants for disrupting the ceremony
+[new] (he/she) will be asked to lead a second debate with an even less agreeable audience
+
+[new] DEVOTION-SPECIFIC INTRODUCTORY FLAVOR (E; select only for Devotion):
+[new] (Name1) wonders whether the ancestors ever had to sit through an examination.
+[new] (Name1) has memorized the opening verse so thoroughly that (he/she) can hear it in (his/her) sleep.
+[new] (Mentor) has arranged the ceremonial scrolls in a perfectly straight line.
+[new] (Name1) is beginning to understand why the elders always look tired after debates.
+[new] (Name1) glances at the shrine and silently hopes for a little patience.
+[new] (Mentor) has brought a second set of notes, which is never a reassuring sign.
+[new] (Name1) can hear two elders disagreeing before the discussion has even begun.
+[new] (Name1) tries to remember whether the third verse comes before or after the fourth.
+[new] (Mentor) is watching the sacred flame as though it might offer an opinion.
+[new] (Name1) wishes the old inscriptions had included a few more vowels.
+[new] (Name1) has prepared an argument, a counterargument, and an apology.
+[new] (Name1) is more afraid of the questions afterward than of the ceremony itself.
+[new] (Mentor) has warned everyone not to interrupt, especially (mentor).
+[new] (Name1) wonders if an omen can simply mean that it is time for lunch.
+[new] (Name1) carefully checks that the ceremonial mask is facing the correct way.
+
+F: (the mentor's reaction: your lines; never real swear words)
+(Mentor) is clearly angry.
+(Mentor) is raging internally.
+(Mentor) is seething.
+(Mentor) looks ready to explode.
+(Mentor)'s face is bright red.
+(Mentor)'s face is crimson.
+(Mentor)'s face turns scarlet.
+(Mentor)'s speech is laced with words parents cover children's ears for.
+[added] A vein is throbbing on (mentor)'s forehead.
+[added] (Mentor) slams both hands on the table so hard the bowls jump.
+[added] (Mentor) goes very, very quiet, which is somehow worse.
+[added] (Mentor) throws (his/her) arms up to the sky as if asking the spirits for patience.
+[added] (Mentor) pinches the bridge of (his/her) nose and breathes slowly.
+[added] Steam seems to come out of (mentor)'s ears.
+[added] (Mentor) storms out, storms back in, and storms out again.
+[added] The birds in the nearby trees fall silent.
+
+[new] (Mentor) squints at the finished work as though it might improve under pressure.
+[new] (Mentor) begins to speak, stops, and counts slowly on (his/her) fingers.
+[new] (Mentor) sets down (his/her) tools with alarming care.
+[new] (Mentor) asks everyone else to step back before the lecture begins.
+[new] (Mentor) examines the result from three angles and dislikes all three.
+[new] (Mentor) rubs (his/her) forehead and requests a moment of silence.
+[new] (Mentor) points at the mistake without saying a word.
+[new] (Mentor) circles the workbench like a storm cloud.
+[new] (Mentor) lets out a long sigh that seems to reach the shore.
+[new] (Mentor) calls for a second opinion, then argues with it.
+[new] (Mentor) asks for a chair, sits down, and immediately stands up again.
+[new] (Mentor) takes one look and asks who approved the plan.
+[new] (Mentor) closes (his/her) eyes, apparently bargaining with the spirits for patience.
+[new] (Mentor) gestures at the finished work as though presenting evidence at a trial.
+[new] (Mentor) inspects the damage and begins speaking in a dangerously gentle voice.
+[new] (Mentor) announces that the whole village is about to receive an important lesson.
+[owner]   (Mentor)'s brow furrows.
+[owner]   (Mentor) slams the (scroll / record board / lid of the pot / tool box) shut.
+[owner]   (Mentor) slams (his/her) (hand / fist / tool) on the table, making the (bowls / tools / pots / shells / children) rattle.
+[owner]   (Mentor)'s face contorts into something so scary that even the (pigs / monkeys / crabs / seagulls / spirits) run away.
+[added]   (Mentor)'s eye starts to twitch.
+[added]   (Mentor) goes very, very quiet. That is worse than shouting.
+[added]   (Mentor) takes a deep breath, opens (his/her) mouth, closes it again, and takes another deep breath.
+[added]   (Mentor)'s face turns the colour of a ripe (mango / sunset / boiled crab).
+[added]   (Mentor) stares at the work so hard it looks like it might catch fire.
+[added]   A vein on (mentor)'s forehead appears that nobody has ever seen before.
+[added]   (Mentor) throws (his/her) hands in the air and walks a full circle around the hut before speaking.
+[added]   (Mentor) slowly sets down (his/her) cup. Everyone in the room takes a step back.
+[new] DEVOTION-SPECIFIC MENTOR REACTIONS (F; select only for Devotion):
+[new] (Mentor) closes the sacred book with a sound that silences the whole circle.
+[new] (Mentor) stares at the inscription, then at (name1), then back at the inscription.
+[new] (Mentor) raises both hands as though asking every ancestor for patience.
+[new] (Mentor) removes (his/her) ceremonial mask very slowly.
+[new] (Mentor) looks as though (he/she) has just heard the wrong verse at a funeral.
+[new] (Mentor) taps the scroll with one finger until the entire room goes quiet.
+[new] (Mentor) walks around the altar twice without saying a word.
+[new] (Mentor) looks up at the sky, apparently waiting for an explanation.
+[new] (Mentor) sits down so suddenly that the nearest apprentice offers (him/her) water.
+[new] (Mentor) takes a deep breath, then takes another much longer one.
+[new] (Mentor) points at the ancient inscription with an expression of utter disbelief.
+[new] (Mentor) turns to the elders, who are doing their best not to laugh.
+[new] (Mentor) folds (his/her) arms and waits for (name1) to notice the mistake.
+[new] (Mentor) looks personally offended on behalf of several generations of ancestors.
+[new] (Mentor) lowers (his/her) voice, which somehow makes the criticism more frightening.
+
+G: (mentor quotes: yours, then [added])
+"YOU DONKEY!"
+"Look. LOOK! LOOK!"
+"WHAT THE HECK IS THIS?!"
+"You're gonna set yourself on fire, you (donkey / wet noodle / overcooked yam)!"
+"IT'S RAW!"
+"You're going to KILL SOMEONE!"
+"EVEN MY GRANDMOTHER COULD DO BETTER THAN THIS! AND SHE'S DEAD!"
+"EVEN MY FIVE-YEAR-OLD COULD DO BETTER THAN THIS!"
+"WHERE'S THE (MANGO SAUCE / COCONUT CREAM / SECOND COAT OF CLAY / BANDAGE / LESSON PLAN)?!"
+"GET OUT!"
+[added] "This fish is so raw it's still trying to swim back to the reef!"
+[added] "You've burnt the yams! They're black! BLACK! Like the inside of a cave!"
+[added] "It's so dry the desert would ask for water!"
+[added] "My fire pit is not your playground!"
+[added] "Wake up! WAKE UP! The tide has come in and gone out and you're STILL stirring!"
+[added] "Taste it. TASTE IT. What does that taste like? Exactly. Disappointment."
+[added] "This hut is leaning so hard it's trying to lie down!"
+[added] "You call that a statue? It looks like a coconut that lost an argument!"
+[added] "You've mixed the remedy so thick the patient could build a hut with it!"
+[added] "Shut it down! SHUT IT DOWN! Everybody out of my kitchen!"
+[added] "Hands up who thinks this is cooked. Nobody? NOBODY!"
+[added] "You've got one job! ONE! And it's on fire!"
+[added] "Oh, it's beautiful... said NO ONE, EVER!"
+[added] "Come here. Come here! Smell that. That's the smell of failure."
+[added] "Even the pigs won't eat this, and they eat EVERYTHING!"
+[added] "I've seen better (A) work from a crab with a stick!"
+[added] "This stew is so bland the salt is crying!"
+[added] "Did a monkey do this? Be honest. I won't be angry at the monkey."
+[added] "It's soggy! SOGGY! Like a sandal left in the rain!"
+[added] "You've seasoned it with sand! SAND!"
+[added] "This bridge would collapse if a butterfly sneezed on it!"
+[added] "The roof's got more holes than a fishing net!"
+[added] "This potion just ate through my bowl!"
+[added] "You call that a stitch? I've seen tidier spider webs!"
+[added] "The children learned more from the goat!"
+[added] "Look at me. LOOK at me. Is this your best? IS IT?"
+[added] "I'm getting old just watching you!"
+[added] "My ancestors are rolling in their graves! ALL of them!"
+[added] "Wonderful. Absolutely wonderful. Now throw it in the sea."
+[added] "Even the tide doesn't want this, and it takes EVERYTHING!"
+[added] "Don't you DARE serve that to the elders!"
+[added] "Who taught you that? WHO? Oh. Me. ...We'll forget that."
+[added] "You've got the hands of a sculptor and the brain of a coconut!"
+[added] "It's raw in the middle and burnt on the outside! How?! HOW?!"
+[added] "Somebody fetch the healer, because this (thing) is DEAD!"
+[added] "Do it again. And this time, use your eyes!"
+[added] "This canoe couldn't float in a puddle!"
+[added] "Did you make this with your elbows?"
+[added] "Is this a basket or a cry for help?"
+[added] "I asked for a monument, not a pile of rocks with opinions!"
+[added] "The fish would be insulted. The FISH!"
+[added] "Go away. Come back tomorrow. Bring your brain."
+
+[new] "THE TARO IS HARD ENOUGH TO REBUILD THE WALLS!"
+[new] "THAT NET HAS MORE ESCAPE ROUTES THAN FISH!"
+[new] "THIS BROTH HAS SEEN A VEGETABLE, BUT ONLY FROM A DISTANCE!"
+[new] "THE CANOE IS TAKING ON WATER WHILE IT'S STILL ON LAND!"
+[new] "THAT MASK LOOKS FRIGHTENED OF ITS OWN FACE!"
+[new] "THE ROOF IS SUPPOSED TO KEEP THE RAIN OUT, NOT INVITE IT IN!"
+[new] "THESE YAMS ARE SO HARD I COULD USE THEM AS HAMMERS!"
+[new] "WHO PUT THE FISH IN THE FRUIT BASKET?!"
+[new] "THE TIDE IS MORE ORGANIZED THAN THIS WORKSHOP!"
+[new] "THE PIGS COULD SORT THESE SEEDS FASTER, AND THEY'D EAT HALF OF THEM!"
+[new] "THAT POT IS CRACKED! WE'RE MAKING SOUP, NOT WATERING THE FLOOR!"
+[new] "YOU'VE MEASURED THE BRIDGE THREE TIMES AND BUILT IT FOUR DIFFERENT LENGTHS!"
+[new] "THE REEF HAS BEEN HERE FOR AGES! HOW HAVE YOU MANAGED TO MAP IT BACKWARDS?!"
+[new] "THE BANDAGES ARE CLEAN, SO WHY ARE THEY LYING IN THE MUD?!"
+[new] "THOSE CHILDREN ARE SUPPOSED TO BE LEARNING TO COUNT, NOT COUNTING HOW MANY TIMES YOU LOSE YOUR PLACE!"
+[new] "WHERE'S THE (COCONUT CREAM)?! DID IT SWIM AWAY?!"
+[new] "THE MONKEYS ARE WATCHING THIS AND TAKING NOTES ON WHAT NOT TO DO!"
+[new] "IF THAT FIRE GETS ANY HIGHER, WE'LL BE COOKING THE PALM TREES!"
+[new] "THE CLAY IS STILL WET! EVEN A CRAB KNOWS TO WAIT FOR IT TO DRY!"
+[new] "THIS IS A TEST OF THE MEDICINE, NOT A TEST OF HOW MANY BOWLS WE CAN BREAK!"
+[new] "YOU CAN'T CALL IT A HARVEST IF EVERYTHING IS STILL IN THE GROUND!"
+[new] "WHY IS THE SAIL FACING THE WRONG WAY?! ARE WE TRYING TO RETURN TO YESTERDAY?!"
+[new] "THE NUMBERS DON'T AGREE WITH EACH OTHER! THEY'RE HAVING A WHOLE ARGUMENT!"
+[new] "THIS LESSON PLAN HAS A BEGINNING AND AN END! WHERE DID THE MIDDLE GO?!"
+[new] "THE FISH IS BURNT ON ONE SIDE AND FROZEN WITH FEAR ON THE OTHER!"
+[new] "IF THAT WALL LEANS ANY FARTHER, IT'LL BE ASKING THE TREE FOR SUPPORT!"
+[owner]   "PATHETIC!"
+[owner]   "SHUT IT DOWN!"
+[owner]   "IT'S (CROOKED / LOPSIDED / BACKWARDS / UPSIDE DOWN / ALL WRONG / A DISASTER)!"
+[owner]   "YOU'RE DONE!"
+[owner]   "OUT!!!!"
+[added]   "THIS (LESSON / SPEECH / STORY / PRESENTATION / CHANT) IS SO DULL, EVEN THE (PIGS / ELDERS / ANCESTORS / CRABS) FELL ASLEEP!!!!"
+[owner]   "ALWAYS EXPECT THE UNEXPECTED!"
+[new] DEVOTION-SPECIFIC MENTOR QUOTES (G; select only for Devotion):
+[owner]   "That's just a (doodle / child's drawing / bunch of scribbles), not a (sigil / sacred symbol / holy passage / prayer / ancestral mark)!"
+[new] "THAT IS THE OPENING VERSE! WHY ARE YOU RECITING THE ENDING?!"
+[new] "THE SCROLL IS UPSIDE DOWN! UPSIDE DOWN!"
+[new] "YOU HAVE GIVEN THE ANCESTORS THE WRONG NAMES! ALL OF THEM!"
+[new] "THAT IS NOT AN OMEN! THAT IS A CRAB!"
+[new] "WHERE IS THE THIRD OFFERING BOWL?! WE HAD THREE!"
+[new] "YOU CANNOT SOLVE A DEBATE BY DECLARING EVERYONE CORRECT!"
+[new] "THE SACRED FIRE IS OUT! THE FIRE! THE ONE THING THAT WAS SUPPOSED TO STAY LIT!"
+[new] "THAT IS A FISHING SONG! WHY ARE YOU SINGING IT AT A MEMORIAL?!"
+[new] "THE MASK IS BACKWARDS! THE EYES ARE ON THE WRONG SIDE!"
+[new] "YOU HAVE TRANSLATED THE PROPHECY AS A RECIPE FOR YAMS!"
+[new] "THE ANCESTORS DID NOT WRITE THIS IN COCONUT JUICE! STOP GUESSING!"
+[new] "THAT IS A QUESTION, NOT AN ANSWER! AND YOU HAVE ASKED IT SIX TIMES!"
+[new] "HOW DID YOU LOSE A STONE ALTAR?! IT HAS NOT MOVED IN THREE HUNDRED YEARS!"
+[new] "YOU CANNOT CALL A PARROT AS YOUR ONLY WITNESS!"
+[new] "YOU LEFT OUT THE ENTIRE SECOND GENERATION! WHERE DID THEY GO?!"
+[new] "THIS IS A CEREMONY, NOT A COMPETITION TO SHOUT THE LOUDEST!"
+[new] "THE INSCRIPTION SAYS PEACE! PEACE! NOT PEAS!"
+[new] "WHY IS THERE A PIG ON THE CEREMONIAL MAT?! WHO INVITED THE PIG?!"
+[new] "I ASKED FOR AN INTERPRETATION, NOT A STORY ABOUT YOUR BREAKFAST!"
+[new] "YOU HAVE TURNED A FIVE-MINUTE BLESSING INTO A THREE-HOUR LECTURE!"
+[new] "NO, THE MOON IS NOT LATE! YOU READ THE CALENDAR WRONG!"
+[new] "YOU CANNOT CLAIM THE SPIRITS AGREE WITH YOU JUST BECAUSE NOBODY ANSWERED!"
+[new] "THAT IS NOT AN ANCIENT RELIC! I CARVED THAT LAST WEEK!"
+[new] "YOU HAVE WRITTEN THE SAME ANCESTOR INTO THE FAMILY TREE FOUR TIMES!"
+[new] "THE ELDERS ARE ARGUING ABOUT YOUR ARGUMENT ABOUT THEIR ARGUMENT!"
+[new] "WHERE IS THE CEREMONIAL STAFF?! DO NOT TELL ME THE GOAT ATE IT!"
+[new] "THAT CHANT HAS SEVEN VERSES! SEVEN! YOU HAVE INVENTED AN EIGHTH!"
+[new] "YOU CANNOT PROVE THE SPIRITS EXIST BY POINTING AT A MUSHROOM!"
+[new] "YOU WERE SUPPOSED TO RESTORE THE TEXT, NOT WRITE A BETTER ENDING!"
+[new] "THE SACRED SYMBOL IS NOT A DECORATION FOR YOUR LUNCH BASKET!"
+
+G2: [added] profession quotes (drawn when the profession matches; the general quotes above can show for any)
+Farming (fields, fishing, cooking):
+[owner]   "THIS (STEW / SOUP / BROTH / DISH) IS (OVERCOOKED / UNDERCOOKED / UNDERMIXED / BURNT / RAW / SOGGY / LUMPY / BONE DRY / STONE COLD)!"
+  "These rows are crookeder than a crab's walk!"
+  "You've planted the taro upside down! The ROOTS are waving at me!"
+  "The irrigation ditch runs UPHILL! How?!"
+  "You've harvested the weeds and left the crop!"
+  "That net has caught nothing but the sky!"
+Building (sculpture, monuments, huts, canoes):
+[added]   "That's just a (doodle / child's drawing / bunch of scribbles), not a (design / plan / carving pattern)!"
+[owner]   "THIS (KNIFE / AXE / SPEARHEAD / CHISEL / ADZE / ARROWHEAD) IS SO DULL, YOU COULDN'T EVEN CUT A (BANANA / RIPE MANGO / SPIDER WEB / WET LEAF / PIECE OF SEAWEED)!!!!"
+  "What happened to the nose?! It's LUMPY! It looks like a yam fell on it!"
+  "That's not the Chief, that's a potato with a frown!"
+  "Why is the nose bigger than the head?! WHY?!"
+  "The statue's nose is pointing at the sea like it's trying to leave!"
+  "You've carved the ears on backwards! It's LISTENING TO ITS OWN HAIR!"
+  "This monument to peace looks like it wants to start a war!"
+  "The hut has a door on the roof! Who's coming in through the ROOF?!"
+  "This canoe has a hole in it. A HOLE. In a CANOE!"
+Research (experiments, scrolls, the stars):
+[owner]   "That's just a (doodle / child's drawing / bunch of scribbles), not a (star chart / map / diagram / passage / proper record)!"
+[owner]   "THIS (POULTICE / REMEDY / SALVE / TONIC / MEDICINE) IS (OVERCOOKED / UNDERMIXED / LUMPY / TOO THIN / TOO THICK / BURNT)!"
+[owner]   "THIS (POTION / BREW / ELIXIR / MIXTURE) IS (OVERCOOKED / UNDERMIXED / CURDLED / BURNT / BUBBLING THE WRONG COLOUR)!"
+[owner]   "THIS (STEW / BROTH / CAULDRON BREW) IS (OVERCOOKED / UNDERCOOKED / UNDERMIXED / BURNT / LUMPY / TOO THIN / TOO THICK)!"
+[owner]   (Potions, stews, remedies, poultices, salves, tonics and anything similar can be Research OR Healing: draw these lines for either profession.)
+  "Your experiment proved one thing: that you shouldn't do experiments!"
+  "This star chart has the moon in it TWICE!"
+  "You've written the whole scroll backwards! The elders have to read it in a puddle!"
+  "Your potion turned the bowl purple! The BOWL!"
+  "You said the tides are caused by fish breathing?! In front of the PANEL?!"
+Healing (medicine, surgery, remedies):
+[owner]   "THIS (POULTICE / REMEDY / SALVE / TONIC / MEDICINE) IS (OVERCOOKED / UNDERMIXED / LUMPY / TOO THIN / TOO THICK / BURNT)!"
+[owner]   "THIS (POTION / BREW / ELIXIR / MIXTURE) IS (OVERCOOKED / UNDERMIXED / CURDLED / BURNT / BUBBLING THE WRONG COLOUR)!"
+[owner]   "THIS (STEW / BROTH / CAULDRON BREW) IS (OVERCOOKED / UNDERCOOKED / UNDERMIXED / BURNT / LUMPY / TOO THIN / TOO THICK)!"
+[owner]   (Potions, stews, remedies, poultices, salves, tonics and anything similar can be Research OR Healing: draw these lines for either profession.)
+  "You've bandaged the WRONG LEG!"
+  "This remedy smells like a dead crab's feet!"
+  "The patient came in with a cough and is leaving with a limp!"
+  "You don't stitch a wound like you're sewing a sail!"
+  "Wash your hands! WASH THEM! Were you raised by monkeys?!"
+Parenting (teaching, the nursery):
+  "The children are teaching YOU!"
+  "Why is there a child on the roof?! WHY IS THERE A CHILD ON THE ROOF?!"
+  "You taught them manners and now they're bowing to the pigs!"
+  "They learned the history of the tribe... and somehow it ends with a goat being chief!"
+  "Twenty children went to nap. Nineteen came back. COUNT THEM!"
+
+H: (flavor lines: yours)
+All (name1) can do is look down at (his/her) feet.
+All (name1) can do is stare at the floor.
+(Name1) says nothing.
+(Name1) stays very, very quiet.
+[added] (Name1)'s ears turn bright pink.
+[added] (Name1) wishes the ground would open up and swallow (him/her).
+[added] (Name1) nods very fast and very small.
+[added] (Name1)'s lip wobbles, but (he/she) holds it together.
+[added] (Name1) manages a tiny "Yes, (mentor)."
+[added] After a poor performance (name1) is allowed to feel humiliated, guilty, ashamed, angry, small, or any other bad feeling:
+[added] (Name1) feels utterly humiliated.
+[added] (Name1)'s face burns with shame.
+[added] Guilt sits in (name1)'s stomach like a stone.
+[added] (Name1) feels like the worst (A) who ever lived.
+[added] (Name1) can't stop replaying every mistake in (his/her) head.
+[added] (Name1) is furious, mostly with (himself/herself).
+[added] (Name1) feels small, smaller than (he/she) has felt since childhood.
+[added] (Name1) wants to cry, and does, a little, once (he/she) is alone.
+[added] (Name1) can't face anyone at supper and eats alone by the shore.
+[added] (Name1) feels like (he/she) has let down everyone who believed in (him/her).
+[added] (Name1) lies awake that night, staring at the thatch, sick with embarrassment.
+[added] (Name1) feels a hot rush of anger, then nothing but exhaustion.
+[added] For days, (name1) flinches every time someone says the word "(A)".
+[owner]   (Name1) faints on the spot.
+[owner]   The world spins, and (name1) has to sit down before (he/she) falls down.
+[added]   (Name1) sways, sees spots, and wakes up with (mentor) fanning (him/her) with a palm leaf.
+
+------------------------------------------------------------------------------
+[new] (Name1) studies the ground, hoping nobody will ask (him/her) to explain.
+[new] (Name1) tries to answer, but only a small squeak comes out.
+[new] (Name1) takes a slow breath and looks at the unfinished work.
+[new] (Name1) grips the edge of the table until (his/her) hands stop shaking.
+[new] (Name1) searches for an excuse and decides against using one.
+[new] (Name1) winces as the other apprentices exchange glances.
+[new] (Name1) looks at (mentor), waiting for the worst.
+[new] (Name1) carefully sets the tools down before (he/she) drops them.
+[new] (Name1) starts to apologize, then realizes (he/she) has already apologized twice.
+[new] (Name1) wishes the assignment had taken place somewhere far from the village.
+[new] (Name1) can feel every eye on (him/her), even after the crowd looks away.
+[new] (Name1) straightens (his/her) shoulders and prepares to hear the criticism.
+[new] (Name1) realizes that arguing would only make the moment longer.
+[new] (Name1) nods and asks which part should be fixed first.
+[new] (Name1) manages a weak smile that disappears almost immediately.
+[new] (Name1) looks at the mistake and finally sees what (mentor) meant.
+[new] DEVOTION-SPECIFIC STUDENT REACTIONS (H; select only for Devotion):
+[new] (Name1) suddenly wishes (he/she) had chosen a profession involving fewer public speeches.
+[new] (Name1) realizes (he/she) has been holding the scroll upside down.
+[new] (Name1) tries not to look at the elder who has begun shaking with silent laughter.
+[new] (Name1) stares at the missing offering bowl and says nothing.
+[new] (Name1) cannot remember whether the pause is part of the chant or simply (his/her) panic.
+[new] (Name1) carefully places the ceremonial mask on the table.
+[new] (Name1) wishes the ancestors would send a very clear sign about what to do next.
+[new] (Name1) quietly checks the original text for the third time.
+[new] (Name1) can feel the entire council waiting for an explanation.
+[new] (Name1) swallows and admits that (he/she) may have misread the inscription.
+[new] (Name1) is relieved that at least the sacred fire is still burning.
+[new] (Name1) tries to remember the last time (mentor) approved of a first attempt.
+[new] (Name1) makes a note to rehearse the opening verse much more carefully.
+[new] (Name1) takes one breath and begins the explanation again.
+[new] (Name1) wonders whether the parrot could be persuaded to stop repeating the mistake.
+
+VARIANT 2: THE HARSHEST CRITIC IS (NAME1)
+Same setup and pools, but the routes that fail or stumble end with (mentor) being stern but kind, because (mentor)
+sees (himself/herself) in (name1). (mentor) says one of these (yours):
+"You failed. You scrutinized yourself too hard."
+"I didn't get here overnight."
+"Remember this always. Your own harshest critic is yourself."
+"I will never admit this in public, but I was once like you."
+[added] "You were watching yourself so hard you forgot to watch the work."
+[added] "Nobody here was harder on you than you were."
+[added] "The first statue I ever carved fell over in front of the Chief. I still carved the second."
+[added] "You're allowed to be bad at something before you're good at it."
+[added] "I shout because I care. You whisper to yourself because you care too much."
+[added] "Tomorrow, try being half as cruel to yourself as you were today."
+[added] "If you talk to yourself like that again, you'll answer to me."
+[added] "Mistakes are the price of learning. You've just paid a good amount."
+EFFECT: skill +5 to 10 even on a fail (the lesson sticks).
+
+[new] "You can be disappointed without deciding you are hopeless."
+[new] "I asked you to make the work better, not to punish yourself."
+[new] "A mistake is something you made. It is not everything you are."
+[new] "If you knew how to do it perfectly already, you would not need a mentor."
+[new] "You have the right to ask a question before the work goes wrong."
+[new] "You noticed the error. That means you are learning to see."
+[new] "I would rather hear an honest failure than a beautiful excuse."
+[new] "Do not confuse being frightened with being unprepared."
+[new] "Your hands are shaking because this matters to you. Now give them a rest."
+[new] "The work is unfinished. That does not mean your future is."
+[new] "I can teach you to repair a mistake. I cannot teach you if you hide it."
+[new] "You are allowed to take pride in the parts you did well."
+[new] "The others are watching the lesson, not judging your whole life."
+[new] "I have ruined more projects than you have even attempted. That is how I learned."
+[new] "Tomorrow we will try again, and tomorrow I expect you to speak kindly to yourself."
+[new] "You listened to every criticism except the one that mattered: you needed rest."
+[new] "One day you will teach someone who is as frightened as you are now. Remember this."
+[new] "A careful worker knows when to begin again. A wise worker knows when to stop."
+
+[new] DEVOTION-SPECIFIC 'YOUR OWN HARSHEST CRITIC' LINES (VARIANT 2; select only for Devotion):
+[new] "You can respect the ancestors without pretending to know what they meant."
+[new] "An unanswered question is not a personal failure."
+[new] "Even the oldest scriptures have passages we still debate."
+[new] "You were so afraid of being wrong that you stopped listening."
+[new] "A respectful doubt is worth more than a confident guess."
+[new] "You do not have to settle three centuries of argument in one afternoon."
+[new] "The purpose of a ceremony is not to prove that you are perfect."
+[new] "A forgotten verse can be learned again. A frightened apprentice needs kindness."
+[new] "You are allowed to ask what a symbol means before you explain it."
+[new] "I have misread inscriptions older than your grandparents. The stones survived."
+[new] "Do not mistake the silence of the room for the judgment of the ancestors."
+[new] "You listened to everyone except yourself."
+[new] "You are here to learn the traditions, not carry every tradition alone."
+[new] "The wisest answer today might simply be that we do not know."
+[new] "Your work deserves care. You deserve patience."
+
+
+------------------------------------------------------------------------------
+[new] ADDITIONAL MAD-LIB MODULE: (NAME2)'S (NUMBER) (THING / THINGS)
+[new] (name2) = a second named villager, distinct from (name1) and (mentor); ideally an elder, legendary expert, historical figure, or visiting examiner. For an ancient figure, use a generated historical name rather than a currently living villager.
+[new] (number) = a positive integer selected to fit the task and noun. Use plural (things) for any number other than 1; use singular (thing) for 1. Use the task's own number for fixed-length sets, such as a seven-part chant.
+[new] Draw the action and named challenge as a single complete B entry below; do not freely combine incompatible verbs and objects. These tasks are grouped by skill and may be added directly to the matching B pool.
+[new] When the task involves proving or validating a spiritual claim, (name1) may conclude that evidence is insufficient; a careful honest conclusion can still count as success.
+
+[new] FARMING — NAMED MASTER CHALLENGES (B):
+[new] recreate (name2)'s (number) famous feast dishes using only the ingredients available that season
+[new] demonstrate (name2)'s (number) techniques for preserving fish without spoiling a single catch
+[new] validate (name2)'s (number) predictions about the coming harvest against the village records
+[new] reproduce (name2)'s (number) planting experiments in plots of equal size
+[new] prepare (name2)'s (number) legendary sauces without consulting the original recipes
+[new] prove whether (name2)'s (number) rules for crop rotation actually improve the harvest
+[new] identify the mistakes in (name2)'s (number) instructions for building a food store
+[new] recite and demonstrate (name2)'s (number) rules for finding safe fishing grounds
+
+[new] BUILDING — NAMED MASTER CHALLENGES (B):
+[new] recreate (name2)'s (number) carved masks from descriptions left by former apprentices
+[new] validate the strength of (name2)'s (number) bridge designs without endangering anyone
+[new] reproduce (name2)'s (number) famous pottery patterns using the old tools
+[new] demonstrate (name2)'s (number) methods for raising a roof that survives heavy rain
+[new] restore (name2)'s (number) sculptures while preserving their original markings
+[new] prove which of (name2)'s (number) canoe designs can carry the greatest load
+[new] explain and recreate (name2)'s (number) methods of weaving sails
+[new] construct miniature versions of (name2)'s (number) proposed village monuments
+
+[new] RESEARCH — NAMED MASTER CHALLENGES (B):
+[new] replicate (name2)'s (number) celebrated experiments before a skeptical panel
+[new] prove or disprove (name2)'s (number) claims about the movement of the stars
+[new] validate (name2)'s (number) observations of unusual island plants
+[new] recreate (name2)'s (number) chemical preparations from incomplete notes
+[new] explain (name2)'s (number) famous theories without relying on their original diagrams
+[new] find the hidden error in each of (name2)'s (number) mathematical demonstrations
+[new] compare (name2)'s (number) competing explanations for a strange natural phenomenon
+[new] reconstruct (name2)'s (number) missing steps in an important experiment
+
+[new] HEALING — NAMED MASTER CHALLENGES (B):
+[new] validate (name2)'s (number) herbal remedies without exposing patients to unnecessary risks
+[new] demonstrate (name2)'s (number) methods of bandaging on practice models
+[new] recite (name2)'s (number) warnings about dangerous symptoms and explain why each matters
+[new] recreate (name2)'s (number) safe splint designs for different injuries
+[new] assess (name2)'s (number) recorded cases and explain what (he/she) would do differently
+[new] compare (name2)'s (number) methods for keeping the healing hut clean
+[new] explain which of (name2)'s (number) famous cures were supported by evidence
+[new] lead a practice emergency drill based on (name2)'s (number) most difficult cases
+
+[new] PARENTING — NAMED MASTER CHALLENGES (B):
+[new] recite (name2)'s (number) stories for children and explain the lesson in each
+[new] recreate (name2)'s (number) teaching games for a class with different ages
+[new] demonstrate (name2)'s (number) methods of settling arguments without choosing favorites
+[new] validate (name2)'s (number) claims about how children learn by observing their progress
+[new] perform (name2)'s (number) educational songs with the children joining in
+[new] adapt (name2)'s (number) lessons so every child can participate
+[new] compare (name2)'s (number) approaches to helping frightened children feel safe
+[new] organize a lesson based on (name2)'s (number) stories about Isolan history
+
+[new] DEVOTION — NAMED MASTER CHALLENGES (B):
+[new] recite (name2)'s (number) sacred verses in their original order and explain their meaning
+[new] perform (name2)'s (number) ceremonial chants without losing the rhythm
+[new] recreate (name2)'s (number) ancient rites from conflicting descriptions
+[new] validate the historical origins of (name2)'s (number) prophecies
+[new] decipher (name2)'s (number) inscriptions on stones recovered from the jungle
+[new] prove or challenge (name2)'s (number) interpretations of the island's oldest scripture
+[new] explain the symbolism of (name2)'s (number) ceremonial masks to visiting officials
+[new] reconstruct (name2)'s (number) accounts of encounters with mysterious beings
+[new] lead a round-table on whether (name2)'s (number) recorded omens had natural explanations
+[new] perform (name2)'s (number) songs of remembrance without leaving out the forgotten verses
+[new] distinguish (name2)'s (number) original teachings from later additions by other scribes
+[new] evaluate whether (name2)'s (number) supposed miracles can be independently verified
+
+[new] NAMED MASTER CHALLENGE DIFFICULTY OPTIONS (T; all professions):
+[new] (Name2) left behind (number) examples, but no instructions for how any of them were made.
+[new] The judges expect (name1) to improve on (name2)'s work without changing a single detail.
+[new] (Mentor) has announced that (name2) completed the assignment in half the time, according to a story nobody can verify.
+[new] The original demonstration was witnessed by (number) people, and their accounts contradict one another.
+[new] (Name1) must explain every step to a panel that considers (name2) beyond criticism.
+[new] The only surviving copy contains an annotation that reads, 'This part should be obvious.'
+[new] (Mentor) has asked for a faithful recreation, an original improvement, and a proof that both are identical.
+[new] A visiting expert insists (name2)'s methods are flawless, even after (name1) finds an error.
+[new] Every example is harder than the last, and the final example is missing entirely.
+[new] (Name1) has to recreate the work using tools that did not exist when (name2) was alive.
+[new] (Mentor) will accept only the original method, but the original method has never been written down.
+[new] The judges have decided to compare (name1)'s first attempt with (name2)'s greatest achievement.
+
+------------------------------------------------------------------------------
+[new] ADDITIONAL OUTCOME ROUTES: BARGAINING, PLEADING, AND SECRET SECOND ATTEMPTS
+[new] Each R-route below is one possible ending, drawn with the same probability as other enabled routes. Where a route lists branches, choose the branch at random with equal probability unless the engine specifies otherwise.
+[new] A successful secret retry should only earn a pass if the completed work is safe and can be evaluated fairly. Being caught should not automatically mean failure; the response depends on what (name1) actually did.
+[new] For Variant 2, (mentor) should remain stern but compassionate. The student may still plead or argue, but avoid having the mentor mock (name1) as a person.
+
+[new] R24 THE DESPERATE PLEA. EFFECT: pass skill +5 to 10 (A's skill); fail none. BRANCHES: 50/50.
+[new] (Name1) watches (mentor) prepare to reject the work and blurts out, "Please. Just one more chance. I know what went wrong."
+[new]   pass: (Mentor) folds (his/her) arms. "One chance. Show me." (Name1) corrects the mistake under close supervision and earns a reluctant pass.
+[new]   fail: (Mentor) gives (name1) one last attempt, but the same mistake remains. "You asked for another chance," (mentor) says. "Now you know what to practice."
+
+[new] R25 SWEET TALK AND FLATTERY. EFFECT: pass skill +5 (A's skill); fail none. BRANCHES: 50/50.
+[new] (Name1) praises (mentor)'s wisdom, patience, magnificent technique, and extraordinary ability to recognize talent. (Mentor) looks suspiciously pleased.
+[new]   pass: "Flattery will not change the marks," (mentor) says, "but your corrected work might." (Name1) fixes the last error and passes.
+[new]   fail: "Very moving," (mentor) says. "The work is still wrong." (Name1) learns that compliments are not a substitute for competence.
+
+[new] R26 THE ARGUMENT. EFFECT: vindicated skill +15 (A's skill); mistaken skill +5 (A's skill). BRANCHES: 50/50.
+[new] (Name1) refuses to accept the verdict and argues that (mentor) has misunderstood the assignment. The discussion grows loud enough to attract an audience.
+[new]   vindicated: After checking the instructions, (mentor) discovers that (name1) has a point. "You should have said so earlier," (mentor) mutters, before changing the verdict.
+[new]   mistaken: (Mentor) patiently points to the overlooked requirement. (Name1) reads it twice, then admits the mistake. At least (he/she) now knows exactly what went wrong.
+
+[new] R27 THE LAST-MINUTE BARGAIN. EFFECT: pass skill +10 (A's skill); fail none. BRANCHES: 50/50.
+[new] (Name1) offers to redo the most difficult part, clean the entire workspace, and teach the next apprentice if (mentor) will reconsider.
+[new]   pass: (Mentor) refuses the bargain but allows the correction. The improved work earns a pass on its own merits.
+[new]   fail: (Mentor) says the chores are appreciated, but the standard has not changed. (Name1) is sent home to prepare a proper second attempt.
+
+[new] R28 THE TEARFUL APPEAL. EFFECT: skill +5 (A's skill); no automatic pass.
+[new] (Name1) tries to explain how much the assignment matters, but the words come out in a rush. (Mentor) lets the silence settle before answering. "I know it matters. That is why I want you to learn it properly." They review the mistakes together.
+
+[new] R29 THE AUDIENCE TAKES SIDES. EFFECT: pass skill +10 (A's skill), everyone happier; fail none. BRANCHES: 50/50.
+[new] When (name1) pleads for a second chance, the spectators begin arguing over whether the judgment was fair.
+[new]   pass: An official asks to inspect the work independently and finds that the result meets the stated requirements. (Mentor) accepts the decision, though not happily.
+[new]   fail: The officials agree that the work needs improvement. (Name1) is disappointed, but at least the judgment no longer feels arbitrary.
+
+[new] R30 THE OFFICIALS LEAVE. EFFECT: unseen success skill +15 (A's skill); discovered success skill +10 (A's skill); failure none. BRANCHES: 1/3 each.
+[new] The officials finish their inspection and leave. (Name1) waits until their footsteps fade, then quietly returns to the unfinished work. Surely one more attempt cannot hurt.
+[new]   unseen success: (Name1) completes a beautiful correction after everyone has gone. The officials never see it, so the original verdict stands. (Name1) keeps the improved work as proof that (he/she) can do better.
+[new]   discovered success: An official returns for a forgotten scroll and catches (name1) working. After checking that nothing improper has been changed, the official agrees to evaluate the new attempt. It passes.
+[new]   failure: (Name1) tries to correct one detail and accidentally ruins another. (Mentor) discovers the mess the next morning. "Next time," (mentor) says, "ask before you start again."
+
+[new] R31 THE MENTOR RETURNS UNEXPECTEDLY. EFFECT: skill +10 to 15 (A's skill).
+[new] (Mentor) leaves after announcing that the task is finished. (Name1) immediately starts again. Halfway through, a shadow falls across the work. (Mentor) has come back for (his/her) tools. "I told you to stop," (mentor) says, then notices the improvement. After a long silence, (mentor) sits down to help.
+
+[new] R32 THE SECRET REHEARSAL. EFFECT: skill +10 (A's skill); no change to official verdict.
+[new] (Name1) waits until the officials have gone and secretly repeats the task from the beginning, determined to understand every mistake. By dawn, (he/she) can finally do it. The original mark remains, but the next examination may be a different story.
+
+[new] R33 CAUGHT BY THE WORST POSSIBLE WITNESS. EFFECT: skill +5 (A's skill); everyone happier.
+[new] (Name1) sneaks back to retry the task, only to discover that the village's most talkative child is watching. By breakfast, everyone knows. (Mentor) demands an explanation. "I wanted to get it right," (name1) admits. The child loudly adds that the second attempt was much better. Even (mentor) laughs.
+
+[new] R34 THE SECOND TRY MAKES THINGS WORSE. EFFECT: none; optional small food/tech loss if materials are actually consumed.
+[new] After the examiners leave, (name1) decides to fix one tiny imperfection. Then another. Then another. By the time (mentor) returns, the original work is almost unrecognizable. "There is a difference," (mentor) says, "between improving something and refusing to finish it."
+
+[new] R35 THE MENTOR'S OWN SECRET. EFFECT: skill +10 (A's skill); (name1) loses one relevant dislike, or none.
+[new] (Name1) returns to practice in secret and finds (mentor) already there, quietly repeating the very same task. (Mentor) looks embarrassed. "I still get it wrong sometimes," (mentor) admits. They practice together until the first birds begin calling.
+
+[new] R36 THE OFFICIAL WHO NEVER LEFT. EFFECT: pass skill +15 (A's skill); fail skill +5 (A's skill). BRANCHES: 50/50.
+[new] (Name1) waits until the officials appear to leave, then begins again. One examiner has remained behind a screen to finish taking notes.
+[new]   pass: The examiner watches (name1) notice and correct the original mistake without prompting. "That," the examiner says, stepping out, "is the work I wanted to see."
+[new]   fail: (Name1) repeats the same error. The examiner steps out and explains what (he/she) has observed. The verdict stands, but the feedback is more useful than the first inspection.
+
+[new] R37 THE WRONG PERSON TO BEG. EFFECT: none; everyone happier.
+[new] (Name1) launches into a passionate plea for mercy, promising to study harder and never make the same mistake again. Only when the speech ends does (name1) notice that (he/she) has been addressing a visiting trader, not an examiner. The trader considers the appeal. "I would give you another chance," the trader says. "But I came here to sell baskets."
+
+[new] R38 THE REASONABLE APPEAL. EFFECT: pass skill +10 (A's skill); fail skill +5 (A's skill). BRANCHES: 50/50.
+[new] Instead of begging, (name1) asks for the exact criteria used to judge the assignment. (Mentor) produces a long list.
+[new]   pass: (Name1) identifies a requirement that was never stated. The officials agree to judge the work against the original instructions, and it passes.
+[new]   fail: The criteria were stated clearly after all. (Name1) accepts the verdict and makes a plan for the next attempt.
+
+[new] R39 THE SECOND CHANCE WITH A PRICE. EFFECT: pass skill +15 (A's skill); fail skill +5 (A's skill). BRANCHES: 50/50.
+[new] (Name1) begs for another attempt. (Mentor) agrees, but only if (name1) can explain the previous mistake before touching the tools again.
+[new]   pass: (Name1) identifies the error, explains how to avoid it, and completes the second attempt correctly. (Mentor) gives a satisfied nod.
+[new]   fail: (Name1) cannot yet explain the error. (Mentor) stops the attempt before more supplies are wasted and begins the lesson again.
+
+[new] R40 THE MENTOR CANNOT SAY NO. EFFECT: skill +10 (A's skill); no automatic pass.
+[new] (Name1) pleads, bargains, promises, and finally offers to clean the fish-gutting pit. (Mentor) sighs. "I am not accepting bribes of fish guts." But (mentor) does agree to stay for one more practice session.
+
+[new] R41 THE STUDENT KNOWS WHEN TO STOP. EFFECT: skill +10 (A's skill); (name1) happier.
+[new] (Name1) starts to beg for another chance, then looks at the exhausted officials and the ruined materials. (He/She) decides to accept the result and ask what to improve next time. (Mentor) looks surprised, then proud. For once, the lesson is not about the assignment at all.
+
+
+------------------------------------------------------------------------------
+[new] CATASTROPHIC EXAMINATION DISASTERS — OPTIONAL ROUTE MODULE
+[new] These are spectacular failures of a specific assignment, not automatic injuries or deaths. Draw a disaster from the task's matching skill, or from the all-professions pool. Avoid using a disaster that contradicts the task or its materials. Any lightning, rain, or other slapstick weather is optional and does not imply supernatural punishment.
+[new] In R42-R57, (K) is the matching disaster description from below, (L) is a matching audience reaction, and (M) is an optional aftermath. Each complete route is one ending; branch odds are stated where applicable. The quoted mentor response must match what actually went wrong. No automatic serious injury or death from comedy.
+
+[new] K: CATASTROPHE POOL — ALL PROFESSIONS:
+[new] The first mistake is tiny. The correction is worse. The correction to the correction brings the entire demonstration to a halt.
+[new] (Name1) proudly unveils the finished work, only to discover that the judges have been examining the unfinished side all along.
+[new] A crucial piece rolls away, and (name1) chases it straight through the officials' carefully arranged seats.
+[new] Everything works perfectly during rehearsal. The moment (mentor) says, 'Begin,' every part that can fail does so.
+[new] (Name1) reaches the triumphant final step and realizes (he/she) has brought the wrong assignment.
+[new] A passing monkey steals the one object that cannot be replaced before the deadline.
+[new] (Name1) tries to hide a small mistake under a cloth. The cloth catches on the work and pulls half of it down.
+[new] A ceremonial gong sounds at precisely the wrong moment. Startled, (name1) knocks over the one thing everyone was told not to touch.
+[new] The audience begins applauding before the demonstration is finished. (Name1) bows, turns, and knocks the entire display over.
+[new] (Name1) accidentally presents yesterday's practice version, complete with all the mistakes (mentor) had already corrected.
+[new] One examiner sneezes, another jumps, and the resulting chain reaction sends everyone scrambling to save the work.
+[new] (Name1) is so determined not to make the first mistake that (he/she) makes three entirely different ones.
+[new] The demonstration succeeds, but the final result is facing the wrong way and cannot be turned around without dismantling it.
+[new] The last step requires a perfectly timed signal. Unfortunately, three people give three different signals at once.
+[new] The crowd falls silent as (name1) discovers that the demonstration has been arranged for the wrong day, the wrong audience, and the wrong occasion.
+[added] (Name1) bows deeply to the judges and knocks over the entire display with (his/her) head.
+[added] (Name1) trips over (his/her) own feet, catches (himself/herself) on the work, and the work does not survive.
+[added] A goat wanders in, eats the only copy of the instructions, and leaves. Nobody stops it.
+[added] (Name1) proudly announces, 'Behold!' just as a gust of wind carries the whole thing into the lagoon.
+[added] A coconut falls from the tree above, lands squarely on the finished work, and rolls away looking pleased with itself.
+[added] (Name1) sneezes at the exact moment of the final step. Everything that was neatly arranged is now everywhere.
+[added] The village children, trying to help, 'finish' the work for (name1) while (he/she) fetches water.
+[added] A crab claims the work as its new home and refuses to leave. The judges decide not to argue with the crab.
+[added] (Name1) presents the work to the wrong panel, who are there to judge the pig-calling contest. They give it a score anyway.
+[added] Halfway through, (name1) realizes (he/she) has been using (mentor)'s favourite tool, which (mentor) has now noticed.
+
+[new] K: CATASTROPHE POOL — FARMING:
+[new] The feast is ready at last. (Name1) lifts the lid, and a gust of wind carries the entire carefully arranged garnish into the chief's lap.
+[new] The first tasting goes beautifully, until someone discovers that the sweet sauce and the fish brine have been switched.
+[new] (Name1) opens the food store to reveal a perfect stack of baskets. The bottom basket gives way, and yams roll through the judging circle.
+[new] A prized catch slips from (name1)'s hands, slides across the table, and lands in the ceremonial offering bowl.
+[new] The irrigation demonstration sends water everywhere except the thirsty plants, including directly into (mentor)'s sandals.
+[new] (Name1) demonstrates a new fishing technique, only for the net to haul up a pile of old sandals and one furious crab.
+[new] The festival meal looks magnificent. Unfortunately, (name1) has prepared enough food for six villagers instead of sixty.
+[new] A goat eats the planting schedule while (name1) is explaining the planting schedule.
+[new] The new smoking rack collapses at the exact moment (name1) announces that it will last for generations.
+[new] (Name1) triumphantly unveils the crop rotation map, which has been drawn on the wrong side of the island.
+[added] The stew boils over so dramatically that it puts out the fire, the torch, and a nearby elder's pipe.
+[added] (Name1) presents the prize pumpkin, which immediately rolls off the table, down the hill, and into the sea.
+[added] The fish (name1) caught for the feast turns out to still be alive and slaps the chief across the face on its way back to the water.
+[added] A flock of seagulls descends on the harvest display and leaves with all of it, plus one judge's hat.
+[added] (Name1) seasons the dish with what (he/she) thinks is salt. It is sand. The judges chew in silence.
+[added] The bread rises. And rises. And keeps rising, until it pushes the lid off the oven and the roof off the cooking hut.
+[added] The irrigation ditch works perfectly, and floods the judges' seats instead of the field.
+[added] (Name1) proudly lifts the lid on the feast and finds a very full, very sleepy monkey inside.
+
+[new] K: CATASTROPHE POOL — BUILDING:
+[new] (Name1) unveils the statue. Its head slowly turns, slides off, and lands neatly in (mentor)'s waiting hands.
+[new] The model bridge holds every test weight. Then a single curious chicken steps onto it, and the entire span folds flat.
+[new] The freshly painted portrait falls forward, leaving a perfect impression of its subject on the official's ceremonial robe.
+[new] (Name1) pulls the cloth from the new monument, and the cloth takes the monument's decorative top with it.
+[new] The new canoe glides beautifully into the water. It then turns in a perfect circle and returns to the shore without its paddler.
+[new] The ceremonial mask looks terrifying until one eye falls out and rolls beneath the chief's chair.
+[new] The newly raised roof survives the test rain, but all the water pours into the one place where the judges are sitting.
+[new] The great tapestry is unveiled upside down. The entire village politely tilts its head to understand it.
+[new] The tower stands straight until (name1) leans on it to deliver the final speech.
+[new] The pottery demonstration produces a beautiful vessel with no opening large enough to put anything inside it.
+[added] (Name1) unveils the statue of the chief. The nose falls off. Then the ears. The chief touches (his/her) own nose to make sure it is still there.
+[added] The hut is finished, perfect and sturdy, but (name1) has built it with (himself/herself) inside and no door.
+[added] The canoe launches beautifully, sails out across the lagoon, and keeps going, with nobody in it.
+[added] The bridge holds the weight of a full-grown villager, then collapses under a single butterfly.
+[added] (Name1) leans proudly against the new wall. The wall leans proudly back, then lies down.
+[added] The totem is carved upside down. (Name1) insists it is 'a bold new tradition'. Nobody believes (him/her).
+[added] The mask is so frightening that (mentor) screams, drops it, and has to sit down.
+[added] The new roof is watertight, except for one hole directly above where the judges are sitting, discovered during a sudden shower.
+
+[new] K: CATASTROPHE POOL — RESEARCH:
+[new] The carefully prepared mixture changes color exactly as predicted, then produces a smell so dreadful that the entire panel flees outdoors.
+[new] (Name1) finishes proving a theory, only for the final calculation to reveal that the first line was copied backward.
+[new] The demonstration creates a dazzling flash of harmless light, temporarily leaving every examiner staring at the same bright spot.
+[new] (Name1) announces the precise time of the next tide. The tide arrives before the announcement is finished.
+[new] The elaborate experiment works, but only because an unnoticed crab has been holding a lever in place.
+[new] (Name1) unfolds a magnificent star chart that turns out to show the sky as seen from beneath the table.
+[new] The final drop of potion makes the mixture foam over the bowl and cover the examiner's notes in harmless bubbles.
+[new] (Name1) opens the specimen jar for a closer look. The insect inside promptly escapes and lands on the most skeptical official.
+[new] The mathematical demonstration ends with two contradictory answers written side by side, both in (name1)'s handwriting.
+[new] The supposedly self-moving machine stops the moment the hidden string becomes visible to everyone.
+[added] The star chart is flawless, except that (name1) has mapped the freckles on the back of a sleeping elder by mistake.
+[added] (Name1)'s weather prediction says 'clear skies'. It starts pouring the moment (he/she) finishes the sentence.
+[added] The potion is supposed to glow. Instead it hums, very loudly and very off-key, for the rest of the afternoon.
+[added] (Name1) proves the theory beautifully, then realizes (he/she) has proven the exact opposite of what (he/she) meant to.
+[added] The scroll unrolls further than expected, down the steps, across the clearing, and into the cooking fire.
+[added] (Name1) counts every fish in the lagoon twice and gets two different numbers. Neither is close to the first count.
+[added] The experiment turns the panel's eyebrows bright green. It is harmless and wears off in a week. The panel is not amused.
+[added] The new invention works perfectly, but nobody, including (name1), can figure out what it is for.
+
+[new] K: CATASTROPHE POOL — HEALING:
+[new] During the bandaging demonstration on a practice dummy, (name1) accidentally wraps the dummy to the examination table.
+[new] (Name1) presents a carefully labeled collection of herbs, only to discover that a mischievous apprentice has rearranged the labels.
+[new] The practice splint holds beautifully, but (name1) has attached it to the wrong limb of the wooden model.
+[new] (Name1) demonstrates a soothing remedy on a practice cloth, which turns an alarming shade of purple instead.
+[new] The simulated emergency goes so badly that the volunteer pretending to be the patient stands up to offer advice.
+[new] (Name1) finishes explaining how to keep the healing hut tidy and turns to find the supply shelves have collapsed into a harmless heap.
+[new] The examination begins with a confident lecture on cleanliness. Then (name1) knocks the clean bandages into a puddle.
+[new] (Name1) correctly identifies every symptom in the case study, then realizes (he/she) has been reading the wrong patient's notes.
+[new] The practice stitching is exquisitely neat. Unfortunately, it has joined two separate pieces of demonstration cloth into one enormous sleeve.
+[new] (Name1) announces that the mock patient is fully recovered, just as the examiner reveals three more symptoms written on the back of the case sheet.
+[added] (Name1) bandages the patient beautifully: arms, legs, head and all. The patient only came in with a splinter.
+[added] The remedy is supposed to calm a cough. Instead the patient hiccups in perfect rhythm with the drums for the rest of the day.
+[added] (Name1) proudly sets the broken leg. It is the other leg.
+[added] The poultice works wonders, and also turns the patient's skin a gentle shade of purple for three days.
+[added] (Name1) faints at the sight of the tiniest scratch. The patient has to look after (him/her) instead.
+[added] The healing tea smells so dreadful that the patient insists (he/she) feels completely better, just to avoid drinking it.
+[added] (Name1) counts the patient's heartbeats and gets confused counting the drummer outside instead.
+[added] The sleeping draught works perfectly, on (mentor).
+
+[new] K: CATASTROPHE POOL — PARENTING:
+[new] (Name1) begins a lesson on listening quietly. The children immediately begin a loud argument about what 'quietly' means.
+[new] The children's performance starts perfectly until the actors decide to swap roles without telling (name1).
+[new] (Name1) proudly unveils the class's history mural. Someone has painted the chief riding an enormous purple fish.
+[new] The promised peaceful nap lasts four heartbeats before one toddler announces that everyone is hungry.
+[new] (Name1) teaches a counting song so catchy that the children keep singing it through the entire examination.
+[new] The children have memorized every line of the play, but they all insist on delivering the hero's speech at once.
+[new] (Name1) asks the class to demonstrate teamwork. They work together flawlessly to hide the lesson materials.
+[new] The model classroom remains orderly until the visiting officials arrive, when every child suddenly has an urgent question.
+[new] (Name1) finishes explaining the rules of a game, only to discover that the children have invented a much more popular version.
+[new] The children are asked what they learned. One solemnly replies that (name1) gets nervous when the elders watch.
+[added] (Name1) finally gets every child to nap at the same time, then sneezes and wakes all of them up.
+[added] The children's play goes perfectly until the 'volcano' child gets overexcited and erupts all over the visiting elders with mud.
+[added] (Name1) teaches the children to share. They decide to share (name1)'s lunch, hat and sandals.
+[added] The lesson on the history of the tribe ends with every child firmly believing that the first chief was a turtle.
+[added] (Name1) counts the children before the walk home. There are now three more children than (he/she) started with.
+[added] The swimming lesson goes beautifully, until the children refuse to come out of the water for the rest of the day.
+[added] (Name1) asks if anyone has questions. Forty small hands go up. All forty questions are 'why?'
+[added] The children learn the lesson perfectly, then teach it to the goats, who learn it better.
+
+[new] K: CATASTROPHE POOL — DEVOTION:
+[new] (Name1) recites the sacred verse perfectly until the final line, which comes out as the opening of a wedding proposal.
+[new] The solemn chant begins, and the village parrot answers every sacred invocation with a cheerful insult it learned elsewhere.
+[new] (Name1) unveils the ancient inscription's translation. It appears to describe a remarkably detailed recipe for boiled yams.
+[new] The ceremonial mask slips sideways during the blessing, leaving (name1) addressing the entire gathering through one earhole.
+[new] (Name1) solemnly announces that the sacred sign will appear at dawn. A monkey appears instead, carrying the missing offering bowl.
+[new] The reconstructed genealogy accidentally identifies three living elders as their own great-grandparents.
+[new] The solemn procession takes a wrong turn and marches directly into the middle of the cooking contest.
+[new] (Name1) begins a séance with a question for the ancestors. A hidden villager answers by accident, and the entire audience screams.
+[new] The ancient chant is performed flawlessly until the final note, when the ceremonial drum splits with a loud crack.
+[new] (Name1) completes the spiritual debate with a grand conclusion, then discovers the two opposing sides have quietly exchanged seats.
+[added] (Name1) lights the sacred fire with great ceremony. It goes out. It lights itself again. It goes out. The elders stop breathing.
+[added] The chant goes perfectly until (name1) sneezes in the middle of the most sacred verse, and the parrot learns the sneeze.
+[added] (Name1) holds up the ceremonial mask, and a family of lizards walks out of the eye holes.
+[added] The offering bowl is placed perfectly. A monkey steals the offering, eats it, and bows politely to the shrine.
+[added] (Name1) reads the omen aloud with great confidence. The omen turns out to be a bird's footprints in the mud, made five minutes ago.
+[added] The ritual drum splits in half on the first beat, and the second half rolls away down the path.
+[added] (Name1) forgets the last line of the blessing and finishes with the first line of a fishing song. Several fishermen join in.
+[added] The ancestors are said to answer with a sign. A coconut falls. Then another. Then all of them.
+
+[new] L: AUDIENCE REACTIONS — ALL PROFESSIONS:
+[new] Every face in the circle turns beet red, including (mentor)'s. Nobody seems able to decide whether to shout or laugh.
+[new] The officials stare at the wreckage in perfect silence. One slowly covers (his/her) face with both hands.
+[new] Someone makes a tiny choking noise. It spreads through the crowd until half the audience is helpless with laughter.
+[new] (Mentor) opens (his/her) mouth, closes it, and walks three slow circles around the disaster.
+[new] The chief looks at the floor. The elders look at the sky. (Name1) looks for somewhere to disappear.
+[new] Several spectators try to maintain their dignity. Their shaking shoulders betray them.
+[new] The visiting examiner turns scarlet and whispers, 'I have never written a report like this before.'
+[new] Nobody says a word until a child asks, much too loudly, 'Was that supposed to happen?'
+[new] (Mentor) goes so red that (name1) wonders whether to fetch a healer.
+[new] An elder starts applauding out of sheer confusion. The others join in before realizing what they are doing.
+[new] A long, terrible silence settles over the crowd. Then someone drops a coconut.
+[new] The officials exchange looks that suggest they are all hoping someone else will make the final decision.
+
+[new] M: OPTIONAL SLAPSTICK AFTERMATH — ALL PROFESSIONS:
+[new] At that exact moment, a brief tropical shower drenches everyone except (name1), who is still standing under the only dry patch of roof.
+[new] A single thunderclap interrupts (mentor)'s speech, and (mentor) must start the scolding again.
+[new] A gust of wind scatters the examination notes across the clearing. Everyone scrambles after them, still red-faced.
+[new] The rain begins just as (name1) tries to explain. (Mentor) gestures toward the sky as though it has made (his/her) point.
+[new] A coconut drops from a nearby tree and lands in the empty demonstration basket with an astonishingly loud thump.
+[new] A pig wanders through the wreckage, sniffs the ruined work, and walks away with apparent disapproval.
+[new] The ceremonial gong falls over with a final clang, long after everyone thought the disaster was finished.
+[new] A parrot repeats the last unfortunate sentence until the entire crowd begins laughing again.
+[new] The sun returns immediately after the downpour, leaving the ruined assignment steaming gently in the heat.
+[new] A passing crab makes off with a loose decoration while everyone is distracted.
+[new] A second, perfectly harmless clap of thunder arrives just as (name1) insists nothing else can possibly go wrong.
+[new] A little rainwater drips from the roof onto (mentor)'s head, one drop at a time, throughout the verdict.
+[new] A gust of wind flips the examiner's verdict sheet over before anyone can read it.
+[new] The crowd begins to disperse, only for the overturned display to make one final, embarrassing noise.
+[new] An exceptionally loud frog calls from the bushes during the most solemn part of the apology.
+
+[new] R42 EVERYTHING THAT COULD GO WRONG. EFFECT: none; optional small food/tech loss if supplies are actually destroyed.
+[new] (K) (L) (M) (Name1) stands in the middle of the chaos and whispers, 'What could possibly go worse?' (Mentor) points at the ruined assignment. 'Do not ask that question again.'
+
+[new] R43 THE LIGHTNING'S TIMING. EFFECT: none; (name1) gains one relevant dislike, or none. WEATHER: harmless thunder and rain only.
+[new] (K) The entire audience turns beet red. (Mentor) begins a magnificent scolding, only for a thunderclap to swallow every word. A sudden shower drenches the examination area. When it ends, (mentor) clears (his/her) throat. 'As I was saying...' (Name1) groans.
+
+[new] R44 THE DISASTER THAT PASSES. EFFECT: skill +15 (A's skill); everyone happier.
+[new] (K) (L) The judges begin writing down a failure, but (name1) notices that the disaster has unexpectedly demonstrated the very principle the assignment was meant to test. After a long argument, the officials grant a pass. (Mentor) mutters, 'Do not ever do it that way again.'
+
+[new] R45 THE DISASTER THAT DOES NOT PASS. EFFECT: none; optional small food/tech loss if supplies are actually destroyed.
+[new] (K) (L) (M) (Name1) tries to explain that the result was at least memorable. 'Memorable is not the same as correct,' (mentor) replies. The examination ends in failure, and the village gains a story it will not soon forget.
+
+[new] R46 EVERYONE IS RED. EFFECT: everyone happier; no skill gain.
+[new] (K) The chief turns red. The officials turn red. Even (mentor) turns red. (Name1) begins an apology, but an elder starts laughing so hard that the others join in. The verdict is still a failure, but nobody can pretend the afternoon was boring.
+
+[new] R47 THE GREAT COVER-UP. EFFECT: discovered skill +5 (A's skill); concealed none. BRANCHES: 50/50.
+[new] (K) (Name1) hastily throws a cloth over the evidence before the officials can inspect it.
+[new]   discovered: The cloth slips off at the worst possible moment. (Mentor) insists on an honest explanation, and (name1) finally gives one. The attempt fails, but the lesson sticks.
+[new]   concealed: The officials leave without noticing the full extent of the damage. (Name1) cannot enjoy the apparent success and eventually admits what happened. The original work must be evaluated again.
+
+[new] R48 THE CHAIN REACTION. EFFECT: none; optional small food/tech loss if supplies are actually destroyed.
+[new] One mistake leads to another. Then another. By the time (name1) tries to stop the damage, the entire demonstration has become a sequence of increasingly ridiculous failures. (L) (M) (Mentor) finally says, 'We will begin again. On a different day.'
+
+[new] R49 THE UNEXPECTED RESCUE. EFFECT: pass skill +10 (A's skill); fail skill +5 (A's skill). BRANCHES: 50/50.
+[new] (K) (Name1) stands frozen until a nearby apprentice offers to help.
+[new]   pass: Working together, they save the essential part of the assignment. The judges allow the teamwork and grant a narrow pass.
+[new]   fail: They stop the situation from getting worse, but the assignment cannot be recovered. (Mentor) thanks the helper and tells (name1) to remember that asking for help is a skill too.
+
+[new] R50 THE SECOND DISASTER. EFFECT: none; optional small food/tech loss if supplies are actually destroyed.
+[new] (K) (L) (Name1) promises to fix everything immediately. The hurried repair creates an entirely new problem. (M) (Mentor) closes (his/her) eyes. 'You have somehow made a second examination out of the first.'
+
+[new] R51 THE RAIN CHECK. EFFECT: skill +5 (A's skill); verdict postponed.
+[new] (K) Before the officials can decide what to do, a tropical downpour forces everyone to shelter. (Name1) uses the delay to identify the mistake and explain a safer second attempt. (Mentor) agrees to schedule a new examination after the weather clears.
+
+[new] R52 THE OFFICIALS RETURN. EFFECT: pass skill +15 (A's skill); fail none. BRANCHES: 50/50.
+[new] (K) The officials leave, faces burning with embarrassment. (Name1) stays behind and tries again, unaware that one examiner has returned for a forgotten bag.
+[new]   pass: The examiner watches the corrected attempt and agrees to reconsider the verdict. (Name1) finally earns a pass.
+[new]   fail: The examiner sees the second attempt go wrong in a completely different way. 'I believe,' the examiner says gently, 'that you need more practice.'
+
+[new] R53 THE VILLAGE WILL NEVER FORGET. EFFECT: none; everyone happier.
+[new] (K) (L) (M) The examination ends in failure. By sunset, the story has acquired three extra crashes, a flying pig, and a thunderstorm that lasted a week. (Name1) tries to correct the rumors, but nobody wants the less exciting version.
+
+[new] R54 THE MENTOR'S FACE. EFFECT: skill +5 (A's skill); no automatic pass.
+[new] (K) (Mentor) turns such a spectacular shade of red that (name1) forgets the disaster and asks if (mentor) is feeling well. The unexpected concern stops the scolding. After a moment, (mentor) sighs and helps (name1) understand the mistake.
+
+[new] R55 THE EXAMINER LAUGHS FIRST. EFFECT: skill +10 (A's skill); everyone happier; no automatic pass.
+[new] (K) (L) The oldest examiner unexpectedly bursts into laughter. 'I did something even worse when I was learning,' the examiner admits. The others demand the story. (Name1) still has to redo the assignment, but the room feels less frightening.
+
+[new] R56 A MIRACULOUS RECOVERY? EFFECT: pass skill +20 (A's skill); fail skill +5 (A's skill). BRANCHES: 50/50.
+[new] (K) (Name1) takes one breath and attempts a careful recovery while the officials watch.
+[new]   pass: Instead of panicking, (name1) isolates the mistake, explains it, and completes the remaining work correctly. The officials reward the recovery rather than the original disaster.
+[new]   fail: (Name1) stops before the damage spreads. The assignment still fails, but (mentor) praises (his/her) judgment in knowing when to stop.
+
+[new] R57 THE FINAL THUNDERCLAP. EFFECT: none; everyone happier. WEATHER: harmless, brief thunder; no implied divine judgment.
+[new] (K) (L) (Name1) whispers, 'At least nothing else can happen.' A thunderclap shakes the clearing. Everyone jumps. A parrot squawks. (Mentor) slowly points toward the sky. 'That,' (mentor) says, 'is why we do not tempt fate.'
+
+
+==============================================================================
+[new] EXPANSION: THE BIG BANG, THE WORST SMELL, AND THE WORST POSSIBLE NOISE
+[new] These pools supplement K (catastrophe), L (audience), and M (aftermath), rather than replacing them.
+[new] N = harmless comic burst; O = badly timed noise; P = foul but non-toxic smell; Q = corpsing, accidental altered meaning, or ruined solemnity; Y = reaction or escalation.
+[new] R/S/U/V/W/X are profession-specific disaster pools (Farming/Building/Research/Healing/Parenting/Devotion).
+[new] Choose only relevant combinations. Do not combine an unrelated kitchen smell with a medical task unless the setup explains its source.
+[new] All comic bursts are deliberately small-scale and harmless: no shrapnel, burns, injuries, deaths, or destructive chemical instructions. A puff of steam or a loud pop is not a dangerous explosion.
+[new] For a route with multiple random flavor slots, draw only as many as the prose can support; avoid stacking unrelated causes.
+[new] A single Q line may describe both the interruption and its consequence. Do not automatically add O if Q already supplies the noise.
+[new] If the exam involves mourning or a serious medical emergency, use the humor sparingly and target props, timing, or an awkward accident—not the suffering of the people involved.
+[new] A comedic accident does not by itself erase a failed examination. A pass must be earned through work, a safe recovery, or fair reassessment.
+
+
+[new] N: HARMLESS COMIC BURSTS AND EXPLOSIONS — ALL PROFESSIONS
+[new] A sealed gourd pops with a tremendous BANG and showers the panel with harmless flower petals.
+[new] A hidden air pocket in a clay vessel bursts, sending a puff of cold ash straight through (mentor)'s carefully arranged notes.
+[new] A stack of dried seedpods bursts in rapid succession, sounding like an entire army of tiny drums.
+[new] A fermenting fruit jar gives an enormous POP; its lid sails into a basket, and the room smells like overripe bananas.
+[new] A puff of brightly colored powder erupts from a ceremonial pouch and turns the examiner's white robe violet.
+[new] A demonstration balloon made from a dried animal bladder bursts just as (name1) announces that everything is perfectly stable.
+[new] A hollow bamboo tube gives a cannon-like CRACK and launches a harmless wad of moss into (mentor)'s lap.
+[new] A bundle of dry reeds ignites in the fire pit with a sudden WHOOMPH, then immediately burns down to nothing while everyone stares.
+[new] A pot of bubbling starch froths over in a spectacular eruption, coating the table in harmless white foam.
+[new] A hollow coconut cracks open under pressure and sprays its contents in six different directions, somehow missing every open bowl.
+[new] A bag of powdered charcoal splits above the workbench; when the cloud clears, everyone has matching black eyebrows.
+[new] A clay whistle accidentally trapped in the kiln shrieks before cracking with a POP that sends the entire audience ducking.
+[new] A capped bottle of fizzy fruit drink erupts like a miniature geyser and decorates the ceiling with sticky droplets.
+[new] A large soap bubble inflates from the experiment, wobbles across the room, and bursts directly over the officials.
+[new] A carefully stacked pile of hollow gourds collapses with a succession of thunderous bangs, each louder than the last.
+[new] A concealed festival confetti charge goes off at the wrong cue, showering a solemn examiner in shredded leaves.
+[new] A hollow shell filled with air pops beneath the weight of a model, producing a noise far larger than the object deserves.
+[new] A heated clay lid leaps off a pot with a loud CLONK, lands safely on a cushion, and rolls in a perfect circle.
+[new] A pouch of harmless colored flour bursts when (name1) tightens the knot, leaving the audience looking like festival dancers.
+[new] A burst of steam sends a reed whistle into a long, mournful howl; the steam quickly dissipates and nobody is burned.
+
+
+[new] O: TERRIBLY TIMED NOISES — ALL PROFESSIONS
+[new] At the exact moment (name1) says 'perfect silence,' a nearby goat releases an enormous bleat.
+[new] A chair makes a long, rude squeak during the most solemn sentence of the presentation.
+[new] Somebody's stomach growls so loudly that the chief pauses to look for an approaching animal.
+[new] A hollow bamboo floorboard produces a scandalously rude HONK whenever (mentor) takes a step.
+[new] During the words 'eternal dignity,' a pig snorts twice and knocks over a water bowl.
+[new] A parrot repeats the last word of (name1)'s speech in an uncannily sarcastic voice.
+[new] A ceremonial drum rolls away and strikes the floor with three increasingly ridiculous BOINGS.
+[new] A visitor tries to suppress a sneeze and produces a sound like a distressed trumpet.
+[new] A loose sandal makes a wet, squealing noise every time the examiner shifts position.
+[new] A frog hidden under the table croaks precisely whenever (name1) says 'therefore.'
+[new] The quietest official suddenly hiccups, then hiccups again every time someone tries to resume.
+[new] A shell horn sounds by accident just as (name1) announces a very private confession.
+[new] A bird outside imitates a human laugh, and the audience assumes someone has lost control.
+[new] A wooden bench creaks in a way that sounds exactly like somebody saying 'nooooo.'
+[new] The last word of a sacred chant is swallowed by a spectacular belch from a nearby water buffalo.
+[new] A pair of coconuts knocks together with a noise so much like applause that (name1) bows by mistake.
+[new] A hanging wind chime produces a single deeply ominous DONG at the word 'failure.'
+[new] A small child whispers 'Uh-oh' into the only moment of silence, and everyone hears it.
+[new] A poorly fitted reed flute makes a shrill squeal on the note meant to inspire awe.
+[new] The village's oldest rooster crows in the middle of the nighttime ceremony and refuses to be corrected.
+
+
+[new] P: HORRIFIC BUT NONTOXIC SMELLS — ALL PROFESSIONS
+[new] A forgotten basket of spoiled fish is opened by mistake, releasing a stench that sends the judges scrambling toward the sea breeze.
+[new] The demonstration produces an odor halfway between rancid meat and a manure pit after heavy rain.
+[new] A cracked pot releases the smell of fermented taro that has been sitting in the sun far too long.
+[new] Someone uncovers a jar of old fish sauce, and the entire front row simultaneously leans backward.
+[new] A heap of wet seaweed has been trapped under a mat for days; lifting the mat proves a terrible decision.
+[new] The wrong bundle of herbs is heated, producing a sharp cabbage-like smell that clings to every robe.
+[new] A rotten egg hidden inside a ceremonial offering bowl breaks at exactly the wrong moment.
+[new] A damp sack of spoiled yams opens, and the odor seems to arrive several seconds before the contents.
+[new] A basket labeled 'fresh supplies' contains something that smells suspiciously like a neglected pig enclosure.
+[new] The mixture gives off a sour, yeasty odor so strong that the examiners can taste it in the air.
+[new] A visitor's sandals have been left beside the fire, and the rising warmth reveals an astonishing smell.
+[new] A clay jar of old shrimp paste falls open, making even the village cats reconsider their curiosity.
+[new] Someone has mistaken a bucket of animal manure for a bucket of garden soil.
+[new] The examination room suddenly smells like a fishing net forgotten beneath a hut for a month.
+[new] A ceremonial perfume turns out to have fermented, replacing the scent of flowers with the smell of spoiled onions.
+[new] A storage gourd contains a forgotten lump of rotten fruit that has become its own unpleasant ecosystem.
+[new] A damp pile of old reeds begins to smell like stagnant swamp water the moment it is disturbed.
+[new] The audience discovers that the supposedly sacred 'fragrant smoke' is coming from a scorched cooking pot.
+[new] A basket of spoiled shellfish is carried past the open window, and every examiner turns to stare.
+[new] The mixture smells like a cow pasture, rotten meat, and an old fishing boat somehow sharing one small room.
+
+
+[new] Q: CORPSING, CHANGED MEANINGS, AND EMBARRASSING SILENCE
+[new] (Name1) accidentally pauses after the wrong word, making a solemn tribute sound like an insult to the chief's cooking.
+[new] A stray squeak lands between two words, transforming a heroic declaration into what sounds like a romantic proposal.
+[new] The speaker loses (his/her) place and repeats the same grand introduction three times; by the fourth, the officials are shaking with suppressed laughter.
+[new] (Mentor) tries to maintain a stern expression, but an unexpected snort escapes and ruins (his/her) authority.
+[new] An examiner attempts to say 'We must remain serious' and laughs halfway through 'serious.'
+[new] (Name1) mispronounces a single syllable, turning a revered ancestor's title into the name of a common vegetable.
+[new] Two officials exchange one glance, immediately look away, and begin silently laughing harder.
+[new] A ceremonial song is interrupted by a perfectly timed HONK; the next singer cannot get the melody out without giggling.
+[new] (Name1) says 'I have complete control' just as the nearest prop falls over, and nobody can recover.
+[new] The examiner reads the wrong line of the script and accidentally congratulates (name1) on a marriage that has not occurred.
+[new] A reed whistle makes a rude noise during the phrase 'the wisdom of our forebears,' and the audience tries very hard to pretend it heard nothing.
+[new] The apprentice accidentally recites the stage directions aloud, including 'pause dramatically and look wise.'
+[new] (Mentor) begins an angry lecture, but a squeaking sandal punctuates every sentence until even (mentor) gives up.
+[new] A visitor mistakes a ceremonial greeting for a request to dance and enthusiastically begins dancing.
+[new] A storyteller substitutes the wrong animal in a legend, making a fearsome guardian spirit sound like a particularly ambitious duck.
+[new] The crowd is holding back laughter until a respected elder makes an involuntary squeak, setting everyone off at once.
+[new] A dramatic silence stretches too long; somebody whispers 'Is that the end?' and the entire room collapses into laughter.
+[new] (Name1) says the name of the wrong official while presenting an award, and the wrong official stands up to accept it.
+[new] An accidental drumbeat lands after the words 'and that was the end,' making the audience think it was a joke.
+[new] The first person to laugh is the examiner who warned everyone that laughing would be unacceptable.
+
+
+[new] R: PROFESSION-SPECIFIC EXPLOSIVE AND ABSURD FAILURES — FARMING
+[new] A covered pot of yam mash erupts in a towering white fountain; the head cook is crowned with a lump of mash.
+[new] A batch of fermented fruit drink sprays from its gourd and paints the feast banner purple.
+[new] A fish bladder hidden among the ingredients pops with a sound like a drumbeat, startling the entire kitchen.
+[new] A pile of ripe breadfruit tumbles into the mixing bowls, setting off a chain of harmless but spectacular splashes.
+[new] The cooking pot releases a cloud of steam that blows the chef's hat onto a pig, which trots away wearing it.
+
+
+[new] S: PROFESSION-SPECIFIC EXPLOSIVE AND ABSURD FAILURES — BUILDING
+[new] A test model collapses into a row of hollow bamboo tubes, which burst with a series of ridiculous pops.
+[new] The statue's removable head rolls off, strikes a gong, and somehow triggers the festival confetti.
+[new] A carved mask has a hidden whistle; the first gust of wind makes it shriek like an offended spirit.
+[new] The model canoe hits a floating gourd and launches a fountain of water directly into the judges' notes.
+[new] A clay roof tile cracks in the kiln with a loud report, leaving an exact imprint of its shape in a mound of flour.
+
+
+[new] U: PROFESSION-SPECIFIC EXPLOSIVE AND ABSURD FAILURES — RESEARCH
+[new] A harmless gas bubble inflates a reed bladder until it bursts, coating the experiment table in pink foam.
+[new] A fizzy mineral-and-fruit mixture overflows its bowl, producing a fountain far taller than the demonstration stand.
+[new] The experiment's supposedly silent apparatus emits a prolonged squeal that makes every observer cover (his/her) ears.
+[new] A demonstration of sound vibrations sends a row of hollow shells rattling like an angry flock of birds.
+[new] The investigator's carefully timed eruption happens after the conclusion, interrupting the applause with a huge POP.
+
+
+[new] V: PROFESSION-SPECIFIC EXPLOSIVE AND ABSURD FAILURES — HEALING
+[new] A practice bandage unwinds from its roll, loops around a chair, and makes the dummy fall over with a tremendous crash.
+[new] A sealed training gourd used to demonstrate pressure pops and sprays harmless red berry juice across the examiner's robe.
+[new] A herbal demonstration releases a smell like wet manure; the instructor hastily explains that the mixture is not intended for patients.
+[new] A practice model's hollow arm comes loose and squeaks loudly during a solemn explanation of anatomy.
+[new] A healer squeezes a training water pouch too hard, and a jet of water strikes the examiner's forehead.
+
+
+[new] W: PROFESSION-SPECIFIC EXPLOSIVE AND ABSURD FAILURES — PARENTING
+[new] The children's play reaches its tragic climax just as a hidden festival popper showers the actors with flowers.
+[new] A child assigned to play the thunderstorm bangs a drum so hard that every prop onstage falls over.
+[new] The model volcano erupts in harmless colored foam during a lesson about peaceful mountain villages.
+[new] An educational puppet emits a loud squeak every time (name1) tries to explain good manners.
+[new] The children begin giggling at a ridiculous noise, and the teacher accidentally joins in before regaining control.
+
+
+[new] X: PROFESSION-SPECIFIC EXPLOSIVE AND ABSURD FAILURES — DEVOTION
+[new] A ceremonial incense pouch bursts into a cloud of purple powder, leaving the officiants looking like festival performers.
+[new] A sacred chant reaches its most reverent verse just as a hollow conch makes a deeply undignified HONK.
+[new] The shrine's harmless festival smoke effect releases far too much scented vapor, hiding the altar and the entire council.
+[new] A ceremonial gourd pops and scatters flower petals over the memorial; the audience cannot decide whether to laugh or applaud.
+[new] The apprentice announces that the spirits demand silence; a parrot immediately shouts, 'NO THEY DON'T!'
+
+
+[new] Y: AFTERMATH REACTIONS AND ESCALATIONS
+[new] Every face turns beet red, though nobody can agree whether it is from embarrassment, laughter, or the smell.
+[new] The chief tries to speak, produces a tiny squeak, and sits down again.
+[new] (Mentor) opens (his/her) mouth to shout, but the only sound that comes out is a strangled wheeze.
+[new] The entire panel stands up at once, knocking their chairs backward in a perfect wave.
+[new] Somebody starts applauding before realizing that the demonstration was not supposed to end that way.
+[new] The audience flees the smell, but the wind changes direction and sends everyone back the other way.
+[new] A clap of thunder sounds exactly as (mentor) points accusingly at the ruined assignment.
+[new] Rain begins falling in a narrow stream through a hole in the roof, directly onto the only dry chair.
+[new] A nearby rooster crows three times as though officially announcing the failure.
+[new] (Name1) takes a deep breath to apologize and immediately begins coughing from the awful odor.
+[new] The examiner wipes purple powder from (his/her) eyebrows and calmly asks whether that was part of the plan.
+[new] One official announces, 'I have seen enough,' only for a second harmless POP to interrupt the sentence.
+[new] A visiting elder laughs so hard that (he/she) must sit on the ground.
+[new] (Mentor) insists that nobody mention this again. The village children have already made up a song.
+[new] The noise finally stops. Then a single coconut falls from a nearby tree with an exquisitely timed THUNK.
+
+
+------------------------------------------------------------------------------
+[new] ADDITIONAL ROUTES R58–R73: EXPLOSIONS, NOISES, ODORS, AND CORPSING
+
+
+[new] R58 THE HARMLESS BIG BANG. EFFECT: skill +5 (A's skill); everyone happier; no automatic pass.
+[new] (N) (Y) After checking that everyone is unharmed, (mentor) asks (name1) to explain exactly what caused the burst. The explanation is surprisingly good. The examination is still a disaster, but (name1) learns something useful.
+
+
+[new] R59 THE SOUND THAT CHANGED EVERYTHING. EFFECT: none; everyone happier.
+[new] (O) (Q) For several terrible seconds, nobody speaks. Then the chief begins laughing, and the entire audience follows. (Name1) will have to perform the task again, preferably without the accompanying sound effects.
+
+
+[new] R60 THE STENCH OF FAILURE. EFFECT: none; optional small food loss only if actual food was spoiled.
+[new] (P) (Y) The examiners abandon their seats and move the assessment outdoors. (Mentor) pinches (his/her) nose. 'Before we discuss the work,' (mentor) says, 'we are going to discuss why that smell exists.'
+
+
+[new] R61 THE EXPLOSION WAS SUPPOSED TO BE SMALL. EFFECT: pass skill +15 (A's skill); fail skill +5 (A's skill). BRANCHES: 50/50.
+[new] (N) (Y)
+[new]   pass: (Name1) checks the equipment, calmly explains why the harmless burst was larger than expected, and demonstrates a safe correction. The officials accept the explanation.
+[new]   fail: (Name1) cannot yet explain the result. (Mentor) stops the demonstration and assigns a supervised rehearsal.
+
+
+[new] R62 THE EXAMINER LOSES IT. EFFECT: everyone happier; skill +5 (A's skill).
+[new] (O) (Q) The sternest official tries to announce the verdict, but every attempt ends in helpless laughter. (Mentor) postpones the assessment until everyone can speak in complete sentences again.
+
+
+[new] R63 THE SECOND POP. EFFECT: none; optional small food/tech loss if supplies were actually wasted.
+[new] (N) (Name1) announces that the situation is under control. A second gourd pops behind the judges. (Y) (Mentor) declares that there will be no third attempt today.
+
+
+[new] R64 THE AWFUL SMELL GETS WORSE. EFFECT: none; no illness or injury.
+[new] (P) (Name1) attempts to cover the smell with ceremonial perfume. The two odors combine into something so dreadful that even the pigs retreat. (Mentor) orders the room aired out before anyone continues.
+
+
+[new] R65 THE MYSTERIOUS THUNDERCLAP. EFFECT: skill +5 (A's skill); everyone happier. WEATHER: optional harmless rain.
+[new] (Q) A sudden thunderclap shakes the clearing. The audience gasps. (Name1) raises (his/her) eyes, convinced the day cannot get stranger. A brief shower begins just as the officials open their scrolls. Everyone scrambles to keep the records dry.
+
+
+[new] R66 THE MASTER CORPSES FIRST. EFFECT: skill +10 (A's skill); everyone happier; no automatic pass.
+[new] (O) (Mentor) tries to scold (name1) and accidentally repeats the offending noise. (Mentor) bursts out laughing before (name1) does. When the laughter finally stops, they review the mistake together.
+
+
+[new] R67 THE ACCIDENTAL MASTERPIECE. EFFECT: pass skill +20 (A's skill); everyone happier.
+[new] (N) The harmless burst leaves behind an unexpected but beautiful pattern. (Name1) explains how it formed and why it can be reproduced safely. The officials agree that the accidental result is worth studying. (Mentor) looks deeply annoyed to be impressed.
+
+
+[new] R68 THE WRONG MEANING. EFFECT: skill +5 (A's skill); everyone happier; no automatic pass.
+[new] (Q) The audience interprets the mangled line in an entirely different way from what (name1) intended. (Name1) explains the mistake, and the officials agree that a single syllable can matter a great deal. The lesson will be repeated without spectators.
+
+
+[new] R69 THE CLOUD OF SHAME. EFFECT: none; optional small tech loss if a written record is actually spoiled.
+[new] (N) A drifting cloud of harmless powder settles over the officials' notes. (Y) Nobody can read the marks beneath the dust. The examiners agree to hold a new assessment once the records are cleaned.
+
+
+[new] R70 THE PIG IS UNIMPRESSED. EFFECT: everyone happier; no automatic pass.
+[new] (P) A nearby pig sniffs the air, turns around, and walks away. The audience watches in silence. (Mentor) points after it. 'Even the pig knows when to leave,' (mentor) says. The entire council dissolves into laughter.
+
+
+[new] R71 THE STUDENT TRIES TO SAVE THE SCENE. EFFECT: pass skill +10 (A's skill); fail skill +5 (A's skill). BRANCHES: 50/50.
+[new] (O) (Q)
+[new]   pass: (Name1) acknowledges the interruption, recovers the correct meaning, and completes the performance with confidence. The officials reward the recovery.
+[new]   fail: (Name1) tries to improvise and becomes hopelessly tangled in the explanation. (Mentor) gently calls a halt and schedules another attempt.
+
+
+[new] R72 THE QUIETEST ENDING POSSIBLE. EFFECT: skill +5 (A's skill); no automatic pass.
+[new] (N) (P) (Y) Once the mess is cleaned and the air clears, (name1) quietly asks what went wrong. (Mentor) gives a careful explanation. There is no grand speech, no punishment, and, mercifully, no further noise.
+
+
+[new] R73 THE LEGENDARY REENACTMENT. EFFECT: everyone happier; no automatic pass.
+[new] (O) (Q) By evening, the children are reenacting the examination using coconuts, squeaky reeds, and an old blanket. (Name1) is mortified until (mentor) admits that the imitation is rather accurate. The original assignment still needs to be finished.
+
+
+==============================================================================
+[new] EXPANSION: UNINTENDED VICTORIES, ACCIDENTAL DISCOVERIES, AND PRIZES FOR THE WRONG REASON
+[new] These additions are optional. Z1 is a prize/verdict quote pool. Z2–Z7 are profession-specific discoveries; Z8 is a story-only title, trophy, or aftermath pool.
+[new] Match Z2–Z7 to the actual profession and disaster. A specific discovery must follow an accident that could plausibly cause it; do not insert an unrelated random discovery into a route.
+[new] When a new invention or treatment appears, its usefulness is demonstrated or safely checked before anyone adopts it. Medical discoveries are limited to training, workflow, and safer procedures, not untested cures.
+[new] A comedy award, popular performance, or unexpected discovery does not automatically pass the original assignment. Effects marked story-only do not require new engine support.
+[new] R74–R95 are optional routes with equal top-level selection probability; any sub-branches explicitly named within a route are equally likely.
+
+[new] Z1: THE JUDGES AWARD THE WRONG PRIZE
+[new] "You won... for the entirely wrong reason."
+[new] "The work failed every technical requirement. The performance, however, was unforgettable."
+[new] "One thing is certain: you win BEST IN COMEDY."
+[new] "We asked for precision. You have given us an entirely new category."
+[new] "The judges are pleased to announce first place in a competition nobody knew was being held."
+[new] "This is the worst demonstration of its kind I have ever seen. It is also the best entertainment of the festival."
+[new] "Congratulations. Your mistake has been selected as the official example of what not to do."
+[new] "You have received full marks for originality and no marks whatsoever for following instructions."
+[new] "Your invention does not perform its intended function. It performs a much more interesting one."
+[new] "The prize for Most Unexpected Contribution goes to (name1). We are still determining what that contribution was."
+[new] "You have won the audience vote. The examiners would like to make it clear that this is not the same as passing."
+[new] "The council awards you the Golden Coconut for Outstanding Accidental Entertainment."
+[new] "We cannot approve this as a sacred chant. We can, however, commission it as a comedy."
+[new] "Your project has been rejected as a bridge and accepted as a musical instrument."
+[new] "The panel unanimously agrees that nobody will ever forget this. Whether that is a compliment remains under discussion."
+[new] "You have invented a festival attraction. Unfortunately, you were supposed to be teaching arithmetic."
+[new] "We asked you to solve the problem. You have demonstrated a problem we did not know we had."
+[new] "This is not the answer to our question. It is, disturbingly, the answer to another question."
+[new] "You did not win the examination. You won the crowd."
+[new] "We have decided to award you a special prize for recovering from a disaster of your own making."
+
+[new] Z2: ACCIDENTAL DISCOVERIES AND INVENTIONS — FARMING
+[new] A collapsed drying rack unexpectedly leaves the fish evenly smoked; the cooks begin testing the arrangement on purpose.
+[new] A spilled sour-fruit sauce turns out to preserve chopped vegetables better than the original recipe.
+[new] A disastrous cooking demonstration creates a crisp new yam snack that sells out at the next feast.
+[new] The exploded fruit gourd reveals a harmless method of aerating a thick festival drink.
+[new] A ruined irrigation model accidentally directs water into a neglected garden bed, reviving a row of thirsty seedlings.
+[new] A runaway cooking pot rolls into the sun and exposes a useful way to keep food warm without another fire.
+[new] A mismeasured batch of breadfruit dough produces a new kind of chewy festival cake.
+[new] A dropped basket reveals that a certain layer of leaves keeps delicate fruit from bruising in transit.
+
+[new] Z3: ACCIDENTAL DISCOVERIES AND INVENTIONS — BUILDING
+[new] A bridge model collapses into a surprisingly sturdy triangular frame, giving the builders a better design to investigate.
+[new] The broken statue becomes a striking abstract sculpture, and the council commissions a second one.
+[new] A cracked clay pot whistles in the wind; the village begins making wind instruments in its shape.
+[new] A failed canoe prototype makes an excellent floating platform for carrying tools across shallow water.
+[new] A mask that was carved backward casts an extraordinary shadow at sunset, inspiring a new style of ceremonial art.
+[new] A roof tile that fell the wrong way channels rain neatly into a storage jar.
+[new] A badly woven sail turns out to make a fine sunshade for the nursery.
+[new] The collapsing stage reveals a safer way to fit the supporting beams together.
+
+[new] Z4: ACCIDENTAL DISCOVERIES AND INVENTIONS — RESEARCH
+[new] An experiment intended to make a glowing dye instead produces a pigment that changes shade when it dries.
+[new] The accidental squeal of a reed tube reveals that its pitch changes with the length of the air column.
+[new] A failed attempt to predict the tide uncovers an error in the village's old measurements.
+[new] The unexpected bubbles in a fruit mixture inspire a new investigation into fermentation.
+[new] A dropped star chart lands upside down, revealing a pattern the observers had overlooked.
+[new] A botched demonstration accidentally provides a clean comparison between two different methods.
+[new] A harmless burst of colored powder makes air currents visible in the laboratory.
+[new] The experiment produces no result at all, but (name1) notices that the control sample was contaminated and saves the next study.
+
+[new] Z5: ACCIDENTAL DISCOVERIES AND INVENTIONS — HEALING
+[new] A practice bandage slips into a new arrangement that keeps a training splint from sliding; the healers test it carefully.
+[new] A mock emergency reveals that the healing hut's supplies are stored too far from the door, prompting a safer layout.
+[new] A failed demonstration of handwashing exposes how often the trainees forget their thumbs.
+[new] A mislabeled practice chart reveals an error in the hut's recordkeeping system.
+[new] A training dummy falls over and exposes a weak joint in the examination table, which is repaired before anyone is hurt.
+[new] A botched lesson leads the healers to create a clearer system of symbols for urgent supplies.
+[new] A harmless colored-water spill reveals that the floor slopes toward the medicine shelves; the hut is redesigned to keep them dry.
+[new] The examiner notices that (name1) immediately checks on the frightened audience before the ruined demonstration; (mentor) praises the instinct while requiring the lesson to be repeated.
+
+[new] Z6: ACCIDENTAL DISCOVERIES AND INVENTIONS — PARENTING
+[new] A play that goes completely off script becomes the children's favorite lesson about improvisation.
+[new] A failed counting game turns into a memorable song that helps younger children learn numbers.
+[new] A child's accidental joke reveals that the class misunderstood the story's main lesson, allowing (name1) to explain it better.
+[new] A puppet that keeps squeaking at the wrong time becomes a beloved classroom character.
+[new] The children start correcting (name1)'s mistakes, and the exercise unexpectedly becomes a lesson in careful listening.
+[new] A ruined history page inspires the class to build a large timeline from stones and shells.
+[new] The wrong costume makes everyone laugh, but it also helps a shy child volunteer for the next performance.
+[new] A disastrous outdoor lesson reveals which activities let children of different ages learn together.
+
+[new] Z7: ACCIDENTAL DISCOVERIES AND INVENTIONS — DEVOTION
+[new] A mispronounced ceremonial verse inspires a respectful discussion about how the meaning of words changes over generations.
+[new] A chant interrupted by a conch horn becomes the basis for a new festival song, separate from the original sacred rite.
+[new] A damaged inscription accidentally exposes older writing beneath the surface; the shrine keepers begin documenting it.
+[new] An incorrect translation draws attention to two competing versions of a legend that the village had never compared.
+[new] A failed attempt to recreate an ancient rite leads the elders to record the versions remembered by different families.
+[new] A ceremonial mask breaks during rehearsal, revealing an older design carved on its inner surface.
+[new] An accidental silence during a remembrance ceremony gives families space to speak about those they miss.
+[new] A skeptical question from the audience inspires a new public forum where villagers can discuss belief without being forced to agree.
+
+[new] Z8: RIDICULOUS NEW TITLES, TROPHIES, AND CONSEQUENCES
+[new] (Name1) is unofficially crowned the First Master of Unplanned Noises.
+[new] The village children award (name1) a coconut painted gold and call it the Grand Prize for Dramatic Failure.
+[new] An elder insists on naming the new dish after the precise sound the pot made when it burst.
+[new] The chief orders the incident recorded in the village history under the heading "A Most Unusual Achievement."
+[new] A visiting tribe asks to see the famous performance again, unaware that it was an accident.
+[new] (Mentor) is asked to judge next year's Festival of Glorious Mistakes and is visibly horrified.
+[new] The audience begins requesting the wrong version of the song because it is funnier.
+[new] (Name1) becomes known as the villager who invented a new art form while trying to pass an examination.
+[new] A new prize is created in (name1)'s honor, with a rule that nobody may deliberately compete for it.
+[new] The council names the broken contraption a monument to persistence and places it outside the workshop.
+[new] A rival apprentice tries to copy the disaster and discovers that doing it deliberately is much harder.
+[new] (Name1) is invited to teach a lesson called "What Happens When Everything Goes Wrong."
+[new] The original judges refuse to attend the reenactment, but arrive early and sit in the front row.
+[new] (Mentor) denies being proud of (name1) while carefully keeping the ridiculous award on a shelf.
+[new] The accidental invention becomes so popular that (name1) is asked to explain it to people who never saw the original failure.
+[new] A child asks whether (name1) can make the explosion happen again. (Mentor) answers "NO" before (name1) can speak.
+
+[new] ADDITIONAL ROUTES R74–R95: WINNING FOR ALL THE WRONG REASONS
+
+[new] R74 THE WRONG WINNER. EFFECT: skill +10 (A's skill); everyone happier; original examination not passed.
+[new] (Q) The officials confer for a very long time. Finally, the chief stands. "You won... for the entirely wrong reason." (Z1) The judges award (name1) an unexpected prize, but (mentor) reminds (him/her) that the original assignment still needs to be completed.
+
+[new] R75 BEST IN COMEDY. EFFECT: everyone happier; no automatic skill pass.
+[new] (O) (Q) The audience is laughing too hard to hear the verdict. An official eventually announces, "One thing is certain: you win BEST IN COMEDY." (Name1) accepts the imaginary trophy with a bow. (Mentor) demands that the next examination contain absolutely no jokes.
+
+[new] R76 THE NEW RECIPE. EFFECT: Farming +15; optional small food gain if the new dish is actually edible. FARMING ONLY.
+[new] (N) The intended dish is ruined, but the cooks discover that the accidental result tastes wonderful. (Z2) (Mentor) tastes it twice before admitting that (name1) may have invented something useful. The examination is still marked incomplete, but the new recipe goes into the village cookbook.
+
+[new] R77 THE BEAUTIFUL FAILURE. EFFECT: Building +15; everyone happier. BUILDING ONLY.
+[new] The finished structure fails the original requirements, but the accident produces an unexpected artistic effect. (Z3) The officials commission a proper version for the village. (Mentor) says, "You still owe me the original assignment," while studying the new design with unmistakable interest.
+
+[new] R78 THE UNEXPECTED FINDING. EFFECT: Research +20; original examination passes only after safe verification. RESEARCH ONLY.
+[new] (N) (Name1) notices an unexpected pattern in the failed experiment. (Z4) Rather than claiming a discovery immediately, (he/she) repeats the observation and records what happened. (Mentor) finally nods. "That is research," (mentor) says. "Not what you meant to find, but what you actually found."
+
+[new] R79 THE SAFER HUT. EFFECT: Healing +15; no patient injury. HEALING ONLY.
+[new] The training demonstration falls apart in front of everyone. (Z5) The healers recognize a useful improvement to their routine and adopt it after checking that it is safe. (Mentor) praises (name1) for noticing the problem, then assigns another practice examination.
+
+[new] R80 THE CLASSROOM CLASSIC. EFFECT: Parenting +15; everyone happier. PARENTING ONLY.
+[new] (O) The lesson is derailed by laughter, but the children remember every detail. (Z6) The elders ask (name1) to use the new approach in future lessons. (Mentor) insists that next time the comedy should at least be intentional.
+
+[new] R81 THE NEW TRADITION. EFFECT: Devotion +15 if supported; otherwise story only; everyone happier. DEVOTION ONLY.
+[new] (Q) The rite goes wrong, and (name1) fears (he/she) has offended everyone. Instead, the elders notice something worth preserving. (Z7) They agree to treat the new practice as a separate custom rather than replacing the original ceremony. (Mentor) says that respecting tradition also means understanding how traditions begin.
+
+[new] R82 THE ACCIDENTAL FESTIVAL. EFFECT: everyone happier; no automatic pass.
+[new] (N) (O) (Y) The chief is delighted by the chaos and announces that the village should hold a yearly celebration of spectacular mistakes. (Z8) (Mentor) is not consulted before being named the first judge.
+
+[new] R83 THE REPRODUCIBILITY PROBLEM. EFFECT: skill +10 (A's skill); no automatic pass.
+[new] The officials demand that (name1) repeat the extraordinary accident. (Name1) tries, but everything works exactly as originally intended. (Mentor) stares at the flawless result. "So you can do it correctly," (mentor) says. "You just cannot do it incorrectly on command."
+
+[new] R84 THE COPYCAT DISASTER. EFFECT: skill +5 (A's skill); everyone happier.
+[new] A rival apprentice attempts to reproduce (name1)'s celebrated mistake and fails miserably. (Name1) is asked to explain why the accident cannot be reliably repeated. The resulting discussion turns out to be more educational than either demonstration.
+
+[new] R85 THE UNINTENDED HERO. EFFECT: skill +15 (A's skill); everyone happier.
+[new] (N) The examination appears ruined, but the harmless commotion alerts everyone to a neglected problem nearby. (Name1) helps correct it before anyone is hurt. The officials praise (his/her) quick thinking. (Mentor) agrees that the original work was dreadful and the response was excellent.
+
+[new] R86 THE LEGEND IS BETTER THAN THE TRUTH. EFFECT: everyone happier; no automatic pass.
+[new] By sunset, the story has grown into a tale of towering flames, thunderous explosions, and a chief who fainted three times. In reality, a gourd popped and a chair squeaked. (Name1) tries to correct the rumors, but the villagers prefer the dramatic version.
+
+[new] R87 THE AWARD IS A PUNISHMENT. EFFECT: skill +5 (A's skill); everyone happier.
+[new] (Z1) (Name1) is delighted to receive a special prize, until the officials explain that the winner must demonstrate the incident at next year's festival. (Mentor) quietly says, "You had better learn how to do it safely."
+
+[new] R88 THE MASTER IS JEALOUS. EFFECT: skill +10 (A's skill); everyone happier.
+[new] The judges praise the accidental result more enthusiastically than anything (mentor) has produced all season. (Mentor) congratulates (name1) through clenched teeth, then spends the afternoon trying to understand how it happened. Eventually, (mentor) asks for a demonstration.
+
+[new] R89 THE AUDIENCE WANTS AN ENCORE. EFFECT: everyone happier; no automatic pass.
+[new] The crowd begins chanting for (name1) to repeat the catastrophe. (Name1) looks to (mentor), who folds (his/her) arms. "Absolutely not." The crowd chants louder. (Mentor) agrees to one carefully supervised reenactment using harmless props, then assigns the original task again.
+
+[new] R90 THE NEW PROFESSION. EFFECT: skill +10 (A's skill); everyone happier; story-only new role, no automatic profession change.
+[new] The original assignment ends in spectacular failure, but (name1) turns out to be remarkably good at entertaining the audience. The village begins inviting (him/her) to festivals as a comic performer. (Mentor) reminds (name1) that being funny does not excuse unfinished work. (Name1) begins to wonder whether there might be room for both talents.
+
+[new] R91 THE HUMBLE DISCOVERY. EFFECT: skill +20 (A's skill); no automatic pass unless the task criteria are met.
+[new] (Name1) expects punishment for the disaster. Instead, (mentor) asks what (he/she) noticed. (Name1) describes a useful result hidden in the mess. They test it carefully and discover that it holds up. (Mentor) smiles. "You failed the task. You did not fail to learn."
+
+[new] R92 THE WRONG REASON, RIGHT LESSON. EFFECT: skill +10 (A's skill); everyone happier.
+[new] (Z1) (Name1) accepts the unexpected honor, then asks whether the original assignment still counts. (Mentor) answers with a long, terrible silence. "No," (mentor) says. "But I am very interested in what you do next."
+
+[new] R93 THE ACCIDENTAL CRITIC. EFFECT: skill +10 (A's skill); mentor gains +5 matching skill if supported.
+[new] (Name1) tries to defend the disastrous result and points out that (mentor)'s instructions were contradictory. (Mentor) starts to protest, reads the instructions again, and stops. The apprentice was right. They rewrite the assignment together, and both learn something about giving clear directions.
+
+[new] R94 THE PRIZE NOBODY CAN EXPLAIN. EFFECT: everyone happier; no automatic pass.
+[new] The council creates a trophy from a coconut, a bent spoon, and a piece of string. They present it to (name1) with great ceremony. Nobody can remember what the award is called. (Name1) keeps it anyway.
+
+[new] R95 THE LEGACY OF THE MISTAKE. EFFECT: skill +10 (A's skill); everyone happier; story-only lasting tradition.
+[new] Years later, villagers still tell the story of (name1)'s impossible examination. The original mistake has become a lesson, a joke, and a small tradition. (Mentor) claims the whole thing was planned as a teaching exercise. (Name1) knows better.
+
+
+==============================================================================
+[owner] EXPANSION: THE SABOTAGE TWIST (Lorsieab2's idea: someone sabotaged (name1)'s work!)
+[added] The saboteur (S) is drawn at random from: (mentor), a rival apprentice ((name2)), one of the officials or judges, or (name1) (him/herself), or [owner] the island's serial prankster (see below).
+[added] (name2) here is another villager 14 or older, never (name1) or (mentor). Sabotage is always mischief, jealousy, a test or panic: never meant to hurt anyone, and nobody is hurt.
+[added] A route either reveals who did it, or leaves it a mystery. The sabotage itself never passes or fails the task on its own; what (name1) does about it decides that.
+
+[added] SA: WHAT WAS SABOTAGED (draw one that matches the profession):
+[added]   Farming: the salt has been swapped for sand / the stew has been stirred with a sweaty sandal / the seeds were boiled the night before / the fish basket has been filled with seaweed and one very angry crab
+[added]   Building: the chisels have all been blunted / one supporting pole has been sawn almost through / the clay was watered down overnight / the measuring cord has been knotted shorter
+[added]   Research: the star chart's stars have been moved with charcoal / two pages of the scroll are swapped / the potion jars have been relabelled / someone has put a lizard in the experiment
+[added]   Healing: the bandages have been knotted together / the herbs have been swapped for lookalikes that only make people sneeze / the remedy bowl has a hidden crack / the healer's notes have been rubbed out
+[added]   Parenting: someone has told the children the lesson is cancelled / the lesson props have been hidden / the children have been given sweet fruit right before nap time / the toddlers were taught a rude song the night before
+[added]   Devotion (VV5): the ceremonial drum has been loosened / the sacred chant has been copied with lines missing / the offering bowl has been swapped for a cooking pot / the ritual candles were soaked in water
+
+[added] SB: THE FIRST CLUE (one, before the reveal):
+[added]   (Name1) notices muddy footprints leading away from the workbench.
+[added]   There is a tiny tuft of (feathers / hair / thread) caught on the work that is definitely not (name1)'s.
+[added]   The village parrot keeps repeating, 'Not my fault! Not my fault!' in a voice (name1) almost recognizes.
+[added]   Someone has left the tools neatly arranged, which (name1) never does.
+[added]   A child mentions that they saw someone 'fixing' (name1)'s work very early this morning.
+[added]   (Name1) finds a note in the work. It just says 'Sorry.'
+
+[added] SC: THE SABOTEUR'S REASON (drawn to fit S):
+[added]   (mentor): it was a test, to see how (name1) handles things going wrong / (mentor) wanted to see if (name1) would notice / (mentor) remembers being humbled once and thought it built character
+[added]   (name2): jealousy, because (name1) got the task (name2) wanted / (name2) panicked that (name1) would outshine (him/her) / (name2) was trying to 'help' and made it much worse
+[added]   an official: the official had bet a basket of fruit that (name1) would fail / the official wanted the task done the old way / the official didn't sabotage anything on purpose, just sat on it
+[added]   (name1): (name1) was so afraid of failing that (he/she) secretly made sure there would be an excuse / (name1) sleepwalked and 'improved' the work in the night / (name1) tried a last-minute change and couldn't admit it
+
+[added] R96 THE SABOTAGE IS DISCOVERED IN TIME. EFFECT: pass skill +15 (A's skill); fail skill +5. BRANCHES: 50/50.
+[added] (SA) (SB) (Name1) realizes something is wrong just before the judging and has only moments to fix it.
+[added]   pass: (Name1) fixes the damage under everyone's eyes. The judges are more impressed by the save than they would have been by the work.
+[added]   fail: (Name1) fixes most of it, but not all. (Mentor) studies the half-saved work for a long time. "Next time, check your work before you show it."
+
+[added] R97 THE MENTOR DID IT. EFFECT: skill +10 to 20 (A's skill); (name1) happier or angrier, at random.
+[added] (SA) (SB) After the disaster, (mentor) calmly admits that (he/she) did it. (SC) (Name1) stares, speechless. (Mentor) shrugs. "Things will go wrong when it matters most. Now you know you can survive it."
+
+[added] R98 THE RIVAL DID IT. EFFECT: (name1) skill +10 (A's skill); (name2) gains a dislike of (the matching thing), or none.
+[added] (SA) (SB) The clues lead straight to (name2). (SC) (Mentor) is far more furious with (name2) than with (name1), and makes (name2) redo (name1)'s work alongside (him/her) until it is perfect.
+
+[added] R99 THE RIVAL DID IT, AND THEY BECOME FRIENDS. EFFECT: skill +10 for both (A's skill); both happier.
+[added] (SA) (SB) (Name2) confesses. (SC) Instead of shouting, (name1) asks (name2) to help fix it. By sunset the two of them are laughing about the whole thing, and the fixed work is better than the original.
+
+[added] R100 THE OFFICIAL DID IT. EFFECT: skill +15 (A's skill); everyone happier except the official.
+[added] (SA) (SB) A child points out that the official has (mud / clay / ink / herb dust) all over (his/her) hands. (SC) The other officials are scandalized. The task is judged again, fairly, and (name1) does much better the second time.
+
+[added] R101 (NAME1) DID IT (THE STUDENT IS (HIS/HER) OWN HARSHEST CRITIC). EFFECT: skill +5 to 10 (A's skill); (name1) happier after the talk.
+[added] (SA) (SB) The clues point in a direction (name1) didn't expect: at (himself/herself). (SC) (Name1) confesses to (mentor), red-faced. (Mentor) is quiet for a long time, then sits down beside (him/her). "Being afraid of failing is not the same as failing. Do it again. Properly. I'll be here."
+
+[added] R102 NOBODY KNOWS WHO DID IT. EFFECT: skill +5 (A's skill); story-only mystery.
+[added] (SA) (SB) Every villager has an alibi, the parrot refuses to say anything else, and the only footprints lead into the sea. The work is redone and passes. To this day, nobody knows who did it, though everyone has a theory.
+
+[added] R103 THE SABOTAGE MAKES IT BETTER. EFFECT: pass skill +20 (A's skill); everyone happier.
+[added] (SA) To everyone's astonishment, the sabotaged work turns out better than the original would have. (Mentor) looks at it, then at the saboteur, then at (name1). "Well," (mentor) says. "Nobody tell anyone how this happened."
+
+[added] R104 THE WRONG PERSON IS BLAMED. EFFECT: skill +10 (A's skill); (name1) happier.
+[added] (SA) (SB) Everyone blames the village goat. The goat looks guilty, as goats always do. (Name1) knows the goat is innocent and says so. The real saboteur, hearing this, confesses on the spot, too ashamed to let a goat take the blame.
+
+[added] R105 THE DOUBLE SABOTAGE. EFFECT: none; everyone happier.
+[added] (SA) It turns out two different people sabotaged the work on the same night, each without knowing about the other, and the second sabotage accidentally undid the first. The work is exactly as (name1) left it. The two saboteurs are made to apologize, then to clean the fish-gutting pit together.
+
+[added] R106 THE SABOTEUR IS CAUGHT RED-HANDED. EFFECT: pass skill +15 (A's skill); fail skill +5. BRANCHES: 50/50.
+[added] (Name1) returns early and catches (S) in the act. Everyone freezes. (SC)
+[added]   pass: With the damage stopped in time, (name1) finishes the work, and the judges reward (him/her) for keeping calm.
+[added]   fail: The damage is already done. (Mentor) grants (name1) another day to redo it, and makes (S) carry the materials.
+
+
+[owner] THE SERIAL PRANKSTER (Lorsieab2's idea): somebody on the island has been playing the same kind of trick on everyone for weeks.
+[added] The prankster is a villager 14 or older (name3), never (name1) or (mentor), or stays a mystery. Pranks are harmless, impossible-seeming and very, very annoying.
+[added] Nobody knows how the impossible ones are done. The elders blame the spirits; the children blame (name3); (name3) just smiles.
+
+[added] SP: THE PRANK (draw one that matches the profession, or any):
+[owner]   Devotion/any: the candles light themselves again every time someone blows them out
+[owner]   Devotion/any: the candles light even after being soaked in the lagoon
+[added]   Devotion: the sacred drum plays one extra beat after everyone stops
+[added]   Devotion: the ceremonial masks have all been turned to face the wall, and turn back again when nobody is looking
+[added]   Devotion: the offering bowl refills itself with pebbles shaped exactly like fruit
+[added]   Farming: every coconut in the basket has a little face drawn on it, and they all look disappointed
+[added]   Farming: the stew pot has been filled with stew that is sweet on top and salty on the bottom
+[added]   Farming: the fish in the drying racks have all been rearranged to spell (name1)'s name
+[added]   Farming: the seeds sprout overnight into a tiny garden in the shape of a rude gesture
+[added]   Building: every tool has been tied to the next one with a single long vine
+[added]   Building: the statue has been given a seaweed wig, and it suits it
+[added]   Building: the hut door now opens from the wrong side
+[added]   Building: a second, smaller, very badly made copy of (name1)'s work has appeared next to it, labelled 'better'
+[added]   Research: the star chart has a new constellation in it, shaped like (mentor)'s face
+[added]   Research: every scroll has been rolled up backwards, very tightly, and tied in a bow
+[added]   Research: the potion bubbles out a tiny tune whenever anyone gets close
+[added]   Research: the counting stones have been replaced with identical stones that are slightly heavier
+[added]   Healing: every bandage has been knotted into the shape of a tiny bird
+[added]   Healing: the remedies have all been perfectly labelled with each other's names
+[added]   Healing: the healing hut's sleeping mat squeaks like a frog every time someone lies down
+[added]   Parenting: the children have all been taught to answer every question with 'Ask the goat'
+[added]   Parenting: the lesson drawings have been redrawn so every person in them has a pig's nose
+[added]   Parenting: the nap mats have been filled with crackling dry leaves
+[added]   Any: everything (name1) owns has been moved exactly one step to the left
+[added]   Any: a trail of flower petals leads from (name1)'s work to (mentor)'s hut, with a note: 'Guess who'
+[added]   Any: every time (name1) turns around, there is one more coconut on the workbench
+[added]   Devotion: the sacred fire burns in a different colour every time someone looks away
+[added]   Devotion: the prayer beads have been restrung in a pattern that spells out a joke
+[added]   Devotion: a small stone idol appears on the shrine overnight, wearing a tiny leaf hat
+[added]   Devotion: the temple bell has been stuffed with feathers and now goes 'fwump'
+[added]   Devotion: the incense smells exactly like (mentor)'s cooking
+[added]   Farming: every taro in the field has been pulled up, turned around and replanted facing the other way
+[added]   Farming: the cooking fire has been lit under an empty pot with a note saying 'nearly done'
+[added]   Farming: a single banana hangs from every tree in the village, all at exactly the same height
+[added]   Farming: the fishing nets have been tied into one enormous hammock, with a very comfortable pig in it
+[added]   Farming: the berries in the basket have been sorted perfectly by colour, from red to nearly-red
+[added]   Building: every brick in the new wall has been turned so the thumbprints face outward, all smiling
+[added]   Building: the canoe has been carried up a tree and wedged between two branches
+[added]   Building: the hut has a second door now, which opens onto a solid wall
+[added]   Building: every carving in the village has been given matching seashell earrings
+[added]   Building: the ladder has had one rung moved so it is always the wrong one
+[added]   Research: the sundial's shadow has been painted on, permanently pointing at lunchtime
+[added]   Research: every page of the scroll ends in the middle of a sentence, and the next page starts with 'just kidding'
+[added]   Research: the measuring sticks have all been shortened by exactly one fingernail
+[added]   Research: a crab has been placed in charge of the experiment, with a tiny sign saying 'head scholar'
+[added]   Research: the map of the island now includes a second, imaginary island called (name1)'s Folly
+[added]   Healing: the medicine pouches have been filled with sweets, and every child in the village suddenly claims to be very, very ill
+[added]   Healing: the healer's mortar and pestle have been swapped for a coconut and a very small stick
+[added]   Healing: every patient's sickbed has been turned to face the latrines
+[added]   Healing: the splints have been carved to look like little fish
+[added]   Healing: someone has taught the healing hut's parrot to say 'Next!' in (mentor)'s voice
+[added]   Parenting: every child's sandals have been swapped with another child's, so nobody's fit
+[added]   Parenting: the learning circle's stones have been rearranged into a perfect spiral that nobody can find the middle of
+[added]   Any: (name1)'s hat has been replaced with an identical hat that is very slightly too small
+[owner]   Any: a whoopee cushion made from a dried pufferfish is hidden on the judges' seats (yes, it's spiky)
+[owner]   Any: a banana peel is left exactly where (name1) will step, at exactly the wrong moment
+[owner]   Healing: the scalpel has been swapped for the bluntest scalpel ever made
+[owner]   Any: (name1)'s tools have been broken, glued back together, and break again the moment they're used
+[owner]   Building/Research: the stones for the work have been swapped for hematite, which cracks the moment it's struck
+[owner]   Farming/Healing/Research: the salt has been swapped for sugar, or the sugar for salt
+[owner]   Any: the floral powder has been replaced with sneezing powder
+[owner]   Research/Healing: the potion cauldron has been laced with something that turns every brew the colour of poop
+[owner]   Research/Healing: the potion cauldron has been laced with something that turns every brew as green as the sick patient's face
+[owner]   Any: someone has hidden a fart spray made from skunk musk under the judges' table
+[added]   Any: a bucket of water is balanced on top of the door, waiting for (mentor)
+[added]   Any: the judges' seats have been smeared with tree sap, and nobody can stand up for the verdict
+[added]   Any: every tool has been painted to look exactly like every other tool
+[added]   Any: a fake spider made of coconut hair dangles on a string just above (name1)'s head
+[added]   Any: a (frog / gecko / crab) is hiding inside the work and jumps out at the big reveal
+[added]   Any: the drum that signals the start of the judging has been swapped for one that honks like a goose
+[added]   Any: (name1)'s apron has been sewn to the workbench
+[added]   Any: the 'finished' sign has been hung on the work before (name1) has even started
+[added]   Any: everyone in the audience has been given a slice of very sour fruit, and their faces are all puckered at the big moment
+[added]   Any: an echoing shell has been hidden in the rafters, so every word (mentor) says is repeated a second later in a silly voice
+[added]   Farming: the chili peppers have been swapped for even hotter chili peppers, and the judges have been told they're sweet
+[added]   Farming: the fish have been stuffed with more fish, which are stuffed with more fish
+[added]   Farming: the coconut milk has been swapped for soapy water, and the stew is now foaming
+[added]   Farming: every egg in the basket has been hard-boiled the night before
+[added]   Building: the measuring cord has been swapped for one made of stretchy vine
+[added]   Building: the glue has been swapped for honey, and the bees have found the work
+[added]   Building: every nail-peg has been carved from soft cheese-fruit
+[added]   Building: the hammer's head has been tied on with a single thread
+[added]   Research: the ink has been swapped for ink that disappears after a few moments
+[added]   Research: the magnifying crystal has been smeared with fish oil
+[added]   Research: the scale has been weighted with a pebble hidden underneath
+[added]   Research: the stargazing tube has a tiny painted moon stuck to the end of it
+[added]   Healing: the bandages have been dyed in stripes, and they won't come clean
+[added]   Healing: the soothing balm has been swapped for one that tingles very, very much
+[added]   Healing: the healer's tweezers have been bent so they only grab the air
+[added]   Healing: the bitter medicine has been made even more bitter, and the patient's face says so
+[added]   Parenting: every child has been secretly given a drum
+[added]   Parenting: the nap blankets have been sprinkled with itching leaves
+[added]   Parenting: the children have been told today's lesson is 'how to make a lot of noise'
+[added]   Devotion: the ceremonial smoke has been swapped for smoke that smells like burnt fish
+[added]   Devotion: the holy water has been swapped for coconut water, and someone has drunk half of it
+[added]   Devotion: the ritual robe has been shrunk in the wash
+
+[added] R107 THE SERIAL PRANKSTER STRIKES. EFFECT: none; everyone happier.
+[added] (SP) (Name1) stares at it in disbelief. (Mentor) doesn't even look surprised. "ALWAYS EXPECT THE UNEXPECTED!" (mentor) barks, and makes (name1) carry on anyway.
+
+[added] R108 THE PRANKSTER IS CAUGHT. EFFECT: skill +10 (A's skill); (name3) gains the job of cleaning the fish-gutting pit (story only).
+[added] (SP) (Name1) sets a trap of (his/her) own: a line of shells that rattle if anyone walks past at night. Just before dawn, the shells rattle. It is (name3), holding a fresh batch of candles. (Name3) bows. "You got me."
+
+[added] R109 THE PRANKSTER IS NEVER CAUGHT. EFFECT: skill +5 (A's skill); story-only mystery.
+[added] (SP) (Name1) waits up all night to catch the prankster and sees nothing. In the morning, the prank has happened again anyway, and there is a little drawing of a sleeping (name1) on the workbench.
+
+[added] R110 THE PRANK SAVES THE DAY. EFFECT: pass skill +15 (A's skill); everyone happier.
+[added] (SP) Just as (name1)'s task is about to fail, the prank turns out to be exactly what was needed: (the candles that won't go out keep the ceremony lit through the rain / the extra coconuts feed the judges / the tied-together tools stop one from falling into the sea). (Mentor) narrows (his/her) eyes at the crowd. Somebody in it is trying very hard not to laugh.
+
+[added] R111 THE MENTOR IS THE PRANKSTER. EFFECT: skill +10 (A's skill); everyone happier.
+[added] (SP) After weeks of pranks, (name1) finally catches the prankster. It is (mentor). (Mentor) shrugs. "You never know what will happen on the day. ALWAYS EXPECT THE UNEXPECTED!" (Name1) is not sure whether to be furious or impressed. (He/She) decides on both.
+
+[added] R112 PRANK WAR. EFFECT: skill +5 (A's skill) for (name1); everyone happier.
+[added] (SP) (Name1) decides that two can play this game. By the end of the week, half the village is pranking the other half, the candles are still relighting themselves, and nobody can remember who started it. The task is finished three days late. It is very good.

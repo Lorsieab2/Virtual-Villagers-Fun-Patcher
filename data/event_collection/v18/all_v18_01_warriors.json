@@ -110,7 +110,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "text": "A quiet farmer defeats the favored warrior with a clever feint. The favorite demands a rematch, but the judges uphold the result.",
@@ -134,7 +135,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "text": "A contestant loses control and strikes too hard. The judges stop the tournament; the offender must apologize and help the healer.",
@@ -152,7 +154,8 @@
      "max": -10,
      "src": "L8536"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4": {
    "text": "Two finalists refuse to yield. They agree to share the prize and train the village together.",
@@ -176,7 +179,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1": {
    "text": "The contestants demonstrate disarming, retreating, and protecting children. The judges declare that courage need not require injury.",
@@ -205,7 +209,8 @@
      "what": "injury",
      "reason": "narrative: the contest avoids injury; nobody is hurt"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "The crowd complains that the contest is boring until a mock ambush reveals the champion's extraordinary vigilance.",
@@ -229,7 +234,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "text": "One boastful fighter fails to defend a basket of coconuts from three giggling children. Nobody lets (boaster.him/her) forget it.",

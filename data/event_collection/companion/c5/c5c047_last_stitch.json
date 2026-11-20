@@ -73,13 +73,73 @@
    ]
   },
   "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They teach the grandchild the final stitch.",
+   "src": "L2611",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "grandchild",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L2611"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
    "name": "Ending 1",
    "popup": "append",
    "join": "paragraph",
    "text": "They teach the grandchild the final stitch.",
    "src": "L2611"
   },
-  "e2": {
+  "e2__fx": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The garment is worn proudly at supper.",
+   "src": "L2612",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "grandchild",
+     "mood": "good",
+     "src": "L2612"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Ending 2",
    "popup": "append",
    "join": "paragraph",

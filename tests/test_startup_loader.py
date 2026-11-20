@@ -191,8 +191,11 @@ STARTED_BY_A_COMPANION = {"VVFP VV1 Golden Child Safe.dll": "VVFP Speed Change T
 
 def loaded_at_winmain(shipped) -> set[str]:
     """The shipped DLLs in the process when WinMain is entered: those the loader starts, and those
-    a started companion loads and starts itself at game start (never one whose loader is missing)."""
-    first = started(shipped)
+    a started companion loads and starts itself at game start (never one whose loader is missing).
+    The third word's companions are started by VVFP More Companions.dll from the number the patcher
+    writes into "VVFP More Companions.txt" at publish, which this emulation has no file for (its own
+    emulation: tests/test_more_companions.py), so here they are not loaded."""
+    first = started(shipped) - set(vfp.STARTUP_LOADER_COMPANIONS_3)
     return first | {name for name, loader in STARTED_BY_A_COMPANION.items()
                     if name in shipped and loader in first}
 
@@ -287,9 +290,10 @@ class StartupLoaderPlacement(unittest.TestCase):
                     build_of(game), [i for i in public_ids(game) if i not in POPULATION_256]))
                 mask = vfp._startup_loader_mask(game, features)
                 mask_2 = vfp._startup_loader_mask_2(features)
-                # all but the loader, in the two words; bit 30 is the tech-point setting, not a companion
-                self.assertEqual(bin(mask & ~vfp.STARTUP_LOADER_STORY_CHARGES).count("1") + bin(mask_2).count("1"),
-                                 len(started(shipped)) - 1)
+                mask_3 = vfp._startup_loader_mask_3(features)
+                # all but the loader, in the three words; bit 30 is the tech-point setting, not a companion
+                self.assertEqual(bin(mask & ~vfp.STARTUP_LOADER_STORY_CHARGES).count("1") + bin(mask_2).count("1")
+                                 + bin(mask_3).count("1"), len(started(shipped)) - 1)
                 # Check logs automatically is on by default: bit 31 rides with the companion bits.
                 block = vfp._startup_loader_block(va, int(game[2]), mask | vfp.STARTUP_LOADER_CHECK_LOGS,
                                                   slots[b"GetModuleHandleA"], slots[b"GetProcAddress"],
@@ -357,6 +361,7 @@ class StartupLoaderPlacement(unittest.TestCase):
         source = (ROOT / "native" / "vvfp_startup" / "vvfp_startup.c").read_text(encoding="utf-8")
         source += (ROOT / "native" / "shared" / "startup_companions.h").read_text(encoding="utf-8")
         source += (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
+        source += (ROOT / "native" / "shared" / "startup_companions_3.h").read_text(encoding="utf-8")
         named = set(re.findall(r'"(VVFP [^"]+\.dll)"', source))
         shipped = {str(item["destination"]) for p in vfp.load_fun_patches()
                    for item in p.raw.get("companion_files", [])

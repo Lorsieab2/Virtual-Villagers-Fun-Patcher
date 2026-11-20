@@ -104,11 +104,63 @@
    "src": "L1595"
   },
   "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1) has been looking forward to supper since morning. (Name1) is proud of the progress nobody else can see.",
+   "src": "L1599",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1599"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
    "name": "Ending 3",
    "text": "(Name1) has been looking forward to supper since morning. (Name1) is proud of the progress nobody else can see.",
    "src": "L1599"
   },
-  "e4": {
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1) has been looking forward to supper since morning. A cheerful interruption is welcome for once.",
+   "src": "L1603",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1603"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1) has been looking forward to supper since morning. A cheerful interruption is welcome for once.",
    "src": "L1603"

@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Friendship Across Generations",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci47_friendship",
+  "source": "draft_lci",
+  "lines": [
+   652,
+   663
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L652",
+  "ledger": [
+   {
+    "src": "L653",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child and an elder)"
+   },
+   {
+    "src": "L659",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L659",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L663",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A child and an elder bond over beetles, and the child's parent wants to mend things: share the hunt, or apologize plainly.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have discovered they both love beetles, and spend every afternoon in the forest finding them. (subject)'s parent recently admitted to (friend), with some shame, that (other.he/she) has been too hard on (subject) lately, and does not know how to fix it. (friend) has an idea. What should (friend) suggest?",
+   "src": "L655",
+   "choices": [
+    {
+     "label": "Make Room for the Friendship",
+     "next": "o1",
+     "src": "L657"
+    },
+    {
+     "label": "Let the Parent Find Their Own Way",
+     "next": "o2",
+     "src": "L661"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) invites (subject)'s parent to come beetle-hunting with them. It is awkward at first. Then the parent finds a beetle so enormous (subject) shrieks with joy, and they spend the afternoon laughing. It is a start.",
+   "src": "L659",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L659"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) tells the parent that the only way is to apologize to (subject), plainly. The parent does. (subject) does not quite know what to say. But the next evening, (subject.he/she) shows the parent (subject.his/her) beetle collection.",
+   "src": "L663"
+  }
+ }
+}

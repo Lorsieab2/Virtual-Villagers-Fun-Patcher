@@ -171,6 +171,15 @@ static int record_has(const char *record, const char *line) {
     hit = strstr(record, wanted);
     return hit != NULL && (end == NULL || hit < end);
 }
+/* `text` anywhere in this record (before the next "Conception "). */
+static int record_text_has(const char *record, const char *text) {
+    const char *end = strstr(record + 1, "Conception ");
+    const char *hit = strstr(record, text);
+    return hit != NULL && (end == NULL || hit < end);
+}
+typedef int (__stdcall *carried_t)(int, const void *, const void *, const void *, int);
+static carried_t g_carried;          /* WriteParentageRecordCarried */
+
 /* The next line indented by exactly two spaces: the start of the next block
    (a field line is indented by four, which also begins with two). */
 static const char *next_block(const char *from) {
@@ -373,6 +382,71 @@ static void run_game(write_t write, const struct layout *layout) {
         rec(11)[g->active] = 0;
     }
 
+    /* --- WHO CARRIES (the owner, 2026-11-17: the logs keep track of males carrying babies) ---
+
+       The carrier is always the record's Mother, whatever their sex, and the partner its Father; a carrier who is
+       male gets a note naming both, a woman none, and a couple's pregnancy in which the PARTNER carries
+       (WriteParentageRecordCarried, a branching Custom Island Event's) says so. */
+    {
+        static const unsigned int SEX[6] = { 0, 0x350, 0x538, 0xDC8, 0x1B90, 0x1B90 };
+        int male = g->game <= 2 ? 1 : 0, female = g->game <= 2 ? 2 : 1;
+        villager(13, "Tane", 30 * 20, 6, 6);
+        villager(14, "Mere", 28 * 20, 8, 8);
+        *(int *)(rec(13) + SEX[g->game]) = male;
+        *(int *)(rec(14) + SEX[g->game]) = female;
+        *(int *)(rec(13) + g->litter) = 0;
+        game_copies_father_onto_mother(13, 14);
+        ok = write(g->game, records, rec(13), rec(14));
+        read_log();
+        r = conception(n_records(g));
+        CHECK(ok == 1 && r != NULL && record_has(r, "  Mother: Tane"), "a male carrier is the record's Mother");
+        CHECK(r != NULL && parent_has(r, "  Mother:", "Sex: Male"), "...his sex as it is: Male");
+        CHECK(r != NULL && record_has(r, "  Note: Carried by Tane, who is male (named as the Mother; Mere is named "
+                                         "as the Father)"), "...and a note names the carrier and the partner");
+        CHECK(r != NULL && !record_text_has(r, "partner carries"), "...not a partner-carry (none was drawn)");
+
+        *(int *)(rec(14) + g->litter) = 0;
+        game_copies_father_onto_mother(14, 13);
+        ok = write(g->game, records, rec(14), rec(13));
+        read_log();
+        r = conception(n_records(g));
+        CHECK(ok == 1 && r != NULL && record_has(r, "  Mother: Mere"), "a woman carrying is the Mother");
+        CHECK(r != NULL && !record_text_has(r, "Note: Carried by") && !record_text_has(r, "partner carries"),
+              "...with no carrier note");
+
+        if (g_carried == NULL) {
+            CHECK(0, "WriteParentageRecordCarried is exported");
+        } else {
+            ok = g_carried(g->game, records, rec(14), rec(13), 1);
+            read_log();
+            r = conception(n_records(g));
+            CHECK(ok == 1 && r != NULL && record_has(r, "  Note: The partner carries (Mere carries the babies instead "
+                                                        "of Tane; Mere is named as the Mother)"),
+                  "the partner carries: the note names who carries and who was named");
+            CHECK(r != NULL && !record_text_has(r, "who carries, is male"), "...a woman carrying: no male note");
+            game_copies_father_onto_mother(13, 14);
+            ok = g_carried(g->game, records, rec(13), rec(14), 1);
+            read_log();
+            r = conception(n_records(g));
+            CHECK(ok == 1 && r != NULL && record_has(r, "  Note: The partner carries (Tane carries the babies instead "
+                                                        "of Mere; Tane is named as the Mother)")
+                  && record_has(r, "  Note: Tane, who carries, is male"),
+                  "the partner who carries is male: both notes");
+            ok = g_carried(g->game, records, rec(14), rec(13), 0);
+            read_log();
+            r = conception(n_records(g));
+            CHECK(ok == 1 && r != NULL && !record_text_has(r, "partner carries"),
+                  "partner_carries 0: the plain record");
+            ok = write(g->game, records, rec(14), rec(13));
+            read_log();
+            r = conception(n_records(g));
+            CHECK(ok == 1 && r != NULL && !record_text_has(r, "partner carries"),
+                  "the flag never outlives its own record");
+        }
+        rec(13)[g->active] = 0;
+        rec(14)[g->active] = 0;
+    }
+
     free(records);
     remove_logs();
 }
@@ -393,6 +467,7 @@ int main(int argc, char **argv) {
     if (!locate_folder()) { fprintf(stderr, "cannot resolve the throwaway Documents\n"); return 2; }
     write = (write_t)GetProcAddress(dll, "WriteParentageRecordWithFather");
     if (write == NULL) { fprintf(stderr, "WriteParentageRecordWithFather not exported\n"); return 2; }
+    g_carried = (carried_t)GetProcAddress(dll, "WriteParentageRecordCarried");
     printf("log folder: %s\n", folder);
     for (i = 0; i < 5; ++i) {
         run_game(write, &LAYOUTS[i]);

@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Remedy from the Deep",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b074_remedy_deep",
+  "source": "balance",
+  "lines": [
+   3342,
+   3382
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3342",
+  "ledger": [
+   {
+    "src": "L3343",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3344",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3351",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3360",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3348",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3349",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3352",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3361",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3354",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3357",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3363",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3366",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3369-3382",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has had a deep, wet cough for a month that nothing will shift.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has had a deep, wet cough for a month that nothing will shift. The oldest fisher knows of a remedy: the ink of a certain deep-water octopus, mixed with honey, which the fishers' grandparents swore by. Getting the ink means a long, cold dive. Or there's the healers' usual remedy, which is slow, and smells awful, and has to be taken every day for a month.\n(Name) is very tired of coughing. Which remedy should (he/she) try?",
+   "choices": [
+    {
+     "label": "The Octopus Ink",
+     "next": "c1",
+     "src": "L3348"
+    },
+    {
+     "label": "The Healers' Slow Remedy",
+     "next": "c2",
+     "src": "L3349"
+    }
+   ],
+   "src": "L3345-3346"
+  },
+  "c1o1": {
+   "text": "Three spoonfuls, three days, and the cough is gone. (Name) can breathe all the way down to the bottom of (his/her) chest for the first time in a month. The healers are sceptical, and then curious, and then ask the oldest fisher to teach them which octopus.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "src": "L3355",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The cough goes, and so does (name)'s taste for anything from the sea. Every fish, every shellfish, every bowl of seaweed broth tastes faintly of octopus ink now. (He/She) eats taro and fruit and is perfectly healthy, and makes a face whenever the fishers come in with their catch.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "fish",
+     "role": "subject"
+    }
+   ],
+   "src": "L3358",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "The oldest fisher dives three times and comes up with a bowl of black ink and a scowl. Mixed with honey it looks like tar, and tastes like the bottom of the sea...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3352"
+  },
+  "c2o1": {
+   "text": "By the end of the month, the cough is gone. (Name) is almost sorry, because the healers have got used to (him/her) coming by every morning, and have started saving (him/her) a piece of fruit to take the taste away. (He/She) keeps coming by anyway, for the fruit.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "src": "L3364",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "At the end of the month, the cough is a little better, but not gone. The healers sigh and start another month. (Name) sighs louder. Eventually, as the dry season comes, it just fades on its own, and nobody can say which remedy did it, if any.",
+   "src": "L3367"
+  },
+  "c2": {
+   "text": "Every morning for a month, (name) holds (his/her) nose and drinks the healers' brew, which smells like a wet dog and tastes worse...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3361"
+  }
+ }
+}

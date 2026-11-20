@@ -81,14 +81,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "The first morning is cold and damp and (subject) hates it. The second is a little better. On the third, (subject.he/she) meets (fisher), an old fisher who walks the same way every day, and they start walking together. By the end of the week (subject) is still restless some days. But (subject.he/she) has a walking friend now, and (subject.he/she) is a bit less snappish before breakfast. That's something.",
-   "src": "L74"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) walks to the big rock once, comes home with sand in (subject.his/her) sandals and decides that mornings are for sleeping. \"I'm not a walker,\" (subject.he/she) tells (friend). \"That's alright,\" says (friend). \"Not everyone is. Let's think of something else.\" They think of something else: an hour of weaving in the quiet before dinner. It helps a little. Walking would never have suited (subject) anyway.",
    "src": "L77"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The first morning is cold and damp and (subject) hates it. The second is a little better. On the third, (subject.he/she) meets (fisher), an old fisher who walks the same way every day, and they start walking together. By the end of the week (subject) is still restless some days. But (subject.he/she) has a walking friend now, and (subject.he/she) is a bit less snappish before breakfast. That's something.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L74"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The first morning is cold and damp and (subject) hates it. The second is a little better. On the third, (subject.he/she) meets (fisher), an old fisher who walks the same way every day, and they start walking together. By the end of the week (subject) is still restless some days. But (subject.he/she) has a walking friend now, and (subject.he/she) is a bit less snappish before breakfast. That's something.",
+   "src": "L74"
   }
  }
 }

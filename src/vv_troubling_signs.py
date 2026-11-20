@@ -62,10 +62,10 @@ TEXTS: tuple[tuple[str, str], ...] = (
                 "found a definite explanation for these occurrences."),
     ("INTRO_2", "With so little information to go on, and the problems mounting further, {c} must make a decision "
                 "quickly for the sake of the village. But, who should {c} go to for advice?"),
-    ("LABEL_SPIRITUAL", "Consult the spiritual leaders"),
-    ("LABEL_MAGICIANS", "Ask the magicians for advice"),
-    ("LABEL_NATURALISTS", "Call the naturalists to a discussion"),
-    ("LABEL_SCIENTISTS", "Talk with the scientists and healers"),
+    ("LABEL_SPIRITUAL", "Consult the Spiritual Leaders"),
+    ("LABEL_MAGICIANS", "Ask the Magicians for Advice"),
+    ("LABEL_NATURALISTS", "Call the Naturalists to a Discussion"),
+    ("LABEL_SCIENTISTS", "Talk with the Scientists and Healers"),
     ("ADVICE_SPIRITUAL", "The spiritual leaders believe that the village should pray and offer gifts. Surely these "
                          "unfortunate occurrences must stem from transgressions the villagers have made towards the "
                          "things that guide their fate. \"Make haste. The spirits are patient and kind, but such "

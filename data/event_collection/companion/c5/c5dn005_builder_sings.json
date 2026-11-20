@@ -87,7 +87,8 @@
      "reason": "music is no game skill (rule 8): only Building is gained",
      "src": "L2704"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "name": "Outcome 2",

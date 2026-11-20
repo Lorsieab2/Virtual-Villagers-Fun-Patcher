@@ -1,0 +1,295 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone That Remembered",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my033_stone_remembered",
+  "source": "rewrites",
+  "lines": [
+   11762,
+   11817
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11762",
+  "ledger": [
+   {
+    "src": "L11763",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11764",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11773",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11780",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11787",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11794",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11768",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11769",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11770",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11771",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11774",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11781",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11788",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11795",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11775",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11777",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11782",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11784",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11789",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11791",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11796",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11798",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11801-11817",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "An island event: The Stone That Remembered.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) is clearing out an old fire pit when (subject.he/she) picks up a round grey stone, smoothed by years and years of cooking pots, and still warm, though the fire has been out for days.\nThen (subject.he/she) hears it. Whispers. Coming from the stone. Fragments of conversations, voices (subject) half knows, talking about things that happened years and years ago, like voices heard through a wall. \"...the yams by the river...\" \"...don't tell your father...\" \"...she said yes!\" What should (subject) do?",
+   "choices": [
+    {
+     "label": "Listen Closely",
+     "next": "c1",
+     "src": "L11768"
+    },
+    {
+     "label": "Ask an Elder",
+     "next": "c2",
+     "src": "L11769"
+    },
+    {
+     "label": "Place It in the Sun",
+     "next": "c3",
+     "src": "L11770"
+    },
+    {
+     "label": "Return It to the Hearth",
+     "next": "c4",
+     "src": "L11771"
+    }
+   ],
+   "src": "L11765-11766"
+  },
+  "c1o1": {
+   "text": "Among the whispers, one voice comes through clearly: an old farmer explaining, step by step, how to plant beans beside the corn so they climb it, and squash beneath so their leaves keep the soil damp. (subject) has never heard of planting that way. (subject.He/She) tries it in a corner of the garden, and by the end of the season the three plants have outgrown everything else. The farmers are amazed. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11776",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Then the stone starts repeating something recent. An argument. A private one, between two villagers, about something they'd both rather nobody knew. (subject) yelps and drops the stone, but it's too late; a few others nearby heard it too. The two villagers are mortified, and stop speaking to each other for a whole week. Then, at last, they make up over a shared pot of stew, and everyone politely pretends it never happened.",
+   "src": "L11778"
+  },
+  "c1": {
+   "text": "(subject) sits down, holds the warm stone to (subject.his/her) ear, and closes (subject.his/her) eyes, trying to catch every word...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11774"
+  },
+  "c2o1": {
+   "text": "(friend)'s eyes fill with tears. \"This is from the old hearth,\" (friend.he/she) says. \"My grandmother's family lived there, before the big storm. I can hear my grandmother. I can hear her laughing.\" (friend) holds the stone a long time. Then (friend.he/she) asks if (friend.he/she) may keep it, and (subject) says yes, of course.",
+   "src": "L11783"
+  },
+  "c2o2": {
+   "text": "(friend) listens patiently for a long while, then hands it back. \"I hear nothing, child. Look here, though: there's a crack running right through it. When it's warm, the air inside moves, and the wind whistles through. That's all your whispers are.\" It's a very sensible explanation. (subject) wishes (subject.he/she) believed it.",
+   "src": "L11785"
+  },
+  "c2": {
+   "text": "(subject) brings the stone to (friend), the oldest villager (subject.he/she) can find, who takes it in two wrinkled hands and listens...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11781"
+  },
+  "c3o1": {
+   "text": "Strangely, instead of getting hotter, the stone cools. By midday it's as cold as river water, and silent. No whispers, nothing. It stays that way. (subject) is almost disappointed. It's just a stone now. (subject.He/She) uses it as a doorstop.",
+   "src": "L11790"
+  },
+  "c3o2": {
+   "text": "As the sun beats down on it, a faint pattern of lines appears on the stone's surface, like rivers on a map. The researchers copy the lines down before they fade. One river seems to end very close to the village, at a spot where there is no river. Yet. Or anymore. Nobody's sure which.",
+   "src": "L11792"
+  },
+  "c3": {
+   "text": "(subject) sets the stone on a flat rock in the full blazing sun, to see what happens when it warms up properly...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11788"
+  },
+  "c4o1": {
+   "text": "The whispers stop the moment it's back in its old place. After that, it's just a good, solid cooking stone, holding up pots for the family who uses that fire pit. Sometimes, when the stew is bubbling, they say it sounds like someone humming.",
+   "src": "L11797"
+  },
+  "c4o2": {
+   "text": "That night, (subject) dreams of the family who once lived around that hearth: a mother stirring a pot, a father mending a net, children chasing a dog around the fire. Nobody in the dream speaks to (subject). They don't seem to know (subject.he/she) is there. It's a warm, happy dream, and (subject) wakes up missing people (subject.he/she) never met.",
+   "src": "L11799"
+  },
+  "c4": {
+   "text": "(subject) decides the stone belongs where it was found. (subject.He/She) sets it back in the fire pit, right where it sat for years...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11795"
+  }
+ }
+}

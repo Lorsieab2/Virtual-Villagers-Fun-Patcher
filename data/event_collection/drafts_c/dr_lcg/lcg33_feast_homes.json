@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Feast of Different Homes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg33_feast_homes",
+  "source": "draft_lcg",
+  "lines": [
+   456,
+   467
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L456",
+  "ledger": [
+   {
+    "src": "L457",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L463",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates; small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L463",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L467",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L467",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Families who came from other islands cook their homeland dishes for a feast: hold a cooking contest, or just share.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has found, growing wild in the hills, a sour orange fruit from (subject.his/her) homeland that nobody on Isola eats. (subject.He/she) wants to cook the dish of (subject.his/her) childhood for the village feast. (friend) suggests making it a contest between all the families' homeland dishes. What should the feast be?",
+   "src": "L459",
+   "choices": [
+    {
+     "label": "Hold a Contest",
+     "next": "o1",
+     "src": "L461"
+    },
+    {
+     "label": "Just Share",
+     "next": "o2",
+     "src": "L465"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The contest is chaos. Every dish is someone's favorite. (subject)'s sour fruit stew makes half the village pucker and the other half ask for more. The judges refuse to pick a winner, and are nearly overthrown.",
+   "src": "L463",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L463"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L463"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Every family brings its dish and the village tries everything. (subject)'s stew is strange and wonderful. (subject) eats it with (subject.his/her) eyes closed, remembering home. Then (subject.he/she) opens them, and the village is still there.",
+   "src": "L467",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L467"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

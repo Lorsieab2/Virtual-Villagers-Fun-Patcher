@@ -98,9 +98,16 @@
    ]
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The meal provides little relief, and the botanist mourns the lost chance.",
-   "src": "L21599"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -145,6 +152,25 @@
    "name": "Outcome C2",
    "text": "The seed loses viability, teaching the limits of preservation.",
    "src": "L21605"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The meal provides little relief, and the botanist mourns the lost chance.",
+   "src": "L21599",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "botanist",
+     "mood": "bad",
+     "src": "L21599"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The meal provides little relief, and the botanist mourns the lost chance.",
+   "src": "L21599"
   }
  }
 }

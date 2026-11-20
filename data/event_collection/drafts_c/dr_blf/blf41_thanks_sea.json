@@ -69,11 +69,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Fourteen thank-yous already,\" says (friend). \"The sea must be very polite by now.\" (subject) laughs. \"Someone has to be.\" (friend) shakes (friend.his/her) head, grinning, and keeps fishing. By the end of the day (friend.he/she) catches (friend.him/her)self murmuring \"thanks\" to the water, very quietly. (friend.He/she) blames (subject) for it entirely.",
+   "src": "L494",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L494"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Fourteen thank-yous already,\" says (friend). \"The sea must be very polite by now.\" (subject) laughs. \"Someone has to be.\" (friend) shakes (friend.his/her) head, grinning, and keeps fishing. By the end of the day (friend.he/she) catches (friend.him/her)self murmuring \"thanks\" to the water, very quietly. (friend.He/she) blames (subject) for it entirely.",
    "src": "L494"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) says nothing and just waits each time. It's peaceful, actually. They fish side by side for hours, (subject) thanking every fish and (friend) watching the water. At the end of the day, they've caught the same number. (friend) still doesn't believe in thanking the sea. (friend.He/she) finds (friend.he/she) doesn't mind the waiting any more.",
+   "src": "L497",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L497"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L497"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) says nothing and just waits each time. It's peaceful, actually. They fish side by side for hours, (subject) thanking every fish and (friend) watching the water. At the end of the day, they've caught the same number. (friend) still doesn't believe in thanking the sea. (friend.He/she) finds (friend.he/she) doesn't mind the waiting any more.",
    "src": "L497"

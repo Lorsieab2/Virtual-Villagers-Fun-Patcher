@@ -1,0 +1,125 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone From the Sky",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf01_stone_sky",
+  "source": "draft_lcf",
+  "lines": [
+   8,
+   19
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer)"
+   },
+   {
+    "src": "L15",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses a little health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L15",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L19",
+    "kind": "instruction",
+    "text": "[effect: (name1) loses a little health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L19",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A glowing stone falls from the sky and hits a villager on the head: keep it, or bury it far away.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) was walking back from the gardens when something hard and warm fell out of a clear sky and bounced off (subject.his/her) head. When (subject.he/she) stopped seeing stars, (subject.he/she) found it in the grass: a stone the size of an egg, pulsing with an orange-pink glow, like a coal that will not go out. A lavastone. (friend), bandaging (subject.his/her) head, says some people call them gifts and some call them curses. What should (subject) do with it?",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Keep It",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Bury It Far Away",
+     "next": "o2",
+     "src": "L17"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) keeps it in a woven pouch by (subject.his/her) bed. On dark nights, the hut glows faintly orange. (subject.He/she) dreams strange, bright dreams. Whether the stone brings luck, nobody can tell. But (subject) has never had a headache since, which (subject.he/she) finds very suspicious.",
+   "src": "L15",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -10,
+     "src": "L15"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) carry the stone to the far end of the island and bury it under a rock. On the walk home, (subject) keeps looking back. For weeks afterwards, (subject.he/she) wonders if it is still glowing down there in the dark.",
+   "src": "L19",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -10,
+     "src": "L19"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

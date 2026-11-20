@@ -98,7 +98,7 @@
   },
   "a1": {
    "name": "Outcome A1",
-   "text": "The patient consents and survives, beginning a difficult adjustment to daily life.",
+   "text": "The patient consents and survives, beginning a difficult adjustment to daily life without running.",
    "src": "L20274",
    "effects": [
     {
@@ -115,7 +115,8 @@
      "preference": "running",
      "src": "L20274"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -128,7 +129,8 @@
      "cause": "unknown",
      "src": "L20275"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -158,7 +160,8 @@
      "max": -10,
      "src": "L20277"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -171,7 +174,8 @@
      "cause": "unknown",
      "src": "L20278"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -195,7 +199,7 @@
   },
   "c2": {
    "name": "Outcome C2",
-   "text": "The patient chooses surgery and later trains apprentices in a new craft.",
+   "text": "The patient chooses surgery and later trains apprentices in a new craft, though running is now hard.",
    "src": "L20281",
    "effects": [
     {
@@ -212,7 +216,20 @@
      "preference": "running",
      "src": "L20281"
     }
-   ]
+   ],
+   "auto_text": true
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L20274",
+   "before": "adjustment to daily life.",
+   "after": "adjustment to daily life without running."
+  },
+  {
+   "src": "L20281",
+   "before": "in a new craft.",
+   "after": "in a new craft, though running is now hard."
+  }
+ ]
 }

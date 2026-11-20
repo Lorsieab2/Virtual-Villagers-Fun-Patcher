@@ -1,0 +1,36 @@
+# Text-implied outcome effects (the owner's outcomes pass, v1.35.97): scripts/outcome_effects.py.
+# <file under data/event_collection> | <node> | <OWNER WORDS> | "<the outcome's own words>" | <effect JSON>
+# PENDING: apply after #774 (feat/97-round6) merge(s) into feat/v1.35.97: move this file up
+# to data/event_collection/outcome_effects/, then run python scripts/outcome_effects.py and collection_check.
+drafts_a/da_il08/il146_five_minute_job.json | a | HUTS REPAIRED (50%) | "fixing every little thing either of them has been putting off" | {"do":"repair"}
+drafts_a/da_lo/lo33_lavastone_sickbed.json | a1 | ILLNESS CURED (friend) (50%) | "The fever breaks that night." | {"do":"cure","role":"friend"}
+drafts_a/da_lo/lo33_lavastone_sickbed.json | a2 | ILLNESS CURED (friend) (50%) | "(friend) recovers slowly over the next days, the ordinary way, with rest and broth" | {"do":"cure","role":"friend"}
+drafts_a/da_lo/lo33_lavastone_sickbed.json | b | ILLNESS CURED (friend) (50%) | "The fever lasts a few more days, then lifts." | {"do":"cure","role":"friend"}
+drafts_b/dr_fea/fea18_bitter_medicine.json | o2 | ILLNESS CURED (subject) (50%) | "The cough is better the next day." | {"do":"cure","role":"subject"}
+drafts_b/dr_hon/hon12_patch_only.json | o1 | HUTS REPAIRED (50%) | "(subject) spends two days on that roof, inside and out" | {"do":"repair"}
+drafts_b/dr_hon/hon12_patch_only.json | o2 | HUTS REPAIRED (50%) | "does the whole job properly" | {"do":"repair"}
+living/lv_auth/lvauth07_chief_could.json | b1 | HUTS REPAIRED (50%) | "Villagers appreciate the honesty and help repair the damage" | {"do":"repair"}
+living/lv_circle/lvcir12_tree_fed_fungi.json | a2 | HUTS REPAIRED (50%) | "Villagers use the fallen wood for repairs" | {"do":"repair"}
+v20/all_v20_d11_ancient.json | a1 | ILLNESS CURED (patient) (50%) | "Another cure works" | {"do":"cure","role":"patient"}
+drafts_c/dr_hea/hea07_spoon_canoe.json | o1 | ILLNESS CURED (subject) (50%) | "The cough lasts a few more days, then goes." | {"do":"cure","role":"subject"}
+drafts_c/dr_hea/hea07_spoon_canoe.json | o2 | ILLNESS CURED (subject) (50%) | "The cough fades in a few days." | {"do":"cure","role":"subject"}
+drafts_c/dr_hea/hea23_apprentice.json | o2 | ILLNESS CURED (friend) (50%) | "(friend)'s fever comes down slowly by itself over two days." | {"do":"cure","role":"friend"}
+drafts_c/dr_hea/hea31_laughing_visit.json | o2 | ILLNESS CURED (subject) (50%) | "When the fever breaks" | {"do":"cure","role":"subject"}
+drafts_c/dr_hea/hea33_wrong_leaf.json | o1 | ILLNESS CURED (friend) (50%) | "(friend) recovers by the next day, cough and all." | {"do":"cure","role":"friend"}
+living/lv_med/lvmed08_fever_will.json | a1 | ILLNESS CURED (patient) (50%) | "The fever subsides" | {"do":"cure","role":"patient"}
+living/lv_med/lvmed11_water_must.json | b1 | ILLNESS CURED (patient) (50%) | "A patient recovers" | {"do":"cure","role":"patient"}
+universal/all_doctors_dilemma.json | recovery | ILLNESS CURED (patient) (50%) | "The fever subsides" | {"do":"cure","role":"patient"}
+v20/all_v20_between_life.json | b1 | ILLNESS CURED (patient) (50%) | "recovers completely" | {"do":"cure","role":"patient"}
+v20/all_v20_between_life.json | e1 | ILLNESS CURED (patient) (50%) | "(Patient) fully recovers" | {"do":"cure","role":"patient"}
+v20/all_v20_between_life.json | f3 | ILLNESS CURED (patient) (50%) | "(Patient) recovers fully" | {"do":"cure","role":"patient"}
+v20/all_v20_between_life.json | g1 | ILLNESS CURED (patient) (50%) | "(Patient) recovers fully." | {"do":"cure","role":"patient"}
+v20/all_v20_between_life.json | a1_h | ILLNESS CURED (patient) (50%) | "eventually recovers fully" | {"do":"cure","role":"patient"}
+v20/all_v20_between_life.json | a1_n | ILLNESS CURED (patient) (50%) | "eventually recovers fully" | {"do":"cure","role":"patient"}
+v27/all_v27_54_fever.json | a | ILLNESS CURED (explorer1) (50%) | "Healers provide supportive care and the group recovers." | {"do":"cure","role":"explorer1"}
+v27/all_v27_54_fever.json | a | ILLNESS CURED (explorer2) (50%) | "Healers provide supportive care and the group recovers." | {"do":"cure","role":"explorer2"}
+anthology/an_rel/anrel17_elder_changed.json | d2 | CHANGE NAME (elder) to (chosen) (50%) | "(elder) asks that only the new name be used from now on." | {"do":"change_name","role":"elder","name_of":"chosen"}
+anthology/an_rel/anrel28_apprentice.json | a1 | CHANGE NAME (apprentice) to (chosen) (50%) | "(mentor) uses the new name, (chosen)" | {"do":"change_name","role":"apprentice","name_of":"chosen"}
+anthology/an_rel/anrel28_apprentice.json | a2 | CHANGE NAME (apprentice) to (chosen) (50%) | "(apprentice) decides to keep the profession but change the name." | {"do":"change_name","role":"apprentice","name_of":"chosen"}
+anthology/an_rel/anrel31_newcomer.json | a2 | CHANGE NAME (newcomer) to (chosen) (50%) | "A few villagers ask how to pronounce it and practice." | {"do":"change_name","role":"newcomer","name_of":"chosen"}
+anthology/an_rel/anrel34_grandparent.json | b1 | CHANGE NAME (elder) to (chosen) (50%) | "(elder) requests a new name, (chosen), be used." | {"do":"change_name","role":"elder","name_of":"chosen"}
+drafts_c/dr_blf/blf40_just.json | o1 | CHANGE NAME (subject) (50%) | "(friend) uses the new name straight away" | {"do":"change_name","role":"subject"}

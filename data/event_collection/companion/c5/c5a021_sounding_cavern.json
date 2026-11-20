@@ -107,6 +107,35 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome 2",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "Musicians turn the cavern into an unusual performance space.",
+   "src": "L537"
+  },
+  "o1__fx": {
    "name": "Outcome 1",
    "text": "Researchers map the echoes and infer hidden passages.",
    "src": "L533",
@@ -120,18 +149,58 @@
      "min": 5,
      "max": 10,
      "src": "L533"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L533"
     }
-   ]
+   ],
+   "auto_text": true
   },
-  "o2": {
+  "o1__text": {
+   "name": "Outcome 1",
+   "text": "Researchers map the echoes and infer hidden passages.",
+   "src": "L533",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "explorer",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L533"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L533"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__fx": {
+   "name": "Outcome 2",
+   "text": "A false echo leads to a very embarrassing dead end.",
+   "src": "L535",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "explorer",
+     "mood": "bad",
+     "src": "L535"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome 2",
    "text": "A false echo leads to a very embarrassing dead end.",
    "src": "L535"
-  },
-  "o3": {
-   "name": "Outcome 3",
-   "text": "Musicians turn the cavern into an unusual performance space.",
-   "src": "L537"
   }
  }
 }

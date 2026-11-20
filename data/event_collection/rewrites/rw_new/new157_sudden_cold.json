@@ -1,0 +1,323 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sudden Cold",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new157_sudden_cold",
+  "source": "rewrites",
+  "lines": [
+   7565,
+   7620
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7565",
+  "ledger": [
+   {
+    "src": "L7566",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7567",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7576",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7583",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7590",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7597",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7571",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7572",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7573",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7574",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7577",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7584",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7591",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7598",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7578",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7580",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7585",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7587",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7592",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7594",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7599",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7601",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7604-7620",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A run of strange, cold nights blows in off the sea.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A run of strange, cold nights blows in off the sea. Not cool. COLD. The kind of cold the island almost never sees.\nFamilies wake up shivering under thin sleeping mats. The babies are bundled in everything their parents own. The dogs have all moved into the huts and refuse to leave. Someone, and (name) is fairly sure it's one of the elders, is wearing a basket on their head as a hat.\nAnd out in the fields, the ground is cold and soaking wet, and the root crops are starting to go soft. How can (name) help the village get through the cold?",
+   "choices": [
+    {
+     "label": "Dig the Roots Before They Rot",
+     "next": "c1",
+     "src": "L7571"
+    },
+    {
+     "label": "Visit Every Hut",
+     "next": "c2",
+     "src": "L7572"
+    },
+    {
+     "label": "Note Which Nights Turn Cold",
+     "next": "c3",
+     "src": "L7573"
+    },
+    {
+     "label": "Weave Thicker Mats",
+     "next": "c4",
+     "src": "L7574"
+    }
+   ],
+   "src": "L7568-7570"
+  },
+  "c1o1": {
+   "text": "Quick work brings the root crops up before the cold, wet ground can rot them, and they go into the dry storehouse, adding a little food. Everyone's fingers are numb. The basket-hat turns out to be very good for carrying yams.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7579",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The roots are saved, but the cold damp has crept into the storehouse. A basket of stored fruit has gone soft and brown and rotten, and is thrown out.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7581",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) rounds up anyone with a digging stick and warm enough hands, and they head out into the cold fields...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7577"
+  },
+  "c2o1": {
+   "text": "Everyone is accounted for. Families share blankets and squeeze in close around the fires, telling stories until the cold breaks. It is cramped and cosy, and several new friendships form over the shared blankets, and at least one feud.",
+   "src": "L7586"
+  },
+  "c2o2": {
+   "text": "Carrying an armful of firewood across the dew-slick rocks in the dark, (name) slips, and lands hard on (his/her) back. (He/She) can barely move. (He/She) has to be looked after for a while, flat on a mat by the fire, wrapped in every blanket the family can spare.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L7588",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) goes from hut to hut in the frosty dark, checking on everyone, especially the elders and the babies...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7584"
+  },
+  "c3o1": {
+   "text": "After a few nights, (name) notices that the cold always follows a clear evening with a north wind. Cloudy nights stay warm. It's a useful pattern for knowing when to bank the fires and fetch the extra blankets, and the village never gets caught by a cold night again.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7593",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "Nobody can agree which nights were the coldest. Everyone was too busy shivering to keep proper track. The villagers decide to wait for more evidence. Ideally, they all add, much later.",
+   "src": "L7595"
+  },
+  "c3": {
+   "text": "(Name) starts keeping track of each night: how cold it gets, what the sky looked like, which way the wind blew...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7591"
+  },
+  "c4o1": {
+   "text": "The weavers turn out thick new mats for every family before nightfall, working until their fingers ache. That night, the village sleeps warm for the first time all week. The dogs, sadly, are evicted.",
+   "src": "L7600"
+  },
+  "c4o2": {
+   "text": "The weavers run out of fibre halfway through. A neighbouring settlement has plenty, but wants food in exchange. Some stored food is traded away, leaving a little less in the stores, and every family gets its warm mat.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7602",
+   "auto_text": true
+  },
+  "c4": {
+   "text": "(Name) gathers the weavers, and they set to work on thick new mats and blankets for every family...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7598"
+  }
+ }
+}

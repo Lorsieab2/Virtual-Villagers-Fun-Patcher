@@ -86,9 +86,16 @@
    "src": "L22261"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The discussion inspires a careful inventory of vulnerable resources.",
-   "src": "L22262"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -125,14 +132,59 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The villager finds comfort in hearing others' fears.",
-   "src": "L22267"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "An elder cautions against treating dreams as predictions.",
    "src": "L22268"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The discussion inspires a careful inventory of vulnerable resources.",
+   "src": "L22262",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22262"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The discussion inspires a careful inventory of vulnerable resources.",
+   "src": "L22262"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The villager finds comfort in hearing others' fears.",
+   "src": "L22267",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L22267"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The villager finds comfort in hearing others' fears.",
+   "src": "L22267"
   }
  }
 }

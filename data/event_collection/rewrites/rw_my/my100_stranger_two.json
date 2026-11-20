@@ -1,0 +1,284 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger's Two Faces",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my100_stranger_two",
+  "source": "rewrites",
+  "lines": [
+   15672,
+   15727
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15672",
+  "ledger": [
+   {
+    "src": "L15673",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15674",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15682",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15689",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15696",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15703",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15677",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15678",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15679",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15680",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15683",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15690",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15697",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15704",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15684",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15686",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15691",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15693",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15698",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15700",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15705",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15707",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15710-15727",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A visitor came through the village this morning, asked for directions to the river, and left.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A visitor came through the village this morning, asked for directions to the river, and left. Simple enough. Except that when (subject) mentions the \"nice old woman in the faded shawl\" at lunch, (friend) stares at (subject.him/her). \"Old woman? It was a young man. Tall. Laughed like a drum.\"\nThey argue about it all through lunch. (subject) is certain: stooped, wrinkled, faded shawl. (friend) is just as certain: tall, young, booming laugh. Both of them are sure the visitor was standing right in front of them at the same time. And the visitor, according to the fishers, is still down by the river. Which of them is right? Should they go and find out?",
+   "choices": [
+    {
+     "label": "Ask the Visitor Directly",
+     "next": "c1",
+     "src": "L15677"
+    },
+    {
+     "label": "Invite Both Witnesses",
+     "next": "c2",
+     "src": "L15678"
+    },
+    {
+     "label": "Offer Hospitality",
+     "next": "c3",
+     "src": "L15679"
+    },
+    {
+     "label": "Let the Mystery Rest",
+     "next": "c4",
+     "src": "L15680"
+    }
+   ],
+   "src": "L15675-15676"
+  },
+  "c1o1": {
+   "text": "\"Excuse me,\" (subject) says, \"but my friend thinks you're a young man.\" The old woman cackles with laughter. \"People see what they expect, dear,\" she says. \"Your friend was expecting a stranger. You were expecting someone's grandmother. I'm only ever myself.\" She pats (subject)'s hand and goes back to dangling her feet. (subject) walks home more confused than ever, and finds (friend) waiting. \"Well?\" (friend) asks. \"He said something very strange,\" (subject) says, and then stops, because (subject.he/she) did not say \"he.\"",
+   "src": "L15685"
+  },
+  "c1o2": {
+   "text": "As (subject) walks up, a tall young man comes splashing out of the river with a fish in each hand and plonks down on the rock next to the old woman. \"Gran! Look!\" (subject) bursts out laughing. They are a grandmother and grandson, traveling together, and took turns asking for directions in the village because neither could remember the way. When (subject) explains the argument, the two of them laugh so hard the grandson drops a fish back in the river.",
+   "src": "L15687"
+  },
+  "c1": {
+   "text": "(subject) marches down to the river, determined to settle this once and for all. The visitor is sitting on a rock, dangling (subject.his/her) feet in the water. To (subject), it is very clearly an old woman...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15683"
+  },
+  "c2o1": {
+   "text": "The visitor looks up from the riverbank, and (subject) and (friend) both stop. It is a perfectly ordinary middle-aged traveler, neither old nor young, neither a woman in a shawl nor a tall laughing man. Just someone tired and friendly with muddy feet. The two friends look at each other, baffled. Walking home, they try to compare their memories of the morning, and find, to their alarm, that neither can remember the visitor's face at all anymore.",
+   "src": "L15692"
+  },
+  "c2o2": {
+   "text": "They both look at the same person at the same moment. \"See? Old woman,\" says (subject). \"Young man,\" says (friend), at exactly the same time. They turn and stare at each other. The visitor watches them with great amusement, waves, and walks off down the river path. (subject) and (friend) argue about it for the rest of the week, and then, eventually, agree never to bring it up again. They bring it up again about once a season for the rest of their lives.",
+   "src": "L15694"
+  },
+  "c2": {
+   "text": "(subject) grabs (friend) by the arm. \"Right. We're going together, and we're both going to look at the same time.\" The two of them hurry down to the river, side by side...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15690"
+  },
+  "c3o1": {
+   "text": "The visitor eats with the family and talks about the settlement (subject.he/she) has come from, a fishing village on the far side of the island where the people paint their canoes blue and hold a festival every year where everyone swaps hats. The children are enchanted. By the end of the meal, everyone at the table is describing the visitor differently, and nobody minds at all. The visitor leaves the next morning, wearing (subject)'s spare hat.",
+   "src": "L15699"
+  },
+  "c3o2": {
+   "text": "After the meal, the visitor thanks everyone and goes. On the mat where (subject.he/she) sat, (subject) finds a small charm, carved back to back from a single piece of shell: two faces, one smiling, one serious, so finely made they seem almost to change expression as the light moves. (subject) and (friend) pass it back and forth, turning it over. (subject) thinks the smiling face looks like an old woman. (friend) thinks it looks like a young man.",
+   "src": "L15701"
+  },
+  "c3": {
+   "text": "Whoever the visitor is, they are a guest on the island. (subject) goes down to the river and invites them up to the village for a meal, and the visitor accepts with a smile...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15697"
+  },
+  "c4o1": {
+   "text": "The visitor departs that afternoon, heading upriver, and life in the village carries on as usual. The argument fades away. A few days later, (subject) cannot remember why it seemed so important. (subject.He/she) does still find (subject.himself/herself) glancing twice at strangers after that, though, just to be sure they are what they seem.",
+   "src": "L15706"
+  },
+  "c4o2": {
+   "text": "A few days later, one of the village children shows (subject) a drawing scratched on a flat piece of bark. \"That's the visitor,\" the child says proudly. It shows two faces, side by side: a wrinkled old woman in a shawl, and a laughing young man. The child has no idea there was ever an argument. \"Which one is it?\" (subject) asks carefully. The child looks at (subject.him/her) as though (subject.he/she) is very silly. \"Both, of course.\"",
+   "src": "L15708"
+  },
+  "c4": {
+   "text": "\"It doesn't matter,\" (subject) says at last, giving up. \"Old, young, man, woman, whoever it was, they asked for directions and they've gone.\" (friend) reluctantly agrees, and they go back to work...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15704"
+  }
+ }
+}

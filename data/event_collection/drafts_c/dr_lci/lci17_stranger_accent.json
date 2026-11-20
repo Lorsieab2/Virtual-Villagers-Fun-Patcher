@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger's Accent",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci17_stranger_accent",
+  "source": "draft_lci",
+  "lines": [
+   232,
+   243
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L232",
+  "ledger": [
+   {
+    "src": "L233",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L239",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L243",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Some villagers mock a newcomer's accent: step in now, or talk to the mockers privately.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) came to Isola last season and speaks with an accent that makes some of the younger villagers snigger. Today, at the stream, two of them copied (friend.him/her) to (friend.his/her) face. (subject) saw it. What should (subject) do?",
+   "src": "L235",
+   "choices": [
+    {
+     "label": "Step In Now",
+     "next": "o1",
+     "src": "L237"
+    },
+    {
+     "label": "Talk to Them Privately",
+     "next": "o2",
+     "src": "L241"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells them, sharply, that mocking how someone speaks is cruel and will not happen again. The two are ashamed. Later, one of them comes to apologize to (friend). The other does not.",
+   "src": "L239"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) talks to the two mockers later, quietly, and asks how they would feel on another island. They are sullen, then thoughtful. They stop. (friend) never knows (subject) spoke to them, but notices the change.",
+   "src": "L243"
+  }
+ }
+}

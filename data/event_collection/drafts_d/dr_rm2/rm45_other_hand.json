@@ -132,9 +132,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The child invents a slightly different method that works perfectly well.",
-   "src": "L78"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -162,6 +169,25 @@
    "name": "Outcome D2",
    "text": "The child does not know how to explain it, so they simply try several ways until one feels right.",
    "src": "L82"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The child invents a slightly different method that works perfectly well.",
+   "src": "L78",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L78"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The child invents a slightly different method that works perfectly well.",
+   "src": "L78"
   }
  }
 }

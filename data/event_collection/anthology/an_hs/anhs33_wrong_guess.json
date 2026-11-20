@@ -187,14 +187,40 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "The awkwardness fades during a shared meal.",
-   "src": "L29932"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "(villager) later offers a quiet apology rather than seeking public praise.",
    "src": "L29933"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The awkwardness fades during a shared meal.",
+   "src": "L29932",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L29932"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The awkwardness fades during a shared meal.",
+   "src": "L29932"
   }
  }
 }

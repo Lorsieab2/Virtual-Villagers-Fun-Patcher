@@ -35,6 +35,7 @@ EXPORTS
     VvfpStoryProbeTitlesLoaded=_VvfpStoryProbeTitlesLoaded@12
     VvfpStoryProbeTitleSet=_VvfpStoryProbeTitleSet@12
     VvfpStoryProbeTitleOf=_VvfpStoryProbeTitleOf@8
+    VvfpStoryProbeRequires=_VvfpStoryProbeRequires@8
     VvfpStoryProbeTitleCount=_VvfpStoryProbeTitleCount@0
     VvfpStoryProbeObject=_VvfpStoryProbeObject@0
     VvfpStoryProbeSizes=_VvfpStoryProbeSizes@4
@@ -77,6 +78,7 @@ EXPORTS
     VvfpStoryProbeChoiceLabel=_VvfpStoryProbeChoiceLabel@8
     VvfpStoryProbeChoiceTitle=_VvfpStoryProbeChoiceTitle@4
     VvfpStoryProbeChoiceResolve=_VvfpStoryProbeChoiceResolve@16
+    VvfpStoryProbeLongPut=_VvfpStoryProbeLongPut@12
     VvfpStoryProbeChoiceState=_VvfpStoryProbeChoiceState@8
     VvfpStoryProbeDeliver=_VvfpStoryProbeDeliver@12
     VvfpStoryProbeTimeSkipStart=_VvfpStoryProbeTimeSkipStart@12
@@ -115,6 +117,11 @@ EXPORTS
     VvfpStoryProbeGraphCheck=_VvfpStoryProbeGraphCheck@8
     VvfpStoryProbeGraphForce=_VvfpStoryProbeGraphForce@16
     VvfpStoryProbeGraphPuzzles=_VvfpStoryProbeGraphPuzzles@4
+    VvfpStoryProbeGraphSupplyCap=_VvfpStoryProbeGraphSupplyCap@4
+    VvfpStoryProbeGraphGoods=_VvfpStoryProbeGraphGoods@4
+    VvfpStoryProbeGraphWeather=_VvfpStoryProbeGraphWeather@4
+    VvfpStoryProbeGraphYellowFruit=_VvfpStoryProbeGraphYellowFruit@4
+    VvfpStoryProbeGraphTimerApplied=_VvfpStoryProbeGraphTimerApplied@0
     VvfpStoryProbeGraphState=_VvfpStoryProbeGraphState@4
     VvfpStoryProbeGraphPath=_VvfpStoryProbeGraphPath@12
     VvfpStoryProbeGraphDisplay=_VvfpStoryProbeGraphDisplay@4
@@ -128,10 +135,13 @@ EXPORTS
     VvfpMultiAnswerGameVtable=_VvfpMultiAnswerGameVtable@8
     VvfpOnePopupRows=_VvfpOnePopupRows@8
     VvfpOnePopupPick=_VvfpOnePopupPick@8
+    VvfpPopupWholeText=_VvfpPopupWholeText@4
     VvfpStoryProbeGraphLog=_VvfpStoryProbeGraphLog@16
     VvfpStoryProbeGraphSent=_VvfpStoryProbeGraphSent@12
     VvfpStoryMoreEventDue=_VvfpStoryMoreEventDue@4
     VvfpStoryMoreEventDone=_VvfpStoryMoreEventDone@8
+    VvfpStoryNoSafeguards=_VvfpStoryNoSafeguards@4
+    VvfpStoryNewEventPopulation=_VvfpStoryNewEventPopulation@4
     VvfpStoryProbeMoreArm=_VvfpStoryProbeMoreArm@12
     VvfpStoryProbeMoreList=_VvfpStoryProbeMoreList@16
     VvfpStoryProbeInstalledPatches=_VvfpStoryProbeInstalledPatches@8
@@ -148,6 +158,9 @@ EXPORTS
     VvfpStoryProbeGraphHeadLook=_VvfpStoryProbeGraphHeadLook@12
     VvfpStoryProbeGraphPresentation=_VvfpStoryProbeGraphPresentation@12
     VvfpStoryProbeGraphBornMale=_VvfpStoryProbeGraphBornMale@4
+    VvfpStoryProbeGraphNoDeliver=_VvfpStoryProbeGraphNoDeliver@4
+    VvfpStoryProbeGraphPresented=_VvfpStoryProbeGraphPresented@4
+    VvfpStoryProbeGraphLateAt=_VvfpStoryProbeGraphLateAt@4
     VvfpStoryProbeGraphSexLast=_VvfpStoryProbeGraphSexLast@8
     VvfpStoryProbeGraphFileLayout=_VvfpStoryProbeGraphFileLayout@4
     VvfpStoryProbeCollectionStep=_VvfpStoryProbeCollectionStep@4
@@ -155,7 +168,11 @@ EXPORTS
     VvfpStoryProbeCollectionManifest=_VvfpStoryProbeCollectionManifest@12
     VvfpStoryProbeCollectionChoose=_VvfpStoryProbeCollectionChoose@12
     VvfpStoryProbeCollectionTrouble=_VvfpStoryProbeCollectionTrouble@4
-    VvfpStoryProbeCollectionFile=_VvfpStoryProbeCollectionFile@4
+    VvfpStoryProbeCollectionPopulation=_VvfpStoryProbeCollectionPopulation@8
+    VvfpStoryProbeProceduralFile=_VvfpStoryProbeProceduralFile@8
+    VvfpStoryProbePartnerCarries=_VvfpStoryProbePartnerCarries@4
+    VvfpStoryProbeProceduralHarmful=_VvfpStoryProbeProceduralHarmful@4
+    VvfpStoryProbeProceduralCompose=_VvfpStoryProbeProceduralCompose@24
     VvfpStoryProbeCollectionTick=_VvfpStoryProbeCollectionTick@4
     VvfpStoryProbeCollectionState=_VvfpStoryProbeCollectionState@4
     VvfpStoryProbeCollectionCieg=_VvfpStoryProbeCollectionCieg@8
@@ -165,6 +182,8 @@ EXPORTS
     VvfpStoryProbeLivingForget=_VvfpStoryProbeLivingForget@0
     VvfpStoryProbeLivingFile=_VvfpStoryProbeLivingFile@8
     VvfpStoryProbeLivingSetFile=_VvfpStoryProbeLivingSetFile@8
+    VvfpStoryProbeLivingGroupFile=_VvfpStoryProbeLivingGroupFile@8
+    VvfpStoryProbeLivingSetGroupFile=_VvfpStoryProbeLivingSetGroupFile@8
     VvfpStoryProbeLivingOrder=_VvfpStoryProbeLivingOrder@16
     VvfpStoryProbeLivingArm=_VvfpStoryProbeLivingArm@16
     VvfpStoryProbeLivingState=_VvfpStoryProbeLivingState@8
@@ -172,3 +191,5 @@ EXPORTS
     VvfpStoryProbeLivingReset=_VvfpStoryProbeLivingReset@8
     VvfpStoryProbeSetRollTail=_VvfpStoryProbeSetRollTail@4
     VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16
+    VvfpStoryTraitsOf=_VvfpStoryTraitsOf@8
+    VvfpStoryProbeFirstMarks=_VvfpStoryProbeFirstMarks@0

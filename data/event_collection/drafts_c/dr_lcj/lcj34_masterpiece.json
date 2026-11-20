@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Masterpiece Nobody Wanted",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj34_masterpiece",
+  "source": "draft_lcj",
+  "lines": [
+   474,
+   485
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L474",
+  "ledger": [
+   {
+    "src": "L475",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an artist and an adult)"
+   },
+   {
+    "src": "L481",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L481",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L485",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An artist built a giant carved arch that blocks the main path: keep it, or move it.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) spent a year carving an enormous arch of driftwood and shells, and put it right across the main path to the beach. It is extraordinary. It is also in the way: you have to duck to get through, and carrying canoes under it is impossible. (friend) has been asked to tell (subject). What should happen?",
+   "src": "L477",
+   "choices": [
+    {
+     "label": "Keep It",
+     "next": "o1",
+     "src": "L479"
+    },
+    {
+     "label": "Move It",
+     "next": "o2",
+     "src": "L483"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village keeps the arch, and makes a new path for the canoes around it. Everyone ducks through it on the way to the beach. Children dare each other to touch the top. It becomes the heart of the village.",
+   "src": "L481",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L481"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) and twenty villagers move it to the headland, where it frames the sunset. (subject) is upset at first. Then (subject.he/she) sees the sunset through it, and sits down and does not say anything for a long time.",
+   "src": "L485"
+  }
+ }
+}

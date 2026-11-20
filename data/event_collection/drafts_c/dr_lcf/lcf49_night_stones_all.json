@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night the Stones All Glowed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf49_night_stones_all",
+  "source": "draft_lcf",
+  "lines": [
+   680,
+   691
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L680",
+  "ledger": [
+   {
+    "src": "L681",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L687",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L687",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L691",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "One night every lavastone on the island glows at once: gather to watch, or stay indoors.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "In the middle of the night, every lavastone on Isola began to glow at once, so brightly that the whole village lit up orange-pink. Nobody knows why. (subject) wants to gather the village on the beach to watch. (friend) thinks it is safer to stay inside until it stops. What should the village do?",
+   "src": "L683",
+   "choices": [
+    {
+     "label": "Gather to Watch",
+     "next": "o1",
+     "src": "L685"
+    },
+    {
+     "label": "Stay Indoors",
+     "next": "o2",
+     "src": "L689"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village gathers on the beach. Out on the water, things are glowing too: stones on the reef, stones on the seabed, a faint orange light far out to sea. It lasts until dawn, and then fades. Nobody ever finds out what it meant. Everyone remembers it.",
+   "src": "L687",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L687"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Most of the village stays inside. A few, (subject) among them, slip out to watch anyway. By dawn the glow is gone. The next day, people argue about whether it was a blessing or a warning. Nothing happens either way.",
+   "src": "L691"
+  }
+ }
+}

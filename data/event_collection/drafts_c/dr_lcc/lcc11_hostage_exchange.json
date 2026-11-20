@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hostage Exchange",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc11_hostage_exchange",
+  "source": "draft_lcc",
+  "lines": [
+   148,
+   159
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L148",
+  "ledger": [
+   {
+    "src": "L149",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L155",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L159",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L159",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The raiders hold one of the village's fishers and want their captured warrior back: make the exchange, or bargain for more.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A canoe has come to the edge of the reef under a white cloth. The raiders have one of the village's fishers, taken at sea last week, and they want their own warrior back, the one the village has been holding since the raid. (subject) says a life for a life, and the sooner the better. (friend) thinks the village could ask for more: the fishing grounds back. What should they do?",
+   "src": "L151",
+   "choices": [
+    {
+     "label": "Make the Exchange",
+     "next": "o1",
+     "src": "L153"
+    },
+    {
+     "label": "Bargain for More",
+     "next": "o2",
+     "src": "L157"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The two canoes meet on the reef. The prisoners are swapped without a word. The village's fisher is thin and silent, but whole, and the whole village is on the beach to bring (other.him/her) home. (subject) watches the raiders' canoe disappear and says that, for now, it is finished.",
+   "src": "L155",
+   "text_only": [
+    {
+     "what": "\"disappear\"",
+     "reason": "the word's everyday sense (a thing, a sound or a person out of sight for a moment); nobody leaves the village -- the draft's notes: everything but the marked effects is story only",
+     "src": "L155"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks for the fishing grounds back as well. The raiders argue all afternoon. In the end they agree, and the fisher is returned. Whether the raiders will keep their word about the fishing grounds, nobody knows. (subject) says (friend) played a dangerous game with someone else's life. (friend) does not disagree.",
+   "src": "L159",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L159"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

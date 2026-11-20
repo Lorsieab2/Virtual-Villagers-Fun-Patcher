@@ -336,10 +336,14 @@ class Vitals(unittest.TestCase):
     def test_speed_difficulty_and_time_away_are_named(self) -> None:
         for game in range(1, 6):
             with self.subTest(game=game):
-                first = next(f for f in page(self, game, fixture(game)) if f.text.startswith("Speed "))
+                facts = page(self, game, fixture(game))
+                first = next(f for f in facts if f.text.startswith("Speed "))
                 self.assertRegex(first.text, r"^Speed (Fast|Normal|Slow)")
                 self.assertIn("difficulty", first.text)
-                self.assertIn("would count if it were played now", first.text)
+                # The time away is its own line (the owner, 2026-11-19: hours since the save was played).
+                away = next(f for f in facts if f.text.startswith("Time since save was last played: "))
+                self.assertIn("would count if it were played now", away.text)
+                self.assertTrue(any(f.text.startswith("Time since save was created: ") for f in facts))
 
     def test_closed_game_estimates(self) -> None:
         for game in range(1, 6):
@@ -506,6 +510,27 @@ class Vitals(unittest.TestCase):
                 self.assertIn(f"Hydroponic Farm crops, time to full: full after {left} of real-life play once unpaused "
                               "(1 refill)", texts(page(self, 5, data), "Refills"))
 
+    def test_an_undated_refill_gives_the_play_left_never_a_whole_interval(self) -> None:
+        """The owner, 2026-11-17 (a running Slow VV4 save under v1.35.96): "full after about 6 hours 40 minutes of
+        real-life play (1 refill)" was a whole refill interval, not the time left.  A source whose next refill has no
+        real moment says the play still needed to it, and every refillable source that is not full gets its own
+        next-refill line."""
+        from types import SimpleNamespace
+        s = life.Source("The Cooking Pit fruit", 373, 1000, 25.0, None, "", step=1000, interval=24_000.0,
+                        next_at=None, first_in=11_820.0)
+        ctx = SimpleNamespace(paused=False, village=SimpleNamespace(now=NOW))
+        _moment, words = life.fill_time(ctx, s)
+        self.assertEqual(words, f"full after {gm.duration(11_820)} of real-life play (1 refill), with nobody picking")
+        self.assertEqual(life._next_refill_words(ctx, s), f"The Cooking Pit fruit after {gm.duration(11_820)} more of play")
+        data = self.refilling(4)
+        import vv_game_mechanics_vv4 as vv4
+        struct.pack_into("<i", data, vv4.BERRIES, 990)
+        refills = texts(page(self, 4, data), "Refills")
+        self.assertTrue(any(t.startswith("Blackberries, next refill: ") for t in refills.splitlines()), refills)
+        full = self.refilling(4)
+        struct.pack_into("<i", full, vv4.BERRIES, 1000)
+        self.assertNotIn("Blackberries, next refill", texts(page(self, 4, full), "Refills"))
+
     def test_full_now(self) -> None:
         import vv_game_mechanics_vv4 as vv4
         data = self.refilling(4)
@@ -544,7 +569,8 @@ class Vitals(unittest.TestCase):
         self.assertIn(life.COLLECTIBLES_POINTER, vitals)
         # No game exe here, so the mode is not known; the normal game's limit with the save's two complete sets.
         self.assertIn("Population limit: not known (this game's exe was not found, so its population mode is not "
-                      "known). In the normal game it would be 90, plus 5 for each complete collection, 25 with all "
+                      "known; pick the game with Browse... on the Game Mechanics window to find out). In the normal "
+                      "game it would be 90, plus 5 for each complete collection, 25 with all "
                       "four; this village has 2 complete (Fish Scale 12, Lab Equipment 12, Mausoleum Mural 0, Wind "
                       "Flute 0 of 12), so 100.", vitals)
 

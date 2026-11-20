@@ -1,0 +1,212 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dream-Sharing Tea",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b261_dream_sharing_tea",
+  "source": "balance",
+  "lines": [
+   12171,
+   12215
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12171",
+  "ledger": [
+   {
+    "src": "L12172",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12173",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12181",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12190",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12178",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12179",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12182",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12191",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12184",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12187",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12193",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12196",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12199-12215",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Probably. They both look at the steaming cups.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "assistant": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(healer) has been experimenting with a tea made from the purple flowers that grow on the cliffs. The old healers used it, (subject.he/she) says, so that two people could share a dream and talk things over while they slept. (subject.He/She) needs two volunteers to try it.\n(subject) and (friend) have just had a falling-out about a broken fishing spear, and (healer) thinks they would make perfect volunteers. \"It'll help,\" (subject.he/she) says. \"Probably.\"\nThey both look at the steaming cups. Should they drink it together, or hand it back?",
+   "choices": [
+    {
+     "label": "Drink It Together",
+     "next": "c1",
+     "src": "L12178"
+    },
+    {
+     "label": "Hand It Back",
+     "next": "c2",
+     "src": "L12179"
+    }
+   ],
+   "src": "L12174-12176"
+  },
+  "c1o1": {
+   "text": "In the dream they talk it all out, and forgive each other, and shake hands. Then they wake up, and (subject) is lying on (friend)'s mat in (friend)'s body. They must have stepped into each other's side of the dream and woken up in the wrong place. (healer) tries brewing a second cup, then a third. Nothing changes back. \"Well,\" says (healer), \"at least you're not arguing.\"",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L12185",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They sleep through the whole day and the whole night, and wake up the next morning, stiff, starving and laughing. In the dream they went fishing together in calm, warm water, and the cold, the wet nets and the smell of fish guts that both of them have always hated seemed very small. They go and mend the spear together after breakfast, and then they go fishing, and don't mind it at all.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "fish",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "dislike": "fish"
+    }
+   ],
+   "src": "L12188",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They drink, grimacing, and lie down on mats side by side. Within moments both of them are asleep, and dreaming the same dream: a beach, a broken spear, and each other...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12182"
+  },
+  "c2o1": {
+   "text": "The two healers fall asleep in the middle of the healers' hut and wake up in each other's bodies. (healer), now in (assistant)'s much younger body, is delighted. (assistant), now in (healer)'s, is not. \"Your knees,\" (subject.he/she) keeps saying. \"How do you live with these knees?\" No cup they brew afterwards ever changes them back.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "role": "healer",
+     "with": "assistant"
+    }
+   ],
+   "src": "L12194",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The two healers fall asleep on the floor and snore so loudly that the whole village can hear it. They wake up in the evening, in their own bodies, with no memory of any dream. (subject) and (friend), who have been laughing at them all afternoon, have forgotten what they were arguing about.",
+   "src": "L12197"
+  },
+  "c2": {
+   "text": "\"I'm not drinking anything purple,\" says (subject). (friend) agrees for once. (healer) sighs, looks at the cups, and before anyone can stop (subject.him/her), drinks one (subject.himself/herself), and hands the other to (subject.his/her) assistant, (assistant)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12191"
+  }
+ }
+}

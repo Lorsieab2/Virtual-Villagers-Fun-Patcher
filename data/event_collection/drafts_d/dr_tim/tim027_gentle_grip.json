@@ -123,9 +123,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1), a child, learns to hold a butterfly net without tearing it. (Name1) is amazed by a pattern almost invisible from afar.",
-   "src": "L451"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -141,6 +148,25 @@
    "name": "Ending 4",
    "text": "(Name1), a child, learns to hold a butterfly net without tearing it. The group stays a little longer, hoping to see another species.",
    "src": "L463"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), a child, learns to hold a butterfly net without tearing it. (Name1) is amazed by a pattern almost invisible from afar.",
+   "src": "L451",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L451"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1), a child, learns to hold a butterfly net without tearing it. (Name1) is amazed by a pattern almost invisible from afar.",
+   "src": "L451"
   }
  }
 }

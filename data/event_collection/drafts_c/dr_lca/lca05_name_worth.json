@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Name Worth Singing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca05_name_worth",
+  "source": "draft_lca",
+  "lines": [
+   68,
+   79
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L75",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L75",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L79",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village wants to give a villager an honor name in a song: accept it, or ask for the song without a new name.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "All season, (subject) has quietly mended every net that tore, and nobody asked (subject.him/her) to. Now (friend) has made up a song about it, and in the song (subject) is called Many-Knots, which (friend) says is an honor name, the way the old songs give them. (subject) is standing at the edge of the gathering, bright red. Should (subject) accept the name?",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Accept the Honor Name",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Just the Song, Please",
+     "next": "o2",
+     "src": "L77"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) accepts. The village sings the song of Many-Knots, and from then on the children call (subject.him/her) that whenever they bring (subject.him/her) a torn net, which is often. (subject) pretends to mind. (subject.He/she) does not mind at all.",
+   "src": "L75",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L75"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) thanks (friend), but asks to keep (subject.his/her) own name. (friend) is surprised, then nods and changes the last verse. The song is sung that night with (subject)'s real name in it, and nobody makes a fuss about the change. (subject) looks very relieved.",
+   "src": "L79"
+  }
+ }
+}

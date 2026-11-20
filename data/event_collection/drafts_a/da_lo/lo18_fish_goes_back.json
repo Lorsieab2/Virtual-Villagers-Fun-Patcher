@@ -82,7 +82,8 @@
      "scaled": true,
      "src": "L219"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Answer B",

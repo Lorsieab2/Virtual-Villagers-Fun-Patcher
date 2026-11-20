@@ -1,0 +1,245 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Monkey Raid",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s033_monkey_raid",
+  "source": "rewrites",
+  "lines": [
+   1547,
+   1591
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1547",
+  "ledger": [
+   {
+    "src": "L1548",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1549",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1557",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1566",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1554",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1555",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1558",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1567",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1560",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1563",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1569",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1572",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1575-1591",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L1561",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L1564",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L1570",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L1573",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "The monkeys have been watching the food store for days.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The monkeys have been watching the food store for days. They do it the way only monkeys can: pretending very hard to be interested in absolutely anything else. One of them has been grooming the same patch of fur on its arm for an hour without once taking its eyes off the door. Another has been \"sleeping\" on the roof of the next hut since breakfast, with one eye open.\nThis morning, while everyone is out in the fields, they make their move.\nBy the time the first villager comes back, there are monkeys everywhere. On the roof, in the doorway, in the baskets, swinging from the rafters with yams in both hands and a banana in their teeth. One of them is wearing a bowl as a hat. Should the village chase them off, or try to outsmart them?",
+   "choices": [
+    {
+     "label": "Chase Them Off",
+     "next": "c1",
+     "src": "L1554"
+    },
+    {
+     "label": "Leave Out a Decoy Basket",
+     "next": "c2",
+     "src": "L1555"
+    }
+   ],
+   "src": "L1550-1552",
+   "text_only": [
+    {
+     "src": "L1550",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "The villagers run, shout and bang, and the monkeys scatter, eventually, screeching and laughing, up into the trees with as much food as they can carry, and quite a lot that they can't. Fruit rains down on the villagers' heads as the monkeys drop it in their hurry. One of them sits on a high branch and eats a mango slowly, looking down at everyone. The one with the bowl hat keeps the bowl.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L1561"
+  },
+  "c1o2": {
+   "text": "The chase goes on all morning. The monkeys run round the huts and the villagers run after them, then the monkeys run back the other way and the villagers turn round, again and again, round and round, until half the village is collapsed in the shade, wheezing. All the field work for the day is undone. And as soon as everyone sits down, the monkeys come straight back for seconds.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L1564",
+   "text_only": [
+    {
+     "src": "L1564",
+     "what": "\"collapsed\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1": {
+   "text": "The alarm goes up. The whole village comes pelting back from the fields, shouting, waving their arms, banging pots and pans and digging sticks together. The monkeys look up. They do not look worried...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1558"
+  },
+  "c2o1": {
+   "text": "Every monkey in the store drops what it's holding and dives on the decoy basket. They tear away the good mangoes on top, dig in deeper, and come up with handfuls of brown mush. The look on their faces is pure betrayal. They glare at the villagers. They throw some of the mush. Then they leave, deeply offended, and don't come back for a month. The real store is mostly safe.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L1570"
+  },
+  "c2o2": {
+   "text": "The monkeys take the decoy. They take it very carefully, two of them carrying it between them, up into the trees. Then, while everyone is watching the decoy go, the rest of the troop quietly empties the real store from the other side. By the time anyone notices, they're all gone. Everyone stands in the empty store, impressed despite themselves. \"They're cleverer than us,\" someone says. Nobody argues.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L1573"
+  },
+  "c2": {
+   "text": "The cleverest of the farmers has an idea. Quietly, while the monkeys are busy, (he/she) fills the biggest basket in the village with the rotten fruit from the compost heap, covers the top with a few good mangoes, and leaves it out in the open where the monkeys can't miss it...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1567"
+  }
+ }
+}

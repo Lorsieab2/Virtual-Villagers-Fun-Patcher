@@ -1,0 +1,253 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Weaver's New Pattern",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s036_weaver_pattern",
+  "source": "rewrites",
+  "lines": [
+   1690,
+   1736
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1690",
+  "ledger": [
+   {
+    "src": "L1691",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1692",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1700",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1709",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1697",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1698",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1701",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1710",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1703",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1706",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1712",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1715",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1718-1736",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has been weaving all night, by the light of a single fire, while everyone else slept.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has been weaving all night, by the light of a single fire, while everyone else slept. (subject.He/She) didn't plan it. That evening (subject.he/she) had boiled up a new blue dye from the shimmering vine that grows over the old shrine stones, and once the threads were dyed, (subject.his/her) fingers just kept going, over and under, faster and faster, as if they knew something (subject.he/she) didn't.\nAt breakfast (subject.he/she) comes out, red-eyed, and holds up what (subject.he/she) has made. It's completely new: a pattern of waves and flying birds, in deep blues and greens and white, that seems to move when anyone looks at it. The waves roll. The birds fly. Anyone who looks away, and looks back, finds they've gone a little further.\nEveryone stops eating. Someone's spoon hangs in mid-air, dripping onto a bare foot, unnoticed. It's the best thing (subject) has ever made. Should (subject.he/she) wear it, or give it to someone who needs it more?",
+   "choices": [
+    {
+     "label": "Wear It",
+     "next": "c1",
+     "src": "L1697"
+    },
+    {
+     "label": "Give It Away",
+     "next": "c2",
+     "src": "L1698"
+    }
+   ],
+   "src": "L1693-1695"
+  },
+  "c1o1": {
+   "text": "(subject) wears it all week. By the end of the week, half the village wants one. (subject) can't weave them all by hand, so (subject.he/she) starts building looms instead: wooden frames, pegs, a clever little bar to hold the threads straight, one loom for every family that asks. By the end of the season (subject.he/she) has built twelve, and is very good at making things out of wood. Nobody else's pattern ever quite moves like (subject.his/hers), though.",
+   "effects": [
+    {
+     "do": "appearance",
+     "body": "random",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "skills": [
+      "Building"
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L1704",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) wears it to the next festival dance. When the drums start, (subject.he/she) starts to spin, and the faster (subject.he/she) spins, the more the pattern moves, until the waves are crashing and the birds are flying in great circles around (subject.him/her) in the firelight. Everyone stops dancing and just watches. Everyone talks about it for a month. (subject), who never used to dance at all, is now at every festival, first on and last off.",
+   "effects": [
+    {
+     "do": "appearance",
+     "body": "random",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L1707",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) sews it into a wrap that afternoon, and puts it on, and walks around the village in it. People turn to watch (subject.him/her) go by. Children follow (subject.him/her), trying to catch the birds...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1701"
+  },
+  "c2o1": {
+   "text": "(subject) gives it to (elder), who has been cold all season, shivering by the fire even on warm days, and wrapped in an old blanket worn so thin it is almost see-through. (Elder) runs \\(elder: his/her\\) wrinkled hands over the waves and birds, slowly, and doesn't say anything for a long time. Then \\(elder: he/she\\) puts it on, and smiles. (Elder) never takes it off. Not to sleep, not to bathe, not ever. When anyone asks, \\(elder: he/she\\) says that the birds keep \\(elder: him/her\\) warm.",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "elder",
+     "body": "random"
+    }
+   ],
+   "src": "L1713",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) gives it to (friend), (subject.his/her) best friend. (friend) is so delighted that (friend.he/she) puts it on straight away, wraps it round (friend.his/her) shoulders, twirls, and sneezes. Then sneezes again. Then starts scratching. By evening, (friend) is covered from neck to wrist in an angry red rash. It turns out (friend) is allergic to the blue dye (subject) used, the one from the shimmering vine, which nobody in the village has ever used before. The healers keep (friend) for a few days. The wrap goes on the wall, where it is admired from a safe distance.",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "friend"
+    }
+   ],
+   "src": "L1716",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) looks at what (subject.he/she) has made for a long time. It's the best thing (subject.he/she) has ever made. Perhaps the best thing (subject.he/she) will ever make. And somehow, that makes (subject.him/her) want to give it to someone...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1710"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "jumping",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

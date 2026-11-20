@@ -93,6 +93,12 @@ GAME_READS_IN_PLACE: dict[str, str] = {
     "Images/vvfp_fruit_tree_3.png": _GAME_IMAGE,
     "Images/vvfp_fruit_tree_4.png": _GAME_IMAGE,
     "Images/vvfp_fruit_tree_5.png": _GAME_IMAGE,
+    # The Tree of Life's Cloth Sacks for Yellow Fruit: the sacks a villager carries; the game's sprite
+    # constructor is handed "vvfp_sack_empty.png", "vvfp_sack_yellow_fruit_raw.png" and "vvfp_sack_yellow_fruit.png"
+    # (vvfp_vv4_cloth_sacks.c).
+    "Images/vvfp_sack_empty.png": _GAME_IMAGE,
+    "Images/vvfp_sack_yellow_fruit_raw.png": _GAME_IMAGE,
+    "Images/vvfp_sack_yellow_fruit.png": _GAME_IMAGE,
     # The Tree of Life / New Believers text: the game's own string table.
     "Assets/sm.xml": "replaces the game's own string table, which the game opens from Assets\\",
     # New Believers' Guardians of Isola rewrite: stock art replaced in place.
@@ -131,10 +137,17 @@ PATCHER_READS: frozenset[str] = frozenset({
     # The Tree of Life's Yellow Breadfruit Refills Partially Every Time: a flag file whose presence beside the
     # companions tells "VVFP VV4 Fruit Supply.dll" to refill at The Secret City's pace (vvfp_vv4_fruit_supply.c).
     "VVFP VV4 Fruit Partial Refill.txt",
+    # New Believers' No Restrictions on Fog of Doom Conversions: a flag file whose presence beside the companions
+    # tells "VVFP Fog Listening.dll" to leave out the Faith limit (vvfp_fog_listening.c).
+    "VVFP Fog Listening No Restrictions.txt",
     # Island Events Scale With Stored Food and Tech Points (A New Home, The Tree of Life, New Believers): a flag file
     # whose presence beside the companions tells "VVFP Island Events Scale.dll" to scale by the stored food and tech
     # points instead of the population (vvfp_island_events_scale.c).
     "VVFP Island Events Scale Stored.txt",
+    # A New Home's The Golden Child May Be Born Female (50:50): a flag file whose presence beside the companions tells
+    # "VVFP Gender Presentation.dll" to keep the sex the creator draws for a new Golden Child
+    # (vvfp_gender_presentation.c).
+    "VVFP Golden Child Born Female.txt",
 }) | frozenset(
     # The Unicode companions' bundled open fonts (assets/unicode_fonts), their licence texts and sources: loaded
     # privately by "VVFP Unicode Text.dll" / "VVFP Unicode Font.dll" from "Unicode Fonts\\" beside them.
@@ -160,8 +173,17 @@ PATCHER_READ_FOLDERS: tuple[str, ...] = (
     "Island Event Collection/",
 )
 
+# Setting files the patcher itself writes beside their companions (no catalog record ships them): the sliders'
+# numbers for Louder Wind Flutes ("VVFP VV4 Louder Flutes.dll") and More Frequent Island Events ("VVFP Island
+# Frequency.dll"), and Use Unicode Font's typeface ("VVFP Unicode Font.dll").  They go in the patcher's folder too.
+PATCHER_SETTINGS: frozenset[str] = frozenset({
+    "VVFP VV4 Louder Flutes.txt",
+    "VVFP Island Frequency.txt",
+    "VVFP Unicode Font.txt",
+})
+
 _IN_PLACE = {key.casefold() for key in GAME_READS_IN_PLACE}
-_PATCHER_READS = {key.casefold() for key in PATCHER_READS}
+_PATCHER_READS = {key.casefold() for key in PATCHER_READS | PATCHER_SETTINGS}
 _PATCHER_READ_FOLDERS = tuple(folder.casefold() for folder in PATCHER_READ_FOLDERS)
 
 # The patch log. Its name is short and the same in every build (the owner,

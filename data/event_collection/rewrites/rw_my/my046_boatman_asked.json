@@ -1,0 +1,316 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Boatman Who Asked for a Memory",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my046_boatman_asked",
+  "source": "rewrites",
+  "lines": [
+   12529,
+   12584
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12529",
+  "ledger": [
+   {
+    "src": "L12530",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12531",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12540",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12547",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12554",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12561",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12535",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12536",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12537",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12538",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12541",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12548",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12555",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12562",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12542",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12544",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12549",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12551",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12556",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12558",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12563",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12565",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12568-12584",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L12550",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "At the water's edge waits a narrow grey boat, and in it sits a boatman in a wide hat of woven palm that hides his face.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) needs to get across the river, but this morning a thick mist has rolled in, and (he/she) can't even see the far bank. At the water's edge waits a narrow grey boat, and in it sits a boatman in a wide hat of woven palm that hides his face.\n\"I'll take you across,\" the boatman says. \"The price is one memory. The memory of a single happy day. You choose which.\" The water around the boat is perfectly still. It doesn't even ripple. What should (name) do?",
+   "choices": [
+    {
+     "label": "Pay the Price",
+     "next": "c1",
+     "src": "L12535"
+    },
+    {
+     "label": "Offer Food Instead",
+     "next": "c2",
+     "src": "L12536"
+    },
+    {
+     "label": "Ask Where the Boat Goes",
+     "next": "c3",
+     "src": "L12537"
+    },
+    {
+     "label": "Turn Back",
+     "next": "c4",
+     "src": "L12538"
+    }
+   ],
+   "src": "L12532-12533"
+  },
+  "c1o1": {
+   "text": "The boatman rows (name) across in silence. On the far bank, (name) steps out, turns to thank him, and he's already gone into the mist. Later, (name) tries to remember that childhood festival. (He/She) can't. Where it used to be, there's only a soft, blank space, like a missing tooth. (He/She) knows something was there. (He/She) just can't find it anymore. (Name) asks (his/her) family to tell (him/her) about it, and tries to remember it through their stories instead.",
+   "src": "L12543"
+  },
+  "c1o2": {
+   "text": "As they glide across, (name) starts describing the festival: the lanterns, the drums, the sticky sweets, (his/her) mother laughing. The boatman listens to every word. At the far bank, he shakes his head. \"Keep it,\" he says. \"I'll take the story instead. Memories should be shared, not stolen.\" When (name) gets home, the festival is still there in (his/her) head, brighter than ever.",
+   "src": "L12545"
+  },
+  "c1": {
+   "text": "(Name) thinks about it for a long time. Then (he/she) nods, steps into the boat, and chooses a memory: a festival, long ago, when (he/she) was very small...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12541"
+  },
+  "c2o1": {
+   "text": "The boatman considers this for a long moment, then nods. He takes the whole basket, every bit of food (name) was carrying back for the family, and rows (him/her) across in silence. On the far bank, he and the basket disappear into the mist. (Name) has to explain to everyone at supper exactly why there isn't any supper.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L12550",
+   "text_only": [
+    {
+     "src": "L12550",
+     "what": "\"disappear\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "The boatman shakes his head slowly. \"Food is not my price,\" he says. Then he lifts one hand and points upstream through the mist. \"There is a bridge. Not far. Walk.\" (Name) walks, and sure enough, there's an old rope bridge just around the bend that (he/she) never knew about. When (he/she) looks back, the boat is gone.",
+   "src": "L12552",
+   "text_only": [
+    {
+     "src": "L12552",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "\"I'm not giving up my memories,\" (name) says firmly. \"But I've got food. A whole basket of it. Will that do?\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12548",
+   "text_only": [
+    {
+     "src": "L12548",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3o1": {
+   "text": "The boatman raises a hand and points across the water. Just then, the mist thins, and (name) can see a shore: golden sand, palm trees, little huts with smoke rising, people walking on the beach. It doesn't look like the far bank of the river at all. Then the mist rolls back in, and when it clears again, there's only the ordinary far bank, muddy and familiar. (Name) doesn't get in the boat.",
+   "src": "L12557"
+  },
+  "c3o2": {
+   "text": "The boatman chuckles and pushes back his hat, revealing a perfectly ordinary, wrinkled old face. \"Across the river, of course! I ferry people between your village and the one on the other side. The memory thing's just a joke I like to play on newcomers.\" He rows (name) across for nothing, laughing all the way, and asks (him/her) not to tell anyone the joke.",
+   "src": "L12559"
+  },
+  "c3": {
+   "text": "\"Wait. Where exactly does your boat go?\" (name) asks, eyeing the grey water...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12555"
+  },
+  "c4o1": {
+   "text": "(Name) gets home safely, without crossing the river at all. The errand will have to wait for another day. (He/She) tells the others about the boatman, and nobody's ever seen him before. The crossing stays a mystery.",
+   "src": "L12564"
+  },
+  "c4o2": {
+   "text": "After a few steps, (name) glances back over (his/her) shoulder, and stops. The mist is lifting. And where the river was, there's no river. Only damp grass, a few puddles, and a heron standing on a stone, watching (name) with its head tilted. There was never a river at that spot. (Name) is sure of it. (He/She) walks home very, very slowly.",
+   "src": "L12566"
+  },
+  "c4": {
+   "text": "(Name) decides that a boatman who wants memories is not a boatman (he/she) wants to ride with. (He/She) turns and walks back the way (he/she) came...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12562"
+  }
+ }
+}

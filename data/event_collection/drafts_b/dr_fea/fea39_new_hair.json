@@ -70,14 +70,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Is it silly?\" asks (subject). (friend) looks properly. \"It's lovely,\" (friend.he/she) says. \"Different. Lovely.\" They walk over together. A few people look. One person says, \"Oh, that's nice!\" Nobody laughs. (subject) spends the whole evening feeling very aware of (subject.his/her) hair and secretly delighted.",
-   "src": "L470"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) hides the braids under a cloth wrap and goes to the fire. Nobody notices anything. That's a relief. It's also a little disappointing. On the way home, (subject.he/she) pulls the wrap off and walks back through the dark with the shells clicking softly. Nobody sees. Tomorrow, maybe.",
    "src": "L473"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Is it silly?\" asks (subject). (friend) looks properly. \"It's lovely,\" (friend.he/she) says. \"Different. Lovely.\" They walk over together. A few people look. One person says, \"Oh, that's nice!\" Nobody laughs. (subject) spends the whole evening feeling very aware of (subject.his/her) hair and secretly delighted.",
+   "src": "L470",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L470"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Is it silly?\" asks (subject). (friend) looks properly. \"It's lovely,\" (friend.he/she) says. \"Different. Lovely.\" They walk over together. A few people look. One person says, \"Oh, that's nice!\" Nobody laughs. (subject) spends the whole evening feeling very aware of (subject.his/her) hair and secretly delighted.",
+   "src": "L470"
   }
  }
 }

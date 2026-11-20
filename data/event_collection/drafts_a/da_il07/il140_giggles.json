@@ -87,11 +87,69 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) stares very hard at a tree. It doesn't help. (subject.He/She) can feel (friend) shaking silently on the other side of the group. The elders reach \"forty-one\" and (subject) lets out a snort that echoes off the huts. One elder, (sigher), sighs. Another elder, (laugher), to everyone's surprise, starts laughing too. The count starts over.",
+   "src": "L242",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "laugher",
+     "mood": "good",
+     "src": "L242"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "(subject) stares very hard at a tree. It doesn't help. (subject.He/She) can feel (friend) shaking silently on the other side of the group. The elders reach \"forty-one\" and (subject) lets out a snort that echoes off the huts. One elder, (sigher), sighs. Another elder, (laugher), to everyone's surprise, starts laughing too. The count starts over.",
    "src": "L242"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) bites (subject.his/her) lip, holds (subject.his/her) breath and thinks very sad thoughts about cold soup. It works, just. The count finishes. The elders walk away. (subject) and (friend) look at each other, and both of them fall over laughing in the dust, while the rest of the village steps around them.",
+   "src": "L245",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L245"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L245"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) bites (subject.his/her) lip, holds (subject.his/her) breath and thinks very sad thoughts about cold soup. It works, just. The count finishes. The elders walk away. (subject) and (friend) look at each other, and both of them fall over laughing in the dust, while the rest of the village steps around them.",
    "src": "L245"

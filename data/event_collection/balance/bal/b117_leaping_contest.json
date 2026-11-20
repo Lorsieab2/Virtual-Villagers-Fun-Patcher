@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Leaping Contest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b117_leaping_contest",
+  "source": "balance",
+  "lines": [
+   5287,
+   5328
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5287",
+  "ledger": [
+   {
+    "src": "L5288",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5289",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5297",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5306",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5294",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5295",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5298",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5307",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5300",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5303",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5309",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5312",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5315-5328",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "This year someone has dug the pit wider.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the harvest, the young people hold a leaping contest over a fire pit, and (name), who loves jumping more than anything and leaps in every dance, is the favourite. This year someone has dug the pit wider. The fire is high. The crowd is chanting.\n(Name) takes a run up. At the last moment (he/she) sees how wide the pit really is.\nShould (name) jump anyway, or pull up?",
+   "choices": [
+    {
+     "label": "Jump Anyway",
+     "next": "c1",
+     "src": "L5294"
+    },
+    {
+     "label": "Pull Up",
+     "next": "c2",
+     "src": "L5295"
+    }
+   ],
+   "src": "L5290-5292"
+  },
+  "c1o1": {
+   "text": "(Name) clears it by a hand's width and lands rolling in the sand, and the crowd roars. Champion again. The confidence of that leap stays with (him/her) all year, and (he/she) does everything with the same fearless spring in (his/her) step, and gets better at all of it.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L5301",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) doesn't quite clear it. (His/Her) heel catches the edge, and (he/she) tumbles out of the far side with singed feet and a fright. The healers say the burns are small. But the joy of leaping is gone. (Name) dances flat-footed from then on, and doesn't miss it as much as (he/she) expected.",
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L5304"
+  },
+  "c1": {
+   "text": "(Name) leaps. For a long moment (he/she) is flying over the flames, the heat on (his/her) feet...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5298"
+  },
+  "c2o1": {
+   "text": "\"Too wide,\" (name) says, loudly, and the elders nod. They fill the pit back in to the usual size, and the contest goes on, and (name) wins it anyway, on the third leap. Nobody calls (him/her) a coward. Several people say (he/she) was right.",
+   "src": "L5310"
+  },
+  "c2o2": {
+   "text": "(Name) demands to know who dug the pit wider. It turns out to be the elders, trying to make it \"more exciting.\" The whole village laughs so hard that the contest dissolves into a festival of terrible leaps over a much smaller fire, with the elders jumping too.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L5313",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) skids to a stop at the edge of the pit, arms windmilling. The crowd groans...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5307"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "jumping",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

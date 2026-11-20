@@ -1,0 +1,214 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Seed of the Copy Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b213_seed_copy_tree",
+  "source": "balance",
+  "lines": [
+   9898,
+   9941
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9898",
+  "ledger": [
+   {
+    "src": "L9899",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9900",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9908",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9917",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9905",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9906",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9909",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9918",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9911",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9914",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9920",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9923",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9926-9941",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Plant it, and it gives you more of what you love most, the trader said, and took two good baskets for it, and left very early.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A trader has sold (subject) and (friend) a seed: a big, shiny brown seed, the size of an egg, which (subject.he/she) said comes from \"the copy tree\" on an island far to the east. \"Plant it, and it gives you more of what you love most,\" the trader said, and took two good baskets for it, and left very early.\n(subject) and (friend) have been hoping for a baby for a long time. They've planted the seed by their door, as the trader said, and watered it, and this morning it has sprouted overnight into a sapling as tall as a child, with leaves that are silver underneath. It is humming.\nShould they ask the tree for a baby, or ask for nothing and see what it does?",
+   "choices": [
+    {
+     "label": "Ask the Tree for a Baby",
+     "next": "c1",
+     "src": "L9905"
+    },
+    {
+     "label": "Ask for Nothing",
+     "next": "c2",
+     "src": "L9906"
+    }
+   ],
+   "src": "L9901-9903"
+  },
+  "c1o1": {
+   "text": "By the next morning the tree has gone, leaving only a ring of silver leaves on the ground. A month later, (subject) is pregnant. They keep one of the silver leaves, pressed in cloth, and when the baby is born, they put it in the cradle.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L9912",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The tree hears \"what you love most,\" and decides that what (friend) loves most is (subject). In the morning, there is a second (subject) standing by the door, exactly the same, holding a silver leaf and looking embarrassed. \"I think it got confused,\" the second one says. She takes the name (made1). (friend) is very kind about it, and very confused.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L9915",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They kneel by the sapling together, and (subject) whispers to it, feeling silly. The humming changes. The silver leaves turn, all at once, as if listening...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9909"
+  },
+  "c2o1": {
+   "text": "They share the silver fruit, which tastes of nothing they can name, and the tree drops all its leaves and is gone by dusk. A month later, (subject) is pregnant. \"It knew without asking,\" says (friend). \"Trees are like that.\"",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L9921",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The fruit drops, and splits, and inside are three more seeds, and they grow into three more saplings, and those grow fruit, and by the end of the week the space by their door is a small silver orchard, humming loudly, full of fruit that tastes of nothing in particular. It's good food, if a little dull. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L9924",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"Let's just see,\" says (friend). They sit down by the humming sapling and wait. It grows a little while they watch, and a single round fruit appears on it, silver and heavy...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9918"
+  }
+ }
+}

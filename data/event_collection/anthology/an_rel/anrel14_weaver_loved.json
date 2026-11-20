@@ -149,9 +149,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(villager) delights in the vivid color.",
-   "src": "L27215"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -223,6 +230,25 @@
    "name": "Outcome D2",
    "text": "(villager) prefers a personal experiment rather than a group activity.",
    "src": "L27225"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(villager) delights in the vivid color.",
+   "src": "L27215",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L27215"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(villager) delights in the vivid color.",
+   "src": "L27215"
   }
  }
 }

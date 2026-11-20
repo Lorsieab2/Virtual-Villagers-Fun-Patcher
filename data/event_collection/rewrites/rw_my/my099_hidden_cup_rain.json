@@ -1,0 +1,288 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hidden Cup of Rain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my099_hidden_cup_rain",
+  "source": "rewrites",
+  "lines": [
+   15614,
+   15669
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15614",
+  "ledger": [
+   {
+    "src": "L15615",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15616",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15624",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15631",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15638",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15645",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15619",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15620",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15621",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15622",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15625",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15632",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15639",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15646",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15626",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15628",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15633",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15635",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15640",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15642",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15647",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15649",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15652-15669",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The cave is dry as bone and smells of dust and old smoke.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Sheltering from the midday heat in a cave on the dry side of the island, (name) finds a cracked clay cup sitting at the very back, on a ledge of stone. The cave is dry as bone and smells of dust and old smoke. There is no stream, no drip, no damp anywhere. And yet the cup is full to the brim with clear, fresh water that trembles in the light of (his/her) lamp.\nScratched around the rim are a few old words: \"Fills each night. Share it.\" It has been a dry season. The village wells are low. (Name) looks at the cup for a long time. Should (he/she) share it, or keep it for (his/her) own family?",
+   "choices": [
+    {
+     "label": "Share the Water",
+     "next": "c1",
+     "src": "L15619"
+    },
+    {
+     "label": "Study the Cave",
+     "next": "c2",
+     "src": "L15620"
+    },
+    {
+     "label": "Keep the Cup Secret",
+     "next": "c3",
+     "src": "L15621"
+    },
+    {
+     "label": "Return It to the Cave",
+     "next": "c4",
+     "src": "L15622"
+    }
+   ],
+   "src": "L15617-15618"
+  },
+  "c1o1": {
+   "text": "The cup passes from hand to hand. One sip each, (name) thinks, and it will be gone. But somehow there is enough. Everyone drinks, all seven travelers and (name) too, and every single one of them says the same thing afterward, puzzled: \"It tastes like home.\" The water is cold and sweet, though the day is baking. When the cup comes back to (name), there is still a little in the bottom. (He/she) takes it back to the cave, and the next morning, it is full again.",
+   "src": "L15627"
+  },
+  "c1o2": {
+   "text": "The first traveler drinks, and the cup is empty. Just one ordinary cupful of water, gone in a swallow. The others look disappointed but not surprised. (Name) leads them all down to the village instead, where the villagers share what little water they have and point the travelers toward a spring farther along the coast. The cup sits empty on (name)'s shelf. It does not fill again outside the cave.",
+   "src": "L15629"
+  },
+  "c1": {
+   "text": "(Name) carries the cup carefully back to the path, where a group of thirsty travelers have stopped to rest in the heat. \"Here,\" (he/she) says. \"It's not much, but drink.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15625"
+  },
+  "c2o1": {
+   "text": "Just before dawn, one of the researchers lets out a cry. As the cool night air seeps into the warm cave, tiny beads of water form on the stone above the ledge, and a narrow channel, worn so finely into the rock it is almost invisible, carries every drop down into the cup. \"Someone carved this,\" the researcher breathes. \"They knew exactly how to catch the night air.\" The researchers set to work carving channels of their own, and soon the village has a dew-catcher on every rock face.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L15634",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They find nothing. No channel, no crack, no source of water anywhere. The researchers empty the cup, sit around it in a circle with their lamps and watch it all night without blinking. Nothing happens. And yet, when the first grey light reaches the cave mouth, the cup is full again, trembling gently, and none of them saw it fill. They pack up their things in silence.",
+   "src": "L15636"
+  },
+  "c2": {
+   "text": "(Name) wants to understand how a dry cave can fill a cup. (He/she) fetches the researchers, and they spend a day and a night in the cave, lamps lit, examining every crack in the stone...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15632"
+  },
+  "c3o1": {
+   "text": "It works. Every morning the cup is full, and (name) fills (his/her) skin and carries it home, and (his/her) family never goes thirsty. But (name) uses it sparingly, and begins to feel worse and worse about it. Every time (he/she) walks past the low village well and the villagers waiting their turn, (he/she) remembers the words on the rim: \"Share it.\" It is a long, uncomfortable season, and (name) does not sleep well.",
+   "src": "L15641"
+  },
+  "c3o2": {
+   "text": "On the third morning, (name) arrives at the cave to find the cup bone dry. The next morning, and the next, it is empty, its crack dusty, as though it had never held a drop. (Name) stands in the dark cave with (his/her) empty water skin, reading the words on the rim again: \"Share it.\" (He/she) goes home and tells the whole village. The cup never fills again, but at least (name) has stopped keeping secrets.",
+   "src": "L15643"
+  },
+  "c3": {
+   "text": "(Name) thinks of (his/her) own family and how dry the season has been. (He/she) tells no one about the cup, and goes back to the cave each morning to fill (his/her) water skin...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15639"
+  },
+  "c4o1": {
+   "text": "The next morning, curious, (name) returns. The cup is full again, to the very brim. (He/she) tells a few trusted villagers, and the cave becomes a quiet place where travelers and thirsty villagers can stop for a single sip on hot days. Nobody ever takes more than one. Nobody ever takes the cup. And every night, it fills.",
+   "src": "L15648"
+  },
+  "c4o2": {
+   "text": "When (name) returns the next day, the cup is gone. Only a damp circle remains on the ledge where it stood, still cool and wet to the touch in the baking heat. (Name) touches it, and it dries under (his/her) fingertip, and is gone too. (He/she) never sees the cup again. But sometimes, on the very hottest days, (name) finds (himself/herself) unaccountably not thirsty at all.",
+   "src": "L15650"
+  },
+  "c4": {
+   "text": "(Name) decides the cup belongs where it is. (He/she) sets it back on the ledge exactly as (he/she) found it, drinks one careful sip from it, and goes home...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15646"
+  }
+ }
+}

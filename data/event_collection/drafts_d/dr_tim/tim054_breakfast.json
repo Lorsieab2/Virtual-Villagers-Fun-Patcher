@@ -123,14 +123,28 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "A parent shows (name1), a child, how to prepare a simple breakfast. (Name1) feels useful and hopes someone noticed.",
-   "src": "L903"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "A parent shows (name1), a child, how to prepare a simple breakfast. A little shared laughter makes the chore less tedious.",
-   "src": "L907"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -141,6 +155,64 @@
    "name": "Ending 4",
    "text": "A parent shows (name1), a child, how to prepare a simple breakfast. The task takes longer together, but the company is welcome.",
    "src": "L915"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "A parent shows (name1), a child, how to prepare a simple breakfast. (Name1) feels useful and hopes someone noticed.",
+   "src": "L903",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L903"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L903"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "A parent shows (name1), a child, how to prepare a simple breakfast. (Name1) feels useful and hopes someone noticed.",
+   "src": "L903"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "A parent shows (name1), a child, how to prepare a simple breakfast. A little shared laughter makes the chore less tedious.",
+   "src": "L907",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L907"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L907"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "A parent shows (name1), a child, how to prepare a simple breakfast. A little shared laughter makes the chore less tedious.",
+   "src": "L907"
   }
  }
 }

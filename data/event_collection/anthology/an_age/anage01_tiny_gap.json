@@ -214,14 +214,40 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "(child) draws a map of the gap so the next search takes minutes.",
-   "src": "L30138"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "(child) proposes a covered token tray, preventing a repeat mishap.",
    "src": "L30139"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(child) draws a map of the gap so the next search takes minutes.",
+   "src": "L30138",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L30138"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(child) draws a map of the gap so the next search takes minutes.",
+   "src": "L30138"
   }
  }
 }

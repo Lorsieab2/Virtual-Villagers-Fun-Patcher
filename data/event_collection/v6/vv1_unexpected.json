@@ -113,6 +113,12 @@
   "parent": {
    "kind": "stranger",
    "sex": "random"
+  },
+  "golden": {
+   "kind": "villager",
+   "optional": true,
+   "min_age": 0,
+   "special": "golden_child"
   }
  },
  "pools": {
@@ -288,11 +294,14 @@
    ]
   },
   "i1": {
-   "src": "L2775",
-   "text": "The children make observations and discover a useful pattern.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "good"
+     "next": "i1__fx"
+    },
+    {
+     "next": "i1__text"
     }
    ]
   },
@@ -447,7 +456,7 @@
     {
      "next": "g4",
      "if": {
-      "special_present": "golden_child"
+      "role": "golden"
      }
     }
    ]
@@ -476,7 +485,8 @@
      "max": 10,
      "src": "L2805"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "g2": {
    "src": "L2806-2807",
@@ -488,7 +498,7 @@
   },
   "g4": {
    "src": "L2810-2812",
-   "text": "He responds through an existing supported nonverbal gesture. The class treats his contribution as meaningful without requiring speech.",
+   "text": "(golden.He/She) responds through an existing supported nonverbal gesture. The class treats (golden.his/her) contribution as meaningful without requiring speech.",
    "text_only": [
     {
      "src": "L2810-2811",
@@ -499,6 +509,33 @@
   },
   "rails": {
    "text": "{RAILS}"
+  },
+  "i1__fx": {
+   "src": "L2775",
+   "text": "The children make observations and discover a useful pattern.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L2775"
+    }
+   ],
+   "auto_text": true
+  },
+  "i1__text": {
+   "src": "L2775",
+   "text": "The children make observations and discover a useful pattern.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ]
   }
  }
 }

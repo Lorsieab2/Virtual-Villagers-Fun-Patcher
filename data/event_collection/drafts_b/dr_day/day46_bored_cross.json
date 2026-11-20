@@ -70,14 +70,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) steps over (subject.him/her) again and says nothing. (subject) lies there for most of the afternoon. Then, without warning, (subject.he/she) gets up, goes out, and comes back two hours later with a basket full of fish, in a much better mood, and refuses to discuss any of it.",
-   "src": "L554"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Want something to do?\" asks (friend). \"No,\" says (subject). \"There's a canoe that needs bailing out.\" (subject) groans. Then (subject.he/she) gets up and goes. Bailing is boring and wet. (subject.He/she) complains the whole time. (subject.He/she) is also, by the end, noticeably less cross. Neither of them points that out.",
    "src": "L557"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) steps over (subject.him/her) again and says nothing. (subject) lies there for most of the afternoon. Then, without warning, (subject.he/she) gets up, goes out, and comes back two hours later with a basket full of fish, in a much better mood, and refuses to discuss any of it.",
+   "src": "L554",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "src": "L554"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L554"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) steps over (subject.him/her) again and says nothing. (subject) lies there for most of the afternoon. Then, without warning, (subject.he/she) gets up, goes out, and comes back two hours later with a basket full of fish, in a much better mood, and refuses to discuss any of it.",
+   "src": "L554"
   }
  }
 }

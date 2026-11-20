@@ -24,7 +24,7 @@ scratchpad spec, mech_vv1\\spec.md, 2026-10-23):
   * Research gives Research / 7, / 5 or / 3 at Science level 1, 2 or 3, after a (Research + 31)% roll
     (0x43B2AB); every technology starts at level 1 (0x41C43E).
   * The skill check 0x43D440: success at rand(100) <= skill + 30; the gain (50 - skill) x 2 / 10, / 9 for
-    Healing.
+    Building (the case at 0x43D7D3, table 0x43DA10 entry 4, record +0x3C0).
   * The Game Mechanics audit (2026-10-25) read every line of this page against the stock exe; each table below
     names its addresses.
   * Mushrooms: while none is out, a 2-in-120 roll every 2 real seconds (0x42351E), so about 2 real
@@ -42,6 +42,7 @@ import struct
 
 import vv_game_mechanics as gm
 import vv_game_mechanics_children_play as children_play
+import vv_game_mechanics_solidarity as solidarity
 import vv_game_mechanics_death as death
 import vv_game_mechanics_events as events
 import vv_game_mechanics_life as life
@@ -144,22 +145,46 @@ HIDDEN_LINES = (
      'Mushroom and the rotting crate take health that comes back only when he eats on the food store or from The '
      'Black Pearl. See Island events and Golden Child.', gm.OWNER),
     ("Likes: at birth 70% none, 21% one, 9% two; dislikes the same; a like is never also a dislike.", gm.RUNNING),
-    ("Running, liked: a villager of 14 or more runs, three times walking speed. Disliked: a child under 14 "
-     "walks instead of running, and the dislike works for adults too.", gm.OWNER),
+    # The owner, live (2026-11-16, outranks the code reading): disliking running slows every villager, of every age.
+    ("Running, liked: a villager of 14 or more runs, three times walking speed. Disliked: every villager who "
+     "dislikes running is slower, children and adults alike (seen in the game).", gm.OWNER),
     # The code beside the owner's word (the owner, 2026-10-27: where code and what is seen differ, write both).  The
     # dislike test 0x4372E0 is called for word 38 (running) only at 0x43CD25 (every call scanned); the walk 0x43CCF0
     # is step 3 of the villager step dispatcher 0x43DEF0 (jump table 0x43DF74 -> 0x43DF1E -> 0x43DF22), run from the
     # game's own drop and walk paths (tests/test_manual_drop_breeding.py).  Step 1 (0x43DF0C -> 0x43CBD0) sets 300
-    # for a villager under 14 (0x43CBE4..0x43CBF7) with no like or dislike read; what queues step 1 is not traced.
-    # "not given the running speed": 0x43CD20..0x43CD2C; "only a like is read": 0x43CD33.  "In one place only": the
-    # walk step 0x43CCF0.
-    ("In the game's code the dislike of running is read in one place only, the speed of a walk: a villager under 14 who dislikes running is not given the running speed, and from 14 on only a like "
-     "is read, so on that walk an adult who dislikes running moves exactly as one who neither likes nor dislikes "
-     "it.", gm.CODE),
+    # for a villager under 14 (0x43CBE4..0x43CBF7) with no like or dislike read.  Step 1 is queued (the step builder
+    # 0x4399F0's step-type argument 1) at three places only: "Not feeling well" (0x441D22, string 0xA8), the Golden
+    # Child's own wandering (0x447A92) and "Strolling" (0x448058, string 0x9B).
+    # "not given the running speed": 0x43CD20..0x43CD2C; "only a like is read": 0x43CD33.
+    # The speed is a field of the villager's record, +0x58, written in three places only (every write of +0x58
+    # after a villager-record index scanned): 300 at 0x43CBF7 (step 1, under 14) and 0x43CD3C (step 3: a child
+    # who does not dislike running, or anyone who likes it), and 40 at 0x43CD5F (elderly).  Step 3 hands the field
+    # to the walk (0x43CD69 -> 0x439D40 -> 0x439CC0), and so does the walk's continuation (0x43D2E4).  Nothing
+    # sets a walking speed for an adult who neither likes nor dislikes running in these three places, so the
+    # walking speed that adults are seen to use is set somewhere this scan did not find (another base or a block
+    # copy); the save keeps only +0x33C..+0x3D8 of a record (src/vv_last_names.py), so +0x58 starts again each time
+    # the game is opened.  NOT FOUND: the code path that slows an adult who dislikes running.
+    ("In the game's code the dislike of running is read in one place only, a child's walk (the speed the villager "
+     "keeps, which nothing in that code resets at 14); the path that makes an adult who dislikes running slower, as "
+     "seen in the game, has not been found in the code.", gm.CODE),
     # The other step: 0x43CBD0 (step 1 of the dispatcher 0x43DEF0).
-    ("Another movement step gives every villager under 14 the running speed without reading the dislike; which "
-     "actions use that step was not traced, so whether a child who dislikes running ever runs through it is not "
-     "settled.", False),
+    ("Another movement step gives every villager under 14 the running speed without reading the dislike, and three "
+     "actions use it: \"Not feeling well\", \"Strolling\" and the Golden Child's own wandering. So a child who "
+     "dislikes running still runs while strolling or not feeling well.", gm.CODE),
+    # The chooser 0x439AE0: rand(100) < 15 -> no job (0x439AEB..0x439AFD) whatever is liked; with Fix Vanilla
+    # Bugs (vv1_fix_vanilla_bugs: 0x439AF8 -> 0x455491 / 0x4554B2) the like test 0x437310(index, 42 = work) is
+    # asked first, as The Lost Children (0x449C7F), The Secret City (0x45973A), The Tree of Life (0x461CCC) and
+    # New Believers (0x46A3CC) do, and a villager who likes work goes on to choose.
+    ("Work: 15% of idle picks take no job, whatever the villager likes; with Fix Vanilla Bugs, as in the later "
+     "games, a villager who likes work is never one of those 15%.", gm.CODE),
+    # The work-spot routine 0x447CD0 (the job a player assigned by a drop, +0x3B8) reads no like or dislike; with
+    # Fix Vanilla Bugs (0x447CFF -> 0x454B32, pieces in padding) it follows The Lost Children's 0x461580: likes work -> the spot;
+    # else rand(100) < 20 -> nothing that turn; else rand(100) < 40 and (food +0xA2EC >= 4,000 or dislikes work)
+    # -> nothing that turn.
+    ("A job you assigned by dropping a villager: in the normal game liking or disliking work makes no difference "
+     "to whether the villager goes back to it. With Fix Vanilla Bugs, as in The Lost Children: a villager who likes work always keeps it; anyone "
+     "else skips it 20% of the times it comes up, and of the rest 40% more while the village has 4,000 food or "
+     "more or the villager dislikes work (52% in all then). A skipped job is not forgotten.", gm.CODE),
     ("Disliking work makes 70% of idle picks take no job; disliking medicine passes Healing over half the time. "
      "Fish, disliked: always refuses fishing (\"Running away\"); berries or bushes: refuses foraging 75% of the "
      "time; rocks: refuses clearing the blockage 75%; turnips: skips the crops 75%; drift wood: skips the beach "
@@ -173,7 +198,8 @@ HIDDEN_LINES = (
     # 0x4372E0 (+0x3A8..+0x3B4) at 34 places, for 19 words: 1 2 3 4 5 6 7 10 11 12 15 17 25 30 33 37 38 39 42.  The
     # walking speed 0x43CCF0: running (300) for a child unless running is disliked (0x43CD20), for an adult only when
     # it is liked; past the elderly age (42 + 8 x Medicine years) always 40 (0x43CD43..0x43CD5F).
-    ("Every other like does nothing: the game tests a like only for running. The dislikes it never tests do "
+    ("Every other like does nothing: the game tests a like only for running (and, with Fix Vanilla Bugs, work). "
+     "The dislikes it never tests do "
      "nothing either: ants, bees, the dark, snakes, wind, rough wood, playing, exploring, blue, green, red, yellow, "
      "drums, bananas, coconuts, sand, sunlight, crab meat, whale meat, fruit, papaya, flies, monkeys, birds, "
      "lifting, surprises, jokes and sleeping (28 of the 47 words). An elderly villager (past 50, 58 or 66 years at "
@@ -211,6 +237,8 @@ P_SHOW = P_CHILD * 0.21 * 0.26            # his routine (21%), the show (26%)
 P_ACT = P_CHILD * 0.21 * 0.74 / 7         # his routine, each of the seven acts
 GC_FLAG, GC_HOUR, CAVE_FLAG, CAVE_HOUR = 0xA008 + 4, 0x9E80 + 4, 0x9FA8 + 4, 0x9E50 + 4    # file offsets
 IDOL_FLAG, BUTTERFLIES_FLAG, GARDEN_FLAG = 0x9FD8 + 4, 0xA088 + 4, 0x9FC0 + 4
+BEACH_FLAG = 0x9FB8 + 4                       # The Beach cleaned (The Big Wave clears it again)
+CRAB_SHARE = 21 / 100                         # the crab: rand(100) <= 20 at Farming 90 or more (0x43F4C3)
 FERTILITY = 4                             # the level's index: Fertility ([state+0xA2DC])
 CAVE_WAIT_HOURS = 36
 
@@ -430,14 +458,15 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             "Research gives the researcher's Research skill ÷ 7, ÷ 5 or ÷ 3 at Science level 1, 2 or 3, rounded "
             "down, when the skill check passes; 2% of tries injure (0 to 9 health). Every technology starts at "
             "level 1."), gm.RUNNING)
-    # The skill check 0x43D440 (one case per skill, table 0x43DA10): success when rand(100) <= skill + 30
-    # (0x43D47B); the gain (50 - skill) x 2 ÷ 10 for Farming, Building, Research and Breeding (0x66666667 >> 34) and
-    # ÷ 9 for Healing (0x38E38E39 >> 33, 0x43D814), rounded toward 0; at 0 or less rand(100) <= 25 and
-    # rand(100) >= skill give 1 (0x43D558..0x43D579); the skill stops at 100.
+    # The skill check 0x43D440 (one case per skill, table 0x43DA10: Farming +0x3C4, Breeding +0x3BC, Research
+    # +0x3CC, Building +0x3C0, Healing +0x3C8): success when rand(100) <= skill + 30 (0x43D47B); the gain
+    # (50 - skill) x 2 ÷ 10 for Farming, Healing, Research and Breeding (0x66666667 >> 34) and ÷ 9 for Building
+    # (0x38E38E39 >> 33, 0x43D814, the case at 0x43D7D3 reading +0x3C0), rounded toward 0; at 0 or less
+    # rand(100) <= 25 and rand(100) >= skill give 1 (0x43D558..0x43D579); the skill stops at 100.
     add("Tech points and effects", "Every job's skill check succeeds at (skill + 31) in 100 (no like or dislike "
                                    "changes it). A success raises the skill by (50 - skill) x 2 ÷ 10, rounded down, "
-                                   "for Farming, Building, Research and Breeding, and by (50 - skill) x 2 ÷ 9 for "
-                                   "Healing: 10 at skill 0 (Healing 11), 8 at 10, 1 at 45. From 46 up that is 0, and "
+                                   "for Farming, Healing, Research and Breeding, and by (50 - skill) x 2 ÷ 9 for "
+                                   "Building: 10 at skill 0 (Building 11), 8 at 10, 1 at 45. From 46 up that is 0, and "
                                    "instead the skill rises by 1 on 26% x (100 - skill)% of successes (14% at 46, "
                                    "2.6% at 90), up to 100.", gm.CODE)
     # The patch turns the five failure branches of 0x43D440 into jumps to the gain (0x43D483, 0x43D5E0, 0x43D72A,
@@ -456,7 +485,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # Hungrier Villagers: both meal immediates x N (scripts/build_hungrier_villagers_features.py).
     if village.has(HUNGRIER) is not False:
         add("Food earned", gm.patch_words(village, HUNGRIER, "each villager's meal, and the difficulty's extra, "
-                                        "take 2 to 10 times the food (the slider); food never goes below 0"))
+                                        "take 0.1 to 10 times the food (the slider, 1 the normal game; at most 64 "
+                                        "times; a number like 0.3 on "
+                                        "average); food never goes below 0"))
     # The free-time choices 0x446030, case 5.
     add("Food earned", "A villager dropped on the food store goes \"Eating\": it costs 1 food, and below 100 health it "
                        "gives 1 health 50.05% of the time. Adults also go \"Eating\" on their own: when the game sends "
@@ -483,6 +514,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                    village, MAGIC_FRUIT, "with its puzzle done, the rolls start 7 years later")))
     for line, ok in children_play.lines(village):   # tag and sandcastles (vv_game_mechanics_children_play)
         add("Other", line, ok)
+    for line, ok in solidarity.lines(village):      # Village Solidarity (vv_game_mechanics_solidarity)
+        add("Other", line, ok)
     add("Other", (f"An age unit is {gm.duration(60 * speed)} and a villager year (20 age units) "
                   f"{gm.duration(20 * 60 * speed)} of real-life play on {on} speed: ages, pregnancies and regrowth "
                   "follow the speed; work, mushrooms and island events do not."), gm.RUNNING)
@@ -504,6 +537,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     magic = next(flag for name, flag, _hours in PUZZLES if name == "The Magic Plant of Life")
     out.extend(death.facts(village, medicine=level[3], speed_value=speed_value, base=epoch,
                            magic_fruit=data[magic + 4] != 0))
+    out.extend(gm.slider_facts(village))   # the 0.1x-10x sliders in the game
     return out
 
 
@@ -559,7 +593,16 @@ def golden_child_facts(village: gm.Village, data: bytes, created: float, level: 
         if data[GARDEN_FLAG] != 0 and data[BUTTERFLIES_FLAG] == 0 and golden:
             add("The Garden is done and The Butterflies is not: drop him on the garden.", gm.SAVE)
     out.extend(gm.Fact(group, line, ok) for line, ok in GOLDEN_CHILD_LINES)
+    if village.has(GC_BORN_FEMALE) is True:
+        # The Golden Child May Be Born Female (50:50) (the owner, 2026-11-16): the creator's own roll is kept
+        # (vvfp_gender_presentation.c, 0x43C7FB).
+        out.append(gm.Fact(group, "A new Golden Child is a boy or a girl, 50:50 (the game's own roll for any newborn, "
+                                  "which the game would otherwise set aside for a boy), with a name to match; the "
+                                  "Golden Child is still drawn with the Golden Child's own look.", gm.CODE))
     return out
+
+
+GC_BORN_FEMALE = "vv1_golden_child_born_female"
 
 
 def _context(village: gm.Village, data: bytes, epoch: int, speed_value: int, level: list[int], bush: int,
@@ -575,13 +618,17 @@ def _context(village: gm.Village, data: bytes, epoch: int, speed_value: int, lev
                            regrow_at if farming >= 2 else None,
                            f"refilled to {FIELD_CAP} every {every}" if farming >= 2 else "no refill below Farming level 2",
                            verified=gm.SAVE, step=FIELD_CAP if farming >= 2 else 0, **steps)]
-    if farming >= 3:
+    # Fishing: Farming level 3 and The Beach cleaned (the dispatcher 0x44730B reads [+0x9FB8]; the sea drop 0x4241D6).
+    beach = data[BEACH_FLAG] != 0
+    fishing = farming >= 3 and beach
+    if fishing:
         sources.append(life.Source("Fishing (Farming level 3, the beach cleaned)", None, unlimited=True,
                                    refill_words="the sea never runs out", verified=gm.RUNNING))
     paused = speed_value >= gm.PAUSED
     golden = village.has(GOLDEN) is True
     ctx = life.Context(
         village, speed_value, saved, _i32(data, FOOD), low_food=200, extra_from=2001, sources=sources,
+        created=epoch + _i32(data, CREATED) if _i32(data, CREATED) > 0 else None,
         tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 7, ÷ 5 or ÷ 3 at Science 1 to 3, "
                                           "rounded down).",
         brown=8, red=45, red_share=0.05, mushrooms_an_hour=30.0, golden=golden,
@@ -610,7 +657,15 @@ def _context(village: gm.Village, data: bytes, epoch: int, speed_value: int, lev
                    "time; never more on Easy.",
         trips=[("berry picks", max(2, bush // 130), "Berry bush"),
                ("crop harvests", 7 if farming >= 2 else 0, "Crop field"),
-               ("catches", 9 if farming >= 3 else 0, "Fishing")])
+               ("catches", 9 if fishing else 0, "Fishing")],
+        fishing_trip="catches",
+        # A fisher with Farming 90 or more: a crab, 55 food with no Farming check, on rand(100) <= 20 (0x43F4B0 /
+        # 0x43F4C6: 21 in 100); otherwise the 9-food catch, whose check passes always from Farming 69.  The same live
+        # and while catching up (no catch-up rate); its live cycle is measured at Farming 100, crabs included.
+        fishing_expert=(100, CRAB_SHARE * 55 + (1 - CRAB_SHARE) * 9, CRAB_SHARE * 55 + (1 - CRAB_SHARE) * 9,
+                        "from Farming 90, 21 catches in 100 are a crab worth 55 food instead of 9"),
+        fishing_unlock=(f"fishing opens at Farming level 3 with the beach cleaned (The Beach); this village is at "
+                        f"Farming level {farming} and its beach is " + ("cleaned." if beach else "not cleaned.")))
     return ctx
 
 

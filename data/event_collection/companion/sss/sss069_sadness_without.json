@@ -90,7 +90,18 @@
   "a": {
    "name": "Answer A",
    "text": "The gardener appreciates quiet company, though the heaviness remains.",
-   "src": "L6788"
+   "src": "L6788",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "gardener",
+     "list": "likes",
+     "preference": "flowers",
+     "remove": true,
+     "src": "L6788"
+    }
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Answer B",
@@ -106,8 +117,17 @@
      "min": 5,
      "max": 10,
      "src": "L6790"
+    },
+    {
+     "do": "preference",
+     "role": "gardener",
+     "list": "likes",
+     "preference": "flowers",
+     "remove": true,
+     "src": "L6790"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Answer C",
@@ -123,6 +143,14 @@
      "min": 5,
      "max": 10,
      "src": "L6792"
+    },
+    {
+     "do": "preference",
+     "role": "gardener",
+     "list": "likes",
+     "preference": "flowers",
+     "remove": true,
+     "src": "L6792"
     }
    ],
    "text_only": [
@@ -131,7 +159,8 @@
      "reason": "the healer checks; nobody is found hurt or ill",
      "src": "L6792"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

@@ -1,0 +1,232 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Raft at the River Mouth",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b311_raft_river_mouth",
+  "source": "balance",
+  "lines": [
+   14416,
+   14456
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14416",
+  "ledger": [
+   {
+    "src": "L14417",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14418",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14425",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14434",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14422",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14423",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14426",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14435",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14428",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14431",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14437",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14440",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14443-14456",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's a rough thing of lashed bamboo, spinning slowly in the current, and there are people on it, clinging to the poles.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "After three days of rain in the hills, the river comes down brown and fast, carrying branches, whole trees and, this morning, a raft. It's a rough thing of lashed bamboo, spinning slowly in the current, and there are people on it, clinging to the poles. It's heading for the river mouth, where the brown water meets the surf and churns like a cooking pot.\n(Name) is on the bank with a long fishing pole and a coil of rope. Should (he/she) throw the rope from the bank, or wade out to the sandbar where the raft will pass closest?",
+   "choices": [
+    {
+     "label": "Throw the Rope From the Bank",
+     "next": "c1",
+     "src": "L14422"
+    },
+    {
+     "label": "Wade Out to the Sandbar",
+     "next": "c2",
+     "src": "L14423"
+    }
+   ],
+   "src": "L14419-14420"
+  },
+  "c1o1": {
+   "text": "A young (man/woman) on the raft catches the rope and wraps it around a pole, and (name) digs in (his/her) heels and pulls. The raft swings into the bank. On it are two exhausted adults and a baby wrapped in a waterproof bark cloth, sound asleep through the whole thing. Their hill village was swept away by the flood. {#made:Only one of them can stay; the village has no room for more|They stay}. The baby, it turns out, sleeps through anything.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L14429",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The rope is caught, but the current is so strong that it drags (name) off the bank and into the water. (He/She) hangs on, half-drowned, until the raft grounds itself on the sandbar. On it are a (man/woman), a teenager and a small child. The teenager jumps into the water and pulls (name) out. They all sit on the sandbar, coughing, and laugh about it later. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The family stays}.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L14432",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) coils the rope, swings it twice, and throws as hard as (he/she) can as the raft spins past...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14426"
+  },
+  "c2o1": {
+   "text": "Somebody on the raft grabs the end of the pole, and (name) swings the raft in against the sandbar like a fisher landing a big fish. Two adults and a baby climb off onto the sand, shaking. \"We saw your village from the hills,\" one of them says. \"We hoped we'd make it this far.\" They did. {#made:Only one of them can stay; the village has no room for more|They stay}.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L14438",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The raft spins past just out of reach of the pole and is carried out through the river mouth into the surf. (Name) watches it bob away along the coast. The next day a fisher from up the coast sends word: a raft came ashore at their beach, and everyone on it is safe. (Name) is relieved, and a little sorry it wasn't (his/her) beach.",
+   "src": "L14441"
+  },
+  "c2": {
+   "text": "(Name) wades out into the brown water, up to (his/her) waist, then (his/her) chest, bracing against the current, and holds out the long fishing pole...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14435"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L14429",
+   "before": "They stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|They stay}."
+  },
+  {
+   "src": "L14432",
+   "before": "The family stays.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The family stays}."
+  },
+  {
+   "src": "L14438",
+   "before": "They stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|They stay}."
+  }
+ ]
+}

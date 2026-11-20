@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Basket in the Mangroves",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b252_basket_mangroves",
+  "source": "balance",
+  "lines": [
+   11767,
+   11807
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11767",
+  "ledger": [
+   {
+    "src": "L11768",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11769",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11776",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11785",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11773",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11774",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11777",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11786",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11779",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11782",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11788",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11791",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11794-11807",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "There is a little carved bird tied to the handle.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) is cutting mangrove poles at low tide when (subject.he/she) hears a thin, hiccupping cry from somewhere among the roots. (subject.He/She) follows it, knee-deep in mud, and finds a basket wedged between two roots, with a baby inside, red-faced and furious. There is a little carved bird tied to the handle. There are no footprints in the mud except (subject)'s own.\nThe tide will be back in an hour. Should (subject) take the baby home and look after it, or stay and search for whoever left it here?",
+   "choices": [
+    {
+     "label": "Take the Baby Home",
+     "next": "c1",
+     "src": "L11773"
+    },
+    {
+     "label": "Search for the Family",
+     "next": "c2",
+     "src": "L11774"
+    }
+   ],
+   "src": "L11770-11771"
+  },
+  "c1o1": {
+   "text": "\"Whoever finds the basket keeps the basket,\" says one of the elders, and nobody argues. (subject) has never looked after a baby in (subject.his/her) life. The first night, neither of them sleeps. The second night, the baby sleeps and (subject) doesn't. By the end of the week, (subject) can change a wrap one-handed while eating, and the carved bird hangs over the baby's sleeping mat.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L11780",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject)'s partner, (friend), takes one look at the furious baby and holds out (subject.his/her) arms. The baby stops crying at once, hiccups twice, and falls asleep. \"Well,\" says (friend). \"That's decided.\" They raise the baby together. (friend) does the night feeds, and never once complains, which (subject) finds very suspicious.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L11783",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) lifts the basket clear of the mud and carries it home on (subject.his/her) hip, the baby yelling the whole way. People come out of their huts to see what the noise is...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11777"
+  },
+  "c2o1": {
+   "text": "A swamped canoe is lying on its side in the mangroves, and a (subject.man/woman), a teenager and a small child are trying to bail it out with their hands. The basket floated off in the night while they were asleep. When (subject) brings them to it, the (subject.man/woman) sits down in the mud and cries. {#made:Only one of them can stay in the village|Only two of them can stay in the village|The family stays in the village}; they say anyone who would wade an hour through mud for a stranger's baby is worth living beside.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    },
+    {
+     "do": "nursing",
+     "role": "$newest"
+    }
+   ],
+   "src": "L11789",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) searches until the tide forces (subject.him/her) back, and finds nobody. On the way back to the basket (subject.he/she) notices a heron standing in the roots nearby, watching (subject.him/her) the way the carved bird on the handle seems to. It takes off as (subject) gets close. (subject) carries the baby home. (subject.He/She) raises it, and every so often a heron lands on (subject.his/her) roof and stays a while.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L11792",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) tucks the basket up high in the roots, safe from the tide, and starts wading along the shore, calling out. Around the bend, (subject.he/she) hears someone calling back...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11786"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L11789",
+   "before": "The family stays in the village;",
+   "after": "{#made:Only one of them can stay in the village|Only two of them can stay in the village|The family stays in the village};"
+  }
+ ]
+}

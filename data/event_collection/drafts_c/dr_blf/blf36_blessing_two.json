@@ -125,19 +125,14 @@
    ]
   },
   "o1_m": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Of course,\" says (third). \"I'd be honored.\" The blessing is small and simple, by the sea at sunset, with a few friends and a lot of flowers. (third) says the old words. (men1) and (men2) hold hands the whole time, trying not to cry and both failing. Afterwards, everyone eats far too much. It's a very good evening.",
-   "src": "L434",
-   "effects": [
+   "children": [
     {
-     "do": "celebrate",
-     "who": "men1",
-     "src": "L434"
+     "next": "o1_m__fx"
     },
     {
-     "do": "celebrate",
-     "who": "men2",
-     "src": "L434"
+     "next": "o1_m__text"
     }
    ]
   },
@@ -156,7 +151,8 @@
      "who": "men2",
      "src": "L437"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "setup_f": {
    "type": "question",
@@ -177,19 +173,14 @@
    ]
   },
   "o1_f": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Of course,\" says (third). \"I'd be honored.\" The blessing is small and simple, by the sea at sunset, with a few friends and a lot of flowers. (third) says the old words. (women1) and (women2) hold hands the whole time, trying not to cry and both failing. Afterwards, everyone eats far too much. It's a very good evening.",
-   "src": "L434",
-   "effects": [
+   "children": [
     {
-     "do": "celebrate",
-     "who": "women1",
-     "src": "L434"
+     "next": "o1_f__fx"
     },
     {
-     "do": "celebrate",
-     "who": "women2",
-     "src": "L434"
+     "next": "o1_f__text"
     }
    ]
   },
@@ -208,7 +199,94 @@
      "who": "women2",
      "src": "L437"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "o1_m__fx": {
+   "name": "Outcome A",
+   "text": "\"Of course,\" says (third). \"I'd be honored.\" The blessing is small and simple, by the sea at sunset, with a few friends and a lot of flowers. (third) says the old words. (men1) and (men2) hold hands the whole time, trying not to cry and both failing. Afterwards, everyone eats far too much. It's a very good evening.",
+   "src": "L434",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "men1",
+     "src": "L434"
+    },
+    {
+     "do": "celebrate",
+     "who": "men2",
+     "src": "L434"
+    },
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L434"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1_m__text": {
+   "name": "Outcome A",
+   "text": "\"Of course,\" says (third). \"I'd be honored.\" The blessing is small and simple, by the sea at sunset, with a few friends and a lot of flowers. (third) says the old words. (men1) and (men2) hold hands the whole time, trying not to cry and both failing. Afterwards, everyone eats far too much. It's a very good evening.",
+   "src": "L434",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "men1",
+     "src": "L434"
+    },
+    {
+     "do": "celebrate",
+     "who": "men2",
+     "src": "L434"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1_f__fx": {
+   "name": "Outcome A",
+   "text": "\"Of course,\" says (third). \"I'd be honored.\" The blessing is small and simple, by the sea at sunset, with a few friends and a lot of flowers. (third) says the old words. (women1) and (women2) hold hands the whole time, trying not to cry and both failing. Afterwards, everyone eats far too much. It's a very good evening.",
+   "src": "L434",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "women1",
+     "src": "L434"
+    },
+    {
+     "do": "celebrate",
+     "who": "women2",
+     "src": "L434"
+    },
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L434"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1_f__text": {
+   "name": "Outcome A",
+   "text": "\"Of course,\" says (third). \"I'd be honored.\" The blessing is small and simple, by the sea at sunset, with a few friends and a lot of flowers. (third) says the old words. (women1) and (women2) hold hands the whole time, trying not to cry and both failing. Afterwards, everyone eats far too much. It's a very good evening.",
+   "src": "L434",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "women1",
+     "src": "L434"
+    },
+    {
+     "do": "celebrate",
+     "who": "women2",
+     "src": "L434"
+    }
+   ],
+   "auto_text": true
   }
  }
 }

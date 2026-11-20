@@ -74,14 +74,40 @@
    "src": "L7068"
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "They discover that one close friendship matters more to them than a crowd.",
-   "src": "L7070"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
    "text": "They watch the festival without being pushed to socialize.",
    "src": "L7072"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "They discover that one close friendship matters more to them than a crowd.",
+   "src": "L7070",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L7070"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "They discover that one close friendship matters more to them than a crowd.",
+   "src": "L7070"
   }
  }
 }

@@ -1,0 +1,202 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger With (Name)'s Face",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b300_stranger_face",
+  "source": "balance",
+  "lines": [
+   13925,
+   13966
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13925",
+  "ledger": [
+   {
+    "src": "L13926",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13927",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13935",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13944",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13932",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13933",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13936",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13945",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13938",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13941",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13947",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13950",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13953-13966",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The same nose, the same eyes, the same way of squinting into the sun.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A trader comes in on the morning tide with a canoe full of shell beads, and everyone stops what they're doing to stare, because the trader has (name)'s face. Exactly. The same nose, the same eyes, the same way of squinting into the sun. (Name) comes down to the beach and the two of them stand looking at each other, while the whole village watches.\n\"I've heard,\" says the trader slowly, \"that every person has one other somewhere in the world who wears the same face. I've been looking for mine for years.\"\nShould (name) invite the stranger to stay, or wish (him/her) well and send (him/her) on?",
+   "choices": [
+    {
+     "label": "Invite (Him/Her) to Stay",
+     "next": "c1",
+     "src": "L13932"
+    },
+    {
+     "label": "Send (Him/Her) On",
+     "next": "c2",
+     "src": "L13933"
+    }
+   ],
+   "src": "L13928-13930"
+  },
+  "c1o1": {
+   "text": "The trader stays, and turns out to be nothing like (name) except in the face: loud where (name) is quiet, tidy where (name) is messy, fond of everything (name) can't stand. The village calls (him/her) (made1). The two of them become inseparable, and argue about everything, all the time, very happily.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L13939",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They talk all night by the fire. In the morning, both of them are gone, along with the trader's canoe. A note scratched on a flat stone by (name)'s door says only: \"Gone to see what (he/she) has seen.\" Nobody hears from (name) again, though traders passing through sometimes mention two people with the same face, paddling together far to the south.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L13942",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) holds out (his/her) hand. The trader takes it. Their hands are exactly the same size. The whole village lets out its breath at once...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13936"
+  },
+  "c2o1": {
+   "text": "Before leaving, the trader gives (name) a string of shell beads, and teaches (him/her), in one quick morning, the trick of something (he/she) is good at and (name) isn't. \"We should be good at the same things,\" the trader says, \"with the same face.\" Then (he/she) is gone over the horizon, and (name) is suddenly much better at something new.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Farming",
+      "Building",
+      "Research",
+      "Healing",
+      "Parenting"
+     ],
+     "min": 10,
+     "max": 10,
+     "role": "subject"
+    }
+   ],
+   "src": "L13948",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The trader paddles away without looking back. (Name) watches from the beach until the canoe is a speck. For a long time after, whenever a new canoe comes in, (name) finds (himself/herself) checking the face of the person in it. None of them ever wears (his/her) face again.",
+   "src": "L13951"
+  },
+  "c2": {
+   "text": "\"I'm glad you found me,\" says (name), \"but this is my island.\" The trader nods, as if (he/she) expected that, and pushes the canoe back out...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13945"
+  }
+ }
+}

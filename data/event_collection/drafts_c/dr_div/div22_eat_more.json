@@ -74,6 +74,33 @@
    "src": "L266"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) eats it, to be polite. Then (subject.he/she) lies on the mat groaning for an hour. (friend) is alarmed. (subject) explains. (friend) is quiet for a while. \"I just worry,\" (friend.he/she) says at last. \"I know,\" says (subject), \"but please believe me when I say I'm full.\" (friend) promises. It lasts about a week, but it's a good week.",
+   "src": "L269",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L269"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) eats it, to be polite. Then (subject.he/she) lies on the mat groaning for an hour. (friend) is alarmed. (subject) explains. (friend) is quiet for a while. \"I just worry,\" (friend.he/she) says at last. \"I know,\" says (subject), \"but please believe me when I say I'm full.\" (friend) promises. It lasts about a week, but it's a good week.",
    "src": "L269"

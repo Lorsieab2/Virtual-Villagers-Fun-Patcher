@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song of Many Beliefs",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb26_song_many",
+  "source": "draft_lcb",
+  "lines": [
+   358,
+   369
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L358",
+  "ledger": [
+   {
+    "src": "L359",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L365",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L369",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village wants a song anyone can join, whatever they believe: write one with no prayers, or give each belief a verse.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Most of the village's gathering songs are prayers, and some villagers feel left out when they are sung. (subject) wants to write a new gathering song that anyone can sing, whatever they believe or do not believe. (friend) worries that a song with no prayer in it will feel empty to everyone else. What should they do?",
+   "src": "L361",
+   "choices": [
+    {
+     "label": "A Song About the Village",
+     "next": "o1",
+     "src": "L363"
+    },
+    {
+     "label": "A Different Verse for Each",
+     "next": "o2",
+     "src": "L367"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) writes a song about the village itself: the huts, the gardens, the faces around the fire. No prayers, no doubts, just the people. It turns out to be everyone's favorite. The prayer songs are still sung too, by those who want them.",
+   "src": "L365"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) suggests a song with a verse for prayer, a verse for silence, a verse for the sea and a verse for the stars, and everyone sings the verses they want. It is a little chaotic. Some verses are sung by three people, some by fifty. Everyone sings the last one together.",
+   "src": "L369"
+  }
+ }
+}

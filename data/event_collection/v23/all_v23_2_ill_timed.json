@@ -119,7 +119,8 @@
      "loss": true,
      "src": "L10020"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "s3": {
    "popup": "append",

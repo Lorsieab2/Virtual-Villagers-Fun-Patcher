@@ -135,14 +135,41 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The flowers set seed, though the villagers forgo a valuable harvest.",
-   "src": "L21344"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "A storm damages the habitat, testing the village's commitment.",
    "src": "L21345"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The flowers set seed, though the villagers forgo a valuable harvest.",
+   "src": "L21344",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L21344"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The flowers set seed, though the villagers forgo a valuable harvest.",
+   "src": "L21344"
   }
  }
 }

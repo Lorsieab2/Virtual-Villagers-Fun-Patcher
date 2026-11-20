@@ -1,0 +1,239 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Goat That Followed (Name) Home",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s076_goat_followed",
+  "source": "rewrites",
+  "lines": [
+   3578,
+   3620
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3578",
+  "ledger": [
+   {
+    "src": "L3579",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3580",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3588",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3597",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3585",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3586",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3589",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3598",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3591",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3594",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3600",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3603",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3606-3620",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L3595",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "A wild goat has decided that a villager is its best friend in all the world.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A wild goat has decided that (name) is its best friend in all the world. Nobody knows why. It just walked out of the hills one morning, looked at (name), and decided.\nIt has one bent horn, a beard like a paintbrush, and a voice like a rusty hinge. It follows (him/her) to the fields. To the river. To the well. To the latrine, which is a problem. To bed, which is a bigger problem. It eats (his/her) sandals. It ate (his/her) hat. It tried to eat (his/her) hair.\nAnd through all of it, it looks up at (him/her) with its strange yellow eyes full of deep and complete love. Should (name) keep the goat, or walk it back up to the hills where it came from?",
+   "choices": [
+    {
+     "label": "Keep the Goat",
+     "next": "c1",
+     "src": "L3585"
+    },
+    {
+     "label": "Walk It Back to the Hills",
+     "next": "c2",
+     "src": "L3586"
+    }
+   ],
+   "src": "L3581-3583"
+  },
+  "c1o1": {
+   "text": "(Name) and the goat become inseparable. And to everyone's surprise, (name), who was never known for patience, turns out to have an endless supply of it. (He/She) teaches the goat not to eat the thatch. Mostly. (He/She) teaches it to walk beside (him/her) instead of in front. (He/She) teaches it its name. The village children start following too, to see the goat, and (name) finds (himself/herself) teaching them things as well, and minding them, and loving it. (Name) is good with little ones, it turns out. Goats and children are not so different.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "skills": [
+      "Parenting"
+     ],
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L3592",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The goat eats the seedlings. All of them, a whole morning's planting, in one happy afternoon. Then it eats the thatch off the side of the research hut, and one of the research scrolls, slowly, while staring at the researcher. Then it eats the replacement seedlings. (Name) has no patience left at all, and after a week of replanting everything the goat has eaten, (he/she) is so sick of seedlings that (he/she) can't look at a seed without groaning. The goat, as far as anyone can tell, is having the best week of its life.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    },
+    {
+     "do": "preference",
+     "dislike": "turnips",
+     "role": "subject"
+    }
+   ],
+   "auto_text": true,
+   "src": "L3595"
+  },
+  "c1": {
+   "text": "(Name) looks down at the goat. The goat looks up at (name), chewing what remains of (his/her) second-best sandal. \"Fine,\" (name) says. \"Fine. But you sleep outside.\" The goat bleats like a rusty door, and comes inside anyway...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3589"
+  },
+  "c2o1": {
+   "text": "The goat walks all the way up the hill with (him/her), very cheerfully. (Name) takes off the vine, gives it a pat, says goodbye, and walks back down. The goat walks back down with (him/her). Very cheerfully. Step for step, all the way home. They arrive back at the village together in time for supper, and the goat eats (his/her) supper. (Name) sits down on (his/her) doorstep with (his/her) head in (his/her) hands. The goat sits down next to (him/her), and leans on (him/her), lovingly.",
+   "src": "L3601"
+  },
+  "c2o2": {
+   "text": "At the top of the hill, a small herd of wild goats is grazing in the long grass. The goat stops. It looks at them. It looks at (name). Then it pulls its head out of the vine, trots off into the herd, and doesn't look back once. Not one single backward look. (Name) stands there with the empty vine in (his/her) hand for quite a while. \"Well,\" (he/she) says at last. \"Fine.\" (He/She) walks home alone, and is surprised to find that (he/she) is a little bit hurt.",
+   "src": "L3604"
+  },
+  "c2": {
+   "text": "(Name) ties a bit of vine round the goat's neck and leads it up the hill path, out past the last of the gardens, all the way up into the high grass where the wild goats live. The goat trots along beside (him/her) happily the whole way...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3598"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "children",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  }
+ }
+}

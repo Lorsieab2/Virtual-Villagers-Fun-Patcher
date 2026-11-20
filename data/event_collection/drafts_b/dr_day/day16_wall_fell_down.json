@@ -74,6 +74,32 @@
    "src": "L194"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) gets up, angry, and starts piling sticks. (friend) stops (subject.him/her). \"Not tonight. You're tired and cross. That's when walls fall down.\" (subject) wants to argue, and doesn't. (subject.He/she) goes home, eats, sleeps badly, and starts the wall again the next morning. It stays up. (subject.He/she) is still annoyed about the first one.",
+   "src": "L197",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L197"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) gets up, angry, and starts piling sticks. (friend) stops (subject.him/her). \"Not tonight. You're tired and cross. That's when walls fall down.\" (subject) wants to argue, and doesn't. (subject.He/she) goes home, eats, sleeps badly, and starts the wall again the next morning. It stays up. (subject.He/she) is still annoyed about the first one.",
    "src": "L197"

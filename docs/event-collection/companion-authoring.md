@@ -138,3 +138,10 @@ The generic choices of Part 1, Part 2 and Lives Between Legends are not named.
   The rare roll itself reads up to 2048 entries (`SC_MAX`) from a manifest of up to 1 MiB.
 - C1 random preference, C2 wider kinship, C3 dead-kin condition, C4 nursing-baby target, C5 appearance modes, Q10
   bereaved nursing mothers: see the inventory; write around them as it says and list each use.
+
+## Food and tech where the text fits (2026-11-15)
+
+The owner asked for food and tech-point gains and losses on outcomes whose own text already implies them
+("Where the text fits"). Every addition (event, node, effect and the justifying text) is a row of
+`scripts/food_tech_additions.py` ADDITIONS and is listed in `docs/event-collection/food-tech-log.md`. The
+generators apply the table as they write, so a regeneration keeps it; no text, choice, weight or other effect changed.

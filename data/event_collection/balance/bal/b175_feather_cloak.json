@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Feather Cloak",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b175_feather_cloak",
+  "source": "balance",
+  "lines": [
+   8102,
+   8145
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8102",
+  "ledger": [
+   {
+    "src": "L8103",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8104",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8112",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8121",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8109",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8110",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8113",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8122",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8115",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8118",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8124",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8127",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8130-8145",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Nobody else is in the hut.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the {@chief}'s hut, in a chest that is opened only for great occasions, there is a cloak made of feathers: red and yellow and black, thousands of them, each one tied on by hand. It belonged to the island's first {@chief}, and it is said to make whoever wears it look wise beyond their years.\nThe chest has been left open while the {@chief}'s hut is cleaned, and (name) is the one doing the cleaning. (He/She) has always wondered. The cloak is right there. Nobody else is in the hut. (He/She) could put it on for one moment, just to see.\nShould (name) try on the cloak?",
+   "choices": [
+    {
+     "label": "Try It On",
+     "next": "c1",
+     "src": "L8109"
+    },
+    {
+     "label": "Close the Chest",
+     "next": "c2",
+     "src": "L8110"
+    }
+   ],
+   "src": "L8105-8107"
+  },
+  "c1o1": {
+   "text": "The cloak does what the stories say. When (name) takes it off, (his/her) hair has gone grey and there are deep, kind lines round (his/her) eyes. (He/She) looks like a grandparent. The {@chief} walks in, takes one look, and sighs. \"You tried it on,\" (he/she) says. \"Everyone does, eventually.\" People start coming to (name) for advice, which (he/she) finds alarming.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L8116",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "When (name) takes the cloak off, a line of red and yellow feathers stays behind, stuck along (his/her) shoulders and down (his/her) arms, as if (he/she) has grown them. They won't come off, and they don't hurt. The {@chief} is furious, then curious, then amused. (Name) makes the best of it and adds more feathers to (his/her) clothes to match.",
+   "effects": [
+    {
+     "do": "appearance",
+     "body": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L8119",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) lifts the cloak out of the chest. It's lighter than it looks, and it settles round (his/her) shoulders with a soft rustle, like birds landing...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8113"
+  },
+  "c2o1": {
+   "text": "The {@chief} comes back and finds the chest closed and (name) still sweeping. \"Most people try it on,\" (he/she) says, surprised. \"You didn't?\" (Name) shakes (his/her) head. The {@chief} is so impressed that (he/she) spends the afternoon with (name), teaching (him/her) everything (he/she) knows about (name)'s own work, which turns out to be a great deal.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L8125",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The rustling is moths. Hundreds of them. They have been eating the first {@chief}'s cloak for years. (Name) and the {@chief} spend the whole day picking moths out of the feathers and hanging the cloak in the smoke of the fire to drive them off. The cloak is saved, more or less. It now has a small bald patch at the back, which nobody mentions.",
+   "src": "L8128"
+  },
+  "c2": {
+   "text": "(Name) closes the lid, very gently, and goes back to sweeping. Something rustles inside the chest. Then it rustles again, louder...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8122"
+  }
+ }
+}

@@ -69,11 +69,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "They are delighted.",
-   "src": "L2429"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -81,6 +86,29 @@
    "join": "paragraph",
    "text": "They spend the afternoon asking for stories.",
    "src": "L2430"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They are delighted.",
+   "src": "L2429",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "young_adult",
+     "mood": "good",
+     "src": "L2429"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They are delighted.",
+   "src": "L2429"
   }
  }
 }

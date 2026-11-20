@@ -225,9 +225,16 @@
    "src": "L27068"
   },
   "b2_m": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "They discover their bond feels more like family.",
-   "src": "L27069"
+   "children": [
+    {
+     "next": "b2_m__fx"
+    },
+    {
+     "next": "b2_m__text"
+    }
+   ]
   },
   "c_m": {
    "type": "branch",
@@ -341,9 +348,16 @@
    "src": "L27068"
   },
   "b2_f": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "They discover their bond feels more like family.",
-   "src": "L27069"
+   "children": [
+    {
+     "next": "b2_f__fx"
+    },
+    {
+     "next": "b2_f__text"
+    }
+   ]
   },
   "c_f": {
    "type": "branch",
@@ -388,6 +402,56 @@
    "name": "Outcome D2",
    "text": "(women1) decides no confession is needed to value the friendship.",
    "src": "L27075"
+  },
+  "b2_m__fx": {
+   "name": "Outcome B2",
+   "text": "They discover their bond feels more like family.",
+   "src": "L27069",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "men1",
+     "mood": "good",
+     "src": "L27069"
+    },
+    {
+     "do": "mood",
+     "role": "men2",
+     "mood": "good",
+     "src": "L27069"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2_m__text": {
+   "name": "Outcome B2",
+   "text": "They discover their bond feels more like family.",
+   "src": "L27069"
+  },
+  "b2_f__fx": {
+   "name": "Outcome B2",
+   "text": "They discover their bond feels more like family.",
+   "src": "L27069",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "women1",
+     "mood": "good",
+     "src": "L27069"
+    },
+    {
+     "do": "mood",
+     "role": "women2",
+     "mood": "good",
+     "src": "L27069"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2_f__text": {
+   "name": "Outcome B2",
+   "text": "They discover their bond feels more like family.",
+   "src": "L27069"
   }
  }
 }

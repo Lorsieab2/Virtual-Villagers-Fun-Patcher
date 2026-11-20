@@ -1,0 +1,296 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger Who Spoke to the Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my109_stranger_spoke",
+  "source": "rewrites",
+  "lines": [
+   16194,
+   16249
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L16194",
+  "ledger": [
+   {
+    "src": "L16195",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16196",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16204",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16211",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16218",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16225",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16199",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16200",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16201",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16202",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16205",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16212",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16219",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16226",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16206",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16208",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16213",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16215",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16220",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16222",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16227",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16229",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16232-16249",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At the edge of the village stands the oldest tree on Isola: an enormous banyan whose roots hang down from its branches like ropes.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the edge of the village stands the oldest tree on Isola: an enormous banyan whose roots hang down from its branches like ropes. Walking past it in the early morning, (name) finds a hooded stranger standing among the hanging roots, both hands pressed flat against the bark as though feeling for a heartbeat, whispering.\nThe stranger hears (name), and turns. \"It has been waiting a very long time for an answer,\" (he/she) says, nodding at the tree. \"Someone needed to ask.\" (He/she) seems to think this is a perfectly reasonable thing to say. (Name) is curious about this peculiar stranger, and wants to know what (he/she) is talking about.",
+   "choices": [
+    {
+     "label": "Ask What Was Said",
+     "next": "c1",
+     "src": "L16199"
+    },
+    {
+     "label": "Listen to the Tree",
+     "next": "c2",
+     "src": "L16200"
+    },
+    {
+     "label": "Offer to Help",
+     "next": "c3",
+     "src": "L16201"
+    },
+    {
+     "label": "Send the Stranger Away",
+     "next": "c4",
+     "src": "L16202"
+    }
+   ],
+   "src": "L16197-16198"
+  },
+  "c1o1": {
+   "text": "\"I asked how to wait,\" the stranger says. \"It answered with a riddle.\" And (he/she) recites it: \"What grows by doing nothing, rests while it works, and is oldest when it begins again?\" (Name) puzzles over it all day. So does half the village. The children decide the answer is \"a seed.\" The elders say \"a year.\" The stranger, asked before (he/she) leaves, only says, \"Both, and the tree.\" (Name) still thinks about it every spring.",
+   "src": "L16207"
+  },
+  "c1o2": {
+   "text": "\"It asked for help,\" the stranger says simply. \"Its roots are choking. Someone should look after them.\" (He/she) points to the base of the tree, where (name) sees for the first time how the roots are buried in rubbish, vines and fallen branches. The stranger walks away down the path. (Name) does not know if the tree really said anything. But (he/she) goes and gets a rake.",
+   "src": "L16209"
+  },
+  "c1": {
+   "text": "\"What did you ask it?\" (name) says. \"And... what did it say?\" The stranger takes (his/her) hands from the bark and smiles...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16205"
+  },
+  "c2o1": {
+   "text": "At first there is only the creak of wood and the rush of wind through the great canopy far above. Then the wind changes, and the sound changes with it, and for a moment it sounds almost like a voice: low and slow, saying something long, in a language (name) does not know. Then it is just the wind again. (Name) steps back. The stranger nods, as if (name) has finally understood something. (Name) is not at all sure that (he/she) has.",
+   "src": "L16214"
+  },
+  "c2o2": {
+   "text": "(Name)'s ear finds a hollow in the trunk, and when (he/she) speaks into it, startled, the tree whispers the words back, slowly, one at a time, from somewhere deep inside. The researchers come running and spend a week studying it. The great banyan, they discover, is hollow almost all the way up, and its curving inner walls carry and bend sound in remarkable ways. They learn a great deal about how sound travels, and the children spend the rest of the season whispering secrets into the tree.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L16216",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) steps in among the hanging roots, feeling very silly, and presses (his/her) own ear to the great trunk. The stranger watches in silence...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16212"
+  },
+  "c3o1": {
+   "text": "(Name) rounds up a dozen villagers, and they spend the whole day around the old banyan, pulling away vines, hauling off dead branches, clearing out rubbish and loosening the packed earth around its roots. By evening, the great roots stand clean and bare in the sun for the first time in generations. The tree looks, somehow, as if it is breathing easier. That season, it grows new leaves all over its oldest branches, and the stranger is seen once more, sitting among the roots, smiling.",
+   "src": "L16221"
+  },
+  "c3o2": {
+   "text": "(Name) clears the worst of the vines from the roots while the stranger watches, nodding. When (name) finally straightens up, sweating, the stranger presses a small leaf-wrapped packet into (his/her) hand. \"From the tree,\" (he/she) says. \"For you.\" Inside are seeds. They are not banyan seeds. They grow, when (name) plants them, into a patch of sweet yams that feed the household for weeks. The stranger is gone before (name) can ask.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L16223",
+   "auto_text": true
+  },
+  "c3": {
+   "text": "\"If the tree needs something,\" (name) says, \"I'll help.\" The stranger looks genuinely delighted...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16219"
+  },
+  "c4o1": {
+   "text": "The stranger bows, takes (his/her) hands from the bark, and walks off quietly, without argument. The tree remains exactly as it was. Nothing happens. The village goes on, and the great banyan goes on standing over it as it always has, roots hanging like ropes. Sometimes, walking past, (name) finds (himself/herself) wondering what the stranger asked it. (He/she) never finds out.",
+   "src": "L16228"
+  },
+  "c4o2": {
+   "text": "The stranger leaves without a word. That night, with no wind at all, a great branch of the old banyan cracks and comes crashing down across the path, right where (name) walks every morning. Nobody is hurt. But the villagers gather around the fallen branch the next day in uneasy silence, and more than one of them wonders aloud whether it was a warning, or an answer.",
+   "src": "L16230"
+  },
+  "c4": {
+   "text": "(Name) does not like strangers whispering to the village's trees. \"That tree belongs to the village,\" (he/she) says firmly. \"Please leave it alone, and move along.\"...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16226"
+  }
+ }
+}

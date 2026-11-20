@@ -74,6 +74,54 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) grabs the other end. Then someone else comes. By evening there are six villagers and a rough little bridge of two logs and some lashed planks. It wobbles. Everyone uses it anyway, and the next day someone adds a handrail, and someone else adds a flower. (subject) is quietly very proud.",
+   "src": "L302",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L302"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L302"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) grabs the other end. Then someone else comes. By evening there are six villagers and a rough little bridge of two logs and some lashed planks. It wobbles. Everyone uses it anyway, and the next day someone adds a handrail, and someone else adds a flower. (subject) is quietly very proud.",
    "src": "L302",
@@ -88,9 +136,34 @@
      "max": 10,
      "src": "L302"
     }
-   ]
+   ],
+   "auto_text": true
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) wants to do it (subject.him/her)self. It takes eight days. When it's finished, it's a single log, slightly rounded on top, and crossing it requires concentration. But nobody's feet get wet. People start calling it \"(subject)'s log,\" and (subject) pretends not to like that and likes it enormously.",
+   "src": "L305",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L305"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L305"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) wants to do it (subject.him/her)self. It takes eight days. When it's finished, it's a single log, slightly rounded on top, and crossing it requires concentration. But nobody's feet get wet. People start calling it \"(subject)'s log,\" and (subject) pretends not to like that and likes it enormously.",
    "src": "L305"

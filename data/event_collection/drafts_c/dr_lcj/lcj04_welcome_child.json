@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Welcome of a New Child",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj04_welcome_child",
+  "source": "draft_lcj",
+  "lines": [
+   50,
+   61
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L50",
+  "ledger": [
+   {
+    "src": "L51",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L57",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L61",
+    "kind": "instruction",
+    "text": "[effect: small Parenting skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L61",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Relatives want to bring blessings, stories and practical gifts to a new adopted child: bring them all at once, or one at a time.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has taken in a small orphaned child from another family on the island. The relatives want to welcome the child properly, with blessings, stories and practical gifts. (friend) says a frightened child might be overwhelmed by everyone at once. How should they welcome the child?",
+   "src": "L53",
+   "choices": [
+    {
+     "label": "All at Once",
+     "next": "o1",
+     "src": "L55"
+    },
+    {
+     "label": "One at a Time",
+     "next": "o2",
+     "src": "L59"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The whole family arrives at once with gifts: a blanket, a carved fish, a song, a basket of fruit. The child hides behind (subject). Then a cousin offers a sweet fruit, and the child comes out, and is passed around and hugged until (other.he/she) falls asleep.",
+   "src": "L57"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Each relative comes on a different day, quietly, with one gift and one story. By the end of the month, the child knows everyone's name and the family's favorite songs. (friend) sings the last one, and the child sings along.",
+   "src": "L61",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L61"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

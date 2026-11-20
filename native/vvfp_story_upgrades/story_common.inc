@@ -221,6 +221,7 @@ static int story_host_running(const story_host *host) {
    `field`: the host keeps the time the game's own next event was due. */
 static void story_island_arming(int game, void *field, unsigned int value) {
     const story_host *host = game >= 1 && game <= 5 ? story_hosts[game] : NULL;
+
     if (host != NULL && host->size > STORY_HOST_RUNNING_SIZE && host->island_arming != NULL) {
         host->island_arming(field, value);
     }
@@ -318,10 +319,19 @@ static int story_parentage_ticked(int game) {
     return memcmp((const void *)(uintptr_t)sites[game], stock[game], 5) != 0;
 }
 
+/* A branching event's couple pregnancy in which the PARTNER carries (story_graph.inc cg_life_effect: the effect
+   allows it, flags bit 3, and the player's setting drew it): set around that one conception, so its record says so
+   ("WriteParentageRecordCarried": "  Note: The partner carries ...").  0 for every other conception. */
+static int story_partner_carries;
+
+typedef int (__stdcall *write_parentage_carried_fn)(int game, const void *records, const void *mother,
+                                                    const void *father, int partner_carries);
+
 static int story_log_conception(int game, const void *records, const void *mother,
                                 const void *father) {
     static int state;                 /* 0 = not tried, 1 = resolved, -1 = unavailable */
     static write_parentage_fn write_record;
+    static write_parentage_carried_fn write_carried;
     if (!story_parentage_ticked(game)) {
         return 0;
     }
@@ -331,6 +341,8 @@ static int story_log_conception(int game, const void *records, const void *mothe
         if (module != NULL) {
             write_record = (write_parentage_fn)GetProcAddress(module,
                                                               "WriteParentageRecordWithFather");
+            write_carried = (write_parentage_carried_fn)(void *)GetProcAddress(module,
+                                                                                "WriteParentageRecordCarried");
             if (write_record != NULL) {
                 state = 1;
             }
@@ -338,6 +350,9 @@ static int story_log_conception(int game, const void *records, const void *mothe
     }
     if (state != 1) {
         return 0;
+    }
+    if (story_partner_carries && write_carried != NULL) {
+        return write_carried(game, records, mother, father, 1);
     }
     return write_record(game, records, mother, father);
 }
@@ -369,5 +384,15 @@ static int story_log_conception(int game, const void *records, const void *mothe
 
 /* ---- Text into a game string table entry -------------------------------- */
 
-static char ce_title_text[CE_TITLE_BYTES];
+static char ce_title_text[CE_LONG_LINE_BYTES * 4];   /* a library event's title, names filled in, may be long */
 static char ce_body_text[2048];
+/* One popup (native/shared/one_popup.h): the whole text shown, of which the dialog's field holds the start when it
+   is longer than the field (Scrolling Popups asks VvfpPopupWholeText for it). */
+static char su_long_text[CE_LONG_BUF];
+static op_long_text su_whole;
+static const char *su_title_whole;   /* a library event's plain popup: its title whole (story_graph.inc), once */
+
+/* su_long_text into a dialog's text field of `bytes` (NUL included): whole when it fits, else its start. */
+static void su_put_long(char *field, int bytes) {
+    op_long_text_put(&su_whole, field, bytes, su_long_text);
+}

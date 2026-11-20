@@ -79,14 +79,40 @@
    "src": "L6310"
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "They discover how light and fractures can mislead the eye; the child gains curiosity, not shame.",
-   "src": "L6312"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
    "text": "The supposedly worthless glass becomes the village's most talked-about pendant.",
    "src": "L6314"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "They discover how light and fractures can mislead the eye; the child gains curiosity, not shame.",
+   "src": "L6312",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L6312"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "They discover how light and fractures can mislead the eye; the child gains curiosity, not shame.",
+   "src": "L6312"
   }
  }
 }

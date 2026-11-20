@@ -1,0 +1,298 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Box of Little Storms",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my085_box_storms",
+  "source": "rewrites",
+  "lines": [
+   14802,
+   14857
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14802",
+  "ledger": [
+   {
+    "src": "L14803",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14804",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14812",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14819",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14826",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14833",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14807",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14808",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14809",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14810",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14813",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14820",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14827",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14834",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14814",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14816",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14821",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14823",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14828",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14830",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14835",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14837",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14840-14857",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Little a villager comes running home clutching a painted box covered in lightning bolts and waves.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Little (subject) comes running home clutching a painted box covered in lightning bolts and waves. \"Look! Look inside! There are storms in it!\" (friend) peers in. Nothing. Just an empty wooden box. But when (subject) looks in, (subject.his/her) face lights up. \"There! See them spinning? Little clouds, going round and round! One just flashed!\"\n(friend) looks again. Nothing. (subject) looks. \"They're right there!\" It seems the tiny clouds only appear when a child is looking, and vanish the moment any grown-up glances inside. (friend) is not sure whether to be charmed or very worried. Should (subject) be allowed to keep it?",
+   "choices": [
+    {
+     "label": "Let the Child Describe It",
+     "next": "c1",
+     "src": "L14807"
+    },
+    {
+     "label": "Examine the Box",
+     "next": "c2",
+     "src": "L14808"
+    },
+    {
+     "label": "Open It Outdoors",
+     "next": "c3",
+     "src": "L14809"
+    },
+    {
+     "label": "Store It Safely",
+     "next": "c4",
+     "src": "L14810"
+    }
+   ],
+   "src": "L14805-14806",
+   "text_only": [
+    {
+     "src": "L14806",
+     "what": "\"vanish\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "\"There's a big grey one, and two little white ones, and they're chasing each other, and the big one keeps going flash! and the little ones squeak.\" (subject) describes it in such vivid detail that (friend) can almost see it. By evening, (subject) has shown it to every child on the street. By the end of the week, every child in the village claims to have seen a tiny thunderstorm, and the box of little storms has become a whole village legend, complete with songs.",
+   "src": "L14815"
+  },
+  "c1o2": {
+   "text": "(subject) frowns into the box. \"Well... actually... they're kind of just dust,\" (subject.he/she) says. \"In the light. From the window. When you move the box they swirl.\" (subject.He/she) tilts it to show (friend), and sure enough, specks of dust spin in a beam of sunlight. (subject) looks a little disappointed, then brightens. \"But they look like storms!\" (friend) agrees that they definitely do.",
+   "src": "L14817"
+  },
+  "c1": {
+   "text": "(friend) sits down on the floor beside (subject). \"All right. Tell me exactly what you see.\" (subject) peers into the box, tongue poking out in concentration...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14813"
+  },
+  "c2o1": {
+   "text": "A researcher presses one of the painted lightning bolts, and a hidden drawer clicks open in the bottom, full of a very fine silvery powder. When the box is moved, a little puffs up through tiny holes in the floor and swirls in the air, catching the light like tiny glinting clouds, but only when seen from low down, at a child's height. The researchers are fascinated by the clever design and the strange powder, and spend days studying them. (subject) is allowed to keep the box, and is extremely smug about it.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L14822",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They find nothing. No secret drawers, no hidden powder, no clever tricks. Just a plain, painted wooden box. The researchers give it back, shrugging. The moment (subject) gets it back and peers inside, (subject.his/her) face lights up again. \"They're back! They were hiding!\" The researchers exchange a long look, and decide not to write anything down about this one.",
+   "src": "L14824"
+  },
+  "c2": {
+   "text": "(friend) borrows the box \\(over loud protests\\) and takes it to the researchers, who turn it over and over, tapping and prodding and sniffing it...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14820"
+  },
+  "c3o1": {
+   "text": "WHOOSH! A sudden gust of wind sweeps across the square from nowhere, scattering leaves, knocking over a basket of washing, whipping a hat off an elder's head and sending a chicken tumbling end over end. Then it is gone, and the air is perfectly still. Everyone in the square stares at the box. (subject) peers inside. \"They're gone,\" (subject.he/she) says, a little sadly. \"I think they wanted to go out and play.\" The elder is still looking for (subject.his/her) hat.",
+   "src": "L14829"
+  },
+  "c3o2": {
+   "text": "A soft, sweet-smelling mist curls up out of the box, like the air after a summer rain, and drifts gently away across the square. Everyone it touches smiles without quite knowing why. Then the box is empty, even when (subject) looks. (subject) is sad for a moment, but the square smells wonderful for the rest of the day, and (subject) decides the little storms have gone off to rain on something that needed it.",
+   "src": "L14831"
+  },
+  "c3": {
+   "text": "\"If there are storms in there,\" (friend) says, \"they'd probably like some fresh air.\" They carry the box out into the middle of the square, and (subject) solemnly lifts the lid all the way open...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14827"
+  },
+  "c4o1": {
+   "text": "The box sits on the shelf for years. (subject) asks about it constantly at first, then less, then forgets about it altogether. Then one day, when (subject) is nearly grown, (friend) takes it down and hands it to (subject.him/her). (subject) looks inside, and sees nothing at all, and is surprised by how much (subject.he/she) minds. (subject.He/she) keeps it anyway, and gives it to (subject.his/her) own first child.",
+   "src": "L14836"
+  },
+  "c4o2": {
+   "text": "In the morning, the box is gone from the shelf. Where it sat there is a ring, wet and cold, that smells of rain, though the roof has not leaked and it has not rained in days. Nobody took it. The door was shut. (subject) is heartbroken for a whole day, and then announces that the storms must have been homesick and taken their box with them. (friend) cannot think of a better explanation.",
+   "src": "L14838"
+  },
+  "c4": {
+   "text": "(friend) decides that a box of storms, real or not, is not a toy. (subject.He/she) promises (subject) it will be kept safe, and puts it up on the highest shelf in the hut...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14834"
+  }
+ }
+}

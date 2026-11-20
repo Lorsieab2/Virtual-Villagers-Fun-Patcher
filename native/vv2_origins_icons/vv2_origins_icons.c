@@ -2388,10 +2388,17 @@ void __stdcall Vv2MaskSweep(unsigned char *base) {
 /* exe-callable early restore.  Resolves the record array itself; with no
    village loaded the snapshot is empty, nothing can match, and the table is
    simply left cleared -- the same fail-closed result as every other path. */
-typedef unsigned char *(__stdcall *vv2_restore_record_array_fn)(void);
+/* The village object (the record array) the getter 0x44F4E0 keeps at 0x499F24, or 0 before it is built: read, never
+   the getter, which builds it -- and this companion's hooks run inside that object's constructor (the init hook at
+   0x44C5E6), where the getter would build it again without end (the New Believers start-up crash, 2026-11-18). */
+#define VV2_RECORD_ARRAY_WORD 0x00499F24u
+static unsigned char *vv2_record_array(void) {
+    return *(unsigned char *volatile *)(UINT_PTR)VV2_RECORD_ARRAY_WORD;
+}
+
 void __stdcall Vv2MaskRestore(void) {
     unsigned int cur[VV2_RECORD_COUNT];
-    unsigned char *base = ((vv2_restore_record_array_fn)0x0044F4E0)();
+    unsigned char *base = vv2_record_array();
     int i;
     if (base == 0) {
         for (i = 0; i < VV2_RECORD_COUNT; ++i) cur[i] = 0;
@@ -3361,9 +3368,6 @@ static int vv2_apply_caf(unsigned char *base) {
 
 #define VV2_CAF_COST 450000
 #define VV2_TECH_BALANCE_OFFSET 0x2EADC   /* int tech-point balance in the player obj */
-#define VV2_RECORD_ARRAY_FN     0x0044F4E0 /* stock getter: returns certified record array */
-
-typedef unsigned char *(__stdcall *vv2_record_array_fn)(void);
 
 /* player = the Tech-menu player object (exe passes EDI).  Derives the tech-point
    balance (+0x2EADC) and the certified record array (the stock getter the exe's
@@ -3379,7 +3383,7 @@ int __stdcall ShowVV2AppearanceForAll(void *player) {
     char done[320];
     if (player == 0) return 0;
     tech = (int *)((unsigned char *)player + VV2_TECH_BALANCE_OFFSET);
-    base = ((vv2_record_array_fn)VV2_RECORD_ARRAY_FN)();
+    base = vv2_record_array();
     if (base == 0) return 0;
     caf_body[0] = caf_head[0] = caf_mask[0] = -1;
     caf_body[1] = caf_head[1] = caf_mask[1] = -1;

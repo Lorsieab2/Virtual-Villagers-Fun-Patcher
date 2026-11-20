@@ -90,8 +90,16 @@
    ]
   },
   "b1": {
-   "text": "The masters later discover the child was right.",
-   "src": "L9067-9069"
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "text": "The patient recovers but the apprentice loses confidence.",
@@ -104,7 +112,8 @@
      "max": 30,
      "src": "L9067"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "text": "An elder apologizes and offers mentorship.",
@@ -123,6 +132,23 @@
      "next": "b3"
     }
    ]
+  },
+  "b1__fx": {
+   "text": "The masters later discover the child was right.",
+   "src": "L9067-9069",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L9067-9069"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "text": "The masters later discover the child was right.",
+   "src": "L9067-9069"
   }
  },
  "grammar_fixes": [

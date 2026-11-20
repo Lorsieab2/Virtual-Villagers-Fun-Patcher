@@ -70,12 +70,28 @@
   "a": {
    "name": "Answer A",
    "text": "The newcomer helps repair nets and slowly builds trust.",
-   "src": "L6434"
+   "src": "L6434",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult",
+     "src": "L6434"
+    }
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Answer B",
    "text": "The visitor agrees to shared rules but keeps personal history private.",
-   "src": "L6436"
+   "src": "L6436",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult",
+     "src": "L6436"
+    }
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Answer C",

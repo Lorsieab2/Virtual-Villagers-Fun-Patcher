@@ -203,7 +203,8 @@
      "loss": true,
      "src": "L9293"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_a": {
    "type": "branch",
@@ -223,11 +224,14 @@
    ]
   },
   "b1": {
-   "text": "Explorers discover an old wreck with more impossible objects.",
-   "src": "L9296",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
     }
    ]
   },
@@ -285,11 +289,14 @@
    ]
   },
   "c2": {
-   "text": "A researcher records the discovery despite an order of silence.",
-   "src": "L9303",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
     }
    ]
   },
@@ -407,7 +414,8 @@
      "what": "empty the village stores",
      "reason": "a large food loss, never below zero"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "coda_p8": {
    "popup": "append",
@@ -486,6 +494,60 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "b1__fx": {
+   "text": "Explorers discover an old wreck with more impossible objects.",
+   "src": "L9296",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9296"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "text": "Explorers discover an old wreck with more impossible objects.",
+   "src": "L9296",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "c2__fx": {
+   "text": "A researcher records the discovery despite an order of silence.",
+   "src": "L9303",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9303"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "text": "A researcher records the discovery despite an order of silence.",
+   "src": "L9303",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   }
  }
 }

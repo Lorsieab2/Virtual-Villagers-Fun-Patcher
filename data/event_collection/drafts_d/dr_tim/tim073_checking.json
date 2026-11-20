@@ -122,9 +122,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(Name1), a builder, checks the bindings on a bundle of poles. Someone remembers a different method and demonstrates it.",
-   "src": "L1223"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -132,14 +139,59 @@
    "src": "L1227"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "(Name1), a builder, checks the bindings on a bundle of poles. A small victory makes (Name1) eager to practice again.",
-   "src": "L1231"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "(Name1), a builder, checks the bindings on a bundle of poles. (Name1) keeps losing track of which loop comes next.",
    "src": "L1235"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), a builder, checks the bindings on a bundle of poles. Someone remembers a different method and demonstrates it.",
+   "src": "L1223",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1223"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1), a builder, checks the bindings on a bundle of poles. Someone remembers a different method and demonstrates it.",
+   "src": "L1223"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1), a builder, checks the bindings on a bundle of poles. A small victory makes (Name1) eager to practice again.",
+   "src": "L1231",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1231"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1), a builder, checks the bindings on a bundle of poles. A small victory makes (Name1) eager to practice again.",
+   "src": "L1231"
   }
  }
 }

@@ -93,9 +93,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The family eats and offers thanks, though the fisher remains troubled.",
-   "src": "L21260"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -142,6 +149,51 @@
    "src": "L21266"
   },
   "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The family eats and offers thanks, though the fisher remains troubled.",
+   "src": "L21260",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "fisher",
+     "mood": "bad",
+     "src": "L21260"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The family eats and offers thanks, though the fisher remains troubled.",
+   "src": "L21260"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "Fishers help record breeding seasons before agreeing on a rule.",
+   "src": "L21267",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L21267"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "Fishers help record breeding seasons before agreeing on a rule.",
    "src": "L21267"

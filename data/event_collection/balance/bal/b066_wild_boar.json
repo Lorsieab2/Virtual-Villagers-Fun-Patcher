@@ -1,0 +1,254 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wild Boar",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b066_wild_boar",
+  "source": "balance",
+  "lines": [
+   2978,
+   3019
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2978",
+  "ledger": [
+   {
+    "src": "L2979",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2980",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2988",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2997",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2985",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2986",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2989",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2998",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2991",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2994",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3000",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3003",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3006-3019",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A wild boar has been raiding the gardens for a week: tearing up taro, flattening the beans and charging anyone who comes near.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 16
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A wild boar has been raiding the gardens for a week: tearing up taro, flattening the beans and charging anyone who comes near. The farmers are at their wits' end. (Name) has agreed to drive it off, with a fence of sharpened stakes and a lot of noise.\nAt dusk, (name) is waiting by the garden when the boar comes out of the trees. It's bigger than (he/she) expected, as big as a small canoe, and it stops, and lowers its head, and looks right at (him/her).\nShould (name) stand (his/her) ground and shout, or climb the nearest tree?",
+   "choices": [
+    {
+     "label": "Stand and Shout",
+     "next": "c1",
+     "src": "L2985"
+    },
+    {
+     "label": "Climb the Tree",
+     "next": "c2",
+     "src": "L2986"
+    }
+   ],
+   "src": "L2981-2983"
+  },
+  "c1o1": {
+   "text": "The boar crashes through the stakes, catches (name) with a tusk, and is gone into the trees. The healers stitch the wound, and it heals, but (name)'s leg is never strong again. (He/She) walks with a carved stick afterwards, and doesn't run anywhere, ever. But the boar never comes back to the gardens, and the farmers bring (name) the first of every harvest.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "running",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L2992",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Three steps from (name), the boar swerves, crashes through the stakes and bolts back into the forest, squealing. It never comes back. (Name) stands there with (his/her) pots raised, shaking, then sits down very suddenly in the beans. The farmers find (him/her) there, still holding the pots, and carry (him/her) home like a hero.",
+   "src": "L2995"
+  },
+  "c1": {
+   "text": "(Name) bangs two pots together and yells at the top of (his/her) lungs. The boar paws the ground, snorts, and charges...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2989"
+  },
+  "c2o1": {
+   "text": "The boar waits all night. Near dawn, (name) dozes off, and the branch (he/she) is on gives way. (He/She) lands badly, the boar flees at the noise, and (name)'s back is hurt in a way that never fully heals. (He/She) walks stiffly ever after, and the village builds (him/her) a raised bed so (he/she) needn't bend. (He/She) still goes to the garden every morning, to sit by the fence and glare at the forest.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c2o1_c1"
+    }
+   ],
+   "src": "L3001",
+   "text_only": [
+    {
+     "src": "L3001",
+     "what": "\"flees\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The boar gets bored by midnight and wanders off. (Name) climbs down at dawn, stiff and cold and covered in ant bites. (He/She) used to love running through the forest after tracks. After a night up a tree with a boar underneath, the thrill of running anywhere is gone. (He/She) leaves the boars to the fishers' dogs from then on.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "running",
+     "role": "subject"
+    }
+   ],
+   "src": "L3004",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) scrambles up the nearest tree just as the boar thunders past underneath. It circles the trunk, grunting, and settles down to wait...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2998"
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  }
+ }
+}

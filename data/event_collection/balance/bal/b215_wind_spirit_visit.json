@@ -1,0 +1,216 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wind Spirit's Visit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b215_wind_spirit_visit",
+  "source": "balance",
+  "lines": [
+   9992,
+   10035
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9992",
+  "ledger": [
+   {
+    "src": "L9993",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9994",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10002",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10011",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9999",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10000",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10003",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10012",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10005",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10008",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10014",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10017",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10020-10035",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A little whirlwind has been wandering round the village all morning.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A little whirlwind has been wandering round the village all morning. It is no taller than a child, and it picks up leaves and dust and feathers and spins them round and round, and it seems to be looking at things. It went into the cooking hut and came out with a spoon. It has been round every hut, poking at the thatch.\n(elder) says it's a wind spirit, a young one, and that it's looking for a home. \"If we make it welcome, it will look after the roofs,\" (subject.he/she) says. \"If we make it cross, it will take them.\" (subject) is standing in its path, and it has stopped in front of (subject.him/her), spinning.\nShould (subject) welcome it, or chase it out of the village?",
+   "choices": [
+    {
+     "label": "Welcome It",
+     "next": "c1",
+     "src": "L9999"
+    },
+    {
+     "label": "Chase It Out",
+     "next": "c2",
+     "src": "L10000"
+    }
+   ],
+   "src": "L9995-9997"
+  },
+  "c1o1": {
+   "text": "The whirlwind goes from hut to hut, spinning on every roof, and where it passes, the loose thatch is tucked back in and the holes are filled with leaves woven so tightly they won't let in a drop. By evening every roof in the village is mended. It settles in the top of the tallest palm, and on windy nights the village can hear it humming.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L10006",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The whirlwind goes from hut to hut, and the villagers follow it, and wherever it stops and spins, they find a loose post or a hole in the thatch, and fix it. By evening every hut is mended, and everyone has learned something about where roofs go wrong. The whirlwind is gone in the morning, but the roofs stay fixed.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L10009",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) bows to the little whirlwind and says the old words of welcome. The whirlwind spins faster, delighted, and drops the spoon at (subject.his/her) feet...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10003"
+  },
+  "c2o1": {
+   "text": "The whirlwind gets very cross. It swells up, taller than a hut, and tears the roof off (subject)'s hut and throws it into the jungle, and knocks (subject) flat on (subject.his/her) back, and whirls away over the hill. (subject) has a cut on (subject.his/her) head and no roof. \"I did say,\" says (elder).",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L10015",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The whirlwind sinks down, drops all its leaves and feathers in a sad little heap, and drifts away towards the beach. (subject) feels a bit mean about it. That night, the spoon is found back in the cooking hut. Nobody saw it come back.",
+   "src": "L10018"
+  },
+  "c2": {
+   "text": "(subject) waves (subject.his/her) arms and shouts at the whirlwind, and some of the children join in, flapping mats at it. The whirlwind stops spinning for a moment...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10012"
+  }
+ }
+}

@@ -109,6 +109,32 @@
    "src": "L518"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) sits beside (subject.him/her) and tells a quiet story about a turtle who slept in a different shell every night and found every one of them a bit strange and a bit nice. Halfway through, (subject) lies down. By the end, (subject.he/she) is asleep. In the morning (subject.he/she) announces that (subject.he/she) wasn't scared at all.",
+   "src": "L521",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L521"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) sits beside (subject.him/her) and tells a quiet story about a turtle who slept in a different shell every night and found every one of them a bit strange and a bit nice. Halfway through, (subject) lies down. By the end, (subject.he/she) is asleep. In the morning (subject.he/she) announces that (subject.he/she) wasn't scared at all.",
    "src": "L521"

@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forest or the Houses",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci35_forest_houses",
+  "source": "draft_lci",
+  "lines": [
+   484,
+   495
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L484",
+  "ledger": [
+   {
+    "src": "L485",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a builder and a farmer)"
+   },
+   {
+    "src": "L491",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L491",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L495",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L495",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village needs timber for new huts, but the nearest grove is the last of a rare tree: cut it, or haul timber from far away.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Five young families need huts. (subject), a builder, says the grove on the ridge has the straightest timber on the island. (friend) says those are the last silverbark trees anywhere, and once they are gone, they are gone. The far forest has plenty of ordinary wood, three days' haul away. What should the village do?",
+   "src": "L487",
+   "choices": [
+    {
+     "label": "Cut the Grove",
+     "next": "o1",
+     "src": "L489"
+    },
+    {
+     "label": "Haul From Far Away",
+     "next": "o2",
+     "src": "L493"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The silverbark is cut. The huts are the finest ever built. The ridge is bare. Years later, (subject) finds one silverbark seedling growing from an old stump, and builds a little fence around it.",
+   "src": "L491",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L491"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village hauls ordinary timber for a month. It is back-breaking. The huts are fine. The silverbark grove stands. (friend) plants new silverbark seedlings at its edge, to make it a little less the last.",
+   "src": "L495",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L495"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

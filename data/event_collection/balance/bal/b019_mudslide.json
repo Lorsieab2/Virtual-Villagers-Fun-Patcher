@@ -1,0 +1,256 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mudslide",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b019_mudslide",
+  "source": "balance",
+  "lines": [
+   843,
+   885
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L843",
+  "ledger": [
+   {
+    "src": "L844",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L845",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L853",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L862",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L850",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L851",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L854",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L863",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L856",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L859",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L865",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L868",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L871-885",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "After a week of rain, the hillside above the village gave way in the night.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "After a week of rain, the hillside above the village gave way in the night. A tongue of red mud has slid right down between the huts, burying gardens, knocking two huts off their posts and leaving everything that smells of wet earth and broken roots.\nNobody was hurt, by some miracle. But (subject), the best builder, is standing ankle-deep in mud looking at the hill, where a long crack has opened just below the ridge.\nShould (subject) get the huts rebuilt first, or dig a channel to drain the hillside before it slides again?",
+   "choices": [
+    {
+     "label": "Rebuild the Huts First",
+     "next": "c1",
+     "src": "L850"
+    },
+    {
+     "label": "Drain the Hillside",
+     "next": "c2",
+     "src": "L851"
+    }
+   ],
+   "src": "L846-848"
+  },
+  "c1o1": {
+   "text": "By nightfall both huts are back on their posts, and the families are sleeping dry. The rain stops the next day, and the hill holds. \"Lucky,\" says one of the elders, looking at the crack. \"Lucky,\" says (subject), already sketching the drainage channel on a slab of bark. It gets dug that week anyway, and nobody complains about the work.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L857",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "While they're working, the crack opens wider, and a second slide comes down. Everyone scrambles clear, except (friend), who is pinned by a fallen post until the others can dig (friend.him/her) out. (friend.His/Her) hip mends badly. (friend.He/She) walks with a cane afterwards, and can't stand on a ladder again. But (friend.he/she) has the best eye for a straight wall in the village, and soon (friend.he/she) is the one telling the builders where to put their posts.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -40,
+     "max": -40
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L860",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) gets every builder to work, digging posts out of the mud, straightening walls, re-tying thatch. People need somewhere dry to sleep tonight...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L854"
+  },
+  "c2o1": {
+   "text": "It takes two days of muddy, back-breaking digging, but when the next rain comes, the water runs off along the channel and into the stream instead of into the hill. The crack doesn't move. Then they all come down and fix the huts, faster than anyone expected, because the three diggers have learned a great deal about mud, slopes and posts. They will tell anyone about it, at length.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "skills": [
+      "Building"
+     ],
+     "target": {
+      "random": 3
+     }
+    },
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L866",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The channel works, and the hill holds. But the two families sleep in the storehouse for a week while it's dug, and the storehouse is where the food is. By the time the huts are fixed, a surprising amount of it has been eaten, sat on, or knocked into the mud by children. Nobody begrudges it. Still, the cooks keep counting the baskets with a pained look.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L869",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) takes three villagers up the hill with digging sticks and baskets, and they start cutting a channel along the slope, just above the crack, to carry the water away to the stream...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L863"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "wood",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

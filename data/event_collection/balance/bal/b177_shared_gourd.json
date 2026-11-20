@@ -1,0 +1,206 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shared Gourd",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b177_shared_gourd",
+  "source": "balance",
+  "lines": [
+   8197,
+   8241
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8197",
+  "ledger": [
+   {
+    "src": "L8198",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8199",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8207",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8216",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8204",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8205",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8208",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8217",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8210",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8213",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8219",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8222",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8225-8241",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At the top of the mountain there is a spring that the elders call the Spring of Understanding.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the top of the mountain there is a spring that the elders call the Spring of Understanding. They say that two people who drink from it out of the same gourd will \"understand each other completely.\" Couples go up there. Friends go up there. Every so often, two people go up there and come down very strangely.\n(subject) and (friend) have climbed up together on a dare, sweating and laughing, with one gourd between them. Now they are standing at the spring, and it is very quiet, and the water is so clear it seems not to be there at all.\nShould they drink from the same gourd, or each drink from their own hands?",
+   "choices": [
+    {
+     "label": "Share the Gourd",
+     "next": "c1",
+     "src": "L8204"
+    },
+    {
+     "label": "Drink From Their Own Hands",
+     "next": "c2",
+     "src": "L8205"
+    }
+   ],
+   "src": "L8200-8202"
+  },
+  "c1o1": {
+   "text": "They understand each other completely. From the inside. (subject) is looking out of (friend)'s eyes, and (friend) is looking out of (subject)'s, and both of them sit down on the rock very suddenly. \"Oh,\" says (friend), in (subject)'s voice. \"That's what they meant by strangely.\" They walk down the mountain very slowly, in each other's legs. There is no undoing it.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L8211",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They swap bodies, and with that, they understand exactly why the other one is the way they are: the aches, the habits, the small fears. By the bottom of the mountain they are calmer than either has ever been. \"I'm sorry about the knee,\" says (subject). \"I'm sorry about the stomach,\" says (friend). A few things that used to bother them stop bothering them.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L8214",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) fills the gourd and drinks half, and hands it to (friend), who drinks the rest. The water tastes of cold stone and nothing else. They look at each other, waiting for something...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8208"
+  },
+  "c2o1": {
+   "text": "The water is cold and clean and nothing happens. They sit by the spring as the sun goes down, talking about nothing much, and walk down in the dark, still talking. It turns out they understand each other a lot better than they thought, without any help.",
+   "src": "L8220"
+  },
+  "c2o2": {
+   "text": "On the way down in the dusk, (subject) slips on a wet rock and falls a long way down the slope. (friend) climbs down after (subject.him/her) and carries (subject.him/her) the rest of the way on (friend.his/her) back, which takes all night. They understand each other completely by morning, without the spring.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L8223",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"Let's not be silly,\" says (friend). They kneel at the spring and drink out of their own cupped hands, side by side, and sit back on their heels...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8217"
+  }
+ }
+}

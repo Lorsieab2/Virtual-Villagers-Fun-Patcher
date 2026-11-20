@@ -64,14 +64,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) goes over. It's awkward at first. They don't know what to say. Then (name1) mentions the time they got stuck up the big tree, and the old friend laughs, and for a while it's almost like it used to be. Almost. They're different people now. They part warmly. They might talk again, or they might not. Either is alright.",
-   "src": "L350"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) doesn't go over. (He/she) thinks about all the things they did together, and feels a little sad, and a little grateful. Not every friendship has to last forever to have mattered. That one mattered a lot. (He/she) waves again, next time (he/she) sees them, and means it. That's what's left, and it's not nothing.",
    "src": "L353"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) goes over. It's awkward at first. They don't know what to say. Then (name1) mentions the time they got stuck up the big tree, and the old friend laughs, and for a while it's almost like it used to be. Almost. They're different people now. They part warmly. They might talk again, or they might not. Either is alright.",
+   "src": "L350",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L350"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) goes over. It's awkward at first. They don't know what to say. Then (name1) mentions the time they got stuck up the big tree, and the old friend laughs, and for a while it's almost like it used to be. Almost. They're different people now. They part warmly. They might talk again, or they might not. Either is alright.",
+   "src": "L350"
   }
  }
 }

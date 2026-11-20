@@ -147,9 +147,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "Their knowledge of ropework earns appreciation.",
-   "src": "L30870"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -199,6 +206,25 @@
    "name": "Outcome D2",
    "text": "They never discuss the scar and are still fully welcomed.",
    "src": "L30877"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Their knowledge of ropework earns appreciation.",
+   "src": "L30870",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "newcomer",
+     "mood": "good",
+     "src": "L30870"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "Their knowledge of ropework earns appreciation.",
+   "src": "L30870"
   }
  }
 }

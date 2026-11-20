@@ -64,14 +64,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) picks a few flowers and leaves them on the step, without knocking. It's not an apology; (he/she) made that years ago. It's not a thank-you exactly. It's just a way of saying (he/she) hasn't forgotten what it meant. (He/she) doesn't know if they'll understand. (He/she) walks on, feeling a little lighter.",
-   "src": "L422"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) doesn't do anything. (He/she) just stands there for a moment, remembering how it felt to be forgiven when (he/she) didn't expect to be. It changed (him/her). (He/she) is more careful now. Slower to blame other people. Quicker to say sorry. (He/she) walks on. The person inside the hut never knows (he/she) stopped.",
    "src": "L425"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) picks a few flowers and leaves them on the step, without knocking. It's not an apology; (he/she) made that years ago. It's not a thank-you exactly. It's just a way of saying (he/she) hasn't forgotten what it meant. (He/she) doesn't know if they'll understand. (He/she) walks on, feeling a little lighter.",
+   "src": "L422",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L422"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) picks a few flowers and leaves them on the step, without knocking. It's not an apology; (he/she) made that years ago. It's not a thank-you exactly. It's just a way of saying (he/she) hasn't forgotten what it meant. (He/she) doesn't know if they'll understand. (He/she) walks on, feeling a little lighter.",
+   "src": "L422"
   }
  }
 }

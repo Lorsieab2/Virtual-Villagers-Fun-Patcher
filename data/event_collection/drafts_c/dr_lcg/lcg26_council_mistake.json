@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Council's Mistake",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg26_council_mistake",
+  "source": "draft_lcg",
+  "lines": [
+   358,
+   369
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L358",
+  "ledger": [
+   {
+    "src": "L359",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L365",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L365",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L369",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The council punished a villager who turned out to be innocent: admit it publicly, or quietly make it up to them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Last month the council took (friend)'s fishing rights away for a season for damaging the fish weir. Now it turns out a storm broke the weir, not (friend). (subject), one of the council, has found out. Admitting it means the council looks foolish. What should (subject) do?",
+   "src": "L361",
+   "choices": [
+    {
+     "label": "Admit It Publicly",
+     "next": "o1",
+     "src": "L363"
+    },
+    {
+     "label": "Quietly Make It Up",
+     "next": "o2",
+     "src": "L367"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells the whole village that the council was wrong and (friend) did nothing. (friend) gets the rights back, and extra fish from every crew. The council looks foolish. It also looks honest. Both last.",
+   "src": "L365",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L365"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) quietly restores (friend)'s rights and brings (friend.him/her) fish every day. (friend) is grateful, and also angry that nobody will say out loud that (friend.he/she) was innocent. Some villagers still think (friend.he/she) broke the weir.",
+   "src": "L369"
+  }
+ }
+}

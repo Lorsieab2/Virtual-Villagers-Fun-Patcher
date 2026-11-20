@@ -55,7 +55,6 @@
   "parent": {
    "kind": "villager",
    "min_age": 18,
-   "sex": "female",
    "special": "nursing_parent"
   }
  },

@@ -1,0 +1,211 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visitor with the Enormous Hat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s015_visitor_enormous",
+  "source": "rewrites",
+  "lines": [
+   678,
+   721
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L678",
+  "ledger": [
+   {
+    "src": "L679",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L680",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L687",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L696",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L684",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L685",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L688",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L697",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L690",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L693",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L699",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L702",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L705-721",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A traveller arrives one afternoon by canoe, and the first thing anyone notices is their hat.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A traveller arrives one afternoon by canoe, and the first thing anyone notices is their hat. It is the biggest hat anyone has ever seen. It has feathers. It has shells. It has small living ferns growing out of the top, and something on the brim that might be a nest. The children run along the shore beside the canoe all the way in, just to stare at it.\nThe traveller is friendly and tired, eats with the village, tells stories about islands nobody has heard of, and sleeps by the fire. At dawn (he/she) packs up to leave. (Name) is the one who walks (him/her) down to the beach, and as the traveller bends to push the canoe off, the hat wobbles alarmingly, and something in the nest cheeps. (Name)'s curious about this peculiar traveller, and wants to interact with (him/her) before (he/she) leaves.",
+   "choices": [
+    {
+     "label": "Trade Something for the Hat",
+     "next": "c1",
+     "src": "L684"
+    },
+    {
+     "label": "Ask Where (He/She) Is Going",
+     "next": "c2",
+     "src": "L685"
+    }
+   ],
+   "src": "L681-682"
+  },
+  "c1o1": {
+   "text": "\"Your best basket,\" says the traveller. (Name) runs all the way back to the village and all the way back to the beach with it, and the traveller hands over the hat with great ceremony. It's wonderful. It's enormous. It's surprisingly heavy. The nest, it turns out, is occupied by a very small, very cross bird, which has no intention of moving out. (Name) wears it anyway. (He/She) wears it to work, to dinner and to bed, and over the season adds feathers to (his/her) clothes to match. The bird stays. It sings every morning, right in (name)'s ear. (Name) decides to name it \"Sweetie\".",
+   "effects": [
+    {
+     "do": "appearance",
+     "body": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L691",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The traveller laughs and pats the hat fondly. \"Oh no. I can't part with this. This hat and I have been through too much together.\" But (he/she) rummages in the bottom of the canoe and brings out a bundle wrapped in oiled leaves. \"Take these instead. I've no more use for them.\" Inside are clever little tools of bone and stone and shell, some that the village has never seen before: a hook that folds, a tiny saw, a thing with a spiral in it that nobody can work out. The researchers work out the spiral thing in a week, and are very excited about it. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L694",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "\"I'll give you anything for that hat,\" (name) blurts out, before (he/she) can stop (himself/herself). The traveller straightens up slowly, one hand on the brim, and gives (name) a long, measuring look...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L688"
+  },
+  "c2o1": {
+   "text": "\"Somewhere else,\" says the traveller, which is not very helpful. Then (he/she) smiles and hauls a heavy bag out of the canoe and drops it on the sand at (name)'s feet. \"For the road you aren't taking,\" (he/she) says, and pushes off. Something in the hat waves goodbye on its own as the canoe rides over the first wave. The bag is full of strange dried food: fish rolled in spices, hard little cakes, fruit nobody can name. It lasts the village a long time. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L700",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "\"Somewhere else,\" says the traveller. Then (he/she) stops pushing the canoe. (He/She) looks back up the beach at the village, where the cooking smoke is rising and the children are already running down to wave. (He/She) looks at the empty sea. \"Although,\" (he/she) says slowly, \"I've been to a great many somewhere elses.\" (He/She) pulls the canoe back up the sand. The traveller decides that this village is nicer than somewhere else, and stays, tipping (his/her) hat to (name).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L703",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"Where are you going, anyway?\" asks (name). The traveller stops, the canoe halfway into the water, and looks out at the horizon for a long moment, as if (he/she) has never really thought about it...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L697"
+  }
+ }
+}

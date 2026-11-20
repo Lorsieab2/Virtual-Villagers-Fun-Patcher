@@ -75,7 +75,6 @@
   "mother": {
    "kind": "villager",
    "min_age": 18,
-   "sex": "female",
    "special": "nursing_parent"
   },
   "helper": {
@@ -88,11 +87,11 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "Several relatives offer conflicting advice to (mother), a nursing mother, who is already exhausted.",
+   "text": "Several relatives offer conflicting advice to (mother), a nursing (mother.mother/father), who is already exhausted.",
    "src": "L30447",
    "choices": [
     {
-     "label": "Ask Which Advice She Actually Wants",
+     "label": "Ask Which Advice (mother.He/She) Actually Wants",
      "next": "a",
      "src": "L30448"
     },
@@ -127,12 +126,12 @@
   },
   "a1": {
    "name": "Outcome A1",
-   "text": "She chooses one trusted helper and feels less crowded.",
+   "text": "(mother.He/She) chooses one trusted helper and feels less crowded.",
    "src": "L30449"
   },
   "a2": {
    "name": "Outcome A2",
-   "text": "She says she wants company, not instruction, and the relatives adjust.",
+   "text": "(mother.He/She) says (mother.he/she) wants company, not instruction, and the relatives adjust.",
    "src": "L30450"
   },
   "b": {
@@ -148,13 +147,66 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "Someone brings water and prepares a meal while she rests.",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Someone brings water and prepares a meal while (mother.he/she) rests.",
+   "src": "L30452",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "mother",
+     "min": 15,
+     "max": 30,
+     "src": "L30452"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "Someone brings water and prepares a meal while (mother.he/she) rests.",
    "src": "L30452"
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "(helper) takes over a household chore, giving her a peaceful hour.",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "(helper) takes over a household chore, giving (mother.him/her) a peaceful hour.",
+   "src": "L30453",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "mother",
+     "mood": "good",
+     "src": "L30453"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "(helper) takes over a household chore, giving (mother.him/her) a peaceful hour.",
    "src": "L30453"
   },
   "c": {
@@ -171,7 +223,7 @@
   },
   "c1": {
    "name": "Outcome C1",
-   "text": "(helper) answers her question without judging her choices.",
+   "text": "(helper) answers (mother.his/her) question without judging (mother.his/her) choices.",
    "src": "L30455"
   },
   "c2": {
@@ -200,7 +252,7 @@
   },
   "d1": {
    "name": "Outcome D1",
-   "text": "The relatives apologize for overwhelming her.",
+   "text": "The relatives apologize for overwhelming (mother.him/her).",
    "src": "L30458"
   },
   "d2": {

@@ -77,6 +77,38 @@
    "src": "L50"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) opens (subject.his/her) mouth to argue, then looks at the empty pot and starts to laugh. \"We've been together long enough to forget the same thing at the same time,\" (subject.he/she) says. (friend) laughs too. They go out together, find a neighbor with spare fish, and trade a basket of mangoes for it. From then on, they carve a mark on the doorpost on fish days. They still forget sometimes.",
+   "src": "L53",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L53"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L53"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) opens (subject.his/her) mouth to argue, then looks at the empty pot and starts to laugh. \"We've been together long enough to forget the same thing at the same time,\" (subject.he/she) says. (friend) laughs too. They go out together, find a neighbor with spare fish, and trade a basket of mangoes for it. From then on, they carve a mark on the doorpost on fish days. They still forget sometimes.",
    "src": "L53"

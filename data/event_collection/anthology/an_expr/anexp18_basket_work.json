@@ -173,9 +173,16 @@
    "src": "L31530"
   },
   "c2": {
+   "type": "branch",
    "name": "Outcome C2",
-   "text": "(elder) shares a stronger stitch.",
-   "src": "L31531"
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
   },
   "d": {
    "type": "branch",
@@ -198,6 +205,25 @@
    "name": "Outcome D2",
    "text": "(owner) wants to preserve the basket as a keepsake.",
    "src": "L31534"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "(elder) shares a stronger stitch.",
+   "src": "L31531",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L31531"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "(elder) shares a stronger stitch.",
+   "src": "L31531"
   }
  }
 }

@@ -67,10 +67,15 @@
   },
   "e1": {
    "name": "Outcome 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Discover a rare plant structure.",
-   "src": "L2901"
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -85,6 +90,29 @@
    "join": "paragraph",
    "text": "Catalog a new harmless species.",
    "src": "L2903"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Discover a rare plant structure.",
+   "src": "L2901",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L2901"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Discover a rare plant structure.",
+   "src": "L2901"
   }
  }
 }

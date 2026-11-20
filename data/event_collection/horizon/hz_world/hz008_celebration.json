@@ -140,9 +140,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The musicians perform a deliberately mistimed entrance; the crowd laughs.",
-   "src": "L117"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -155,6 +162,25 @@
      "src": "L118"
     }
    ]
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The musicians perform a deliberately mistimed entrance; the crowd laughs.",
+   "src": "L117",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L117"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The musicians perform a deliberately mistimed entrance; the crowd laughs.",
+   "src": "L117"
   }
  }
 }

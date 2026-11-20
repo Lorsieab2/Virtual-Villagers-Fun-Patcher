@@ -74,6 +74,32 @@
    "src": "L170"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) tells, in a solemn whisper, of a fish so small that it lived in a single drop of water, and once got lost in a raindrop for a whole season. The crowd goes quiet, then delighted. (subject) concedes. \"Small,\" (subject.he/she) mutters. \"Never thought of small.\" Next year (subject.he/she) comes back with a fish so small it's invisible.",
+   "src": "L173",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L173"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) tells, in a solemn whisper, of a fish so small that it lived in a single drop of water, and once got lost in a raindrop for a whole season. The crowd goes quiet, then delighted. (subject) concedes. \"Small,\" (subject.he/she) mutters. \"Never thought of small.\" Next year (subject.he/she) comes back with a fish so small it's invisible.",
    "src": "L173"

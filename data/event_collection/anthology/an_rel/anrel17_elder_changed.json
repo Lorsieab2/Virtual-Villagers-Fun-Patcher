@@ -150,9 +150,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "(elder) smiles to hear the new name spoken.",
-   "src": "L27260"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -194,14 +201,14 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "(elder) enjoys a warm celebration.",
-   "src": "L27266",
-   "text_only": [
+   "children": [
     {
-     "what": "\"celebration\"",
-     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
-     "src": "L27266"
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
     }
    ]
   },
@@ -231,6 +238,58 @@
    "name": "Outcome D2",
    "text": "(elder) asks that only the new name be used from now on.",
    "src": "L27270"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(elder) smiles to hear the new name spoken.",
+   "src": "L27260",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L27260"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(elder) smiles to hear the new name spoken.",
+   "src": "L27260"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(elder) enjoys a warm celebration.",
+   "src": "L27266",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L27266"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L27266"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(elder) enjoys a warm celebration.",
+   "src": "L27266",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L27266"
+    }
+   ]
   }
  }
 }

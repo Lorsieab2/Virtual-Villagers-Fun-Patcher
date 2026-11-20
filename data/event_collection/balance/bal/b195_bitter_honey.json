@@ -1,0 +1,328 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bitter Honey",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b195_bitter_honey",
+  "source": "balance",
+  "lines": [
+   9049,
+   9093
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9049",
+  "ledger": [
+   {
+    "src": "L9050",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9051",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9059",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9068",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9056",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9057",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9060",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9069",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9062",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9065",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9071",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9074",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9077-9093",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager loves honey more than anyone in the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "gatherer": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) loves honey more than anyone in the village. (subject.He/She) climbs trees for it, braves bees for it, and has been known to trade a week's fish for one small pot of it. So when (subject.he/she) finds a hive this morning in a hollow tree by the swamp, dripping with dark, almost black honey, (subject.he/she) can't believe (subject.his/her) luck.\n(gatherer), the oldest gatherer, takes one look at it and shakes (subject.his/her) head. \"Swamp bees,\" (subject.he/she) says. \"They feed on the grey flowers. That honey takes the sweetness out of things. Not just your mouth.\" (subject) has never heard of it. It smells wonderful.\nShould (subject) taste the dark honey?",
+   "choices": [
+    {
+     "label": "Taste It",
+     "next": "c1",
+     "src": "L9056"
+    },
+    {
+     "label": "Leave It",
+     "next": "c2",
+     "src": "L9057"
+    }
+   ],
+   "src": "L9052-9054"
+  },
+  "c1o1": {
+   "text": "By evening (subject)'s sense of taste comes back. But the joy doesn't. Food is just food now, honey included. (subject.He/She) eats when (subject.he/she) is hungry and stops when (subject.he/she) is full, and never once again trades a week's fish for a pot of honey. (gatherer) is sorry to be right. (subject)'s family are, secretly, a little relieved about the fish.",
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L9063",
+   "text_only": [
+    {
+     "src": "L9063",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "The dark honey takes away the sweetness of food, and of other things too. (subject) used to love running through the forest after the bees. Now (subject.he/she) just walks, and lets them go. \"It takes the sweetness out of things,\" (gatherer) says quietly. \"I did say.\" The hive is smoked out and burned the next day.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "running",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L9066",
+   "text_only": [
+    {
+     "src": "L9066",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) dips one finger into the comb and licks it. It's sweet. Then it's bitter. Then it's nothing at all, as if (subject.his/her) tongue has gone to sleep...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9060"
+  },
+  "c2o1": {
+   "text": "On the way home, sulking, (subject) walks into a cloud of ordinary bees, follows them out of pure habit, and finds an ordinary hive full of ordinary golden honey. (subject.He/She) gets stung four times and doesn't care. \"There,\" says (gatherer), when (subject.he/she) comes home sticky. \"That's honey.\" Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L9072",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) tells everyone about the dark honey, as a warning. (friend) hears only the word \"honey,\" goes straight to the swamp, and eats a whole handful of comb. By the next morning (friend) doesn't care about food at all, and the cooks are deeply offended. (subject) feels terrible about it for a week.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L9075",
+   "text_only": [
+    {
+     "src": "L9075",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(subject) looks at the dark honey for a very long time. Then (subject.he/she) sighs, and turns away, and walks home without even a taste. It's the hardest thing (subject.he/she) has done all year...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9069"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "eating",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "eating",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "like": "eating"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

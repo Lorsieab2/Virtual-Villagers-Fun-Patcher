@@ -149,7 +149,8 @@ class TheRecordsListEveryWordToo(unittest.TestCase):
     def test_every_list_has_room(self):
         self.assertIn("#define PREFERENCE_TEXT_MAX 1024", self.source)
         self.assertNotRegex(self.source, r"char \w*likes\[64\]")
-        self.assertIn("#define RECORD_TEXT_MAX (2048 + 4 * PREFERENCE_TEXT_MAX)", self.source)
+        # Room for four full lists, and (2026-11-17) 4 KB more for a Custom Island Event's own cause words.
+        self.assertIn("#define RECORD_TEXT_MAX (2048 + 4 * PREFERENCE_TEXT_MAX + 4096)", self.source)
 
     def test_one_export_says_it_and_island_events_asks_only_that(self):
         self.assertNotIn("VillagePreferenceText(", self.source)

@@ -90,7 +90,8 @@
      "max": 10,
      "src": "L6672"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Answer B",
@@ -112,7 +113,8 @@
      "max": 10,
      "src": "L6676"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

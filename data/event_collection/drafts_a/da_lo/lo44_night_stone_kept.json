@@ -71,9 +71,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "They sit close together with the stone cupped in their hands between them. Slowly, it begins to warm. Then to glow. By midnight it's as warm as a small fire, and they are dry, and the cave is full of soft red light. They talk until dawn. In the morning the storm is over, the stone is cold and cracked, and both of them walk home safe. Neither of them ever forgets that night.",
-   "src": "L540"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -94,7 +101,33 @@
      "max": -10,
      "src": "L543"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "They sit close together with the stone cupped in their hands between them. Slowly, it begins to warm. Then to glow. By midnight it's as warm as a small fire, and they are dry, and the cave is full of soft red light. They talk until dawn. In the morning the storm is over, the stone is cold and cracked, and both of them walk home safe. Neither of them ever forgets that night.",
+   "src": "L540",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L540"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L540"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "They sit close together with the stone cupped in their hands between them. Slowly, it begins to warm. Then to glow. By midnight it's as warm as a small fire, and they are dry, and the cave is full of soft red light. They talk until dawn. In the morning the storm is over, the stone is cold and cracked, and both of them walk home safe. Neither of them ever forgets that night.",
+   "src": "L540"
   }
  }
 }

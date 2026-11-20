@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Song for the Stars",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb07_song_stars",
+  "source": "draft_lcb",
+  "lines": [
+   92,
+   103
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks three adults)"
+   },
+   {
+    "src": "L99",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L99",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L103",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A researcher, a storyteller and a believer each explain the night sky: let each speak, or let them argue it out.",
+  "label_case": "title",
+  "cast_only": [
+   "friend",
+   "third"
+  ],
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A researcher, a storyteller and a villager of faith each explain the night sky: let each speak, or let them argue it out."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "On the clearest night of the year, the village gathers to watch the stars. (subject), who studies them, says they are fires very far away. (friend), the storyteller, says each one is a canoe on its way home. (third) says they are watched over by something nobody can see. The children want to know which is true. What should the village do?",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Let Each One Speak",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Let Them Argue It Out",
+     "next": "o2",
+     "src": "L101"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Each of them takes a turn. (subject) shows how the stars move across the sky in a pattern. (friend) tells the story of the canoes. (third) speaks quietly about the watchers. The children decide all three can be true at once, and go to sleep under the stars. Nobody corrects them.",
+   "src": "L99",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L99"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The three of them argue happily until the stars fade. (subject) has evidence, (friend) has better stories, and (third) has a way of asking questions that makes the other two stop and think. Nobody wins. The children fall asleep long before the end.",
+   "src": "L103"
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

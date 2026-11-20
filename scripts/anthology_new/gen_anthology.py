@@ -209,8 +209,8 @@ def age_spec(spec: str) -> dict:
         m = re.fullmatch(r"(\d+)-(\d+)", a)
         assert m, spec
         out = {"kind": "villager", "min_age": int(m.group(1)), "max_age": int(m.group(2))}
-    if sex:
-        out["sex"] = sex
+    if sex and not nursing:
+        out["sex"] = sex          # a carrier takes no sex: only villagers born female are cast (the owner, 2026-11-16)
     if nursing:
         out["special"] = "nursing_parent"
     return out
@@ -574,7 +574,7 @@ def main() -> int:
     paths = []
     for p, doc in docs:
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(cc.canonical(doc), encoding="utf-8", newline="\n")
+        p.write_text(cc.canonical(cc.with_outcome_effects(lib.carrier_words(doc), p)), encoding="utf-8", newline="\n")   # the owner, 2026-11-16
         paths.append(str(p))
     rc = subprocess.call([sys.executable, str(ROOT / "scripts" / "collection_check.py"), "--format", *paths])
     return rc or (1 if problems else 0)

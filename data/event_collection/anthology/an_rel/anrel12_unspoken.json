@@ -164,14 +164,28 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(villager) discovers an unexpected talent.",
-   "src": "L27188"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "(villager) finds the work less enjoyable than imagined.",
-   "src": "L27189"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -186,9 +200,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "(villager) becomes versatile and content.",
-   "src": "L27191"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -216,6 +237,63 @@
    "name": "Outcome D2",
    "text": "(mentor) suggests a trial period before committing.",
    "src": "L27195"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(villager) discovers an unexpected talent.",
+   "src": "L27188",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L27188"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(villager) discovers an unexpected talent.",
+   "src": "L27188"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "(villager) finds the work less enjoyable than imagined.",
+   "src": "L27189",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "bad",
+     "src": "L27189"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "(villager) finds the work less enjoyable than imagined.",
+   "src": "L27189"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(villager) becomes versatile and content.",
+   "src": "L27191",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L27191"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(villager) becomes versatile and content.",
+   "src": "L27191"
   }
  }
 }

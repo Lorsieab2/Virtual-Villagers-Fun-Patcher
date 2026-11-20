@@ -97,9 +97,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The group invents an adviser that confidently misidentifies every bird; everyone laughs, then discusses error.",
-   "src": "L304"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -127,6 +134,25 @@
    "name": "Outcome C2",
    "text": "The philosopher wonders whether some decisions should never be delegated; the debate continues past sunset.",
    "src": "L308"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The group invents an adviser that confidently misidentifies every bird; everyone laughs, then discusses error.",
+   "src": "L304",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L304"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The group invents an adviser that confidently misidentifies every bird; everyone laughs, then discusses error.",
+   "src": "L304"
   }
  }
 }

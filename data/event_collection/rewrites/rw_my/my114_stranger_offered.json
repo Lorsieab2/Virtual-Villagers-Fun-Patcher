@@ -1,0 +1,326 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger Who Offered a Choice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my114_stranger_offered",
+  "source": "rewrites",
+  "lines": [
+   16484,
+   16539
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L16484",
+  "ledger": [
+   {
+    "src": "L16485",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16486",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16494",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16501",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16508",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16515",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16489",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16490",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16491",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16492",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16495",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16502",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16509",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16516",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16496",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16498",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16503",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16505",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16510",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16512",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16517",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16519",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16522-16539",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Choose one, the stranger says.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) wakes at midnight to find a cloaked stranger standing outside (his/her) door in the moonlight. Without a word, the stranger kneels and sets three things on the ground in a row: a sealed bottle of dark green glass, a small chest bound with iron, and a bowl so plain it almost seems to vanish in the moonlight.\n\"Choose one,\" the stranger says. \"Only one. Whatever you choose is yours.\" The stranger's face is hidden in the hood. The moon is very bright. And the three gifts sit on the ground between them, waiting. Which should (name) choose?",
+   "choices": [
+    {
+     "label": "Take the Bottle",
+     "next": "c1",
+     "src": "L16489"
+    },
+    {
+     "label": "Take the Chest",
+     "next": "c2",
+     "src": "L16490"
+    },
+    {
+     "label": "Take the Bowl",
+     "next": "c3",
+     "src": "L16491"
+    },
+    {
+     "label": "Refuse All Gifts",
+     "next": "c4",
+     "src": "L16492"
+    }
+   ],
+   "src": "L16487-16488",
+   "text_only": [
+    {
+     "src": "L16487",
+     "what": "\"vanish\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "A rich, sweet fragrance fills the air, like flowers and resin and warm earth. The bottle is full of a golden oil. (Name) takes it to the healers in the morning, who sniff it, dab it, and test it carefully, and find that it soothes aching joints and burns better than anything they have. They use it sparingly, a drop at a time, and it lasts for years. The old villagers with stiff knees and bad backs bless (name)'s name every winter.",
+   "src": "L16497"
+  },
+  "c1o2": {
+   "text": "A thick, sweet-smelling mist pours out of the bottle and straight into (name)'s face before (he/she) can turn away. (He/she) coughs and stumbles back, and by morning (he/she) is in bed with a pounding head and a burning fever. The healers keep (him/her) there for several days on rest and broth. When (he/she) finally recovers, the bottle is empty, and smells of nothing at all. (Name) throws it into the sea.",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "subject"
+    }
+   ],
+   "src": "L16499",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) reaches for the green bottle. It is cool and heavy in (his/her) hand. The stranger nods once, gathers up the chest and the bowl, and is gone. (Name) works the wax seal loose, and pulls out the stopper...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16495"
+  },
+  "c2o1": {
+   "text": "Inside, packed in dry straw, is a set of old tools: chisels, a drill, a strange curved saw, and a fine little hammer, all beautifully made and still sharp. With them is a bundle of bark sheets covered in drawings showing exactly how to use each one, and what to build with them. The builders and researchers are thrilled, and within a season they have learned new ways of working wood and stone that nobody on the island knew before.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L16504",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Inside is grain: sacks and sacks of it, packed tight. (Name) is delighted for about a breath. Then the smell hits. The grain is mouldy and spoiled through, crawling with weevils. Worse, by the time (name) realizes it, (he/she) has already stacked it in the village storehouse, and the weevils have spread into the good stores beside it. The villagers have to throw out a fair amount of food. (Name) is not popular for a while.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L16506",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) chooses the iron-bound chest. It is heavy, and something shifts inside it. The stranger nods, gathers up the other two gifts, and is gone. (Name) drags the chest inside and pries open the lid...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16502"
+  },
+  "c3o1": {
+   "text": "For days, nothing happens. The bowl is just a bowl. Then, one morning, (name) leaves it under the mango tree while (he/she) works in the garden, and when (he/she) comes back, it is heaped with fresh, ripe fruit. (He/she) empties it. The next morning, it is full again. It only works under a tree, (name) discovers, and only once a day, but it never fails. (Name) shares the fruit with everyone, and the bowl becomes the most precious thing in the household.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L16511",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The bowl remains empty, day after day. It is just a plain, ordinary bowl. Then (name) notices that a struggling family down the path has nothing to eat from but a cracked old shell. (He/she) gives them the bowl. The family uses it every day for years, for every meal, and never knows where it came from. (Name) never regrets the choice. (He/she) suspects, in fact, that it might have been the right one all along.",
+   "src": "L16513"
+  },
+  "c3": {
+   "text": "(Name) looks at the gleaming bottle and the heavy chest, and then picks up the plain bowl. The stranger seems to smile under the hood, gathers the other two gifts, and is gone into the dark...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16509"
+  },
+  "c4o1": {
+   "text": "The stranger is silent for a moment. Then, under the hood, (name) sees a smile, a warm and genuine one. The stranger picks up the three gifts, bows deeply, and walks off down the path in the moonlight, without the slightest complaint. (Name) goes back to bed, and sleeps better than (he/she) has in months. (He/she) never does learn what was in the chest.",
+   "src": "L16518"
+  },
+  "c4o2": {
+   "text": "\"Then your choice,\" the stranger says, \"is your own.\" And between one breath and the next, the stranger, the bottle, the chest and the bowl are all simply gone, vanished into the dark as if they had never been. There is not even a mark on the ground where they sat. (Name) stands alone in the moonlight in (his/her) sleeping wrap, and thinks about that sentence for a very long time.",
+   "src": "L16520",
+   "text_only": [
+    {
+     "src": "L16520",
+     "what": "\"vanished\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c4": {
+   "text": "(Name) looks at the three gifts for a long time. Then (he/she) shakes (his/her) head. \"Thank you,\" (he/she) says. \"But I don't want any of them.\"...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16516"
+  }
+ }
+}

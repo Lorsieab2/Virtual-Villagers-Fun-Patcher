@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Walker in the Fog",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b081_walker_fog",
+  "source": "balance",
+  "lines": [
+   3657,
+   3698
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3657",
+  "ledger": [
+   {
+    "src": "L3658",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3659",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3667",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3676",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3664",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3665",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3668",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3677",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3670",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3673",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3679",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3682",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3685-3698",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A sea fog has rolled over the village so thick that people are holding onto each other's shoulders to get from hut to hut.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A sea fog has rolled over the village so thick that people are holding onto each other's shoulders to get from hut to hut. (Name) has gone down to check the canoes, and on the beach (he/she) sees a figure walking slowly along the waterline, carrying a lamp that gives off a greenish light.\nThe fishers have a story about a lamp-carrier in the fog: an old fisher who drowned long ago and still walks the beach, looking for the way home. They say whoever follows the light will find what they've lost. They also say some people never come back to tell what they found.\nShould (name) follow the light, or call out to it?",
+   "choices": [
+    {
+     "label": "Follow the Light",
+     "next": "c1",
+     "src": "L3664"
+    },
+    {
+     "label": "Call Out to It",
+     "next": "c2",
+     "src": "L3665"
+    }
+   ],
+   "src": "L3660-3662"
+  },
+  "c1o1": {
+   "text": "When the fog lifts, the fishers find (name)'s footprints going along the beach, a long way, and then turning straight into the sea. Beside them, only one other set of prints, very old and very faint. They search the reef and the shore for days. (Name) never comes back to tell what (he/she) found. On foggy nights after that, the fishers put a lamp of their own on the beach.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L3671",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The light leads (name) round the whole bay and back to the village, and stops at (his/her) own door, and goes out. (Name) stands there a long time. Inside, on the floor, is the shell bracelet (he/she) lost a year ago. (He/She) never follows a light in the fog again, but (he/she) wears the bracelet every day.",
+   "src": "L3674"
+  },
+  "c1": {
+   "text": "(Name) walks after the green lamp, along the wet sand, further and further, until the village sounds are gone and there is only the hiss of the waves and the lamp swinging ahead...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3668"
+  },
+  "c2o1": {
+   "text": "The lamp comes so close (name) can feel the cold of it, and behind it is nothing but fog. Then it goes out. When (name) gets home, (his/her) family stares: (his/her) hair has gone grey at the temples, and there are lines round (his/her) eyes that weren't there at supper. (He/She) feels the same. (He/She) just looks like someone who has seen something.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L3680",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The lamp comes closer, and turns out to be held by one of the young fishers, who has been out checking the nets and stuffed green leaves round the lamp to keep the wind off it. The fisher nearly drops it on seeing (name). They walk home together, laughing too loudly.",
+   "src": "L3683"
+  },
+  "c2": {
+   "text": "\"Who's there?\" (name) shouts. The lamp stops. Slowly, it turns, and comes back along the beach towards (him/her), the green light growing...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3677"
+  }
+ }
+}

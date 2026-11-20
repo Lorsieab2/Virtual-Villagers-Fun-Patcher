@@ -37,16 +37,18 @@ ROWS = {
     "vv1": {
         "description": (
             "When you drop an adult (18 or older) on a child (under 18), the adult now tells the child a "
-            "story instead of trying to embrace, as in the later Virtual Villagers games. The adult shows "
-            "\"Telling a story\" and talks for a little while, and each story gives the adult one ordinary "
-            "Breeding practice roll (A New Home's name for Parenting), with the game's own chance and "
-            "amount. The child shows \"Listening to a story\" and waits where it is until the story is "
-            "over, like a villager listening to a joke. " + COMMON_TAIL
+            "story instead of trying to embrace, as in the later Virtual Villagers games. The adult and the "
+            "child first walk together to the centre of the village; there the adult shows \"Telling a "
+            "story\" and tells it with the researching animation (without the research sound), and each "
+            "story gives the adult one ordinary Breeding practice roll (A New Home's name for Parenting), "
+            "with the game's own chance and amount. The child shows \"Listening to a story\" and listens "
+            "until the story is over. " + COMMON_TAIL
         ),
         "behavior_changes": [
             "In the drop handler's villager-on-villager case, where the stock game gives the villager under the mouse \"Waiting for someone\" (0x425291: 0x4454B0) and the dropped villager \"Embracing\" (0x4252B9: 0x445510), a drop of a villager aged 18 or older (age 360+) on a villager who is alive (health above 0) and under 18 (age below 360, age 0 included) tells a story instead, to that very villager; the handler then continues after its villager-on-villager case (0x4252BE).",
-            "The child's steps are cleared and it gets the label \"Listening to a story\" (written in the game's language: English, German, Spanish or French) and two standing waits in place of 10-19 and 13-22, the lengths The Lost Children's listener (0x44A0E0) waits.",
-            "The adult's steps are cleared and it gets the game's own \"Telling a story\" label (string 0xA7) and The Lost Children's storyteller steps (0x449F40) in A New Home's equivalents, without the walks to that game's storytelling spot: talking pose (step 15, 3/3), wait 3, gesture 3-10, pose (3/0), wait 3-5, one Breeding practice (step 6, skill 2: 0x43D440, the stock chance, amount and failure handling), gesture 3-10, wait 3-7.",
+            "The story's spot is picked in the box the game's own \"Going to village center\" uses (0x447AD8: x 3*(rand(0x50)+0x106), y 3*(rand(0x50)+0xC8)), x narrowed to 3*(rand(0x40)+0x106) so the child's spot, 0x30 to the right, stays inside it (the owner, 2026-11-17, skill practice item 24: the child and the adult walk to the centre of the village).",
+            "The child's steps are cleared and it gets the label \"Listening to a story\" (written in the game's language: English, German, Spanish or French), a walk to its spot (step 3, the game's normal speed 0x64, which the game raises for children), a turn to face the adult (step 15, 2/2), two standing waits of 10-19 and 13-22, the lengths The Lost Children's listener (0x44A0E0) waits, and one more of 15-24 while the adult, who walks more slowly, finishes.",
+            "The adult's steps are cleared and it gets the game's own \"Telling a story\" label (string 0xA7), a walk to the spot (step 3, speed 0x64), a turn to face the child (step 15, 1/1) and the story told with the researching animation -- step 7, the gesture Researching (0x442C10) shows -- for the same lengths as before: gesture 3, gesture 3-10, gesture 3-5, one Breeding practice (step 6, skill 2: 0x43D440, the stock chance, amount and failure handling), gesture 3-10, gesture 3-7. Researching's sound is a step of its own (0x12, a looping emitter) and is never queued; nothing of Researching's tech points or lab accident (step 0xE) is copied.",
         ],
         "explicit_non_changes": [
             "This row changes no executable bytes: \"VVFP Startup.dll\" starts the DLL as the game opens, and it detours 0x425291 only after verifying those nine bytes and the first bytes of every routine a story calls; a different build of the game installs nothing.",

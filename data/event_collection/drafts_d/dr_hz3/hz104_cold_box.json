@@ -141,14 +141,40 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The village digs a cool pit in the shade, and fish last a little longer.",
-   "src": "L303"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The pit floods in the next rain, and the cook goes back to the drying racks.",
    "src": "L304"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The village digs a cool pit in the shade, and fish last a little longer.",
+   "src": "L303",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L303"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The village digs a cool pit in the shade, and fish last a little longer.",
+   "src": "L303"
   }
  }
 }

@@ -1,0 +1,255 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Long Illness",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s068_long_illness",
+  "source": "rewrites",
+  "lines": [
+   3212,
+   3255
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3212",
+  "ledger": [
+   {
+    "src": "L3213",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3214",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3222",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3231",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3219",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3220",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3223",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3232",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3225",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3228",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3234",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3237",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3240-3255",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has been ill for weeks now.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has been ill for weeks now. The fever comes and goes like the tide: one day (subject.he/she) can sit up and eat a little soup and talk, and the next (subject.he/she) is burning hot, shivering under every blanket, and doesn't know where (subject.he/she) is.\n(subject.His/her) hut smells of bitter tea and burnt herbs. Visitors come and leave bowls of soup by the door, and talk quietly, and go away again with worried faces.\nThe healers have tried everything they know, and some things they don't. Now (healer), the oldest healer, has come with two ideas. There's an old remedy, very strong, that nobody has used in years: it might work, or it might be too much. Or they can simply let (subject) rest, and keep (subject.him/her) warm, and wait. What should the healers do?",
+   "choices": [
+    {
+     "label": "Try the Old Remedy",
+     "next": "c1",
+     "src": "L3219"
+    },
+    {
+     "label": "Rest and Wait",
+     "next": "c2",
+     "src": "L3220"
+    }
+   ],
+   "src": "L3215-3217"
+  },
+  "c1o1": {
+   "text": "The old remedy works. Not all at once. But the next morning the fever is a little lower, and the morning after that, lower still, and on the fifth day (subject) sits up by (subject.himself/herself) and asks, in a perfectly ordinary voice, whether there's anything to eat. Everybody who hears it bursts into tears. Within a fortnight (subject) is back at work, thinner and paler but grinning, and (healer) writes the recipe for the old remedy down very carefully, so it's never forgotten again.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "src": "L3226",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The remedy breaks the fever. But it's a hard, cruel thing to drink, and it takes a great deal out of (subject) to fight it off. (subject) gets better, slowly, over a whole season. But (subject.he/she) is never as strong as before. (subject.He/She) gets tired quickly now, and (subject.his/her) hands shake when (subject.he/she) lifts anything heavy, and there are deep lines on (subject.his/her) face that weren't there before. Work that used to be easy is hard, and then too hard. (subject) is alive, and the village is so glad of that. But (subject.he/she) comes to dread the work (subject.he/she) once did without thinking.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -50,
+     "max": -50,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "work",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L3229",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(healer) spends a whole day making it, grinding roots and boiling bark and muttering over the pot. It's thick and black and smells like a swamp. (subject) drinks it, one bitter spoonful at a time, and then lies back, and the whole village waits...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3223"
+  },
+  "c2o1": {
+   "text": "(subject) rests, and waits, and sleeps, and the village waits with (subject.him/her). And then one morning, with no warning at all, (subject) wakes up well. Just like that. The fever is gone, the shaking has stopped, and (subject.his/her) eyes are clear. (subject.He/She) looks around at the person dozing beside the bed, and at the soup bowls stacked by the door, and says, \"How long was I asleep?\" The answer is nearly a month. (subject) is so hungry (subject.he/she) eats every bowl of soup in the hut.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "src": "L3235",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) rests, and waits. And eventually, the fever goes. But it takes something with it. (subject) is left weak and tired, for good. (subject.His/her) face looks older, (subject.his/her) steps are slower, and (subject.his/her) mind, which used to be so quick, gets foggy and tired whenever (subject.he/she) tries to think hard about anything. Learning new things wears (subject.him/her) out completely. (subject) does what (subject.he/she) can, and is grateful, mostly, to be alive.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L3238",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "The village decides not to risk it. They keep (subject) warm and quiet. They take turns sitting with (subject.him/her), day and night, holding (subject.his/her) hand, wiping (subject.his/her) face with cool cloths, and singing soft songs when (subject.he/she) can't sleep...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3232"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "learning",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

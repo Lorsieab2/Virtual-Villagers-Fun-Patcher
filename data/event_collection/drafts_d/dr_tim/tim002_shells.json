@@ -99,14 +99,14 @@
    "src": "L31"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "A family gathers to decorate lanterns with shells and colored fibers. The warm glow makes the ordinary evening feel like a celebration.",
-   "src": "L35",
-   "text_only": [
+   "children": [
     {
-     "what": "\"celebration\"",
-     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
-     "src": "L35"
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
     }
    ]
   },
@@ -119,6 +119,39 @@
    "name": "Ending 4",
    "text": "A family gathers to decorate lanterns with shells and colored fibers. For a little while, everyone forgets how tiring the day has been.",
    "src": "L43"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "A family gathers to decorate lanterns with shells and colored fibers. The warm glow makes the ordinary evening feel like a celebration.",
+   "src": "L35",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
+     "src": "L35"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L35"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "A family gathers to decorate lanterns with shells and colored fibers. The warm glow makes the ordinary evening feel like a celebration.",
+   "src": "L35",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
+     "src": "L35"
+    }
+   ]
   }
  }
 }

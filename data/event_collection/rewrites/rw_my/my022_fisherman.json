@@ -1,0 +1,307 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fisherman's Impossible Catch",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my022_fisherman",
+  "source": "rewrites",
+  "lines": [
+   11113,
+   11168
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11113",
+  "ledger": [
+   {
+    "src": "L11114",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11115",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11124",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11131",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11138",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11145",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11119",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11120",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11121",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11122",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11125",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11132",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11139",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11146",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11126",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11128",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11133",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11135",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11140",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11142",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11147",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11149",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11152-11168",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L11143",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "Instead, tangled in the mesh, is a sealed wooden chest bound in iron bands, dripping with seaweed.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has been out fishing since dawn, and when (he/she) finally hauls in the net, it's so heavy (he/she) nearly goes over the side. No fish. Instead, tangled in the mesh, is a sealed wooden chest bound in iron bands, dripping with seaweed.\n(Name) drags it into the canoe and paddles for shore, puffing. As (he/she) pulls it up onto the sand, something inside knocks. Knock. Knock. Knock. Slow and polite, like a guest at a door. (Name) stares at it. The chest is far too small for a person. What should (he/she) do?",
+   "choices": [
+    {
+     "label": "Open the Chest",
+     "next": "c1",
+     "src": "L11119"
+    },
+    {
+     "label": "Return It to the Water",
+     "next": "c2",
+     "src": "L11120"
+    },
+    {
+     "label": "Take It to the Village",
+     "next": "c3",
+     "src": "L11121"
+    },
+    {
+     "label": "Wait for the Knocking",
+     "next": "c4",
+     "src": "L11122"
+    }
+   ],
+   "src": "L11116-11117"
+  },
+  "c1o1": {
+   "text": "Inside, packed in wax, are beautiful bone fishhooks, sharp as the day they were made, and a chart drawn on sharkskin. It shows the reefs around Isola in amazing detail, and it marks shoals of fish that no living fisher has ever found. The knocking? A loose hook rattling against the side. The fishers try one of the marked spots the very next morning, and they come home singing. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11127",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The chest is empty except for a soaked, folded letter. The ink has run, but (name) can still make out a few lines. Whoever wrote it is asking the finder to remember a name, just one name, so that it isn't lost. The name is still legible. (Name) says it aloud on the beach, and then again at supper, and the village carves it on a post by the shore so it won't be forgotten.",
+   "src": "L11129"
+  },
+  "c1": {
+   "text": "(Name) pries at the rusty clasp with a fish knife until, with a squeal, the lid pops open...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11125"
+  },
+  "c2o1": {
+   "text": "The chest bobs away, and (name) watches it go. Then (he/she) realizes something. The current is running toward the shore. The chest is floating the other way, steadily, out toward the open sea, as if something is pulling it. It doesn't come back.",
+   "src": "L11134"
+  },
+  "c2o2": {
+   "text": "At dawn, the chest is back on the beach, right where (name) first dragged it up. There's a fresh rope knotted around its handle now, new, dry and neatly tied. The knocking has stopped. (Name) leaves it exactly where it is and walks home without looking back.",
+   "src": "L11136"
+  },
+  "c2": {
+   "text": "(Name) doesn't like the sound of that knocking one bit. (He/She) drags the chest back down to the waves and shoves it out to sea...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11132"
+  },
+  "c3o1": {
+   "text": "In the village, the builders crack it open \\(empty, as it turns out, the knocking being a loose iron band\\) and fix it up good as new. It becomes the sturdiest storage box in the village, and the healers keep their best herbs in it. Every now and then, someone swears they hear a knock. Nobody ever finds where it comes from.",
+   "src": "L11141"
+  },
+  "c3o2": {
+   "text": "The moment (name) sets it down in the storehouse, the old wood gives way, and out spills whatever was inside: some kind of black, rotten, horribly smelly sludge that has clearly been at the bottom of the sea for a very long time. It soaks into several nearby baskets of food before anyone can move them. The storehouse smells awful for a week.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L11143"
+  },
+  "c3": {
+   "text": "(Name) heaves the chest onto (his/her) shoulder and staggers up the beach with it, the knocking going all the way...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11139"
+  },
+  "c4o1": {
+   "text": "It knocks all afternoon. Three knocks, a pause, three knocks. Then, exactly as the sun touches the sea, it stops, and never starts again. When the chest is finally opened, it's full of nothing but seawater and sand.",
+   "src": "L11148"
+  },
+  "c4o2": {
+   "text": "After an hour, a gap in the rotten corner of the chest widens, and out pokes a head. It's a small brown lizard with bright gold eyes, blinking at the crowd of villagers who have gathered to watch. It looks at all of them with tremendous offence, as if they're the strange thing here, then waddles off into the dunes. The village laughs about it for days.",
+   "src": "L11150"
+  },
+  "c4": {
+   "text": "(Name) sits down on the sand next to the chest and waits to see what the knocking will do...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11146"
+  }
+ }
+}

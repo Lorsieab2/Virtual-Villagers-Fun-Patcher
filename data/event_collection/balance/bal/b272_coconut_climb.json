@@ -1,0 +1,252 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coconut Climb",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b272_coconut_climb",
+  "source": "balance",
+  "lines": [
+   12671,
+   12711
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12671",
+  "ledger": [
+   {
+    "src": "L12672",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12673",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12680",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12689",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12677",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12678",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12681",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12690",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12683",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12686",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12692",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12695",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12698-12711",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's too high and it leans too far.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The tallest palm on the island stands alone on the point, leaning out over the rocks, and it has the biggest coconuts anyone has ever seen. Nobody climbs it. It's too high and it leans too far. But (name) has been looking at those coconuts every day for a month, and today (he/she) has a rope, a belt of woven bark and a lot of confidence.\nA small crowd has gathered. \"Don't,\" says someone. \"Do,\" says someone else. (Name) looks up. The top of the palm is swaying gently against the clouds. Should (he/she) climb all the way to the top, or just go halfway and knock a few down with a stick?",
+   "choices": [
+    {
+     "label": "Climb to the Top",
+     "next": "c1",
+     "src": "L12677"
+    },
+    {
+     "label": "Halfway, With a Stick",
+     "next": "c2",
+     "src": "L12678"
+    }
+   ],
+   "src": "L12674-12675"
+  },
+  "c1o1": {
+   "text": "A gust hits the palm just as (name) reaches the top. (He/She) loses (his/her) grip, slides most of the way down, and hits the rocks at the bottom headfirst. The healers patch (him/her) up. When (he/she) wakes, (he/she) knows everyone else's name, but not a syllable of (his/her) own. \"I'll answer to anything,\" (he/she) says faintly. The village settles on calling (him/her) \"?\" until it comes back.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L12684",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) gets the coconuts. Then the bark belt snaps on the way down, and (he/she) falls the last third of the trunk onto the rocks. The coconuts land beside (him/her), unbroken. (Name) does not. (His/her) back never mends properly, and (he/she) moves slowly and carefully from then on. The coconuts, people say afterwards, were delicious. (Name) can't bring (himself/herself) to eat one.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L12687",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) loops the belt around the trunk and starts climbing, hand over hand. The palm sways more the higher (he/she) goes. The crowd below goes quiet...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12681"
+  },
+  "c2o1": {
+   "text": "One finally comes loose, and drops straight down onto (name)'s head. (He/She) slides down the trunk in a daze. Nothing is broken, but when someone asks (him/her) if (he/she) is all right, (he/she) says, \"Who's asking? And who's answering?\" The name doesn't come back. The village calls (him/her) \"?\", and (name) keeps the coconut on (his/her) shelf.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L12693",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "After a lot of swatting, three coconuts fall, bounce off the rocks, and roll to the feet of the crowd, who cheer as if (name) has won a war. They are very big coconuts, and very sweet. (Name) climbs down with (his/her) arms aching and (his/her) pride enormous. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L12696",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) climbs halfway, wedges (himself/herself) against the trunk, and starts swatting at the coconuts with a long bamboo pole. They don't budge...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12690"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

@@ -74,6 +74,32 @@
    "src": "L554"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) is annoyed, but (subject.he/she) tries the lever. It works. The log rolls off the garden with hardly any effort. (subject) stares at it. \"Well,\" says (friend), \"there you go.\" (subject) is grateful and irritated in exactly equal amounts. (subject.He/she) thanks (friend.him/her) anyway. Both feelings are allowed.",
+   "src": "L557",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L557"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) is annoyed, but (subject.he/she) tries the lever. It works. The log rolls off the garden with hardly any effort. (subject) stares at it. \"Well,\" says (friend), \"there you go.\" (subject) is grateful and irritated in exactly equal amounts. (subject.He/she) thanks (friend.him/her) anyway. Both feelings are allowed.",
    "src": "L557"

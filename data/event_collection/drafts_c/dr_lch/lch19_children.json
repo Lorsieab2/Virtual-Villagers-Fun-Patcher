@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Children Who Protected the Reef",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch19_children",
+  "source": "draft_lch",
+  "lines": [
+   260,
+   271
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L260",
+  "ledger": [
+   {
+    "src": "L261",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child and a fisher)"
+   },
+   {
+    "src": "L267",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L267",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L271",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Children want adults to stop collecting shells and fish from a breeding ground: rest the area, or keep using it carefully.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and the other children have found the place where the baby fish hide: the shallow pools behind the reef, full of tiny silver fish and spiral shells. The adults collect shells there and set traps. (subject) wants it to stop. (friend) says the traps there feed four families. What should happen?",
+   "src": "L263",
+   "choices": [
+    {
+     "label": "Rest the Area",
+     "next": "o1",
+     "src": "L265"
+    },
+    {
+     "label": "Use It Carefully",
+     "next": "o2",
+     "src": "L269"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village rests the breeding pools for a year. The four families eat less. The children guard the pools like warriors. The next year, the reef is crowded with young fish. (friend) admits it was worth it.",
+   "src": "L267",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L267"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The traps stay, but only half as many, and no shell collecting. The children are not satisfied, and keep checking. The pools hold steady. The children keep a careful count, and plan to ask again next year.",
+   "src": "L271"
+  }
+ }
+}

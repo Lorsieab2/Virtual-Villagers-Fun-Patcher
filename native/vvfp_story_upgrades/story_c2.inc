@@ -556,6 +556,42 @@ static int c2_behave(int index, int behaviour) {
     return 1;
 }
 
+/* The work rush's busy state at the job's site (cie-v6-binary.md 42), as A New Home's c1_behave_at: the job's own
+   starter picks the place (its first walk step, type 3: Harvesting coconuts 0x456F70 the foot of a palm,
+   Exercising 0x455330 the first point of the run, Researching 0x457CC0 a point by the research spot, Telling a story
+   0x449F40 the storytelling place; Healing someone 0x45D580 has none), then the stop 0x4492A0, that walk queued again
+   (0x449B70, appended) and the busy starter after it, which starts the walk (0x44FBB0).  The tips the job's starter
+   may leave for the selected villager (0x44B2A0: the 10 slots at state +0x304C8) are put back. */
+static const ce_adapter C2_ADAPTER;
+
+static int c2_behave_at(int index, int job, int behaviour) {
+    unsigned char *pool = VV2_POOL();
+    unsigned char *state = *(unsigned char **)(pool + 0xE574D4);
+    const ce_action *act;
+    int tips[10], w[6];
+    if (behaviour < 0 || behaviour >= (int)(sizeof C2_BEHAVIOURS / sizeof C2_BEHAVIOURS[0])) {
+        return 0;
+    }
+    act = &C2_BEHAVIOURS[behaviour];
+    if (act->kind != ACT_CALL && act->kind != ACT_CALL_ARG) {
+        return c2_behave(index, behaviour);
+    }
+    memcpy(tips, state + 0x304C8, sizeof tips);
+    if (!ce_site_pick(&C2_ADAPTER, 2, index, job, (unsigned char *)w)) {
+        memcpy(state + 0x304C8, tips, sizeof tips);
+        return c2_behave(index, behaviour);
+    }
+    memcpy(state + 0x304C8, tips, sizeof tips);
+    TC1(0x4492A0u, pool, index);
+    TC7(0x449B70u, pool, index, w[0], w[1], w[2], w[3], 0, w[5]);
+    if (act->kind == ACT_CALL) {
+        TC1(act->routine, pool, index);
+    } else {
+        TC2(act->routine, pool, index, act->arg);
+    }
+    return 1;
+}
+
 /* ---- Pregnancy: none, a different number of babies, the father --------- */
 
 /* "0 babies": as the delivery (0x43BF6E) ends a pregnancy -- +0x540 and the
@@ -1011,7 +1047,8 @@ static const ce_adapter C2_ADAPTER = {
     46, 16, 46, 16, 1, 39, c2_rand_below, NULL, c2_role,
     C2_PROBE, (int)(sizeof C2_PROBE / sizeof C2_PROBE[0]),
     NULL, NULL, 0, c2_set_health,
-    c2_deliver
+    c2_deliver,
+    c2_behave_at
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -1020,7 +1057,9 @@ static const ce_adapter C2_ADAPTER = {
 static void __fastcall c2_choose(void *event, void *unused_edx, int kind, int magnitude) {
     (void)unused_edx;
     if (magnitude != VV2_BARREL_MAGNITUDE
-        && ce_deliver(2, (char *)event + 0x277F, 9000)) {
+        && ce_deliver(2, su_long_text, (int)sizeof su_long_text)) {
+        /* the dialog's field holds the text's start when it is longer (Scrolling Popups draws the whole) */
+        su_put_long((char *)event + 0x277F, 9000);
         return;
     }
     TC2(0x434570u, event, kind, magnitude);
@@ -1053,7 +1092,7 @@ static char __fastcall c2_choice_setup(void *dialog, void *unused_edx) {
     void *villagers = *(void **)(d + 0x50B0u);   /* the ctor's villager pool (0x42240E) */
     int featured;
     (void)unused_edx;
-    if (!ce_choice_begin(2, (char *)d + C2_DLG_QUESTION, C1_DLG_TEXT_BYTES)) {
+    if (!ce_choice_begin(2, su_long_text, (int)sizeof su_long_text)) {
         c2_choice_dialog = NULL;
         return (char)TC0(0x41F780u, dialog);
     }
@@ -1064,6 +1103,7 @@ static char __fastcall c2_choice_setup(void *dialog, void *unused_edx) {
         cs12_op_setup(2, d, C2_DLG_QUESTION, C2_DLG_SUBJECT, C2_DLG_VARIANT, villagers, 0x44B2D0u);
         return 1;
     }
+    su_put_long((char *)d + C2_DLG_QUESTION, C1_DLG_TEXT_BYTES);   /* paged: it always fits */
     featured = ce_choice_featured(2);
     choice_fill_dialog(2, d, C2_DLG_QUESTION, C2_DLG_LABEL_FIRST, C2_DLG_LABEL_SECOND, c2_choice_title,
                        featured);
@@ -1153,21 +1193,29 @@ static int cs12_op_rows(void *dialog, op_rows *out) {
     out->rows = n;
     for (k = 0; k < n && k < OP_MAX_ROWS; ++k) {
         lstrcpynA(out->labels[k], cg_label(k), OP_LABEL_BYTES);
+        if (OP_ROWS_HAS_TEXT(out) && lstrlenA(cg_label(k)) >= OP_LABEL_BYTES) {
+            out->label_text[k] = cg_label(k);   /* a long label whole (one_popup.h) */
+        }
     }
     return 1;
 }
 
-/* The text just written to the question field: the picture's gap under its title. */
+/* The text just made (su_long_text) shown in the question field: the picture's gap under its title, then the field
+   (its start when the text is longer: Scrolling Popups draws the whole, one_popup.h). */
+static void cs12_op_put(unsigned char *d, unsigned int question, int featured) {
+    if (featured >= 0) {
+        choice_open_gap(su_long_text, (int)sizeof su_long_text);
+    }
+    su_put_long((char *)d + question, C1_DLG_TEXT_BYTES);
+}
+
 static void cs12_op_shown(void *dialog) {
     unsigned char *d = (unsigned char *)dialog;
-    if (*(int *)(d + cs12_subject_field()) >= 0) {
-        choice_open_gap((char *)d + cs12_question_field(), C1_DLG_TEXT_BYTES);
-    }
+    cs12_op_put(d, cs12_question_field(), *(int *)(d + cs12_subject_field()));
 }
 
 static int cs12_op_pick(void *dialog, int k) {
-    unsigned char *d = (unsigned char *)dialog;
-    if (!ce_choice_resolve(cs12_game(), k, (char *)d + cs12_question_field(), C1_DLG_TEXT_BYTES)) {
+    if (!ce_choice_resolve(cs12_game(), k, su_long_text, (int)sizeof su_long_text)) {
         return 0;
     }
     cs12_op_shown(dialog);
@@ -1175,8 +1223,7 @@ static int cs12_op_pick(void *dialog, int k) {
 }
 
 static int cs12_op_ok(void *dialog) {
-    unsigned char *d = (unsigned char *)dialog;
-    if (!cg_op_ok(cs12_game(), (char *)d + cs12_question_field(), C1_DLG_TEXT_BYTES)) {
+    if (!cg_op_ok(cs12_game(), su_long_text, (int)sizeof su_long_text)) {
         return 0;
     }
     cs12_op_shown(dialog);
@@ -1185,14 +1232,12 @@ static int cs12_op_ok(void *dialog) {
 
 static const mb_op_client CS12_OP_CLIENT = { cs12_op_rows, cs12_op_pick, cs12_op_ok };
 
-/* The setup of a one-popup event's dialog (the question field already holds its first text): the picture's gap,
-   the villager shown, the stock width, a variant out of range, and our virtual table. */
+/* The setup of a one-popup event's dialog (su_long_text holds its first text): the text with the picture's gap in
+   the question field, the villager shown, the stock width, a variant out of range, and our virtual table. */
 static void cs12_op_setup(int game, unsigned char *d, unsigned int question, unsigned int subject,
                           unsigned int variant, void *villagers, unsigned int select) {
     int featured = ce_choice_featured(game);
-    if (featured >= 0) {
-        choice_open_gap((char *)d + question, C1_DLG_TEXT_BYTES);
-    }
+    cs12_op_put(d, question, featured);
     *(int *)(d + variant) = CHOICE_VARIANT_NONE;
     *(int *)(d + subject) = featured;
     *(int *)(d + C1_DLG_WIDTH) = C1_ENCOUNTER_WIDTH;

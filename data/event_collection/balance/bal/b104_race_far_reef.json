@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Race to the Far Reef",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b104_race_far_reef",
+  "source": "balance",
+  "lines": [
+   4700,
+   4741
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4700",
+  "ledger": [
+   {
+    "src": "L4701",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4702",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4710",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4719",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4707",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4708",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4711",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4720",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4713",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4716",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4722",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4725",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4728-4741",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every year the young paddlers race to the far reef and back, and the winner is given the first cup at the harvest feast.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 16
+  },
+  "another_paddler_aged_16_or_older": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every year the young paddlers race to the far reef and back, and the winner is given the first cup at the harvest feast. This year a stranger's canoe has joined the race at the last moment: an old, beautiful canoe, carved all over, paddled by someone in a hat that hides their face. Nobody saw where it came from. The elders frown at it and say nothing.\nAt the far reef, the stranger's canoe turns not for home but for the open sea, and calls to (subject), the paddler nearest: \"Race me further!\"\nShould (subject) follow, or turn for home?",
+   "choices": [
+    {
+     "label": "Follow the Stranger",
+     "next": "c1",
+     "src": "L4707"
+    },
+    {
+     "label": "Turn for Home",
+     "next": "c2",
+     "src": "L4708"
+    }
+   ],
+   "src": "L4703-4705"
+  },
+  "c1o1": {
+   "text": "From the reef the others watch the two canoes grow smaller and smaller until they're gone over the curve of the sea. (subject) doesn't come back. The fishers search for days. The elders, asked at last about the carved canoe, only say that it comes once in a lifetime, and that the ones who follow it \"find out how far further goes.\"",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L4714",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Far out, the stranger stops, and turns, and tips their hat to (subject), and laughs. \"You'll do,\" they say, and paddle away into the sun. (subject) turns for home and comes in long after the race is over, exhausted, and with a strange new sureness in (subject.his/her) arms and (subject.his/her) work that never leaves (subject.him/her).",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4717",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) swings (subject.his/her) canoe after the carved one, out past the reef, into the long blue swells, paddling harder than (subject.he/she) has ever paddled...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4711"
+  },
+  "c2o1": {
+   "text": "(subject) wins the race by a canoe length, because everyone else was watching the stranger. (subject.He/She) gets the first cup at the harvest feast. When anyone asks about the stranger, (subject.he/she) just says (subject.he/she) had a race to win.",
+   "src": "L4723"
+  },
+  "c2o2": {
+   "text": "(subject) turns for home, but the young paddler behind (subject.him/her) doesn't. (subject) shouts, and waves, and the young one just waves back and keeps going, after the carved canoe, out to sea. Neither of them comes back. (subject) never stops wondering if (subject.he/she) should have followed, to bring the young one home.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "another_paddler_aged_16_or_older"
+    }
+   ],
+   "src": "L4726",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) shakes (subject.his/her) head and swings for home. Behind (subject.him/her), the stranger laughs, and the carved canoe heads out to sea...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4720"
+  }
+ }
+}

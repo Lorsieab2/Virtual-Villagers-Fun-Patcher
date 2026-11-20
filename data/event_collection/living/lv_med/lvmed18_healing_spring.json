@@ -90,9 +90,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The patient feels refreshed, though their illness remains.",
-   "src": "L20443"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -106,7 +113,8 @@
      "max": -10,
      "src": "L20444"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -135,7 +143,8 @@
      "max": 30,
      "src": "L20446"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -147,7 +156,8 @@
      "role": "patient",
      "src": "L20447"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -176,12 +186,33 @@
      "max": 10,
      "src": "L20449"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The spring becomes a place of rest rather than a promised cure.",
    "src": "L20450"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The patient feels refreshed, though their illness remains.",
+   "src": "L20443",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20443"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The patient feels refreshed, though their illness remains.",
+   "src": "L20443"
   }
  }
 }

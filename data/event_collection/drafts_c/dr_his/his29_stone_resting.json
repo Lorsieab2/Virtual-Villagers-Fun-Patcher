@@ -69,6 +69,57 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) gathers twenty villagers, a great deal of rope and some log rollers. They heave. They push. They sing. The stone moves the width of one hand, and then sits down again. Everybody collapses on the grass, laughing and exhausted. \"It's still resting,\" says (subject). \"I think I understand the ancestors better now,\" says (friend), lying flat on (friend.his/her) back.",
+   "src": "L350",
+   "text_only": [
+    {
+     "what": "\"collapses\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- the draft's notes: everything but the marked effects is story only",
+     "src": "L350"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L350"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L350"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) gathers twenty villagers, a great deal of rope and some log rollers. They heave. They push. They sing. The stone moves the width of one hand, and then sits down again. Everybody collapses on the grass, laughing and exhausted. \"It's still resting,\" says (subject). \"I think I understand the ancestors better now,\" says (friend), lying flat on (friend.his/her) back.",
    "src": "L350",
@@ -80,7 +131,21 @@
     }
    ]
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) says that if it was good enough for the ancestors, it's good enough for them. They finish lunch. Then (subject) carves a small new mark on the stone, beside the old ones: a little picture of two people eating lunch. (friend) laughs. Somebody, generations from now, will find that mark and wonder about it.",
+   "src": "L353",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L353"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) says that if it was good enough for the ancestors, it's good enough for them. They finish lunch. Then (subject) carves a small new mark on the stone, beside the old ones: a little picture of two people eating lunch. (friend) laughs. Somebody, generations from now, will find that mark and wonder about it.",
    "src": "L353"

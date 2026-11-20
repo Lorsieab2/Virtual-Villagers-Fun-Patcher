@@ -75,6 +75,32 @@
    "src": "L230"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) answers the question in a plain, simple way, and then asks one back: \"Are you a crab or a fish?\" (friend) giggles. \"I'm a PERSON.\" \"Me too,\" says (subject). \"Just like you.\" (friend) seems satisfied. The parent, still red, apologizes later. \"Children ask,\" says (subject). \"That's fine. It's grown-ups asking that tires me out.\"",
+   "src": "L233",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L233"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) answers the question in a plain, simple way, and then asks one back: \"Are you a crab or a fish?\" (friend) giggles. \"I'm a PERSON.\" \"Me too,\" says (subject). \"Just like you.\" (friend) seems satisfied. The parent, still red, apologizes later. \"Children ask,\" says (subject). \"That's fine. It's grown-ups asking that tires me out.\"",
    "src": "L233"

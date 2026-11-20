@@ -1,0 +1,219 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Grey Overnight",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s050_grey_overnight",
+  "source": "rewrites",
+  "lines": [
+   2369,
+   2413
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2369",
+  "ledger": [
+   {
+    "src": "L2370",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2371",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2379",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2388",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2376",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2377",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2380",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2389",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2382",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2385",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2391",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2394",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2397-2413",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's a terrible scream, the kind that comes from very far down.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 20,
+   "max_age": 40
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the deepest part of the night, (name) sits bolt upright on (his/her) mat and screams. It's a terrible scream, the kind that comes from very far down. Half the village wakes up. In the marsh, the frogs all stop singing at once.\nIt was a dream. Just a dream, though (name) can't remember any of it, only that it was more real than anything (he/she) has ever known. The elders whisper that the island's oldest spirit sometimes visits a sleeper with a message, and takes payment in years.\nIn the morning, (his/her) family come to check on (him/her), and stop in the doorway. (Name)'s hair has gone grey. Not a few strands: all of it, grey as ash. There are deep lines on (his/her) face that weren't there yesterday, and when (he/she) gets up, (his/her) knees creak like the knees of someone much, much older. Should (name) go to the healers, or try to remember what the dream was?",
+   "choices": [
+    {
+     "label": "Go to the Healers",
+     "next": "c1",
+     "src": "L2376"
+    },
+    {
+     "label": "Ask What the Dream Was",
+     "next": "c2",
+     "src": "L2377"
+    }
+   ],
+   "src": "L2372-2374"
+  },
+  "c1o1": {
+   "text": "The healers try everything they have. Teas, poultices, chants, cold baths, warm baths. Nothing changes the grey. \"We can't undo it,\" the oldest healer says at last, gently. \"But we can help you live with it.\" And they do. They sit with (name), and talk with (him/her), and help (him/her) stop being afraid of what happened. By the end of the week (he/she) has made peace with it. (He/She) is fifty now, by the look of it, by the feel of (his/her) bones. \"Well,\" (he/she) says. \"Fifty is a fine age to be. I'll just skip the bits in the middle.\"",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "50",
+     "role": "subject"
+    }
+   ],
+   "src": "L2383",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The healers give (him/her) a calming tea, the strongest they have, and send (him/her) home to rest and not think about the dream. A few days later (name)'s family notice something: the grey is fading. Slowly, like ash being washed off by the rain, the colour comes back into (his/her) hair, and the lines on (his/her) face soften. Not all the way, though. When it stops, (name) is left looking about five years older than (he/she) did before that night. (He/She) decides (he/she) can live with that, and sleeps with a light on for a while.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      5,
+      5
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L2386",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name)'s family help (him/her) across the village to the healers' hut, (him/her) leaning on their arms, while the whole village stares. The healers sit (him/her) down and look at (him/her) for a long time without saying anything...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2380"
+  },
+  "c2o1": {
+   "text": "Slowly, it comes back. A voice, deep and old as the island, speaking right inside (his/her) head: \"You will need wisdom more than youth.\" That's all. (Name) opens (his/her) eyes and looks around at the circle of elders, and decides to believe it. Over the rest of the week the grey spreads, and the lines deepen, and (name) grows older and older until (he/she) is an elder (himself/herself). But (he/she) is calm, and clear, and (his/her) hands are steadier at (his/her) work than they've ever been. The other elders make room for (him/her) by the fire.",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "elder",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2392",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) tries. (He/She) sits by the fire with (his/her) eyes closed for hours, but the dream won't come back. Not a single piece of it. In the end the elders give up and send (him/her) home. The grey stays. The lines stay. (Name) is about fifty now, as far as anyone can tell. But it suits (him/her), everyone says, and they really mean it: (he/she) looks distinguished and kind, and the children start coming to (him/her) with their troubles, the way they go to the elders.",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "50",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L2395",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "The elders say that a dream that strong is a message, and it can't be ignored. They sit (name) down by the fire and ask (him/her) to close (his/her) eyes and go back into it, slowly, piece by piece...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2389"
+  }
+ }
+}

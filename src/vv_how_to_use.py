@@ -24,12 +24,19 @@ ROOT = Path(__file__).resolve().parents[1]
 GUIDES_PATH = ROOT / "data" / "how_to_use.json"
 
 # Guides stay short: the owner asked for "brief, simple to understand".
-MAX_LINES = 8
+# 9 since 2026-11-19: the Default Patches guide's ninth line (the v1.35.97 merge); the owner's rule is never to drop
+# text for length, and the guide window scrolls.
+MAX_LINES = 9
 MAX_LINE_CHARS = 180
 # 1,000 since 2026-11-11: the Default Patches guide must name every default-off patch, and the list grew past 900;
 # 1,100 since 2026-11-12, when the two Island Events Scale patches joined that list; 1,150 since 2026-11-12, when
 # Scrolling Popups joined it; 1,200 the same day, when The Aspiring Adventurer (More Island Events) joined it.
-MAX_GUIDE_CHARS = 1200
+# 1,250 since 2026-11-16, when the island event controls (Content Notes, the Content Filters, No Safeguards for Island
+# Events) joined it.
+# (1,250 also covers Every Island Event Can Happen, 2026-11-17.)
+# (and Village Solidarity, 2026-11-17; and Birth Control in The Tree of Life and New Believers, 2026-11-19.)
+# 1,450 since 2026-11-19, when the v1.35.97 merge put every PR's default-off patches into it (1,405); never drop text.
+MAX_GUIDE_CHARS = 1450
 
 
 @dataclass(frozen=True)

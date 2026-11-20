@@ -432,8 +432,11 @@ FIX_PERCENT |= {off for off, _, _ in zero_length_line_fixes("vv4")}
 from test_nursery_tie_random import nursery_tie_fixes  # noqa: E402
 
 FIX_PERCENT |= {off for off, _, _ in nursery_tie_fixes("vv4")}
-# ... and the frogs after The Frog Rescue (the leap ranges and the ripple frames), kept with 256 Villagers.
-FIX_PERCENT |= {0x6D3F8, 0x6D406, 0x6D440, 0x6D44E, 0x6D488, 0x6D496, 0xB9F0C, 0xB9F1C}
+# ... and the frogs' ripple frames after The Frog Rescue, kept with 256 Villagers (where they leap is "VVFP VV4
+# Frogs.dll"'s, on the frog block's stock bytes: tests/test_vv4_frogs.py renders it with 256 Villagers too).
+FIX_PERCENT |= {0xB9F0C, 0xB9F1C}
+# ... and the clean body's sparkles beyond the rain's 101 slots.
+FIX_PERCENT |= {0x1CEDB}
 BLOCK_CHECK, BLOCK_OBJECT, BLOCK_SIZE_FN = 0x4387A0, 0x4D8BF8, 0x438770
 
 

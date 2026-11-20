@@ -48,7 +48,7 @@ TEXTS: tuple[tuple[str, str], ...] = (
               "off from work to go spelunking. \"We'll be safer if we're together. Come on, it'll be fun!\", says "
               "{a}. \"So, what do you say?\""),
     ("LABEL_EXPLORE", "Explore the Cave"),
-    ("LABEL_DONT", "Don't explore"),
+    ("LABEL_DONT", "Don't Explore"),
     ("DONT", "\"Sorry, I'm not going,\" says {b}. \"What if we get lost? What if people discover we're gone? We'll get "
              "in trouble. I don't want to risk getting hurt. And neither should you,\" {he.b} says. \"Please "
              "reconsider. Let the tribe handle this and maybe we can tag along later.\" {a} is saddened, but realizes "
@@ -93,8 +93,8 @@ TEXTS: tuple[tuple[str, str], ...] = (
             "are not sure where the exit is. They see two light-streaked tunnels in front of them: one on the left, "
             "and one on the right. Neither of them remembers exactly where they came from, and whatever {s} "
             "encountered seems to be coming closer. Which path should they run down?"),
-    ("LABEL_LEFT", "Run towards the left path"),
-    ("LABEL_RIGHT", "Run towards the right path"),
+    ("LABEL_LEFT", "Run Towards the Left Path"),
+    ("LABEL_RIGHT", "Run Towards the Right Path"),
     ("RUN_LEFT", "{a} and {b} run down the left path screaming like little children. Things whiz by until the tunnel "
                  "grows brighter and brighter. Suddenly as they reach the end they are blinded by dazzling white "
                  "sunshine."),
@@ -122,8 +122,8 @@ TEXTS: tuple[tuple[str, str], ...] = (
     ("STAY", "{b} is too enamored by all the glittering sights and objects and decides to stay put. {He.b} tries to take "
              "some to show the researchers, but {a} stops them. \"Wait. I don't think that's a good idea. What if you "
              "get cursed or something?\" What should {b} say?"),
-    ("LABEL_RETURN", "You're right, I'll return them."),
-    ("LABEL_KEEP", "Curses schmurses. I'm keeping them."),
+    ("LABEL_RETURN", "You're Right, I'll Return Them."),
+    ("LABEL_KEEP", "Curses Schmurses. I'm Keeping Them."),
     ("RETURN_FOOD", "{b} carefully rearranges the objects exactly where {he.b} found them, and offers a quick prayer of "
                     "apology to the spirits. When the two return home, they find that someone has left a bundle of "
                     "food at their doorsteps. Your villagers gain %d food."),

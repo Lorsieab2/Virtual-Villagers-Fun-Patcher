@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Leader Must Listen",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca26_leader_must",
+  "source": "draft_lca",
+  "lines": [
+   362,
+   373
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L362",
+  "ledger": [
+   {
+    "src": "L363",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L369",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L373",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L373",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The leader closed the reef to fishing without explaining why: demand an explanation, or wait and trust.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Three days ago, the {@chief} closed the reef to all fishing, and has not said why. Families are hungry and angry. (subject) wants to march to the {@chief}'s hut and demand an explanation. (friend) thinks the {@chief} must have a reason and the village should wait. What should they do?",
+   "src": "L365",
+   "choices": [
+    {
+     "label": "Demand an Explanation",
+     "next": "o1",
+     "src": "L367"
+    },
+    {
+     "label": "Wait and Trust",
+     "next": "o2",
+     "src": "L371"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) and a crowd of villagers go to the {@chief}, who looks surprised, then embarrassed. The reef fish are spawning, the {@chief} explains, and if they are caught now there will be none next year. The {@chief} should have said so. The {@chief} admits it, and promises to explain decisions from now on. The village grumbles, but understands.",
+   "src": "L369"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village waits. A week later, the {@chief} opens the reef again, and the fishing is the best anyone can remember. The {@chief} never explains. Some people are satisfied; (subject) is not, and says so to anyone who will listen.",
+   "src": "L373",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L373"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

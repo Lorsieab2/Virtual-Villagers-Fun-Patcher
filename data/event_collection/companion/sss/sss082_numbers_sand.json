@@ -79,14 +79,40 @@
    "src": "L6918"
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "Several students learn more easily.",
-   "src": "L6920"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Answer C",
    "text": "The child explains that long spoken instructions slip away.",
    "src": "L6922"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "Several students learn more easily.",
+   "src": "L6920",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6920"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "Several students learn more easily.",
+   "src": "L6920"
   }
  }
 }

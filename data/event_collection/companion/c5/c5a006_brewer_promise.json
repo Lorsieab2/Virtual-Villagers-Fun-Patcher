@@ -121,7 +121,8 @@
      "max": 10,
      "src": "L208"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome 2",

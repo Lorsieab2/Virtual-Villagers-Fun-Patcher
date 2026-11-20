@@ -101,7 +101,8 @@
      "max": -10,
      "src": "L10621"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Outcome C",
@@ -117,7 +118,8 @@
      "max": -40,
      "src": "L10622"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

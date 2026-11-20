@@ -61,7 +61,8 @@
      "scaled": true,
      "src": "L8000"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "src": "L8001",

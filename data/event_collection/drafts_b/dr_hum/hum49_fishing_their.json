@@ -85,7 +85,8 @@
      "scaled": true,
      "src": "L590"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",

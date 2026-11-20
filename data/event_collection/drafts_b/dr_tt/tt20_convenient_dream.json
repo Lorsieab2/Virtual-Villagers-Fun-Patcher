@@ -74,6 +74,38 @@
    "src": "L242"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"What were the fish wearing?\" asks (friend). \"What?\" \"In the dream. Were they wearing anything?\" (subject) thinks hard. \"...Little hats.\" (friend) laughs so much that the argument is quite forgotten. They fish both spots and catch a perfectly ordinary number of fish at each.",
+   "src": "L245",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L245"
+    },
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L245"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"What were the fish wearing?\" asks (friend). \"What?\" \"In the dream. Were they wearing anything?\" (subject) thinks hard. \"...Little hats.\" (friend) laughs so much that the argument is quite forgotten. They fish both spots and catch a perfectly ordinary number of fish at each.",
    "src": "L245"

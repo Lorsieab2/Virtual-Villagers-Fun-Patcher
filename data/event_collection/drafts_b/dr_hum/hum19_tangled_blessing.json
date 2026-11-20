@@ -64,14 +64,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) laughs before anyone else can, a big warm laugh, and everyone joins in. \"Fat nets,\" (he/she) says, wiping (his/her) eyes. \"Why not?\" That season the fishers call their nets \"the fat ones.\" The catch is good, whether or not the words had anything to do with it.",
-   "src": "L230"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) closes (his/her) eyes, takes a deep breath, and says the words perfectly, slowly, every one in its place. Then (he/she) sits down. Then, very quietly, to nobody in particular, (he/she) says, \"Fat nets,\" and the people sitting nearest shake with silent laughter for the rest of the gathering.",
    "src": "L233"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) laughs before anyone else can, a big warm laugh, and everyone joins in. \"Fat nets,\" (he/she) says, wiping (his/her) eyes. \"Why not?\" That season the fishers call their nets \"the fat ones.\" The catch is good, whether or not the words had anything to do with it.",
+   "src": "L230",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L230"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L230"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) laughs before anyone else can, a big warm laugh, and everyone joins in. \"Fat nets,\" (he/she) says, wiping (his/her) eyes. \"Why not?\" That season the fishers call their nets \"the fat ones.\" The catch is good, whether or not the words had anything to do with it.",
+   "src": "L230"
   }
  }
 }

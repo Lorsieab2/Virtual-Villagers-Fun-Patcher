@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Names of Those Before Us",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb31_names_those",
+  "source": "draft_lcb",
+  "lines": [
+   428,
+   439
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a teen)"
+   },
+   {
+    "src": "L435",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L439",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An elder wants the forgotten ancestors honored with the named ones: include them, or keep to the known names.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the gathering of names, each family speaks the names of its ancestors. (subject) wants to add something new this year: a moment for all the people whose names nobody remembers, the ones who carried water and dug gardens and were never in a story. (friend) thinks that sounds strange: how do you remember someone with no name? What should the village do?",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "Include the Forgotten",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "Keep to the Known Names",
+     "next": "o2",
+     "src": "L437"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "At the end of the names, (subject) asks for silence, for everyone whose names are lost. The silence goes on for a long time. Afterwards, (friend) says it was the loudest part of the night.",
+   "src": "L435"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village speaks the known names only, as always. On the way home, (friend) asks (subject) how many people (subject.he/she) thinks are forgotten. (subject) says: almost everyone. (friend) thinks about that for a long time.",
+   "src": "L439"
+  }
+ }
+}

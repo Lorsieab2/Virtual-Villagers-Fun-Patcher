@@ -510,6 +510,66 @@ def plan_masks(folder: Path, slot: int, people: list[Block], current: dict, page
     return kind
 
 
+# What the patcher keeps for a villager outside the save, which the Village History and Village Population rosters
+# print since v1.35.97 (native/population_export/population_export.c write_kept_values; the owner, 2026-11-17: "the
+# logs need to keep track of sex and gender presentation changes ... and everything"): (kind id, the line's label,
+# the checklist's words, its rank among the four).  Each is asked from a date, as a mask is: the latest Village
+# Population page says what a villager has now, never since when.
+KEPT_LINES = (
+    ("sex_at_birth", "Sex at birth", "Sex at birth (a villager whose sex was changed) in older History snapshots", 6),
+    ("presentation", "Gender presentation", "Gender presentation in older History snapshots", 7),
+    ("head_look", "Head look", "Head looks (Young / Old) in older History snapshots", 8),
+    ("story_traits", "Story traits", "Story traits (mute) in older History snapshots", 9),
+)
+for _id, _label, _words, _rank in KEPT_LINES:
+    CHECKED[_id] = (f"the older Village History snapshots of villagers whose \"{_label}\" line the latest Village "
+                    "Population page shows, from the date the player chose")
+    ADDED[_id] = f"{_label} added"
+
+
+def _kept_after(b: Block) -> int:
+    """The line a kept value's line follows, as the exporters order them: after Sex (and New Believers' Faction),
+    else after the Name, Custom title, Special villager and Mask lines."""
+    at = b.index_of("Faction")
+    if at is None:
+        at = b.index_of("Sex")
+    return at if at is not None else _after_name(b, "mask")
+
+
+def plan_kept(folder: Path, slot: int, people: list[Block], current: dict, kind_id: str) -> Kind:
+    label, words, rank = next((lb, w, r) for k, lb, w, r in KEPT_LINES if k == kind_id)
+    kind = Kind(kind_id, words)
+    persons = _persons(current)
+    blocks_of = getattr(current, "blocks", {})
+    for identity, now in current.items():
+        value = now.value(label)
+        if len({b.value(label) for b in blocks_of.get(identity, [now])}) > 1:
+            kind.notes.append(f"Two or more villagers named {identity[0]} (head {identity[1]}, body {identity[2]}) "
+                              f"are on the latest Village Population page with a different \"{label}\" line, so "
+                              "which one an older record of that name and looks is can not be told; nothing is "
+                              "added to those records.")
+            continue
+        if not value:
+            continue
+        older = [b for b in people if _now_of(b, current, persons) == identity and b.date
+                 and not is_population(b.path) and b.value(label) is None]
+        dates = []
+        for b in sorted(older, key=lambda b: b.date or ""):
+            if b.date and b.date not in dates:
+                dates.append(b.date)
+        if not dates:
+            continue
+        key = f"{kind_id}|{identity}"
+        kind.questions[key] = _from_date_question(key, older[0].value("Name"), f"the {label.lower()} \"{value}\"",
+                                                  dates)
+        kind.questions[key].fact = f"{label}={value}"
+        kind.questions[key].who = (tuple(identity),)
+        for b in older:
+            answers = {f"From {d}": f"  {label}: {value}" for d in dates if b.date and b.date >= d}
+            kind.inserts.append(Insert(b.path, _kept_after(b), rank, question=key, by_answer=answers))
+    return kind
+
+
 def _skill_title(game: int, skills: list[int]) -> str | None:
     if game == 4 and len(skills) >= 5 and all(s >= 88 for s in skills[:5]):
         return "Scholar"
@@ -1668,9 +1728,10 @@ def write_preferred_graves(folder: Path, game: int, slot: int, kinds: list[Kind]
         raise tools.LogToolError(str(exc)) from exc
 
 
-def plan(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None) -> list[Kind]:
+def plan(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None, rec=None) -> list[Kind]:
     """Everything older records of this slot's village lack, kind by kind.  Reads only.  `game_folders`:
-    where the game's exe may be (the repair window's), for what depends on its patches."""
+    where the game's exe may be (the repair window's), for what depends on its patches.  `rec`: a
+    reconciliation of this slot already made (src/vv_reconcile.py), so it is not made again."""
     folder = Path(folder)
     people = person_blocks(folder, slot, game)
     page, current = population_page(folder, slot, game)
@@ -1682,6 +1743,7 @@ def plan(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
         plan_special(folder, game, slot, people, current),
         plan_custom_titles(folder, slot, people, current),
         plan_masks(folder, slot, people, current, page),
+        *(plan_kept(folder, slot, people, current, kind_id) for kind_id, _l, _w, _r in KEPT_LINES),
         plan_born_as(folder, game, slot),
         plan_golden(folder, game, slot),
         plan_appearance(folder, game, slot),
@@ -1705,7 +1767,7 @@ def plan(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
     kinds.append(vv_misfiled_records.plan(folder, game, slot))
     # The read-only reconciliation's contradictions, asked before any repair (src/vv_reconcile.py).
     import vv_reconcile
-    kinds.append(vv_reconcile.kind(folder, game, slot))
+    kinds.append(vv_reconcile.kind(folder, game, slot, rec))
     # What the player answered before is not asked again (src/vv_answered_questions.py): those questions
     # are held back, their answers applied as given.
     import vv_answered_questions

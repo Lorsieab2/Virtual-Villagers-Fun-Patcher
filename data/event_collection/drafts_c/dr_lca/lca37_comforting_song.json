@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Comforting Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca37_comforting_song",
+  "source": "draft_lca",
+  "lines": [
+   516,
+   527
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L516",
+  "ledger": [
+   {
+    "src": "L517",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L523",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L527",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A grieving villager has stopped coming to the evening fire: sing outside their hut, or simply sit with them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Since (friend)'s brother died last month, (friend.he/she) has not come to the evening fire once. (subject) misses (friend.him/her), and worries. The village has a comforting song for times like this, but (subject) does not know if (friend) wants to be sung at. What should (subject) do?",
+   "src": "L519",
+   "choices": [
+    {
+     "label": "Sing Outside the Hut",
+     "next": "o1",
+     "src": "L521"
+    },
+    {
+     "label": "Simply Sit With (friend)",
+     "next": "o2",
+     "src": "L525"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "A few friends gather outside (friend)'s hut and sing the comforting song, very softly. The door stays closed. But at the end, from inside, someone hums the last line. The next evening, (friend) still does not come to the fire. That is all right.",
+   "src": "L523"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) knocks, goes in, and sits down without saying anything. After a long while, (friend) starts talking about (friend.his/her) brother: the silly things, the annoying things, the time he fell in the cooking pit. (subject) listens until late. Nothing is fixed. But (friend) is a little less alone.",
+   "src": "L527"
+  }
+ }
+}

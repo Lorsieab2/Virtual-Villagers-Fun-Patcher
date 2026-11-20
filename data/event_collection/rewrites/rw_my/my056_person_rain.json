@@ -1,0 +1,280 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Person in the Rain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my056_person_rain",
+  "source": "rewrites",
+  "lines": [
+   13119,
+   13174
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13119",
+  "ledger": [
+   {
+    "src": "L13120",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13121",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13130",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13137",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13144",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13151",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13125",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13126",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13127",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13128",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13131",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13138",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13145",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13152",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13132",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13134",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13139",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13141",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13146",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13148",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13153",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13155",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13158-13174",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's raining so hard the drops are bouncing off the paths.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It's raining so hard the drops are bouncing off the paths. Everyone is huddled inside. But as (name) dashes between huts, (he/she) sees someone standing out beyond the village lights, hands folded, looking toward the village.\nThe stranger is completely still. And completely dry. The rain is pouring down all around, drumming on every leaf and roof, and not a drop seems to be touching the stranger at all. (Name) stops in the downpour and stares, water running into (his/her) eyes. What should (he/she) do?",
+   "choices": [
+    {
+     "label": "Offer Shelter",
+     "next": "c1",
+     "src": "L13125"
+    },
+    {
+     "label": "Ask Why They Are Waiting",
+     "next": "c2",
+     "src": "L13126"
+    },
+    {
+     "label": "Approach With a Lantern",
+     "next": "c3",
+     "src": "L13127"
+    },
+    {
+     "label": "Leave Them Alone",
+     "next": "c4",
+     "src": "L13128"
+    }
+   ],
+   "src": "L13122-13123"
+  },
+  "c1o1": {
+   "text": "The stranger steps forward into the light, and (name) sees it at once: the stranger is wearing a long cloak made of tightly woven leaves, layered like fish scales, and the rain is sliding off it like oil. Not magic, just very, very clever weaving. The stranger seems a little embarrassed by all the attention, and spends the evening by the fire showing the weavers how it's done.",
+   "src": "L13133"
+  },
+  "c1o2": {
+   "text": "The stranger nods and walks toward (name), following (him/her) through the rain to the door of the hut. (Name) turns to open the door. When (he/she) turns back, there's no one there. Just the rain, pouring down on an empty path. (Name) leaves the door open a crack all night, just in case.",
+   "src": "L13135"
+  },
+  "c1": {
+   "text": "(Name) cups (his/her) hands around (his/her) mouth and shouts over the rain, \"Come in out of that! There's room by our fire!\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13131"
+  },
+  "c2o1": {
+   "text": "The stranger turns, calm and dry. \"Someone who has not yet been born,\" (he/she) says gently, and turns back to watch the village. (Name) doesn't know what to say to that. (He/She) goes inside and lies awake listening to the rain, thinking about every baby that will ever be born in this village, and who might be waiting for them.",
+   "src": "L13140"
+  },
+  "c2o2": {
+   "text": "\"My companion,\" the stranger says, voice tight with worry. \"We were traveling together and got separated in the storm. I thought they might come here, to the lights.\" (Name) brings the stranger inside, and the villagers organize a search in the rain. Just before dawn, they find the lost companion huddled under a rock overhang, soaked and cold, but safe. The two travelers hug for a very long time.",
+   "src": "L13142"
+  },
+  "c2": {
+   "text": "(Name) splashes closer, rain streaming down (his/her) face. \"Who are you waiting for out here?\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13138"
+  },
+  "c3o1": {
+   "text": "As the lantern light falls on the figure, (name) laughs out loud. It's a statue. An old stone statue of a person with folded hands, half hidden by vines at the edge of the jungle, sheltered by a big overhanging tree so the rain doesn't reach it. Nobody remembers it being there. Nobody remembers who carved it. But it's definitely just stone. Probably.",
+   "src": "L13147"
+  },
+  "c3o2": {
+   "text": "As the light reaches the stranger, the figure steps backward, then again, slowly retreating into the rain, keeping just at the edge of the lantern's glow, until at last it fades away entirely into the dark. When (name) looks down at the mud where the stranger stood, there are no footprints. Not one.",
+   "src": "L13149"
+  },
+  "c3": {
+   "text": "(Name) fetches a covered lantern from the nearest hut and walks out toward the still figure, holding the light high...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13145"
+  },
+  "c4o1": {
+   "text": "When the rain finally stops, near dawn, (name) peeks out. The figure is gone. The place where it stood is just wet grass and puddles, glittering in the first light. Nothing else is different. (Name) almost wishes (he/she) had gone out.",
+   "src": "L13154"
+  },
+  "c4o2": {
+   "text": "The next morning, everything in the village is soaked through. Every log, every stick, every scrap of kindling. But by (name)'s door sits a neat bundle of firewood, perfectly dry, as if it had been kept indoors all night. (Name) lights the best fire in the village that morning, and has several very curious neighbors over for breakfast.",
+   "src": "L13156"
+  },
+  "c4": {
+   "text": "(Name) decides that whoever it is, they clearly want to be left alone. (He/She) ducks inside and pulls the door shut...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13152"
+  }
+ }
+}

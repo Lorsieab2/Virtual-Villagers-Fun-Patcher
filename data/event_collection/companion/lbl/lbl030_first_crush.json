@@ -99,9 +99,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "They exchange shy smiles and keep talking.",
-   "src": "L4188"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -112,6 +119,31 @@
    "name": "Outcome 3",
    "text": "They decide friendship is enough for now.",
    "src": "L4190"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "They exchange shy smiles and keep talking.",
+   "src": "L4188",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L4188"
+    },
+    {
+     "do": "mood",
+     "role": "peer",
+     "mood": "good",
+     "src": "L4188"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "They exchange shy smiles and keep talking.",
+   "src": "L4188"
   }
  }
 }

@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Boundary Nobody Agreed To",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch26_boundary_nobody",
+  "source": "draft_lch",
+  "lines": [
+   358,
+   369
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L358",
+  "ledger": [
+   {
+    "src": "L359",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L365",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L369",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A trader has put markers around the forest and claims it: pull up the markers together, or meet the trader and refuse.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) found carved posts driven into the ground all around the eastern forest, and a trader's mark on each. The trader says the forest is (other.his/her) now, because nobody had marked it. (friend) says the village has never needed to mark what has always been theirs. What should the village do?",
+   "src": "L361",
+   "choices": [
+    {
+     "label": "Pull Up the Markers Together",
+     "next": "o1",
+     "src": "L363"
+    },
+    {
+     "label": "Meet and Refuse",
+     "next": "o2",
+     "src": "L367"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The whole village goes into the forest and pulls up every post, singing. The posts are stacked on the beach for the trader to collect. The trader does, and does not come back.",
+   "src": "L365"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village meets the trader and refuses, calmly and firmly, while the warriors stand quietly behind. The trader leaves the posts. The village uses them as firewood that winter.",
+   "src": "L369"
+  }
+ }
+}

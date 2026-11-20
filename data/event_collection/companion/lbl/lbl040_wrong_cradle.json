@@ -51,7 +51,6 @@
   "caregiver1": {
    "kind": "villager",
    "min_age": 18,
-   "sex": "female",
    "special": "nursing_parent"
   },
   "caregiver2": {
@@ -99,9 +98,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "The mix-up is noticed immediately and everyone laughs.",
-   "src": "L4322"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -112,6 +118,31 @@
    "name": "Outcome 3",
    "text": "The families mark their blankets with distinctive patterns.",
    "src": "L4324"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "The mix-up is noticed immediately and everyone laughs.",
+   "src": "L4322",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "caregiver1",
+     "mood": "good",
+     "src": "L4322"
+    },
+    {
+     "do": "mood",
+     "role": "caregiver2",
+     "mood": "good",
+     "src": "L4322"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "The mix-up is noticed immediately and everyone laughs.",
+   "src": "L4322"
   }
  }
 }

@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Smoke From the Next Island",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b292_smoke_next_island",
+  "source": "balance",
+  "lines": [
+   13568,
+   13608
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13568",
+  "ledger": [
+   {
+    "src": "L13569",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13570",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13577",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13586",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13574",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13575",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13578",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13587",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13580",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13583",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13589",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13592",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13595-13608",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For two days a column of black smoke has been rising from the little island across the strait, where a handful of families live.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For two days a column of black smoke has been rising from the little island across the strait, where a handful of families live. Today it has stopped. The water between the islands is rough, and the crossing takes half a day in a good canoe.\n(Name) is the strongest paddler in the village. Should (he/she) cross the strait and see if anyone needs help, or light a signal fire on the point and wait to see if anyone answers?",
+   "choices": [
+    {
+     "label": "Cross the Strait",
+     "next": "c1",
+     "src": "L13574"
+    },
+    {
+     "label": "Light a Signal Fire",
+     "next": "c2",
+     "src": "L13575"
+    }
+   ],
+   "src": "L13571-13572"
+  },
+  "c1o1": {
+   "text": "On the other island, a brush fire has burned everything down to the sand. Only one family is left: a young couple and their baby, who have been living on the beach for two days, eating raw shellfish. The others left in the first canoes. (Name) brings {#made:one of them home, as the village has no room for more|the three of them home}, the baby asleep in a fish basket the whole way.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L13581",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "On the other island, (name) finds a (man/woman), a teenager and a small child sheltering in the last hut {#made:standing, though the village has room for only one of them|standing, though the village has room for only two of them|standing}. They load everything they have left into the canoe: one cooking pot, one blanket and a pet chicken. The canoe sits so low in the water on the way back that the teenager bails the whole way. The chicken lays an egg in (name)'s lap.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L13584",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) loads the canoe with water, dried fish and blankets, and paddles out into the chop. Halfway across, the wind turns against (him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13578"
+  },
+  "c2o1": {
+   "text": "The next morning a small, battered canoe comes across the strait, with a young couple paddling and a baby tied to the (man/woman)'s back. A brush fire took their home, and they'd seen (name)'s smoke and decided it meant a welcome. It did. {#made:Only one of them can stay; the village has no room for more|They stay}.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L13590",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "No one answers. Days later, a trader passing through says the families on the little island all left together for the big islands to the south, before the fire. The smoke was just the dry grass burning itself out. (Name) is relieved, and a little disappointed, and keeps the fire pit on the point swept clean, just in case.",
+   "src": "L13593"
+  },
+  "c2": {
+   "text": "(Name) builds a great fire on the point, piling it with green palm fronds until the smoke goes up thick and white. Then (he/she) waits...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13587"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L13581",
+   "before": "brings the three of them home",
+   "after": "brings {#made:one of them home, as the village has no room for more|the three of them home}"
+  },
+  {
+   "src": "L13584",
+   "before": "in the last hut standing.",
+   "after": "in the last hut {#made:standing, though the village has room for only one of them|standing, though the village has room for only two of them|standing}."
+  },
+  {
+   "src": "L13590",
+   "before": "They stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|They stay}."
+  }
+ ]
+}

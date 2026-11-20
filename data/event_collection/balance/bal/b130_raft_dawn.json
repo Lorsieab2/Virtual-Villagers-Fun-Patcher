@@ -1,0 +1,234 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Raft at Dawn",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b130_raft_dawn",
+  "source": "balance",
+  "lines": [
+   5948,
+   5992
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5948",
+  "ledger": [
+   {
+    "src": "L5949",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5950",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5958",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5967",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5955",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5956",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5959",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5968",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5961",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5964",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5970",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5973",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5976-5992",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At first light, a villager sees a raft out past the reef.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "fisher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At first light, (subject) sees a raft out past the reef. It is badly made, three logs and a lot of rope, and it is sitting very low in the water. There are people on it, waving a shirt on a stick. The current is carrying them along the reef towards the rocks at the point.\n(fisher), the best fisher, is already pushing a canoe out. \"It's too rough for one canoe to bring them all,\" (subject.he/she) shouts. \"Come with me, or run for more help!\"\nShould (subject) jump into the canoe, or run back for the others?",
+   "choices": [
+    {
+     "label": "Jump Into the Canoe",
+     "next": "c1",
+     "src": "L5955"
+    },
+    {
+     "label": "Run for Help",
+     "next": "c2",
+     "src": "L5956"
+    }
+   ],
+   "src": "L5951-5953"
+  },
+  "c1o1": {
+   "text": "They reach the raft just before the rocks. A tired adult, a teenager with a split lip and a small child wrapped in a sail climb into the canoe, soaked and shaking, and it sits so low in the water that every wave comes in over the side. They bail all the way home. On the beach, the adult can only say \"Thank you\" over and over. The raft breaks up on the rocks that afternoon. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L5962",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "On the raft there's only a baby, tucked into a fold of sail and screaming with rage, and a shirt tied to a stick. Whoever made the raft is gone. (subject) brings the baby home tucked inside (subject.his/her) shirt. Nobody else can stop it crying. When (subject) holds it, it stops. That settles it. (subject) gets very little sleep for a very long time.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L5965",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) splashes out and throws (subject.himself/herself) into the canoe. They paddle so hard their arms burn, out through the gap in the reef, where the waves stand up tall and green and slam down again...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5959"
+  },
+  "c2o1": {
+   "text": "Five canoes go out. They pull a young couple off the raft and a baby off the young couple, and bring everyone home without losing a paddle. The couple were fishing when the storm took their canoe, and they built the raft from the wreck. They have been drifting for six days. They eat everything the cooks put in front of them, and then sleep for a whole day. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L5971",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The village gets the raft people safely ashore, two adults, cold and frightened. But (fisher)'s canoe is gone. Someone saw it go round the point, and then the rocks, and then nothing. They search the coast for days. They find a paddle, and nothing else. The raft people go home when the weather clears, and they leave behind a carving of a canoe for (fisher)'s hut.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "fisher",
+     "line": "leaves"
+    }
+   ],
+   "src": "L5974",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) runs up the beach shouting, and the whole village comes pouring down to the shore with canoes and ropes and paddles, while (fisher) goes out alone...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5968"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L5962",
+   "before": "They stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}."
+  },
+  {
+   "src": "L5971",
+   "before": "They stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}."
+  }
+ ]
+}

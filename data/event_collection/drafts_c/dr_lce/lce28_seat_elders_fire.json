@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Seat at the Elders' Fire",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce28_seat_elders_fire",
+  "source": "draft_lce",
+  "lines": [
+   386,
+   397
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L386",
+  "ledger": [
+   {
+    "src": "L387",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two elders)"
+   },
+   {
+    "src": "L393",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L397",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two old rivals both want the warm seat at the elders' fire: take turns, or let the one who got there first keep it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There is one seat at the elders' fire that is out of the smoke and close to the warmth, and (subject) and (friend) have been fighting over it for twenty years. This evening, they both arrived at exactly the same moment and are both standing beside it, refusing to move. The other elders are watching with great interest. What should happen?",
+   "src": "L389",
+   "choices": [
+    {
+     "label": "Take Turns",
+     "next": "o1",
+     "src": "L391"
+    },
+    {
+     "label": "First Come, First Seated",
+     "next": "o2",
+     "src": "L395"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The other elders decide they will take turns, one night each. (subject) and (friend) agree, sulkily. On (friend)'s nights, (subject) sits as close as possible and complains about the smoke. On (subject)'s nights, (friend) does the same. They both seem to enjoy it enormously.",
+   "src": "L393"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The other elders declare that whoever arrives first keeps it. The next evening, (subject) arrives before sunset. The evening after, (friend) arrives at noon. By the end of the week, both are sleeping beside the fire. The other elders consider this the best entertainment in years.",
+   "src": "L397"
+  }
+ }
+}

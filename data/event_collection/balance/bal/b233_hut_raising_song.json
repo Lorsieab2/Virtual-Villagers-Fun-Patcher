@@ -1,0 +1,227 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hut-Raising Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b233_hut_raising_song",
+  "source": "balance",
+  "lines": [
+   10841,
+   10885
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10841",
+  "ledger": [
+   {
+    "src": "L10842",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10843",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10851",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10860",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10848",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10849",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10852",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10861",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10854",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10857",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10863",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10866",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10869-10885",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The storm last week left five huts in pieces.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The storm last week left five huts in pieces. The builders have been working on them for days and are exhausted. Tonight, (elder) says there is an old song for raising huts, one that \"makes the posts want to stand up,\" and nobody has sung it for a generation. (subject.He/She) remembers the tune, but not all the words.\n(subject) has the loudest voice in the village. (elder) has asked (subject.him/her) to lead the song tomorrow, while everyone works. Or (subject) could just help the builders with their hands, the ordinary way.\nShould (subject) lead the song, or work with the builders?",
+   "choices": [
+    {
+     "label": "Lead the Song",
+     "next": "c1",
+     "src": "L10848"
+    },
+    {
+     "label": "Work with the Builders",
+     "next": "c2",
+     "src": "L10849"
+    }
+   ],
+   "src": "L10844-10846"
+  },
+  "c1o1": {
+   "text": "It works. Or the village works harder because of the singing, which may be the same thing. By sunset all five huts are standing, and everyone's voice is hoarse, and nobody can remember having such a good day's work. The words (subject) made up become the words, and the village sings them every time a hut goes up.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L10855",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The words (subject) makes up are not quite the right ones. A post that \"wants to stand up\" stands up very suddenly and knocks (subject) off the stump. The healers bind (subject.his/her) arm. The huts get finished anyway, by people humming very carefully, without words. (elder) remembers the right words a week later.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L10858",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "At dawn (subject) stands on a tree stump in the middle of the broken huts and starts to sing, making up the words (elder) has forgotten. The whole village joins in on the chorus, and starts to work...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10852"
+  },
+  "c2o1": {
+   "text": "With an extra pair of strong hands, the builders finish all five huts by the end of the next day. They are so grateful that they spend the evening teaching (subject) their tricks, and then teaching each other the tricks they'd been keeping to themselves. Every builder in the village is better for it.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Building"
+     }
+    }
+   ],
+   "src": "L10864",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "While everyone works, (elder) sits on the stump and sings the old song by (subject.himself/herself), the half of it (subject.he/she) remembers, over and over, in a cracked old voice. It's not loud. But the posts go up, one by one, and the huts are all finished by sunset. Nobody knows whether it was the song.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L10867",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) decides hands are more use than a voice. (subject.He/She) spends the day lifting posts and tying thatch with the builders, sweating and swearing...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10861"
+  }
+ }
+}

@@ -1,0 +1,217 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Gift of Years",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s057_elder_gift_years",
+  "source": "rewrites",
+  "lines": [
+   2703,
+   2748
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2703",
+  "ledger": [
+   {
+    "src": "L2704",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2705",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2713",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2722",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2710",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2711",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2714",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2723",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2716",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2719",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2725",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2728",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2731-2748",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is very old and very tired.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) is very old and very tired. (subject.He/She) spends most days on a mat in the shade, shelling beans and watching the children chase crabs on the sand, and smiling at nothing in particular.\n(subject.He/She) has heard of an old charm, from (subject.his/her) own grandmother, a long time ago: a way of giving years to a loved one. One knot is tied in a cord for every year to be given, and the loved one wears it round their wrist, until the knots untie themselves.\n(friend) is the one (subject) loves best in all the world. And (friend) has been sick for a long time now, weeks and weeks, and isn't getting better. This morning, (subject) has a long cord in (subject.his/her) lap, and is tying knots in it, very slowly, one after another. (friend) understands what the knots are for. Should (friend) let (subject) give away (subject.his/her) years, or refuse the gift?",
+   "choices": [
+    {
+     "label": "Let (subject) Do It",
+     "next": "c1",
+     "src": "L2710"
+    },
+    {
+     "label": "Refuse the Gift",
+     "next": "c2",
+     "src": "L2711"
+    }
+   ],
+   "src": "L2706-2708"
+  },
+  "c1o1": {
+   "text": "In the night, the knots untie themselves, one by one, with tiny soft sounds like a sigh. In the morning the cord is just a cord, lying straight on the mat. (subject) wakes up a little older, a little slower, a little more silver. And (friend) wakes up stronger. The fever is gone. (friend.He/She) sits up and looks at (friend.his/her) hands, and they're steadier, and a little younger. (friend) gets up, walks straight across the village to (subject)'s mat, and sits down and holds (subject)'s hand all evening, and cries, and (subject) just pats (friend.his/her) hand and says \"There, there.\"",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      5,
+      5
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "change_age",
+     "role": "friend",
+     "years": [
+      -5,
+      -5
+     ]
+    },
+    {
+     "do": "cure",
+     "role": "friend"
+    }
+   ],
+   "src": "L2717",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "In the morning the knots are all still tied. Every one of them, just as tight as (subject) tied them. Nothing has changed at all. (subject) looks at the cord for a long time, then shrugs. \"Well,\" (subject.he/she) says. \"I tried.\" (subject.He/She) smiles at (friend). \"It's the trying that counts.\" (friend) wears the knotted cord anyway, every day, and slowly, with time and soup and rest, gets better on (friend.his/her) own. (friend) never takes the cord off.",
+   "src": "L2720"
+  },
+  "c1": {
+   "text": "(subject) finishes the last knot, and holds the cord out with both shaking hands. (friend) lets (subject) tie it round (friend.his/her) wrist. That night they both lie awake, in their separate huts, listening...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2714"
+  },
+  "c2o1": {
+   "text": "\"No,\" says (friend), gently, but very firmly. \"Keep your years. Every single one. I want you around.\" (subject) argues. (subject) is stubborn. But (friend) is more stubborn, even sick, and in the end (subject) puts the cord away in a basket. They sit together in the shade for the rest of the afternoon, and (subject) teaches (friend) to shell beans properly. (friend) gets better slowly, over the following weeks, the ordinary way.",
+   "src": "L2726"
+  },
+  "c2o2": {
+   "text": "\"No,\" says (friend). \"Keep them.\" But the cord is already tied round (friend)'s wrist, from when (subject) was measuring it. That night, the knots untie themselves anyway, but the wrong way round, backwards, spinning off the cord the opposite direction. In the morning (subject) and (friend) both wake up five years younger. Both of them. Neither of them understands it. (subject) can bend (subject.his/her) knees again. (friend)'s fever has dropped. They stare at each other across the village, very confused, and then (subject) starts to laugh so hard that (subject.he/she) has to sit down.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -5,
+      -5
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "change_age",
+     "role": "friend",
+     "years": [
+      -5,
+      -5
+     ]
+    }
+   ],
+   "src": "L2729",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(friend) looks at the knotted cord in (subject)'s hands, and understands what it is. (friend.He/She) reaches out and closes (subject)'s fingers gently over it. \"No,\" (friend) says...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2723"
+  }
+ }
+}

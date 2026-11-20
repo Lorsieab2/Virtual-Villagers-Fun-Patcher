@@ -1,0 +1,261 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fire in the Weaving Hut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b025_fire_weaving_hut",
+  "source": "balance",
+  "lines": [
+   1116,
+   1157
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1116",
+  "ledger": [
+   {
+    "src": "L1117",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1118",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1126",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1135",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1123",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1124",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1127",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1136",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1129",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1132",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1138",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1141",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1144-1157",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A spark from the cooking fire has caught the thatch of the weaving hut, and in moments the roof is burning.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A spark from the cooking fire has caught the thatch of the weaving hut, and in moments the roof is burning. Inside is the great loom the whole village helped build, and on it, half-finished, the sail cloth that (name) has been weaving for three months.\nThe bucket chain is already forming, but the fire is spreading to the next roof. (Name) is standing in the doorway with smoke pouring past (him/her), looking at the loom.\nShould (name) go in for the cloth, or help stop the fire spreading?",
+   "choices": [
+    {
+     "label": "Go In for the Cloth",
+     "next": "c1",
+     "src": "L1123"
+    },
+    {
+     "label": "Help Stop the Fire Spreading",
+     "next": "c2",
+     "src": "L1124"
+    }
+   ],
+   "src": "L1119-1121"
+  },
+  "c1o1": {
+   "text": "(Name) comes out with the sail cloth rolled in (his/her) arms, and collapses on the grass. The cloth is saved. (His/Her) hands are badly burned. The healers do everything they can, and in time the burns heal into shiny scars, but (his/her) fingers never move as freely as before. (He/She) can't go near a fire without (his/her) hands aching, and keeps well away from the cooking pit. Instead, (he/she) stands beside the young weavers and tells them which thread goes where, and the sail (he/she) saved carries the village's best canoe for twenty years.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L1130",
+   "text_only": [
+    {
+     "src": "L1130",
+     "what": "\"collapses\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) gets the cloth off the loom and out through the door a heartbeat before the roof comes down. Singed eyebrows, a cough, and a very cross healer. The bucket chain stops the fire at the next hut. Over the next week the village rebuilds both huts, and a new loom, and puts the weaving hut a good long way from the cooking fire this time.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L1133",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) wraps a wet mat round (his/her) arms and ducks inside, into the heat and the roar. (He/She) can't see. (He/She) feels for the loom...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1127"
+  },
+  "c2o1": {
+   "text": "They lose the weaving hut, the loom and three months of cloth. But they save every other roof in the village. When the smoke clears, the whole village comes to (name) one at a time and says something kind, and then they build a new weaving hut, and a better loom, together. (Name) starts the sail cloth again. It goes faster with help.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L1139",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They stop the fire at the next hut. But the next hut was where the village's scholars kept their notes on plants and stars, and the water from the bucket chain soaked what the fire didn't burn. (Name) and the scholars sit together in the ashes the next morning, salvaging what they can. \"At least we're all here,\" says (name). The scholars nod, and keep salvaging.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L1142",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) turns away from the door, and it is the hardest thing (he/she) has ever done. (He/She) grabs a bucket and runs for the next roof, where the thatch has just started to smoke...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1136"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "fire",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  }
+ }
+}

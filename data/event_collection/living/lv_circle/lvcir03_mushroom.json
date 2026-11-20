@@ -105,7 +105,8 @@
      "max": 10,
      "src": "L21273"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",

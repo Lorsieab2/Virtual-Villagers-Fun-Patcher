@@ -71,14 +71,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Flowers are for anyone who likes flowers,\" says (subject). \"I like them a lot.\" (friend) thinks about this. \"Can I have one?\" (subject) tucks a little yellow one behind (friend)'s ear. (friend) walks around for the rest of the day very proudly. Nobody tells (friend.him/her) flowers are for anybody in particular, because they aren't.",
-   "src": "L218"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Who told you that?\" asks (subject). (friend) shrugs. \"Just somebody.\" \"Well,\" says (subject), \"what do you think? Do flowers care who wears them?\" (friend) looks at the flowers seriously. \"No,\" (friend.he/she) decides. \"Flowers don't care.\" \"Exactly,\" says (subject). (friend) goes off to pick some flowers. They end up behind the ears of several goats.",
    "src": "L221"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Flowers are for anyone who likes flowers,\" says (subject). \"I like them a lot.\" (friend) thinks about this. \"Can I have one?\" (subject) tucks a little yellow one behind (friend)'s ear. (friend) walks around for the rest of the day very proudly. Nobody tells (friend.him/her) flowers are for anybody in particular, because they aren't.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L218"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Flowers are for anyone who likes flowers,\" says (subject). \"I like them a lot.\" (friend) thinks about this. \"Can I have one?\" (subject) tucks a little yellow one behind (friend)'s ear. (friend) walks around for the rest of the day very proudly. Nobody tells (friend.him/her) flowers are for anybody in particular, because they aren't.",
+   "src": "L218"
   }
  }
 }

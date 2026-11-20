@@ -1,0 +1,209 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Children's Spring",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b147_children_spring",
+  "source": "balance",
+  "lines": [
+   6764,
+   6808
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6764",
+  "ledger": [
+   {
+    "src": "L6765",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6766",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6774",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6783",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6771",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6772",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6775",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6784",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6777",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6780",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6786",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6789",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6792-6808",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "I promise. The spring, when they get there, is tiny, clear and bubbling, in a nest of roots under a fig tree.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  },
+  "child": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(child) has found a spring in the jungle that no grown-up knows about. (subject.He/She) says the water tastes like sugarcane, and that anyone who drinks from it feels like running all day. (subject.He/She) has told no one else, except now (subject.he/she) has told (subject), because (subject) is (subject.his/her) favourite grown-up and has a bad back.\n\"Come and see,\" (child) says, pulling at (subject)'s hand. \"It'll fix your back. I promise.\" The spring, when they get there, is tiny, clear and bubbling, in a nest of roots under a fig tree. A ring of very small footprints goes all the way round it.\nShould (subject) drink from the children's spring?",
+   "choices": [
+    {
+     "label": "Drink",
+     "next": "c1",
+     "src": "L6771"
+    },
+    {
+     "label": "Just Wash (subject.His/Her) Face",
+     "next": "c2",
+     "src": "L6772"
+    }
+   ],
+   "src": "L6767-6769"
+  },
+  "c1o1": {
+   "text": "(subject) stands up, and (subject.his/her) back doesn't hurt. Then (subject.he/she) realises (subject.his/her) hair is falling over (subject.his/her) eyes, thick and luscious, and (subject.his/her) hands are smooth. (child) is jumping up and down. \"I TOLD you.\" It turns out the children have all been drinking from it, which explains a great deal about how much energy they have. (subject) runs home. (subject) has not run anywhere in years.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -10,
+      -10
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L6778",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) is very thirsty. (subject.He/She) drinks and drinks. (child) tugs at (subject.his/her) sleeve, saying, \"That's enough, that's enough,\" and (subject) doesn't stop until (subject.he/she) looks up and finds (subject.he/she) is only a head taller than (child). (subject) is fifteen. (child) looks at (subject.him/her) with deep disappointment. \"You're not a grown-up now,\" (subject.he/she) says. \"You're just BIG.\"",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "teen",
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L6781",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) kneels, which hurts, and drinks from (subject.his/her) cupped hands. The water is sweet, and fizzy, and makes (subject.his/her) teeth tingle. (child) watches (subject.him/her) very hard, waiting...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6775"
+  },
+  "c2o1": {
+   "text": "The tingle goes all over (subject.his/her) face and stops at (subject.his/her) neck. When (subject) looks in the spring, a young face looks back, bright and smooth, with not a line on it. The rest of (subject.him/her), (subject.his/her) back included, is exactly the same. (child) is annoyed. \"That's not how you do it,\" (subject.he/she) says. \"You're meant to drink it.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L6787",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Nothing happens, except that (subject.his/her) face feels very clean. (subject) and (child) sit by the spring for an hour, and (child) tells (subject.him/her) all the other secrets the children have that no grown-up knows about. Some of them are alarming. (subject) promises not to tell anyone, and doesn't, though (subject.he/she) does go and check that the old well has a cover on it.",
+   "src": "L6790"
+  },
+  "c2": {
+   "text": "(subject) doesn't trust water that makes children run all day. (subject.He/She) cups a little and splashes it on (subject.his/her) face, then sits back on (subject.his/her) heels and lets it drip...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6784"
+  }
+ }
+}

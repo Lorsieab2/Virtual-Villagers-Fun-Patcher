@@ -96,21 +96,147 @@
    ]
   },
   "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), a carver, smooths the cheeks of a new festival mask. The mask's face seems to change expression as the light moves.",
+   "src": "L311,L312",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L311,L312"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
    "name": "Ending 1",
    "text": "(Name1), a carver, smooths the cheeks of a new festival mask. The mask's face seems to change expression as the light moves.",
    "src": "L311,L312"
   },
-  "e2": {
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1), a carver, smooths the cheeks of a new festival mask. A child tries it on and peers out solemnly through the eyeholes.",
+   "src": "L311,L313",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L311,L313"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Ending 2",
    "text": "(Name1), a carver, smooths the cheeks of a new festival mask. A child tries it on and peers out solemnly through the eyeholes.",
    "src": "L311,L313"
   },
-  "e3": {
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1), a carver, smooths the cheeks of a new festival mask. The carver decides it needs a little more smile.",
+   "src": "L311,L314",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L311,L314"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
    "name": "Ending 3",
    "text": "(Name1), a carver, smooths the cheeks of a new festival mask. The carver decides it needs a little more smile.",
    "src": "L311,L314"
   },
-  "e4": {
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), a carver, smooths the cheeks of a new festival mask. The carver sets it aside to dry and smiles back at it.",
+   "src": "L311,L315",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L311,L315"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L311,L315"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1), a carver, smooths the cheeks of a new festival mask. The carver sets it aside to dry and smiles back at it.",
    "src": "L311,L315"

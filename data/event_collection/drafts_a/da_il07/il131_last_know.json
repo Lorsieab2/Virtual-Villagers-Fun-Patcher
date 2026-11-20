@@ -65,14 +65,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(friend) puts down what (friend.he/she) is doing and listens to the whole story as though it's brand new: the heron, the stream, how it looked at (subject) as if it remembered (subject.him/her). \"No!\" says (friend), in all the right places. (subject) is thrilled. (subject.He/She) finds out the truth at dinner, when four other people tell (subject.him/her) about the heron, and is first outraged and then deeply touched.",
-   "src": "L134"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "\"The heron?\" says (friend). \"Oh, (subject). Everyone's seen the heron.\" (subject)'s face falls. \"Since when?\" \"Since about four days ago.\" (subject) is quiet for a moment. \"Did anyone think to tell ME?\" \"Everyone thought someone else had.\" They go down to the stream together anyway. The heron looks at both of them as if it remembers neither.",
    "src": "L137"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(friend) puts down what (friend.he/she) is doing and listens to the whole story as though it's brand new: the heron, the stream, how it looked at (subject) as if it remembered (subject.him/her). \"No!\" says (friend), in all the right places. (subject) is thrilled. (subject.He/She) finds out the truth at dinner, when four other people tell (subject.him/her) about the heron, and is first outraged and then deeply touched.",
+   "src": "L134",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L134"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(friend) puts down what (friend.he/she) is doing and listens to the whole story as though it's brand new: the heron, the stream, how it looked at (subject) as if it remembered (subject.him/her). \"No!\" says (friend), in all the right places. (subject) is thrilled. (subject.He/She) finds out the truth at dinner, when four other people tell (subject.him/her) about the heron, and is first outraged and then deeply touched.",
+   "src": "L134"
   }
  }
 }

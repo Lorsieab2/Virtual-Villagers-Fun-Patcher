@@ -107,6 +107,33 @@
    "src": "L26"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) stays with the bird while (friend) fetches (fisher), an old fisher who has freed more seabirds than anyone can count. (fisher) looks, sighs, and does it in a few quick, careful moves. The bird bites (fisher) on the thumb by way of thanks and flies off. \"They always do that,\" says (fisher), sucking the thumb. \"Every single time.\" The three of them spend the rest of the afternoon walking the rocks, picking up every scrap of that shiny line they can find.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "fisher",
+     "min": -30,
+     "max": -15,
+     "src": "L29"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) stays with the bird while (friend) fetches (fisher), an old fisher who has freed more seabirds than anyone can count. (fisher) looks, sighs, and does it in a few quick, careful moves. The bird bites (fisher) on the thumb by way of thanks and flies off. \"They always do that,\" says (fisher), sucking the thumb. \"Every single time.\" The three of them spend the rest of the afternoon walking the rocks, picking up every scrap of that shiny line they can find.",
    "src": "L29"

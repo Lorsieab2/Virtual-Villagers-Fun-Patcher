@@ -1,0 +1,281 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night the Hill Moved",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b267_night_hill_moved",
+  "source": "balance",
+  "lines": [
+   12443,
+   12485
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12443",
+  "ledger": [
+   {
+    "src": "L12444",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12445",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12453",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12462",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12450",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12451",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12454",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12463",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12456",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12459",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12465",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12468",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12471-12485",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "After a week of heavy rain, the hillside above the village gives way in the night with a sound like a giant clearing its throat.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "After a week of heavy rain, the hillside above the village gives way in the night with a sound like a giant clearing its throat. A river of mud slides down between the huts. By the time anyone gets outside, two huts are half buried and the path to the gardens is gone.\n(friend) is inside one of the buried huts. (subject) can hear (subject.him/her) shouting through the walls. The mud is still moving, slowly, and more could come down at any moment.\nShould (subject) dig (friend) out right now, or run for help first?",
+   "choices": [
+    {
+     "label": "Dig Right Now",
+     "next": "c1",
+     "src": "L12450"
+    },
+    {
+     "label": "Run for Help",
+     "next": "c2",
+     "src": "L12451"
+    }
+   ],
+   "src": "L12446-12448"
+  },
+  "c1o1": {
+   "text": "(subject) gets the doorway clear just as more mud comes down, and drags (friend) out by the arms. (friend) is alive, but a fallen rafter has crushed (subject.his/her) leg, and it never heals straight. (subject.He/She) walks with a stick after that. For years, whenever it rains hard, (subject.he/she) sits up all night listening to the hill.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -30
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o1_c2"
+    }
+   ],
+   "src": "L12457",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) gets the doorway clear and pushes (friend) out through it. Then the second slide comes. The village digs all night, and finds (subject) at dawn, still in the doorway, where (subject.he/she) had been holding the rafter up. (friend) sits by the grave every evening for a month. The village sets a stone by the new path with (subject)'s handprint pressed into it in clay.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L12460",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) throws (subject.himself/herself) at the mud with (subject.his/her) bare hands, scooping it away from the doorway. It's heavy and cold and keeps sliding back...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12454"
+  },
+  "c2o1": {
+   "text": "With everyone digging, (friend) is out within the hour, muddy and furious and completely unhurt. The village keeps going until dawn, and by the end of the week both huts are dug out, rebuilt and standing on new stone footings. Everyone who dug learned something about building on a hillside.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "skills": [
+      "Building"
+     ],
+     "target": {
+      "random": 5
+     }
+    }
+   ],
+   "src": "L12466",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "By the time help comes, (friend) has dug (subject.himself/herself) out through the back wall and is sitting on the roof, plastered in mud from head to foot, waving. The village spends the next week rebuilding, and cuts a new path to the gardens around the side of the hill. Somebody plants a row of bamboo along it to hold the soil.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L12469",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"Hold on!\" (subject) shouts, and runs, pounding on doors and yelling. Within minutes the whole village is out in the rain with sticks, baskets and bare hands...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12463"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "rocks",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       1
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  },
+  "c1o1_g2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "wood",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c2": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g2",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_c1"
+    }
+   ]
+  }
+ }
+}

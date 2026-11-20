@@ -89,21 +89,14 @@
    "src": "L10924"
   },
   "b": {
+   "type": "branch",
    "name": "Outcome B",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "They discover a mundane source of the strange echoes.",
-   "src": "L10925",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "diver",
-     "skills": [
-      "Research"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L10925"
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
     }
    ]
   },
@@ -127,7 +120,8 @@
      "max": -10,
      "src": "L10926"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c_missing": {
    "name": "Outcome C: missing",
@@ -151,7 +145,8 @@
      "role": "diver",
      "src": "L10926"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c_fatal": {
    "name": "Outcome C: fatal",
@@ -170,9 +165,11 @@
      "do": "kill",
      "role": "diver",
      "cause": "unknown",
-     "src": "L10926"
+     "src": "L10926",
+     "line": "injuries"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -193,6 +190,52 @@
      "rarity": "very_rare"
     }
    ]
+  },
+  "b__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They discover a mundane source of the strange echoes.",
+   "src": "L10925",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "diver",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10925"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L10925"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They discover a mundane source of the strange echoes.",
+   "src": "L10925",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "diver",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10925"
+    }
+   ],
+   "auto_text": true
   }
  }
 }

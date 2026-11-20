@@ -1,0 +1,194 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Twin Stars",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b065_twin_stars",
+  "source": "balance",
+  "lines": [
+   2933,
+   2974
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2933",
+  "ledger": [
+   {
+    "src": "L2934",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2935",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2943",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2952",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2940",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2941",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2944",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2953",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2946",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2949",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2955",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2958",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2961-2974",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At first light a villager climbs up and finds them: two small, warm, glittering stones lying in a scorched patch of grass.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Lying on the beach at night, (name) sees two shooting stars fall at exactly the same moment, side by side, and land somewhere in the hills with a soft double thump that (he/she) feels through the sand. The elders say twin stars are rare, and that their stones \"make two of whatever they touch.\" One of the elders once saw a fishing net doubled.\nAt first light (name) climbs up and finds them: two small, warm, glittering stones lying in a scorched patch of grass.\nShould (name) pick them both up, or just one?",
+   "choices": [
+    {
+     "label": "Pick Up Both",
+     "next": "c1",
+     "src": "L2940"
+    },
+    {
+     "label": "Pick Up Just One",
+     "next": "c2",
+     "src": "L2941"
+    }
+   ],
+   "src": "L2936-2938"
+  },
+  "c1o1": {
+   "text": "The light flashes, and when it clears, {#made:a second (name) is standing|two more (name)s are standing|three more (name)s are standing} in the scorched grass, each holding a dull grey pebble. {#made:It is|They are|They are} (name) exactly, every like and every habit. The elders, when they come puffing up the hill, just nod. \"Two of whatever they touch,\" says one. \"We did warn you.\" The newcomers get names of their own: {#made:(made1)|(made1) and (made1)|names of their own}.",
+   "effects": [
+    {
+     "do": "clone",
+     "count": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L2947",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The glow fades, and there's a second (name), exactly alike, sitting in the grass and rubbing (his/her) eyes. One stone went dull. The other is still glittering, and the elders take it away very quickly and bury it somewhere nobody is told about. The newcomer takes the name (made1), and the two of them walk home arguing about who got there first.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L2950",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) picks up a stone in each hand. They're warm, and grow warmer, and (his/her) hands begin to glow, and then (his/her) arms, and then all of (him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2944"
+  },
+  "c2o1": {
+   "text": "The star on the ground finds what it's looking for: (name)'s shadow. It flares, and a person rises out of the grass with (name)'s face. But one star alone only copied the outside. The newcomer is someone else entirely: different likes, different gifts, a different laugh. It chooses the name (made1).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L2956",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The other stone flickers out. (Name) carries (his/her) stone home and keeps it on a shelf, where it glitters faintly at night for years. Nothing gets doubled. (Name) is mostly relieved, and slightly disappointed, and shows the stone to anyone who asks.",
+   "src": "L2959"
+  },
+  "c2": {
+   "text": "(Name) picks up one stone and leaves the other. The stone in (his/her) hand glows briefly, then dims. The one on the ground flickers, as if it's looking for something...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2953"
+  }
+ }
+}

@@ -1,0 +1,296 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ferryman's Empty Boat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my104_ferryman_empty",
+  "source": "rewrites",
+  "lines": [
+   15904,
+   15959
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15904",
+  "ledger": [
+   {
+    "src": "L15905",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15906",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15914",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15921",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15928",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15935",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15909",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15910",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15911",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15912",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15915",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15922",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15929",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15936",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15916",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15918",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15923",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15925",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15930",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15932",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15937",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15939",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15942-15959",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At dawn, the lagoon is as flat as glass, with a low mist lying on the water.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At dawn, the lagoon is as flat as glass, with a low mist lying on the water. (Name) is down at the shore early when (he/she) sees it: a small ferry boat gliding across the lagoon toward the far shore, without a ripple. Its paddle lies resting in the bottom of the boat. There is nobody in it.\n(Name) watches it touch the far shore, wait there a moment, and then turn and glide all the way back. It bumps gently against the sand right at (his/her) feet, and rocks there, waiting, as if expecting someone to get in. Should (name) get in?",
+   "choices": [
+    {
+     "label": "Board the Ferry",
+     "next": "c1",
+     "src": "L15909"
+    },
+    {
+     "label": "Call to the Rower",
+     "next": "c2",
+     "src": "L15910"
+    },
+    {
+     "label": "Watch from Shore",
+     "next": "c3",
+     "src": "L15911"
+    },
+    {
+     "label": "Leave the Boat Alone",
+     "next": "c4",
+     "src": "L15912"
+    }
+   ],
+   "src": "L15907-15908"
+  },
+  "c1o1": {
+   "text": "The ferry glides across the lagoon and out through a narrow channel in the reef that (name) never knew existed, into a little sheltered bay. The water there is thick with striped fish, the kind nobody in the village has caught in years. The boat stops, and waits. (Name) fishes with (his/her) bare hands and a basket until the boat is half full, and the ferry carries (him/her) home again. When (he/she) steps out, it drifts off into the mist. The fish feed the whole street.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L15917",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The ferry glides out past the far shore, past the reef, and keeps going, out into deep water, far from land. (Name) grabs the paddle, and the paddle will not move. (He/she) shouts. The boat does not stop. Finally (name) jumps over the side. (He/she) swims for a very long time against the pull of the water and crawls up the beach at last, shaking, gasping and utterly spent. Behind (him/her), the ferry is already gliding back across the lagoon, empty and calm.",
+   "src": "L15919"
+  },
+  "c1": {
+   "text": "Every sensible bone in (name)'s body says no. (Name) steps in anyway. The boat dips under (his/her) weight, then, without anyone touching the paddle, pulls smoothly away from the shore, out into the mist...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15915"
+  },
+  "c2o1": {
+   "text": "A voice answers from the empty stern of the boat, quiet and polite, like a ferryman who has asked the same question a thousand times: \"Where do you wish to go?\" (Name) cannot answer. (He/she) opens (his/her) mouth, and nothing comes out. After a long moment, the boat drifts away from the shore, back into the mist, and does not return. (Name) thinks about the question for many days after. (He/she) is still not sure what (he/she) would have said.",
+   "src": "L15924"
+  },
+  "c2o2": {
+   "text": "Something under the canvas cover in the bottom of the boat lets out a loud, startled snort, and a very rumpled fisher sits up, blinking. \"What? Who? Oh, sorry, I must have dozed off.\" (He/she) has been lying under the cover pulling the boat along with a long pole pushed against the lagoon floor, to keep out of the cold wind, and fell asleep halfway through. (Name) laughs so hard (he/she) has to sit down in the shallows.",
+   "src": "L15926"
+  },
+  "c2": {
+   "text": "\"Hello?\" (name) calls, peering at the empty boat. \"Is anyone there? Who's rowing?\" The mist muffles (his/her) voice. For a moment there is only the soft lap of water against the hull...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15922"
+  },
+  "c3o1": {
+   "text": "As the sun climbs and the mist burns off, (name) sees it: a long rope, running just below the surface of the water from one shore to the other, through a ring on the boat's bow. Someone on the far shore is slowly winding it in. When (name) walks around to look, (he/she) finds a clever wooden winch, hidden in the reeds, built by a fisher from the next village to pull goods across. The village builders are very impressed, and soon there are rope ferries crossing three rivers on the island.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L15931",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The ferry crosses and returns, crosses and returns, all day long, never fast, never slow, never with anyone in it. Villagers come down to watch it. Nobody gets in. At sunset, as the last light leaves the water, the ferry reaches the far shore and does not come back. In the morning, there is no boat on either shore. (Name) remembers it for the rest of (his/her) life: the paddle resting, and the water never rippling.",
+   "src": "L15933"
+  },
+  "c3": {
+   "text": "(Name) does not go near it. (He/she) sits down on a rock, wraps (his/her) arms around (his/her) knees, and watches the empty ferry very carefully as it pulls away again across the lagoon...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15929"
+  },
+  "c4o1": {
+   "text": "When (he/she) finally does look back from the top of the path, the ferry is drifting away from the shore, back out into the morning mist, slowly, silently, until the white swallows it up. When the mist lifts, the lagoon is empty and bright and full of children splashing. (Name) never sees the boat again, and decides that is fine with (him/her).",
+   "src": "L15938"
+  },
+  "c4o2": {
+   "text": "That afternoon, a traveler comes up the beach, looking flustered. \"Excuse me, has anyone seen a little ferry boat? Wooden, with a paddle? I tied it up by the far shore last night and it's gone.\" (Name) points out to the lagoon. The traveler squints. The ferry is sitting right there in the middle of the lagoon, perfectly still. \"How did it get out there?\" the traveler asks. Nobody has a good answer.",
+   "src": "L15940"
+  },
+  "c4": {
+   "text": "(Name) backs slowly up the beach, turns around, and goes home for breakfast, trying very hard not to look back...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15936"
+  }
+ }
+}

@@ -81,6 +81,32 @@
    "src": "L26"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) goes. The whole first evening (subject.he/she) worries about the beans. The second evening, a little less. By the third, (subject.he/she) is up to (subject.his/her) elbows in red dye and has forgotten the beans completely. (subject.He/she) comes home with stained hands and a head full of ideas. The beans have not noticed (subject.he/she) was gone.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L29"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) goes. The whole first evening (subject.he/she) worries about the beans. The second evening, a little less. By the third, (subject.he/she) is up to (subject.his/her) elbows in red dye and has forgotten the beans completely. (subject.He/she) comes home with stained hands and a head full of ideas. The beans have not noticed (subject.he/she) was gone.",
    "src": "L29"

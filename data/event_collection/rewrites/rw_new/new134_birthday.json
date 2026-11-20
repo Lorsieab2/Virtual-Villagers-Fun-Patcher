@@ -1,0 +1,257 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Birthday No One Counted",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new134_birthday",
+  "source": "rewrites",
+  "lines": [
+   6290,
+   6336
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6290",
+  "ledger": [
+   {
+    "src": "L6291",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6292",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6301",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6308",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6315",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6297",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6298",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6299",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6302",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6309",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6316",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6303",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6305",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6310",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6312",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6317",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6319",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6322-6336",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It turns out nobody knows.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "\"How old are you, anyway?\" (young) asks (subject) one morning, just making conversation.\nIt turns out nobody knows.\nNot (subject). Not (subject.his/her) children. Not the oldest elders, who argue about it. Guesses range wildly, from \"younger than me\" to \"older than the volcano.\" One person says (subject) was \"already old when I was a baby\", which (subject) finds deeply offensive.\n(subject), meanwhile, seems to be enjoying the confusion enormously, and has started claiming a different age every time someone asks. (young) would like to give (subject) a proper birthday. But how does anyone celebrate a day nobody can remember?",
+   "choices": [
+    {
+     "label": "Ask How They Would Celebrate",
+     "next": "c1",
+     "src": "L6297"
+    },
+    {
+     "label": "Work Out Their Age",
+     "next": "c2",
+     "src": "L6298"
+    },
+    {
+     "label": "Swap Stories of the Years",
+     "next": "c3",
+     "src": "L6299"
+    }
+   ],
+   "src": "L6293-6296",
+   "text_only": [
+    {
+     "src": "L6296",
+     "what": "\"celebrate\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "(subject) decides at once, and very precisely, exactly how the day should go: a swim in the lagoon at sunrise, the biggest meal anyone can cook, and a very long nap in the best hammock in the village. Nobody else gets the hammock. The day goes exactly as planned, and (subject) declares it the best birthday (subject.he/she) has had in at least eighty years. Or sixty. Or a hundred.",
+   "src": "L6304"
+  },
+  "c1o2": {
+   "text": "(subject) considers this, then asks for help planning a feast, a proper one, with drums. Everyone who thought (subject.he/she) hated fuss is astonished. The feast is loud, long and wonderful, and (subject) dances, badly and with great joy, until the moon is high.",
+   "src": "L6306"
+  },
+  "c1": {
+   "text": "\"Well,\" says (young), \"if nobody knows your birthday, you might as well pick one. What would you like to do on it?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6302"
+  },
+  "c2o1": {
+   "text": "(subject) teaches (young) how the old people counted years by the great events everyone remembered: the storm that knocked down the big palm, the year the comet came, the dry season when the stream vanished. (young) learns a useful way of reckoning time, and between them they work out that (subject) is somewhere between \"quite old\" and \"very old.\" (subject) says that sounds about right.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "young",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L6311",
+   "text_only": [
+    {
+     "src": "L6311",
+     "what": "\"vanished\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They start counting storms, and then get stuck: (subject) can't remember which great storm came first, the one that took the fishing huts or the one that flooded the gardens. (subject.He/She) asks the other elders to help put the years in order, and soon the whole elders' circle is shouting about storms. They never settle it.",
+   "src": "L6313"
+  },
+  "c2": {
+   "text": "(young) is determined to solve the mystery properly. (subject) chuckles. \"If you want to count years, you don't count them. You count storms.\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6309"
+  },
+  "c3o1": {
+   "text": "The evening passes in swapped memories, funny ones and sad ones and ones that make everyone groan. (subject) laughs until (subject.he/she) cries. By the end, nobody needs an exact number after all. \"However old I am,\" (subject) says, \"it's been worth it.\"",
+   "src": "L6318"
+  },
+  "c3o2": {
+   "text": "An old disagreement comes up: whose idea was the first cooking hut? (subject) insists it was (subject.his/hers). Another elder insists it was theirs. It goes on for some time. Everyone agrees, eventually, to leave it unsettled, which is how both of them like it.",
+   "src": "L6320"
+  },
+  "c3": {
+   "text": "That evening, (subject)'s family and friends gather around the fire to share memories of all the years they've known (subject.him/her)...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6316"
+  }
+ }
+}

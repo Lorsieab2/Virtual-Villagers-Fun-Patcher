@@ -1,0 +1,254 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fisher Who Wanted to Farm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new184_fisher_wanted",
+  "source": "rewrites",
+  "lines": [
+   8918,
+   8964
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8918",
+  "ledger": [
+   {
+    "src": "L8919",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8920",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8929",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8936",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8943",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8925",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8926",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8927",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8930",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8937",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8944",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8931",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8933",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8938",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8940",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8945",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8947",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8950-8964",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is the best fisher in the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "mentor": {
+   "kind": "villager",
+   "min_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) is the best fisher in the village. Everybody knows it. (subject.He/She) can find fish where there aren't any. The other fishers follow (subject.his/her) canoe around hoping to catch (subject.his/her) leftovers.\nThis morning, (subject) announced (subject.he/she) wants to learn farming instead.\n\"The fish are fine,\" (subject.he/she) explained to the stunned gathering. \"The sea is fine. I'm just tired of being wet. All the time. For years.\"\nThe other fishers are deeply, personally offended on behalf of the sea. One of them has not spoken to (subject) since. (subject) has already borrowed a digging stick and is holding it upside down. How should the village help (subject) learn?",
+   "choices": [
+    {
+     "label": "Ask What the Fence Taught Them",
+     "next": "c1",
+     "src": "L8925"
+    },
+    {
+     "label": "Split Their Days Between Sea and Field",
+     "next": "c2",
+     "src": "L8926"
+    },
+    {
+     "label": "Find Them a Farming Mentor",
+     "next": "c3",
+     "src": "L8927"
+    }
+   ],
+   "src": "L8921-8924"
+  },
+  "c1o1": {
+   "text": "The wind knocked it over in the night. (subject) pulls up one of the posts and looks at it: it was barely in the ground at all. (subject.He/She) learns to sink the posts deeper, at least a forearm's length, and pack the soil hard around them. It's a practical building lesson. The second fence is still standing a year later.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L8932",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) explains, a little crossly, that the farmers only told (subject.him/her) \"put up a fence.\" Not how. Not how deep. Nobody explains anything to a fisher, apparently, because they assume fishers know nothing about land. It was unclear instructions, not laziness, and the farmers, a little ashamed, start explaining things properly.",
+   "src": "L8934"
+  },
+  "c1": {
+   "text": "(subject)'s very first farming job is to put up a fence around a new garden plot. The next morning, (subject.he/she) comes to look at it. It is lying flat on the ground...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8930"
+  },
+  "c2o1": {
+   "text": "Fishing mornings and farming afternoons let (subject) learn at a pace that suits (subject.him/her). (subject.He/She) is still wet in the mornings, but dry by sunset. The fishers grudgingly admit (subject.he/she) still catches more in half a day than they do in a whole one.",
+   "src": "L8939"
+  },
+  "c2o2": {
+   "text": "The split leaves (subject) wet in the morning and muddy in the afternoon, and by evening, (subject.he/she) is wet AND muddy, the worst of both worlds. (subject.He/She) is miserable. Everyone agrees to rethink it tomorrow, and (subject) goes to bed sulking.",
+   "src": "L8941"
+  },
+  "c2": {
+   "text": "The village suggests a compromise: fishing in the mornings, farming in the afternoons, so the village doesn't lose its best fisher entirely...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8937"
+  },
+  "c3o1": {
+   "text": "(mentor) teaches (subject) how to build raised garden beds, framed with logs and packed with good soil, that drain well in the rain and keep the roots from rotting. (subject) builds six of them, and learns a great deal about building in the process. (subject.His/Her) first crop of taro, grown in them, is the best in the village. The fishers are even more offended.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L8946",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "As they work, (mentor) admits something: (subject.he/she) used to be a fisher too, years ago. And switched to farming for exactly the same reason. \"I got tired of being wet.\" (subject) stares. Then they both laugh until they have to sit down in the mud.",
+   "src": "L8948"
+  },
+  "c3": {
+   "text": "(mentor) watches (subject) holding the digging stick upside down for a while, then gently turns it the right way up...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8944"
+  }
+ }
+}

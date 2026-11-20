@@ -1,0 +1,240 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rain Drinker",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b201_rain_drinker",
+  "source": "balance",
+  "lines": [
+   9332,
+   9375
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9332",
+  "ledger": [
+   {
+    "src": "L9333",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9334",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9342",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9351",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9339",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9340",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9343",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9352",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9345",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9348",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9354",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9357",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9360-9375",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L9349",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L9355",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "A villager's head is already tipping back.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "researcher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Whenever it rains, (subject) drops whatever (subject.he/she) is doing, runs out into the open, tips (subject.his/her) head back and drinks the rain. (subject.He/She) says rainwater tastes of the sky. The researchers have stopped asking (subject.him/her) to carry anything important in the wet season, because last time a basket of their notes ended up in a puddle while (subject) was drinking a cloud.\nToday it is pouring, and (subject) is halfway across the village carrying the research hut's newest scrolls, and the rain is coming down in warm, fat drops. (researcher) is running after (subject.him/her), shouting. (subject)'s head is already tipping back.\nShould (subject) get the scrolls indoors first, or drink the rain?",
+   "choices": [
+    {
+     "label": "Get the Scrolls Indoors",
+     "next": "c1",
+     "src": "L9339"
+    },
+    {
+     "label": "Drink the Rain",
+     "next": "c2",
+     "src": "L9340"
+    }
+   ],
+   "src": "L9335-9337"
+  },
+  "c1o1": {
+   "text": "(subject) gets the scrolls in dry, and stands in the doorway watching the rain, and for the first time in (subject.his/her) life doesn't feel the pull. It's just water falling. (researcher) is so grateful (subject.he/she) brings (subject) a cup of rainwater. (subject) drinks it, and it tastes of nothing much, and that's fine.",
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L9346"
+  },
+  "c1o2": {
+   "text": "Two steps from the door, (subject) slips in the mud and the scrolls go flying into the biggest puddle in the village. (researcher) arrives just in time to see the ink running out of them in blue streams. Nobody blames (subject) out loud.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L9349"
+  },
+  "c1": {
+   "text": "With enormous effort, (subject) keeps (subject.his/her) chin down and runs for the research hut, hugging the scrolls to (subject.his/her) chest. The rain drums on (subject.his/her) back. It has never smelled so good...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9343"
+  },
+  "c2o1": {
+   "text": "The scrolls are soaked through. Half the ink has gone. (researcher) doesn't shout. (subject.He/She) just takes them gently out of (subject)'s arms and walks back to the research hut in the rain, very slowly. That is worse than shouting.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L9355"
+  },
+  "c2o2": {
+   "text": "The scrolls survive. The researchers, it turns out, learned from last time, and have wrapped them in a cover of waxed leaves. (researcher) arrives, sees (subject) drinking the rain with the scrolls dry in (subject.his/her) arms, and laughs. \"I know you,\" (subject.he/she) says, and drinks a little rain too.",
+   "src": "L9358"
+  },
+  "c2": {
+   "text": "(subject) can't help it. (subject.He/She) stops in the middle of the path, tips (subject.his/her) head back, opens (subject.his/her) mouth, and drinks. The scrolls go limp in (subject.his/her) arms. (researcher) arrives, out of breath...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9352"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "rain",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  }
+ }
+}

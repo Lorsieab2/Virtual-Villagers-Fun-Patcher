@@ -69,11 +69,71 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) mends nets every afternoon all season, in perfect comfort. The nets have never been better looked after. When people ask why (subject.he/she) loves the job so much, (subject) says, \"It's just very satisfying work.\" Which is perfectly true.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L218"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) mends nets every afternoon all season, in perfect comfort. The nets have never been better looked after. When people ask why (subject.he/she) loves the job so much, (subject) says, \"It's just very satisfying work.\" Which is perfectly true.",
    "src": "L218"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) asks (friend) to help. (friend) sits down, feels the breeze, catches a fruit in (friend.his/her) lap, and turns slowly to look at (subject). \"Oh,\" (friend.he/she) says. \"I see.\" Now two villagers mend nets every afternoon. The work gets done twice as fast, and they both have to pretend it takes just as long.",
+   "src": "L221",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L221"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) asks (friend) to help. (friend) sits down, feels the breeze, catches a fruit in (friend.his/her) lap, and turns slowly to look at (subject). \"Oh,\" (friend.he/she) says. \"I see.\" Now two villagers mend nets every afternoon. The work gets done twice as fast, and they both have to pretend it takes just as long.",
    "src": "L221"

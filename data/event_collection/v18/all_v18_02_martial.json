@@ -110,7 +110,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "text": "Two competitors become hopelessly tangled and roll into the sand. The judges call a draw; the spectators call it a masterpiece.",
@@ -134,7 +135,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "text": "An arrogant contestant ignores the rules and is disqualified, despite having the loudest supporters.",
@@ -167,7 +169,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "A patient instructor teaches a nervous child a safe balancing stance; the child proudly demonstrates it at the closing ceremony.",
@@ -191,7 +194,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "text": "A supposedly flawless master slips while bowing. The rival catches (master.him/her), and the two become friends.",
@@ -215,7 +219,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "p1": {
    "text": "A judge from the other community praises the winning rival despite pressure from (judge.his/her) own supporters. The crowd slowly applauds.",

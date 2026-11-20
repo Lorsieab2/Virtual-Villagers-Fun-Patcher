@@ -1,0 +1,252 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Swarm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s060_swarm",
+  "source": "rewrites",
+  "lines": [
+   2849,
+   2893
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2849",
+  "ledger": [
+   {
+    "src": "L2850",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2851",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2859",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2868",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2856",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2857",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2860",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2869",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2862",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2865",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2871",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2874",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2877-2893",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L2863",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L2866",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L2875",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "At noon, the sky goes dark.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At noon, the sky goes dark.\nIt isn't a storm. There are no clouds. The sound comes first: a dry, rattling hiss, rising from the far side of the island, louder and louder, as if the whole island were being shaken in a giant gourd full of seeds. Then the shadow comes over the hill, rolling across the fields, and everyone sees what it is.\nGrasshoppers. Millions of them. A brown, whirring cloud so thick the sun can't be seen through it. They come down on the fields like rain, and the crops vanish under them in moments, and then, still hungry, they lift off again and start heading straight for the food store. Should the village try to smoke them away, or catch them?",
+   "choices": [
+    {
+     "label": "Light Smoky Fires",
+     "next": "c1",
+     "src": "L2856"
+    },
+    {
+     "label": "Catch Them",
+     "next": "c2",
+     "src": "L2857"
+    }
+   ],
+   "src": "L2852-2854",
+   "text_only": [
+    {
+     "src": "L2854",
+     "what": "\"food\", \"vanish\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "The smoke drives most of them away. The cloud wavers in the air above the store, whirring angrily, then turns and pours away over the hills towards the sea. Most of them. The rest get into the store through the gaps in the walls and eat a little of everything before the villagers can sweep them out. When it's over, everyone is coughing and soot-faced and hoarse from shouting, but the store is mostly full.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L2863"
+  },
+  "c1o2": {
+   "text": "For a moment, it works. The cloud wavers. Then the wind turns. It swings round from the sea, and blows the smoke straight back over the villagers, into their eyes and down their throats, and drives the grasshoppers straight into the food store instead, in a great whirring wave. They eat and eat and eat. By the time the wind turns again and they finally leave, a great deal of the store is gone.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L2866"
+  },
+  "c1": {
+   "text": "\"Smoke! They hate smoke!\" one of the elders shouts. Everyone runs for wet leaves, green branches, damp thatch, anything that will burn badly, and piles it on fires all round the food store. Thick grey smoke billows up...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2860",
+   "text_only": [
+    {
+     "src": "L2860",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o1": {
+   "text": "The villagers catch them by the thousand, by the basketful, and tip them into the big pots, and roast them over every fire in the village. They taste, everyone agrees, a lot like crunchy nuts. With a bit of salt, they're actually delicious. By evening the fields are completely bare, stripped to the stalks. But the stores are full to bursting, and there's a whole new kind of snack that the children won't stop eating. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L2872",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The villagers catch a lot of them. Basket after basket, pot after pot, until their arms ache. But there are millions, and only so many villagers, and while everyone is busy catching them in the fields, the rest of the cloud quietly settles on the food store and eats its way through it. By the time anyone notices, the swarm is lifting off again, fat and slow, and there's a lot less food than there was this morning.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L2875"
+  },
+  "c2": {
+   "text": "\"Catch them?!\" \"Catch them! They're FOOD!\" Every basket, net, pot, cloth and bare hand in the village is pressed into service, and everyone runs out into the whirring cloud, scooping, grabbing, shrieking, laughing...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2869",
+   "text_only": [
+    {
+     "src": "L2869",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  }
+ }
+}

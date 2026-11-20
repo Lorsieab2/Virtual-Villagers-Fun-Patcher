@@ -1,0 +1,312 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gift from the Unseen Fisher",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my077_gift_unseen",
+  "source": "rewrites",
+  "lines": [
+   14339,
+   14394
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14339",
+  "ledger": [
+   {
+    "src": "L14340",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14341",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14349",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14356",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14363",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14370",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14344",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14345",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14346",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14347",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14350",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14357",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14364",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14371",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14351",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14353",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14358",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14360",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14365",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14367",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14372",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14374",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14377-14394",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The neighbours are getting curious, and a bit jealous.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "fisher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For three mornings running, (subject) has opened (subject.his/her) door to find a basket of fresh fish waiting on the step. The baskets are woven from green palm, the fish are still cold and gleaming from the sea, and each one is tied with a single strand of red cord. Nobody saw who left them. Nobody heard a thing.\nThe neighbours are getting curious, and a bit jealous. (subject) is getting a bit worried; fish do not usually arrive with no strings attached, even if these ones arrive with red ones. And (subject.he/she) is starting to run out of room to store them. Who is leaving them? Should (subject) try to find out?",
+   "choices": [
+    {
+     "label": "Share the Fish",
+     "next": "c1",
+     "src": "L14344"
+    },
+    {
+     "label": "Keep Watch",
+     "next": "c2",
+     "src": "L14345"
+    },
+    {
+     "label": "Leave a Thank-You Note",
+     "next": "c3",
+     "src": "L14346"
+    },
+    {
+     "label": "Follow the Trail",
+     "next": "c4",
+     "src": "L14347"
+    }
+   ],
+   "src": "L14342-14343"
+  },
+  "c1o1": {
+   "text": "(subject) carries the fish to the cooking fire, and the cooks get to work. That night, the whole village eats grilled fish, fish stew and fish wrapped in leaves with ginger, and the next morning there is another basket on the doorstep, and the morning after that, too. For a whole week, the village eats like a {@chief}'s household. Then, as suddenly as they started, the baskets stop. The village is well fed, the storehouse is well stocked, and (subject) is the most popular villager on the island for a while.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true
+    }
+   ],
+   "src": "L14352",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) knows one family that has been having a hard time; the father hurt his back, and the children have been looking thin. (subject.He/she) brings all three baskets to their door. The mother bursts into tears. The children cheer. And that evening, the family insists on inviting (subject) and half the street over for supper, cooking the fish with everything they have left in the garden. It is the best meal (subject) has eaten all year. The baskets keep coming for a while, and (subject) keeps carrying them to the family.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L14354",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "Whoever the fish are from, there are far too many for one household. (subject) loads the baskets onto (subject.his/her) hip and sets off to share them...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14350"
+  },
+  "c2o1": {
+   "text": "A figure creeps up to (subject)'s door carrying a basket, and (subject) leaps out with a shout. The figure shrieks, drops the basket, and turns out to be (fisher), one of the shyest fishers in the village, who goes bright red from forehead to toes. \"I... I just... you helped my mother when she was sick last year,\" (subject.he/she) stammers. \"I didn't know how to thank you. I'm not good with words. I'm good with fish.\" (subject) hugs (fisher), who nearly dies of embarrassment. They become good friends.",
+   "src": "L14359",
+   "text_only": [
+    {
+     "src": "L14359",
+     "what": "\"dies\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "A shadow moves up the path toward the door, tall and dripping wet, as if it had walked straight up out of the sea. (subject) holds (subject.his/her) breath. The shadow pauses at the doorstep, sets something down, and then turns its head, slowly, toward the woodpile where (subject) is hiding. (subject) blinks, and the shadow is gone. On the doorstep sits a basket of fish, tied with red cord. There is a trail of wet sand leading down toward the beach. It ends halfway.",
+   "src": "L14361"
+  },
+  "c2": {
+   "text": "(subject) is determined to find out. That night, (subject.he/she) hides behind a woodpile across from (subject.his/her) own doorway, with a blanket and a great deal of stubbornness, and waits. Very late, as the stars are fading, there is movement on the path...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14357"
+  },
+  "c3o1": {
+   "text": "In the morning, the note is gone, and there is one last basket waiting. On top of the fish lies a shell, carefully carved with a tiny fish swimming in a circle, chasing its own tail. There is no other answer. (subject) puts the shell on a cord and wears it, and every so often for years afterward, on the hardest days, (subject.he/she) opens the door to find a single cold, gleaming fish, tied with red cord.",
+   "src": "L14366"
+  },
+  "c3o2": {
+   "text": "The next morning, the note is gone. And there is no basket. Nor the next morning, nor the one after that. The fish simply stop coming. (subject) feels a bit silly, and a bit guilty, as though (subject.he/she) had asked one question too many. (subject.He/she) tells (subject.himself/herself) it was nice while it lasted. And it was.",
+   "src": "L14368"
+  },
+  "c3": {
+   "text": "(subject) decides that whoever is leaving the fish deserves to be thanked. (subject.He/she) scratches a careful message on a flat piece of bark \\(\"Thank you for the fish. They are delicious. Who are you?\"\\) and leaves it on the step that night...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14364"
+  },
+  "c4o1": {
+   "text": "The footprints lead along the beach to the reed beds at the river mouth, and there, hidden among the tall reeds, is a small fishing boat, tied to a post with red cord. A tired-looking young fisher is asleep in the bottom, surrounded by nets. When (subject) wakes (subject.him/her), the fisher admits (subject.he/she) is from a village down the coast and has been fishing these waters at night. \"I was leaving some for the village. To make up for taking your fish,\" (subject.he/she) says. (subject) laughs, and invites (subject.him/her) to breakfast.",
+   "src": "L14373"
+  },
+  "c4o2": {
+   "text": "The footprints lead straight across the dry sand toward the sea, and then, in the middle of the beach, well above the tideline, they simply stop. There is nothing around them: no marks, no prints going back, no sign of anyone being lifted or jumping. Just a last pair of footprints, side by side, in the middle of the dry sand. (subject) stands there for a long time, then walks home and eats a very thoughtful fish breakfast.",
+   "src": "L14375"
+  },
+  "c4": {
+   "text": "At first light, (subject) kneels by (subject.his/her) doorstep and examines the ground. There are footprints, faint ones, leading away toward the shore. (subject.He/she) follows them, step by step, down the path and onto the sand...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14371"
+  }
+ }
+}

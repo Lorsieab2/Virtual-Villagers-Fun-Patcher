@@ -1,0 +1,248 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grey Clay",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b150_grey_clay",
+  "source": "balance",
+  "lines": [
+   6907,
+   6951
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6907",
+  "ledger": [
+   {
+    "src": "L6908",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6909",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6917",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6926",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6914",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6915",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6918",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6927",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6920",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6923",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6929",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6932",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6935-6951",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Nobody in the village will listen to a villager.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 39
+  },
+  "healer": {
+   "kind": "villager"
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Nobody in the village will listen to (subject). (subject.He/She) is young, and when (subject.he/she) has an idea about how to do something better, the older villagers smile and pat (subject.his/her) arm and go on doing it the old way. (subject) is sick of it.\nThe healers keep a pot of grey clay from the riverbank, which they use for burns. (healer) once told (subject.him/her), half-joking, that whoever paints it into their hair and on their face and sleeps in it wakes up looking as old as they really are inside. \"It draws out the years you've got stored up,\" (subject.he/she) said. (subject) thinks (subject.he/she) is very old inside.\nShould (subject) paint on the grey clay, or try another way to be heard?",
+   "choices": [
+    {
+     "label": "Paint On the Clay",
+     "next": "c1",
+     "src": "L6914"
+    },
+    {
+     "label": "Find Another Way",
+     "next": "c2",
+     "src": "L6915"
+    }
+   ],
+   "src": "L6910-6912"
+  },
+  "c1o1": {
+   "text": "In the morning (subject) washes the clay off in the river, and (subject.his/her) reflection has grey hair and soft lines round the eyes, like (subject.his/her) own grandparent. The older villagers stare. Then, without quite knowing why, they start listening to (subject.him/her). (healer) is horrified and fascinated. \"I was JOKING,\" (subject.he/she) says, and writes it all down.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L6921",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The clay works too well. (subject) wakes up with white hair, deep lines, and a face so old that small children cry when they see it. The older villagers listen to (subject.him/her) now. They also keep offering (subject.him/her) a stick, and a seat, and the warm spot by the fire. (subject) finds (subject.he/she) doesn't feel like leaping about at the dances any more. \"I look like I'd break,\" (subject.he/she) says sadly.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L6924",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "That night (subject) sneaks into the healers' hut, smears the cold clay all through (subject.his/her) hair and over (subject.his/her) cheeks, and lies down to sleep, stiff and itchy and very determined...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6918"
+  },
+  "c2o1": {
+   "text": "(subject)'s way turns out to be faster. Not by much, but enough. The older villagers stand round and watch with their arms folded, and nobody says anything. The next day, two of them are doing it (subject)'s way. Nobody says anything about that either. (subject) gets so much practice showing off that (subject.he/she) gets even better at it.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L6930",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject)'s way turns out to be slower. Much slower. (elder) watches for an hour, then gets up and shows (subject.him/her) why the old way is the old way, patiently, step by step. (subject) is embarrassed. Then (subject.he/she) is interested. By the end of the day (subject.he/she) has stopped resenting the older villagers, and they've started asking (subject.his/her) opinion anyway.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L6933",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) puts the clay back. If they won't listen, (subject.he/she) will show them. (subject.He/She) picks the job (subject.he/she) knows best, and spends the whole next day doing it (subject.his/her) own way, in plain sight...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6927"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "jumping",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

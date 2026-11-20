@@ -1,0 +1,239 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fever Dream",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s091_fever_dream",
+  "source": "rewrites",
+  "lines": [
+   4262,
+   4304
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L4262",
+  "ledger": [
+   {
+    "src": "L4263",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4264",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4272",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4281",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4269",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4270",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4273",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4282",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4275",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4278",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4284",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4287",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4290-4304",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "To several someones, it seems, that nobody else can see.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For three days, (name) has had a fever so high that (he/she) hasn't known where (he/she) is. And for three days, (he/she) has been talking. Not to the healers, or (his/her) family sitting by the mat. To someone else. To several someones, it seems, that nobody else can see. Spirits, (he/she) says, when (he/she) can say anything at all.\nThis morning the fever has finally broken, and (name) is sitting up, pale and sweaty and wide-eyed, and (he/she) remembers everything they told (him/her).\nNone of it makes any sense. (He/She) keeps talking about a lizard wearing a crown. And a song about rain that falls upwards. And a door in the sea. And a number, which (he/she) repeats over and over, very urgently, as if it's important. Should (name) tell the researchers everything, or rest and let it fade?",
+   "choices": [
+    {
+     "label": "Tell the Researchers",
+     "next": "c1",
+     "src": "L4269"
+    },
+    {
+     "label": "Rest",
+     "next": "c2",
+     "src": "L4270"
+    }
+   ],
+   "src": "L4265-4267"
+  },
+  "c1o1": {
+   "text": "The researchers take the scrolls back to their hut, and stay up all night with them. Most of it is nonsense. But some of it isn't. The number (name) kept repeating turns out to be exactly how many days there are between one big tide and the next, something they've been trying to work out for years. The lizard in the crown turns out to match an old carving nobody understood. The song about upward rain, when they think about it, describes how water rises from the sea into the clouds. The researchers make sense of quite a lot of it, in fact. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L4276",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The researchers listen very politely, nodding, all the way through: the lizard, the crown, the upward rain, the door in the sea, the number, all of it. They hold their charcoal very still over the bark. When (name) finally finishes, they thank (him/her) warmly, tell (him/her) to get some rest, and leave. They haven't written down a single word. (Name) is sure, for the rest of (his/her) life, that it all meant something.",
+   "src": "L4279"
+  },
+  "c1": {
+   "text": "The researchers come and sit by (name)'s mat with bark and charcoal, and (name) tells them everything, from the beginning, while they write it all down as fast as they can...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4273"
+  },
+  "c2o1": {
+   "text": "(Name) rests. (He/She) sleeps for two days straight, deep and dreamless, and wakes up hungry. Every day after that (he/she) gets a little stronger, and the strange memories fade a little more, like a dream after waking, until (he/she) can't quite remember the lizard's crown or the words of the upward song. Within a fortnight (he/she) is back at work, completely well. Sometimes, when it rains, (he/she) looks up, just in case.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "src": "L4285",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) rests. The fever breaks, and doesn't come back. But it was too high for too long, and it has taken a great deal out of (him/her) on its way out. (Name) is left weak, for good. (He/She) tires after the shortest walk. (His/her) hair has gone grey at the front, and (his/her) face looks years older. And (his/her) mind, which the fever burned so hot, gets tired and foggy whenever (he/she) tries to learn anything new. The healers say (he/she) is lucky to be alive. On good days, (name) agrees.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -60,
+     "max": -60,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L4288",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "The healers won't hear of anything else. They lay (name) back down, cover (him/her) with a blanket, give (him/her) a cup of honey tea, and sit with (him/her) while (he/she) sleeps, and sleeps...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4282"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "learning",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

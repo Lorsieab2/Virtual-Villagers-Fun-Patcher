@@ -99,9 +99,48 @@
      "max": -10,
      "src": "L488"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) takes it off, a little reluctantly. That night (subject.he/she) sleeps deeply, and wakes up stiff and ordinary and tired, like everyone else. It's a strange relief. (subject.He/She) keeps the necklace for days when (subject.he/she) really needs it, and finds there are fewer of those than (subject.he/she) expected.",
+   "src": "L491",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building",
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L491"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L491"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) takes it off, a little reluctantly. That night (subject.he/she) sleeps deeply, and wakes up stiff and ordinary and tired, like everyone else. It's a strange relief. (subject.He/She) keeps the necklace for days when (subject.he/she) really needs it, and finds there are fewer of those than (subject.he/she) expected.",
    "src": "L491",
@@ -117,7 +156,8 @@
      "max": 10,
      "src": "L491"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

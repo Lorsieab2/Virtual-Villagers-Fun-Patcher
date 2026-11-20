@@ -89,9 +89,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(name1) whittles a small fish from a smooth piece of driftwood. The fish's tail is so lifelike that it seems ready to swim.",
-   "src": "L206,L207"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -107,6 +114,29 @@
    "name": "Ending 4",
    "text": "(name1) whittles a small fish from a smooth piece of driftwood. (name1) sets it on a windowsill where it catches the light each morning.",
    "src": "L206,L210"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(name1) whittles a small fish from a smooth piece of driftwood. The fish's tail is so lifelike that it seems ready to swim.",
+   "src": "L206,L207",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L206,L207"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(name1) whittles a small fish from a smooth piece of driftwood. The fish's tail is so lifelike that it seems ready to swim.",
+   "src": "L206,L207"
   }
  }
 }

@@ -69,11 +69,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "There is a long silence. Then they both burst out laughing. \"I've been giving them to the neighbors,\" admits (friend). \"They think I'm wonderful.\" (subject) is mortified and delighted at once. \"What DO you like?\" (subject.he/she) asks. \"Mangoes,\" says (friend). The next morning there are mangoes on the doorstep. And (subject), this time, waits by the door.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L110"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L110"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "There is a long silence. Then they both burst out laughing. \"I've been giving them to the neighbors,\" admits (friend). \"They think I'm wonderful.\" (subject) is mortified and delighted at once. \"What DO you like?\" (subject.he/she) asks. \"Mangoes,\" says (friend). The next morning there are mangoes on the doorstep. And (subject), this time, waits by the door.",
    "src": "L110"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Oh,\" says (subject). \"Is there... anything you do like?\" (friend) looks at (subject.him/her) for a moment. \"I like that you've been doing this,\" (friend.he/she) says. \"But I'm not looking for anyone right now. I'm sorry.\" (subject) nods, disappointed but not hurt. \"That's alright.\" They stay friends. The neighbors are very sad that the fish stop coming.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L113"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Oh,\" says (subject). \"Is there... anything you do like?\" (friend) looks at (subject.him/her) for a moment. \"I like that you've been doing this,\" (friend.he/she) says. \"But I'm not looking for anyone right now. I'm sorry.\" (subject) nods, disappointed but not hurt. \"That's alright.\" They stay friends. The neighbors are very sad that the fish stop coming.",
    "src": "L113"

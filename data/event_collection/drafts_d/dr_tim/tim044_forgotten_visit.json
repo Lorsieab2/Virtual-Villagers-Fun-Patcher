@@ -109,6 +109,32 @@
    "src": "L743"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1) realizes a promised visit was forgotten. (Name1) feels embarrassed and offers a sincere apology.",
+   "src": "L747",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L747"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1) realizes a promised visit was forgotten. (Name1) feels embarrassed and offers a sincere apology.",
    "src": "L747"

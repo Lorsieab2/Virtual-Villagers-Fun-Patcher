@@ -77,6 +77,38 @@
    "src": "L326"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) carries the bowl back to the village and asks around. (visitor), a visitor from another village, claims it with enormous relief: (visitor.he/she) put it down to look at a crab, wandered off to follow the crab, and couldn't remember where (visitor.he/she) left lunch. (subject) and the visitor share the fruit on the spot. The crab, apparently, got away.",
+   "src": "L329",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L329"
+    },
+    {
+     "do": "mood",
+     "role": "visitor",
+     "mood": "good",
+     "src": "L329"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) carries the bowl back to the village and asks around. (visitor), a visitor from another village, claims it with enormous relief: (visitor.he/she) put it down to look at a crab, wandered off to follow the crab, and couldn't remember where (visitor.he/she) left lunch. (subject) and the visitor share the fruit on the spot. The crab, apparently, got away.",
    "src": "L329"

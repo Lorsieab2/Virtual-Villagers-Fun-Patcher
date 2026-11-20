@@ -59,7 +59,7 @@ from test_story_custom_island_event import (  # noqa: E402
     have_stock,
 )
 
-CHOICE_BUF = EVENT_BUF + 0x40000
+CHOICE_BUF = EVENT_BUF + 0x48000   # (a question is ~1.9 MB: test_story_custom_island_event.py EVENT_BUF)
 COUNTS = SCRATCH + 0x800
 CAP_CHOICE = 0x04000000
 
@@ -300,7 +300,9 @@ class ChoiceRefusalTests(unittest.TestCase):
 
     def test_the_labels(self):
         for game, story in _stories():
-            limit = max(n for n in range(1, Choice.BUTTON_BYTES)
+            # (Without Scrolling Popups: the old cap, under CE_BUTTON_BYTES; tests/test_unlimited_editor_text.py
+            # has the practically unlimited labels with it.)
+            limit = max(n for n in range(1, Choice.BUTTON_BYTES_V1 + 8)
                         if _refusal(story, _question(), _choice(story, labels=("x" * n, "No"))) is None)
             with self.subTest(game=game, limit=limit):
                 self.assertEqual(limit, CHOICE_PANEL[game][5], "the bytes the companion keeps")

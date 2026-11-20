@@ -4,3 +4,7 @@ EXPORTS
     VvfpYellowFruitInstalled
     VvfpYellowFruitRefill
     VvfpYellowFruitPartial
+    VvfpYellowFruitEventDue
+    VvfpYellowFruitAdd
+    VvfpYellowFruitLeft
+    VvfpYellowFruitTake

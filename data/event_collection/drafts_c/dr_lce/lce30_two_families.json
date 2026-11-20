@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Families' Wedding Feud",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce30_two_families",
+  "source": "draft_lce",
+  "lines": [
+   414,
+   425
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L414",
+  "ledger": [
+   {
+    "src": "L415",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L421",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L425",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "At a wedding, the two families argue over whose customs come first: let the couple decide, or let the elders mediate.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is marrying into (friend)'s family, and the two families have started arguing about whose wedding customs come first: garlands or soup, morning or evening, singing or drums. The wedding is in two days. (subject) is starting to wish (subject.he/she) had eloped. What should happen?",
+   "src": "L417",
+   "choices": [
+    {
+     "label": "Let the Couple Decide",
+     "next": "o1",
+     "src": "L419"
+    },
+    {
+     "label": "Let the Elders Mediate",
+     "next": "o2",
+     "src": "L423"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) and (subject.his/her) partner announce the order themselves, at dinner, and refuse to hear any arguments. Both families are offended for one evening. The wedding is lovely. Nobody remembers the argument by the next harvest.",
+   "src": "L421"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The elders of both families meet and argue for two days. The wedding is delayed by a week. The final plan is a compromise nobody likes. The couple gets married anyway, and says the best part was when it was over.",
+   "src": "L425"
+  }
+ }
+}

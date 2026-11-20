@@ -69,11 +69,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) runs home and gets (friend.his/her) own mats too. Soon half the village has the same idea, and every tree and bush is draped with blankets flapping like flags. It looks like a festival. By afternoon everything is dry and smells of sun and wind. It's the best (subject)'s sleeping mat has smelled in a year.",
+   "src": "L50",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L50"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L50"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) runs home and gets (friend.his/her) own mats too. Soon half the village has the same idea, and every tree and bush is draped with blankets flapping like flags. It looks like a festival. By afternoon everything is dry and smells of sun and wind. It's the best (subject)'s sleeping mat has smelled in a year.",
    "src": "L50"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) leaves (subject) to it. (subject) sits in the middle of (subject.his/her) flapping laundry with a drink and watches it all dry. It's one of the most satisfying afternoons (subject.he/she) has had. At sunset (subject.he/she) brings it all in, warm and crisp, and goes to bed in a cloud of clean blanket.",
+   "src": "L53",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L53"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) leaves (subject) to it. (subject) sits in the middle of (subject.his/her) flapping laundry with a drink and watches it all dry. It's one of the most satisfying afternoons (subject.he/she) has had. At sunset (subject.he/she) brings it all in, warm and crisp, and goes to bed in a cloud of clean blanket.",
    "src": "L53"

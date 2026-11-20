@@ -1,0 +1,304 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Door That Was Not There",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my011_door_there",
+  "source": "rewrites",
+  "lines": [
+   10464,
+   10519
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10464",
+  "ledger": [
+   {
+    "src": "L10465",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10466",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10475",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10482",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10489",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10496",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10470",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10471",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10472",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10473",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10476",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10483",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10490",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10497",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10477",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10479",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10484",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10486",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10491",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10493",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10498",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10500",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10503-10519",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Between two big boulders at the edge of the jungle stands a wooden door.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "After a night of hammering rain, (subject) goes out to check the traps and stops in (subject.his/her) tracks. Between two big boulders at the edge of the jungle stands a wooden door. Just a door. No wall, no hut, no frame, just a door, standing upright on its own, carved all over with spirals and dark and swollen from the rain.\n(subject) walks all the way around it. From the back, it's just the back of a door. But from the front, (subject.he/she) could swear there's a thin line of light showing underneath it. (subject) has walked past these boulders every day for years. There has never been a door here. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Open the Door",
+     "next": "c1",
+     "src": "L10470"
+    },
+    {
+     "label": "Knock Three Times",
+     "next": "c2",
+     "src": "L10471"
+    },
+    {
+     "label": "Mark Its Location",
+     "next": "c3",
+     "src": "L10472"
+    },
+    {
+     "label": "Carry It to the Village",
+     "next": "c4",
+     "src": "L10473"
+    }
+   ],
+   "src": "L10467-10468"
+  },
+  "c1o1": {
+   "text": "Behind it, where there should only be air, is the narrow mouth of a cave in the boulders, hidden all these years between the boulders \\(or so the builders later argue\\). Inside, wrapped in rotted cloth and stacked with great care, are old stone axes and bone needles, beautifully made. The researchers are over the moon. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10478",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Behind the door is darkness. Not shadow, not a cave, just darkness, flat and black, like a hole cut in the morning. (subject) backs away very slowly and runs for a torch. When (subject.he/she) comes back with half the village behind (subject.him/her), there's nothing between the boulders but wet leaves. The door is gone. (subject) is never really believed, and doesn't much care to be.",
+   "src": "L10480"
+  },
+  "c1": {
+   "text": "(subject) grips the carved handle, takes a deep breath, and pulls. The door swings open with a long, groaning creak...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10476"
+  },
+  "c2o1": {
+   "text": "From the other side of the door comes an answer: knock, knock. Two. Then silence. (subject) stands frozen, staring at the empty air behind the door. Then (subject.he/she) turns around and walks back to the village at a perfectly normal speed that very quickly becomes a run. When (subject.he/she) tells the others, not a single person volunteers to go and knock again.",
+   "src": "L10485"
+  },
+  "c2o2": {
+   "text": "\"WHO'S THERE?\" bellows a voice, and (friend) leaps out from behind the boulders, cackling. It turns out (friend.he/she) found the door washed down from the old hut ruins in the storm, propped it up between the rocks, and has been hiding back there since breakfast waiting for exactly this moment. (subject) chases (friend.him/her) halfway back to the village.",
+   "src": "L10487"
+  },
+  "c2": {
+   "text": "Feeling ridiculous, (subject) raps on the door. Knock. Knock. Knock. (subject.He/She) waits...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10483"
+  },
+  "c3o1": {
+   "text": "The door stays put. For days, the researchers measure it, sketch it, and draw careful maps of the boulders and the paths around them. Nobody opens it. Somehow it feels rude. After a week, it's simply part of the landscape, and the children use it for hide-and-seek.",
+   "src": "L10492"
+  },
+  "c3o2": {
+   "text": "The next morning, the researchers arrive with their maps and find no door. The two boulders now stand pressed together, so close that there's no room for a door at all, not even for a hand. (subject)'s marks are still there on the trees. The researchers look at each other for a long time and then go home without saying much.",
+   "src": "L10494"
+  },
+  "c3": {
+   "text": "(subject) doesn't touch it. Instead, (subject.he/she) scratches marks on the nearby trees and hurries to fetch the researchers and their maps...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10490"
+  },
+  "c4o1": {
+   "text": "With a lot of grunting and a little help, the door is hauled back to the village, laid flat across two stumps, and becomes the finest tabletop anyone has ever eaten off. For most of the villagers, that's the end of the mystery. For a few, every meal eaten at a table that used to be a door is a little bit unsettling.",
+   "src": "L10499"
+  },
+  "c4o2": {
+   "text": "The door doesn't budge. Not an inch. It's as if it weighs as much as the boulders beside it. (subject) heaves and heaves until something in (subject.his/her) back goes twang, and (subject.he/she) has to be helped home bent over like an old grandparent, groaning. When the others go back for the door, it's gone.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L10501",
+   "auto_text": true
+  },
+  "c4": {
+   "text": "\"Good wood is good wood,\" (subject) declares. (subject.He/She) wraps (subject.his/her) arms around the door and heaves...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10497"
+  }
+ }
+}

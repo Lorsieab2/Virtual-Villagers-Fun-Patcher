@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ocean Gives, the Ocean Takes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb09_ocean_gives",
+  "source": "draft_lcb",
+  "lines": [
+   120,
+   131
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L120",
+  "ledger": [
+   {
+    "src": "L121",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a teen)"
+   },
+   {
+    "src": "L127",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L127",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L131",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L131",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A teen wants to fish beyond the reef like the adults: tell them about the sea's dangers, or take them out to see.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) is desperate to fish beyond the reef with the grown-up crews. (subject) has fished there for fifty years, and has lost friends to the sea, and does not think (friend) understands what (friend.he/she) is asking for. (friend) thinks (subject) is being overprotective. What should (subject) do?",
+   "src": "L123",
+   "choices": [
+    {
+     "label": "Tell the Sea's Stories",
+     "next": "o1",
+     "src": "L125"
+    },
+    {
+     "label": "Take (friend) Out to See",
+     "next": "o2",
+     "src": "L129"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) sits (friend) down and tells (friend.him/her) about the sea: the storms that come from nowhere, the currents that pull canoes away, the friends who did not come home. It is not a happy evening. But (friend) listens to all of it, and the next morning, (friend.he/she) asks to start by learning the currents.",
+   "src": "L127",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L127"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) takes (friend) out past the reef on a calm morning. The swell lifts the canoe up and drops it down, and (friend) goes very green. Then a school of flying fish bursts out of the water all around them, and (friend) forgets to be sick. (friend.He/she) is back on the beach at dawn the next day, ready for more.",
+   "src": "L131",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L131"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

@@ -274,8 +274,15 @@
    "variants": [
     {
      "if": {
-      "game": [
-       1
+      "all": [
+       {
+        "game": [
+         1
+        ]
+       },
+       {
+        "special_present": "golden_child"
+       }
       ]
      },
      "text": "(Finder) finds a peculiar object under the soil. It has precise edges, unfamiliar materials, and no purpose anyone can identify. One elder calls it a gift; another fears strangers have reached Isola.\n{v20_relics}\nThe Golden Child inexplicably recognizes a function no adult knows.",
@@ -320,13 +327,60 @@
    ]
   },
   "a1": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a1__fx": {
    "text": "The object is smashed. Researchers lament the lost evidence; (Finder) is blamed for bringing it.",
    "src": "L9212-9213",
    "children": [
     {
      "next": "coda"
     }
-   ]
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L9212-9213"
+    },
+    {
+     "do": "mood",
+     "role": "finder",
+     "mood": "bad",
+     "src": "L9212-9213"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "text": "The object is smashed. Researchers lament the lost evidence; (Finder) is blamed for bringing it.",
+   "src": "L9212-9213",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L9212-9213"
+    }
+   ],
+   "auto_text": true
   },
   "a2": {
    "text": "It survives repeated blows and is buried amid fearful rumors.",
@@ -354,6 +408,18 @@
    ]
   },
   "a4": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a4__fx"
+    },
+    {
+     "next": "a4__text"
+    }
+   ]
+  },
+  "a4__fx": {
    "text": "A useful component inspires a new island-made tool. (Finder) is suddenly praised as an inventor.",
    "src": "L9219-9220",
    "children": [
@@ -371,8 +437,55 @@
      "min": 5,
      "max": 10,
      "src": "L9219-9220"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9219-9220"
+    },
+    {
+     "do": "mood",
+     "role": "finder",
+     "mood": "good",
+     "src": "L9219-9220"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9219-9220"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "a4__text": {
+   "text": "A useful component inspires a new island-made tool. (Finder) is suddenly praised as an inventor.",
+   "src": "L9219-9220",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "finder",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L9219-9220"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9219-9220"
+    }
+   ],
+   "auto_text": true
   },
   "set_a": {
    "type": "branch",
@@ -392,6 +505,18 @@
    ]
   },
   "b1": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b1__fx": {
    "text": "(Finder) discovers a practical function; craftspeople attempt to imitate it using island materials.",
    "src": "L9223-9224",
    "children": [
@@ -409,8 +534,49 @@
      "min": 5,
      "max": 10,
      "src": "L9223-9224"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9223-9224"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9223-9224"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "text": "(Finder) discovers a practical function; craftspeople attempt to imitate it using island materials.",
+   "src": "L9223-9224",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "finder",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L9223-9224"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9223-9224"
+    }
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "The object speaks or makes a strange noise; some villagers flee, others pray, and panic spreads.",
@@ -422,6 +588,36 @@
    ]
   },
   "b3": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b3__fx"
+    },
+    {
+     "next": "b3__text"
+    }
+   ]
+  },
+  "b3__fx": {
+   "text": "(Finder) uses it to solve a problem without understanding how it works. Public acclaim follows.",
+   "src": "L9227-9228",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "finder",
+     "mood": "good",
+     "src": "L9227-9228"
+    }
+   ],
+   "auto_text": true
+  },
+  "b3__text": {
    "text": "(Finder) uses it to solve a problem without understanding how it works. Public acclaim follows.",
    "src": "L9227-9228",
    "children": [
@@ -457,6 +653,42 @@
    ]
   },
   "c1": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c1__fx": {
+   "text": "Its construction inspires several practical discoveries. (Finder) is honored.",
+   "src": "L9233-9234",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L9234"
+    },
+    {
+     "do": "mood",
+     "role": "finder",
+     "mood": "good",
+     "src": "L9233-9234"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
    "text": "Its construction inspires several practical discoveries. (Finder) is honored.",
    "src": "L9233-9234",
    "children": [
@@ -471,9 +703,40 @@
      "scaled": true,
      "src": "L9234"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "c2__fx": {
+   "text": "Masters confidently identify it as a ceremonial relic until a child finds its actual use.",
+   "src": "L9235-9236",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9235-9236"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
    "text": "Masters confidently identify it as a ceremonial relic until a child finds its actual use.",
    "src": "L9235-9236",
    "children": [
@@ -499,6 +762,36 @@
    ]
   },
   "c4": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c4__fx"
+    },
+    {
+     "next": "c4__text"
+    }
+   ]
+  },
+  "c4__fx": {
+   "text": "Unfamiliar markings lead villagers to accuse (Finder) of communicating with outsiders.",
+   "src": "L9239-9240",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "finder",
+     "mood": "bad",
+     "src": "L9239-9240"
+    }
+   ],
+   "auto_text": true
+  },
+  "c4__text": {
    "text": "Unfamiliar markings lead villagers to accuse (Finder) of communicating with outsiders.",
    "src": "L9239-9240",
    "children": [
@@ -585,6 +878,33 @@
    ]
   },
   "coda_p1": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "coda_p1__fx"
+    },
+    {
+     "next": "coda_p1__text"
+    }
+   ]
+  },
+  "coda_p1__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A destroyer accidentally discovers a useful tool.",
+   "src": "L9344",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9344"
+    }
+   ],
+   "auto_text": true
+  },
+  "coda_p1__text": {
    "popup": "append",
    "join": "paragraph",
    "text": "A destroyer accidentally discovers a useful tool.",
@@ -634,7 +954,8 @@
      "what": "empty the village stores",
      "reason": "a large food loss, never below zero"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "coda": {
    "type": "branch",

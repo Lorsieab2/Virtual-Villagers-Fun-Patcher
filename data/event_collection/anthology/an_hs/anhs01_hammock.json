@@ -113,9 +113,16 @@
    "src": "L29443"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "(child) invents a cheerful sign-up system that surprisingly lasts.",
-   "src": "L29444"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -152,9 +159,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "(villager), a shy villager, finally asks for a turn and is warmly welcomed.",
-   "src": "L29449"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -174,11 +188,102 @@
    ]
   },
   "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "(child) invents a cheerful sign-up system that surprisingly lasts.",
+   "src": "L29444",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L29444"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "(child) invents a cheerful sign-up system that surprisingly lasts.",
+   "src": "L29444"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(villager), a shy villager, finally asks for a turn and is warmly welcomed.",
+   "src": "L29449",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L29449"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(villager), a shy villager, finally asks for a turn and is warmly welcomed.",
+   "src": "L29449"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(villager), an exhausted healer, sleeps undisturbed for the first time in days.",
+   "src": "L29452",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 15,
+     "max": 30,
+     "src": "L29452"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
    "name": "Outcome D1",
    "text": "(villager), an exhausted healer, sleeps undisturbed for the first time in days.",
    "src": "L29452"
   },
-  "d2": {
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "Two villagers disagree over who is more tired and end up laughing at themselves.",
+   "src": "L29453",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L29453"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "Two villagers disagree over who is more tired and end up laughing at themselves.",
    "src": "L29453"

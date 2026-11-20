@@ -1,0 +1,130 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Harvesting Chorus",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca17_harvesting",
+  "source": "draft_lca",
+  "lines": [
+   236,
+   247
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L237",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L243",
+    "kind": "instruction",
+    "text": "[effect: small food loss; everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L243",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L247",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L247",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The harvesters sing in rhythm, but the new song is so catchy everyone keeps stopping to dance: keep it, or go back to the old one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Harvest day, and the farmers sing as they work so the picking keeps time. This year (subject) has made up a new harvest song, and it is a disaster: it is so catchy that every time it reaches the chorus, the whole field stops picking and dances. (friend) points out that the harvest is half the size it was by this time last year. What should they do?",
+   "src": "L239",
+   "choices": [
+    {
+     "label": "Keep the New Song",
+     "next": "o1",
+     "src": "L241"
+    },
+    {
+     "label": "Back to the Old Song",
+     "next": "o2",
+     "src": "L245"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They keep it. The harvest takes two extra days, and the farmers are covered in dust and laughter by the end of it. A few berries rot on the bushes before they get to them. Nobody regrets a thing.",
+   "src": "L243",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L243"
+    },
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L243"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) leads the old song, slow and steady. The picking goes quickly. But every so often, from somewhere in the field, someone hums the chorus of (subject)'s song, and three people stop to dance before they can help themselves.",
+   "src": "L247",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L247"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

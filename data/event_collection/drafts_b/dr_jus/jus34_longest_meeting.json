@@ -94,6 +94,38 @@
    "src": "L410"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "Someone is sent to fetch the drum, and finds it already clean: (child), a child, cleaned it this morning, because it was dirty. There is a long silence. The council thanks (child) and closes the meeting. (subject) and (friend) walk home together, not looking at each other, and then both start laughing at once.",
+   "src": "L413",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L413"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L413"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "Someone is sent to fetch the drum, and finds it already clean: (child), a child, cleaned it this morning, because it was dirty. There is a long silence. The council thanks (child) and closes the meeting. (subject) and (friend) walk home together, not looking at each other, and then both start laughing at once.",
    "src": "L413"

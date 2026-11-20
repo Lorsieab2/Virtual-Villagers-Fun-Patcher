@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stars Above Our Homes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch44_stars_above_our",
+  "source": "draft_lch",
+  "lines": [
+   610,
+   621
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L610",
+  "ledger": [
+   {
+    "src": "L611",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a researcher and a navigator)"
+   },
+   {
+    "src": "L617",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1); small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L617",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L621",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Researchers, navigators and farmers each count the seasons differently: combine their knowledge, or keep separate calendars.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) counts the seasons by the stars, (friend) the navigator counts them by the swells and winds, and the farmers count them by the flowers. They often disagree by a week or two. (subject) wants to combine all three into one calendar, carved in a pattern like a woven basket. What should they do?",
+   "src": "L613",
+   "choices": [
+    {
+     "label": "Combine Them",
+     "next": "o1",
+     "src": "L615"
+    },
+    {
+     "label": "Keep Separate Calendars",
+     "next": "o2",
+     "src": "L619"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They work for a season, comparing notes every night. The calendar they carve is complicated and very beautiful, a spiral of stars, waves and flowers. It is more accurate than any of the three alone. Only four people can read it.",
+   "src": "L617",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L617"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L617"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They keep their own ways. The farmers plant by the flowers, the navigators sail by the swells. When all three agree, the village knows something big is coming. That happens twice a year, and it is always right.",
+   "src": "L621"
+  }
+ }
+}

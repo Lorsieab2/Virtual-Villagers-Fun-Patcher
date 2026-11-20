@@ -69,11 +69,70 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Can you give me something so it doesn't bother me?\" (subject) asks. (friend) thinks about it. \"I don't think this is something to cure,\" (friend.he/she) says. \"Some people are just made to hear everything louder. I'd rather we plan around it.\" Together they find a spot behind the storehouse, close enough to hear the music softly. (subject) spends the next feast going back and forth. It's the best feast (subject.he/she) has had in years.",
+   "src": "L122",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L122"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Can you give me something so it doesn't bother me?\" (subject) asks. (friend) thinks about it. \"I don't think this is something to cure,\" (friend.he/she) says. \"Some people are just made to hear everything louder. I'd rather we plan around it.\" Together they find a spot behind the storehouse, close enough to hear the music softly. (subject) spends the next feast going back and forth. It's the best feast (subject.he/she) has had in years.",
    "src": "L122"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides not to make a fuss. (subject.He/she) stays for the food and the first song, then goes home and sits in the quiet hut with the door open, listening to the drums from far away. That, it turns out, is the bit (subject.he/she) enjoys. (friend) passes by later with a plate of honey cakes. \"Saved you some,\" (friend.he/she) says, and goes back to the noise.",
+   "src": "L125",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L125"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L125"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) decides not to make a fuss. (subject.He/she) stays for the food and the first song, then goes home and sits in the quiet hut with the door open, listening to the drums from far away. That, it turns out, is the bit (subject.he/she) enjoys. (friend) passes by later with a plate of honey cakes. \"Saved you some,\" (friend.he/she) says, and goes back to the noise.",
    "src": "L125",

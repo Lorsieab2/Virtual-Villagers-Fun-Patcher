@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival of Bad Inventions",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci45_festival_bad",
+  "source": "draft_lci",
+  "lines": [
+   624,
+   635
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L624",
+  "ledger": [
+   {
+    "src": "L625",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two researchers)"
+   },
+   {
+    "src": "L631",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates; small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L631",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L635",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Researchers want a festival of their failed inventions: hold the festival, or keep failures private.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has a box of failed inventions: a self-stirring pot that throws soup, a fish trap that catches only crabs, a rain hat that collects rain into your face. (subject.He/she) wants a festival where everyone shows their failures and what they learned. (friend) says nobody wants to be laughed at. What should happen?",
+   "src": "L627",
+   "choices": [
+    {
+     "label": "Hold the Festival",
+     "next": "o1",
+     "src": "L629"
+    },
+    {
+     "label": "Keep Failures Private",
+     "next": "o2",
+     "src": "L633"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The Festival of Bad Inventions is a triumph. The soup-throwing pot gets a standing ovation. The village's worst cook enters a stew so bad the goats refuse it. The children put on a play about the chickens demanding better coops. Everyone laughs, and learns, and the chicken coops are improved.",
+   "src": "L631",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L631"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L631"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) keeps (subject.his/her) box at home. But (subject.he/she) shows it to (friend), privately, one item at a time. By the end, they are both laughing. (friend) brings out a box of (friend.his/her) own.",
+   "src": "L635"
+  }
+ }
+}

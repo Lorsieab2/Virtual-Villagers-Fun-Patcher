@@ -29,10 +29,18 @@
     "why": "the heading's \"(VV5 only)\": the event is New Believers only"
    }
   ],
-  "description": "At the feast for the Guardians, a believer sees an Isolan from outside the village watching: invite them, or leave them be.",
+  "description": "At a great feast, a believer sees an Isolan from outside the village watching: invite them, or leave them be.",
   "label_case": "title",
   "cast_only": [
    "subject"
+  ],
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "At a great feast, a tribe member sees an Isolan from outside the village watching: invite them, or leave them be."
+   }
   ]
  },
  "requirement": {
@@ -44,9 +52,9 @@
    "min_age": 18
   },
   "friend": {
-   "kind": "stranger",
-   "sex": "random",
-   "named": true
+   "kind": "villager",
+   "min_age": 14,
+   "heathen_ok": true
   }
  },
  "start": "setup",
@@ -54,7 +62,7 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "The village is holding a feast for the Guardians, with drums and songs and food laid out on leaves. At the edge of the firelight, (friend), one of the Isolans who live outside the village, has stopped to watch. (subject) notices (friend.him/her) standing in the shadows.",
+   "text": "The village is holding a feast for the whole tribe, with drums and songs and food laid out on leaves. At the edge of the firelight, (friend), one of the Isolans who live outside the village, has stopped to watch. (subject) notices (friend.him/her) standing in the shadows.",
    "src": "L311",
    "text_only": [
     {
@@ -93,5 +101,15 @@
    "text": "(subject) nods to (friend) across the firelight and goes back to the feast. (friend) watches for a while, then turns and goes back into the trees. The next morning, there's a small carved bird left on a rock at the edge of the village, facing the feasting ground. Nobody knows exactly what it means. (subject) leaves a bowl of fruit beside it.",
    "src": "L317"
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ],
+ "grammar_fixes": [
+  {
+   "src": "L311",
+   "before": "a feast for the Guardians,",
+   "after": "a feast for the whole tribe,"
+  }
+ ]
 }

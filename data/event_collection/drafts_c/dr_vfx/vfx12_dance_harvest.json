@@ -1,0 +1,107 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dance for the Harvest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "vfx12_dance_harvest",
+  "source": "draft_vfx",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "dr_vfx",
+  "credit": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_vfx",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L146",
+    "kind": "instruction",
+    "text": "[effect: the whole village dances]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L149",
+    "kind": "instruction",
+    "text": "[effect: the whole village prays]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The harvest is in: dance in thanks, or give a quiet thanks.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The harvest is in, the stores are full, and (name1) says it would be wrong not to thank the island for it.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "Dance",
+     "next": "o1",
+     "src": "L145"
+    },
+    {
+     "label": "A Quiet Thanks",
+     "next": "o2",
+     "src": "L148"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village dances until the moon is high, in a great circle around the fire, the children weaving in and out between the grown-ups' legs.",
+   "src": "L146",
+   "effects": [
+    {
+     "do": "group",
+     "kind": "dance",
+     "who": "all",
+     "src": "L146"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village gathers for a moment of quiet thanks instead. Nobody speaks. Then, one by one, they go back to their huts, grateful.",
+   "src": "L149",
+   "effects": [
+    {
+     "do": "group",
+     "kind": "pray",
+     "who": "all",
+     "src": "L149"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

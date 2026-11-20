@@ -70,6 +70,38 @@
    "src": "L62"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) pats the melon. \"Biggest I've ever grown,\" (subject.he/she) says. (friend) sniffs. \"Size isn't everything. Taste matters.\" \"It tastes wonderful.\" \"We'll see.\" They cut it open there and then, and stand in the garden eating it with juice running down their chins, arguing about the flavor. Neither of them has had so much fun all year.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L65"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L65"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) pats the melon. \"Biggest I've ever grown,\" (subject.he/she) says. (friend) sniffs. \"Size isn't everything. Taste matters.\" \"It tastes wonderful.\" \"We'll see.\" They cut it open there and then, and stand in the garden eating it with juice running down their chins, arguing about the flavor. Neither of them has had so much fun all year.",
    "src": "L65"
