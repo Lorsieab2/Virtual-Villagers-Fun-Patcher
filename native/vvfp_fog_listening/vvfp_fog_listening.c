@@ -45,10 +45,23 @@
    HOW.  The site is spliced at run time, after its stock bytes are checked (native/shared/install_sites.h); no
    executable byte is patched.  The splice saves every register and flag around the decision, made under
    structured exception handling (a fault: the stock answer, nothing happens).  Started by VVFP More
-   Companions.dll (the third word, native/shared/startup_companions_3.h).  No debug output, no text shown. */
+   Companions.dll (the third word, native/shared/startup_companions_3.h).  No debug output.
+
+   THE NOTICE.  The owner (2026-11-19): when the Fog of Doom is on and the Faith limit turns a drop away (the main
+   row without No Restrictions), the game's status line says "The fog hides you, but <Name> still won't listen.
+   Something stronger may stir them." (with the Guardians of Isola rewrite: "... <Name> is still wary. Perhaps
+   another approach may convince them."), <Name> the Heathen's whole name (long_name.h), the words through VVFP
+   Translations.dll.  Only once per village, ever: a small file in the slot's own data folder marks it shown, kept
+   across quitting; Start Over deletes the save's folder, so the next village is told again.  Never for a blue
+   Heathen, natural fog, no fog, or with No Restrictions. */
 #include <windows.h>
+#include <string.h>
 #include "../shared/install_sites.h"
 #include "../shared/patcher_files.h"
+#include "../shared/per_save_data.h"
+#include "../shared/game_save_slot.h"
+#include "../shared/long_name.h"
+#include "../shared/vvfp_translate.h"
 
 #define FL_GAME 5
 
@@ -70,11 +83,27 @@ static const unsigned char SITE_STOCK[24] = {
     0x0F, 0x85, 0xC8, 0x02, 0x00, 0x00      /* jne 0x44402D */
 };
 
+#define FL_STRINGS 0x5240A8u            /* the game's string table (entry pointers by id) */
+#define FL_SAY 0x44F0B0u                /* the status line's text: thiscall (text), copies it, shows it 5 seconds */
+#define FL_STATUS_LINE 0x520F68u
+#define FL_NAME 0x1B9C                  /* the villager's name field */
+#define FL_NAME_FIELD 0x19
+#define FL_TEXT_CAP 255                 /* the status line's own copy limit (0x44F0B5) */
+#define FL_NOTICE_LINE "Virtual Villagers Fun Patcher - the Fog of Doom notice was shown in this village.\r\n"
+
+/* The owner's words (2026-11-19); %s is the Heathen's whole name. */
+static const char WONT_LISTEN_EN[] =
+    "The fog hides you, but %s still won't listen. Something stronger may stir them.";
+static const char WARY_EN[] =
+    "The fog hides you, but %s is still wary. Perhaps another approach may convince them.";
+
 static int g_installed;
 static int g_no_limit;                  /* "No Restrictions on Fog of Doom Conversions" is shipped */
 static unsigned int g_listened;         /* masked Heathens let listen this session (the tests read it) */
+static unsigned int g_notices;          /* notices shown this session (the tests read it) */
 
 typedef unsigned char (__fastcall *fl_fog_fn)(void *weather);
+typedef void (__fastcall *fl_say_fn)(void *line, void *edx, const char *text);
 
 /* "No Restrictions on Fog of Doom Conversions" is shipped: its file is in the patcher's folder.  Any failure reads
    as not shipped: the Faith condition stays. */
@@ -89,13 +118,96 @@ static int fl_no_limit_shipped(void) {
     return attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY) == 0;
 }
 
+/* ---- THE NOTICE: once per village, the first time the Faith limit turns a drop away ---------------------------- */
+
+/* The game's eSayStoppedBelieving (string 0x48 in the table 0x5240A8) says "left the tribe" only with the Guardians
+   of Isola rewrite's sm.xml: the same test as Popup When Believers Become Heathens' (story_faith_notice.inc) and
+   More Island Events' (adv_vv345.inc vv5_joins_key). */
+static int fl_isola(void) {
+    static const char WORDS[] = "left the tribe";
+    int found = 0;
+    __try {
+        const unsigned int *entry = *(const unsigned int *const *)(UINT_PTR)(FL_STRINGS + 4u * 0x48u);
+        const char *text;
+        int i, k;
+        if (entry != NULL && entry[0] == 0x48u) {
+            text = (const char *)(UINT_PTR)(entry[3] != 0 ? entry[3] : entry[2]);
+            for (i = 0; text != NULL && text[i] != '\0' && i < 256 && !found; ++i) {
+                for (k = 0; WORDS[k] != '\0'; ++k) {
+                    char c = text[i + k];
+                    if (c >= 'A' && c <= 'Z') {
+                        c = (char)(c - 'A' + 'a');
+                    }
+                    if (c != WORDS[k]) {
+                        break;
+                    }
+                }
+                found = WORDS[k] == '\0';
+            }
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        found = 0;
+    }
+    return found;
+}
+
+/* The slot's notice file: "<save folder>\Virtual Villagers Fun Patcher\Save <S>\Data\Fog of Doom\Fog of Doom
+   Notice - Save <S>.dat" (per_save_data.h).  Start Over deletes the save's whole folder (native/shared/save_reset.c,
+   START OVER WIPES THE WHOLE SAVE), so the next village in the slot is told again.  0 when the slot or the folder
+   is not known. */
+static int fl_notice_path(wchar_t *out, int slot) {
+    wchar_t name[64];
+    if (slot < 1 || slot > 5) {
+        return 0;
+    }
+    wsprintfW(name, L"Fog of Doom Notice - Save %d.dat", slot);
+    return vv_ps_data_file_w(out, L"Fog of Doom", name, VV_PS_RESERVE);
+}
+
+/* The village's first refusal (the owner, 2026-11-19: once per village, kept across quitting, Start Over resets
+   it): the message on the game's status line, the same line and routine the game's own short feedback uses
+   (0x44F0B0 on 0x520F68: copied, shown 5 seconds), then the slot's notice file.  Nothing when the file is already
+   there, the slot is not known, or the file cannot be made (never shown again and again). */
+static void fl_notice(const unsigned char *heathen) {
+    wchar_t path[MAX_PATH];
+    char field[FL_NAME_FIELD + 1], text[FL_TEXT_CAP];
+    const char *name, *words;
+    HANDLE file;
+    DWORD wrote;
+    if (!fl_notice_path(path, vv_game_save_slot(FL_GAME)) || GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
+        return;
+    }
+    file = CreateFileW(path, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        return;
+    }
+    (void)WriteFile(file, FL_NOTICE_LINE, (DWORD)(sizeof FL_NOTICE_LINE - 1), &wrote, NULL);
+    CloseHandle(file);
+    memcpy(field, heathen + FL_NAME, FL_NAME_FIELD);
+    field[FL_NAME_FIELD] = '\0';
+    name = vv_long_name(field);
+    words = fl_isola()
+        ? vvfp_tr("vvfp.fog_listening/vvfp_fog_listening.WARY_EN.s0", WARY_EN, FL_TEXT_CAP)
+        : vvfp_tr("vvfp.fog_listening/vvfp_fog_listening.WONT_LISTEN_EN.s0", WONT_LISTEN_EN, FL_TEXT_CAP);
+    if (lstrlenA(words) + lstrlenA(name) >= FL_TEXT_CAP) {
+        return;                         /* never cut: a translation too long for the line shows nothing */
+    }
+    wsprintfA(text, words, name);
+    ++g_notices;
+    ((fl_say_fn)FL_SAY)((void *)FL_STATUS_LINE, NULL, text);
+}
+
 /* 1 when a believer dropped on this orange- or red-masked Heathen starts the stock listening. */
 static int fl_may_listen(const unsigned char *heathen) {
-    if (!g_no_limit && *(const int *)(heathen + FL_FAITH) >= FL_FAITH_BELOW) {
-        return 0;                       /* -10 or more: only the Earthquake reaches them */
-    }
     if (!((fl_fog_fn)FL_FOG_TEST)((void *)FL_WEATHER)) {
         return 0;                       /* no Fog of Doom: natural fog and other weather never count */
+    }
+    if (!g_no_limit && *(const int *)(heathen + FL_FAITH) >= FL_FAITH_BELOW) {
+        __try {
+            fl_notice(heathen);         /* -10 or more: only the Earthquake reaches them */
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+        }
+        return 0;
     }
     ++g_listened;
     return 1;
@@ -141,6 +253,11 @@ int __stdcall VvfpFogListeningInstalled(void) {
 /* How many orange- or red-masked Heathens were let listen this session (for the tests' emulation). */
 unsigned int __stdcall VvfpFogListeningCount(void) {
     return g_listened;
+}
+
+/* How many notices were shown this session (for the tests' emulation). */
+unsigned int __stdcall VvfpFogListeningNotices(void) {
+    return g_notices;
 }
 
 /* 1 when "No Restrictions on Fog of Doom Conversions" is in effect (for the tests' emulation), else 0. */

@@ -69325,6 +69325,28 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.fog_listening/vvfp_fog_listening.WONT_LISTEN_EN.s0",
+   "english": "The fog hides you, but %s still won't listen. Something stronger may stir them.",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Fog Listening.dll (the status line, once per village, when a Heathen in an orange or red mask with Faith -10 or more is dropped on in the Fog of Doom)",
+   "notes": "a patcher message shown by the game; %s is the Heathen's name (keep it); with the name at most 254 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.fog_listening/vvfp_fog_listening.WARY_EN.s0",
+   "english": "The fog hides you, but %s is still wary. Perhaps another approach may convince them.",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Fog Listening.dll (the same message with Guardians of Isola Rewrite installed)",
+   "notes": "a patcher message shown by the game; %s is the Heathen's name (keep it); with the name at most 254 bytes",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.story/story_graph.cg_load.s37",
    "english": "its title variants do not fit in the file",
    "games": [

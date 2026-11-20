@@ -1485,8 +1485,10 @@ orange or red mask. If that Heathen's Faith is below -10 they listen just as a
 blue-masked Heathen does: the believer is "Explaining the truth", the Heathen
 is "Listening" when the believer's Devotion check passes, and their Faith
 rises by the normal game's 3 to 5. From Faith -10 up they will not listen:
-only the Earthquake God Power raises their Faith further. A Heathen joins the
-tribe the normal way, when their Faith rises above 0. Natural fog and every
+only the Earthquake God Power raises their Faith further; the first time that
+happens in a village the message line says so (once per village, until Start
+Over). A Heathen joins the tribe the normal way, when their Faith rises above
+0. Natural fog and every
 other weather do nothing; blue-masked Heathens are unchanged.
 
 NO RESTRICTIONS ON FOG OF DOOM CONVERSIONS (NEW BELIEVERS)
