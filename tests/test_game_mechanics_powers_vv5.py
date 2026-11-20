@@ -87,27 +87,19 @@ class GodPowers(unittest.TestCase):
             "vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions",
         }
         data = ROOT / "data"
-        # Rows that name a power or Divine Energy without changing any power's cost, range, duration, odds or
-        # targets: the two Fog of Doom conversion rows change what a Heathen does while the fog is over the island
-        # (Game Mechanics: Faith, which names both).
-        fog_rows = ("vv5_fog_of_doom_every_heathen_listens_feature.json", "vv5_fog_of_doom_no_restrictions_feature.json")
-        for path in [data / "builds.json"] + sorted(data.glob("vv5_*_feature.json")):
-            if path.name in fog_rows:
-                continue
-            for row in strings(json.loads(path.read_text(encoding="utf-8"))):
+        catalog = [(row.get("id"), row) for row in json.loads((data / "builds.json").read_text(encoding="utf-8"))
+                   ["fun_patches"]]
+        catalog += [(json.loads(p.read_text(encoding="utf-8")).get("id"), json.loads(p.read_text(encoding="utf-8")))
+                    for p in sorted(data.glob("vv5_*_feature.json"))]
+        for patch_id, record in catalog:
+            for row in strings(record):
                 if row.endswith(".cieg"):
                     continue    # an island event file's name (sss043_spell_worked.cieg): a story, not a God Power
                 for word in words:
                     if word.lower() not in row.lower() or patch_id in around_the_powers:
                         continue
-                    if word == "Divine Energy" and any(said in row for said in (
-                            # Fix Vanilla Bugs' statue polish (the game's own +1 Divine Energy step, which no action
-                            # asked for): it adds energy, it changes no power (Game Mechanics: Items).
-                            "Polishing the statue", "work event 40 (+1 Divine Energy",
-                            # The Age Speed slider (#799): energy counted per year of age follows the age clock.
-                            "faith and Divine Energy, counted per year of age, follow too")):
-                        continue
-                    self.assertIn("Reanimate", row, f"{path.name}: {word}: {row[:160]}")
+                    self.assertIn("Reanimate", row, f"{patch_id}: {word}: {row[:160]}")
+        self.assertIn("no patch changes a power's cost, range, duration, odds or targets", powers.PATCHED)
 
     def test_table_matches_the_stock_exe(self) -> None:
         img = _image()
