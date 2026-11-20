@@ -109,12 +109,12 @@ class RowTests(unittest.TestCase):
         self.assertIn(FEATURE_ID, {p.id for p in load_public_fun_patches()})
         pinned = [(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
                   for p in row["patches"]]
-        statue = list(STATUE_FIXES)                     # tests/test_vv5_statue_polish_energy.py
-        self.assertEqual(pinned[-len(statue):], statue)
-        pinned = pinned[:-len(statue)]
         caption = list(foundation_caption_fixes())     # tests/test_vv5_nursery_foundation_caption.py
         self.assertEqual(pinned[-len(caption):], caption)
         pinned = pinned[:-len(caption)]
+        statue = list(STATUE_FIXES)                     # tests/test_vv5_statue_polish_energy.py
+        self.assertEqual(pinned[-len(statue):], statue)
+        pinned = pinned[:-len(statue)]
         tie = list(nursery_tie_fixes("vv5"))           # tests/test_nursery_tie_random.py
         self.assertEqual(pinned[-len(tie):], tie)
         pinned = pinned[:-len(tie)]
