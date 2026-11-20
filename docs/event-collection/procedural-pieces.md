@@ -50,7 +50,7 @@ side writes and the engine (and its Python twin, which must make exactly the sam
 | 0 | u32 | id (string; unique in the file, `[a-z0-9_]`) |
 | 4 | u8 | kind: 1 setup, 2 approach, 3 outcome, 4 opening / flavour line, 5 personality frame |
 | 5 | u8 | mood: 0 warm, 1 social, 2 serious |
-| 6 | u8 | flags: bit 0 DEADLY (an effect that kills, makes a villager disappear, `die_unrecovered`, `birth_then_die` or `baby_lost`; the engine also counts a piece DEADLY when one of its own effects is one of those codes); bit 1 New Believers only; bit 2 (an outcome) AUTO LINES, its effects told in automatic lines (cie-v6-binary.md 25); bits 3-7 0 |
+| 6 | u8 | flags: bit 0 DEADLY (an effect that kills, makes a villager disappear, `die_unrecovered`, `birth_then_die` or `baby_lost`; the engine also counts a piece DEADLY when one of its own effects is one of those codes); bit 1 New Believers only; bit 2 (an outcome) AUTO LINES, its effects told in automatic lines (cie-v6-binary.md 25); bits 3-4 (an outcome) its ending's Village Solidarity tag, 1 raise, 2 lower, 3 neutral (cie-v6-binary.md 44; the composed page's node flags bits 2-3); bits 5-7 0 |
 | 7 | u8 | games mask (bit g-1) |
 | 8 | u32 | topic bits (the file's own topic numbering, 32 at most) |
 | 12 | u32 | family: a setup the question family it asks; an approach the family it answers; else 0 |

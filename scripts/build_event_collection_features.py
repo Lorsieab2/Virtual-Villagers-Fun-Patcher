@@ -65,8 +65,9 @@ GAMES = (1, 2, 3, 4, 5)
 NOT_EVENTS = {"manifest.json", "shared_pools.json",
               # the procedural pieces' situation tables (scripts/procedural_pieces.py), not events
               "procedural_never_with.json", "procedural_situations.json",
-              # Village Solidarity's tag table (scripts/tag_village_solidarity.py), not events
-              "solidarity_tags.json"}
+              # Village Solidarity's tag table and its reviewed judgement calls (scripts/tag_village_solidarity.py),
+              # not events
+              "solidarity_tags.json", "solidarity_review.json"}
 # The Living Event Engine (docs/event-collection/living-pack.md): its variants ship in one pack per game,
 # "Island Event Collection\\living.pak", and its seeds are manifest rows (id living_..., one series per category).
 LIVING_NAME = "living-*.pak"                 # one per living series (below)

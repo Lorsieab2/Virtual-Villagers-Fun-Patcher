@@ -475,6 +475,12 @@
    "read: one villager's or a few villagers' own moment, not the village's"
   ]
  },
+ "mie_diving": {
+  "ashore": [
+   "neutral",
+   "read: the diver's own new dislike of swimming, the same as the shipped event (dive_core.inc D1)"
+  ]
+ },
  "my007_mask_changes": {
   "c1o2": [
    "neutral",

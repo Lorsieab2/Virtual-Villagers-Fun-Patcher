@@ -48,8 +48,9 @@ NOT_ENDINGS: dict[tuple[str, str], str] = {}
 
 
 def untagged_endings(g: dict, where: str) -> list[str]:
-    return [f"{where} {nid}" for nid, n in g["nodes"].items()
-            if se.is_ending(n) and n.get("solidarity") not in SOL.values() and (where, nid) not in NOT_ENDINGS]
+    """The pages `g` can end on (a popup after which no page can come: se.ending_pages) without a tag."""
+    return [f"{where} {nid}" for nid in sorted(se.ending_pages(g))
+            if g["nodes"][nid].get("solidarity") not in SOL.values() and (where, nid) not in NOT_ENDINGS]
 
 
 class TheRule(unittest.TestCase):
@@ -107,9 +108,9 @@ class TheCollection(unittest.TestCase):
         for path in files:
             g = cg.decompile_graph(path.read_bytes())
             missing += untagged_endings(g, path.name)
-            for n in g["nodes"].values():
-                if se.is_ending(n) and n.get("solidarity") in counts:
-                    counts[n["solidarity"]] += 1
+            for nid in se.ending_pages(g):
+                if g["nodes"][nid].get("solidarity") in counts:
+                    counts[g["nodes"][nid]["solidarity"]] += 1
         self.assertEqual(missing[:20], [])
         self.assertTrue(all(counts.values()), counts)
 

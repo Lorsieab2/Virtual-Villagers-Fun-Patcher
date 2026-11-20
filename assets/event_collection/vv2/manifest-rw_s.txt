@@ -9,7 +9,7 @@ s006_basket_beach	The Basket on the Beach	1,2,3,4,5	1	rw_s	Written by Lorsieab2.
 s007_granary_gets_wet	The Granary Gets Wet	1,2,3,4,5	1	rw_s	Written by Lorsieab2.	The roof of the food store has been leaking for weeks.		
 s008_coconut_bonanza	The Coconut Bonanza	1,2,3,4,5	1	rw_s	Written by Lorsieab2.	Every palm on the island has decided, all at once, that this is the year to sprout coconuts.		
 s009_elder_forgot_get	The Elder Who Forgot to Get Old	1,2,3,4,5	1	rw_s	Written by Lorsieab2.	A villager has been an elder for as long as anyone in the village can remember.		
-s010_bee_hat	The Bee Hat	1,2,3,4,5	1	rw_s	Written by Lorsieab2.	For days now, golden drips have been running down a fallen log by the stream, and the air around it hums like a whispered song.		
+s010_bee_hat	The Bee Hat	1,2,3,4,5	1	rw_s	Written by Lorsieab2.	For days now, golden drips have been running down a fallen log by the stream, and the air around it hums like a whispered song.			cooperative
 s011_second	The Second (Name)	1,2,3,4,5	1	rw_s	Written by Lorsieab2.	Ten minutes later, another a villager walks back into the village from the jungle at dusk, carrying a basket of mushrooms.		
 s012_biggest_fish_bay	The Biggest Fish in the Bay	1,2,3,4,5	1	rw_s	Written by Lorsieab2.	Everyone has heard of the giant fish in the bay.		
 s013_researchers	The Researchers' Bonfire	1,2,3,4,5	1	rw_s	Written by Lorsieab2.	The research hut smells of smoke and old ink, and the night is so cold that everyone has crowded close to the hearth.		
@@ -74,7 +74,7 @@ s077_mask_seller	The Mask Seller	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted 
 s078_second_name_day	The Second Name Day	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.	In the old days, the elders say, every villager was given a second name when they did something worth remembering.		
 s079_mirror_twins	The Mirror Twins	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.	Tonight is one of those nights.		
 s080_child_grew_up	The Child Who Grew Up Overnight	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.	For weeks, a villager has been complaining.		
-s081_feast_elders	The Feast for the Elders	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.	The village has decided, all together, that the elders have done quite enough work for one lifetime and deserve a feast.		
+s081_feast_elders	The Feast for the Elders	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.	The village has decided, all together, that the elders have done quite enough work for one lifetime and deserve a feast.			cooperative
 s082_healer_mistake	The Healer's Mistake	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.	A villager has mixed up the jars.		
 s083_rock_slide	The Rock Slide	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.	After a week of heavy rain, the hillside above the gardens is soft and dark and soaking.		
 s084_riptide	The Riptide	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.	The afternoon is bright and lazy, and the sea glitters like a cloth scattered with beads.		
@@ -91,6 +91,6 @@ s094_spilled_dye	The Spilled Dye	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted 
 s095_lucky_harvest	The Lucky Harvest	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.	Everything has grown at once.		
 s096_peaceful_passing	The Peaceful Passing	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.	A villager is very old now.		
 s097_ghost_light	The Ghost Light	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.	For three nights now, a soft light has been bobbing among the trees beyond the edge of the village.		
-s098_grand_copy	The Grand Copy	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.	The magician claims to have learned every trick from the spirits of the deep sea, in exchange for a song.		
+s098_grand_copy	The Grand Copy	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.	The magician claims to have learned every trick from the spirits of the deep sea, in exchange for a song.			cooperative
 s099_back_childhood	Back to Childhood	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.	A villager has been working too hard for too long.		
 s100_last_sunset_year	The Last Sunset of the Year	1,2,3,4,5	1	rw_s	Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.	The last sunset of the year is always the most beautiful.		

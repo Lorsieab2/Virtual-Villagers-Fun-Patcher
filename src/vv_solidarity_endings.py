@@ -214,8 +214,46 @@ def _targets(n: dict) -> list[str]:
 
 
 def is_ending(n: dict) -> bool:
-    """A page the event ends on: a popup with nowhere to go."""
+    """A page with nowhere to go (the simplest ending; ending_pages has the rest)."""
     return n.get("type", "popup") == "popup" and not _targets(n)
+
+
+def _is_page(n: dict) -> bool:
+    return n.get("type", "popup") in ("popup", "question")
+
+
+def ending_pages(g: dict) -> set[str]:
+    """Every page the event can end on: a popup from which no other page can be reached -- nowhere to go, or only
+    branches after it (a branch shows no page: The Harshest Critic's shared reward and "end" branches)."""
+    nodes = g["nodes"]
+    out = set()
+    for nid, n in nodes.items():
+        if n.get("type", "popup") != "popup":
+            continue
+        seen, todo, page = {nid}, list(_targets(n)), False
+        while todo and not page:
+            t = todo.pop()
+            if t in seen or t not in nodes:
+                continue
+            seen.add(t)
+            page = _is_page(nodes[t])
+            todo += _targets(nodes[t])
+        if not page:
+            out.add(nid)
+    return out
+
+
+def _tail_effects(g: dict, nid: str) -> list[dict]:
+    """The effects of the branches after an ending page (made as the event passes them, after the page)."""
+    nodes, out, seen, todo = g["nodes"], [], {nid}, list(_targets(g["nodes"][nid]))
+    while todo:
+        t = todo.pop()
+        if t in seen or t not in nodes:
+            continue
+        seen.add(t)
+        out += list(nodes[t].get("effects") or [])
+        todo += _targets(nodes[t])
+    return out
 
 
 def endings(g: dict) -> dict[str, list[str]]:
@@ -223,9 +261,8 @@ def endings(g: dict) -> dict[str, list[str]]:
     pass, scripts/outcome_effects.py) a branch X over its two copies X__fx and X__text, both endings, tagged as X."""
     nodes = g["nodes"]
     out: dict[str, list[str]] = {}
-    for nid, n in nodes.items():
-        if not is_ending(n):
-            continue
+    for nid in sorted(ending_pages(g), key=list(nodes).index):
+        n = nodes[nid]
         key = nid
         for suf in SPLIT:
             base = nid[:-len(suf)]
@@ -248,7 +285,7 @@ def ending_reading(g: dict, key: str, pages: list[str]) -> tuple[str, list[dict]
     for pid in pages:
         n = nodes[pid]
         texts += [n.get("text") or ""] + [v.get("text") or "" for v in n.get("variants") or []]
-        effects += list(n.get("effects") or [])
+        effects += list(n.get("effects") or []) + _tail_effects(g, pid)
     cur, seen = key, {key}
     while True:
         ps = preds.get(cur, [])

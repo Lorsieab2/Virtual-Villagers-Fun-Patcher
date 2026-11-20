@@ -94,6 +94,10 @@ def encode_effect(e: dict, idx: dict[str, int]) -> Effect:
         # no room for (procedural-pieces.md 2.5): the piece stays with the static event
         raise Skip("an effect with a group target or an age cap")
     code = cg.EFFECT_CODES["skill_set" if do == "skill" and "set" in e else do]
+    if code not in vp.CODE_EFFECT:
+        # supply, trade, group and village (cie-v6-binary.md 38-43) have no piece record yet (vp.write_pcb refuses
+        # them): the event stays static, as for a group target
+        raise Skip(f"an effect pieces cannot carry ({do})")
     r = e["role"] if do == "trait" else cg.effect_role(e)
 
     def rx(name: str) -> int:
