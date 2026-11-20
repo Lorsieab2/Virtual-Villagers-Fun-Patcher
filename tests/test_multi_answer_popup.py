@@ -99,6 +99,8 @@ TABLE = {
                 image=(0x44FA20, 0x65), button=0x401BD0, label=0x4015D0, holder=0x4080C0, justify=0x409F00,
                 dialog=0xF0, strings=0x5240A8),
 }
+# Where each image manager's getter keeps it (the shared popup reads the word: native/shared/vvfp_multi_answer.h).
+IMAGES_WORD = {"vv3": 0x592714, "vv4": 0x4DEA0C, "vv5": 0x52408C}
 BUTTON_W, BUTTON_H = 401, 42
 LINE = 20
 PANEL = (144, 20, 656, 580)
@@ -132,6 +134,7 @@ class Popup:
         self.stub(code + 24, lambda pr: (BUTTON_W, 0))
         self.stub(code + 32, lambda pr: (BUTTON_H, 0))
         self.stub(t["images"], lambda pr: (0x7777, 0))
+        p.put32(IMAGES_WORD[game], 0x7777)     # the companion reads the word, never the getter (it would build it)
         self.stub(t["alloc"], lambda pr: (p.alloc(0x40), 0))
         self.stub(t["image"][0], self._image)
         self.stub(t["button"], self._button)

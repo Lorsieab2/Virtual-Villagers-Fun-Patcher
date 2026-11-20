@@ -3671,7 +3671,10 @@ static int vv4_equal_division(int include_parenting) {
  */
 #define VV4_TW_SPEED_OFFSET     0x17110  /* on the world object; 999 = paused */
 #define VV4_TW_SPEED_PAUSED     999
-#define VV4_TW_WORLD_GETTER     0x0041FE70u
+/* Where the world object's getter 0x41FE70 keeps it (0 until built).  The getter BUILDS the object when this is 0,
+   so this companion reads the word and never calls the getter: a call from a hook that runs inside the object's
+   own constructor would build it again without end (the New Believers start-up crash, 2026-11-18). */
+#define VV4_TW_WORLD_GLOBAL     0x004CB51Cu
 #define VV4_TW_TIME_EPOCH_VA    0x004B8230u   /* 64-bit, low dword           */
 #define VV4_TW_LAST_SEEN_OFFSET 0x1C38
 #define VV4_TW_AGE_OFFSET       0x1B8C
@@ -3689,7 +3692,10 @@ static int vv4_equal_division(int include_parenting) {
 #define VV4_TW_APPLIED   1
 #define VV4_TW_REFUSED   2
 
-typedef unsigned char *(__cdecl *vv4_world_getter_fn)(void);
+/* The world object, or 0 while it is not built yet: never builds it. */
+static unsigned char *vv4_world(void) {
+    return *(unsigned char *volatile *)(UINT_PTR)VV4_TW_WORLD_GLOBAL;
+}
 
 static int vv4_time_warp_years(int speed) {
     switch (speed) {
@@ -3774,8 +3780,7 @@ static int vv4_skip_watch = -1;
 static int vv4_skip_mark;
 
 static int __stdcall vv4_story_time_skip_step(int years) {
-    vv4_world_getter_fn get_world = (vv4_world_getter_fn)(UINT_PTR)VV4_TW_WORLD_GETTER;
-    unsigned char *world = get_world();
+    unsigned char *world = vv4_world();
     int speed, step, i, total;
     if (world == 0 || years <= 0) {
         return 0;
@@ -3817,8 +3822,7 @@ static int __stdcall vv4_story_time_skip_settled(void) {
 /* Whether the game's clock runs (a known speed, not paused): only that time
    counts toward the time skip's replay wait (native/shared/story_bridge.h). */
 static int __stdcall vv4_story_time_skip_running(void) {
-    vv4_world_getter_fn get_world = (vv4_world_getter_fn)(UINT_PTR)VV4_TW_WORLD_GETTER;
-    unsigned char *world = get_world();
+    unsigned char *world = vv4_world();
     return world != 0 && vv4_time_warp_years(*(int *)(world + VV4_TW_SPEED_OFFSET)) > 0;
 }
 
@@ -3864,8 +3868,7 @@ int __stdcall ShowVv4TimeWarp(int cost) {
     static const char *const TITLE = "Origins Upgrades";
     char message[1100];
     HWND owner = GetForegroundWindow();
-    vv4_world_getter_fn get_world = (vv4_world_getter_fn)(UINT_PTR)VV4_TW_WORLD_GETTER;
-    unsigned char *world = get_world();
+    unsigned char *world = vv4_world();
     char cost_text[16];
     int speed, years;
 

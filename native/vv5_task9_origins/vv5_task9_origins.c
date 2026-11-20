@@ -1327,7 +1327,7 @@ static int appearance_mask;  /* 0 = none, 1..5 = Blue/Orange/Red/Purple/Chief */
 #define IDC_LOOK_AUTO  3120
 #define IDC_LOOK_YOUNG 3121
 #define IDC_LOOK_OLD   3122
-#define VV5_GAME_OBJECT_GETTER 0x425950u
+#define VV5_GAME_OBJECT_WORD 0x4DACE0u   /* where the getter 0x425950 keeps the game object; 0 = not built */
 #define VV5_SELECTED_INDEX 0x17E24u
 static vvfp_head_look_api appearance_look_api;
 static const unsigned char *appearance_record;   /* the villager whose look is offered, or NULL */
@@ -1356,8 +1356,8 @@ static const unsigned char *appearance_gp_record;
 #endif
 
 static const unsigned char *vv5_selected_record(int sex, int age) {
-    typedef void *(__cdecl *getter_fn)(void);
-    const unsigned char *game = (const unsigned char *)((getter_fn)(UINT_PTR)VV5_GAME_OBJECT_GETTER)();
+    /* the word the getter 0x425950 keeps the game object in: read, never the getter, which builds it */
+    const unsigned char *game = *(const unsigned char *volatile *)(UINT_PTR)VV5_GAME_OBJECT_WORD;
     const unsigned char *record;
     int index;
     if (game == NULL) {
@@ -2503,7 +2503,13 @@ static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
  */
 #define VV5_TW_SPEED_OFFSET     0x17D7C  /* on the world object; 999 = paused */
 #define VV5_TW_SPEED_PAUSED     999
-#define VV5_TW_WORLD_GETTER     0x00425950u
+/* Where the game object's getter 0x425950 keeps it once it is built (0 until then).  The getter BUILDS the object
+   when this is 0, and the object's constructor reads the settings through buildSavePath (0x403600), whose detour
+   runs Vv5InstallCompanions -> the Story DLL's install -> this companion's time skip callbacks.  A callback that
+   called the getter there built the object again, inside its own constructor, without end: a stack overflow at
+   start (v1.35.92 - v1.35.97, Story / Cheat Upgrades).  So this companion reads this word and never calls the
+   getter: no object yet is "no village". */
+#define VV5_TW_WORLD_GLOBAL     0x004DACE0u
 #define VV5_TW_TIME_EPOCH_VA    0x004C6250u   /* 64-bit, low dword           */
 #define VV5_TW_PENDING_OFFSET   0x1C34
 #define VV5_TW_LAST_SEEN_OFFSET 0x1C38
@@ -2524,7 +2530,6 @@ static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
 #define VV5_TW_APPLIED   1
 #define VV5_TW_REFUSED   2
 
-typedef unsigned char *(__cdecl *vv5_world_getter_fn)(void);
 
 static int vv5_time_warp_years(int speed) {
     switch (speed) {
@@ -2745,9 +2750,13 @@ static int vv5_skip_living(const unsigned char *rec) {
         && *(const int *)(rec + 0x1C40) > 0;
 }
 
+/* The game object, or 0 while it is not built yet (VV5_TW_WORLD_GLOBAL): never builds it. */
+static unsigned char *vv5_story_world(void) {
+    return *(unsigned char *volatile *)(UINT_PTR)VV5_TW_WORLD_GLOBAL;
+}
+
 static int __stdcall vv5_story_time_skip_step(int years) {
-    vv5_world_getter_fn get_world = (vv5_world_getter_fn)(UINT_PTR)VV5_TW_WORLD_GETTER;
-    unsigned char *world = get_world();
+    unsigned char *world = vv5_story_world();
     unsigned char *base = (unsigned char *)(UINT_PTR)VV5_REC_BASE;
     int speed, step, i, slots;
     if (world == 0 || years <= 0) {
@@ -2789,8 +2798,7 @@ static int __stdcall vv5_story_time_skip_settled(void) {
 /* Whether the game's clock runs (a known speed, not paused): only that time
    counts toward the time skip's replay wait (native/shared/story_bridge.h). */
 static int __stdcall vv5_story_time_skip_running(void) {
-    vv5_world_getter_fn get_world = (vv5_world_getter_fn)(UINT_PTR)VV5_TW_WORLD_GETTER;
-    unsigned char *world = get_world();
+    unsigned char *world = vv5_story_world();
     return world != 0 && vv5_time_warp_years(*(int *)(world + VV5_TW_SPEED_OFFSET)) > 0;
 }
 
@@ -2810,8 +2818,7 @@ __declspec(dllexport) int __stdcall ShowVv5TimeWarp(int cost) {
        no owner fallback -- the owner is captured once by BeginOriginsOwner
        and validated as belonging to this process. */
     HWND owner = GetOriginsOwner();
-    vv5_world_getter_fn get_world = (vv5_world_getter_fn)(UINT_PTR)VV5_TW_WORLD_GETTER;
-    unsigned char *world = get_world();
+    unsigned char *world = vv5_story_world();
     char cost_text[16];
     int speed, years;
 
