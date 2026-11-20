@@ -285,6 +285,26 @@ static int sp_op_query(const unsigned char *popup) {
     return 0;
 }
 
+/* The room a one-popup event keeps below its content for OK: the companion's (5/2 of OK's height, the single-OK
+   layout's room, OK 0x14 above the panel's bottom), or more when the dialog was made with two choices -- the
+   constructor then puts OK 2 1/2 x the CHOICE button's height above the bottom (The Secret City 0x41993D, The Tree
+   of Life 0x417DE2, New Believers 0x418666), and the answer picture is taller than OK's: 3 x that height keeps the
+   text half a button above OK, as the game keeps it above its first choice. */
+static int sp_op_reserve(const sp_class *c, unsigned char *popup) {
+    int r = g_op.r.reserve;
+    if (c->reserve == SP_RESERVE_EVENT_DIALOG) {
+        void *event = *(void **)(popup + c->event);
+        void *button = *(void **)(popup + c->choice_button);
+        if (event != NULL && button != NULL && (sp_vcall_int(event, 0x10) & 0xFF) != 0) {
+            int h = sp_vcall_int(button, 0x10);
+            if (h > 0 && h < 200 && 3 * h > r) {
+                r = 3 * h;
+            }
+        }
+    }
+    return r;
+}
+
 static int sp_load(sp_picture *pic, const sp_art *art);
 static int sp_art_ready(void);
 static int sp_row_ready(void);
@@ -1400,7 +1420,7 @@ static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
     sp_justify_draw d;
     if (a[6] == 0 && sp_op_query(popup)) {
         op = 1;                             /* one_popup.h: the rows after the text, the companion's OK room */
-        reserve = g_op.r.reserve;
+        reserve = sp_op_reserve(c, popup);
     } else {
         reserve = sp_reserve(c, popup);
     }
@@ -1893,7 +1913,7 @@ static unsigned int sp_size_common(unsigned int ret, void *popup, unsigned int *
             /* one_popup.h: the room for the game's own buttons becomes the companion's OK room, and the rows
                after the text are asked for too */
             int stock = sp_reserve(c, p);
-            a[2] = (unsigned int)((int)a[2] - (stock > 0 ? stock : 0) + g_op.r.reserve + sp_rows_h(font));
+            a[2] = (unsigned int)((int)a[2] - (stock > 0 ? stock : 0) + sp_op_reserve(c, p) + sp_rows_h(font));
         }
         if (holder != NULL && box_w > 0 && whole != NULL) {
             /* the whole text, of which the field (the constructor measured) holds only the start */
