@@ -49,7 +49,8 @@
       "name": "Don't explore",
       "text": "\"Sorry, I'm not going,\" says (name2). \"What if we get lost? What if people discover we're gone? We'll get in trouble. I don't want to risk getting hurt. And neither should you,\" (friend.he/she) says. \"Please reconsider. Let the tribe handle this and maybe we can tag along later.\" (name1) is saddened, but realizes that (name2) is right. After much reflection, (he/she) thanks (friend.him/her) for setting their mind straight. \"I may not always have my best interests in mind, but I'm glad to have such a good friend looking out for me!\" (name2) promises to protect (name1) if (he/she) will do the same. \"Of course! After all, I'm here for you!\" (name1) and (name2) may not always get along, but one thing's for certain: their bond is stronger than ever.",
       "summary": "does not explore",
-      "outcome": "nothing happens"
+      "outcome": "nothing happens",
+      "solidarity": "neutral"
     },
     "explore": {
       "name": "Explore the cave",
@@ -257,7 +258,8 @@
       "join": "paragraph",
       "text": "(name1) and (name2)'s argument lasts for a while until both storm off to their homes. Although thankfully unhurt, neither of them wants anything to do with each other anymore.",
       "summary": "they argue",
-      "outcome": "both come home"
+      "outcome": "both come home",
+      "solidarity": "lower"
     },
     "makeup": {
       "name": "Out of the cave, they make up",
@@ -265,7 +267,8 @@
       "join": "paragraph",
       "text": "As they burst out of the cave, they flop onto familiar ground. They pant heavily as their friends, family and soon the entire village crowds around them in concern. \"W-we w-went in th-the c-cave, and heard s-something c-chasing us,\" (name1) stammers. Suddenly, (name2) starts crying. \"It was terrifying! If we hadn't made it out...\" \"I'm so sorry, (name2),\" (name1) says. \"I should have listened to you. You were right all along, about everything.\" The two embrace, sobbing for a while as the others help care for them. They quickly make amends and promise never to let each other do anything like that again.",
       "summary": "they make up",
-      "outcome": "both come home"
+      "outcome": "both come home",
+      "solidarity": "raise"
     },
     "chasm": {
       "name": "Who slips into the chasm",
@@ -295,7 +298,8 @@
         }
       ],
       "summary": "the chasm, name1 slips first",
-      "outcome": "both disappear, no graves"
+      "outcome": "both disappear, no graves",
+      "solidarity": "lower"
     },
     "chasm_2": {
       "name": "The second friend slips first",
@@ -313,7 +317,8 @@
         }
       ],
       "summary": "the chasm, name2 slips first",
-      "outcome": "both disappear, no graves"
+      "outcome": "both disappear, no graves",
+      "solidarity": "lower"
     },
     "b_search": {
       "name": "Search for anything",
@@ -390,7 +395,8 @@
         }
       ],
       "summary": "a map: both leave",
-      "outcome": "both disappear, no graves"
+      "outcome": "both disappear, no graves",
+      "solidarity": "lower"
     },
     "find_coins": {
       "name": "Find gold coins",
@@ -409,7 +415,8 @@
         }
       ],
       "summary": "gold coins",
-      "outcome": "both come home"
+      "outcome": "both come home",
+      "solidarity": "raise"
     },
     "find_treasure": {
       "name": "Find a treasure map",
@@ -428,7 +435,8 @@
         }
       ],
       "summary": "a treasure map",
-      "outcome": "both come home"
+      "outcome": "both come home",
+      "solidarity": "raise"
     },
     "find_food": {
       "name": "Find preserved food",
@@ -447,7 +455,8 @@
         }
       ],
       "summary": "preserved food",
-      "outcome": "both come home"
+      "outcome": "both come home",
+      "solidarity": "raise"
     },
     "stay": {
       "name": "Stay here",
@@ -503,7 +512,8 @@
         }
       ],
       "summary": "food",
-      "outcome": "both come home"
+      "outcome": "both come home",
+      "solidarity": "raise"
     },
     "return_tech": {
       "name": "Return the tech points",
@@ -521,7 +531,8 @@
         }
       ],
       "summary": "tech points",
-      "outcome": "both come home"
+      "outcome": "both come home",
+      "solidarity": "raise"
     },
     "keep": {
       "name": "Keep the objects",
@@ -558,7 +569,8 @@
         }
       ],
       "summary": "the researchers",
-      "outcome": "both come home"
+      "outcome": "both come home",
+      "solidarity": "raise"
     },
     "keep_both": {
       "name": "Both die",
@@ -577,7 +589,8 @@
         }
       ],
       "summary": "name2 dies, then name1",
-      "outcome": "both die, graves"
+      "outcome": "both die, graves",
+      "solidarity": "lower"
     },
     "keep_one": {
       "name": "The second friend dies",
@@ -591,7 +604,8 @@
         }
       ],
       "summary": "name2 dies",
-      "outcome": "name2 dies, a grave"
+      "outcome": "name2 dies, a grave",
+      "solidarity": "lower"
     }
   }
 }

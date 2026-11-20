@@ -30,6 +30,19 @@ MOODS = ("warm", "social", "serious")
 PF_DEADLY = 1                           # piece flags
 PF_BELIEVERS = 2
 PF_AUTO_LINES = 4                       # an outcome: its effects told in automatic lines (cie-v6-binary.md 25)
+PF_SOLIDARITY_SHIFT = 3                 # an outcome: its Village Solidarity tag, bits 3-4 (1 raise, 2 lower, 3 neutral;
+PF_SOLIDARITY_MASK = 0x18               # the composed page's node flags bits 2-3: story_procedural.inc)
+SOLIDARITY_CODES = {"raise": 1, "lower": 2, "neutral": 3}
+
+
+def solidarity_flags(tag: str | None) -> int:
+    """An outcome piece's flags bits for its ending's Village Solidarity tag (0: none)."""
+    return SOLIDARITY_CODES.get(tag or "", 0) << PF_SOLIDARITY_SHIFT
+
+
+def solidarity_of(flags: int) -> str | None:
+    code = (flags & PF_SOLIDARITY_MASK) >> PF_SOLIDARITY_SHIFT
+    return {v: k for k, v in SOLIDARITY_CODES.items()}.get(code)
 
 SF_OPTIONAL, SF_BELIEVERS, SF_SPEAKS, SF_HARM, SF_CONVERSION, SF_ANY_BIRTH_SEX = 1, 2, 4, 8, 16, 32
 SPECIAL_NONE, SPECIAL_GOLDEN_CHILD, SPECIAL_CHIEF, SPECIAL_CARRIER = 0, 1, 2, 3
@@ -702,6 +715,8 @@ def graph_of(comp: Composition, game: int, notes: bool = False) -> dict:
                 node["effects"] = fx
             if o.flags & PF_AUTO_LINES:
                 node["auto_text"] = True
+            if solidarity_of(o.flags):
+                node["solidarity"] = solidarity_of(o.flags)
             nodes[nid] = node
         if a.text:
             # its own popup after the question's (nothing is open to append to once an answer is clicked)

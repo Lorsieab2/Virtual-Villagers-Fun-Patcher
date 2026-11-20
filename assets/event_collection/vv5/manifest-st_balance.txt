@@ -17,7 +17,7 @@ living_st_b13d40	The Naming Stone	1,2,3,4,5	1	living_st_balance	Written by Claud
 living_st_1a4529	The Night Moths	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The old people say the dust makes you forget, and that's why nobody should ever sleep out on the hill on vine night.		
 living_st_bf359d	The Grandchild's Spell	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It's mostly for sore backs.		
 living_st_e21ba0	The Child Who Followed the Parrot	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager was playing by the edge of the jungle at noon, chasing a red parrot that kept landing just out of reach.		
-living_st_8e1e85	The Night the Whales Sang	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Out past the reef, in the moonlight, great dark backs are rolling in the water, and the sound is coming from them.		
+living_st_8e1e85	The Night the Whales Sang	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Out past the reef, in the moonlight, great dark backs are rolling in the water, and the sound is coming from them.			cooperative
 living_st_7856bc	The Mudslide	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	After a week of rain, the hillside above the village gave way in the night.		
 living_st_62c38d	The Cave of Echoes	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager and another villager have dared each other to go all the way to the back.		
 living_st_301b8c	The Hundred-Year Lotus	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It's as big as a canoe, pink at the edges and white in the middle, and the whole pond smells of honey.		
@@ -35,12 +35,12 @@ living_st_28de50	The Mask with Another Face	1,2,3,4,5	1	living_st_balance	Writte
 living_st_2dcd58	The Overturned Canoe	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager and another villager were fishing at the reef edge when a rogue wave flipped their canoe.		
 living_st_40f6bd	The Raft on the Morning Tide	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The traveller's lips are cracked and their eyes are barely open.		
 living_st_4ddd77	The Lagoon That Keeps Time	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	There's a small, round lagoon on the east side of the island where the water is perfectly still, even in a storm.		
-living_st_42c3e2	The Festival of Lanterns	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager is in charge this year, and has spent a month teaching the children how to fold them.		
+living_st_42c3e2	The Festival of Lanterns	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager is in charge this year, and has spent a month teaching the children how to fold them.			cooperative
 living_st_2a90e7	The Wind from the Bell Rocks	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	On the mountain there's a pass where the rocks are hollow, and when the wind blows through them they ring like bells.		
 living_st_16120a	The Elder's Last Winter	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager has been ill since the rains came.		
 living_st_1ca696	The Shadow Net	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager has woven a fine net from the silk of the big yellow spiders in the forest.		
 living_st_b50603	The Teaching Day	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	How should a villager teach?		
-living_st_20e87a	The Dance of Shared Hearts	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The elders call it the dance of shared hearts.		
+living_st_20e87a	The Dance of Shared Hearts	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The elders call it the dance of shared hearts.			cooperative
 living_st_79364c	The Coconut Season	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It's coconut season, and everyone knows the rule: don't stand under the palms when the wind gets up.		
 living_st_06213a	The Baby at the Healers' Door	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It's not from this village.		
 living_st_4a4323	The Fruit with Two Stones	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Most years it gives nothing.		
@@ -62,7 +62,7 @@ living_st_14e29c	The Paired Gourds	1,2,3,4,5	1	living_st_balance	Written by Clau
 living_st_dc79b6	The Gourd Cradle on the River	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	After the heavy rains, the river is high and brown and fast.		
 living_st_c246c1	The Banyan's Bark	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The oldest banyan on the island is shedding its bark, which happens once in a lifetime, the elders say.		
 living_st_860513	The Torch Fishers	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	On moonless nights the fishers wade out on the reef flats with torches, and the fish swim up to the light.		
-living_st_731768	The Wedding Night Feast	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager and another villager were married this afternoon, and the feast has gone on into the night.		
+living_st_731768	The Wedding Night Feast	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager and another villager were married this afternoon, and the feast has gone on into the night.			cooperative
 living_st_bc09e1	The Floating Chest	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	After a night of storm, a villager sees a canoe wrecked on the outer reef, broken in two.		
 living_st_1f1310	The Twin Stars	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	At first light a villager climbs up and finds them: two small, warm, glittering stones lying in a scorched patch of grass.		
 living_st_0d35a2	The Wild Boar	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A wild boar has been raiding the gardens for a week: tearing up taro, flattening the beans and charging anyone who comes near.		
@@ -70,7 +70,7 @@ living_st_b83331	The Shaking Ground	1,2,3,4,5	1	living_st_balance	Written by Cla
 living_st_414fd2	The Day the Sun Went Dark	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	In the middle of the day, the sun starts to go dark, as if something is taking a bite out of it.		
 living_st_1e0034	The Sea-Glass Window	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The whole village has come to see.		
 living_st_500da5	The Waterfall Curtain	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	At the head of the valley a waterfall drops in a thin, shining curtain over a dark hollow in the cliff.		
-living_st_b9c681	The Ancestor Masks	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	This year a villager has been chosen to dance.		
+living_st_b9c681	The Ancestor Masks	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	This year a villager has been chosen to dance.			cooperative
 living_st_77ff35	The Canoe That Didn't Come Back	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager and another villager went out fishing two days ago and haven't come back.		
 living_st_40a952	The Scholar's Mixture	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Tonight the mixture is bubbling in a clay pot, giving off a pale green steam.		
 living_st_378530	The Remedy from the Deep	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager has had a deep, wet cough for a month that nothing will shift.		
@@ -88,7 +88,7 @@ living_st_1d103c	The Hailstones	1,2,3,4,5	1	living_st_balance	Written by Claude 
 living_st_c0d5e6	The Pond of Two Moons	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager and another villager have climbed up to see it.		
 living_st_5b902e	The Grey Morning	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	This morning, a villager's hair has gone pure white.		
 living_st_b9ea73	The Wet Rocks at the Falls	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The pool at the bottom of the falls is the best swimming on the island, and the rocks around it are the slipperiest.		
-living_st_81d6f1	The Singing on the Reef	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	For three nights, someone has been singing on the reef.		
+living_st_81d6f1	The Singing on the Reef	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	For three nights, someone has been singing on the reef.			cooperative
 living_st_5f387c	The Old Healer Steps Down	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager has been the village's healer for forty years.		
 living_st_07ed30	The Double Rainbow	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The children are already running for it.		
 living_st_6f1658	The Shell Swap	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	They're standing on the beach, each holding the other's shell.		
@@ -103,10 +103,10 @@ living_st_17d256	The Elder Who Wants to Stop	1,2,3,4,5	1	living_st_balance	Writt
 living_st_40cff1	The Carved Cradle	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The old carvers say that's bad luck.		
 living_st_2b6050	The Great Bird's Egg	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Nobody living has seen it.		
 living_st_4b998b	The Cracking Cliff	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Above the eastern huts there's a cliff, and this morning a crack has opened along the top of it, wide enough to put a hand in.		
-living_st_2d5959	The Race to the Far Reef	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Every year the young paddlers race to the far reef and back, and the winner is given the first cup at the harvest feast.		
+living_st_2d5959	The Race to the Far Reef	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Every year the young paddlers race to the far reef and back, and the winner is given the first cup at the harvest feast.			cooperative
 living_st_95da9e	The Second Shadow	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	For three days, a villager has had two shadows.		
 living_st_09807f	The Sleeping Sickness	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It works, but it's harsh, and the old healers argued about whether it helped or harmed.		
-living_st_1462d8	The Festival Masks	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Halfway through the dance, the dancers trade masks.		
+living_st_1462d8	The Festival Masks	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Halfway through the dance, the dancers trade masks.			cooperative
 living_st_49d9f6	The Fire at the Children's Hut	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A cooking fire has caught the thatch of the hut where the youngest children nap in the afternoon.		
 living_st_a56cfd	The Washing Stones	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager loves washing day.		
 living_st_e65231	The Spring of First Light	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	High on the mountain is a spring that runs only for an hour at dawn, the elders say, when the first light touches it.		
@@ -126,7 +126,7 @@ living_st_c83956	The Still Pool Above the Falls	1,2,3,4,5	1	living_st_balance	Wr
 living_st_b4e4d1	The Name Stone	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Every time someone says it, someone else remembers the wedding.		
 living_st_8ccb59	The Blessing Shell	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A spiral shell as big as a cooking pot has washed up on the beach, pink inside and smooth as skin.		
 living_st_646171	The Hollow Log	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Deep in the jungle, where the trees are so tall the light comes down green, there is a fallen log big enough to walk through.		
-living_st_0c232a	The Festival Masks	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	There is a rule about them: each family wears only its own masks.		
+living_st_0c232a	The Festival Masks	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	There is a rule about them: each family wears only its own masks.			cooperative
 living_st_5a5a8b	The Goat Path	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Most of the village takes the long way round through the jungle.		
 living_st_d2f4a8	The Weaver's Last Mat	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	I'd like to teach you while I make it.		
 living_st_e0c568	The Raft at Dawn	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	At first light, a villager sees a raft out past the reef.		
@@ -148,7 +148,7 @@ living_st_4977ce	The Rope Bridge	1,2,3,4,5	1	living_st_balance	Written by Claude
 living_st_765c11	The Cave That Keeps Names	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	There is a cave by the sea where, the elders say, the island keeps the names of everyone who ever lived on it.		
 living_st_398e45	The Children's Spring	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	I promise. The spring, when they get there, is tiny, clear and bubbling, in a nest of roots under a fig tree.		
 living_st_e6e949	The Termite Year	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Something has been eating the village.		
-living_st_5f1002	The Spirit Feast	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	By morning the plates are always empty and washed clean, stacked neatly at the high-tide line.		
+living_st_5f1002	The Spirit Feast	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	By morning the plates are always empty and washed clean, stacked neatly at the high-tide line.			cooperative
 living_st_a199de	The Grey Clay	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Nobody in the village will listen to a villager.		
 living_st_899643	The Two Round Stones	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The elders call them the Twins.		
 living_st_c72aae	The Shadow That Stayed	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It is midday, and everyone's shadow is a small dark puddle under their feet.		
@@ -166,10 +166,10 @@ living_st_da3f54	The Dreaming Hammock	1,2,3,4,5	1	living_st_balance	Written by C
 living_st_45e4e6	The Coconut Shy	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Every so often one falls by itself with a thud that makes everyone jump.		
 living_st_1d4431	The Salve in the Clay Jar	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Clearing out the back of the healers' hut, a villager finds a little clay jar sealed with wax, with a fish scratched on the lid.		
 living_st_a0922f	After the Big Wave	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A big wave came in the night, out of a calm sea, with no storm behind it.		
-living_st_e626f9	The Elders' Dance	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	There is an old dance that only the elders know, slow and stamping, with clapping in odd places.		
+living_st_e626f9	The Elders' Dance	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	There is an old dance that only the elders know, slow and stamping, with clapping in odd places.			cooperative
 living_st_87fdfb	The Race to the Reef	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Every year, the young people race from the beach out to the reef and back.		
 living_st_027ca0	The Chore Spirit	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager loves learning more than anything.		
-living_st_4447bb	The Naming Feast	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	This year, the elders have decided that a villager has earned one.		
+living_st_4447bb	The Naming Feast	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	This year, the elders have decided that a villager has earned one.			cooperative
 living_st_a0c9ad	The Lantern Night	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager and another villager have made theirs with great care.		
 living_st_c751fb	The Trader's Baby	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The baby is not the trader's.		
 living_st_ff8617	The Hammerhead Shallows	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The best clams on the island grow in the shallows at the north end of the bay, in water only waist-deep.		
@@ -186,7 +186,7 @@ living_st_697d26	The Weed Year	1,2,3,4,5	1	living_st_balance	Written by Claude t
 living_st_8dcb74	The Mask of No Face	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	In the back of the elders' hut hangs a mask with no face carved on it at all: just smooth, pale wood, with two eye holes.		
 living_st_b3d202	The Clay Figures	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The children have gone home for supper.		
 living_st_6310e6	The Dolphin Who Waits	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It doesn't come for anyone else.		
-living_st_f8307c	The Elder's Hat	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Whoever receives it is supposed to wear it on festival days, and in time to take a seat on the council.		
+living_st_f8307c	The Elder's Hat	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Whoever receives it is supposed to wear it on festival days, and in time to take a seat on the council.			cooperative
 living_st_e60146	The Thatcher's Ladder	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The rains are a week away, and half the roofs in the village still have holes in them from last year.		
 living_st_a60d75	The Coughing Season	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A dry, barking cough has gone through the village, and half of everyone has it.		
 living_st_70fd53	The Crab Moon	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Crabs are everywhere, around their feet, climbing over their toes.		
@@ -210,7 +210,7 @@ living_st_923c5e	The Night Swim	1,2,3,4,5	1	living_st_balance	Written by Claude 
 living_st_f8e47c	The Eel Under the Rock	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It lives under a flat rock by the pool, and it steals.		
 living_st_e11b96	The Twin Pond	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Should a villager swim across and back, or just paddle?		
 living_st_3091ca	The Grandchild's Wish	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager is sitting in the sun.		
-living_st_dcbf4a	The Frog Dance	3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Every dance a villager dances turns into jumping.		
+living_st_dcbf4a	The Frog Dance	3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Every dance a villager dances turns into jumping.			cooperative
 living_st_92614e	The Last Canoe	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It is half carved, a great log on the beach, with the shape of the hull just coming out of the wood.		
 living_st_d70316	The Seed of the Copy Tree	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Plant it, and it gives you more of what you love most, the trader said, and took two good baskets for it, and left very early.		
 living_st_8c493e	The Mango Tree	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Every year someone tries to get them.		
@@ -221,7 +221,7 @@ living_st_2a3316	The Lost Little Ones	1,2,3,4,5	1	living_st_balance	Written by C
 living_st_2abdba	The Sleepwalker	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager's grandmother, before she died, used to say the opposite: that whoever is calling should be answered.		
 living_st_a4c6e5	The Feather Crown	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	In the nest is a ring of white feathers, so neatly woven together that it looks exactly like a crown.		
 living_st_372e05	The Stone That Teaches	2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	In the research hut there is a smooth black stone that the researchers call the Teacher.		
-living_st_a200cf	The Singing Boat	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A boat is coming in from the open sea, and the people in it are singing.		
+living_st_a200cf	The Singing Boat	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A boat is coming in from the open sea, and the people in it are singing.			cooperative
 living_st_2cac1c	The Rain of Copies	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A strange rain is falling: warm, silver-grey, and heavy, each drop as big as a grape.		
 living_st_bf801c	The Wrong Jar	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The healers' hut is a mess.		
 living_st_730946	The Fishing Contest	2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager has never entered.		
@@ -232,7 +232,7 @@ living_st_ed4b59	The Mask of Years	1,2,3,4,5	1	living_st_balance	Written by Clau
 living_st_1fedf6	The Brave Child	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager is the smallest child in the village and the most afraid of everything: the dark, the sea, the pigs, the drums.		
 living_st_ad3943	The Moon in the Bowl	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Most people see nothing but the moon.		
 living_st_4ff85c	The Healing Rain	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A soft, warm rain has started falling from a clear sky, and it smells of crushed mint.		
-living_st_97539b	The Hut-Raising Song	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The storm last week left five huts in pieces.		
+living_st_97539b	The Hut-Raising Song	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The storm last week left five huts in pieces.			cooperative
 living_st_5e5f60	The Ghost Canoe	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The fishers call it the Ghost Canoe.		
 living_st_74191b	The Grey Gull	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A grey gull with one bad wing has been following a villager for a week.		
 living_st_4fa781	The Doubling Pool	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Deep in the mangroves there is a pool so still and dark that it looks like a second sky.		
@@ -247,9 +247,9 @@ living_st_b6e5b9	The Old Fisher's Last Tide	1,2,3,4,5	1	living_st_balance	Writte
 living_st_eb9a81	The Glass Pool in the Cave	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The elders say the water in it fell from a falling star a long time ago, and that whatever it shows, it keeps.		
 living_st_55e4c2	The Vine Swing Over the Gorge	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager has watched them for a week.		
 living_st_22a8e0	The Red Moon and the Midwife	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Everyone else says it with a wink.		
-living_st_a7af48	The Feast Nobody Planned	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It started with a villager bringing a single fish to the cooking fire.		
+living_st_a7af48	The Feast Nobody Planned	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It started with a villager bringing a single fish to the cooking fire.			cooperative
 living_st_f4793c	The Grandchild's First Spell	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The spell-keeper is nowhere in sight.		
-living_st_fd2f80	The Contest of Best Hands	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A basket, a carving, a stew, a roof, a song.		
+living_st_fd2f80	The Contest of Best Hands	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A basket, a carving, a stew, a roof, a song.			cooperative
 living_st_4dd723	The Lightning Under the Banyan	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Neither of them will be the first to walk away.		
 living_st_00cde3	The Basket in the Mangroves	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	There is a little carved bird tied to the handle.		
 living_st_5c6907	The Ring of White Stones	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	High on the ridge there is a ring of white stones, each one taller than a person, that nobody in the village put there.		
@@ -269,7 +269,7 @@ living_st_141aa0	The Statue Under the Lagoon	1,2,3,4,5	1	living_st_balance	Writt
 living_st_6af918	The Night the Hill Moved	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	After a week of heavy rain, the hillside above the village gives way in the night with a sound like a giant clearing its throat.		
 living_st_b7736d	The Mask Carver's New Faces	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Just for a moment. The elders say a carver's hands sometimes know things the carver doesn't.		
 living_st_6494d2	The Grey Shark in the Shallows	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager loves swimming more than anything.		
-living_st_13ed3d	The Festival of Floating Lanterns	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager has never organised anything bigger than a fishing trip.		
+living_st_13ed3d	The Festival of Floating Lanterns	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager has never organised anything bigger than a fishing trip.			cooperative
 living_st_780789	The Polished Shell Mirror	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It's the best mirror anyone in the village has ever seen.		
 living_st_e969c0	The Coconut Climb	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It's too high and it leans too far.		
 living_st_35854c	The Elders' Anniversary Wish	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager and another villager have been together for longer than most of the village has been alive.		
@@ -284,12 +284,12 @@ living_st_6bbc01	The Lotus That Opened at Dawn	1,2,3,4,5	1	living_st_balance	Wri
 living_st_045f98	The Grey Fog Off the Mountain	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Every so often a thick grey fog rolls down off the mountain, cold and damp, smelling faintly of ash.		
 living_st_1efd7b	The Warm Lake in the Crater	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	High on the mountain, in the old crater, there is a lake that stays warm all year round and steams on cold mornings.		
 living_st_8686f8	The Shadow That Stood Up	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	At midday on the longest day of the year, the sun stands so straight overhead that shadows shrink to puddles at people's feet.		
-living_st_6f974d	The Masks of the Harvest Dance	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The dance is going wonderfully.		
+living_st_6f974d	The Masks of the Harvest Dance	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The dance is going wonderfully.			cooperative
 living_st_13b014	The Rockfall at the Quarry	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The village cuts its grinding stones from a cliff of soft grey rock at the edge of the hills.		
 living_st_b6843c	The Fever That Burns Away Names	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Most people get through it.		
 living_st_aa8d27	The Laziest Summer	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It's been so hot for so long that a villager has given up on everything except lying in a hammock.		
 living_st_b3ea9b	The Huts on Stilts	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	We could just patch the doorposts and hope the tides calm down. Should a villager build the stilts, or just patch?		
-living_st_a41d1e	The Sleepwalker on the Cliffs	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The elders say there was once a singer who lived up there, and that her song still calls to light sleepers.		
+living_st_a41d1e	The Sleepwalker on the Cliffs	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The elders say there was once a singer who lived up there, and that her song still calls to light sleepers.			cooperative
 living_st_a2bb88	The Night of Two Sunrises	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The elders call it the False Dawn.		
 living_st_1737f6	The Smoke From the Next Island	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	For two days a column of black smoke has been rising from the little island across the strait, where a handful of families live.		
 living_st_9dc618	The Potter's Clay Figures	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It looks so much like a villager that it's unsettling.		
@@ -304,7 +304,7 @@ living_st_9d7de1	The Wrong Jar	1,2,3,4,5	1	living_st_balance	Written by Claude t
 living_st_190c22	The Bird That Steals Words	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A black-and-gold bird has taken up residence in the palm above a villager's hut.		
 living_st_5a19d3	The Echo Valley	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Over the ridge there is a narrow valley where any shout comes back three times.		
 living_st_3cef93	The Waterfall of Two Rivers	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Where the two rivers meet in the hills, they fall together over a cliff in a single waterfall, one stream warm and one cold.		
-living_st_36e109	The Coconut That Cried	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager is gathering coconuts when one of them cries.		
+living_st_36e109	The Coconut That Cried	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager is gathering coconuts when one of them cries.			cooperative
 living_st_9bab87	The Pale Blossoms of the Ridge	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Once every few years, a creeper on the high ridge covers itself in pale blossoms that smell like milk and honey.		
 living_st_fbd114	The Burial Cave	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Behind the village, in the hills, there is a cave where the first people buried their dead, and nobody goes in.		
 living_st_d21a01	The Moon-Shell Necklace	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The stories also say that a moon shell worn at the throat for one full moon brings a child, and sometimes more than one.		
@@ -326,7 +326,7 @@ living_st_f03ad3	The Cousins From Across the Sea	1,2,3,4,5	1	living_st_balance	W
 living_st_896f6d	The Hollow-Log Drum	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Everyone looks at a villager.		
 living_st_fb504e	The Old Woman of the Reef	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Most people just wave at her from the beach.		
 living_st_68c514	The Double Banana	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It is a very ripe, very sweet-smelling banana.		
-living_st_57d363	The Fall From the Festival Tower	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	This year it's a villager's turn.		
+living_st_57d363	The Fall From the Festival Tower	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	This year it's a villager's turn.			cooperative
 living_st_4d2a21	The Naming Stone at the Spring	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	At the spring in the hills stands a flat grey stone covered in scratched names, some so old they are almost worn away.		
 living_st_96ea76	The Elder's Last Story	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager is the oldest person in the village, and the best storyteller anyone can remember.		
 living_st_53971b	The Tunnel Under the Headland	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The tide only stays out long enough for someone very fast.		
@@ -344,7 +344,7 @@ living_st_18c7cb	The Octopus in the Fish Trap	1,2,3,4,5	1	living_st_balance	Writ
 living_st_004ad1	The Golden Moths	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Their wings shed a fine gold dust that glitters on everything it touches.		
 living_st_6935ef	The Rainbow Over the Waterfall	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	This morning the rainbow is there, bright and close.		
 living_st_79ad47	The Lost Recipe for the Shaking Sickness	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The old healers had a cure for it: a paste of three roots and a flower.		
-living_st_b8c91f	The Games With the Hill Village	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The loser hosts a feast for the winner.		
+living_st_b8c91f	The Games With the Hill Village	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	The loser hosts a feast for the winner.			cooperative
 living_st_de4cc2	The Dolphin Who Wouldn't Leave	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It has started waiting in the lagoon in the mornings.		
 living_st_ffbbf1	The Smoked Fish Contest	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager's secret is to use green coconut husks, which make a sweet smoke.		
 living_st_e56700	The Map of Wrinkles	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	You'll carry some of my years with it. Should a villager take the line, or politely say no?		
@@ -355,7 +355,7 @@ living_st_859c08	The Moon Bath	1,2,3,4,5	1	living_st_balance	Written by Claude t
 living_st_2472b4	The Morning After the Tremor	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	In the night the ground shook.		
 living_st_89fa21	The Sweet Spring and the Sour Spring	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Up in the hills, two springs bubble out of the rock side by side, a hand's width apart.		
 living_st_ccf1d5	The Mist That Takes Names	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager has to cross the valley this morning to get to the far gardens.		
-living_st_a3c202	The Harvest Moon Dance	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It is mostly an excuse for the young people to show off.		
+living_st_a3c202	The Harvest Moon Dance	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	It is mostly an excuse for the young people to show off.			cooperative
 living_st_1961c3	The Shell of Turning Years	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	Put it to your ear, the trader said, and listen to the sea, and turn it the way the spiral goes: you get younger.		
 living_st_09b804	The Canoe That Came Back Twice	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager stops paddling.		
 living_st_b00b9f	The Healer's Sweet Tonic	1,2,3,4,5	1	living_st_balance	Written by Claude to Lorsieab2's style guide and direction.	A villager has had a deep cough for two weeks.		

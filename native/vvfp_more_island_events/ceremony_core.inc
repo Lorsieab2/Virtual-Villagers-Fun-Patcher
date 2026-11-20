@@ -230,6 +230,9 @@ static void cr_effects(int which) {
     } else {
         cr_rumblings(g);
     }
+    /* Village Solidarity (adv_solidarity): the ceremony is solemn remembrance (neutral); the rumblings damage the
+       village's huts (lower). */
+    adv_solidarity(g->game, which == CR_REMEMBRANCE ? ADV_SOL_NEUTRAL : ADV_SOL_LOWER);
 }
 
 /* `which` drawn for the popup about to be shown: its words composed, its effects made, its one log entry. */

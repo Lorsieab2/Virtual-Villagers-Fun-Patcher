@@ -1487,3 +1487,13 @@ weights a chance split's children by the tags of their next pages (`VvfpVillageS
 only a word in the file. The collection's tags are kept apart from the event files, in
 `data/event_collection/solidarity_tags.json` (`scripts/tag_village_solidarity.py`), and applied when the collection
 is built; an event's own kind (`cooperative` / `repair`) is the manifest's tenth column.
+
+Every added event's every ending is tagged (the owner, 2026-11-20: "add tags to every single event"), by the owner's
+rule as code (`src/vv_solidarity_endings.py`: the effects first, then the words of the village as a whole): the
+collection's (`solidarity_tags.json`, with the reviewed judgement calls in `solidarity_review.json` and the Living
+Culture drafts' own `[Solidarity: ...]` tags), the Living Event Engine's (`data/living_events/solidarity_tags.json`:
+each outcome archetype and MC outcome, written on every variant's ending), the procedural pieces' (an outcome piece's
+flags bits 3-4, the same codes, which the Story companion writes into the composed page's node flags bits 2-3), the
+Custom Island Event Library's two examples (`data/cie_graphs`), and More Island Events' own endings (its DLL calls
+`VvfpVillageScoreTag` once with each ending's effects, only when the companion is loaded).
+`tests/test_solidarity_added_events.py` fails on any untagged shipped ending.

@@ -200,6 +200,9 @@ static void dp_effects(int e) {
         g->award(ADV_KIND_FOOD, dp.back_award);
         break;
     }
+    /* Village Solidarity (adv_solidarity): the hunt and hanging back bring food (raise); the slap is the swimmer's
+       own hurt, never deadly (neutral). */
+    adv_solidarity(g->game, e == DP_E_SLAP ? ADV_SOL_NEUTRAL : ADV_SOL_RAISE);
 }
 
 /* ---- As a dialog shows it (adv_flow) --------------------------------------------------------------------------- */

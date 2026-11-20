@@ -30,6 +30,9 @@ enum { PC_SETUP = 1, PC_APPROACH = 2, PC_OUTCOME = 3, PC_FLAVOUR = 4, PC_FRAME =
 #define PC_F_DEADLY 1u                    /* a piece's flags */
 #define PC_F_BELIEVERS 2u
 #define PC_F_AUTO_LINES 4u                /* an outcome: its effects told in automatic lines (cie-v6-binary.md 25) */
+#define PC_F_SOLIDARITY 0x18u             /* an outcome: its Village Solidarity tag, bits 3-4 (1 raise, 2 lower, 3
+                                             neutral): the composed page's node flags bits 2-3 (story_solidarity.inc) */
+#define PC_F_SOLIDARITY_SHIFT 3u
 #define PC_S_OPTIONAL 1u                  /* a slot's flags */
 #define PC_S_BELIEVERS 2u
 #define PC_S_SPEAKS 4u
@@ -151,7 +154,8 @@ static int pc_check(const unsigned char *data, unsigned int size) {
         unsigned int k, slots = pc_u16(p + 44), first_slot = pc_u32(p + 40);
         unsigned int first_fx = pc_u32(p + 48), fx = pc_u16(p + 52), first_link = pc_u32(p + 56), links = pc_u16(p + 60);
         if (pc_str(pc_u32(p)) == NULL || p[4] < PC_SETUP || p[4] > PC_FRAME || p[5] > 2u
-            || (p[6] & ~(PC_F_DEADLY | PC_F_BELIEVERS | PC_F_AUTO_LINES)) != 0u || pc_u16(p + 46) < 1u
+            || (p[6] & ~(PC_F_DEADLY | PC_F_BELIEVERS | PC_F_AUTO_LINES | PC_F_SOLIDARITY)) != 0u
+            || pc_u16(p + 46) < 1u
             || pc_u16(p + 46) > 1000u || pc_u16(p + 54) > 2u
             || (pc_u32(p + 32) != PC_STR_NONE && pc_str(pc_u32(p + 32)) == NULL)
             || (pc_u32(p + 36) != PC_STR_NONE && pc_str(pc_u32(p + 36)) == NULL)
@@ -1015,7 +1019,9 @@ static unsigned int pc_write(const pc_pick *c, const char *group, unsigned char 
                 on[0] = CG_POPUP;
                 on[1] = an[0] == CG_POPUP; /* the outcome continues the approach's popup */
                 on[2] = an[0] == CG_POPUP; /* ... as a paragraph of its own */
-                on[3] = (o[6] & PC_F_AUTO_LINES) ? (unsigned char)CG_NODE_AUTO_TEXT : 0;
+                on[3] = (unsigned char)(((o[6] & PC_F_AUTO_LINES) ? CG_NODE_AUTO_TEXT : 0u)
+                                        /* its ending's Village Solidarity tag (story_solidarity.inc) */
+                                        | (((o[6] & PC_F_SOLIDARITY) >> PC_F_SOLIDARITY_SHIFT) << 2));
                 pc_put16(on + 4, pc_s(&w, node_id[o_node_i]));
                 pc_put16(on + 6, pc_s(&w, pc_str(pc_u32(o + 32))));
                 pc_put16(on + 12, 0);

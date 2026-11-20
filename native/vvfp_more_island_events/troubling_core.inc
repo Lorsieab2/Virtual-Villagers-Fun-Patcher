@@ -309,6 +309,8 @@ static void ts_effects(int group) {
             g->award(TS_KIND[group], TS_SIGN[group] * amount);
         }
     }
+    /* Village Solidarity (adv_solidarity): every decree sends five travellers away for good (lower). */
+    adv_solidarity(g->game, ADV_SOL_LOWER);
 }
 
 static void ts_flow_effects(int group) {
