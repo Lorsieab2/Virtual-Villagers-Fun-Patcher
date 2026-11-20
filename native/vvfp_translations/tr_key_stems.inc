@@ -29,6 +29,8 @@ static const char *const TR_KEY_STEMS[] = {
     "vvfp.cod/vvfp_cause_of_death.EPITAPHS.8",
     "vvfp.cod/vvfp_cause_of_death.EPITAPHS.9",
     "vvfp.factions/vvfp_vv3_both_factions.x.s0",
+    "vvfp.fog_listening/vvfp_fog_listening.WARY_EN.s0",
+    "vvfp.fog_listening/vvfp_fog_listening.WONT_LISTEN_EN.s0",
     "vvfp.fruit_supply/vvfp_vv4_fruit_supply.ev_text_id.s0",
     "vvfp.fruit_supply/vvfp_vv4_fruit_supply.on_click.s0",
     "vvfp.more_island_events/adv_text.A1.f",

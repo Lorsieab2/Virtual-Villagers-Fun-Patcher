@@ -676,6 +676,9 @@ class NewEventsRunInEveryGame(unittest.TestCase):
                                 left = food if e["give"] == "food" else tech
                                 self.assertEqual(left, 5000 - e["give_amount"])
                         ran += 1
+        if ran == 0:
+            # no stock game in inputs\ (the release source archive, a fresh clone): nothing could run
+            self.skipTest("the stock games are not in inputs\\")
         self.assertGreater(ran, 100)
 
 

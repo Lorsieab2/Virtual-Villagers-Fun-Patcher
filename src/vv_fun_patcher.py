@@ -11689,6 +11689,13 @@ def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]
             owned.add(legacy.as_posix().casefold())
 
     own(STARTUP_LOADER_DLL)
+    # The setting files the patcher itself writes beside their companions (no record ships them, so neither the
+    # catalog nor a patch log names them): owned too, so a re-patch that leaves their row out drops them, loose
+    # (an older patcher's layout) or in the patcher's folder, instead of carrying them over as the player's.
+    for setting in (LOUDER_FLUTES_CHOICE_FILE, ISLAND_FREQUENCY_CHOICE_FILE, MEAL_SCALE_CHOICE_FILE,
+                    UNICODE_FONT_CHOICE_FILE, MORE_COMPANIONS_CHOICE_FILE, vv_village_scores.SOLIDARITY_CHOICE_FILE,
+                    *(slider.choice_file for slider in RUNTIME_SLIDERS)):
+        own(setting)
     for feature in _load_fun_patch_records():
         if feature.raw.get("game_id") != build.id:
             continue
@@ -13557,6 +13564,9 @@ STARTUP_LOADER_COMPANIONS_3 = (
     # Fog of Doom Lets Every Heathen Listen (New Believers): in the Fog of Doom, a believer dropped on a Heathen in
     # the orange or red mask with Faith below -10 starts the stock listening.
     "VVFP Fog Listening.dll",
+    # Fix Vanilla Bugs (The Tree of Life): the broken piers' ten hole sprites drawn from the owner's redrawn pictures
+    # (separate files in Images) instead of the stock ones (second word full: placed here at the v1.35.97 merge).
+    "VVFP VV4 Pier Holes.dll",
 )
 MORE_COMPANIONS_DLL = "VVFP More Companions.dll"
 MORE_COMPANIONS_CHOICE_FILE = "VVFP More Companions.txt"

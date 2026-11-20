@@ -42,12 +42,17 @@ def description() -> str:
         "check passes the Heathen is \"Listening\" and their Faith rises by 3 (4 at Devotion 50 or more, 5 at 88 "
         "or more); then they cannot be preached to for 2 real-life hours, as in the normal game. **Only a Heathen "
         "whose Faith is below -10 listens.** **From Faith -10 up, only the Earthquake God Power reaches them** (as "
-        "in the normal game, it raises every Heathen's Faith by 2 to 8). A Heathen joins the tribe the normal "
+        "in the normal game, it raises every Heathen's Faith by 2 to 8). The first time one of a village's "
+        "Heathens turns a drop away for this, the game's message line says \"The fog hides you, but <name> still "
+        "won't listen. Something stronger may stir them.\" (with Guardians of Isola Rewrite: \"... <name> is still "
+        "wary. Perhaps another approach may convince them.\"): once per village, never again there even after "
+        "quitting, until Start Over begins a new village. A Heathen joins the tribe the normal "
         "game's way, when their Faith rises above 0. **Only the Fog of Doom God Power counts: natural fog, a "
         "Tempest and every other weather do nothing.** Blue-masked Heathens, the Heathen Doctor, the Chief, the "
         "three Masters and the Mommy are unchanged. **Works the same with every other patch and in every "
         "population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). "
-        "The companion is \"VVFP Fog Listening.dll\"; it writes no file and no save."
+        "The companion is \"VVFP Fog Listening.dll\"; it never writes a save, only one small file in the save's "
+        "own patcher folder that marks the message as shown."
     )
 
 
@@ -75,6 +80,14 @@ def row(dll_sha: str) -> dict:
             "(+0x1CF4) refuses, the preacher's Devotion check 0x46B270(5); on success the Heathen's action 0x29 "
             "(\"Listening\"), the wait set, Faith +3 (+1 at Devotion 50, +1 more at 88) through 0x468020, and the "
             "Faith setter 0x467F90's own conversion 0x4668B0 above 0.",
+            "The notice: when the thick-fog test answers yes and the Faith limit turns an orange or red Heathen away "
+            "(without vv5_fog_of_doom_no_restrictions), and the slot's file \"Virtual Villagers Fun Patcher\\Save "
+            "<S>\\Data\\Fog of Doom\\Fog of Doom Notice - Save <S>.dat\" (native/shared/per_save_data.h; the slot "
+            "from the save manager [0x4DACE0]+0x17D80) is not there, the file is made and the status line 0x520F68 "
+            "is given the message through the game's own 0x44F0B0 (copied, shown 5 seconds): the owner's words, "
+            "through VVFP Translations.dll, with the Heathen's whole name (+0x1B9C, long_name.h); the Guardians of "
+            "Isola words when the game's string 0x48 says \"left the tribe\". Start Over deletes the save's folder "
+            "(native/shared/save_reset.c), so a new village is told again.",
         ],
         "explicit_non_changes": [
             "No executable byte is patched: the companion splices the one site at run time, only after verifying its "
@@ -84,7 +97,7 @@ def row(dll_sha: str) -> dict:
             "the one way left to a Heathen in the orange or red mask.",
             "Blue-masked Heathens, the drop's other branches, the work event's odds, Faith and wait, the "
             "conversion, logs, last names, masks and statistics are the game's own (and the other patches' own).",
-            "Nothing is written to a save, a villager record or a file.",
+            "Nothing is written to a save or a villager record; the one file is the notice's mark.",
         ],
         "companion_files": [
             {"source": f"assets/fog_listening/{DLL_NAME}", "destination": DLL_NAME, "sha256": dll_sha},
