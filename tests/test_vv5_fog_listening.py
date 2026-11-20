@@ -59,7 +59,7 @@ TWO_HOURS = 0x1C20
 
 KINDS = {"blue": (0, 0), "orange": (1, 0), "red": (0, 1)}
 NAME = 0x1B9C
-SAY, STATUS_LINE = 0x44F0B0, 0x520F68              # the status line's text routine and the line
+POPUP = "popup"                                   # what the Story companion's popup is recorded as
 SAVE_MANAGER, SAVE_SLOT_FIELD = 0x4DACE0, 0x17D80  # native/shared/game_save_slot.h
 STRINGS = 0x5240A8
 WONT = "The fog hides you, but {} still won't listen. Something stronger may stir them."
@@ -86,7 +86,7 @@ class Island(Machine):
             self.put32(entry, 0x48)
             self.put32(entry + 8, text)
             self.put32(STRINGS + 4 * 0x48, entry)
-        self.stub(SAY, self._say)
+        self.story_can_show = True                       # the Story companion's popup slot is free
         for name, fn in (("SHGetSpecialFolderPathW", self._docs), ("GetFileAttributesW", self._attributes),
                          ("CreateFileW", self._create), ("WriteFile", self._write_file),
                          ("CloseHandle", lambda p: (1, 4)), ("CreateDirectoryW", lambda p: (1, 8)),
@@ -118,10 +118,14 @@ class Island(Machine):
         self.actions.append((p.reg("ecx"), p.arg(0)))
         return 0, 8
 
-    # ---- the status line and the disk ------------------------------------------------------------------------
-    def _say(self, p):
-        self.said.append((p.reg("ecx"), p.cstring(p.arg(0))))
-        return 0, 4
+    # ---- the Story companion's popup and the disk -------------------------------------------------------------
+    def story_frame(self) -> None:
+        """One frame of "VVFP Story Upgrades.dll"'s fog_notice_tick (story_fog_notice.inc): ask for the words; when
+        the popup can be armed now, record it as shown and tell the companion it was taken."""
+        buffer = self.alloc(0x1000)
+        if self.export("VvfpFogNoticePending", 5, buffer, 0x1000) and self.story_can_show:
+            self.said.append((POPUP, self.cstring(buffer)))
+            self.export("VvfpFogNoticeTaken", 5)
 
     def _wsprintf_w(self, p):
         """wsprintfW (cdecl): the %d / %s / %ls / %hs the companion's names use."""
@@ -216,7 +220,9 @@ class Island(Machine):
 
     def drop(self, believer: int, heathen: int) -> int:
         self.target = heathen
-        return self.call(DROP, [believer], ecx=self.scene) & 0xFF
+        handled = self.call(DROP, [believer], ecx=self.scene) & 0xFF
+        self.story_frame()                               # the next frame
+        return handled
 
     def sermon_end(self, believer: int, heathen: int) -> None:
         self.target = heathen
@@ -289,6 +295,21 @@ class TheRows(unittest.TestCase):
             entry = [e for e in guide["patches"] if row_id in e.get("ids", [])]
             self.assertEqual(len(entry), 1)
 
+    def test_the_story_companion_shows_it_like_the_faith_popup(self):
+        story = (ROOT / "native" / "vvfp_story_upgrades" / "story_fog_notice.inc").read_text(encoding="utf-8")
+        main = (ROOT / "native" / "vvfp_story_upgrades" / "vvfp_story_upgrades.c").read_text(encoding="utf-8")
+        exports = (ROOT / "native" / "vvfp_fog_listening" / "vvfp_fog_listening.def").read_text(encoding="utf-8")
+        for name in ("VvfpFogNoticePending", "VvfpFogNoticeTaken", "VvfpFogNoticeVillageReset"):
+            self.assertIn(f'"{name}"', story)
+            self.assertIn(name, exports)
+        self.assertIn('GetModuleHandleA("VVFP Fog Listening.dll")', story)
+        self.assertIn("story_notice_arm(game, &fog_notice_event)", story, "the Faith popup's own arm and waits")
+        self.assertIn("time_skip_event_open()", story)
+        self.assertIn("fog_notice_tick(game);", main)
+        self.assertIn("fog_notice_village_reset(game);", main)
+        row = json.loads(FEATURE.read_text(encoding="utf-8"))
+        self.assertEqual([n["id"] for n in row["needs_on"]], ["vv5_story_cheat_upgrades"])
+
     def test_the_dll_exports_imports_and_shows_no_text(self):
         try:
             import pefile
@@ -297,7 +318,8 @@ class TheRows(unittest.TestCase):
         pe = pefile.PE(str(DLL))
         names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
         self.assertEqual(names, ["VvfpFogListeningCount", "VvfpFogListeningInstalled",
-                                 "VvfpFogListeningNoRestrictions", "VvfpFogListeningNotices", "VvfpStartup"])
+                                 "VvfpFogListeningNoRestrictions", "VvfpFogListeningNotices", "VvfpFogNoticePending",
+                                 "VvfpFogNoticeTaken", "VvfpFogNoticeVillageReset", "VvfpStartup"])
         imports = {i.name.decode() for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name}
         self.assertEqual(imports & {"LoadLibraryA", "LoadLibraryW", "OutputDebugStringA", "OutputDebugStringW",
                                     "MessageBoxA", "MessageBoxW", "CreateFileA", "DeleteFileW", "MoveFileW",
@@ -336,8 +358,8 @@ class Listening(unittest.TestCase):
                     v = self.island(mode)
                     v.weather(True, 4.0)
                     self.refused(v, v.believer(1), v.heathen(2, kind, -10, name=b"Kaimana Nalu"))
-                    self.assertEqual(v.said, [(STATUS_LINE, WONT.format("Kaimana Nalu"))],
-                                     "the game's own status line, once, with the Heathen's name")
+                    self.assertEqual(v.said, [(POPUP, WONT.format("Kaimana Nalu"))],
+                                     "one popup, with the Heathen's name")
                     self.assertEqual(len(v.notices()), 1)
                     self.assertIn("\\virtual villagers fun patcher\\save 1\\data\\fog of doom\\", v.notices()[0])
                     v.actions.clear()
@@ -349,7 +371,7 @@ class Listening(unittest.TestCase):
         v = self.island(isola=True)
         v.weather(True, 4.0)
         self.refused(v, v.believer(1), v.heathen(2, "red", 5, name=b"Lani"))
-        self.assertEqual(v.said, [(STATUS_LINE, WARY.format("Lani"))])
+        self.assertEqual(v.said, [(POPUP, WARY.format("Lani"))])
 
     def test_the_notice_survives_quitting_and_start_over_resets_it(self):
         files: dict = {}
@@ -364,7 +386,7 @@ class Listening(unittest.TestCase):
         other = self.island(files=files, slot=2)            # another slot's village has its own
         other.weather(True, 4.0)
         self.refused(other, other.believer(1), other.heathen(2, "red", -1, name=b"Mele"))
-        self.assertEqual(other.said, [(STATUS_LINE, WONT.format("Mele"))])
+        self.assertEqual(other.said, [(POPUP, WONT.format("Mele"))])
         # Start Over: native/shared/save_reset.c deletes the slot's whole "Virtual Villagers Fun Patcher\Save 1"
         # folder (START OVER WIPES THE WHOLE SAVE).
         for path in [p for p in files if "\\virtual villagers fun patcher\\save 1\\" in p]:
@@ -372,7 +394,7 @@ class Listening(unittest.TestCase):
         fresh = self.island(files=files)
         fresh.weather(True, 4.0)
         self.refused(fresh, fresh.believer(1), fresh.heathen(2, "red", -10, name=b"Keoni"))
-        self.assertEqual(fresh.said, [(STATUS_LINE, WONT.format("Keoni"))], "a new village is told again")
+        self.assertEqual(fresh.said, [(POPUP, WONT.format("Keoni"))], "a new village is told again")
         self.assertEqual(len([p for p in files if "save 2" in p]), 1, "slot 2's mark untouched")
 
     def test_no_notice_for_blue_natural_fog_no_fog_listening_or_no_restrictions(self):
@@ -384,6 +406,50 @@ class Listening(unittest.TestCase):
                 v.weather(fog, thickness)
                 v.drop(v.believer(1), v.heathen(2, kind, faith))
                 self.assertEqual((v.said, v.notices()), ([], []))
+
+    def test_the_popup_waits_for_the_story_companion_and_is_never_doubled(self):
+        """While another popup or event holds the slot (story_notice_arm refuses), the notice waits; more refusals
+        meanwhile make no second one; the village is marked only once it is armed."""
+        v = self.island()
+        v.weather(True, 4.0)
+        v.story_can_show = False
+        self.refused(v, v.believer(1), v.heathen(2, "orange", -4, name=b"First"))
+        v.actions.clear()
+        self.refused(v, v.believer(3), v.heathen(4, "red", 2, name=b"Second"))
+        self.assertEqual((v.said, v.notices()), ([], []), "waiting: not shown, the village not marked yet")
+        v.story_can_show = True
+        v.story_frame()
+        v.story_frame()
+        self.assertEqual(v.said, [(POPUP, WONT.format("First"))], "shown once, for the first refusal")
+        self.assertEqual(len(v.notices()), 1)
+
+    def test_start_over_drops_a_waiting_popup_and_another_slot_never_gets_it(self):
+        v = self.island()
+        v.weather(True, 4.0)
+        v.story_can_show = False
+        self.refused(v, v.believer(1), v.heathen(2, "red", 0))
+        v.export("VvfpFogNoticeVillageReset", 5)           # VvfpStoryVillageReset (Start Over, a deleted tribe)
+        v.story_can_show = True
+        v.story_frame()
+        self.assertEqual((v.said, v.notices()), ([], []))
+        w = self.island()
+        w.weather(True, 4.0)
+        w.story_can_show = False
+        self.refused(w, w.believer(1), w.heathen(2, "red", 0))
+        w.put32(w.u32(SAVE_MANAGER) + SAVE_SLOT_FIELD, 3)  # the player went to the village in slot 3
+        w.story_can_show = True
+        w.story_frame()
+        self.assertEqual((w.said, w.notices()), ([], []), "slot 1's notice is never shown in slot 3")
+
+    def test_other_games_and_small_buffers_get_nothing(self):
+        v = self.island()
+        v.weather(True, 4.0)
+        v.story_can_show = False
+        self.refused(v, v.believer(1), v.heathen(2, "red", 0))
+        buffer = v.alloc(0x1000)
+        self.assertEqual(v.export("VvfpFogNoticePending", 4, buffer, 0x1000), 0)
+        self.assertEqual(v.export("VvfpFogNoticePending", 5, buffer, 100), 0)
+        self.assertEqual(v.export("VvfpFogNoticePending", 5, buffer, 0x1000), 1)
 
     def test_no_slot_known_no_notice(self):
         v = self.island(slot=0)

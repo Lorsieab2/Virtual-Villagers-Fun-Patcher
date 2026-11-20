@@ -5,3 +5,6 @@ EXPORTS
     VvfpFogListeningCount=_VvfpFogListeningCount@0
     VvfpFogListeningNoRestrictions=_VvfpFogListeningNoRestrictions@0
     VvfpFogListeningNotices=_VvfpFogListeningNotices@0
+    VvfpFogNoticePending=_VvfpFogNoticePending@12
+    VvfpFogNoticeTaken=_VvfpFogNoticeTaken@4
+    VvfpFogNoticeVillageReset=_VvfpFogNoticeVillageReset@4

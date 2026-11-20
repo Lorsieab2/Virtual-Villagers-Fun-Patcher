@@ -1486,8 +1486,8 @@ blue-masked Heathen does: the believer is "Explaining the truth", the Heathen
 is "Listening" when the believer's Devotion check passes, and their Faith
 rises by the normal game's 3 to 5. From Faith -10 up they will not listen:
 only the Earthquake God Power raises their Faith further; the first time that
-happens in a village the message line says so (once per village, until Start
-Over). A Heathen joins the tribe the normal way, when their Faith rises above
+happens in a village a popup says so (once per village, until Start Over;
+it needs Story / Cheat Upgrades, on by default). A Heathen joins the tribe the normal way, when their Faith rises above
 0. Natural fog and every
 other weather do nothing; blue-masked Heathens are unchanged.
 

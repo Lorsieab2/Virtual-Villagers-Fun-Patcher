@@ -209,7 +209,8 @@ def lines(village: gm.Village) -> list[gm.Fact]:
         add(f"With \"{gm.feature_name(FOG_LISTENING)}\" ({where}): while the Fog of Doom God Power's thick fog "
             "lasts, a drop on a Heathen in the orange or red mask whose Faith is below -10 starts the same preaching, "
             "with the same Faith; from -10 up only the Earthquake God Power raises their Faith, and the first such "
-            "drop in a village says so on the message line, once per village (Start Over resets it). Natural fog and "
+            "drop in a village says so in a popup (with Story / Cheat Upgrades), once per village (Start Over resets "
+            "it). Natural fog and "
             "other weather never count.", sub=True)
         if free is not False:
             add(f"With \"{gm.feature_name(FOG_NO_LIMIT)}\" ({'in this game' if free else UNTOLD}) as well: in the "

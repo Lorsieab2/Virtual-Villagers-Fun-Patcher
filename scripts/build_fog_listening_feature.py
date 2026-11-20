@@ -43,10 +43,12 @@ def description() -> str:
         "or more); then they cannot be preached to for 2 real-life hours, as in the normal game. **Only a Heathen "
         "whose Faith is below -10 listens.** **From Faith -10 up, only the Earthquake God Power reaches them** (as "
         "in the normal game, it raises every Heathen's Faith by 2 to 8). The first time one of a village's "
-        "Heathens turns a drop away for this, the game's message line says \"The fog hides you, but <name> still "
-        "won't listen. Something stronger may stir them.\" (with Guardians of Isola Rewrite: \"... <name> is still "
-        "wary. Perhaps another approach may convince them.\"): once per village, never again there even after "
-        "quitting, until Start Over begins a new village. A Heathen joins the tribe the normal "
+        "Heathens turns a drop away for this, a popup (\"Fog of Doom\", in the game's own popup window with its OK) "
+        "says \"The fog hides you, but <name> still won't listen. Something stronger may stir them.\" (with "
+        "Guardians of Isola Rewrite: \"... <name> is still wary. Perhaps another approach may convince them.\"): "
+        "once per village, never again there even after quitting, until Start Over begins a new village. **Needs "
+        "Story / Cheat Upgrades (on by default) for the popup: that patch's DLL shows it, when no other popup or "
+        "island event is showing or on its way.** A Heathen joins the tribe the normal "
         "game's way, when their Faith rises above 0. **Only the Fog of Doom God Power counts: natural fog, a "
         "Tempest and every other weather do nothing.** Blue-masked Heathens, the Heathen Doctor, the Chief, the "
         "three Masters and the Mommy are unchanged. **Works the same with every other patch and in every "
@@ -81,13 +83,23 @@ def row(dll_sha: str) -> dict:
             "(\"Listening\"), the wait set, Faith +3 (+1 at Devotion 50, +1 more at 88) through 0x468020, and the "
             "Faith setter 0x467F90's own conversion 0x4668B0 above 0.",
             "The notice: when the thick-fog test answers yes and the Faith limit turns an orange or red Heathen away "
-            "(without vv5_fog_of_doom_no_restrictions), and the slot's file \"Virtual Villagers Fun Patcher\\Save "
-            "<S>\\Data\\Fog of Doom\\Fog of Doom Notice - Save <S>.dat\" (native/shared/per_save_data.h; the slot "
-            "from the save manager [0x4DACE0]+0x17D80) is not there, the file is made and the status line 0x520F68 "
-            "is given the message through the game's own 0x44F0B0 (copied, shown 5 seconds): the owner's words, "
-            "through VVFP Translations.dll, with the Heathen's whole name (+0x1B9C, long_name.h); the Guardians of "
-            "Isola words when the game's string 0x48 says \"left the tribe\". Start Over deletes the save's folder "
-            "(native/shared/save_reset.c), so a new village is told again.",
+            "(without vv5_fog_of_doom_no_restrictions), no notice is waiting, and the slot's file \"Virtual Villagers "
+            "Fun Patcher\\Save <S>\\Data\\Fog of Doom\\Fog of Doom Notice - Save <S>.dat\" "
+            "(native/shared/per_save_data.h; the slot from the save manager [0x4DACE0]+0x17D80) is not there, a "
+            "notice is kept waiting with the Heathen's whole name (+0x1B9C, long_name.h). \"VVFP Story Upgrades.dll\" "
+            "(story_fog_notice.inc) asks VvfpFogNoticePending every frame and shows it as Popup When Believers Become "
+            "Heathens' popup is shown (story_notice_arm: the island-event notice, armed only when the event slot is "
+            "free and the game's trigger shows it at once; not counted, not logged, the next island event keeps its "
+            "time), titled \"Fog of Doom\", with the owner's words through VVFP Translations.dll (the Guardians of "
+            "Isola words when the game's string 0x48 says \"left the tribe\"); once armed, VvfpFogNoticeTaken makes "
+            "the file. Start Over deletes the save's folder (native/shared/save_reset.c) and VvfpStoryVillageReset "
+            "drops a waiting notice (VvfpFogNoticeVillageReset), so a new village is told again; a waiting notice of "
+            "another slot is dropped.",
+        ],
+        "needs_on": [
+            {"id": "vv5_story_cheat_upgrades",
+             "for": "the popup, which that patch's DLL shows (without it the drop is still turned away, with no "
+                    "popup)"},
         ],
         "explicit_non_changes": [
             "No executable byte is patched: the companion splices the one site at run time, only after verifying its "
