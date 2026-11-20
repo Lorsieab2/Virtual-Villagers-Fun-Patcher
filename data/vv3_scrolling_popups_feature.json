@@ -31,7 +31,7 @@
     {
       "source": "assets/scrolling_popups/VVFP Scrolling Popups.dll",
       "destination": "VVFP Scrolling Popups.dll",
-      "sha256": "CF979A9A5FABB4A522A0048745F927A0160BCBFF17CB582801ADF7EF70FB5851"
+      "sha256": "617B09BE1FF17DDDE6E2F0946497ACB3676C74563BADB551D4F48A6FD338544C"
     }
   ],
   "patches": [],

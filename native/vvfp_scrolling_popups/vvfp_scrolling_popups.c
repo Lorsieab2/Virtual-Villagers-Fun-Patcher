@@ -1049,6 +1049,131 @@ static const char *sp_whole(const char *shown) {
     return NULL;
 }
 
+/* ---- Lines wider than the box wrap (A New Home, The Lost Children) -------------------------------------------------
+
+   The first two games' island-event texts are broken into lines by hand ('\n'), some spaced out to look justified
+   ("As  *  approaches  the  mysterious  visage,"); a long full name or a translation makes such a line wider than the
+   box, which would then scroll sideways.  Instead, a line (after the first, which the dialog draws on its own) wider
+   than `width` is wrapped as text wraps: its words one space apart, in as many lines no wider than `width` as it needs
+   -- a word wider than the box alone on its line (the one case that scrolls sideways).  Every other line, and every
+   line break, is kept as it is.  The wrapped text is kept (two at a time) while the text, the width and the font stay
+   the same; NULL when every line fits. */
+typedef struct sp_fit_memo {
+    unsigned int hash;
+    int len, width;
+    void *font;
+    char *text;                   /* HeapAlloc'd, or NULL: every line fits */
+} sp_fit_memo;
+static sp_fit_memo g_fit[2];
+static int g_fit_next;
+static const unsigned char *g_fit_dialog;   /* the measured dialog drawn last and the width its lines wrap at */
+static int g_fit_w;
+
+static int sp_span_w(void *font, const char *s, const char *e) {
+    return e > s ? sp_text_w(font, sp_line_of(s, e)) : 0;
+}
+
+/* Does a line of text[p, pe) run wider than `width`? */
+static int sp_any_wide(void *font, const char *p, const char *pe, int width) {
+    const char *e;
+    while (p < pe) {
+        for (e = p; e < pe && *e != '\n'; ++e) {
+        }
+        if (sp_span_w(font, p, e) > width) {
+            return 1;
+        }
+        p = e + 1;
+    }
+    return 0;
+}
+
+static const char *sp_fit(void *font, const char *text, int width) {
+    const char *first, *p, *pe, *w, *ws;
+    char *out, *o, *line;
+    unsigned int hash;
+    int len, k;
+    sp_fit_memo *m;
+    if (font == NULL || text == NULL || width <= 0 || g_game->width_fn == 0) {
+        return NULL;
+    }
+    for (first = text; *first != 0 && *first != '\n'; ++first) {
+    }
+    if (*first == 0) {
+        return NULL;                        /* one line */
+    }
+    len = lstrlenA(text);
+    hash = sp_hash(text);
+    for (k = 0; k < 2; ++k) {
+        m = &g_fit[k];
+        if (m->hash == hash && m->len == len && m->width == width && m->font == font) {
+            return m->text;
+        }
+    }
+    m = &g_fit[g_fit_next];
+    g_fit_next = (g_fit_next + 1) % 2;
+    if (m->text != NULL) {
+        HeapFree(GetProcessHeap(), 0, m->text);
+        m->text = NULL;
+    }
+    m->hash = hash; m->len = len; m->width = width; m->font = font;
+    if (!sp_any_wide(font, first + 1, text + len, width)) {
+        return NULL;
+    }
+    out = (char *)HeapAlloc(GetProcessHeap(), 0, (SIZE_T)len + 2);
+    if (out == NULL) {
+        return NULL;
+    }
+    CopyMemory(out, text, (SIZE_T)(first + 1 - text));   /* the first line, as it is */
+    o = out + (first + 1 - text);
+    p = first + 1;
+    while (*p != 0) {
+        for (pe = p; *pe != 0 && *pe != '\n'; ++pe) {
+        }
+        if (sp_span_w(font, p, pe) <= width) {
+            CopyMemory(o, p, (SIZE_T)(pe - p));
+            o += pe - p;
+        } else {
+            line = o;
+            for (w = p; w < pe;) {
+                while (w < pe && (*w == ' ' || *w == '\n')) {
+                    ++w;
+                }
+                if (w >= pe) {
+                    break;
+                }
+                for (ws = w; w < pe && *w != ' ' && *w != '\n'; ++w) {
+                }
+                if (o > line) {
+                    char *gap = o;
+                    *o++ = ' ';
+                    CopyMemory(o, ws, (SIZE_T)(w - ws));
+                    o += w - ws;
+                    if (sp_span_w(font, line, o) > width) {
+                        *gap = '\n';        /* the word starts the next line */
+                        line = gap + 1;
+                    }
+                } else {
+                    CopyMemory(o, ws, (SIZE_T)(w - ws));
+                    o += w - ws;
+                }
+            }
+        }
+        p = pe;
+        if (*p == '\n') {
+            *o++ = *p++;
+        }
+    }
+    *o = 0;
+    m->text = out;
+    return out;
+}
+
+/* A measured island-event dialog's font (its text manager's). */
+static void *sp_shift_font(const sp_shift *s, const unsigned char *dialog) {
+    const unsigned char *manager = *(const unsigned char *const *)(dialog + s->font_mgr);
+    return manager != NULL ? *(void *const *)manager : NULL;
+}
+
 /* A text's size as the justified paragraph lays it out in a box `w` wide: the content's width (the box, or its
    widest word when wider) and its height wrapped at that width.  A long text is measured once while it stays the
    same (a 20,000-character text is not laid out again every frame just to be measured). */
@@ -1478,10 +1603,11 @@ static int g_asked_reserve(int h_req, int text_top, int height) {
 
 /* Caps a size asked for (a[1] width, a[2] height, a[0] the panel picture) to the screen, keeping what was asked:
    a capped height gives the width room for the vertical bar, a capped width gives the height room for the
-   horizontal bar (the asked size with that room is kept as w_eff / h_eff). */
-static void sp_cap_asked(const unsigned char *popup, unsigned int *a) {
+   horizontal bar (the asked size with that room is kept as w_eff / h_eff).  `keep_w`: the width is not capped (a
+   tutorial tip, sp_tip_narrow). */
+static void sp_cap_asked(const unsigned char *popup, unsigned int *a, int keep_w) {
     const unsigned char *pic = (const unsigned char *)(UINT_PTR)a[0];
-    int cap_w = sp_cap(sp_screen_w() - 2 * SP_MARGIN, pic != NULL ? *(const int *)(pic + 0x10) : 0);
+    int cap_w = keep_w ? 0 : sp_cap(sp_screen_w() - 2 * SP_MARGIN, pic != NULL ? *(const int *)(pic + 0x10) : 0);
     int cap_h = sp_cap(sp_screen_h() - 2 * SP_MARGIN, pic != NULL ? *(const int *)(pic + 0x14) : 0);
     sp_asked *k;
     sp_ask(popup, (int)a[1], (int)a[2]);
@@ -1544,6 +1670,19 @@ static void __stdcall sp_whole_at(const unsigned char *dialog, unsigned int *arg
             return;
         }
         whole = sp_whole(field);
+        {
+            /* lines wider than the box wrapped (sp_fit keeps the first line, which ends where this call starts) */
+            const int *panel = (const int *)(dialog + 0x14);
+            const char *nl = field, *fit;
+            while (*nl != 0 && *nl != '\n') {
+                ++nl;
+            }
+            fit = p <= nl ? sp_fit(sp_shift_font(s, dialog), whole != NULL ? whole : field,
+                                   g_fit_dialog == dialog ? g_fit_w : panel[2] - panel[0] - 2 * s->side) : NULL;
+            if (fit != NULL) {
+                whole = fit;
+            }
+        }
         if (whole != NULL) {
             args[0] = (unsigned int)(UINT_PTR)(whole + (p - field));
         }
@@ -1574,6 +1713,52 @@ static const sp_shift *sp_shift_at(unsigned int site, unsigned int vtable) {
     return NULL;
 }
 
+/* A tip asked wider than the screen holds (scroll_popup.h sp_shift wrap_w: the later three's tutorial tips, made as
+   wide as the screen and a little more, and any tip with a long line): its text is wrapped narrower by as much as the
+   panel is capped by, and the panel asks for the height of the lines that adds, so the text wraps inside the box as
+   the game wraps it and never scrolls sideways -- unless one word is wider than the box, which then sets the width.
+   A tutorial tip keeps the width it asks for (its text is placed on the screen by the game; only its frame runs past
+   the sides): returns 1 for one, and its width is not capped. */
+typedef int (__fastcall *sp_wrap_h_fn)(void *font, void *edx, const char *text, int width, float scale);
+
+static int sp_tip_narrow(const sp_shift *s, unsigned char *popup, unsigned int *a) {
+    const unsigned char *pic = (const unsigned char *)(UINT_PTR)a[0], *manager;
+    const char *text;
+    void *font, *holder = sp_holder();
+    int cap_w, over, old_w, new_w, widest, old_h, new_h;
+    if (s->tutorial != 0 && popup[s->tutorial] != 0 && *(const int *)(popup + s->tutorial_on) == 0) {
+        return 1;
+    }
+    if (s->wrap_w == 0 || s->wrap_height_fn == 0 || holder == NULL) {
+        return 0;
+    }
+    cap_w = sp_cap(sp_screen_w() - 2 * SP_MARGIN, pic != NULL ? *(const int *)(pic + 0x10) : 0);
+    over = (int)a[1] - cap_w;
+    text = *(const char *const *)(popup + s->wrap_text);
+    manager = *(const unsigned char *const *)(popup + s->font_mgr);
+    font = manager != NULL ? *(void *const *)manager : NULL;
+    old_w = *(const int *)(popup + s->wrap_w);
+    if (cap_w <= 0 || over <= 0 || text == NULL || font == NULL || old_w <= 0) {
+        return 0;
+    }
+    new_w = old_w - over;
+    widest = sp_widest_word(holder, text, 0, font);
+    if (new_w < widest) {
+        new_w = widest;
+    }
+    if (new_w >= old_w || new_w <= 0) {
+        return 0;
+    }
+    old_h = ((sp_wrap_h_fn)(UINT_PTR)s->wrap_height_fn)(font, NULL, text, old_w, 1.0f);
+    new_h = ((sp_wrap_h_fn)(UINT_PTR)s->wrap_height_fn)(font, NULL, text, new_w, 1.0f);
+    *(int *)(popup + s->wrap_w) = new_w;
+    a[1] -= (unsigned int)(old_w - new_w);
+    if (new_h > old_h) {
+        a[2] += (unsigned int)(new_h - old_h);
+    }
+    return 0;
+}
+
 /* From the stub at a size site: the island-event dialog makes room for a horizontal bar when its text has a word
    wider than its box and caps the height (*set_edi = 1: the constructor centres its contents by edi); the message
    box and the panels scrolled whole (tips) cap the width and the height and keep what they asked for.  Returns the
@@ -1594,7 +1779,25 @@ static unsigned int sp_size_common(unsigned int ret, void *popup, unsigned int *
                         int height = 0, width = 0, asked_h = (int)a[2];
                         sp_asked *k;
                         if (font != NULL) {
+                            /* lines wider than the box wrapped (sp_fit), in the panel the sizer makes: the width
+                               asked for, in whole cells of its picture */
+                            const unsigned char *pic = (const unsigned char *)(UINT_PTR)a[0];
+                            int cell = pic != NULL ? *(const int *)(pic + 0x10) : 0, pw = (int)a[1], fit_h;
+                            const char *fit;
+                            if (cell > 0 && cell < 4096) {
+                                pw = (pw + cell - 1) / cell * cell;
+                            }
                             height = ((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, text);
+                            fit = sp_fit(font, text, pw - 2 * s->side);
+                            if (fit != NULL) {
+                                fit_h = ((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, fit);
+                                if (fit_h > height) {
+                                    a[2] += (unsigned int)(fit_h - height);
+                                    asked_h = (int)a[2];
+                                }
+                                height = fit_h;
+                                text = fit;
+                            }
                             width = ((sp_width_fn)(UINT_PTR)g_game->width_fn)(font, NULL, text, 1.0f);
                         }
                         if (sp_op_query((const unsigned char *)popup)) {
@@ -1612,13 +1815,14 @@ static unsigned int sp_size_common(unsigned int ret, void *popup, unsigned int *
                         if (width > (int)a[1] - 2 * s->side && sp_art_ready()) {
                             a[2] += (unsigned int)(SP_HBAR_GAP + sp_hbar_h());   /* room for the horizontal bar */
                         }
-                        sp_cap_asked((const unsigned char *)popup, a);
+                        sp_cap_asked((const unsigned char *)popup, a, 0);
                         k = (sp_asked *)sp_asked_for((const unsigned char *)popup);
                         if (k != NULL) {
                             k->reserve = g_asked_reserve(asked_h, s->text_top, height) + room;   /* + extra buttons */
                         }
                     } else {
-                        sp_cap_asked((const unsigned char *)popup, a);
+                        int keep_w = s != NULL ? sp_tip_narrow(s, (unsigned char *)popup, a) : 0;
+                        sp_cap_asked((const unsigned char *)popup, a, keep_w);
                     }
                 }
             } __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -2064,12 +2268,29 @@ static int sp_measured_body(const sp_shift *s, const sp_asked *asked, unsigned c
     if (font == NULL || g_game->height_fn == 0 || g_game->width_fn == 0) {
         return 0;
     }
-    height = ((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, text);
-    width = ((sp_width_fn)(UINT_PTR)g_game->width_fn)(font, NULL, text, 1.0f);
     top = *(const int *)(dialog + s->yfield) + s->text_top;
     bottom = panel[3] - asked->reserve;
     bx = panel[0] + s->side;
     bw = pw - 2 * s->side;
+    {
+        /* lines wider than the box wrapped (sp_fit), as the body draw draws them (sp_whole_at); at the narrower box a
+           vertical bar leaves (sp_scroll) when the text is taller than its room */
+        const char *shown = text, *fit = sp_fit(font, shown, bw);
+        int room_r = panel[2] - s->side / 3, vw = sp_art_ready() ? room_r - g_track.w - SP_GAP - bx : bw, tall;
+        text = fit != NULL ? fit : shown;
+        height = ((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, text);
+        tall = sp_op_query(dialog) ? height + sp_rows_h(font) > panel[3] - g_op.r.reserve - (panel[1] + s->text_top)
+                                   : !(top >= panel[1] && top + height <= bottom);
+        g_fit_dialog = dialog;
+        g_fit_w = bw;
+        if (tall && vw > 0 && vw < bw) {
+            g_fit_w = vw;
+            fit = sp_fit(font, shown, vw);
+            text = fit != NULL ? fit : shown;
+            height = ((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, text);
+        }
+    }
+    width = ((sp_width_fn)(UINT_PTR)g_game->width_fn)(font, NULL, text, 1.0f);
     if (sp_op_query(dialog)) {
         /* one_popup.h: the whole body (the title, the villager's picture, the text) and the rows after it, from
            the top of the panel's room down to the companion's OK room; always drawn so (the rows are ours). */
