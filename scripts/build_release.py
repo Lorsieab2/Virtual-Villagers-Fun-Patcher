@@ -779,6 +779,8 @@ FILES = [
     "src/vv_game_mechanics_vv3.py",
     "src/vv_game_mechanics_vv4.py",
     "src/vv_game_mechanics_vv5.py",
+    # The Secret City's Tribal Chief (Directing work), imported by vv_game_mechanics_vv3.
+    "src/vv_game_mechanics_chief_vv3.py",
     "src/vv_game_mechanics_powers_vv5.py",
     "src/vv_game_mechanics_life.py",
     "src/vv_game_mechanics_nursery.py",
